@@ -56,219 +56,225 @@ variables:
 
 #### stage:                        check
 
-check-std:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
-      done
+# check-std:
+#   stage:                           check
+#   <<:                              *docker-env
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
+# check-wasm:
+#   stage:                           check
+#   <<:                              *docker-env
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
 
-#### stage:                        workspace
+# #### stage:                        workspace
 
-build-std:
+# build-std:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-std
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
+#       done
+
+# build-wasm:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-wasm
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+#       done
+
+# test:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-std
+#   script:
+#     - cargo test --verbose --all-features --no-fail-fast --workspace
+
+# codecov:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-std
+#   variables:
+#     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
+#     CARGO_INCREMENTAL:             0
+#     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
+#                                       -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
+#     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+#     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
+#     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+#     # We removed the `-Cinline-threshold=0` flag from the above `RUSTFLAGS` since it was bugged
+#     # at the time and lead to inlining of functions that shouldn't be inlined for the coverage
+#     # report. (More information here: https://github.com/Kogia-sima/rust-covfix/issues/2)
+#   script:
+#     # RUSTFLAGS are the cause target cache can't be used here
+#     - unset "CARGO_TARGET_DIR"
+#     - cargo clean
+#     - cargo test --verbose --all-features --no-fail-fast --workspace
+#     - cargo build --verbose --all-features --workspace
+#     # coverage with branches
+#     - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
+#     - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
+#     # We'd like to not use a remote bash script for uploading the coverage reports,
+#     # however this job seems to be more tricky than we hoped.
+#     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+#     # lines coverage
+#     - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
+#     - rust-covfix -o lcov-lines.info lcov-lines.info
+#     - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
+
+# clippy-std:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-std
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+#       done
+
+# clippy-wasm:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - check-wasm
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+#       done
+
+# fmt:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   script:
+#     - cargo fmt --verbose --all -- --check
+
+miri-test:
   stage:                           workspace
   <<:                              *docker-env
-  needs:
-    - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-build-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-test:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - cargo test --verbose --all-features --no-fail-fast --workspace
-
-codecov:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  variables:
-    # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-    CARGO_INCREMENTAL:             0
-    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                      -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
-    # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
-    # produces better results for Rust codebases in general. However, unlike `grcov` it requires
-    # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-    # We removed the `-Cinline-threshold=0` flag from the above `RUSTFLAGS` since it was bugged
-    # at the time and lead to inlining of functions that shouldn't be inlined for the coverage
-    # report. (More information here: https://github.com/Kogia-sima/rust-covfix/issues/2)
-  script:
-    # RUSTFLAGS are the cause target cache can't be used here
-    - unset "CARGO_TARGET_DIR"
-    - cargo clean
-    - cargo test --verbose --all-features --no-fail-fast --workspace
-    - cargo build --verbose --all-features --workspace
-    # coverage with branches
-    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
-    - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
-    # We'd like to not use a remote bash script for uploading the coverage reports,
-    # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
-    # lines coverage
-    - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
-    - rust-covfix -o lcov-lines.info lcov-lines.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
-
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-std
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
-      done
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - check-wasm
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
+    - cargo miri test --manifest-path crates/core/Cargo.toml
 
 
 #### stage:                        examples
 
-.update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
-# restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
-#  - cargo install cargo-contract || echo $?
-  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
-  - cargo contract -V
+# .update-cargo-contract:            &update-cargo-contract
+#   # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
+# # restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
+# #  - cargo install cargo-contract || echo $?
+#   - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
+#   - cargo contract -V
 
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - clippy-std
-  script:
-    - for example in examples/*/; do
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
+# examples-test:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - clippy-std
+#   script:
+#     - for example in examples/*/; do
+#         cargo test --verbose --manifest-path ${example}/Cargo.toml;
+#       done
 
-examples-fmt:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
+# examples-fmt:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in examples/*/; do
+#         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+#       done
 
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - clippy-std
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
+# examples-clippy-std:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - clippy-std
+#   script:
+#     - for example in examples/*/; do
+#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+#       done
 
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
+# examples-clippy-wasm:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in examples/*/; do
+#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+#       done
 
-examples-contract-build:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract build &&
-        popd;
-      done
+# examples-contract-build:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - *update-cargo-contract
+#     - for example in examples/*/; do
+#         pushd $example &&
+#         cargo contract build &&
+#         popd;
+#       done
 
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - build-wasm
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract generate-metadata &&
-        popd;
-      done
+# examples-generate-metadata:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - build-wasm
+#   script:
+#     - *update-cargo-contract
+#     - for example in examples/*/; do
+#         pushd $example &&
+#         cargo contract generate-metadata &&
+#         popd;
+#       done
 
-#### stage:                        publish
+# #### stage:                        publish
 
-publish-docs:
-  stage:                           publish
-  <<:                              *docker-env
-  variables:
-    GIT_DEPTH:                     0
-  only:
-    - master
-    - schedules
-    - tags
-  script:
-    - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
-    # Set git config
-    - rm .git/config
-    - git config user.email "devops-team@parity.io"
-    - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    - git fetch origin gh-pages
-    # Generating Docs
-    - time cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata -p ink_core -p ink_core_derive
-        -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
-    # saving README and docs
-    - mv target/doc/ /tmp/
-    - cp README.md /tmp/doc/
-    - git checkout gh-pages
-    - mv _config.yml /tmp/doc/
-    # remove everything and restore generated docs, README and Jekyll config
-    - rm -rf ./*
-    - mv /tmp/doc/* .
-    # Upload files
-    - git add --all --force
-    - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
-    - git push origin gh-pages --force
-  after_script:
-    - rm -rf .git/ ./*
+# publish-docs:
+#   stage:                           publish
+#   <<:                              *docker-env
+#   variables:
+#     GIT_DEPTH:                     0
+#   only:
+#     - master
+#     - schedules
+#     - tags
+#   script:
+#     - rm -rf /tmp/*
+#     - unset CARGO_TARGET_DIR
+#     # Set git config
+#     - rm .git/config
+#     - git config user.email "devops-team@parity.io"
+#     - git config user.name "${GITHUB_USER}"
+#     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+#     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+#     - git fetch origin gh-pages
+#     # Generating Docs
+#     - time cargo doc --no-deps --all-features
+#         -p scale-info -p ink_metadata -p ink_core -p ink_core_derive
+#         -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
+#     # saving README and docs
+#     - mv target/doc/ /tmp/
+#     - cp README.md /tmp/doc/
+#     - git checkout gh-pages
+#     - mv _config.yml /tmp/doc/
+#     # remove everything and restore generated docs, README and Jekyll config
+#     - rm -rf ./*
+#     - mv /tmp/doc/* .
+#     # Upload files
+#     - git add --all --force
+#     - git status
+#     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+#     - git push origin gh-pages --force
+#   after_script:
+#     - rm -rf .git/ ./*
