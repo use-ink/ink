@@ -12,29 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod contract;
-mod cross_calling;
-mod dispatch;
-mod env;
-mod events;
-mod item_impls;
-mod metadata;
-mod storage;
-mod trait_def;
-mod ink_test;
+use core::convert::TryFrom;
 
-pub use self::{
-    contract::Contract,
-    cross_calling::{
-        CrossCalling,
-        CrossCallingConflictCfg,
-    },
-    dispatch::Dispatch,
-    env::Env,
-    events::Events,
-    item_impls::ItemImpls,
-    ink_test::InkTest,
-    metadata::Metadata,
-    storage::Storage,
-    trait_def::TraitDefinition,
-};
+/// The ink! test with all required information.
+pub struct InkTest {
+    /// The function which was annotated.
+    pub item_fn: syn::ItemFn,
+}
+
+impl TryFrom<syn::ItemFn> for InkTest {
+    type Error = syn::Error;
+
+    fn try_from(item_fn: syn::ItemFn) -> Result<Self, Self::Error> {
+        Ok(Self { item_fn })
+    }
+}
