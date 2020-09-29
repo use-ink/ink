@@ -60,7 +60,7 @@ check-std:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -68,7 +68,7 @@ check-wasm:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -81,7 +81,7 @@ build-std:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo build --verbose --all-features --release --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -91,7 +91,7 @@ build-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path ${crate}/Cargo.toml;
       done
 
@@ -142,7 +142,7 @@ clippy-std:
   needs:
     - check-std
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path ${crate}/Cargo.toml -- -D warnings;
       done
 
@@ -152,7 +152,7 @@ clippy-wasm:
   needs:
     - check-wasm
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in crates/${ALL_CRATES}; do
         cargo clippy --verbose --no-default-features --manifest-path ${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
