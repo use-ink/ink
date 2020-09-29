@@ -198,7 +198,11 @@ mod erc721 {
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        pub fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
+        pub fn transfer(
+            &mut self,
+            destination: AccountId,
+            id: TokenId,
+        ) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
