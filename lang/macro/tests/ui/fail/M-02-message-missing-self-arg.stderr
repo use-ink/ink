@@ -1,7 +1,6 @@
-error: ink! messages and methods must have a `self` receiver
- --> $DIR/M-02-message-missing-self-arg.rs:3:1
-  |
-3 | #[ink::contract(version = "0.1.0")]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in an attribute macro (in Nightly builds, run with -Z macro-backtrace for more info)
+error: ink! messages must have `&self` or `&mut self` receiver
+  --> $DIR/M-02-message-missing-self-arg.rs:14:9
+   |
+14 | /         #[ink(message)]
+15 | |         pub fn missing_self_arg() {}
+   | |____________________________________^

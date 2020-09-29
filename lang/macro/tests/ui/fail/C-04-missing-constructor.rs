@@ -1,13 +1,13 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod noop {
     #[ink(storage)]
-    struct Noop {}
+    pub struct Noop {}
 
     impl Noop {
         #[ink(message)]
-        fn noop(&self) {}
+        pub fn noop(&self) {}
     }
 }
 

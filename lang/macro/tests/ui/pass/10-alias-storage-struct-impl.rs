@@ -5,9 +5,11 @@ mod noop {
     #[ink(storage)]
     pub struct Noop {}
 
-    impl Noop {
+    pub type NoopAlias = Noop;
+
+    impl NoopAlias {
         #[ink(constructor)]
-        pub fn invalid_self_val(self) -> Self {
+        pub fn new() -> Self {
             Self {}
         }
 

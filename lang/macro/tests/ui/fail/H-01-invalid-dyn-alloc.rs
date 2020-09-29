@@ -1,18 +1,18 @@
 use ink_lang as ink;
 
-#[ink::contract(version = "foo")]
+#[ink::contract(dynamic_storage_allocator = "foo")]
 mod invalid_version {
     #[ink(storage)]
-    struct InvalidVersion {}
+    pub struct InvalidVersion {}
 
     impl InvalidVersion {
         #[ink(constructor)]
-        fn constructor() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        fn message(&self) {}
+        pub fn message(&self) {}
     }
 }
 
