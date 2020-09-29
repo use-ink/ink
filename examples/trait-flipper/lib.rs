@@ -18,14 +18,14 @@ use ink_lang as ink;
 
 #[ink::trait_definition]
 pub trait Flip {
-    // / Creates a new flipper smart contract initialized with the given value.
+    /// Creates a new flipper smart contract initialized with the given value.
     #[ink(constructor)]
     fn new(init_value: bool) -> Self;
 
-    // / Flips the current value of the Flipper's bool.
+    /// Flips the current value of the Flipper's bool.
     #[ink(message)]
     fn flip(&mut self);
-    // / Returns the current value of the Flipper's bool.
+    /// Returns the current value of the Flipper's bool.
     #[ink(message)]
     fn get(&self) -> bool;
 }
@@ -40,7 +40,7 @@ pub mod flipper {
     }
 
     impl Flipper {
-        // / Creates a new flipper smart contract initialized to `false`.
+        /// Creates a new flipper smart contract initialized to `false`.
         #[ink(constructor)]
         pub fn default() -> Self {
             Self::new(Default::default())
