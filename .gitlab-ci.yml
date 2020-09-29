@@ -162,6 +162,12 @@ fmt:
   script:
     - cargo fmt --verbose --all -- --check
 
+miri-test:
+  stage:                           workspace
+  <<:                              *docker-env
+  script:
+    - cargo miri test --manifest-path crates/core/Cargo.toml
+
 
 #### stage:                        examples
 
