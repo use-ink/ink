@@ -43,7 +43,11 @@ impl AsRef<ir::Contract> for ItemImpls<'_> {
 
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let item_impls = self.contract.module().impls().map(Self::generate_item_impl);
+        let item_impls = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| self.generate_item_impl(item_impl));
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
@@ -231,11 +235,30 @@ impl ItemImpls<'_> {
         )
     }
 
+    /// Generates code to guard against ink! implementations that have not been implemented
+    /// for the ink! storage struct.
+    fn generate_item_impl_self_ty_guard(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
+        let self_ty = item_impl.self_type();
+        let span = self_ty.span();
+        let storage_ident = self.contract.module().storage().ident();
+        quote_spanned!(span =>
+            ::ink_lang::static_assertions::assert_type_eq_all!(
+                #self_ty,
+                #storage_ident,
+            );
+        )
+    }
+
     /// Generates code for the given ink! implementation block.
-    fn generate_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
-        match item_impl.trait_path() {
+    fn generate_item_impl(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
+        let self_ty_guard = self.generate_item_impl_self_ty_guard(item_impl);
+        let impl_block = match item_impl.trait_path() {
             Some(_) => Self::generate_trait_item_impl(item_impl),
             None => Self::generate_inherent_item_impl(item_impl),
+        };
+        quote! {
+            #self_ty_guard
+            #impl_block
         }
     }
 }
