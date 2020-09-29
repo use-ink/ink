@@ -1,1 +1,1 @@
-initSidebarItems({"attr":[["contract",""],["test",""]]});
+initSidebarItems({"attr":[["contract",""],["test",""],["trait_definition",""]]});

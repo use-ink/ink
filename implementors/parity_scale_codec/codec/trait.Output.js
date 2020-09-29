@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["ink_core"] = [{"text":"impl&lt;H, S&gt; Output for <a class=\"struct\" href=\"ink_core/hash/struct.HashBuilder.html\" title=\"struct ink_core::hash::HashBuilder\">HashBuilder</a>&lt;H, S&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S: <a class=\"trait\" href=\"ink_core/hash/trait.Accumulator.html\" title=\"trait ink_core::hash::Accumulator\">Accumulator</a>,&nbsp;</span>","synthetic":false,"types":["ink_core::hash::builder::HashBuilder"]}];
+implementors["ink_core"] = [{"text":"impl&lt;H, S&gt; Output for HashBuilder&lt;H, S&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;S: Accumulator,&nbsp;</span>","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
