@@ -321,7 +321,6 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The parameters of the message.
     args: Vec<MessageParamSpec<F>>,
     /// The return type of the message.
-    #[serde(rename = "returnType")]
     return_type: ReturnTypeSpec<F>,
     /// The message documentation.
     docs: Vec<&'static str>,
