@@ -35,6 +35,6 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 pub use contract::generate_or_err;
 
 #[proc_macro_attribute]
-pub fn test(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    ink_test::generate(item.into()).into()
+pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
+    ink_test::generate(attr.into(), item.into()).into()
 }

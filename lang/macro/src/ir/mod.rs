@@ -35,7 +35,6 @@ pub use self::{
         FunctionSelector,
         IdentType,
         InkItem,
-        InkTest,
         Item,
         ItemEvent,
         ItemImpl,

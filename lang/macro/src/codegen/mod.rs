@@ -46,7 +46,6 @@ mod cross_calling;
 mod dispatch;
 mod env_types;
 mod events;
-mod ink_test;
 mod metadata;
 mod storage;
 
