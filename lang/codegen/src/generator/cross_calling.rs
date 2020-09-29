@@ -245,6 +245,7 @@ impl CrossCalling<'_> {
             ir::Receiver::RefMut => Some(quote! { &mut self }),
         };
         quote_spanned!(span=>
+            #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_core::env::call::CallBuilder<
                 EnvTypes,
                 ::ink_core::env::call::utils::Set<AccountId>,
@@ -422,6 +423,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
+            #[allow(clippy::type_complexity)]
             #pub_tok fn #ident(
                 self,
                 #( #input_bindings : #input_types ),*
@@ -612,6 +614,7 @@ impl CrossCalling<'_> {
             .collect::<Vec<_>>();
         let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         quote_spanned!(span =>
+            #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_core::env::call::CreateBuilder<
                 EnvTypes,
                 ::ink_core::env::call::utils::Unset<Hash>,
@@ -712,6 +715,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             #[inline]
+            #[allow(clippy::type_complexity)]
             pub fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_core::env::call::CreateBuilder<
