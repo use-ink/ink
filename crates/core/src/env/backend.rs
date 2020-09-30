@@ -128,22 +128,6 @@ pub trait Env {
         H: CryptoHash,
         T: scale::Encode;
 
-    /// Conducts the SHA2 256-bit hash of the encoded input and
-    /// puts the result into the output buffer.
-    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]);
-
-    /// Conducts the KECCAK 256-bit hash of the raw byte input and
-    /// puts the result into the output buffer.
-    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]);
-
-    /// Conducts the BLAKE2 256-bit hash of the raw byte input and
-    /// puts the result into the output buffer.
-    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]);
-
-    /// Conducts the BLAKE2 128-bit hash of the raw byte input and
-    /// puts the result into the output buffer.
-    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
-
     /// Calls the chain extension with the given ID and inputs.
     ///
     /// Returns the output of the chain extension of the specified type.

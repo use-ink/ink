@@ -64,5 +64,4 @@ extern crate ink_alloc;
 extern crate quickcheck_macros;
 
 pub mod env;
-pub mod hash;
 pub mod storage;
