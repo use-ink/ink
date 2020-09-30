@@ -37,6 +37,71 @@ use ink_primitives::Key;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct DynamicAllocation(pub(super) u32);
 
+/// Wraps a bytes buffer and turns it into an accumulator.
+///
+/// # Panics
+///
+/// Upon hash calculation if the underlying buffer length does not suffice the
+/// needs of the accumulated hash buffer.
+struct Wrap<'a> {
+    /// The underlying wrapped buffer.
+    buffer: &'a mut [u8],
+    /// The current length of the filled area.
+    len: usize,
+}
+
+impl Wrap<'_> {
+    /// Returns the capacity of the underlying buffer.
+    fn capacity(&self) -> usize {
+        self.buffer.len()
+    }
+
+    /// Returns the length of the underlying buffer.
+    fn len(&self) -> usize {
+        self.len
+    }
+
+    /// Appends the given bytes to the end of the wrapped buffer.
+    fn append_bytes(&mut self, bytes: &[u8]) {
+        debug_assert!(self.len() + bytes.len() <= self.capacity());
+        let len = self.len;
+        let bytes_len = bytes.len();
+        self.buffer[len..(len + bytes_len)].copy_from_slice(bytes);
+        self.len += bytes_len;
+    }
+}
+
+#[cfg(feature = "std")]
+impl<'a> std::io::Write for Wrap<'a> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.append_bytes(buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+impl<'a> From<&'a mut [u8]> for Wrap<'a> {
+    fn from(buffer: &'a mut [u8]) -> Self {
+        Self { buffer, len: 0 }
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl<'a> scale::Output for Wrap<'a> {
+    fn write(&mut self, bytes: &[u8]) {
+        self.append_bytes(bytes)
+    }
+
+    fn push_byte(&mut self, byte: u8) {
+        debug_assert!(self.len() < self.capacity());
+        self.buffer[self.len] = byte;
+        self.len += 1;
+    }
+}
+
 impl DynamicAllocation {
     /// Returns the allocation identifier as `u32`.
     pub(super) fn get(self) -> u32 {
@@ -77,7 +142,10 @@ impl DynamicAllocation {
             b'A', b'L', b'L', b'O', b'C', b'A', b'T', b'E', b'D',
             b'_', b'_', b'_', b'_',
         ];
-        <u32 as scale::Encode>::encode_to(&self.0, &mut &mut buffer[21..25]);
+        {
+            let mut wrapped = Wrap::from(&mut buffer[21..25]);
+            <u32 as scale::Encode>::encode_to(&self.0, &mut wrapped);
+        }
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         <Blake2x256 as CryptoHash>::hash(&buffer, &mut output);
         Key::from(output)
