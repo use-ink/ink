@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::hash::{
+use crate::env::hash::{
     Blake2x256,
-    Wrap,
+    CryptoHash,
+    HashOutput,
 };
 use ink_primitives::Key;
 
@@ -53,6 +54,22 @@ impl DynamicAllocation {
         // Since ink! always runs single threaded we could make this buffer
         // static and instead reuse its contents with every invocation of this
         // method. However, this would introduce `unsafe` Rust usage.
+        pub struct EncodeWrapper(u32);
+        impl scale::Encode for EncodeWrapper {
+            #[rustfmt::skip]
+            fn encode_to<O>(&self, output: &mut O)
+            where
+                O: scale::Output,
+            {
+                <[u8; 21] as scale::Encode>::encode_to(&[
+                    b'D', b'Y', b'N', b'A', b'M', b'I', b'C', b'A', b'L', b'L', b'Y',
+                    b' ',
+                    b'A', b'L', b'L', b'O', b'C', b'A', b'T', b'E', b'D',
+                ], output);
+                <u32 as scale::Encode>::encode_to(&self.0, output);
+            }
+        }
+        // Encode the `u32` identifier requires a 4 bytes buffer.
         #[rustfmt::skip]
         let mut buffer: [u8; 25] = [
             b'D', b'Y', b'N', b'A', b'M', b'I', b'C', b'A', b'L', b'L', b'Y',
@@ -60,11 +77,9 @@ impl DynamicAllocation {
             b'A', b'L', b'L', b'O', b'C', b'A', b'T', b'E', b'D',
             b'_', b'_', b'_', b'_',
         ];
-        // Encode the `u32` identifier requires a 4 bytes buffer.
-        let mut hash_buffer = Wrap::from(&mut buffer[21..25]);
-        <u32 as scale::Encode>::encode_to(&self.0, &mut hash_buffer);
-        let mut output = [0x00_u8; 32];
-        <Blake2x256>::hash_bytes_using(&buffer, &mut output);
+        <u32 as scale::Encode>::encode_to(&self.0, &mut &mut buffer[21..25]);
+        let mut output = <Blake2x256 as HashOutput>::Type::default();
+        <Blake2x256 as CryptoHash>::hash(&buffer, &mut output);
         Key::from(output)
     }
 }
