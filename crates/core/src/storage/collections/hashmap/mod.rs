@@ -32,9 +32,10 @@ pub use self::iter::{
     ValuesMut,
 };
 use crate::{
-    hash::hasher::{
-        Blake2x256Hasher,
-        Hasher,
+    env::hash::{
+        Blake2x256,
+        CryptoHash,
+        HashOutput,
     },
     storage::{
         collections::Stash,
@@ -81,12 +82,12 @@ type KeyIndex = u32;
 /// Users should generally prefer using this storage hash map over the low-level
 /// `LazyHashMap` for direct usage in their smart contracts.
 #[derive(Debug)]
-pub struct HashMap<K, V, H = Blake2x256Hasher>
+pub struct HashMap<K, V, H = Blake2x256>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// The keys of the storage hash map.
     keys: Stash<K>,
@@ -149,8 +150,8 @@ impl<K, V, H> HashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Creates a new empty storage hash map.
     pub fn new() -> Self {
@@ -238,8 +239,8 @@ impl<K, V, H> HashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn clear_cells(&self) {
         if self.values.key().is_none() {
@@ -264,8 +265,8 @@ impl<K, V, H> HashMap<K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Inserts a key-value pair into the map.
     ///

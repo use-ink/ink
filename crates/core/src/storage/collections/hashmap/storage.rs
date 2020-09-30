@@ -19,7 +19,10 @@ use super::{
     ValueEntry,
 };
 use crate::{
-    hash::hasher::Hasher,
+    env::hash::{
+        CryptoHash,
+        HashOutput,
+    },
     storage::{
         collections::Stash as StorageStash,
         traits::{
@@ -54,8 +57,8 @@ const _: () = {
     where
         K: TypeInfo + Ord + Clone + PackedLayout + 'static,
         V: TypeInfo + PackedLayout + 'static,
-        H: LayoutCryptoHasher + Hasher,
-        Key: From<<H as Hasher>::Output>,
+        H: LayoutCryptoHasher + CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![
@@ -113,8 +116,8 @@ impl<K, V, H> SpreadLayout for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     const FOOTPRINT: u64 = 1 + <StorageStash<K> as SpreadLayout>::FOOTPRINT;
 

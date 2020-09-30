@@ -14,7 +14,6 @@
 
 use crate::{
     env,
-    hash::hasher::Blake2x256Hasher,
     storage::traits::{
         KeyPtr,
         SpreadLayout,
@@ -422,7 +421,7 @@ macro_rules! gen_tests_for_backend {
 mod lazyhmap_backend {
     use super::*;
     use crate::{
-        hash::hasher::Blake2x256Hasher,
+        env::hash::Blake2x256,
         storage::lazy::lazy_hmap::{
             Entry,
             Entry::{
@@ -433,19 +432,22 @@ mod lazyhmap_backend {
         },
     };
 
-    gen_tests_for_backend!(LazyHashMap<u8, i32, Blake2x256Hasher>);
+    gen_tests_for_backend!(LazyHashMap<u8, i32, Blake2x256>);
 }
 
 mod hashmap_backend {
     use super::*;
-    use crate::storage::collections::hashmap::{
-        Entry,
-        Entry::{
-            Occupied,
-            Vacant,
+    use crate::{
+        env::hash::Blake2x256,
+        storage::collections::hashmap::{
+            Entry,
+            Entry::{
+                Occupied,
+                Vacant,
+            },
+            HashMap as StorageHashMap,
         },
-        HashMap as StorageHashMap,
     };
 
-    gen_tests_for_backend!(StorageHashMap<u8, i32, Blake2x256Hasher>);
+    gen_tests_for_backend!(StorageHashMap<u8, i32, Blake2x256>);
 }

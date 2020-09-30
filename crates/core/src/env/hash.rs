@@ -19,7 +19,7 @@ pub trait HashOutput: private::Sealed {
     /// The output type of the crypto hash.
     ///
     /// This should be a byte array with some constant size such as `[u8; 32]`.
-    type Type;
+    type Type: Default;
 }
 
 /// Types that are usable as built-in cryptographic hashes.
@@ -29,19 +29,19 @@ pub trait CryptoHash: HashOutput + private::Sealed {
 }
 
 /// The SHA2 crypto hash with 256-bit output.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Sha2x256 {}
 
 /// The KECCAK crypto hash with 256-bit output.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Keccak256 {}
 
 /// The BLAKE2 crypto hash with 256-bit output.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Blake2x256 {}
 
 /// The BLAKE2 crypto hash with 128-bit output.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Blake2x128 {}
 
 mod private {
