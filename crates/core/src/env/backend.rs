@@ -18,6 +18,10 @@ use crate::env::{
         CallParams,
         CreateParams,
     },
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     EnvTypes,
     Result,
     Topics,
@@ -49,60 +53,6 @@ impl ReturnFlags {
     pub(crate) fn into_u32(self) -> u32 {
         self.value
     }
-}
-
-/// The output type of a built-in cryptographic hash function.
-pub trait HashOutput: Sealed {
-    /// The output type of the crypto hash.
-    ///
-    /// This should be a byte array with some constant size such as `[u8; 32]`.
-    type Type;
-}
-
-/// Types that are usable as built-in cryptographic hashes.
-pub trait CryptoHash: HashOutput + Sealed {
-    /// Hashes the given raw byte input and copies the result into `output`.
-    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type);
-}
-
-/// Seals the implementation of `CryptoHash` and `HashOutput`.
-pub trait Sealed {}
-
-/// The SHA2 crypto hash with 256-bit output.
-#[derive(Debug)]
-pub enum Sha2x256 {}
-
-/// The KECCAK crypto hash with 256-bit output.
-#[derive(Debug)]
-pub enum Keccak256 {}
-
-/// The BLAKE2 crypto hash with 256-bit output.
-#[derive(Debug)]
-pub enum Blake2x256 {}
-
-/// The BLAKE2 crypto hash with 128-bit output.
-#[derive(Debug)]
-pub enum Blake2x128 {}
-
-impl Sealed for Sha2x256 {}
-impl Sealed for Keccak256 {}
-impl Sealed for Blake2x256 {}
-impl Sealed for Blake2x128 {}
-
-impl HashOutput for Sha2x256 {
-    type Type = [u8; 32];
-}
-
-impl HashOutput for Keccak256 {
-    type Type = [u8; 32];
-}
-
-impl HashOutput for Blake2x256 {
-    type Type = [u8; 32];
-}
-
-impl HashOutput for Blake2x128 {
-    type Type = [u8; 16];
 }
 
 /// Environmental contract functionality that does not require `EnvTypes`.

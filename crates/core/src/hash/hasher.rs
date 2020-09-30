@@ -41,7 +41,7 @@ macro_rules! impl_hasher_for {
             type Output = [u8; $output_len];
 
             fn finalize_immediate(input: &[u8], output: &mut Self::Output) {
-                crate::env::hash::$fn_name(input, output)
+                crate::env::hash_old::$fn_name(input, output)
             }
         }
     };

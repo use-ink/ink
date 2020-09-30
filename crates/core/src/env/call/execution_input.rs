@@ -222,7 +222,7 @@ mod tests {
     fn empty_args_works() {
         let empty_list = ArgumentList::empty();
         let encoded = scale::Encode::encode(&empty_list);
-        assert_eq!(encoded, Vec::new());
+        assert_eq!(encoded, <Vec<u8>>::new());
     }
 
     #[test]

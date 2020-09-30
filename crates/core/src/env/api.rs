@@ -15,9 +15,11 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::env::{
-    backend::{
+    hash::{
         CryptoHash,
         HashOutput,
+    },
+    backend::{
         Env,
         ReturnFlags,
         TypedEnv,
@@ -533,7 +535,7 @@ where
 }
 
 /// Built-in efficient cryptographic hash functions.
-pub mod hash {
+pub mod hash_old {
     use super::*;
 
     macro_rules! impl_hash_fn {
