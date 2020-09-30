@@ -16,6 +16,8 @@
 
 use crate::env::{
     backend::{
+        CryptoHash,
+        HashOutput,
         Env,
         ReturnFlags,
         TypedEnv,
@@ -511,6 +513,23 @@ where
 /// Prints the given contents to the environmental log.
 pub fn println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
+}
+
+/// Conducts the crypto hash of the given input and stores the result in `output`.
+pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
+where
+    H: CryptoHash,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.hash_bytes::<H>(input, output))
+}
+
+/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+pub fn hash_encoded<H, T>(input: &T, output: &mut <H as HashOutput>::Type)
+where
+    H: CryptoHash,
+    T: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| instance.hash_encoded::<H, T>(input, output))
 }
 
 /// Built-in efficient cryptographic hash functions.

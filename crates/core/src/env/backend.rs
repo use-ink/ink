@@ -51,6 +51,60 @@ impl ReturnFlags {
     }
 }
 
+/// The output type of a built-in cryptographic hash function.
+pub trait HashOutput: Sealed {
+    /// The output type of the crypto hash.
+    ///
+    /// This should be a byte array with some constant size such as `[u8; 32]`.
+    type Type;
+}
+
+/// Types that are usable as built-in cryptographic hashes.
+pub trait CryptoHash: HashOutput + Sealed {
+    /// Hashes the given raw byte input and copies the result into `output`.
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type);
+}
+
+/// Seals the implementation of `CryptoHash` and `HashOutput`.
+pub trait Sealed {}
+
+/// The SHA2 crypto hash with 256-bit output.
+#[derive(Debug)]
+pub enum Sha2x256 {}
+
+/// The KECCAK crypto hash with 256-bit output.
+#[derive(Debug)]
+pub enum Keccak256 {}
+
+/// The BLAKE2 crypto hash with 256-bit output.
+#[derive(Debug)]
+pub enum Blake2x256 {}
+
+/// The BLAKE2 crypto hash with 128-bit output.
+#[derive(Debug)]
+pub enum Blake2x128 {}
+
+impl Sealed for Sha2x256 {}
+impl Sealed for Keccak256 {}
+impl Sealed for Blake2x256 {}
+impl Sealed for Blake2x128 {}
+
+impl HashOutput for Sha2x256 {
+    type Type = [u8; 32];
+}
+
+impl HashOutput for Keccak256 {
+    type Type = [u8; 32];
+}
+
+impl HashOutput for Blake2x256 {
+    type Type = [u8; 32];
+}
+
+impl HashOutput for Blake2x128 {
+    type Type = [u8; 16];
+}
+
 /// Environmental contract functionality that does not require `EnvTypes`.
 pub trait Env {
     /// Writes the value to the contract storage under the given key.
@@ -113,19 +167,30 @@ pub trait Env {
     /// Prints the given contents to the console log.
     fn println(&mut self, content: &str);
 
-    /// Conducts the SHA2 256-bit hash of the input
+    /// Conducts the crypto hash of the given input and stores the result in `output`.
+    fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash;
+
+    /// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+    fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+        T: scale::Encode;
+
+    /// Conducts the SHA2 256-bit hash of the encoded input and
     /// puts the result into the output buffer.
     fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]);
 
-    /// Conducts the KECCAK 256-bit hash of the input
+    /// Conducts the KECCAK 256-bit hash of the raw byte input and
     /// puts the result into the output buffer.
     fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]);
 
-    /// Conducts the BLAKE2 256-bit hash of the input
+    /// Conducts the BLAKE2 256-bit hash of the raw byte input and
     /// puts the result into the output buffer.
     fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]);
 
-    /// Conducts the BLAKE2 128-bit hash of the input
+    /// Conducts the BLAKE2 128-bit hash of the raw byte input and
     /// puts the result into the output buffer.
     fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
 

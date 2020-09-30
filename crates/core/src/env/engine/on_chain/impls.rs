@@ -20,19 +20,61 @@ use super::{
 };
 use crate::env::{
     call::{
+        utils::ReturnType,
         CallParams,
         CreateParams,
-        utils::ReturnType,
     },
+    Blake2x128,
+    Blake2x256,
+    CryptoHash,
     Env,
     EnvError,
     EnvTypes,
+    Keccak256,
+    HashOutput,
     Result,
     ReturnFlags,
+    Sha2x256,
     Topics,
     TypedEnv,
 };
 use ink_primitives::Key;
+
+impl CryptoHash for Blake2x128 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 16];
+        static_assertions::assert_type_eq_all!(<Blake2x128 as HashOutput>::Type, OutputType);
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        ext::hash_blake2_128(input, output);
+    }
+}
+
+impl CryptoHash for Blake2x256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(<Blake2x256 as HashOutput>::Type, OutputType);
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        ext::hash_blake2_256(input, output);
+    }
+}
+
+impl CryptoHash for Sha2x256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(<Sha2x256 as HashOutput>::Type, OutputType);
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        ext::hash_sha2_256(input, output);
+    }
+}
+
+impl CryptoHash for Keccak256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(<Keccak256 as HashOutput>::Type, OutputType);
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        ext::hash_keccak_256(input, output);
+    }
+}
 
 impl From<ext::Error> for EnvError {
     fn from(ext_error: ext::Error) -> Self {
@@ -141,6 +183,23 @@ impl Env for EnvInstance {
         ext::println(content)
     }
 
+    fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+    {
+        <H as CryptoHash>::hash(input, output)
+    }
+
+    fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+        T: scale::Encode,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_input = scope.take_encoded(input);
+        <H as CryptoHash>::hash(enc_input, output)
+    }
+
     fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
         ext::hash_keccak_256(input, output)
     }
@@ -158,11 +217,7 @@ impl Env for EnvInstance {
     }
 
     #[cfg(feature = "ink-unstable-chain-extensions")]
-    fn call_chain_extension<I, O>(
-        &mut self,
-        func_id: u32,
-        input: &I,
-    ) -> Result<O>
+    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
         I: scale::Encode,
         O: scale::Decode,

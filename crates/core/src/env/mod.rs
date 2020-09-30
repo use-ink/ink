@@ -38,7 +38,15 @@ use self::backend::{
 };
 pub use self::{
     api::*,
-    backend::ReturnFlags,
+    backend::{
+        HashOutput,
+        Blake2x128,
+        Blake2x256,
+        CryptoHash,
+        Keccak256,
+        ReturnFlags,
+        Sha2x256,
+    },
     error::{
         EnvError,
         Result,
