@@ -53,7 +53,6 @@ use ink_prelude::{
         Entry as BTreeMapEntry,
         OccupiedEntry as BTreeMapOccupiedEntry,
     },
-    vec::Vec,
 };
 use ink_primitives::Key;
 
@@ -187,8 +186,8 @@ where
 
 #[test]
 fn debug_impl_works() {
-    use crate::hash::hasher::Blake2x256Hasher;
-    let mut hmap = <LazyHashMap<char, i32, Blake2x256Hasher>>::new();
+    use crate::env::hash::Blake2x256;
+    let mut hmap = <LazyHashMap<char, i32, Blake2x256>>::new();
     // Empty hmap.
     assert_eq!(
         format!("{:?}", &hmap),
