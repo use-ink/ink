@@ -1296,10 +1296,9 @@ mod tests {
             // Then: Compare both instances to be equal.
             let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
-            let hmap2 =
-                <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
-                    &mut KeyPtr::from(root_key),
-                );
+            let hmap2 = <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             assert_cached_entries(&hmap2, &[]);
             assert_eq!(hmap2.key(), Some(&Key::from([0x42; 32])));
             assert_eq!(hmap2.get(&1), Some(&b'A'));
@@ -1327,10 +1326,9 @@ mod tests {
             hmap2.clear_packed_at(&2);
             hmap2.clear_packed_at(&3); // Not really needed here.
             hmap2.clear_packed_at(&4); // Not really needed here.
-            let hmap3 =
-                <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
-                    &mut KeyPtr::from(root_key),
-                );
+            let hmap3 = <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             assert_cached_entries(&hmap3, &[]);
             assert_eq!(hmap3.get(&1), None);
             assert_eq!(hmap3.get(&2), None);

@@ -15,10 +15,6 @@
 //! The public raw interface towards the host Wasm engine.
 
 use crate::env::{
-    hash::{
-        CryptoHash,
-        HashOutput,
-    },
     backend::{
         Env,
         ReturnFlags,
@@ -32,6 +28,10 @@ use crate::env::{
     engine::{
         EnvInstance,
         OnInstance,
+    },
+    hash::{
+        CryptoHash,
+        HashOutput,
     },
     EnvTypes,
     Result,
@@ -522,7 +522,9 @@ pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.hash_bytes::<H>(input, output))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.hash_bytes::<H>(input, output)
+    })
 }
 
 /// Conducts the crypto hash of the given encoded input and stores the result in `output`.
