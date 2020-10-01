@@ -430,7 +430,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Unsafe</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Prefer using high-level types found in `ink_core` to operate on the contract</span>
+<span class="doccomment">/// Prefer using high-level types found in `ink_storage` to operate on the contract</span>
 <span class="doccomment">/// storage.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
@@ -529,7 +529,7 @@
     <span class="doccomment">/// Returns the underlying bytes of the key.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This only works and is supported if the target machine has little-endian</span>
-    <span class="doccomment">/// byte ordering. Use [`try_as_bytes`] as a general procedure instead.</span>
+    <span class="doccomment">/// byte ordering. Use [`Key::try_as_bytes`] as a general procedure instead.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>] {
         <span class="comment">// SAFETY: This pointer cast is possible since the outer struct</span>

@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `crates/storage/src/alloc/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../ink_storage/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
+
+<span class="doccomment">//! The default dynamic storage allocator.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Allows to allocate storage cells in a dynamic fashion.</span>
+<span class="doccomment">//! This is important if users want to combine types of varying storage</span>
+<span class="doccomment">//! footprints. For example, dynamic allocations are required whenever</span>
+<span class="doccomment">//! a user wants to use a storage collection (e.g. `storage::Vec`) in</span>
+<span class="doccomment">//! another storage collection: `storage::Vec&lt;storage::Vec&lt;T&gt;&gt;`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Simplification</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The contracts pallet is using 256 bit keys for identifying storage cells.</span>
+<span class="doccomment">//! This implies a storage space of 2^256 cells which is big enough to say that</span>
+<span class="doccomment">//! there are probably never going to happen collisions anywhere at any time</span>
+<span class="doccomment">//! if keys are chosen randomly. Using the built-in crypto hashers on unique</span>
+<span class="doccomment">//! input we can be sure that there are never going to be collisions in this</span>
+<span class="doccomment">//! space of 2^256 cells.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This way we can reduce the problem of finding another region in our storage</span>
+<span class="doccomment">//! that fits certain requirements (e.g. a minimum size) to the problem of</span>
+<span class="doccomment">//! finding another uniform slot. Since we are on 32-bit WebAssembly we have</span>
+<span class="doccomment">//! memory limitations that make it impractical to have more than 2^32 dynamic</span>
+<span class="doccomment">//! allocated entities and so we can create another limitation for having a</span>
+<span class="doccomment">//! total of 2^32 dynamic allocations at any point in time.</span>
+<span class="doccomment">//! This enables us to have 32-bit keys instead of 256-bit keys.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! We can convert such 32-bit keys (represented by e.g. a `u32`) into 256-bit</span>
+<span class="doccomment">//! keys by using one of the built-in crypto hashes that has a 256-bit output,</span>
+<span class="doccomment">//! e.g. KECCAK, SHA2 or BLAKE2. For technical reasons we should prepend the</span>
+<span class="doccomment">//! bytes of the 32-bit key by some unique byte sequence, e.g.:</span>
+<span class="doccomment">//! ```no_compile</span>
+<span class="doccomment">//! let key256 = blake2x256(b&quot;DYNAMICALLY ALLOCATED&quot;, bytes(key32));</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Internals</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! As described in [# Simplification] there are 2^32 possible uniform dynamic</span>
+<span class="doccomment">//! allocations available. For each such slot the dynamic allocator stores via</span>
+<span class="doccomment">//! a single bit in a bitvector if that slot is free or occupied.</span>
+<span class="doccomment">//! This bitvector is called the `free` list.</span>
+<span class="doccomment">//! However, searching in this `free` list for a 0 bit and thus a free slot</span>
+<span class="doccomment">//! for a dynamic allocation would mean that for every 256 consecutively</span>
+<span class="doccomment">//! occupied dynamic allocations there was a contract storage lookup required.</span>
+<span class="doccomment">//! This might seem a lot but given that there could be thousands or</span>
+<span class="doccomment">//! tens of thousands of dynamic allocations at any given time this might not scale</span>
+<span class="doccomment">//! well.</span>
+<span class="doccomment">//! For the reason of improving scalability we added another vector: the</span>
+<span class="doccomment">//! so-called `set_bits` vector.</span>
+<span class="doccomment">//! In this vector every `u8` element densely stores the number of set bits</span>
+<span class="doccomment">//! (bits that are `1` or `true`) for each 256-bit package in the `free` list.</span>
+<span class="doccomment">//! (Note that the `free` list is organized in 256-bit chunks of bits.)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This way, to search for an unoccupied dynamic allocation we iterate over</span>
+<span class="doccomment">//! the set-bits vector which is 32 times more dense than our `free` list.</span>
+<span class="doccomment">//! The additional density implies that we can query up to 8192 potential</span>
+<span class="doccomment">//! dynamic storage allocations with a single contract storage look-up.</span>
+
+<span class="kw">mod</span> <span class="ident">allocation</span>;
+<span class="kw">mod</span> <span class="ident">allocator</span>;
+<span class="kw">mod</span> <span class="ident">boxed</span>;
+<span class="kw">mod</span> <span class="ident">init</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
+
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">allocator</span>::<span class="ident">DynamicAllocator</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">allocation</span>::<span class="ident">DynamicAllocation</span>,
+    <span class="ident">boxed</span>::<span class="ident">Box</span>,
+    <span class="ident">init</span>::<span class="ident">ContractPhase</span>,
+};
+
+<span class="doccomment">/// Returns a new dynamic storage allocation.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DynamicAllocation</span> {
+    <span class="ident">init</span>::<span class="ident">on_instance</span>(<span class="ident">DynamicAllocator</span>::<span class="ident">alloc</span>)
+}
+
+<span class="doccomment">/// Frees the given dynamic storage allocation.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This makes the given dynamic storage allocation available again</span>
+<span class="doccomment">/// for new dynamic storage allocations.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span>(<span class="ident">allocation</span>: <span class="ident">DynamicAllocation</span>) {
+    <span class="ident">init</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">allocator</span><span class="op">|</span> <span class="ident">allocator</span>.<span class="ident">free</span>(<span class="ident">allocation</span>))
+}
+
+<span class="doccomment">/// Tells the global dynamic storage allocator instance how it shall initialize.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Normally users of ink! do not have to call this function directly as it is</span>
+<span class="doccomment">/// automatically being use in the correct order and way by the generated code.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The `phase` parameter describes for which execution phase the dynamic</span>
+<span class="doccomment">///   storage allocator needs to be initialized since this is different</span>
+<span class="doccomment">///   in contract instantiations and calls.</span>
+<span class="doccomment">/// - This has to be issued before the first interaction with the global allocator.</span>
+<span class="doccomment">/// - The actual instantiation will happen only upon the first interaction with</span>
+<span class="doccomment">///   the global allocator, e.g. using its `alloc` or `free` calls. Until then</span>
+<span class="doccomment">///   it remains uninitialized.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If this function is not called before the first global allocator interaction</span>
+<span class="doccomment">/// then the default initialization scheme is for contract instantiation.</span>
+<span class="doccomment">/// However, this behavior might change and must not be relied upon.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">phase</span>: <span class="ident">ContractPhase</span>) {
+    <span class="ident">init</span>::<span class="ident">initialize</span>(<span class="ident">phase</span>);
+}
+
+<span class="doccomment">/// Finalizes the global dynamic storage allocator instance.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This pushes all the accumulated state from this contract execution back to</span>
+<span class="doccomment">/// the contract storage to be used in the next contract execution for the same</span>
+<span class="doccomment">/// contract instance.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The global dynamic storage allocator must not be used after this!</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Normally users of ink! do not have to call this function directly as it is</span>
+<span class="doccomment">/// automatically being use in the correct order and way by the generated code.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>() {
+    <span class="ident">init</span>::<span class="ident">finalize</span>()
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "ink_storage";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

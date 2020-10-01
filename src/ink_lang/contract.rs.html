@@ -34,6 +34,7 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -53,7 +54,8 @@
 
 <span class="doccomment">/// The contract dispatch mode.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Tells the [`Contract::dispatch_using_mode`] routine what to dispatch for.</span>
+<span class="doccomment">/// Tells the [`DispatchUsingMode`](`crate::DispatchUsingMode`) implementation for</span>
+<span class="doccomment">/// an ink! smart contract how to dispatch for a call.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DispatchMode</span> {
     <span class="doccomment">/// Mode for instantiating a contract.</span>

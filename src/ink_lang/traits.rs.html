@@ -110,8 +110,6 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -127,21 +125,19 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">ink_core</span>::{
-    <span class="ident">env</span>::{
-        <span class="ident">call</span>::{
-            <span class="ident">utils</span>::{
-                <span class="ident">ReturnType</span>,
-                <span class="ident">Set</span>,
-            },
-            <span class="ident">CallBuilder</span>,
-            <span class="ident">ExecutionInput</span>,
-            <span class="ident">Selector</span>,
+<span class="kw">use</span> <span class="ident">ink_env</span>::{
+    <span class="ident">call</span>::{
+        <span class="ident">utils</span>::{
+            <span class="ident">ReturnType</span>,
+            <span class="ident">Set</span>,
         },
-        <span class="ident">EnvTypes</span>,
+        <span class="ident">CallBuilder</span>,
+        <span class="ident">ExecutionInput</span>,
+        <span class="ident">Selector</span>,
     },
-    <span class="ident">storage</span>::<span class="ident">traits</span>::<span class="ident">SpreadLayout</span>,
+    <span class="ident">EnvTypes</span>,
 };
+<span class="kw">use</span> <span class="ident">ink_storage</span>::<span class="ident">traits</span>::<span class="ident">SpreadLayout</span>;
 
 <span class="doccomment">/// Trait used to indicate that an ink! trait definition has been checked</span>
 <span class="doccomment">/// by the `#[ink::trait_definition]` proc. macro.</span>
