@@ -13,7 +13,9 @@
 [e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
 [f1]: https://img.shields.io/badge/docs-core-blue.svg
-[f2]: https://paritytech.github.io/ink/ink_core
+[f2]: https://paritytech.github.io/ink/ink_storage
+[g1]: https://img.shields.io/badge/docs-core-blue.svg
+[g2]: https://paritytech.github.io/ink/ink_env
 [h1]: https://img.shields.io/badge/docs-metadata-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_metadata
 [i1]: https://img.shields.io/badge/docs-prelude-blue.svg
@@ -27,9 +29,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_metadata`     | `ink_core`    | `ink_prelude` |
-| ------------- | ------------- | ------------- |
-| [![][h1]][h2] | [![][f1]][f2] | [![][i1]][i2] |
+| `ink_metadata` | `ink_env` | `ink_storage` | `ink_prelude` |
+| ------------- | ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][g1]][g2] | [![][f1]][f2] | [![][i1]][i2] |
 
 ### Interaction with Substrate
 
