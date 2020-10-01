@@ -19,7 +19,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage::{
+    use ink_storage::{
         collections::hashmap::Entry,
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
@@ -181,25 +181,25 @@ mod dns {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_core::env;
         use ink_lang as ink;
 
         const DEFAULT_CALLEE_HASH: [u8; 32] = [0x07; 32];
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
         const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
 
-        fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvTypes> {
-            env::test::default_accounts::<env::DefaultEnvTypes>()
+        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvTypes>
+        {
+            ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("off-chain environment should have been initialized already")
         }
 
         fn set_next_caller(caller: AccountId) {
-            env::test::push_execution_context::<env::DefaultEnvTypes>(
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                 caller,
                 AccountId::from(DEFAULT_CALLEE_HASH),
                 DEFAULT_ENDOWMENT,
                 DEFAULT_GAS_LIMIT,
-                env::test::CallData::new(env::call::Selector::new([0x00; 4])),
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])),
             )
         }
 

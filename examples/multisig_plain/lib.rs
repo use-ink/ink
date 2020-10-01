@@ -78,26 +78,24 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod multisig_plain {
-    use ink_core::{
-        env::call::{
-            build_call,
-            utils::ReturnType,
-            ExecutionInput,
-        },
-        storage::{
-            collections::{
-                HashMap as StorageHashMap,
-                Stash as StorageStash,
-                Vec as StorageVec,
-            },
-            traits::{
-                PackedLayout,
-                SpreadLayout,
-            },
-            Lazy,
-        },
+    use ink_env::call::{
+        build_call,
+        utils::ReturnType,
+        ExecutionInput,
     };
     use ink_prelude::vec::Vec;
+    use ink_storage::{
+        collections::{
+            HashMap as StorageHashMap,
+            Stash as StorageStash,
+            Vec as StorageVec,
+        },
+        traits::{
+            PackedLayout,
+            SpreadLayout,
+        },
+        Lazy,
+    };
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
@@ -122,7 +120,7 @@ mod multisig_plain {
     #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_core::storage::traits::StorageLayout)
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
     )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.
@@ -141,7 +139,7 @@ mod multisig_plain {
             PartialEq,
             Eq,
             scale_info::TypeInfo,
-            ink_core::storage::traits::StorageLayout
+            ink_storage::traits::StorageLayout
         )
     )]
     pub struct Transaction {
@@ -294,7 +292,7 @@ mod multisig_plain {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
         /// ```no_run
-        /// use ink_core::env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
+        /// use ink_env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
@@ -585,7 +583,7 @@ mod multisig_plain {
         /// Remove all confirmation state associated with `owner`.
         /// Also adjusts the `self.confirmation_count` variable.
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
-            use ::ink_core::storage::collections::stash::Entry as StashEntry;
+            use ::ink_storage::collections::stash::Entry as StashEntry;
             for (trans_id, _) in
                 self.transactions
                     .entries()
@@ -657,7 +655,7 @@ mod multisig_plain {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_core::env::{
+        use ink_env::{
             call,
             test,
         };

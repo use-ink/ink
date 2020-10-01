@@ -12,21 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_core::{
-    env::{
-        call::{
-            utils::{
-                ReturnType,
-                Set,
-            },
-            CallBuilder,
-            ExecutionInput,
-            Selector,
+use ink_env::{
+    call::{
+        utils::{
+            ReturnType,
+            Set,
         },
-        EnvTypes,
+        CallBuilder,
+        ExecutionInput,
+        Selector,
     },
-    storage::traits::SpreadLayout,
+    EnvTypes,
 };
+use ink_storage::traits::SpreadLayout;
 
 /// Trait used to indicate that an ink! trait definition has been checked
 /// by the `#[ink::trait_definition]` proc. macro.

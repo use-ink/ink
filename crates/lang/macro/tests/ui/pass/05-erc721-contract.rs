@@ -2,7 +2,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc721 {
-    use ink_core::storage::collections::HashMap as StorageHashMap;
+    use ink_storage::collections::HashMap as StorageHashMap;
 
     /// A token ID.
     pub type TokenId = u32;
@@ -130,7 +130,11 @@ mod erc721 {
         ///
         /// An operator is allowed to transfer all tokens of the sender on their behalf.
         #[ink(message)]
-        pub fn set_approval_for_all(&mut self, to: AccountId, approved: bool) -> Result<()> {
+        pub fn set_approval_for_all(
+            &mut self,
+            to: AccountId,
+            approved: bool,
+        ) -> Result<()> {
             let caller = self.env().caller();
             if to == caller {
                 return Err(Error::ApproveToCaller)

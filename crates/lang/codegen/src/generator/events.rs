@@ -76,7 +76,7 @@ impl<'a> Events<'a> {
                     where
                         E: Into<<#storage_ident as ::ink_lang::BaseEvent>::Type>,
                     {
-                        ::ink_core::env::emit_event::<
+                        ::ink_env::emit_event::<
                             EnvTypes,
                             <#storage_ident as ::ink_lang::BaseEvent>::Type
                         >(event.into());
@@ -128,12 +128,12 @@ impl<'a> Events<'a> {
 
             const _: () = {
                 #no_cross_calling_cfg
-                impl ::ink_core::env::Topics<EnvTypes> for #base_event_ident {
+                impl ::ink_env::Topics<EnvTypes> for #base_event_ident {
                     fn topics(&self) -> &'static [Hash] {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
-                                    <#event_idents as ::ink_core::env::Topics<EnvTypes>>::topics(event)
+                                    <#event_idents as ::ink_env::Topics<EnvTypes>>::topics(event)
                                 }
                             )*
                         }
@@ -172,7 +172,7 @@ impl<'a> Events<'a> {
 
                 #[allow(non_upper_case_globals)]
                 const __ink_MAX_EVENT_TOPICS: usize = <
-                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes
+                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes
                 >::MAX_EVENT_TOPICS;
 
                 fn __ink_ensure_max_event_topics<T>(_: T)
@@ -209,7 +209,7 @@ impl<'a> Events<'a> {
             quote_spanned!(span =>
                 #no_cross_calling_cfg
                 const _: () = {
-                    impl ::ink_core::env::Topics<EnvTypes> for #ident {
+                    impl ::ink_env::Topics<EnvTypes> for #ident {
                         fn topics(&self) -> &'static [Hash] {
                             // Issue: https://github.com/paritytech/ink/issues/105
                             &[]

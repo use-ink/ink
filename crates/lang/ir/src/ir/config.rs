@@ -34,7 +34,7 @@ pub struct Config {
     as_dependency: Option<bool>,
     /// The environmental types definition.
     ///
-    /// This must be a type that implements `ink_core::env::EnvTypes` and can
+    /// This must be a type that implements `ink_env::EnvTypes` and can
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
     env_types: Option<EnvTypes>,
@@ -161,7 +161,7 @@ pub struct EnvTypes {
 impl Default for EnvTypes {
     fn default() -> Self {
         Self {
-            path: syn::parse_quote! { ::ink_core::env::DefaultEnvTypes },
+            path: syn::parse_quote! { ::ink_env::DefaultEnvTypes },
         }
     }
 }

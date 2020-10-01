@@ -2,14 +2,15 @@
 members = [
     "crates/metadata",
     "crates/alloc",
-    "crates/core",
-    "crates/core/derive",
     "crates/lang",
     "crates/lang/macro",
     "crates/lang/ir",
     "crates/lang/codegen",
     "crates/prelude",
     "crates/primitives",
+    "crates/env",
+    "crates/storage",
+    "crates/storage/derive",
 ]
 exclude = [
     "examples/",

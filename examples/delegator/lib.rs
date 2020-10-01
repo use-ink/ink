@@ -20,7 +20,7 @@ use ink_lang as ink;
 mod delegator {
     use accumulator::Accumulator;
     use adder::Adder;
-    use ink_core::storage::{
+    use ink_storage::{
         traits::{
             PackedLayout,
             SpreadLayout,
@@ -48,7 +48,7 @@ mod delegator {
     )]
     #[cfg_attr(
         feature = "std",
-        derive(::scale_info::TypeInfo, ::ink_core::storage::traits::StorageLayout)
+        derive(::scale_info::TypeInfo, ::ink_storage::traits::StorageLayout)
     )]
     pub enum Which {
         Adder,

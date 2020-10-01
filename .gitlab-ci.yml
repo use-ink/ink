@@ -17,7 +17,7 @@ variables:
   CARGO_INCREMENTAL:               0
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  ALL_CRATES:                      "core core/derive alloc prelude primitives lang lang/macro lang/ir"
+  ALL_CRATES:                      "env storage storage/derive alloc prelude primitives lang lang/macro lang/ir"
 
 workflow:
   rules:
@@ -270,7 +270,7 @@ publish-docs:
     - git fetch origin gh-pages
     # Generating Docs
     - time cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata -p ink_core -p ink_core_derive
+        -p scale-info -p ink_metadata -p ink_env -p ink_storage -p ink_storage_derive
         -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
     # saving README and docs
     - mv target/doc/ /tmp/

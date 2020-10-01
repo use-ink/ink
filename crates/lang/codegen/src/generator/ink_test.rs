@@ -45,7 +45,7 @@ impl GenerateCode for InkTest<'_> {
                     #( #attrs )*
                     #[test]
                     #vis fn #fn_name( #fn_args ) {
-                        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                        ::ink_env::test::run_test::<::ink_env::DefaultEnvTypes, _>(|_| {
                             {
                                 let _: () = {
                                     #fn_block
@@ -62,7 +62,7 @@ impl GenerateCode for InkTest<'_> {
                     #( #attrs )*
                     #[test]
                     #vis fn #fn_name( #fn_args ) #rarrow #ret_type {
-                        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+                        ::ink_env::test::run_test::<::ink_env::DefaultEnvTypes, _>(|_| {
                             #fn_block
                         })
                     }
