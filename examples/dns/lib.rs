@@ -187,7 +187,8 @@ mod dns {
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
         const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
 
-        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvTypes> {
+        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvTypes>
+        {
             ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("off-chain environment should have been initialized already")
         }
