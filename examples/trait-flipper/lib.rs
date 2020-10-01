@@ -77,8 +77,10 @@ pub mod flipper {
         #[test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
-            assert_eq!(flipper.get(), false);
-            flipper.flip();
+            // Can call using universal call syntax using the trait.
+            assert_eq!(<Flipper as Flip>::get(&flipper), false);
+            <Flipper as Flip>::flip(&mut flipper);
+            // Normal call syntax possible to as long as the trait is in scope.
             assert_eq!(flipper.get(), true);
         }
     }

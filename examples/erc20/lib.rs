@@ -19,7 +19,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage::{
+    use ink_storage::{
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
     };
@@ -158,7 +158,6 @@ mod erc20 {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_core::env;
 
         type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
 
@@ -169,7 +168,7 @@ mod erc20 {
             transfer_index: usize,
             expected_value: u128,
         ) where
-            I: IntoIterator<Item = env::test::EmittedEvent>,
+            I: IntoIterator<Item = ink_env::test::EmittedEvent>,
         {
             let raw_event = raw_events
                 .into_iter()
@@ -191,7 +190,7 @@ mod erc20 {
             let _erc20 = Erc20::new(100);
 
             // Transfer event triggered during initial construction.
-            let emitted_events = env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(1, emitted_events.len());
 
             assert_transfer_event(emitted_events, 0, 100)
@@ -203,7 +202,7 @@ mod erc20 {
             // Constructor works.
             let erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
-            assert_transfer_event(env::test::recorded_events(), 0, 100);
+            assert_transfer_event(ink_env::test::recorded_events(), 0, 100);
             // Get the token total supply.
             assert_eq!(erc20.total_supply(), 100);
         }
@@ -214,8 +213,8 @@ mod erc20 {
             // Constructor works
             let erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction
-            assert_transfer_event(env::test::recorded_events(), 0, 100);
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            assert_transfer_event(ink_env::test::recorded_events(), 0, 100);
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Alice owns all the tokens on deployment
             assert_eq!(erc20.balance_of(accounts.alice), 100);
@@ -228,15 +227,15 @@ mod erc20 {
             // Constructor works.
             let mut erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
-            assert_transfer_event(env::test::recorded_events(), 0, 100);
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            assert_transfer_event(ink_env::test::recorded_events(), 0, 100);
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Alice transfers 10 tokens to Bob.
             assert_eq!(erc20.transfer(accounts.bob, 10), true);
             // The second Transfer event takes place.
-            assert_transfer_event(env::test::recorded_events(), 1, 10);
+            assert_transfer_event(ink_env::test::recorded_events(), 1, 10);
             // Bob owns 10 tokens.
             assert_eq!(erc20.balance_of(accounts.bob), 10);
         }
@@ -246,20 +245,21 @@ mod erc20 {
             // Constructor works.
             let mut erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
-            assert_transfer_event(env::test::recorded_events(), 0, 100);
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            assert_transfer_event(ink_env::test::recorded_events(), 0, 100);
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Get contract address.
-            let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.bob,
                     callee,
                     1000000,
@@ -282,8 +282,8 @@ mod erc20 {
             // Constructor works.
             let mut erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
-            assert_transfer_event(env::test::recorded_events(), 0, 100);
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            assert_transfer_event(ink_env::test::recorded_events(), 0, 100);
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
 
             // Bob fails to transfer tokens owned by Alice.
@@ -292,17 +292,18 @@ mod erc20 {
             assert_eq!(erc20.approve(accounts.bob, 10), true);
 
             // The approve event takes place.
-            assert_eq!(env::test::recorded_events().count(), 2);
+            assert_eq!(ink_env::test::recorded_events().count(), 2);
 
             // Get contract address.
-            let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call.
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller.
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.bob,
                     callee,
                     1000000,
@@ -315,7 +316,7 @@ mod erc20 {
             // Bob transfers tokens from Alice to Eve.
             assert_eq!(erc20.transfer_from(accounts.alice, accounts.eve, 10), true);
             // The third event takes place.
-            assert_transfer_event(env::test::recorded_events(), 2, 10);
+            assert_transfer_event(ink_env::test::recorded_events(), 2, 10);
             // Eve owns tokens.
             assert_eq!(erc20.balance_of(accounts.eve), 10);
         }

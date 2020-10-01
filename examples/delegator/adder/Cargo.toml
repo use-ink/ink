@@ -7,7 +7,8 @@ edition = "2018"
 [dependencies]
 ink_primitives = { version = "3.0.0", path = "../../../crates/primitives", default-features = false }
 ink_metadata = { version = "3.0.0", path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_core = { version = "3.0.0", path = "../../../crates/core", default-features = false }
+ink_env = { version = "3.0.0", path = "../../../crates/env", default-features = false }
+ink_storage = { version = "3.0.0", path = "../../../crates/storage", default-features = false }
 ink_lang = { version = "3.0.0", path = "../../../crates/lang", default-features = false }
 
 accumulator = { version = "3.0.0", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
@@ -31,7 +32,8 @@ std = [
     "ink_primitives/std",
     "ink_metadata",
     "ink_metadata/std",
-    "ink_core/std",
+    "ink_env/std",
+    "ink_storage/std",
     "ink_lang/std",
     "scale/std",
     "scale-info",

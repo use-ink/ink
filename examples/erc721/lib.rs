@@ -69,7 +69,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage::collections::{
+    use ink_storage::collections::{
         hashmap::Entry,
         HashMap as StorageHashMap,
     };
@@ -441,18 +441,15 @@ mod erc721 {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_core::{
-            env,
-            env::{
-                call,
-                test,
-            },
+        use ink_env::{
+            call,
+            test,
         };
         use ink_lang as ink;
 
         #[ink::test]
         fn mint_works() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -468,14 +465,14 @@ mod erc721 {
 
         #[ink::test]
         fn mint_existing_should_fail() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
             assert_eq!(erc721.mint(1), Ok(()));
             // The first Transfer event takes place
-            assert_eq!(1, env::test::recorded_events().count());
+            assert_eq!(1, ink_env::test::recorded_events().count());
             // Alice owns 1 token.
             assert_eq!(erc721.balance_of(accounts.alice), 1);
             // Alice owns token Id 1.
@@ -487,7 +484,7 @@ mod erc721 {
 
         #[ink::test]
         fn transfer_works() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -498,18 +495,18 @@ mod erc721 {
             // Bob does not owns any token
             assert_eq!(erc721.balance_of(accounts.bob), 0);
             // The first Transfer event takes place
-            assert_eq!(1, env::test::recorded_events().count());
+            assert_eq!(1, ink_env::test::recorded_events().count());
             // Alice transfers token 1 to Bob
             assert_eq!(erc721.transfer(accounts.bob, 1), Ok(()));
             // The second Transfer event takes place
-            assert_eq!(2, env::test::recorded_events().count());
+            assert_eq!(2, ink_env::test::recorded_events().count());
             // Bob owns token 1
             assert_eq!(erc721.balance_of(accounts.bob), 1);
         }
 
         #[ink::test]
         fn invalid_transfer_should_fail() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -525,13 +522,13 @@ mod erc721 {
             assert_eq!(erc721.owner_of(2), Some(accounts.alice));
             // Get contract address
             let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.bob,
                     callee,
                     1000000,
@@ -546,7 +543,7 @@ mod erc721 {
 
         #[ink::test]
         fn approved_transfer_works() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -558,13 +555,13 @@ mod erc721 {
             assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
             // Get contract address.
             let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.bob,
                     callee,
                     1000000,
@@ -590,7 +587,7 @@ mod erc721 {
 
         #[ink::test]
         fn approved_for_all_works() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -609,13 +606,13 @@ mod erc721 {
             );
             // Get contract address.
             let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.bob,
                     callee,
                     1000000,
@@ -643,7 +640,7 @@ mod erc721 {
             // Eve owns 2 tokens.
             assert_eq!(erc721.balance_of(accounts.eve), 2);
             // Get back to the parent execution context.
-            env::test::pop_execution_context();
+            ink_env::test::pop_execution_context();
             // Remove operator approval for Bob on behalf of Alice.
             assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
             // Bob is not an approved operator for Alice.
@@ -655,7 +652,7 @@ mod erc721 {
 
         #[ink::test]
         fn not_approved_transfer_should_fail() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -669,13 +666,13 @@ mod erc721 {
             assert_eq!(erc721.balance_of(accounts.eve), 0);
             // Get contract address.
             let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Eve as caller
             assert_eq!(
-                env::test::push_execution_context::<env::DefaultEnvTypes>(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
                     accounts.eve,
                     callee,
                     1000000,
@@ -699,7 +696,7 @@ mod erc721 {
 
         #[ink::test]
         fn burn_works() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -727,7 +724,7 @@ mod erc721 {
 
         #[ink::test]
         fn burn_fails_not_owner() {
-            let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
                 .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
@@ -740,7 +737,7 @@ mod erc721 {
 
         fn set_sender(sender: AccountId) {
             let callee =
-                env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
             test::push_execution_context::<EnvTypes>(
                 sender,
                 callee,
