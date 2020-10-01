@@ -32,7 +32,8 @@ sha3 = "0.8"
 
 [dev-dependencies]
 ink_metadata = { version = "3.0.0", path = "../../metadata/" }
-ink_core = { version = "3.0.0", path = "../../core/" }
+ink_env = { version = "3.0.0", path = "../../env/" }
+ink_storage = { version = "3.0.0", path = "../../storage/" }
 ink_lang = { version = "3.0.0", path = ".." }
 
 trybuild = "1.0.24"

@@ -59,9 +59,47 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 #[cfg(not(feature = "std"))]
 extern crate ink_alloc;
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-#[macro_use(quickcheck)]
-extern crate quickcheck_macros;
+mod api;
+mod arithmetic;
+mod backend;
+pub mod call;
+mod engine;
+mod error;
+pub mod hash;
+mod types;
 
-pub mod env;
-pub mod storage;
+#[cfg(test)]
+mod tests;
+
+#[cfg(any(feature = "std", test, doc))]
+#[doc(inline)]
+pub use self::engine::off_chain::test_api as test;
+
+use self::backend::{
+    Env,
+    TypedEnv,
+};
+pub use self::{
+    api::*,
+    backend::ReturnFlags,
+    error::{
+        EnvError,
+        Result,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        CryptoHash,
+        HashOutput,
+        Keccak256,
+        Sha2x256,
+    },
+    types::{
+        AccountId,
+        Clear,
+        DefaultEnvTypes,
+        EnvTypes,
+        Hash,
+        Topics,
+    },
+};
