@@ -58,8 +58,6 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
-        False,
-        True,
     },
     traits::{
         CheckedInkTrait,
