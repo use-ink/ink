@@ -19,6 +19,11 @@ variables:
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   ALL_CRATES:                      "core core/derive alloc prelude primitives lang lang/macro lang/ir"
 
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH
+
 .collect-artifacts:                &collect-artifacts
   artifacts:
     name:                          "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}"
@@ -41,6 +46,7 @@ variables:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
+    - if: $CI_COMMIT_BRANCH
     - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/              # i.e. v1.0, v2.1rc1
   interruptible:                   true
   retry:
