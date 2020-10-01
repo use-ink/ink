@@ -17,7 +17,7 @@ use super::{
     EntryState,
     StorageEntry,
 };
-use crate::storage::traits::{
+use crate::traits::{
     clear_packed_root,
     pull_packed_root_opt,
     ExtKeyPtr,
@@ -209,7 +209,7 @@ impl<V> LazyIndexMap<V> {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         ArrayLayout,
         CellLayout,
@@ -288,7 +288,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(&root_key);
+            ink_env::clear_contract_storage(&root_key);
         }
     }
 }
@@ -456,12 +456,9 @@ mod tests {
         Index,
         LazyIndexMap,
     };
-    use crate::{
-        env,
-        storage::traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+    use crate::traits::{
+        KeyPtr,
+        SpreadLayout,
     };
     use ink_primitives::Key;
 
@@ -701,8 +698,8 @@ mod tests {
     }
 
     #[test]
-    fn spread_layout_works() -> env::Result<()> {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn spread_layout_works() -> ink_env::Result<()> {
+        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             let mut imap = <LazyIndexMap<u8>>::new();
             let nothing_changed = &[
                 (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::BitStash;
-use crate::env;
 
 /// Conducts repeated insert and remove operations into the stash by iterating
 /// over `xs`. Typically the `xs` and `inserts_each` arguments are provided

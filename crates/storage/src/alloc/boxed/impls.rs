@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::Box as StorageBox;
-use crate::storage::traits::{
+use crate::traits::{
     clear_spread_root,
     SpreadLayout,
 };
@@ -24,7 +24,7 @@ where
 {
     fn drop(&mut self) {
         clear_spread_root::<T>(self, &self.allocation.key());
-        crate::storage::alloc::free(self.allocation);
+        crate::alloc::free(self.allocation);
     }
 }
 

@@ -17,13 +17,11 @@ mod impls;
 #[cfg(test)]
 mod tests;
 
-use crate::{
-    env::hash::{
-        Blake2x256,
-        Keccak256,
-        Sha2x256,
-    },
-    storage::traits::KeyPtr,
+use crate::traits::KeyPtr;
+use ink_env::hash::{
+    Blake2x256,
+    Keccak256,
+    Sha2x256,
 };
 use ink_metadata::layout::{
     CryptoHasher,

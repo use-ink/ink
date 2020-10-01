@@ -19,7 +19,7 @@ use super::{
     IterMut,
     Stash as StorageStash,
 };
-use crate::storage::traits::PackedLayout;
+use crate::traits::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,

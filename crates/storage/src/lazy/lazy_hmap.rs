@@ -19,19 +19,13 @@ use super::{
     EntryState,
     StorageEntry,
 };
-use crate::{
-    env::hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    storage::traits::{
-        clear_packed_root,
-        pull_packed_root_opt,
-        ExtKeyPtr,
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::traits::{
+    clear_packed_root,
+    pull_packed_root_opt,
+    ExtKeyPtr,
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 use core::{
     borrow::Borrow,
@@ -44,6 +38,10 @@ use core::{
     iter::FromIterator,
     marker::PhantomData,
     ptr::NonNull,
+};
+use ink_env::hash::{
+    CryptoHash,
+    HashOutput,
 };
 use ink_prelude::{
     borrow::ToOwned,
@@ -186,7 +184,7 @@ where
 
 #[test]
 fn debug_impl_works() {
-    use crate::env::hash::Blake2x256;
+    use ink_env::hash::Blake2x256;
     let mut hmap = <LazyHashMap<char, i32, Blake2x256>>::new();
     // Empty hmap.
     assert_eq!(
@@ -221,7 +219,7 @@ fn debug_impl_works() {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::{
+    use crate::traits::{
         LayoutCryptoHasher,
         StorageLayout,
     };
@@ -515,7 +513,7 @@ where
             value_key: key,
         };
         let mut output = <H as HashOutput>::Type::default();
-        crate::env::hash_encoded::<H, KeyPair<Q>>(&key_pair, &mut output);
+        ink_env::hash_encoded::<H, KeyPair<Q>>(&key_pair, &mut output);
         output.into()
     }
 
@@ -643,7 +641,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            crate::env::clear_contract_storage(&root_key);
+            ink_env::clear_contract_storage(&root_key);
         }
     }
 
@@ -975,16 +973,13 @@ mod tests {
         LazyHashMap,
         StorageEntry,
     };
-    use crate::{
-        env,
-        env::hash::{
-            Blake2x256,
-            Sha2x256,
-        },
-        storage::traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+    use crate::traits::{
+        KeyPtr,
+        SpreadLayout,
+    };
+    use ink_env::hash::{
+        Blake2x256,
+        Sha2x256,
     };
     use ink_primitives::Key;
 
@@ -1276,8 +1271,8 @@ mod tests {
     }
 
     #[test]
-    fn spread_layout_works() -> env::Result<()> {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn spread_layout_works() -> ink_env::Result<()> {
+        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             let mut hmap = new_hmap();
             let nothing_changed = &[
                 (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),

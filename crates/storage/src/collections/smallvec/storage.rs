@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::SmallVec;
-use crate::storage::{
+use crate::{
     lazy::LazyArrayLength,
     traits::{
         KeyPtr,
@@ -25,7 +25,7 @@ use generic_array::typenum::Unsigned;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::{
+    use crate::{
         lazy::LazyArray,
         traits::StorageLayout,
     };

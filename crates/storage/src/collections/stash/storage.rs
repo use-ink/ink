@@ -19,7 +19,7 @@ use super::{
     Header,
     Stash as StorageStash,
 };
-use crate::storage::{
+use crate::{
     lazy::LazyIndexMap,
     traits::{
         forward_clear_packed,
@@ -34,7 +34,7 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::{
+    use crate::{
         collections::Vec as StorageVec,
         traits::StorageLayout,
     };

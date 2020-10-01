@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::DynamicAllocator;
-use crate::storage::traits::{
+use crate::traits::{
     pull_spread_root,
     push_spread_root,
 };

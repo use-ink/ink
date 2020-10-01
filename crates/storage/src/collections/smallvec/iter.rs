@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::SmallVec;
-use crate::storage::{
+use crate::{
     collections::extend_lifetime,
     lazy::LazyArrayLength,
     traits::PackedLayout,

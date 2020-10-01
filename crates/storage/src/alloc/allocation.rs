@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env::hash::{
+use ink_env::hash::{
     Blake2x256,
     CryptoHash,
     HashOutput,
@@ -30,7 +30,7 @@ use ink_primitives::Key;
 /// # Note
 ///
 /// Normally instances of this type are not used directly and instead
-/// a [`storage::Box`](`crate::storage::Box`) is used instead.
+/// a [`storage::Box`](`crate::Box`) is used instead.
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, scale::Encode, scale::Decode,
 )]

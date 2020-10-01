@@ -13,12 +13,9 @@
 // limitations under the License.
 
 use super::Bitvec as StorageBitvec;
-use crate::{
-    env,
-    storage::traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 
@@ -180,8 +177,8 @@ fn pop_works() {
 }
 
 #[test]
-fn spread_layout_push_pull_works() -> env::Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+fn spread_layout_push_pull_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let bv1 = bitvec_600();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&bv1, &mut KeyPtr::from(root_key));
@@ -197,7 +194,7 @@ fn spread_layout_push_pull_works() -> env::Result<()> {
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let bv1 = bitvec_600();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&bv1, &mut KeyPtr::from(root_key));

@@ -13,16 +13,14 @@
 // limitations under the License.
 
 use super::StorageLayout;
-use crate::{
-    env::{
-        AccountId,
-        Hash,
-    },
-    storage::traits::{
-        ExtKeyPtr as _,
-        KeyPtr,
-        SpreadLayout,
-    },
+use crate::traits::{
+    ExtKeyPtr as _,
+    KeyPtr,
+    SpreadLayout,
+};
+use ink_env::{
+    AccountId,
+    Hash,
 };
 use ink_metadata::layout::{
     ArrayLayout,

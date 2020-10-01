@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::traits::ExtKeyPtr as _;
+use crate::traits::ExtKeyPtr as _;
 
 macro_rules! impl_always_packed_layout {
     ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
         const _: () = {
-            use crate::storage::traits::impls::{
+            use crate::traits::impls::{
                 forward_clear_packed,
                 forward_pull_packed,
                 forward_push_packed,
@@ -51,7 +51,7 @@ macro_rules! impl_always_packed_layout {
     };
     ( $name:ty, deep: $deep:expr ) => {
         const _: () = {
-            use crate::storage::traits::impls::{
+            use crate::traits::impls::{
                 forward_clear_packed,
                 forward_pull_packed,
                 forward_push_packed,
@@ -94,7 +94,7 @@ use super::{
     push_packed_root,
     PackedLayout,
 };
-use crate::storage::traits::KeyPtr;
+use crate::traits::KeyPtr;
 
 /// Returns the greater of both values.
 const fn max(a: u64, b: u64) -> u64 {

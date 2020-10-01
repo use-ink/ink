@@ -14,17 +14,13 @@
 
 use super::Box as StorageBox;
 use crate::{
-    env,
-    env::test::DefaultAccounts,
-    storage::{
-        alloc,
-        alloc::ContractPhase,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
-        Pack,
+    alloc,
+    alloc::ContractPhase,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
+    Pack,
 };
 use core::{
     cmp::Ordering,
@@ -37,6 +33,7 @@ use core::{
         DerefMut,
     },
 };
+use ink_env::test::DefaultAccounts;
 use ink_prelude::borrow::{
     Borrow,
     BorrowMut,
@@ -45,9 +42,9 @@ use ink_primitives::Key;
 
 fn run_test<F>(f: F)
 where
-    F: FnOnce(DefaultAccounts<env::DefaultEnvTypes>),
+    F: FnOnce(DefaultAccounts<ink_env::DefaultEnvTypes>),
 {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|default_accounts| {
         alloc::initialize(ContractPhase::Deploy);
         f(default_accounts);
         Ok(())

@@ -18,18 +18,14 @@ use criterion::{
     criterion_main,
     Criterion,
 };
-
-use ink_core::{
-    env,
-    storage::{
-        collections::Stash as StorageStash,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+use ink_primitives::Key;
+use ink_storage::{
+    collections::Stash as StorageStash,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
 };
-use ink_primitives::Key;
 
 criterion_group!(populated_cache, bench_remove_occupied_populated_cache,);
 criterion_group!(empty_cache, bench_remove_occupied_empty_cache,);
@@ -123,7 +119,7 @@ mod empty_cache {
 /// into the contract storage. We then load the stash from storage lazily in each
 /// benchmark iteration.
 fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
-    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group(
             "Compare: `remove_occupied_all` and `take_all` (empty cache)",
         );

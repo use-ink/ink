@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::traits::{
+use crate::traits::{
     forward_clear_packed,
     forward_pull_packed,
     forward_push_packed,
@@ -83,7 +83,7 @@ impl<T> Pack<T> {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         CellLayout,
         Layout,
@@ -250,15 +250,11 @@ impl<T> ink_prelude::borrow::BorrowMut<T> for Pack<T> {
 #[cfg(test)]
 mod tests {
     use super::Pack;
-    use crate::{
-        env,
-        env::test::DefaultAccounts,
-        storage::traits::{
-            pull_packed_root,
-            push_packed_root,
-            KeyPtr,
-            SpreadLayout,
-        },
+    use crate::traits::{
+        pull_packed_root,
+        push_packed_root,
+        KeyPtr,
+        SpreadLayout,
     };
     use core::{
         cmp::Ordering,
@@ -271,6 +267,7 @@ mod tests {
             DerefMut,
         },
     };
+    use ink_env::test::DefaultAccounts;
     use ink_prelude::borrow::{
         Borrow,
         BorrowMut,
@@ -370,9 +367,9 @@ mod tests {
 
     fn run_test<F>(f: F)
     where
-        F: FnOnce(DefaultAccounts<env::DefaultEnvTypes>),
+        F: FnOnce(DefaultAccounts<ink_env::DefaultEnvTypes>),
     {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
+        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|default_accounts| {
             f(default_accounts);
             Ok(())
         })

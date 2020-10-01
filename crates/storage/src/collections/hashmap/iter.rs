@@ -14,19 +14,17 @@
 
 use super::ValueEntry;
 use crate::{
-    env::hash::{
-        CryptoHash,
-        HashOutput,
+    collections::{
+        extend_lifetime,
+        stash::Iter as StashIter,
+        HashMap as StorageHashMap,
     },
-    storage::{
-        collections::{
-            extend_lifetime,
-            stash::Iter as StashIter,
-            HashMap as StorageHashMap,
-        },
-        lazy::LazyHashMap,
-        traits::PackedLayout,
-    },
+    lazy::LazyHashMap,
+    traits::PackedLayout,
+};
+use ink_env::hash::{
+    CryptoHash,
+    HashOutput,
 };
 use ink_primitives::Key;
 

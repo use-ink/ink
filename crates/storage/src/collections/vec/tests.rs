@@ -14,13 +14,10 @@
 
 use super::Vec as StorageVec;
 use crate::{
-    env,
-    storage::{
-        collections::vec::IndexOutOfBounds,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+    collections::vec::IndexOutOfBounds,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
 };
 use ink_primitives::Key;
@@ -361,8 +358,8 @@ fn swap_remove_drop_works() {
 }
 
 #[test]
-fn spread_layout_push_pull_works() -> env::Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+fn spread_layout_push_pull_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
@@ -378,7 +375,7 @@ fn spread_layout_push_pull_works() -> env::Result<()> {
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
@@ -398,7 +395,7 @@ fn spread_layout_clear_works() {
 
 #[test]
 fn set_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
         let _ = vec.set(0, b'x').unwrap();
         let expected = vec_from_slice(&[b'x', b'b', b'c', b'd']);

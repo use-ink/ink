@@ -26,7 +26,7 @@ pub use self::iter::{
     Iter,
     IterMut,
 };
-use crate::storage::{
+use crate::{
     lazy::LazyIndexMap,
     traits::PackedLayout,
     Pack,

@@ -16,7 +16,7 @@ use super::{
     BitStash,
     CountFree,
 };
-use crate::storage::{
+use crate::{
     collections::{
         Bitvec as StorageBitvec,
         Vec as StorageVec,
@@ -34,7 +34,7 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         FieldLayout,
         Layout,

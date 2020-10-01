@@ -16,7 +16,7 @@ use super::{
     Entry,
     Stash,
 };
-use crate::storage::{
+use crate::{
     collections::extend_lifetime,
     traits::PackedLayout,
 };

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::Box as StorageBox;
-use crate::storage::{
+use crate::{
     alloc::DynamicAllocation,
     traits::{
         forward_clear_packed,
@@ -29,7 +29,7 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         CellLayout,
         Layout,

@@ -91,7 +91,7 @@ impl<'a> BitRefMut<'a> {
 #[cfg(test)]
 mod tests {
     use super::BitRefMut;
-    use crate::storage::collections::bitvec::Bits256;
+    use crate::collections::bitvec::Bits256;
 
     fn is_populated_bit_set(index: u8) -> bool {
         (index % 5) == 0 || (index % 13) == 0

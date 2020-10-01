@@ -19,27 +19,25 @@ use super::{
     ValueEntry,
 };
 use crate::{
-    env::hash::{
-        CryptoHash,
-        HashOutput,
+    collections::Stash as StorageStash,
+    traits::{
+        forward_clear_packed,
+        forward_pull_packed,
+        forward_push_packed,
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
     },
-    storage::{
-        collections::Stash as StorageStash,
-        traits::{
-            forward_clear_packed,
-            forward_pull_packed,
-            forward_push_packed,
-            KeyPtr,
-            PackedLayout,
-            SpreadLayout,
-        },
-    },
+};
+use ink_env::hash::{
+    CryptoHash,
+    HashOutput,
 };
 use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::{
+    use crate::{
         lazy::LazyHashMap,
         traits::{
             LayoutCryptoHasher,

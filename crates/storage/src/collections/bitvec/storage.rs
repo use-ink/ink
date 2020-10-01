@@ -16,7 +16,7 @@ use super::{
     Bits256,
     Bitvec as StorageBitvec,
 };
-use crate::storage::{
+use crate::{
     traits::{
         forward_clear_packed,
         forward_pull_packed,
@@ -32,7 +32,7 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::{
+    use crate::{
         lazy::Lazy,
         traits::StorageLayout,
     };

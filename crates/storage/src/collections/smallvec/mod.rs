@@ -14,7 +14,7 @@
 
 //! A small storage vector that allows to store a limited amount of elements.
 //!
-//! Prefer using [`SmallVec`] over [`crate::storage::Vec`] if you know up front
+//! Prefer using [`SmallVec`] over [`crate::Vec`] if you know up front
 //! the maximum amount of unique elements that have to be stored in the vector
 //! at the same time, given the number is fairly low: e.g. not exceeding several
 //! hundreds of elements.
@@ -30,7 +30,7 @@ pub use self::iter::{
     Iter,
     IterMut,
 };
-use crate::storage::{
+use crate::{
     lazy::{
         Lazy,
         LazyArray,

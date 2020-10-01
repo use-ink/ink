@@ -17,13 +17,7 @@ use super::{
     Iter,
     IterMut,
 };
-use crate::{
-    env::hash::{
-        CryptoHash,
-        HashOutput,
-    },
-    storage::traits::PackedLayout,
-};
+use crate::traits::PackedLayout;
 use core::{
     cmp::{
         Eq,
@@ -32,6 +26,10 @@ use core::{
     },
     iter::FromIterator,
     ops,
+};
+use ink_env::hash::{
+    CryptoHash,
+    HashOutput,
 };
 use ink_prelude::borrow::{
     Borrow,

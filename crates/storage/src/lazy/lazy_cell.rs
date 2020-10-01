@@ -17,7 +17,7 @@ use super::{
     EntryState,
     StorageEntry,
 };
-use crate::storage::traits::{
+use crate::traits::{
     clear_spread_root_opt,
     pull_spread_root_opt,
     ExtKeyPtr,
@@ -118,7 +118,7 @@ where
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::Layout;
 
     impl<T> StorageLayout for LazyCell<T>
@@ -346,16 +346,13 @@ mod tests {
         StorageEntry,
     };
     use crate::{
-        env,
-        env::test::run_test,
-        storage::{
-            traits::{
-                KeyPtr,
-                SpreadLayout,
-            },
-            Lazy,
+        traits::{
+            KeyPtr,
+            SpreadLayout,
         },
+        Lazy,
     };
+    use ink_env::test::run_test;
     use ink_primitives::Key;
 
     #[test]
@@ -395,8 +392,8 @@ mod tests {
     }
 
     #[test]
-    fn lazy_get_works() -> env::Result<()> {
-        run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn lazy_get_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             let cell = <LazyCell<u8>>::lazy(Key::from([0x42; 32]));
             let value = cell.get();
             // We do the normally unreachable check in order to have an easier
@@ -415,8 +412,8 @@ mod tests {
     }
 
     #[test]
-    fn spread_layout_works() -> env::Result<()> {
-        run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn spread_layout_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             let cell_a0 = <LazyCell<u8>>::new(Some(b'A'));
             assert_eq!(cell_a0.get(), Some(&b'A'));
             // Push `cell_a0` to the contract storage.
@@ -460,8 +457,8 @@ mod tests {
     }
 
     #[test]
-    fn lazy_set_works() -> env::Result<()> {
-        run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn lazy_set_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             let mut cell = <LazyCell<u8>>::lazy(Key::from([0x42; 32]));
             let value = cell.get();
             assert_eq!(value, None);
@@ -473,8 +470,8 @@ mod tests {
     }
 
     #[test]
-    fn lazy_set_works_with_spread_layout_push_pull() -> env::Result<()> {
-        run_test::<env::DefaultEnvTypes, _>(|_| {
+    fn lazy_set_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             type MaybeValue = Option<u8>;
 
             // Initialize a LazyCell with None and push it to `k`

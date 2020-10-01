@@ -20,17 +20,15 @@ use super::{
     DynamicAllocator,
 };
 use crate::{
-    env::{
-        test,
-        DefaultEnvTypes,
+    alloc,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
-    storage::{
-        alloc,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
-    },
+};
+use ink_env::{
+    test,
+    DefaultEnvTypes,
 };
 use ink_primitives::Key;
 

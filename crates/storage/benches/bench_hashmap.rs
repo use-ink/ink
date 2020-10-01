@@ -20,14 +20,11 @@ use criterion::{
     Criterion,
 };
 
-use ink_core::{
-    env,
-    storage::traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
-};
 use ink_primitives::Key;
+use ink_storage::traits::{
+    KeyPtr,
+    SpreadLayout,
+};
 
 #[cfg(test)]
 macro_rules! gen_tests_for_backend {
@@ -150,7 +147,7 @@ macro_rules! gen_tests_for_backend {
         }
 
         fn bench_remove_populated_cache(c: &mut Criterion) {
-            let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 let mut group = c.benchmark_group(
                     format!("{} Compare: `remove` and `remove_entry_api` (populated cache)", stringify!($backend))
                 );
@@ -175,7 +172,7 @@ macro_rules! gen_tests_for_backend {
         }
 
         fn bench_insert_empty_cache(c: &mut Criterion) {
-            let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 let mut group = c.benchmark_group(
                     format!("{} Compare: `insert_and_inc` and `insert_and_inc_entry_api` (empty cache)", stringify!($backend))
                 );
@@ -206,7 +203,7 @@ macro_rules! gen_tests_for_backend {
         }
 
         fn bench_remove_empty_cache(c: &mut Criterion) {
-            let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+            let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 let mut group =
                     c.benchmark_group(format!("{} Compare: `remove` and `remove_entry_api` (empty cache)", stringify!($backend)));
                 group.bench_function("remove", |b| {
@@ -239,12 +236,10 @@ macro_rules! gen_tests_for_backend {
 
 mod lazyhmap_backend {
     use super::*;
-    use ink_core::{
-        env::hash::Blake2x256,
-        storage::lazy::lazy_hmap::{
-            Entry,
-            LazyHashMap,
-        },
+    use ink_env::hash::Blake2x256;
+    use ink_storage::lazy::lazy_hmap::{
+        Entry,
+        LazyHashMap,
     };
 
     gen_tests_for_backend!(LazyHashMap<i32, i32, Blake2x256>);
@@ -272,7 +267,7 @@ mod lazyhmap_backend {
 
 mod hashmap_backend {
     use super::*;
-    use ink_core::storage::collections::{
+    use ink_storage::collections::{
         hashmap::Entry,
         HashMap as StorageHashMap,
     };

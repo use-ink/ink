@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::storage::traits::{
+use crate::traits::{
     KeyPtr,
     SpreadLayout,
 };
@@ -52,7 +52,7 @@ pub struct Memory<T> {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         CellLayout,
         Layout,
@@ -176,13 +176,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::Memory;
-    use crate::{
-        env,
-        env::test::DefaultAccounts,
-        storage::traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+    use crate::traits::{
+        KeyPtr,
+        SpreadLayout,
     };
     use core::{
         convert::{
@@ -194,6 +190,7 @@ mod tests {
             DerefMut,
         },
     };
+    use ink_env::test::DefaultAccounts;
     use ink_prelude::borrow::{
         Borrow,
         BorrowMut,
@@ -266,9 +263,9 @@ mod tests {
 
     fn run_test<F>(f: F)
     where
-        F: FnOnce(DefaultAccounts<env::DefaultEnvTypes>),
+        F: FnOnce(DefaultAccounts<ink_env::DefaultEnvTypes>),
     {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|default_accounts| {
+        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|default_accounts| {
             f(default_accounts);
             Ok(())
         })
@@ -292,7 +289,7 @@ mod tests {
             // Now we clear the `i32` from storage and check whether that works.
             // We load as `Option<i32>` in order to expect `None`:
             <i32 as SpreadLayout>::clear_spread(&loaded2, &mut KeyPtr::from(root_key));
-            use crate::storage::traits::pull_packed_root_opt;
+            use crate::traits::pull_packed_root_opt;
             let loaded3 = pull_packed_root_opt::<Option<i32>>(&root_key);
             assert_eq!(loaded3, None);
         })

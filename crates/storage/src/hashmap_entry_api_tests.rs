@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    env,
-    storage::traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 
@@ -90,8 +87,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn mutations_work_with_push_pull() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn mutations_work_with_push_pull() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let hmap1 = prefilled_hmap();
                 assert_eq!(hmap1.get(&b'A'), Some(&13));
@@ -157,8 +154,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn insert_with_works_with_push_pull() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn insert_with_works_with_push_pull() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap1 = <$backend>::new();
                 let value = hmap1.entry(b'A').or_insert_with(|| 42);
@@ -225,8 +222,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn occupied_entry_api_works_with_push_pull() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn occupied_entry_api_works_with_push_pull() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap1 = prefilled_hmap();
                 assert_eq!(hmap1.get(&b'A'), Some(&13));
@@ -271,8 +268,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn vacant_api_works_with_push_pull() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn vacant_api_works_with_push_pull() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap1 = <$backend>::new();
                 match hmap1.entry(b'A') {
@@ -294,8 +291,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn pulling_occupied_entry_must_succeed() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn pulling_occupied_entry_must_succeed() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let hmap1 = prefilled_hmap();
                 push_hmap(&hmap1);
@@ -315,8 +312,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn value_not_in_cache_but_in_storage_get_and_get_mut() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn value_not_in_cache_but_in_storage_get_and_get_mut() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap2 = push_pull_prefilled_hmap();
 
@@ -334,8 +331,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn value_not_in_cache_but_in_storage_insert() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn value_not_in_cache_but_in_storage_insert() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap2 = push_pull_prefilled_hmap();
 
@@ -353,8 +350,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn value_not_in_cache_but_in_storage_remove_entry() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn value_not_in_cache_but_in_storage_remove_entry() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap2 = push_pull_prefilled_hmap();
 
@@ -375,8 +372,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn value_not_in_cache_is_properly_flushed_after_insert() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn value_not_in_cache_is_properly_flushed_after_insert() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap2 = push_pull_prefilled_hmap();
 
@@ -401,8 +398,8 @@ macro_rules! gen_tests_for_backend {
         }
 
         #[test]
-        fn value_not_in_cache_but_in_storage_into_mut() -> env::Result<()> {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        fn value_not_in_cache_but_in_storage_into_mut() -> ink_env::Result<()> {
+            ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
                 // given
                 let mut hmap2 = push_pull_prefilled_hmap();
 
@@ -420,26 +417,24 @@ macro_rules! gen_tests_for_backend {
 
 mod lazyhmap_backend {
     use super::*;
-    use crate::{
-        env::hash::Blake2x256,
-        storage::lazy::lazy_hmap::{
-            Entry,
-            Entry::{
-                Occupied,
-                Vacant,
-            },
-            LazyHashMap,
+    use crate::lazy::lazy_hmap::{
+        Entry,
+        Entry::{
+            Occupied,
+            Vacant,
         },
+        LazyHashMap,
     };
+    use ink_env::hash::Blake2x256;
 
     gen_tests_for_backend!(LazyHashMap<u8, i32, Blake2x256>);
 }
 
 mod hashmap_backend {
     use super::*;
+    use ink_env::hash::Blake2x256;
     use crate::{
-        env::hash::Blake2x256,
-        storage::collections::hashmap::{
+        collections::hashmap::{
             Entry,
             Entry::{
                 Occupied,

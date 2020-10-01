@@ -32,25 +32,23 @@ pub use self::iter::{
     ValuesMut,
 };
 use crate::{
-    env::hash::{
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
+    collections::Stash,
+    lazy::lazy_hmap::{
+        Entry as LazyEntry,
+        LazyHashMap,
+        OccupiedEntry as LazyOccupiedEntry,
+        VacantEntry as LazyVacantEntry,
     },
-    storage::{
-        collections::Stash,
-        lazy::lazy_hmap::{
-            Entry as LazyEntry,
-            LazyHashMap,
-            OccupiedEntry as LazyOccupiedEntry,
-            VacantEntry as LazyVacantEntry,
-        },
-        traits::PackedLayout,
-    },
+    traits::PackedLayout,
 };
 use core::{
     borrow::Borrow,
     cmp::Eq,
+};
+use ink_env::hash::{
+    Blake2x256,
+    CryptoHash,
+    HashOutput,
 };
 use ink_prelude::borrow::ToOwned;
 use ink_primitives::Key;

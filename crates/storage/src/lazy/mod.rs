@@ -17,7 +17,7 @@
 //!
 //! Users should generally avoid using these collections directly in their
 //! contracts and should instead adhere to the high-level collections found
-//! in [`crate::storage::collections`].
+//! in [`crate::collections`].
 //! The low-level collections are mainly used as building blocks for internals
 //! of other higher-level storage collections.
 //!
@@ -48,7 +48,7 @@ pub use self::{
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
-use crate::storage::traits::{
+use crate::traits::{
     KeyPtr,
     SpreadLayout,
 };
@@ -71,7 +71,7 @@ where
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::Layout;
 
     impl<T> StorageLayout for Lazy<T>

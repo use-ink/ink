@@ -27,7 +27,7 @@ mod tests;
 mod fuzz_tests;
 
 use self::counts::CountFree;
-use crate::storage::collections::{
+use crate::collections::{
     Bitvec as StorageBitvec,
     Vec as StorageVec,
 };

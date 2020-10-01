@@ -21,7 +21,7 @@ use super::{
     Bitvec as StorageBitvec,
     ChunkRef,
 };
-use crate::storage::collections::vec::{
+use crate::collections::vec::{
     Iter as StorageVecIter,
     IterMut as StorageVecIterMut,
 };

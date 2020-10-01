@@ -45,7 +45,7 @@ use self::{
         Bits256IterMut,
     },
 };
-use crate::storage::{
+use crate::{
     Lazy,
     Vec as StorageVec,
 };

@@ -18,7 +18,7 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-use crate::storage::{
+use crate::{
     alloc::{
         alloc,
         DynamicAllocation,

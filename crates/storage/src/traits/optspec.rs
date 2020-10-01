@@ -23,7 +23,6 @@ use super::{
     PackedLayout,
     SpreadLayout,
 };
-use crate::env;
 use ink_primitives::Key;
 
 pub fn pull_spread_root_opt<T>(root_key: &Key) -> Option<T>
@@ -32,7 +31,7 @@ where
 {
     // In case the contract storage is occupied we handle
     // the Option<T> as if it was a T.
-    env::get_contract_storage::<()>(root_key)
+    ink_env::get_contract_storage::<()>(root_key)
         .ok()
         .flatten()
         .map(|_| super::pull_spread_root::<T>(root_key))
@@ -94,7 +93,7 @@ where
     // Clean-up eagerly without potentially loading the entity from storage:
     let mut ptr = KeyPtr::from(*root_key);
     for _ in 0..footprint {
-        env::clear_contract_storage(ptr.advance_by(1));
+        ink_env::clear_contract_storage(ptr.advance_by(1));
     }
 }
 
@@ -102,7 +101,7 @@ pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
 where
     T: PackedLayout,
 {
-    match env::get_contract_storage::<T>(root_key)
+    match ink_env::get_contract_storage::<T>(root_key)
         .expect("decoding does not match expected type")
     {
         Some(mut value) => {
@@ -129,7 +128,7 @@ where
         }
         None => {
             // Clear the associated storage cell.
-            env::clear_contract_storage(root_key);
+            ink_env::clear_contract_storage(root_key);
         }
     }
 }

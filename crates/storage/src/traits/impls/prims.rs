@@ -13,16 +13,14 @@
 // limitations under the License.
 
 use super::max;
-use crate::{
-    env::{
-        AccountId,
-        Hash,
-    },
-    storage::traits::{
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
+};
+use ink_env::{
+    AccountId,
+    Hash,
 };
 use ink_prelude::{
     boxed::Box,
@@ -235,17 +233,14 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        env,
-        env::AccountId,
-        storage::traits::{
-            clear_spread_root,
-            pull_packed_root,
-            pull_spread_root,
-            push_packed_root,
-            push_spread_root,
-        },
+    use crate::traits::{
+        clear_spread_root,
+        pull_packed_root,
+        pull_spread_root,
+        push_packed_root,
+        push_spread_root,
     };
+    use ink_env::AccountId;
     use ink_primitives::Key;
 
     /// Runs `f` using the off-chain testing environment.
@@ -253,7 +248,7 @@ mod tests {
     where
         F: FnOnce(),
     {
-        env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
             f();
             Ok(())
         })

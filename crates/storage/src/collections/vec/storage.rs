@@ -15,7 +15,7 @@
 //! Implementation of ink! storage traits.
 
 use super::Vec as StorageVec;
-use crate::storage::{
+use crate::{
     lazy::LazyIndexMap,
     traits::{
         KeyPtr,
@@ -26,7 +26,7 @@ use crate::storage::{
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::{
+    use crate::{
         lazy::Lazy,
         traits::StorageLayout,
     };

@@ -19,17 +19,14 @@ use criterion::{
     BenchmarkId,
     Criterion,
 };
-use ink_core::{
-    env,
-    storage::{
-        lazy::Lazy,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+use ink_primitives::Key;
+use ink_storage::{
+    lazy::Lazy,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
 };
-use ink_primitives::Key;
 
 criterion_group!(populated_cache, bench_set_populated_cache);
 criterion_group!(empty_cache, bench_set_empty_cache,);
@@ -85,7 +82,7 @@ mod empty_cache {
 }
 
 fn bench_set_empty_cache(c: &mut Criterion) {
-    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (empty cache)");
         group.bench_function(BenchmarkId::new("set", 0), |b| {
             b.iter(|| empty_cache::set())

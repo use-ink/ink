@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #[cfg(doc)]
-use crate::storage::lazy::{
+use crate::lazy::{
     LazyArray,
     LazyIndexMap,
 };
-use crate::storage::traits::{
+use crate::traits::{
     clear_packed_root,
     clear_spread_root_opt,
     pull_packed_root_opt,

@@ -13,8 +13,6 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
-use crate::env;
-
 use itertools::Itertools;
 
 /// Conducts repeated insert and remove operations into the map by iterating

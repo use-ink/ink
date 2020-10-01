@@ -13,11 +13,9 @@
 // limitations under the License.
 
 use crate::{
-    storage,
-    storage::{
-        collections::extend_lifetime,
-        traits::PackedLayout,
-    },
+    collections::extend_lifetime,
+    traits::PackedLayout,
+    Vec as StorageVec,
 };
 
 /// An iterator over shared references to the elements of a storage vector.
@@ -27,7 +25,7 @@ where
     T: PackedLayout,
 {
     /// The storage vector to iterate over.
-    vec: &'a storage::Vec<T>,
+    vec: &'a StorageVec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -39,7 +37,7 @@ where
     T: PackedLayout,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(vec: &'a storage::Vec<T>) -> Self {
+    pub(crate) fn new(vec: &'a StorageVec<T>) -> Self {
         Self {
             vec,
             begin: 0,
@@ -115,7 +113,7 @@ where
     T: PackedLayout,
 {
     /// The storage vector to iterate over.
-    vec: &'a mut storage::Vec<T>,
+    vec: &'a mut StorageVec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -127,7 +125,7 @@ where
     T: PackedLayout,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(vec: &'a mut storage::Vec<T>) -> Self {
+    pub(crate) fn new(vec: &'a mut StorageVec<T>) -> Self {
         let len = vec.len();
         Self {
             vec,

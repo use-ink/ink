@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::DynamicAllocation;
-use crate::storage::{
+use crate::{
     collections::BitStash,
     traits::{
         KeyPtr,
@@ -31,7 +31,7 @@ pub struct DynamicAllocator {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage::traits::StorageLayout;
+    use crate::traits::StorageLayout;
     use ink_metadata::layout::{
         FieldLayout,
         Layout,
