@@ -513,7 +513,7 @@ where
 }
 
 /// Prints the given contents to the environmental log.
-pub fn println(content: &str) {
+pub fn debug_println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
 }
 
