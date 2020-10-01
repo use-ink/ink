@@ -66,7 +66,7 @@ fn put_and_take(xs: Vec<i32>, additional_puts_each: u8) {
 
 #[quickcheck]
 fn repeated_puts_and_takes(xs: Vec<i32>, additional_puts_each: u8) {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         put_and_take(xs, additional_puts_each);
         Ok(())
     })
