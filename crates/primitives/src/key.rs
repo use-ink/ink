@@ -31,7 +31,7 @@ use core::{
 ///
 /// # Unsafe
 ///
-/// Prefer using high-level types found in `ink_core` to operate on the contract
+/// Prefer using high-level types found in `ink_storage` to operate on the contract
 /// storage.
 #[derive(Copy, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]

@@ -195,7 +195,7 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
     })
 }
 
-/// Derives `ink_core`'s `SpreadLayout` trait for the given `struct` or `enum`.
+/// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or `enum`.
 pub fn spread_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)
