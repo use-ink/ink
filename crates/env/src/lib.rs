@@ -86,14 +86,6 @@ pub use self::{
         EnvError,
         Result,
     },
-    hash::{
-        Blake2x128,
-        Blake2x256,
-        CryptoHash,
-        HashOutput,
-        Keccak256,
-        Sha2x256,
-    },
     types::{
         AccountId,
         Clear,
