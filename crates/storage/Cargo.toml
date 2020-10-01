@@ -51,7 +51,6 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
-    # Enables hashing crates for off-chain environment.
 ]
 ink-fuzz-tests = ["std"]
 

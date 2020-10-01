@@ -12,9 +12,9 @@
 [d2]: https://coveralls.io/github/paritytech/ink?branch=master
 [e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
-[f1]: https://img.shields.io/badge/docs-core-blue.svg
+[f1]: https://img.shields.io/badge/docs-storage-blue.svg
 [f2]: https://paritytech.github.io/ink/ink_storage
-[g1]: https://img.shields.io/badge/docs-core-blue.svg
+[g1]: https://img.shields.io/badge/docs-env-blue.svg
 [g2]: https://paritytech.github.io/ink/ink_env
 [h1]: https://img.shields.io/badge/docs-metadata-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_metadata

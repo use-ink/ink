@@ -33,7 +33,3 @@ std = [
     "scale-info/std",
 ]
 ink-as-dependency = []
-
-[profile.release]
-opt-level = 3
-overflow-checks = false
