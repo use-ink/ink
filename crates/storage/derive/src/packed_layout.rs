@@ -15,22 +15,22 @@
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Derives `ink_core`'s `PackedLayout` trait for the given `struct` or `enum`.
+/// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
 pub fn packed_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)
         .underscore_const(true);
     let pull_body = s.each(|binding| {
-        quote! { ::ink_core::storage::traits::PackedLayout::pull_packed(#binding, __key); }
+        quote! { ::ink_storage::traits::PackedLayout::pull_packed(#binding, __key); }
     });
     let push_body = s.each(|binding| {
-        quote! { ::ink_core::storage::traits::PackedLayout::push_packed(#binding, __key); }
+        quote! { ::ink_storage::traits::PackedLayout::push_packed(#binding, __key); }
     });
     let clear_body = s.each(|binding| {
-        quote! { ::ink_core::storage::traits::PackedLayout::clear_packed(#binding, __key); }
+        quote! { ::ink_storage::traits::PackedLayout::clear_packed(#binding, __key); }
     });
     s.gen_impl(quote! {
-        gen impl ::ink_core::storage::traits::PackedLayout for @Self {
+        gen impl ::ink_storage::traits::PackedLayout for @Self {
             fn pull_packed(&mut self, __key: &::ink_primitives::Key) {
                 match self { #pull_body }
             }
