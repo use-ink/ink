@@ -106,9 +106,9 @@ impl Storage<'_> {
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",
-                derive(::ink_core::storage::traits::StorageLayout)
+                derive(::ink_storage::traits::StorageLayout)
             )]
-            #[derive(::ink_core::storage::traits::SpreadLayout)]
+            #[derive(::ink_storage::traits::SpreadLayout)]
             #[cfg_attr(test, derive(Debug))]
             pub struct #ident {
                 #( #fields ),*

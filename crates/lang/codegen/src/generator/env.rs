@@ -34,11 +34,11 @@ impl GenerateCode for Env<'_> {
 
             type EnvTypes = <#storage_ident as ::ink_lang::ContractEnv>::Env;
 
-            type AccountId = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::AccountId;
-            type Balance = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Balance;
-            type Hash = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Hash;
-            type Timestamp = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Timestamp;
-            type BlockNumber = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::BlockNumber;
+            type AccountId = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes>::AccountId;
+            type Balance = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes>::Balance;
+            type Hash = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes>::Hash;
+            type Timestamp = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes>::Timestamp;
+            type BlockNumber = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes>::BlockNumber;
         }
     }
 }

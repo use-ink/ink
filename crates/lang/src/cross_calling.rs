@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_core::env::EnvTypes;
+use ink_env::EnvTypes;
 
 /// The type that can never be returned because it is not possible to craft an instance of it.
 pub enum NeverReturns {}

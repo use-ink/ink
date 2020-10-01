@@ -24,21 +24,19 @@ use core::{
     any::TypeId,
     mem::ManuallyDrop,
 };
-use ink_core::{
-    env::{
-        EnvTypes,
-        ReturnFlags,
-    },
-    storage::{
-        alloc,
-        alloc::ContractPhase,
-        traits::{
-            pull_spread_root,
-            push_spread_root,
-        },
-    },
+use ink_env::{
+    EnvTypes,
+    ReturnFlags,
 };
 use ink_primitives::Key;
+use ink_storage::{
+    alloc,
+    alloc::ContractPhase,
+    traits::{
+        pull_spread_root,
+        push_spread_root,
+    },
+};
 
 /// Results of message handling operations.
 pub type Result<T> = core::result::Result<T, DispatchError>;
@@ -120,7 +118,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::return_value::<<M as FnOutput>::Output>(
+        ink_env::return_value::<<M as FnOutput>::Output>(
             ReturnFlags::default(),
             &result,
         )
@@ -138,7 +136,7 @@ pub fn deny_payment<E>() -> Result<()>
 where
     E: EnvTypes,
 {
-    let transferred = ink_core::env::transferred_balance::<E>()
+    let transferred = ink_env::transferred_balance::<E>()
         .expect("encountered error while querying transferred balance");
     if transferred != <E as EnvTypes>::Balance::from(0) {
         return Err(DispatchError::PaidUnpayableMessage)
@@ -181,7 +179,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::return_value::<<M as FnOutput>::Output>(
+        ink_env::return_value::<<M as FnOutput>::Output>(
             ReturnFlags::default(),
             &result,
         )
