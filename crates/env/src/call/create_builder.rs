@@ -13,21 +13,18 @@
 // limitations under the License.
 
 use crate::{
-    env,
-    env::{
-        call::{
-            utils::{
-                EmptyArgumentList,
-                ReturnType,
-                Set,
-                Unset,
-                Unwrap,
-            },
-            ExecutionInput,
+    call::{
+        utils::{
+            EmptyArgumentList,
+            ReturnType,
+            Set,
+            Unset,
+            Unwrap,
         },
-        EnvError,
-        EnvTypes,
+        ExecutionInput,
     },
+    EnvError,
+    EnvTypes,
 };
 use core::marker::PhantomData;
 
@@ -106,8 +103,8 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
-    pub fn instantiate(&self) -> Result<R, env::EnvError> {
-        env::instantiate_contract(self).map(FromAccountId::from_account_id)
+    pub fn instantiate(&self) -> Result<R, crate::EnvError> {
+        crate::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
 

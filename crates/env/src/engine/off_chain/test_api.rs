@@ -27,7 +27,7 @@ use super::{
     EnvInstance,
     OnInstance,
 };
-use crate::env::{
+use crate::{
     EnvTypes,
     Result,
 };
@@ -196,7 +196,7 @@ where
 ///
 /// # Note
 ///
-/// This allows to control what [`crate::env::random`] returns.
+/// This allows to control what [`crate::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
     T: EnvTypes,
@@ -207,7 +207,7 @@ where
     .map_err(Into::into)
 }
 
-/// Update the [ChainSpec](`crate::env::engine::off_chain::db::ChainSpec`) for the test environment
+/// Update the [ChainSpec](`crate::engine::off_chain::db::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
     F: FnOnce(&mut ChainSpec)

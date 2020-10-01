@@ -16,7 +16,7 @@
 //!
 //! Refer to substrate SRML contract module for more documentation.
 
-use crate::env::ReturnFlags;
+use crate::ReturnFlags;
 use core::marker::PhantomData;
 use ink_primitives::Key;
 

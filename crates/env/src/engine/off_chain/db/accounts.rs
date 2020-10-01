@@ -20,7 +20,7 @@ use super::{
     OffAccountId,
     OffBalance,
 };
-use crate::env::{
+use crate::{
     EnvError,
     EnvTypes,
 };

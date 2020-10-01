@@ -17,7 +17,7 @@ use super::{
     Account,
     EnvInstance,
 };
-use crate::env::{
+use crate::{
     call::{
         utils::ReturnType,
         CallParams,
@@ -249,7 +249,7 @@ impl TypedEnv for EnvInstance {
 
     /// Emulates gas price calculation
     fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
-        use crate::env::arithmetic::Saturating as _;
+        use crate::arithmetic::Saturating as _;
 
         let gas_price = self
             .chain_spec

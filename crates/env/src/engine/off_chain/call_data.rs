@@ -1,4 +1,4 @@
-use crate::env::call::Selector;
+use crate::call::Selector;
 use ink_prelude::{
     vec,
     vec::Vec,

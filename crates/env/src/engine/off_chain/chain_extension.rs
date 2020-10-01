@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::OffChainError;
-use crate::env::Result;
+use crate::Result;
 use std::collections::HashMap;
 
 type FuncId = u32;

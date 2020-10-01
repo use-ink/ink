@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env;
-
 static TEST_INPUT: &[u8] = b"DEAD_BEEF";
 
 #[test]
 fn test_hash_keccak_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_bytes::<env::hash::Keccak256>(TEST_INPUT, &mut output);
+    crate::hash_bytes::<crate::hash::Keccak256>(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -32,7 +30,7 @@ fn test_hash_keccak_256() {
 #[test]
 fn test_hash_sha2_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_bytes::<env::hash::Sha2x256>(TEST_INPUT, &mut output);
+    crate::hash_bytes::<crate::hash::Sha2x256>(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -45,7 +43,7 @@ fn test_hash_sha2_256() {
 #[test]
 fn test_hash_blake2_256() {
     let mut output = [0x00_u8; 32];
-    env::hash_bytes::<env::hash::Blake2x256>(TEST_INPUT, &mut output);
+    crate::hash_bytes::<crate::hash::Blake2x256>(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [
@@ -58,7 +56,7 @@ fn test_hash_blake2_256() {
 #[test]
 fn test_hash_blake2_128() {
     let mut output = [0x00_u8; 16];
-    env::hash_bytes::<env::hash::Blake2x128>(TEST_INPUT, &mut output);
+    crate::hash_bytes::<crate::hash::Blake2x128>(TEST_INPUT, &mut output);
     assert_eq!(
         output,
         [180, 158, 48, 21, 171, 163, 217, 175, 145, 160, 25, 159, 213, 142, 103, 242]

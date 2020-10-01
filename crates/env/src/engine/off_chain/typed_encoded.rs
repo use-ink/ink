@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::OffChainError;
-use crate::env::EnvError;
+use crate::EnvError;
 use core::{
     any::TypeId,
     cmp::Ordering,

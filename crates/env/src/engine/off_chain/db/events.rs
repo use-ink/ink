@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::super::OffHash;
-use crate::env::{
+use crate::{
     EnvTypes,
     Topics,
 };

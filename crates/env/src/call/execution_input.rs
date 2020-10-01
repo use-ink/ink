@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::env::call::Selector;
+use crate::call::Selector;
 
 /// The input data for a smart contract execution.
 #[derive(Debug)]

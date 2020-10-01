@@ -13,21 +13,18 @@
 // limitations under the License.
 
 use crate::{
-    env,
-    env::{
-        call::{
-            utils::{
-                EmptyArgumentList,
-                ReturnType,
-                Set,
-                Unset,
-                Unwrap,
-            },
-            ExecutionInput,
+    call::{
+        utils::{
+            EmptyArgumentList,
+            ReturnType,
+            Set,
+            Unset,
+            Unwrap,
         },
-        EnvError,
-        EnvTypes,
+        ExecutionInput,
     },
+    EnvError,
+    EnvTypes,
 };
 use core::marker::PhantomData;
 
@@ -95,8 +92,8 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), env::EnvError> {
-        env::invoke_contract(self)
+    pub fn invoke(&self) -> Result<(), crate::EnvError> {
+        crate::invoke_contract(self)
     }
 }
 
@@ -114,8 +111,8 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, env::EnvError> {
-        env::eval_contract(self)
+    pub fn eval(&self) -> Result<R, crate::EnvError> {
+        crate::eval_contract(self)
     }
 }
 

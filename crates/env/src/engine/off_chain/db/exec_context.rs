@@ -21,7 +21,7 @@ use super::{
     OffAccountId,
     OffBalance,
 };
-use crate::env::EnvTypes;
+use crate::EnvTypes;
 use ink_prelude::vec::Vec;
 
 pub type Bytes = Vec<u8>;

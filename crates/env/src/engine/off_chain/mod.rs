@@ -56,7 +56,7 @@ use self::{
 #[cfg(feature = "ink-unstable-chain-extensions")]
 use self::chain_extension::ChainExtensionHandler;
 use super::OnInstance;
-use crate::env::EnvTypes;
+use crate::EnvTypes;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -116,7 +116,7 @@ impl EnvInstance {
     }
 
     /// Either resets or initializes the off-chain environment to default values.
-    pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::env::Result<()>
+    pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::Result<()>
     where
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,
@@ -153,7 +153,7 @@ impl EnvInstance {
     ///
     /// This routine implements a default initialization that should be fine
     /// for most use cases.
-    pub fn initialize_as_default<T>(&mut self) -> crate::env::Result<()>
+    pub fn initialize_as_default<T>(&mut self) -> crate::Result<()>
     where
         T: EnvTypes,
         <T as EnvTypes>::AccountId: From<[u8; 32]>,
@@ -198,7 +198,7 @@ impl EnvInstance {
             T::Balance::from(20),
         );
         // Initialize the execution context for the first contract execution.
-        use crate::env::call::Selector;
+        use crate::call::Selector;
         // The below selector bytes are incorrect but since calling doesn't work
         // yet we do not have to fix this now.
         let selector_bytes_for_call = [0x00; 4];
@@ -215,7 +215,7 @@ impl EnvInstance {
     }
 
     /// Advances the chain by a single block.
-    pub fn advance_block<T>(&mut self) -> crate::env::Result<()>
+    pub fn advance_block<T>(&mut self) -> crate::Result<()>
     where
         T: EnvTypes,
     {
