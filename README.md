@@ -20,6 +20,8 @@
 [h2]: https://paritytech.github.io/ink/ink_metadata
 [i1]: https://img.shields.io/badge/docs-prelude-blue.svg
 [i2]: https://paritytech.github.io/ink/ink_prelude
+[j1]: https://img.shields.io/badge/docs-lang-blue.svg
+[j2]: https://paritytech.github.io/ink/ink_lang
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -29,9 +31,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_metadata` | `ink_env` | `ink_storage` | `ink_prelude` |
-| ------------- | ------------- | ------------- | ------------- |
-| [![][h1]][h2] | [![][g1]][g2] | [![][f1]][f2] | [![][i1]][i2] |
+| `ink_metadata` | `ink_env` | `ink_storage` | `ink_lang` | `ink_prelude` |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][g1]][g2] | [![][f1]][f2] | [![][j1]][j2] | [![][i1]][i2] |
 
 ### Interaction with Substrate
 
