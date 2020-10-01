@@ -130,7 +130,7 @@ impl Key {
     /// Returns the underlying bytes of the key.
     ///
     /// This only works and is supported if the target machine has little-endian
-    /// byte ordering. Use [`try_as_bytes`] as a general procedure instead.
+    /// byte ordering. Use [`Key::try_as_bytes`] as a general procedure instead.
     #[cfg(target_endian = "little")]
     pub fn as_bytes(&self) -> &[u8; 32] {
         // SAFETY: This pointer cast is possible since the outer struct

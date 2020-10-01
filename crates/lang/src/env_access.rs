@@ -111,7 +111,7 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::gas_price`]
+    /// For more details visit: [`ink_env::weight_to_fee`]
     pub fn weight_to_fee(self, gas: u64) -> T::Balance {
         ink_env::weight_to_fee::<T>(gas).expect("couldn't decode weight fee")
     }

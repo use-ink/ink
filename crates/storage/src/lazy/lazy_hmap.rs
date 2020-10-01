@@ -60,7 +60,7 @@ use ink_primitives::Key;
 ///
 /// We keep the whole entry in a `Box<T>` in order to prevent pointer
 /// invalidation upon updating the cache through `&self` methods as in
-/// [`LazyMap::get`].
+/// [`LazyHashMap::get`].
 pub type EntryMap<K, V> = BTreeMap<K, Box<StorageEntry<V>>>;
 
 /// A lazy storage mapping that stores entries under their SCALE encoded key hashes.

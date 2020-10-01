@@ -209,7 +209,7 @@ where
     .map_err(Into::into)
 }
 
-/// Update the [ChainSpec](`crate::engine::off_chain::db::ChainSpec`) for the test environment
+/// Update the [ChainSpec](`crate::test::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
     F: FnOnce(&mut ChainSpec),
