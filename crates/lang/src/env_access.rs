@@ -19,6 +19,10 @@ use ink_env::{
         CallParams,
         CreateParams,
     },
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     EnvTypes,
     Result,
 };
@@ -287,7 +291,32 @@ where
         ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
     }
 
+    /// Computes the hash of the given bytes using the cryptographic hash `H`.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::hash_bytes`]
+    pub fn hash_bytes<H>(self, input: &[u8]) -> <H as HashOutput>::Type
     where
+        H: CryptoHash,
     {
+        let mut output = <H as HashOutput>::Type::default();
+        ink_env::hash_bytes::<H>(input, &mut output);
+        output.into()
+    }
+
+    /// Computes the hash of the given SCALE encoded value using the cryptographic hash `H`.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::hash_encoded`]
+    pub fn hash_encoded<H, V>(self, value: &V) -> <H as HashOutput>::Type
+    where
+        H: CryptoHash,
+        V: scale::Encode,
+    {
+        let mut output = <H as HashOutput>::Type::default();
+        ink_env::hash_encoded::<H, V>(value, &mut output);
+        output.into()
     }
 }
