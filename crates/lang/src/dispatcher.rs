@@ -118,10 +118,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_env::return_value::<<M as FnOutput>::Output>(
-            ReturnFlags::default(),
-            &result,
-        )
+        ink_env::return_value::<<M as FnOutput>::Output>(ReturnFlags::default(), &result)
     }
     Ok(())
 }
@@ -179,10 +176,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_env::return_value::<<M as FnOutput>::Output>(
-            ReturnFlags::default(),
-            &result,
-        )
+        ink_env::return_value::<<M as FnOutput>::Output>(ReturnFlags::default(), &result)
     }
     Ok(())
 }

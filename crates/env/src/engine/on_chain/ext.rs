@@ -231,7 +231,11 @@ mod sys {
             data_len: u32,
         );
 
-        pub fn seal_set_storage(key_ptr: Ptr32<[u8]>, value_ptr: Ptr32<[u8]>, value_len: u32);
+        pub fn seal_set_storage(
+            key_ptr: Ptr32<[u8]>,
+            value_ptr: Ptr32<[u8]>,
+            value_len: u32,
+        );
         pub fn seal_get_storage(
             key_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,

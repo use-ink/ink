@@ -268,7 +268,12 @@ where
         rent_allowance: T::Balance,
         filtered_keys: &[Key],
     ) {
-        ink_env::restore_contract::<T>(account_id, code_hash, rent_allowance, filtered_keys)
+        ink_env::restore_contract::<T>(
+            account_id,
+            code_hash,
+            rent_allowance,
+            filtered_keys,
+        )
     }
 
     /// Terminates the existence of a smart contract.

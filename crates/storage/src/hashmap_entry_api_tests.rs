@@ -432,17 +432,15 @@ mod lazyhmap_backend {
 
 mod hashmap_backend {
     use super::*;
-    use ink_env::hash::Blake2x256;
-    use crate::{
-        collections::hashmap::{
-            Entry,
-            Entry::{
-                Occupied,
-                Vacant,
-            },
-            HashMap as StorageHashMap,
+    use crate::collections::hashmap::{
+        Entry,
+        Entry::{
+            Occupied,
+            Vacant,
         },
+        HashMap as StorageHashMap,
     };
+    use ink_env::hash::Blake2x256;
 
     gen_tests_for_backend!(StorageHashMap<u8, i32, Blake2x256>);
 }

@@ -30,8 +30,8 @@ use crate::{
     Env,
     EnvError,
     EnvTypes,
-    Keccak256,
     HashOutput,
+    Keccak256,
     Result,
     ReturnFlags,
     Sha2x256,
@@ -43,7 +43,10 @@ use ink_primitives::Key;
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 16];
-        static_assertions::assert_type_eq_all!(<Blake2x128 as HashOutput>::Type, OutputType);
+        static_assertions::assert_type_eq_all!(
+            <Blake2x128 as HashOutput>::Type,
+            OutputType
+        );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
         ext::hash_blake2_128(input, output);
     }
@@ -52,7 +55,10 @@ impl CryptoHash for Blake2x128 {
 impl CryptoHash for Blake2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
-        static_assertions::assert_type_eq_all!(<Blake2x256 as HashOutput>::Type, OutputType);
+        static_assertions::assert_type_eq_all!(
+            <Blake2x256 as HashOutput>::Type,
+            OutputType
+        );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
         ext::hash_blake2_256(input, output);
     }
@@ -61,7 +67,10 @@ impl CryptoHash for Blake2x256 {
 impl CryptoHash for Sha2x256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
-        static_assertions::assert_type_eq_all!(<Sha2x256 as HashOutput>::Type, OutputType);
+        static_assertions::assert_type_eq_all!(
+            <Sha2x256 as HashOutput>::Type,
+            OutputType
+        );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
         ext::hash_sha2_256(input, output);
     }
@@ -70,7 +79,10 @@ impl CryptoHash for Sha2x256 {
 impl CryptoHash for Keccak256 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
         type OutputType = [u8; 32];
-        static_assertions::assert_type_eq_all!(<Keccak256 as HashOutput>::Type, OutputType);
+        static_assertions::assert_type_eq_all!(
+            <Keccak256 as HashOutput>::Type,
+            OutputType
+        );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
     }

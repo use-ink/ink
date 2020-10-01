@@ -78,7 +78,7 @@ impl ChainSpec {
     /// Set the gas price for the chain.
     pub fn set_gas_price<T>(&mut self, gas_price: T::Balance)
     where
-        T: EnvTypes
+        T: EnvTypes,
     {
         self.gas_price = OffBalance::new(&gas_price)
     }

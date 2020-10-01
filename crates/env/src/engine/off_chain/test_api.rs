@@ -14,13 +14,13 @@
 
 //! Operations on the off-chain testing environment.
 
-pub use super::{
-    CallData,
-    EmittedEvent,
-    db::ChainSpec,
-};
 #[cfg(feature = "ink-unstable-chain-extensions")]
 use super::chain_extension::ChainExtension;
+pub use super::{
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
+};
 use super::{
     db::ExecContext,
     AccountError,
@@ -188,7 +188,9 @@ where
     O: scale::Codec + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.chain_extension_handler.register(Box::new(extension));
+        instance
+            .chain_extension_handler
+            .register(Box::new(extension));
     })
 }
 
@@ -210,11 +212,9 @@ where
 /// Update the [ChainSpec](`crate::engine::off_chain::db::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
-    F: FnOnce(&mut ChainSpec)
+    F: FnOnce(&mut ChainSpec),
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        f(instance.chain_spec_mut())
-    });
+    <EnvInstance as OnInstance>::on_instance(|instance| f(instance.chain_spec_mut()));
     Ok(())
 }
 

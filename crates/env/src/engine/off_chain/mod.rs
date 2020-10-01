@@ -13,18 +13,20 @@
 // limitations under the License.
 
 mod call_data;
+#[cfg(feature = "ink-unstable-chain-extensions")]
+mod chain_extension;
 mod db;
 mod hashing;
 mod impls;
 pub mod test_api;
 mod typed_encoded;
-#[cfg(feature = "ink-unstable-chain-extensions")]
-mod chain_extension;
 mod types;
 
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "ink-unstable-chain-extensions")]
+use self::chain_extension::ChainExtensionHandler;
 pub use self::{
     call_data::CallData,
     db::{
@@ -53,8 +55,6 @@ use self::{
         OffTimestamp,
     },
 };
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use self::chain_extension::ChainExtensionHandler;
 use super::OnInstance;
 use crate::EnvTypes;
 use core::cell::RefCell;

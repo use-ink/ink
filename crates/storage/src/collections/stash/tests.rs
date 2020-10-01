@@ -13,11 +13,9 @@
 // limitations under the License.
 
 use super::Stash as StorageStash;
-use crate::{
-    traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 
