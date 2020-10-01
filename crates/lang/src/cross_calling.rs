@@ -15,12 +15,14 @@
 use ink_env::EnvTypes;
 
 /// The type that can never be returned because it is not possible to craft an instance of it.
+#[doc(hidden)]
 pub enum NeverReturns {}
 
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// This allows to forward `&self` calls to a call forwarder
 /// that encodes and dispatches the calls to the chain.
+#[doc(hidden)]
 pub trait ForwardCall {
     /// The call forwarder that handles `&self` messages.
     type Forwarder;
@@ -33,6 +35,7 @@ pub trait ForwardCall {
 ///
 /// This allows to forward `&mut self` calls to a call forwarder
 /// that encodes and dispatches the calls to the chain.
+#[doc(hidden)]
 pub trait ForwardCallMut {
     /// The call forwarder that handles `&mut self` messages.
     type Forwarder;

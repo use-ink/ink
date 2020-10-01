@@ -39,15 +39,18 @@ use ink_storage::{
 };
 
 /// Results of message handling operations.
+#[doc(hidden)]
 pub type Result<T> = core::result::Result<T, DispatchError>;
 
 /// Connector trait: Connects enum dispatcher for messages with the contract.
+#[doc(hidden)]
 pub trait MessageDispatcher {
     /// The contract's message dispatcher type.
     type Type;
 }
 
 /// Connector trait: Connects enum dispatcher for constructors with the contract.
+#[doc(hidden)]
 pub trait ConstructorDispatcher {
     /// The contract's constructors dispatcher type.
     type Type;
@@ -58,6 +61,7 @@ pub trait ConstructorDispatcher {
 /// The generated message and constructor dispatch enums implement this trait
 /// in order to forward their already decoded state to the selected messages
 /// or constructors.
+#[doc(hidden)]
 pub trait Execute {
     /// Starts the smart contract execution.
     fn execute(self) -> Result<()>;
@@ -65,6 +69,7 @@ pub trait Execute {
 
 /// Yields `true` if the message accepts payments.
 #[derive(Copy, Clone)]
+#[doc(hidden)]
 pub struct AcceptsPayments(pub bool);
 
 impl From<AcceptsPayments> for bool {
@@ -76,6 +81,7 @@ impl From<AcceptsPayments> for bool {
 
 /// Yields `true` if the dynamic storage allocator is enabled for the given call.
 #[derive(Copy, Clone)]
+#[doc(hidden)]
 pub struct EnablesDynamicStorageAllocator(pub bool);
 
 impl From<EnablesDynamicStorageAllocator> for bool {
@@ -92,6 +98,7 @@ impl From<EnablesDynamicStorageAllocator> for bool {
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_message<E, M, F>(
     accepts_payments: AcceptsPayments,
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
@@ -129,6 +136,7 @@ where
 ///
 /// If the caller did send some amount of transferred value to the callee.
 #[inline]
+#[doc(hidden)]
 pub fn deny_payment<E>() -> Result<()>
 where
     E: EnvTypes,
@@ -148,6 +156,7 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_message_mut<E, M, F>(
     accepts_payments: AcceptsPayments,
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
@@ -188,6 +197,7 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_constructor<C, F>(
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
     f: F,

@@ -71,6 +71,7 @@ pub use self::{
         ImpliesReturn,
         MessageMut,
         MessageRef,
+        True,
     },
 };
 pub use ::static_assertions;
