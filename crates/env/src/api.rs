@@ -532,14 +532,14 @@ where
 /// # Example
 ///
 /// ```
-/// # use ink_core::env::hash::{Sha2x256, HashOutput};
+/// # use ink_env::hash::{Sha2x256, HashOutput};
 /// const EXPECTED: [u8; 32] = [
 ///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
 ///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
 /// ];
 /// let encodable = (42, "foo", true); // Implements `scale::Encode`
 /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
-/// ink_core::env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
+/// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
 /// assert_eq!(output, EXPECTED);
 /// ```
 pub fn hash_encoded<H, T>(input: &T, output: &mut <H as HashOutput>::Type)

@@ -138,7 +138,7 @@ where
 ///    3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
-/// # use ::ink_core::env::{
+/// # use ::ink_env::{
 /// #     EnvTypes,
 /// #     DefaultEnvTypes,
 /// #     call::{build_call, Selector, ExecutionInput}
@@ -173,7 +173,7 @@ where
 ///    3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
-/// # use ::ink_core::env::{
+/// # use ::ink_env::{
 /// #     EnvTypes,
 /// #     DefaultEnvTypes,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},
