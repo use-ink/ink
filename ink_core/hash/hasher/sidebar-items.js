@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Blake2x128Hasher","BLAKE2 128-bit hasher."],["Blake2x256Hasher","BLAKE2 256-bit hasher."],["Keccak256Hasher","KECCAK 256-bit hasher."],["Sha2x256Hasher","SHA2 256-bit hasher."]],"trait":[["Hasher","Types that implement this trait are marker types that identify a supported cryptographic hash function."]]});

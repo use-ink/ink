@@ -566,6 +566,7 @@
 <span id="563">563</span>
 <span id="564">564</span>
 <span id="565">565</span>
+<span id="566">566</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -601,9 +602,10 @@
     <span class="ident">ValuesMut</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">hash</span>::<span class="ident">hasher</span>::{
-        <span class="ident">Blake2x256Hasher</span>,
-        <span class="ident">Hasher</span>,
+    <span class="ident">env</span>::<span class="ident">hash</span>::{
+        <span class="ident">Blake2x256</span>,
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
     },
     <span class="ident">storage</span>::{
         <span class="ident">collections</span>::<span class="ident">Stash</span>,
@@ -650,12 +652,12 @@
 <span class="doccomment">/// Users should generally prefer using this storage hash map over the low-level</span>
 <span class="doccomment">/// `LazyHashMap` for direct usage in their smart contracts.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span> <span class="op">=</span> <span class="ident">Blake2x256Hasher</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span> <span class="op">=</span> <span class="ident">Blake2x256</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// The keys of the storage hash map.</span>
     <span class="ident">keys</span>: <span class="ident">Stash</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
@@ -718,8 +720,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Creates a new empty storage hash map.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -807,8 +809,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">clear_cells</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">values</span>.<span class="ident">key</span>().<span class="ident">is_none</span>() {
@@ -833,8 +835,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Inserts a key-value pair into the map.</span>
     <span class="doccomment">///</span>

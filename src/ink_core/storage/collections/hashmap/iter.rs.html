@@ -420,6 +420,9 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -437,7 +440,10 @@
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ValueEntry</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">hash</span>::<span class="ident">hasher</span>::<span class="ident">Hasher</span>,
+    <span class="ident">env</span>::<span class="ident">hash</span>::{
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
+    },
     <span class="ident">storage</span>::{
         <span class="ident">collections</span>::{
             <span class="ident">extend_lifetime</span>,
@@ -469,9 +475,9 @@
     <span class="doccomment">/// Creates a new iterator for the given storage hash map.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">hash_map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
         <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">keys_iter</span>: <span class="ident">hash_map</span>.<span class="ident">keys</span>.<span class="ident">iter</span>(),
@@ -484,8 +490,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Queries the value for the given key and returns the key/value pair.</span>
     <span class="doccomment">///</span>
@@ -505,8 +511,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">V</span>);
 
@@ -528,8 +534,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
 }
 
@@ -537,8 +543,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next_back</span>()<span class="question-mark">?</span>;
@@ -565,9 +571,9 @@
     <span class="doccomment">/// Creates a new iterator for the given storage hash map.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">hash_map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
         <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">keys_iter</span>: <span class="ident">hash_map</span>.<span class="ident">keys</span>.<span class="ident">iter</span>(),
@@ -580,8 +586,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Queries the value for the given key and returns the key/value pair.</span>
     <span class="doccomment">///</span>
@@ -603,8 +609,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">K</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">V</span>);
 
@@ -626,8 +632,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
 }
 
@@ -635,8 +641,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next_back</span>()<span class="question-mark">?</span>;
@@ -661,9 +667,9 @@
     <span class="doccomment">/// Creates a new iterator for the given storage hash map.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">hash_map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
         <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">hash_map</span>.<span class="ident">iter</span>(),
@@ -675,8 +681,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">V</span>;
 
@@ -697,8 +703,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
 }
 
@@ -706,8 +712,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
@@ -731,9 +737,9 @@
     <span class="doccomment">/// Creates a new iterator for the given storage hash map.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">hash_map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
         <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">hash_map</span>.<span class="ident">iter_mut</span>(),
@@ -745,8 +751,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">V</span>;
 
@@ -767,8 +773,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
 }
 
@@ -776,8 +782,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">H</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
@@ -801,9 +807,9 @@
     <span class="doccomment">/// Creates a new iterator for the given storage hash map.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">hash_map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">H</span>: <span class="ident">Hasher</span>,
         <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">hash_map</span>.<span class="ident">keys</span>.<span class="ident">iter</span>(),

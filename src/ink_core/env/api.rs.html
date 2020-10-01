@@ -553,6 +553,7 @@
 <span id="550">550</span>
 <span id="551">551</span>
 <span id="552">552</span>
+<span id="553">553</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -584,6 +585,10 @@
     <span class="ident">engine</span>::{
         <span class="ident">EnvInstance</span>,
         <span class="ident">OnInstance</span>,
+    },
+    <span class="ident">hash</span>::{
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
     },
     <span class="ident">EnvTypes</span>,
     <span class="prelude-ty">Result</span>,
@@ -1069,42 +1074,39 @@
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">Env</span>::<span class="ident">println</span>(<span class="ident">instance</span>, <span class="ident">content</span>))
 }
 
-<span class="doccomment">/// Built-in efficient cryptographic hash functions.</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hash</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span>)
+<span class="kw">where</span>
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">hash_bytes</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    })
+}
 
-    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_hash_fn</span> {
-        ( $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">output_len</span>:<span class="ident">literal</span>) ) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="ident">paste</span>::<span class="macro">item</span><span class="macro">!</span> {
-                $( <span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">doc</span>]</span> )<span class="op">*</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output_len</span>]) {
-                    <span class="comment">// No need to actually access the environmental instance</span>
-                    <span class="comment">// if we only call one of its inherent methods.</span>
-                    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">Env</span><span class="op">&gt;</span>::[<span class="op">&lt;</span><span class="ident">hash_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>](<span class="ident">input</span>, <span class="ident">output</span>)
-                }
-            }
-        };
-    }
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the SHA2 256-bit hash of the given bytes and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">sha2_256</span>(<span class="number">32</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the KECCAK 256-bit hash of the given bytes and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">keccak_256</span>(<span class="number">32</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the BLAKE2 256-bit hash of the given bytes and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">blake2_256</span>(<span class="number">32</span>)
-    );
-    <span class="macro">impl_hash_fn</span><span class="macro">!</span>(
-        <span class="doccomment">/// Conducts the BLAKE2 128-bit hash of the given bytes and</span>
-        <span class="doccomment">/// puts the result into the output buffer.</span>
-        <span class="kw">fn</span> <span class="ident">blake2_128</span>(<span class="number">16</span>)
-    );
+<span class="doccomment">/// Conducts the crypto hash of the given encoded input and stores the result in `output`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use ink_core::env::hash::{Sha2x256, HashOutput};</span>
+<span class="doccomment">/// const EXPECTED: [u8; 32] = [</span>
+<span class="doccomment">///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,</span>
+<span class="doccomment">///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,</span>
+<span class="doccomment">/// ];</span>
+<span class="doccomment">/// let encodable = (42, &quot;foo&quot;, true); // Implements `scale::Encode`</span>
+<span class="doccomment">/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer</span>
+<span class="doccomment">/// ink_core::env::hash_encoded::&lt;Sha2x256, _&gt;(&amp;encodable, &amp;mut output);</span>
+<span class="doccomment">/// assert_eq!(output, EXPECTED);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span>)
+<span class="kw">where</span>
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">hash_encoded</span>::<span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>, <span class="ident">output</span>)
+    })
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "ink_core";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

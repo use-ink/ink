@@ -139,6 +139,9 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -161,7 +164,10 @@
     <span class="ident">ValueEntry</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">hash</span>::<span class="ident">hasher</span>::<span class="ident">Hasher</span>,
+    <span class="ident">env</span>::<span class="ident">hash</span>::{
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
+    },
     <span class="ident">storage</span>::{
         <span class="ident">collections</span>::<span class="ident">Stash</span> <span class="kw">as</span> <span class="ident">StorageStash</span>,
         <span class="ident">traits</span>::{
@@ -196,8 +202,8 @@
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">H</span>: <span class="ident">LayoutCryptoHasher</span> <span class="op">+</span> <span class="ident">Hasher</span>,
-        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+        <span class="ident">H</span>: <span class="ident">LayoutCryptoHasher</span> <span class="op">+</span> <span class="ident">CryptoHash</span>,
+        <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
     {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
             <span class="ident">Layout</span>::<span class="ident">Struct</span>(<span class="ident">StructLayout</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -255,8 +261,8 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
     <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">H</span>: <span class="ident">Hasher</span>,
-    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">Hasher</span><span class="op">&gt;</span>::<span class="ident">Output</span><span class="op">&gt;</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="op">&lt;</span><span class="ident">StorageStash</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>;
 

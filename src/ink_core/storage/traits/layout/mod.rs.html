@@ -86,10 +86,10 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">hash</span>::<span class="ident">hasher</span>::{
-        <span class="ident">Blake2x256Hasher</span>,
-        <span class="ident">Keccak256Hasher</span>,
-        <span class="ident">Sha2x256Hasher</span>,
+    <span class="ident">env</span>::<span class="ident">hash</span>::{
+        <span class="ident">Blake2x256</span>,
+        <span class="ident">Keccak256</span>,
+        <span class="ident">Sha2x256</span>,
     },
     <span class="ident">storage</span>::<span class="ident">traits</span>::<span class="ident">KeyPtr</span>,
 };
@@ -113,19 +113,19 @@
     <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span>;
 }
 
-<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Blake2x256Hasher</span> {
+<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Blake2x256</span> {
     <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher</span>::<span class="ident">Blake2x256</span>
     }
 }
 
-<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Sha2x256Hasher</span> {
+<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {
     <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher</span>::<span class="ident">Sha2x256</span>
     }
 }
 
-<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Keccak256Hasher</span> {
+<span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Keccak256</span> {
     <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher</span>::<span class="ident">Keccak256</span>
     }

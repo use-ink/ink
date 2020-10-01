@@ -475,7 +475,7 @@
     <span class="kw">fn</span> <span class="ident">empty_args_works</span>() {
         <span class="kw">let</span> <span class="ident">empty_list</span> <span class="op">=</span> <span class="ident">ArgumentList</span>::<span class="ident">empty</span>();
         <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoded</span>, <span class="ident">Vec</span>::<span class="ident">new</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">encoded</span>, <span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
