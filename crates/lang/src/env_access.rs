@@ -143,22 +143,6 @@ where
         ink_env::account_id::<T>().expect("couldn't decode contract account ID")
     }
 
-    /// Returns the account ID of the executed contract.
-    ///
-    /// # Note
-    ///
-    /// - This functionality is deprecated. Please use [`EnvAccess::account_id`]
-    ///   instead.
-    /// - For more details visit: [`ink_env::account_id`]
-    ///
-    /// # Panics
-    ///
-    /// If the returned value cannot be properly decoded.
-    #[deprecated(note = "please use self.env().account_id")]
-    pub fn address(self) -> T::AccountId {
-        ink_env::account_id::<T>().expect("couldn't decode contract account ID")
-    }
-
     /// Returns the balance of the executed contract.
     ///
     /// # Note
