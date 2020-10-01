@@ -302,7 +302,7 @@ where
     {
         let mut output = <H as HashOutput>::Type::default();
         ink_env::hash_bytes::<H>(input, &mut output);
-        output.into()
+        output
     }
 
     /// Computes the hash of the given SCALE encoded value using the cryptographic hash `H`.
@@ -317,6 +317,6 @@ where
     {
         let mut output = <H as HashOutput>::Type::default();
         ink_env::hash_encoded::<H, V>(value, &mut output);
-        output.into()
+        output
     }
 }
