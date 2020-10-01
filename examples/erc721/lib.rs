@@ -521,10 +521,11 @@ mod erc721 {
             // Token Id 2 is owned by Alice.
             assert_eq!(erc721.owner_of(2), Some(accounts.alice));
             // Get contract address
-            let callee =
-                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
@@ -554,10 +555,11 @@ mod erc721 {
             // Approve token Id 1 transfer for Bob on behalf of Alice.
             assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
             // Get contract address.
-            let callee =
-                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
@@ -605,10 +607,11 @@ mod erc721 {
                 true
             );
             // Get contract address.
-            let callee =
-                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
             assert_eq!(
@@ -665,10 +668,11 @@ mod erc721 {
             // Eve does not owns tokens.
             assert_eq!(erc721.balance_of(accounts.eve), 0);
             // Get contract address.
-            let callee =
-                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             // Create call
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Eve as caller
             assert_eq!(
@@ -736,8 +740,8 @@ mod erc721 {
         }
 
         fn set_sender(sender: AccountId) {
-            let callee =
-                ink_env::account_id::<ink_env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
             test::push_execution_context::<EnvTypes>(
                 sender,
                 callee,
