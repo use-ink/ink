@@ -151,84 +151,84 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::caller`]
+    /// For more details visit: [`ink_env::caller`]
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId>;
 
     /// Returns the transferred balance for the contract execution.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::transferred_balance`]
+    /// For more details visit: [`ink_env::transferred_balance`]
     fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::gas_price`]
+    /// For more details visit: [`ink_env::gas_price`]
     fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::gas_left`]
+    /// For more details visit: [`ink_env::gas_left`]
     fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::block_timestamp`]
+    /// For more details visit: [`ink_env::block_timestamp`]
     fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp>;
 
     /// Returns the address of the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::account_id`]
+    /// For more details visit: [`ink_env::account_id`]
     fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId>;
 
     /// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::balance`]
+    /// For more details visit: [`ink_env::balance`]
     fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the current rent allowance for the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::rent_allowance`]
+    /// For more details visit: [`ink_env::rent_allowance`]
     fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the current block number.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::block_number`]
+    /// For more details visit: [`ink_env::block_number`]
     fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber>;
 
     /// Returns the minimum balance of the contracts chain.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::minimum_balance`]
+    /// For more details visit: [`ink_env::minimum_balance`]
     fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Returns the tombstone deposit of the contract chain.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::tombstone_deposit`]
+    /// For more details visit: [`ink_env::tombstone_deposit`]
     fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance>;
 
     /// Emits an event with the given event data.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::emit_event`]
+    /// For more details visit: [`ink_env::emit_event`]
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: EnvTypes,
@@ -238,7 +238,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::set_rent_allowance`]
+    /// For more details visit: [`ink_env::set_rent_allowance`]
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
     where
         T: EnvTypes;
@@ -247,7 +247,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::invoke_contract`]
+    /// For more details visit: [`ink_env::invoke_contract`]
     fn invoke_contract<T, Args>(
         &mut self,
         call_data: &CallParams<T, Args, ()>,
@@ -260,7 +260,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::eval_contract`]
+    /// For more details visit: [`ink_env::eval_contract`]
     fn eval_contract<T, Args, R>(
         &mut self,
         call_data: &CallParams<T, Args, ReturnType<R>>,
@@ -274,7 +274,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::instantiate_contract`]
+    /// For more details visit: [`ink_env::instantiate_contract`]
     fn instantiate_contract<T, Args, C>(
         &mut self,
         params: &CreateParams<T, Args, C>,
@@ -287,7 +287,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::restore_contract`]
+    /// For more details visit: [`ink_env::restore_contract`]
     fn restore_contract<T>(
         &mut self,
         account_id: T::AccountId,
@@ -301,7 +301,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::terminate_contract`]
+    /// For more details visit: [`ink_env::terminate_contract`]
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: EnvTypes;
@@ -310,7 +310,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::transfer`]
+    /// For more details visit: [`ink_env::transfer`]
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: EnvTypes;
@@ -319,7 +319,7 @@ pub trait TypedEnv: Env {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_core::env::random`]
+    /// For more details visit: [`ink_env::random`]
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: EnvTypes;
