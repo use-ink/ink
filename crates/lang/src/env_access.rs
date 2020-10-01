@@ -265,10 +265,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: T::AccountId) -> !
-    where
-        T: EnvTypes,
-    {
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> ! {
         ink_env::terminate_contract::<T>(beneficiary)
     }
 
@@ -277,10 +274,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()>
-    where
-        T: EnvTypes,
-    {
+    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()> {
         ink_env::transfer::<T>(destination, value)
     }
 
@@ -289,10 +283,11 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
-    pub fn random(self, subject: &[u8]) -> T::Hash
-    where
-        T: EnvTypes,
-    {
+    pub fn random(self, subject: &[u8]) -> T::Hash {
         ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
+    }
+
+    where
+    {
     }
 }
