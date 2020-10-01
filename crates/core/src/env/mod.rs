@@ -23,6 +23,7 @@ mod backend;
 pub mod call;
 mod engine;
 mod error;
+pub mod hash;
 mod types;
 
 #[cfg(test)]
@@ -42,6 +43,14 @@ pub use self::{
     error::{
         EnvError,
         Result,
+    },
+    hash::{
+        Blake2x128,
+        Blake2x256,
+        CryptoHash,
+        HashOutput,
+        Keccak256,
+        Sha2x256,
     },
     types::{
         AccountId,

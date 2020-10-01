@@ -28,6 +28,8 @@ cfg-if = "0.1"
 array-init = "0.1"
 generic-array = "0.14.1"
 paste = "0.1"
+arrayref = "0.3"
+static_assertions = "1.1"
 
 # Hashes for the off-chain environment.
 sha2 = { version = "0.9", optional = true }

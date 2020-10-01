@@ -14,7 +14,10 @@
 
 use super::ValueEntry;
 use crate::{
-    hash::hasher::Hasher,
+    env::hash::{
+        CryptoHash,
+        HashOutput,
+    },
     storage::{
         collections::{
             extend_lifetime,
@@ -46,9 +49,9 @@ where
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
-        H: Hasher,
         V: PackedLayout,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         Self {
             keys_iter: hash_map.keys.iter(),
@@ -61,8 +64,8 @@ impl<'a, K, V, H> Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Queries the value for the given key and returns the key/value pair.
     ///
@@ -82,8 +85,8 @@ impl<'a, K, V, H> Iterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = (&'a K, &'a V);
 
@@ -105,8 +108,8 @@ impl<'a, K, V, H> ExactSizeIterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
 }
 
@@ -114,8 +117,8 @@ impl<'a, K, V, H> DoubleEndedIterator for Iter<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         let key = self.keys_iter.next_back()?;
@@ -142,9 +145,9 @@ where
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
-        H: Hasher,
         V: PackedLayout,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         Self {
             keys_iter: hash_map.keys.iter(),
@@ -157,8 +160,8 @@ impl<'a, K, V, H> IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Queries the value for the given key and returns the key/value pair.
     ///
@@ -180,8 +183,8 @@ impl<'a, K, V, H> Iterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = (&'a K, &'a mut V);
 
@@ -203,8 +206,8 @@ impl<'a, K, V, H> ExactSizeIterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
 }
 
@@ -212,8 +215,8 @@ impl<'a, K, V, H> DoubleEndedIterator for IterMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         let key = self.keys_iter.next_back()?;
@@ -238,9 +241,9 @@ where
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
-        H: Hasher,
         V: PackedLayout,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         Self {
             iter: hash_map.iter(),
@@ -252,8 +255,8 @@ impl<'a, K, V, H> Iterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = &'a V;
 
@@ -274,8 +277,8 @@ impl<'a, K, V, H> ExactSizeIterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
 }
 
@@ -283,8 +286,8 @@ impl<'a, K, V, H> DoubleEndedIterator for Values<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_key, value)| value)
@@ -308,9 +311,9 @@ where
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new(hash_map: &'a mut StorageHashMap<K, V, H>) -> Self
     where
-        H: Hasher,
         V: PackedLayout,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         Self {
             iter: hash_map.iter_mut(),
@@ -322,8 +325,8 @@ impl<'a, K, V, H> Iterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = &'a mut V;
 
@@ -344,8 +347,8 @@ impl<'a, K, V, H> ExactSizeIterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
 }
 
@@ -353,8 +356,8 @@ impl<'a, K, V, H> DoubleEndedIterator for ValuesMut<'a, K, V, H>
 where
     K: Ord + Eq + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<H::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(|(_key, value)| value)
@@ -378,9 +381,9 @@ where
     /// Creates a new iterator for the given storage hash map.
     pub(crate) fn new<V, H>(hash_map: &'a StorageHashMap<K, V, H>) -> Self
     where
-        H: Hasher,
         V: PackedLayout,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash,
+        Key: From<<H as HashOutput>::Type>,
     {
         Self {
             iter: hash_map.keys.iter(),

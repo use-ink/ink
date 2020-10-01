@@ -240,34 +240,28 @@ macro_rules! gen_tests_for_backend {
 mod lazyhmap_backend {
     use super::*;
     use ink_core::{
-        hash::hasher::Blake2x256Hasher,
+        env::hash::Blake2x256,
         storage::lazy::lazy_hmap::{
             Entry,
             LazyHashMap,
         },
     };
 
-    gen_tests_for_backend!(LazyHashMap<i32, i32, Blake2x256Hasher>);
+    gen_tests_for_backend!(LazyHashMap<i32, i32, Blake2x256>);
 
     pub fn insert(
-        hmap: &mut LazyHashMap<i32, i32, Blake2x256Hasher>,
+        hmap: &mut LazyHashMap<i32, i32, Blake2x256>,
         key: i32,
         value: i32,
     ) -> Option<i32> {
         hmap.put_get(&key, Some(value))
     }
 
-    pub fn take(
-        hmap: &mut LazyHashMap<i32, i32, Blake2x256Hasher>,
-        key: &i32,
-    ) -> Option<i32> {
+    pub fn take(hmap: &mut LazyHashMap<i32, i32, Blake2x256>, key: &i32) -> Option<i32> {
         hmap.put_get(key, None)
     }
 
-    pub fn contains_key(
-        hmap: &LazyHashMap<i32, i32, Blake2x256Hasher>,
-        key: &i32,
-    ) -> bool {
+    pub fn contains_key(hmap: &LazyHashMap<i32, i32, Blake2x256>, key: &i32) -> bool {
         hmap.get(key).is_some()
     }
 

@@ -18,10 +18,10 @@ mod impls;
 mod tests;
 
 use crate::{
-    hash::hasher::{
-        Blake2x256Hasher,
-        Keccak256Hasher,
-        Sha2x256Hasher,
+    env::hash::{
+        Blake2x256,
+        Keccak256,
+        Sha2x256,
     },
     storage::traits::KeyPtr,
 };
@@ -45,19 +45,19 @@ pub trait LayoutCryptoHasher {
     fn crypto_hasher() -> CryptoHasher;
 }
 
-impl LayoutCryptoHasher for Blake2x256Hasher {
+impl LayoutCryptoHasher for Blake2x256 {
     fn crypto_hasher() -> CryptoHasher {
         CryptoHasher::Blake2x256
     }
 }
 
-impl LayoutCryptoHasher for Sha2x256Hasher {
+impl LayoutCryptoHasher for Sha2x256 {
     fn crypto_hasher() -> CryptoHasher {
         CryptoHasher::Sha2x256
     }
 }
 
-impl LayoutCryptoHasher for Keccak256Hasher {
+impl LayoutCryptoHasher for Keccak256 {
     fn crypto_hasher() -> CryptoHasher {
         CryptoHasher::Keccak256
     }

@@ -19,15 +19,21 @@ use super::{
 };
 use crate::env::{
     call::{
+        utils::ReturnType,
         CallParams,
         CreateParams,
-        utils::ReturnType,
     },
+    Blake2x128,
+    Blake2x256,
+    CryptoHash,
     Env,
     EnvError,
     EnvTypes,
+    HashOutput,
+    Keccak256,
     Result,
     ReturnFlags,
+    Sha2x256,
     Topics,
     TypedEnv,
 };
@@ -58,6 +64,54 @@ impl EnvInstance {
         self.accounts
             .get_account_off_mut(&callee)
             .expect("callee account does not exist")
+    }
+}
+
+impl CryptoHash for Blake2x128 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 16];
+        static_assertions::assert_type_eq_all!(
+            <Blake2x128 as HashOutput>::Type,
+            OutputType
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
+        hashing::blake2b_128(input, output);
+    }
+}
+
+impl CryptoHash for Blake2x256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(
+            <Blake2x256 as HashOutput>::Type,
+            OutputType
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        hashing::blake2b_256(input, output);
+    }
+}
+
+impl CryptoHash for Sha2x256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(
+            <Sha2x256 as HashOutput>::Type,
+            OutputType
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        hashing::sha2_256(input, output);
+    }
+}
+
+impl CryptoHash for Keccak256 {
+    fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
+        type OutputType = [u8; 32];
+        static_assertions::assert_type_eq_all!(
+            <Keccak256 as HashOutput>::Type,
+            OutputType
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
+        hashing::keccak_256(input, output);
     }
 }
 
@@ -116,20 +170,20 @@ impl Env for EnvInstance {
         self.console.println(content)
     }
 
-    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::keccak_256(input, output)
+    fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+    {
+        <H as CryptoHash>::hash(input, output)
     }
 
-    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::blake2b_256(input, output)
-    }
-
-    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]) {
-        hashing::blake2b_128(input, output)
-    }
-
-    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
-        hashing::sha2_256(input, output)
+    fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+        T: scale::Encode,
+    {
+        let encoded = input.encode();
+        self.hash_bytes::<H>(&encoded[..], output)
     }
 
     #[cfg(feature = "ink-unstable-chain-extensions")]
@@ -143,7 +197,11 @@ impl Env for EnvInstance {
 }
 
 impl EnvInstance {
-    fn transfer_impl<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer_impl<T>(
+        &mut self,
+        destination: T::AccountId,
+        value: T::Balance,
+    ) -> Result<()>
     where
         T: EnvTypes,
     {

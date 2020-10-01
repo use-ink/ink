@@ -18,7 +18,10 @@ use super::{
     IterMut,
 };
 use crate::{
-    hash::hasher::Hasher,
+    env::hash::{
+        CryptoHash,
+        HashOutput,
+    },
     storage::traits::PackedLayout,
 };
 use core::{
@@ -40,8 +43,8 @@ impl<K, V, H> Drop for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn drop(&mut self) {
         self.clear_cells();
@@ -52,8 +55,8 @@ impl<K, V, H> Default for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn default() -> Self {
         Self::new()
@@ -65,8 +68,8 @@ where
     Q: Ord + scale::Encode + ToOwned<Owned = K>,
     K: Borrow<Q> + Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Output = V;
 
@@ -80,8 +83,8 @@ where
     Q: Ord + scale::Encode + ToOwned<Owned = K>,
     K: Borrow<Q> + Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn index_mut(&mut self, index: &Q) -> &mut Self::Output {
         self.get_mut(index).expect("index out of bounds")
@@ -92,8 +95,8 @@ impl<'a, K: 'a, V: 'a, H> IntoIterator for &'a StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = (&'a K, &'a V);
     type IntoIter = Iter<'a, K, V, H>;
@@ -107,8 +110,8 @@ impl<'a, K: 'a, V: 'a, H> IntoIterator for &'a mut StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     type Item = (&'a K, &'a mut V);
     type IntoIter = IterMut<'a, K, V, H>;
@@ -122,8 +125,8 @@ impl<K, V, H> Extend<(K, V)> for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -139,8 +142,8 @@ impl<K, V, H> FromIterator<(K, V)> for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -156,8 +159,8 @@ impl<K, V, H> PartialEq for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PartialEq + PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
@@ -173,7 +176,7 @@ impl<K, V, H> Eq for StorageHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: Eq + PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
 }

@@ -20,9 +20,9 @@ use super::{
     StorageEntry,
 };
 use crate::{
-    hash::{
-        hasher::Hasher,
-        HashBuilder,
+    env::hash::{
+        CryptoHash,
+        HashOutput,
     },
     storage::traits::{
         clear_packed_root,
@@ -35,7 +35,6 @@ use crate::{
 };
 use core::{
     borrow::Borrow,
-    cell::RefCell,
     cmp::{
         Eq,
         Ord,
@@ -43,6 +42,7 @@ use core::{
     fmt,
     fmt::Debug,
     iter::FromIterator,
+    marker::PhantomData,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -53,7 +53,6 @@ use ink_prelude::{
         Entry as BTreeMapEntry,
         OccupiedEntry as BTreeMapOccupiedEntry,
     },
-    vec::Vec,
 };
 use ink_primitives::Key;
 
@@ -90,7 +89,7 @@ pub struct LazyHashMap<K, V, H> {
     /// An entry is cached as soon as it is loaded or written.
     cached_entries: CacheCell<EntryMap<K, V>>,
     /// The used hash builder.
-    hash_builder: RefCell<HashBuilder<H, Vec<u8>>>,
+    hash_builder: PhantomData<H>,
 }
 
 /// When querying `entry()` there is a case which needs special treatment:
@@ -187,8 +186,8 @@ where
 
 #[test]
 fn debug_impl_works() {
-    use crate::hash::hasher::Blake2x256Hasher;
-    let mut hmap = <LazyHashMap<char, i32, Blake2x256Hasher>>::new();
+    use crate::env::hash::Blake2x256;
+    let mut hmap = <LazyHashMap<char, i32, Blake2x256>>::new();
     // Empty hmap.
     assert_eq!(
         format!("{:?}", &hmap),
@@ -239,8 +238,8 @@ const _: () = {
     where
         K: Ord + scale::Encode,
         V: TypeInfo + 'static,
-        H: Hasher + LayoutCryptoHasher,
-        Key: From<<H as Hasher>::Output>,
+        H: CryptoHash + LayoutCryptoHasher,
+        Key: From<<H as HashOutput>::Type>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Hash(HashLayout::new(
@@ -262,8 +261,8 @@ impl<K, V, H> SpreadLayout for LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     const FOOTPRINT: u64 = 1;
 
@@ -310,8 +309,8 @@ impl<K, V, H> FromIterator<(K, V)> for LazyHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -327,8 +326,8 @@ impl<K, V, H> Extend<(K, V)> for LazyHashMap<K, V, H>
 where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -354,7 +353,7 @@ where
         Self {
             key: None,
             cached_entries: CacheCell::new(EntryMap::new()),
-            hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
+            hash_builder: Default::default(),
         }
     }
 
@@ -370,7 +369,7 @@ where
         Self {
             key: Some(key),
             cached_entries: CacheCell::new(EntryMap::new()),
-            hash_builder: RefCell::new(HashBuilder::from(Vec::new())),
+            hash_builder: Default::default(),
         }
     }
 
@@ -420,8 +419,8 @@ impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Clone + Ord + PackedLayout,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Gets the given key's corresponding entry in the map for in-place manipulation.
     pub fn entry(&mut self, key: K) -> Entry<K, V> {
@@ -493,8 +492,8 @@ where
 impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord + scale::Encode,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Returns an offset key for the given key pair.
     fn to_offset_key<Q>(&self, storage_key: &Key, key: &Q) -> Key
@@ -515,10 +514,9 @@ where
             storage_key,
             value_key: key,
         };
-        self.hash_builder
-            .borrow_mut()
-            .hash_encoded(&key_pair)
-            .into()
+        let mut output = <H as HashOutput>::Type::default();
+        crate::env::hash_encoded::<H, KeyPair<Q>>(&key_pair, &mut output);
+        output.into()
     }
 
     /// Returns an offset key for the given key.
@@ -536,8 +534,8 @@ impl<K, V, H> LazyHashMap<K, V, H>
 where
     K: Ord + Eq + scale::Encode,
     V: PackedLayout,
-    H: Hasher,
-    Key: From<<H as Hasher>::Output>,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
 {
     /// Lazily loads the value at the given index.
     ///
@@ -979,9 +977,9 @@ mod tests {
     };
     use crate::{
         env,
-        hash::hasher::{
-            Blake2x256Hasher,
-            Sha2x256Hasher,
+        env::hash::{
+            Blake2x256,
+            Sha2x256,
         },
         storage::traits::{
             KeyPtr,
@@ -1006,8 +1004,8 @@ mod tests {
         }
     }
 
-    fn new_hmap() -> LazyHashMap<i32, u8, Blake2x256Hasher> {
-        <LazyHashMap<i32, u8, Blake2x256Hasher>>::new()
+    fn new_hmap() -> LazyHashMap<i32, u8, Blake2x256> {
+        <LazyHashMap<i32, u8, Blake2x256>>::new()
     }
 
     #[test]
@@ -1019,7 +1017,7 @@ mod tests {
         // Cached elements must be empty.
         assert_cached_entries(&hmap, &[]);
         // Same as default:
-        let default_hmap = <LazyHashMap<i32, u8, Blake2x256Hasher>>::default();
+        let default_hmap = <LazyHashMap<i32, u8, Blake2x256>>::default();
         assert_eq!(hmap.key(), default_hmap.key());
         assert_eq!(hmap.entries(), default_hmap.entries());
     }
@@ -1029,7 +1027,7 @@ mod tests {
         let key = Key::from([0x42; 32]);
 
         // BLAKE2 256-bit hasher:
-        let hmap1 = <LazyHashMap<i32, u8, Blake2x256Hasher>>::lazy(key);
+        let hmap1 = <LazyHashMap<i32, u8, Blake2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap1.key(), Some(&key));
         // Cached elements must be empty.
@@ -1057,7 +1055,7 @@ mod tests {
             ))
         );
         // SHA2 256-bit hasher:
-        let hmap2 = <LazyHashMap<i32, u8, Sha2x256Hasher>>::lazy(key);
+        let hmap2 = <LazyHashMap<i32, u8, Sha2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap2.key(), Some(&key));
         // Cached elements must be empty.
@@ -1298,10 +1296,9 @@ mod tests {
             // Then: Compare both instances to be equal.
             let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
-            let hmap2 =
-                <LazyHashMap<i32, u8, Blake2x256Hasher> as SpreadLayout>::pull_spread(
-                    &mut KeyPtr::from(root_key),
-                );
+            let hmap2 = <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             assert_cached_entries(&hmap2, &[]);
             assert_eq!(hmap2.key(), Some(&Key::from([0x42; 32])));
             assert_eq!(hmap2.get(&1), Some(&b'A'));
@@ -1329,10 +1326,9 @@ mod tests {
             hmap2.clear_packed_at(&2);
             hmap2.clear_packed_at(&3); // Not really needed here.
             hmap2.clear_packed_at(&4); // Not really needed here.
-            let hmap3 =
-                <LazyHashMap<i32, u8, Blake2x256Hasher> as SpreadLayout>::pull_spread(
-                    &mut KeyPtr::from(root_key),
-                );
+            let hmap3 = <LazyHashMap<i32, u8, Blake2x256> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             assert_cached_entries(&hmap3, &[]);
             assert_eq!(hmap3.get(&1), None);
             assert_eq!(hmap3.get(&2), None);

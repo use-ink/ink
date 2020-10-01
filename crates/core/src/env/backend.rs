@@ -18,6 +18,10 @@ use crate::env::{
         CallParams,
         CreateParams,
     },
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     EnvTypes,
     Result,
     Topics,
@@ -113,21 +117,16 @@ pub trait Env {
     /// Prints the given contents to the console log.
     fn println(&mut self, content: &str);
 
-    /// Conducts the SHA2 256-bit hash of the input
-    /// puts the result into the output buffer.
-    fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]);
+    /// Conducts the crypto hash of the given input and stores the result in `output`.
+    fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash;
 
-    /// Conducts the KECCAK 256-bit hash of the input
-    /// puts the result into the output buffer.
-    fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]);
-
-    /// Conducts the BLAKE2 256-bit hash of the input
-    /// puts the result into the output buffer.
-    fn hash_blake2_256(input: &[u8], output: &mut [u8; 32]);
-
-    /// Conducts the BLAKE2 128-bit hash of the input
-    /// puts the result into the output buffer.
-    fn hash_blake2_128(input: &[u8], output: &mut [u8; 16]);
+    /// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+    fn hash_encoded<H, T>(&mut self, input: &T, output: &mut <H as HashOutput>::Type)
+    where
+        H: CryptoHash,
+        T: scale::Encode;
 
     /// Calls the chain extension with the given ID and inputs.
     ///

@@ -29,6 +29,10 @@ use crate::env::{
         EnvInstance,
         OnInstance,
     },
+    hash::{
+        CryptoHash,
+        HashOutput,
+    },
     EnvTypes,
     Result,
     Topics,
@@ -513,40 +517,37 @@ pub fn println(content: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
 }
 
-/// Built-in efficient cryptographic hash functions.
-pub mod hash {
-    use super::*;
+/// Conducts the crypto hash of the given input and stores the result in `output`.
+pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
+where
+    H: CryptoHash,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.hash_bytes::<H>(input, output)
+    })
+}
 
-    macro_rules! impl_hash_fn {
-        ( $(#[$doc:meta])* fn $name:ident($output_len:literal) ) => {
-            paste::item! {
-                $( #[$doc] )*
-                pub fn $name(input: &[u8], output: &mut [u8; $output_len]) {
-                    // No need to actually access the environmental instance
-                    // if we only call one of its inherent methods.
-                    <EnvInstance as Env>::[<hash_ $name>](input, output)
-                }
-            }
-        };
-    }
-    impl_hash_fn!(
-        /// Conducts the SHA2 256-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn sha2_256(32)
-    );
-    impl_hash_fn!(
-        /// Conducts the KECCAK 256-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn keccak_256(32)
-    );
-    impl_hash_fn!(
-        /// Conducts the BLAKE2 256-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn blake2_256(32)
-    );
-    impl_hash_fn!(
-        /// Conducts the BLAKE2 128-bit hash of the given bytes and
-        /// puts the result into the output buffer.
-        fn blake2_128(16)
-    );
+/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// # use ink_core::env::hash::{Sha2x256, HashOutput};
+/// const EXPECTED: [u8; 32] = [
+///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
+///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+/// ];
+/// let encodable = (42, "foo", true); // Implements `scale::Encode`
+/// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+/// ink_core::env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
+/// assert_eq!(output, EXPECTED);
+/// ```
+pub fn hash_encoded<H, T>(input: &T, output: &mut <H as HashOutput>::Type)
+where
+    H: CryptoHash,
+    T: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.hash_encoded::<H, T>(input, output)
+    })
 }
