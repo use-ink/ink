@@ -88,8 +88,6 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod flipper {
-    use ink_core::storage;
-
     /// The storage of the flipper contract.
     #[ink(storage)]
     pub struct Flipper {
