@@ -23,6 +23,76 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
     contract::generate(attr.into(), item.into()).into()
 }
 
+/// Marks trait definitions to ink! as special ink! trait definitions.
+///
+/// There are some restrictions that apply to ink! trait definitions that
+/// this macro checks. Also ink! trait definitions are required to have specialized
+/// structure so that the main [`#[ink::contract]`](`macro@crate::contract`) macro can
+/// properly generate code for its implementations.
+///
+/// # Example: Definition
+///
+/// ```
+/// use ink_lang as ink;
+/// # type Balance = <ink_env::DefaultEnvTypes as ink_env::EnvTypes>::Balance;
+///
+/// #[ink::trait_definition]
+/// pub trait Erc20 {
+///     /// Constructors a new ERC-20 compliant smart contract using the initial supply.
+///     #[ink(constructor)]
+///     fn new(initial_supply: Balance) -> Self;
+///
+///     /// Returns the total supply of the ERC-20 smart contract.
+///     #[ink(message)]
+///     fn total_supply(&self) -> Balance;
+///
+///     // etc.
+/// }
+/// ```
+///
+/// # Example: Implementation
+///
+/// Given the above trait definition you can implement it as shown below:
+///
+/// ```
+/// # use ink_lang as ink;
+/// #
+/// #[ink::contract]
+/// mod base_erc20 {
+/// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
+/// #    #[ink_lang::trait_definition]
+/// #    pub trait Erc20 {
+/// #        /// Constructors a new ERC-20 compliant smart contract using the initial supply.
+/// #        #[ink(constructor)]
+/// #        fn new(initial_supply: Balance) -> Self;
+/// #
+/// #        /// Returns the total supply of the ERC-20 smart contract.
+/// #        #[ink(message)]
+/// #        fn total_supply(&self) -> Balance;
+/// #    }
+/// #
+///     #[ink(storage)]
+///     pub struct BaseErc20 {
+///         total_supply: Balance,
+///         // etc ..
+///     }
+///
+///     impl Erc20 for BaseErc20 {
+///         #[ink(constructor)]
+///         fn new(initial_supply: Balance) -> Self {
+///             Self { total_supply: initial_supply }
+///         }
+///
+///         /// Returns the total supply of the ERC-20 smart contract.
+///         #[ink(message)]
+///         fn total_supply(&self) -> Balance {
+///             self.total_supply
+///         }
+///
+///         // etc ..
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
