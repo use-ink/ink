@@ -18,6 +18,303 @@ mod trait_def;
 
 use proc_macro::TokenStream;
 
+/// Entry point for writing ink! smart contracts.
+///
+/// If you are a beginner trying to learn ink! we recommend you to check out
+/// our extensive [ink! workshop](https://substrate.dev/substrate-contracts-workshop/#/).
+///
+/// **Note:** In all below examples we will be using `ink_lang` crate aliased as just `ink`.
+///           You can do this yourself by adding the following line to your code:
+///           `use ink_lang as ink;`
+///
+/// # Description
+///
+/// The macro does analysis on the provided smart contract code and generates
+/// proper code.
+///
+/// ink! smart contracts can compile in several different modes.
+/// There are two main compilation models using either
+/// - on-chain mode: `no_std` + WebAssembly as target
+/// - off-chain mode: `std`
+///
+/// We generally use the on-chain mode for actual smart contract deployment
+/// whereas we use the off-chain mode for smart contract testing using the
+/// off-chain environment provided by the `ink_env` crate.
+///
+/// # Usage
+///
+/// ## Header Arguments
+///
+/// The `#[ink::contract]` macro can be provided with some additional comma-separated
+/// header arguments:
+///
+/// - `dynamic_storage_allocator: bool`
+///
+///     Tells the ink! code generator to allow usage of ink!'s built-in dynamic
+///     storage allocator.
+///     - `true`: Use the dynamic storage allocator provided by ink!.
+///     - `false`: Do NOT use the dynamic storage allocator provided by ink!.
+///
+///     This feature is generally only needed for smart contracts that try to model
+///     their data in a way that contains storage entites within other storage
+///     entities.
+///     An example for this is the following type that could potentially be used
+///     within an ink!'s storage struct definition:
+///     ```
+///     // A storage vector of storage vectors.
+///     # use ink_storage as storage;
+///     # type _unused =
+///     storage::Vec<storage::Vec<i32>>
+///     # ;
+///     ```
+///
+///     **Usage Example:**
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::contract(dynamic_storage_allocator = true)]
+///     mod my_contract {
+///         # #[ink(storage)]
+///         # pub struct MyStorage;
+///         # impl MyStorage {
+///         #     #[ink(constructor)]
+///         #     pub fn construct() -> Self { MyStorage {} }
+///         #     #[ink(message)]
+///         #     pub fn message(&self) {}
+///         # }
+///         // ...
+///     }
+///     ```
+///
+///     **Default value:** `false`
+///
+/// - `compile_as_dependency: bool`
+///
+///     Tells the ink! code generator to always or never
+///     compile the smart contract as if it was used as a dependency of another ink!
+///     smart contract.
+///     Normally this flag is only really useful for ink! developers of people that
+///     want to inspect code generation of ink! smart contracts.
+///     The author is not aware of any particular practical use case for users that
+///     makes use of this flag.
+///
+///     **Usage Example:**
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::contract(compile_as_dependency = true)]
+///     mod my_contract {
+///         # #[ink(storage)]
+///         # pub struct MyStorage;
+///         # impl MyStorage {
+///         #     #[ink(constructor)]
+///         #     pub fn construct() -> Self { MyStorage {} }
+///         #     #[ink(message)]
+///         #     pub fn message(&self) {}
+///         # }
+///         // ...
+///     }
+///     ```
+///
+///     **Default value:** Depends on the crate feature propagation of `Cargo.toml`.
+///
+/// - `env: impl EnvTypes`
+///
+///     Tells the ink! code generator which environment to use for the ink! smart contract.
+///     The environment must implement the `EnvTypes` (defined in `ink_env`) trait and provides
+///     all the necessary fundamental type definitions for `Balance`, `AccountId` etc.
+///
+///     **Usage Example:**
+///
+///     Given a custom `EnvTypes` implementation:
+///     ```
+///     pub struct MyEnvTypes;
+///
+///     impl ink_env::EnvTypes for MyEnvTypes {
+///         const MAX_EVENT_TOPICS: usize = 3;
+///         type AccountId = u64;
+///         type Balance = u128;
+///         type Hash = [u8; 32];
+///         type Timestamp = u64;
+///         type BlockNumber = u32;
+///     }
+///     ```
+///     A user might implement their ink! smart contract using the above custom `EnvTypes`
+///     implementation as demonstrated below:
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::contract(env_types = MyEnvTypes)]
+///     mod my_contract {
+///         # pub struct MyEnvTypes;
+///         #
+///         # impl ink_env::EnvTypes for MyEnvTypes {
+///         #     const MAX_EVENT_TOPICS: usize = 3;
+///         #     type AccountId = u64;
+///         #     type Balance = u128;
+///         #     type Hash = [u8; 32];
+///         #     type Timestamp = u64;
+///         #     type BlockNumber = u32;
+///         # }
+///         #
+///         # #[ink(storage)]
+///         # pub struct MyStorage;
+///         # impl MyStorage {
+///         #     #[ink(constructor)]
+///         #     pub fn construct() -> Self { MyStorage {} }
+///         #     #[ink(message)]
+///         #     pub fn message(&self) {}
+///         # }
+///         // ...
+///     }
+///     ```
+///
+///     **Default value:** `DefaultEnvTypes` defined in `ink_env` crate.
+///
+/// ## Anaylsis
+///
+/// The `#[ink::contract]` macro fully analyses its input smart contract
+/// against invalid arguments and structure.
+///
+/// Some example rules include but are not limited to:
+///
+/// - There must be exactly one `#[ink(storage)]` struct.
+///
+///     This struct defined the layout of the storage that the ink! smart contract operates on.
+///     The user is able to use a variety of built-in facitilies, combine them in various way
+///     or even provide their own implementations of storage data structures.
+///
+///     For more information the user shall visit the `ink_storage` crate documentation.
+///
+///     **Example:**
+///
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::contract]
+///     mod flipper {
+///         #[ink(storage)]
+///         pub struct Flipper {
+///             value: bool,
+///         }
+///         # impl Flipper {
+///         #     #[ink(constructor)]
+///         #     pub fn construct() -> Self { Flipper { value: false } }
+///         #     #[ink(message)]
+///         #     pub fn message(&self) {}
+///         # }
+///     }
+///     ```
+///
+/// - There must be at least one `#[ink(constructor)]` defined method.
+///
+///     Methods flagged with `#[ink(constructor)]` are special in that they are dispatchable
+///     upon contract instantiation. A contract may define multiple such constructors which
+///     allow users of the contract to instantiate a contract in multiple different ways.
+///
+///     **Example:**
+///
+///     Given the `Flipper` contract definition above we add an `#[ink(constructor)]`
+///     as follows:
+///
+///     ```
+///     # use ink_lang as ink;
+///     # #[ink::contract]
+///     # mod flipper {
+///         # #[ink(storage)]
+///         # pub struct Flipper {
+///         #     value: bool,
+///         # }
+///     impl Flipper {
+///         #[ink(constructor)]
+///         pub fn new(initial_value: bool) -> Self {
+///             Flipper { value: false }
+///         }
+///         # #[ink(message)]
+///         # pub fn message(&self) {}
+///     }
+///     # }
+///     ```
+///
+/// - There must be at least one `#[ink(message)]` defined method.
+///
+///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
+///     upon contract invokation. The set of ink! messages defined for an ink! smart contract
+///     define the smart contract's API surface with which users are allowed to interact.
+///
+///     An ink! smart contract can have multiple such ink! messages defined.
+///
+///     **Example:**
+///
+///     Given the `Flipper` contract definition above we add some `#[ink(message)]` definitions
+///     as follows:
+///
+///     ```
+///     # use ink_lang as ink;
+///     # #[ink::contract]
+///     # mod flipper {
+///         # #[ink(storage)]
+///         # pub struct Flipper {
+///         #     value: bool,
+///         # }
+///     impl Flipper {
+///         # #[ink(constructor)]
+///         # pub fn new(initial_value: bool) -> Self {
+///         #     Flipper { value: false }
+///         # }
+///         /// Flips the current value.
+///         #[ink(message)]
+///         pub fn flip(&mut self) {
+///             self.value = !self.value;
+///         }
+///
+///         /// Returns the current value.
+///         #[ink(message)]
+///         pub fn get(&self) -> bool {
+///             self.value
+///         }
+///     }
+///     # }
+///     ```
+///
+/// ## Example: Flipper
+///
+/// The below code shows the complete implementation of the so-called Flipper
+/// ink! smart contract.
+/// For us it acts as the "Hello, World!" of the ink! smart contracts because
+/// it is minimal while still providing some more or less useful functionality.
+///
+/// It controls a single `bool` value that can be either `false` or `true`
+/// and allows the user to flip this value using the `Flipper::flip` message
+/// or retrieve the current value using `Flipper::get`.
+///
+/// ```
+/// use ink_lang as ink;
+///
+/// #[ink::contract]
+/// pub mod flipper {
+///     #[ink(storage)]
+///     pub struct Flipper {
+///         value: bool,
+///     }
+///
+///     impl Flipper {
+///         /// Creates a new flipper smart contract initialized with the given value.
+///         #[ink(constructor)]
+///         pub fn new(init_value: bool) -> Self {
+///             Self { value: init_value }
+///         }
+///
+///         /// Flips the current value of the Flipper's bool.
+///         #[ink(message)]
+///         pub fn flip(&mut self) {
+///             self.value = !self.value;
+///         }
+///
+///         /// Returns the current value of the Flipper's bool.
+///         #[ink(message)]
+///         pub fn get(&self) -> bool {
+///             self.value
+///         }
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
     contract::generate(attr.into(), item.into()).into()
