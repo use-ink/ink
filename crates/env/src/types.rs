@@ -216,6 +216,16 @@ pub trait Clear {
     fn clear() -> Self;
 }
 
+impl Clear for [u8; 32] {
+    fn is_clear(&self) -> bool {
+        self.as_ref().iter().all(|&byte| byte == 0x00)
+    }
+
+    fn clear() -> Self {
+        [0x00; 32]
+    }
+}
+
 impl Clear for Hash {
     fn is_clear(&self) -> bool {
         self.as_ref().iter().all(|&byte| byte == 0x00)
