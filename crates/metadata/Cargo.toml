@@ -21,7 +21,7 @@ ink_primitives = { version = "3.0.0", path = "../primitives/", default-features 
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.3.1"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj-pub-types", default-features = false, features = ["derive"] }
+scale-info = { git = "https://github.com/paritytech/scale-info", branch = "master", default-features = false, features = ["derive"] }
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"

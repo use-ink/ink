@@ -38,7 +38,7 @@ blake2 = { version = "0.9", optional = true }
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
 rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj-pub-types", default-features = false, features = ["derive"], optional = true }
+scale-info = { git = "https://github.com/paritytech/scale-info", branch = "master", default-features = false, features = ["derive"], optional = true }
 
 
 [features]

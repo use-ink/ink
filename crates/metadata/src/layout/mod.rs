@@ -39,8 +39,8 @@ use serde::{
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 #[serde(rename_all = "camelCase")]
 pub enum Layout<F: Form = MetaForm> {
@@ -110,14 +110,14 @@ impl From<Key> for LayoutKey {
 /// An encoded cell.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct CellLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
     pub key: LayoutKey,
     /// The type of the encoded entity.
-    pub ty: <F as Form>::TypeId,
+    pub ty: <F as Form>::Type,
 }
 
 impl CellLayout {
@@ -169,8 +169,8 @@ impl IntoCompact for Layout {
 /// Every hashing layout has an offset and a strategy to compute its keys.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
@@ -256,8 +256,8 @@ pub enum CryptoHasher {
 /// A layout for an array of associated cells with the same encoding.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
@@ -304,8 +304,8 @@ impl IntoCompact for ArrayLayout {
 /// A struct layout with consecutive fields of different layout.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct StructLayout<F: Form = MetaForm> {
     /// The fields of the struct layout.
@@ -341,8 +341,8 @@ impl IntoCompact for StructLayout {
 /// The layout for a particular field of a struct layout.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
@@ -394,8 +394,8 @@ impl From<usize> for Discriminant {
 /// An enum storage layout.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(bound(
-    serialize = "F::TypeId: Serialize, F::String: Serialize",
-    deserialize = "F::TypeId: DeserializeOwned, F::String: DeserializeOwned"
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
