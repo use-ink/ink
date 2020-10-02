@@ -212,6 +212,16 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -254,15 +264,18 @@
 };
 
 <span class="doccomment">/// Results of message handling operations.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Connector trait: Connects enum dispatcher for messages with the contract.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MessageDispatcher</span> {
     <span class="doccomment">/// The contract&#39;s message dispatcher type.</span>
     <span class="kw">type</span> <span class="ident">Type</span>;
 }
 
 <span class="doccomment">/// Connector trait: Connects enum dispatcher for constructors with the contract.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ConstructorDispatcher</span> {
     <span class="doccomment">/// The contract&#39;s constructors dispatcher type.</span>
     <span class="kw">type</span> <span class="ident">Type</span>;
@@ -273,6 +286,7 @@
 <span class="doccomment">/// The generated message and constructor dispatch enums implement this trait</span>
 <span class="doccomment">/// in order to forward their already decoded state to the selected messages</span>
 <span class="doccomment">/// or constructors.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Execute</span> {
     <span class="doccomment">/// Starts the smart contract execution.</span>
     <span class="kw">fn</span> <span class="ident">execute</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
@@ -280,6 +294,7 @@
 
 <span class="doccomment">/// Yields `true` if the message accepts payments.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AcceptsPayments</span>(<span class="kw">pub</span> <span class="ident">bool</span>);
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AcceptsPayments</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">bool</span> {
@@ -291,6 +306,7 @@
 
 <span class="doccomment">/// Yields `true` if the dynamic storage allocator is enabled for the given call.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EnablesDynamicStorageAllocator</span>(<span class="kw">pub</span> <span class="ident">bool</span>);
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">EnablesDynamicStorageAllocator</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">bool</span> {
@@ -307,6 +323,7 @@
 <span class="doccomment">/// The closure is supposed to already contain all the arguments that the real</span>
 <span class="doccomment">/// message requires and forwards them.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_message</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">M</span>, <span class="ident">F</span><span class="op">&gt;</span>(
     <span class="ident">accepts_payments</span>: <span class="ident">AcceptsPayments</span>,
     <span class="ident">enables_dynamic_storage_allocator</span>: <span class="ident">EnablesDynamicStorageAllocator</span>,
@@ -344,6 +361,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the caller did send some amount of transferred value to the callee.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deny_payment</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
@@ -363,6 +381,7 @@
 <span class="doccomment">/// The closure is supposed to already contain all the arguments that the real</span>
 <span class="doccomment">/// message requires and forwards them.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_message_mut</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">M</span>, <span class="ident">F</span><span class="op">&gt;</span>(
     <span class="ident">accepts_payments</span>: <span class="ident">AcceptsPayments</span>,
     <span class="ident">enables_dynamic_storage_allocator</span>: <span class="ident">EnablesDynamicStorageAllocator</span>,
@@ -403,6 +422,7 @@
 <span class="doccomment">/// The closure is supposed to already contain all the arguments that the real</span>
 <span class="doccomment">/// constructor message requires and forwards them.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_constructor</span><span class="op">&lt;</span><span class="ident">C</span>, <span class="ident">F</span><span class="op">&gt;</span>(
     <span class="ident">enables_dynamic_storage_allocator</span>: <span class="ident">EnablesDynamicStorageAllocator</span>,
     <span class="ident">f</span>: <span class="ident">F</span>,

@@ -35,6 +35,8 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -57,6 +59,7 @@
 <span class="doccomment">/// Tells the [`DispatchUsingMode`](`crate::DispatchUsingMode`) implementation for</span>
 <span class="doccomment">/// an ink! smart contract how to dispatch for a call.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DispatchMode</span> {
     <span class="doccomment">/// Mode for instantiating a contract.</span>
     <span class="ident">Instantiate</span>,
@@ -67,6 +70,7 @@
 <span class="doccomment">/// Trait implemented by contracts themselves in order to provide a clean</span>
 <span class="doccomment">/// interface for the C-ABI specified `call` and `create` functions to forward</span>
 <span class="doccomment">/// calls to.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DispatchUsingMode</span> {
     <span class="kw">fn</span> <span class="ident">dispatch_using_mode</span>(<span class="ident">mode</span>: <span class="ident">DispatchMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
 }

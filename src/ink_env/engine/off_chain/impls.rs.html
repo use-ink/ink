@@ -410,6 +410,8 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -436,17 +438,19 @@
         <span class="ident">CallParams</span>,
         <span class="ident">CreateParams</span>,
     },
-    <span class="ident">Blake2x128</span>,
-    <span class="ident">Blake2x256</span>,
-    <span class="ident">CryptoHash</span>,
+    <span class="ident">hash</span>::{
+        <span class="ident">Blake2x128</span>,
+        <span class="ident">Blake2x256</span>,
+        <span class="ident">CryptoHash</span>,
+        <span class="ident">HashOutput</span>,
+        <span class="ident">Keccak256</span>,
+        <span class="ident">Sha2x256</span>,
+    },
     <span class="ident">Env</span>,
     <span class="ident">EnvError</span>,
     <span class="ident">EnvTypes</span>,
-    <span class="ident">HashOutput</span>,
-    <span class="ident">Keccak256</span>,
     <span class="prelude-ty">Result</span>,
     <span class="ident">ReturnFlags</span>,
-    <span class="ident">Sha2x256</span>,
     <span class="ident">Topics</span>,
     <span class="ident">TypedEnv</span>,
 };
