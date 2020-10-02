@@ -353,6 +353,51 @@ use proc_macro::TokenStream;
 ///     # }
 ///     ```
 ///
+/// ## Interacting with the Contract Executor
+///
+/// The `ink_env` crate provides facitilies to interact with the contract executor that
+/// connects ink! smart contracts with the outer world.
+///
+/// For example it is possible to query the current call's caller via:
+/// ```
+/// # ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+/// let caller = ink_env::caller::<ink_env::DefaultEnvTypes>();
+/// # let _caller = caller;
+/// # Ok(())
+/// # }).unwrap();
+/// ```
+///
+/// However, ink! provides a much simpler way to interact with the contract executor
+/// via its environment accessor. An example below:
+///
+/// ```
+/// # use ink_lang as ink;
+/// #
+/// #[ink::contract]
+/// mod greeter {
+///     #[ink(storage)]
+///     pub struct Greeter;
+///
+///     impl Greeter {
+///         #[ink(constructor)]
+///         pub fn new() -> Self {
+///             let caller = Self::env().caller();
+///             let message = format!("thanks for instantiation {:?}", caller);
+///             ink_env::debug_println(&message);
+///             Greeter {}
+///         }
+///
+///         #[ink(message, payable)]
+///         pub fn fund(&mut self) {
+///             let caller = self.env().caller();
+///             let value = self.env().transferred_balance();
+///             let message = format!("thanks for the funding of {:?} from {:?}", value, caller);
+///             ink_env::debug_println(&message);
+///         }
+///     }
+/// }
+/// ```
+///
 /// ## Events
 ///
 /// An ink! smart contract may define events that it can emit during contract execution.
