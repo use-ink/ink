@@ -41,8 +41,8 @@ where
     where
         I: IntoIterator<Item = T>,
     {
-        let mut vec = Self::new();
-        vec.extend(iter);
-        vec
+        let mut heap = Self::new();
+        heap.extend(iter);
+        heap
     }
 }

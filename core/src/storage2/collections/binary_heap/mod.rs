@@ -17,20 +17,29 @@
 //! Insertion and popping the largest element have `O(log(n))` complexity.
 //! Checking the largest element is `O(1)`.
 
+mod group;
 mod impls;
 mod reverse;
 mod storage;
+mod wrapper;
 
 #[cfg(test)]
 mod tests;
 
-use super::vec::{
-    Iter,
-    IterMut,
-    Vec as StorageVec,
+use super::vec::Vec as StorageVec;
+use crate::storage2::{
+    collections::extend_lifetime,
+    traits::PackedLayout,
 };
-use crate::storage2::traits::PackedLayout;
 pub use reverse::Reverse;
+
+use crate::storage2::collections::binary_heap::{
+    group::{
+        Group,
+        Ingroup,
+    },
+    wrapper::Wrapper,
+};
 
 /// A priority queue implemented with a binary heap.
 ///
@@ -45,8 +54,8 @@ pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// The underlying storage vec.
-    elems: StorageVec<T>,
+    /// A collection of groups of elements.
+    groups: Wrapper<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -56,18 +65,18 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            elems: StorageVec::new(),
+            groups: Wrapper::new(),
         }
     }
 
     /// Returns the number of elements in the heap, also referred to as its 'length'.
     pub fn len(&self) -> u32 {
-        self.elems.len()
+        self.groups.len()
     }
 
     /// Returns `true` if the heap contains no elements.
     pub fn is_empty(&self) -> bool {
-        self.elems.is_empty()
+        self.groups.is_empty()
     }
 }
 
@@ -83,7 +92,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        self.elems.iter()
+        self.groups.iter()
     }
 
     /// Returns an iterator yielding exclusive references to all elements of the heap.
@@ -94,14 +103,14 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        self.elems.iter_mut()
+        self.groups.iter_mut()
     }
 
     /// Returns a shared reference to the greatest element of the heap
     ///
     /// Returns `None` if the heap is empty
     pub fn peek(&self) -> Option<&T> {
-        self.elems.first()
+        self.groups.first()
     }
 
     /// Returns an exclusive reference to the greatest element of the heap
@@ -147,14 +156,14 @@ where
         while child < end {
             let right = child + 1;
             // compare with the greater of the two children
-            if right < end && self.elems.get(child) <= self.elems.get(right) {
+            if right < end && self.groups.get(child) <= self.groups.get(right) {
                 child = right;
             }
             // if we are already in order, stop.
-            if self.elems.get(pos) >= self.elems.get(child) {
+            if self.groups.get(pos) >= self.groups.get(child) {
                 break
             }
-            self.elems.swap(child, pos);
+            self.groups.swap(child, pos);
             pos = child;
             child = 2 * pos + 1;
         }
@@ -165,7 +174,7 @@ where
     /// Returns `None` if the heap is empty
     pub fn pop(&mut self) -> Option<T> {
         // replace the root of the heap with the last element
-        let elem = self.elems.swap_remove(0);
+        let elem = self.groups.swap_remove(0);
         self.sift_down(0);
         elem
     }
@@ -178,7 +187,7 @@ where
     /// This method performs significantly better and does not actually read
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
-        self.elems.clear()
+        self.groups.clear()
     }
 }
 
@@ -191,10 +200,10 @@ where
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;
-            if self.elems.get(pos) <= self.elems.get(parent) {
+            if self.groups.get(pos) <= self.groups.get(parent) {
                 break
             }
-            self.elems.swap(parent, pos);
+            self.groups.swap(parent, pos);
             pos = parent;
         }
     }
@@ -202,7 +211,7 @@ where
     /// Pushes the given element to the binary heap.
     pub fn push(&mut self, value: T) {
         let old_len = self.len();
-        self.elems.push(value);
+        self.groups.push(value);
         self.sift_up(old_len)
     }
 }
@@ -237,7 +246,7 @@ where
     type Target = T;
     fn deref(&self) -> &T {
         self.heap
-            .elems
+            .groups
             .first()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }
@@ -249,7 +258,7 @@ where
 {
     fn deref_mut(&mut self) -> &mut T {
         self.heap
-            .elems
+            .groups
             .first_mut()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }
@@ -267,5 +276,172 @@ where
             .expect("PeekMut is only instantiated for non-empty heaps");
         this.sift = false;
         value
+    }
+}
+
+/// An iterator over shared references to the elements of a storage vector.
+#[derive(Debug, Clone, Copy)]
+pub struct Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// The storage vector to iterate over.
+    elems: &'a StorageVec<Group<T>>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T> Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// Creates a new iterator for the given storage vector.
+    pub(crate) fn new(elems: &'a StorageVec<Group<T>>) -> Self {
+        Self {
+            elems,
+            begin: 0,
+            end: elems.len(),
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+
+        let group_index = group::get_group_index(cur);
+        let ingroup = group::get_ingroup_index(cur);
+        let group = self
+            .elems
+            .get(group_index)
+            .expect("access is within bounds");
+        match ingroup {
+            Ingroup::Left => group.0.as_ref(),
+            Ingroup::Right => group.1.as_ref(),
+        }
+    }
+}
+
+/// An iterator over exclusive references to the elements of a storage vector.
+#[derive(Debug)]
+pub struct IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// The storage vector to iterate over.
+    elems: &'a mut StorageVec<Group<T>>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// Creates a new iterator for the given storage vector.
+    pub(crate) fn new(elems: &'a mut StorageVec<Group<T>>) -> Self {
+        let end = elems.len();
+        Self {
+            elems,
+            begin: 0,
+            end,
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
+        let group_index = group::get_group_index(at);
+        let ingroup = group::get_ingroup_index(at);
+        let group = self
+            .elems
+            .get_mut(group_index)
+            .expect("access is within bounds");
+        let v = match ingroup {
+            Ingroup::Left => group.0.as_mut(),
+            Ingroup::Right => group.1.as_mut(),
+        };
+        v.map(|value| {
+            // SAFETY: We extend the lifetime of the reference here.
+            //
+            //         This is safe because the iterator yields an exclusive
+            //         reference to every element in the iterated vector
+            //         just once and also there can be only one such iterator
+            //         for the same vector at the same time which is
+            //         guaranteed by the constructor of the iterator.
+            unsafe { extend_lifetime::<'b, 'a, T>(value) }
+        })
+    }
+}
+
+impl<'a, T> Iterator for IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.get_mut(cur).expect("access is within bounds").into()
     }
 }
