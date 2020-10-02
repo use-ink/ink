@@ -74,7 +74,7 @@ pub trait SpreadLayout {
     /// - Tries to clean `Self` from contract storage as if `self` was stored
     ///   in it using spread layout.
     /// - The key pointer denotes the position where the instance is being cleared
-    /// from the contract storage.
+    ///   from the contract storage.
     ///
     /// # Note
     ///
