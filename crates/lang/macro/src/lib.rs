@@ -28,10 +28,50 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
 }
 
-#[cfg(test)]
-pub use contract::generate_or_err;
-
+/// Defines a unit test that makes use of ink!'s off-chain testing capabilities.
+///
+/// If your unit test does not require the existence of an off-chain environment
+/// it is fine to not use this macro since it bears some overhead with the test.
+///
+/// Note that this macro is not required to run unit tests that require ink!'s
+/// off-chain testing capabilities but merely improves code readability.
+///
+/// ## How do you find out if your test requires the off-chain environment?
+///
+/// Normally if the test recursively uses or invokes some contract methods that
+/// call a method defined in `self.env()` or `Self::env()`.
+///
+/// An examples is the following:
+///
+/// ```no_compile
+/// let caller: AccountId = self.env().caller();
+/// ```
+///
+/// # Example
+///
+/// ```
+/// use ink_lang as ink;
+///
+/// #[cfg(test)]
+/// mod tests {
+///     // Conventional unit test that works with assertions.
+///     #[ink::test]
+///     fn test1() {
+///         // test code comes here as usual
+///     }
+///
+///     // Conventional unit test that returns some Result.
+///     // The test code can make use of operator-`?`.
+///     #[ink::test]
+///     fn test2() -> Result<(), ink_env::EnvError> {
+///         // test code that returns a Rust Result type
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     ink_test::generate(attr.into(), item.into()).into()
 }
+
+#[cfg(test)]
+pub use contract::generate_or_err;
