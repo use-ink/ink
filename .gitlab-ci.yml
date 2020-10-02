@@ -145,7 +145,8 @@ codecov:
     - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
     - rust-covfix -o lcov-lines_correct.info lcov-lines.info
     - bash <(curl -s https://codecov.io/bash) -f lcov-lines_correct.info
-    - cp *.info /artifacts
+    - mkdir -p artifacts/
+    - cp *.info artifacts/
 
 # clippy-std:
 #   stage:                           workspace
