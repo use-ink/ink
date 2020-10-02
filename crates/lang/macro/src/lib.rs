@@ -240,6 +240,11 @@ use proc_macro::TokenStream;
 ///
 ///     An ink! smart contract can have multiple such ink! messages defined.
 ///
+///     **Note:**
+///
+///     - An ink! message with a `&self` receiver may only read state whereas an ink! message
+///       with a `&mut self` receiver may mutate the contract's storage.
+///
 ///     **Example:**
 ///
 ///     Given the `Flipper` contract definition above we add some `#[ink(message)]` definitions
@@ -266,6 +271,41 @@ use proc_macro::TokenStream;
 ///
 ///         /// Returns the current value.
 ///         #[ink(message)]
+///         pub fn get(&self) -> bool {
+///             self.value
+///         }
+///     }
+///     # }
+///     ```
+///
+///     **Payable Messages:**
+///
+///     An ink! message by default will reject calls that additional fund the smart contract.
+///     Authors of ink! smart contracts can make an ink! message payable by adding the `payable`
+///     flag to it. An example below:
+///
+///     ```
+///     # use ink_lang as ink;
+///     # #[ink::contract]
+///     # mod flipper {
+///         # #[ink(storage)]
+///         # pub struct Flipper {
+///         #     value: bool,
+///         # }
+///     impl Flipper {
+///         # #[ink(constructor)]
+///         # pub fn new(initial_value: bool) -> Self {
+///         #     Flipper { value: false }
+///         # }
+///         /// Flips the current value.
+///         #[ink(message)]
+///         #[ink(payable)] // You can either specify payable out-of-line.
+///         pub fn flip(&mut self) {
+///             self.value = !self.value;
+///         }
+///
+///         /// Returns the current value.
+///         #[ink(message, payable)] // ... or specify payable inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
