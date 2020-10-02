@@ -69,47 +69,47 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
+# check-wasm:
+#   stage:                           check
+#   <<:                              *docker-env
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
 
-#### stage:                        workspace
+# #### stage:                        workspace
 
-build-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
-      done
+# build-std:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         check-std
+#       artifacts:                   false
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
-build-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
+# build-wasm:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         check-wasm
+#       artifacts:                   false
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
-test:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+# test:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         check-std
+#       artifacts:                   false
+#   script:
+#     - cargo test --verbose --all-features --no-fail-fast --workspace
 
 codecov:
   stage:                           workspace
@@ -147,145 +147,145 @@ codecov:
     - bash <(curl -s https://codecov.io/bash) -f lcov-lines_correct.info
     - cp *.info /artifacts
 
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
-      done
+# clippy-std:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         check-std
+#       artifacts:                   false
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+#       done
 
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
+# clippy-wasm:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         check-wasm
+#       artifacts:                   false
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+#       done
 
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
+# fmt:
+#   stage:                           workspace
+#   <<:                              *docker-env
+#   script:
+#     - cargo fmt --verbose --all -- --check
 
 
-#### stage:                        examples
+# #### stage:                        examples
 
-.update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
-# restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
-#  - cargo install cargo-contract || echo $?
-  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
-  - cargo contract -V
+# .update-cargo-contract:            &update-cargo-contract
+#   # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
+# # restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
+# #  - cargo install cargo-contract || echo $?
+#   - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
+#   - cargo contract -V
 
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - for example in examples/*/; do
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
+# examples-test:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         clippy-std
+#       artifacts:                   false
+#   script:
+#     - for example in examples/*/; do
+#         cargo test --verbose --manifest-path ${example}/Cargo.toml;
+#       done
 
-examples-fmt:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
+# examples-fmt:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in examples/*/; do
+#         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+#       done
 
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
+# examples-clippy-std:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         clippy-std
+#       artifacts:                   false
+#   script:
+#     - for example in examples/*/; do
+#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+#       done
 
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
+# examples-clippy-wasm:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - for example in examples/*/; do
+#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+#       done
 
-examples-contract-build:
-  stage:                           examples
-  <<:                              *docker-env
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract build &&
-        popd;
-      done
+# examples-contract-build:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   script:
+#     - *update-cargo-contract
+#     - for example in examples/*/; do
+#         pushd $example &&
+#         cargo contract build &&
+#         popd;
+#       done
 
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - job:                         build-wasm
-      artifacts:                   false
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract generate-metadata &&
-        popd;
-      done
+# examples-generate-metadata:
+#   stage:                           examples
+#   <<:                              *docker-env
+#   needs:
+#     - job:                         build-wasm
+#       artifacts:                   false
+#   script:
+#     - *update-cargo-contract
+#     - for example in examples/*/; do
+#         pushd $example &&
+#         cargo contract generate-metadata &&
+#         popd;
+#       done
 
-#### stage:                        publish
+# #### stage:                        publish
 
-publish-docs:
-  stage:                           publish
-  <<:                              *docker-env
-  variables:
-    GIT_DEPTH:                     0
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME == "tags"
-  script:
-    - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
-    # Set git config
-    - rm .git/config
-    - git config user.email "devops-team@parity.io"
-    - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    - git fetch origin gh-pages
-    # Generating Docs
-    - time cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
-    # saving README and docs
-    - mv target/doc/ /tmp/
-    - cp README.md /tmp/doc/
-    - git checkout gh-pages
-    - mv _config.yml /tmp/doc/
-    # remove everything and restore generated docs, README and Jekyll config
-    - rm -rf ./*
-    - mv /tmp/doc/* .
-    # Upload files
-    - git add --all --force
-    - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
-    - git push origin gh-pages --force
-  after_script:
-    - rm -rf .git/ ./*
+# publish-docs:
+#   stage:                           publish
+#   <<:                              *docker-env
+#   variables:
+#     GIT_DEPTH:                     0
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "web"
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#     - if: $CI_COMMIT_REF_NAME == "master"
+#     - if: $CI_COMMIT_REF_NAME == "tags"
+#   script:
+#     - rm -rf /tmp/*
+#     - unset CARGO_TARGET_DIR
+#     # Set git config
+#     - rm .git/config
+#     - git config user.email "devops-team@parity.io"
+#     - git config user.name "${GITHUB_USER}"
+#     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+#     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+#     - git fetch origin gh-pages
+#     # Generating Docs
+#     - time cargo doc --no-deps --all-features
+#         -p scale-info -p ink_metadata -p ink_env -p ink_storage -p ink_storage_derive
+#         -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
+#     # saving README and docs
+#     - mv target/doc/ /tmp/
+#     - cp README.md /tmp/doc/
+#     - git checkout gh-pages
+#     - mv _config.yml /tmp/doc/
+#     # remove everything and restore generated docs, README and Jekyll config
+#     - rm -rf ./*
+#     - mv /tmp/doc/* .
+#     # Upload files
+#     - git add --all --force
+#     - git status
+#     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+#     - git push origin gh-pages --force
+#   after_script:
+#     - rm -rf .git/ ./*
