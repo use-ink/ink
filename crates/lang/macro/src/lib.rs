@@ -313,6 +313,46 @@ use proc_macro::TokenStream;
 ///     # }
 ///     ```
 ///
+///     **Controlling the messages selector:**
+///
+///     Every ink! message and ink! constructor has a unique selector with which the
+///     message or constructor can be uniquely identified within the ink! smart contract.
+///     These selectors are mainly used to drive the contract's dispatch upon calling it.
+///
+///     An ink! smart contract author can control the selector of an ink! message or ink!
+///     constructor using the `selector` flag. An example is shown below:
+///
+///     ```
+///     # use ink_lang as ink;
+///     # #[ink::contract]
+///     # mod flipper {
+///         # #[ink(storage)]
+///         # pub struct Flipper {
+///         #     value: bool,
+///         # }
+///     impl Flipper {
+///         #[ink(constructor)]
+///         #[ink(selector = "0xDEADBEEF")]
+///         pub fn new(initial_value: bool) -> Self {
+///             Flipper { value: false }
+///         }
+///
+///         # /// Flips the current value.
+///         # #[ink(message)]
+///         # #[ink(payable)] // You can either specify payable out-of-line.
+///         # pub fn flip(&mut self) {
+///         #     self.value = !self.value;
+///         # }
+///         #
+///         /// Returns the current value.
+///         #[ink(message, selector = "0xFEEDBEEF")] // ... or specify payable inline.
+///         pub fn get(&self) -> bool {
+///             self.value
+///         }
+///     }
+///     # }
+///     ```
+///
 /// ## Example: Flipper
 ///
 /// The below code shows the complete implementation of the so-called Flipper
