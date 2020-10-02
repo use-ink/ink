@@ -19,6 +19,7 @@ use crate::DispatchError;
 /// Tells the [`DispatchUsingMode`](`crate::DispatchUsingMode`) implementation for
 /// an ink! smart contract how to dispatch for a call.
 #[derive(Copy, Clone, PartialEq, Eq)]
+#[doc(hidden)]
 pub enum DispatchMode {
     /// Mode for instantiating a contract.
     Instantiate,
@@ -29,6 +30,7 @@ pub enum DispatchMode {
 /// Trait implemented by contracts themselves in order to provide a clean
 /// interface for the C-ABI specified `call` and `create` functions to forward
 /// calls to.
+#[doc(hidden)]
 pub trait DispatchUsingMode {
     fn dispatch_using_mode(mode: DispatchMode) -> Result<(), DispatchError>;
 }

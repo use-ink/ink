@@ -13,10 +13,12 @@
 // limitations under the License.
 
 /// A dispatch result.
+#[doc(hidden)]
 pub type DispatchResult = core::result::Result<(), DispatchError>;
 
 /// A dispatch error.
 #[derive(Debug, Copy, Clone)]
+#[doc(hidden)]
 pub enum DispatchError {
     UnknownSelector,
     UnknownInstantiateSelector,
@@ -40,6 +42,7 @@ impl DispatchError {
 
 /// A return code indicating success or error in a compact form.
 #[derive(Copy, Clone)]
+#[doc(hidden)]
 pub struct DispatchRetCode(u32);
 
 impl DispatchRetCode {

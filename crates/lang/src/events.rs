@@ -37,8 +37,3 @@ pub trait BaseEvent {
     /// The generated base event enum.
     type Type;
 }
-
-/// Predicate types that evaluate to `true`.
-pub trait True {}
-/// Predicate types that evaluate to `false`.
-pub trait False {}

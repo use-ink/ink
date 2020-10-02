@@ -58,8 +58,6 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
-        False,
-        True,
     },
     traits::{
         CheckedInkTrait,
@@ -71,6 +69,7 @@ pub use self::{
         ImpliesReturn,
         MessageMut,
         MessageRef,
+        True,
     },
 };
 pub use ::static_assertions;
