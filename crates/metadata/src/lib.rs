@@ -60,11 +60,11 @@ use serde::{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
     #[serde(flatten)]
-    pub registry: RegistryReadOnly,
+    registry: RegistryReadOnly,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    pub layout: layout::Layout<CompactForm>,
-    pub spec: ContractSpec<CompactForm>,
+    layout: layout::Layout<CompactForm>,
+    spec: ContractSpec<CompactForm>,
 }
 
 impl InkProject {
@@ -80,5 +80,22 @@ impl InkProject {
             spec: spec.into().into_compact(&mut registry),
             registry: registry.into(),
         }
+    }
+}
+
+impl InkProject {
+    /// Returns a read-only registry of types in the contract.
+    pub fn registry(&self) -> &RegistryReadOnly {
+        &self.registry
+    }
+
+    /// Returns the storage layout of the contract.
+    pub fn layout(&self) -> &layout::Layout<CompactForm> {
+        &self.layout
+    }
+
+    /// Returns the specification of the contract.
+    pub fn spec(&self) -> &ContractSpec<CompactForm> {
+        &self.spec
     }
 }
