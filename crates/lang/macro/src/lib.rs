@@ -353,6 +353,54 @@ use proc_macro::TokenStream;
 ///     # }
 ///     ```
 ///
+/// ## Events
+///
+/// An ink! smart contract may define events that it can emit during contract execution.
+/// Emitting events can be used by third party tools to query information about a contract's
+/// execution and state.
+///
+/// The following example ink! contract shows how an event `Transferred` is defined and
+/// emitted in the `#[ink(constructor)]`.
+///
+/// ```
+/// # use ink_lang as ink;
+/// #
+/// #[ink::contract]
+/// mod erc20 {
+///     /// Defines an event that is emitted every time value is transferred.
+///     #[ink(event)]
+///     pub struct Transferred {
+///         from: Option<AccountId>,
+///         to: Option<AccountId>,
+///         value: Balance,
+///     }
+///
+///     #[ink(storage)]
+///     pub struct Erc20 {
+///         total_supply: Balance,
+///         // more fields ...
+///     }
+///
+///     impl Erc20 {
+///         #[ink(constructor)]
+///         pub fn new(initial_supply: Balance) -> Self {
+///             let caller = Self::env().caller();
+///             Self::env().emit_event(Transferred {
+///                 from: None,
+///                 to: Some(caller),
+///                 value: initial_supply,
+///             });
+///             Self { total_supply: initial_supply }
+///         }
+///
+///         #[ink(message)]
+///         pub fn total_supply(&self) -> Balance {
+///             self.total_supply
+///         }
+///     }
+/// }
+/// ```
+///
 /// ## Example: Flipper
 ///
 /// The below code shows the complete implementation of the so-called Flipper
