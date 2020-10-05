@@ -188,10 +188,10 @@ use proc_macro::TokenStream;
 /// - There must be exactly one `#[ink(storage)]` struct.
 ///
 ///     This struct defines the layout of the storage that the ink! smart contract operates on.
-///     The user is able to use a variety of built-in facitilies, combine them in various way
+///     The user is able to use a variety of built-in facilities, combine them in various ways
 ///     or even provide their own implementations of storage data structures.
 ///
-///     For more information the user shall visit the `ink_storage` crate documentation.
+///     For more information visit the `ink_storage` crate documentation.
 ///
 ///     **Example:**
 ///
