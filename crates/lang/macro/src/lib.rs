@@ -105,7 +105,7 @@ use proc_macro::TokenStream;
 ///
 ///     Note that it is recommended to make use of the built-in crate feature
 ///     `ink-as-dependency` to flag smart contract dependencies listed in a contract's
-///     `Cargo.toml` as actual dependencies to ink! so that ink!.
+///     `Cargo.toml` as actual dependencies to ink!.
 ///
 ///     **Usage Example:**
 ///     ```
