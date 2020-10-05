@@ -15,7 +15,7 @@
 use super::OffChainError;
 use crate::EnvError;
 use core::{
-    any::Type,
+    any::TypeId,
     cmp::Ordering,
     hash::{
         Hash,
@@ -74,14 +74,14 @@ pub enum TypedEncodedError {
     /// When operating on instances with different types.
     #[from(ignore)]
     DifferentTypes {
-        lhs: core::any::Type,
-        rhs: core::any::Type,
+        lhs: core::any::TypeId,
+        rhs: core::any::TypeId,
     },
     /// When an already initialized instance is about to be initialized.
     #[from(ignore)]
     AlreadyInitialized {
-        initialized_id: core::any::Type,
-        new_id: core::any::Type,
+        initialized_id: core::any::TypeId,
+        new_id: core::any::TypeId,
     },
     /// When operating on still uninitialized types.
     #[from(ignore)]
@@ -130,7 +130,7 @@ impl<M> TypedEncoded<M> {
     {
         Self {
             encoded: value.encode(),
-            type_id: Some(core::any::Type::of::<T>()),
+            type_id: Some(core::any::TypeId::of::<T>()),
             marker: Default::default(),
         }
     }
@@ -147,11 +147,11 @@ impl<M> TypedEncoded<M> {
         if let Some(id) = self.type_id {
             return Err(TypedEncodedError::AlreadyInitialized {
                 initialized_id: id,
-                new_id: core::any::Type::of::<T>(),
+                new_id: core::any::TypeId::of::<T>(),
             })
         }
         value.encode_to(&mut self.encoded);
-        self.type_id = Some(core::any::Type::of::<T>());
+        self.type_id = Some(core::any::TypeId::of::<T>());
         Ok(())
     }
 
@@ -184,7 +184,7 @@ impl<M> TypedEncoded<M> {
     /// # Errors
     ///
     /// Returns an appropriate error in case the instance is uninitialized.
-    fn type_id(&self) -> Result<core::any::Type> {
+    fn type_id(&self) -> Result<core::any::TypeId> {
         match self.type_id {
             Some(type_id) => Ok(type_id),
             None => Err(TypedEncodedError::StillUninitialized),
@@ -210,8 +210,8 @@ impl<M> TypedEncoded<M> {
         T: 'static,
     {
         let id_self = self.type_id()?;
-        let id_enforced = core::any::Type::of::<T>();
-        if core::any::Type::of::<T>() != id_self {
+        let id_enforced = core::any::TypeId::of::<T>();
+        if core::any::TypeId::of::<T>() != id_self {
             return Err(TypedEncodedError::DifferentTypes {
                 lhs: id_self,
                 rhs: id_enforced,
@@ -241,7 +241,7 @@ impl<M> TypedEncoded<M> {
         self.check_enforced_type::<T>()?;
         self.encoded.clear();
         value.encode_to(&mut self.encoded);
-        self.type_id = Some(core::any::Type::of::<T>());
+        self.type_id = Some(core::any::TypeId::of::<T>());
         Ok(())
     }
 

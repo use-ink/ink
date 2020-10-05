@@ -21,7 +21,7 @@ use crate::{
     MessageRef,
 };
 use core::{
-    any::Type,
+    any::TypeId,
     mem::ManuallyDrop,
 };
 use ink_env::{
