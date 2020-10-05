@@ -508,7 +508,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
-///     /// Constructors a new ERC-20 compliant smart contract using the initial supply.
+///     /// Constructs a new ERC-20 compliant smart contract using the initial supply.
 ///     #[ink(constructor)]
 ///     fn new(initial_supply: Balance) -> Self;
 ///
