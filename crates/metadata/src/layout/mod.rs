@@ -345,6 +345,7 @@ impl ArrayLayout {
     }
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl<F> ArrayLayout<F>
 where
     F: Form,
