@@ -256,9 +256,9 @@ where
     /// Returns the name of the message.
     ///
     /// In case of a trait provided constructor the trait name is prefixed.
-    // pub fn name(&self) -> &[F::String] {
-    //     &self.name
-    // }
+    pub fn name(&self) -> &[F::String] {
+        &self.name
+    }
 
     /// Returns the selector hash of the message.
     pub fn selector(&self) -> &Selector {
