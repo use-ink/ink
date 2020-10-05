@@ -59,7 +59,7 @@ use proc_macro::TokenStream;
 ///     their data in a way that contains storage entites within other storage
 ///     entities.
 ///     An example for this is the following type that could potentially be used
-///     within an ink!'s storage struct definition:
+///     within a contract's storage struct definition:
 ///     ```
 ///     // A storage vector of storage vectors.
 ///     # use ink_storage as storage;
