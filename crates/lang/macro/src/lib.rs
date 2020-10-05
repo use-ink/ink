@@ -92,7 +92,7 @@ use proc_macro::TokenStream;
 ///     Tells the ink! code generator to always or never
 ///     compile the smart contract as if it was used as a dependency of another ink!
 ///     smart contract.
-///     Normally this flag is only really useful for ink! developers of people that
+///     Normally this flag is only really useful for ink! developers who
 ///     want to inspect code generation of ink! smart contracts.
 ///     The author is not aware of any particular practical use case for users that
 ///     makes use of this flag.
