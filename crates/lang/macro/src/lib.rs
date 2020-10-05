@@ -236,7 +236,7 @@ use proc_macro::TokenStream;
 ///
 ///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
 ///     upon contract invocation. The set of ink! messages defined for an ink! smart contract
-///     define the smart contract's API surface with which users are allowed to interact.
+///     define its API surface with which users are allowed to interact.
 ///
 ///     An ink! smart contract can have multiple such ink! messages defined.
 ///
