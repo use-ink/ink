@@ -1,1 +1,1 @@
-initSidebarItems({"attr":[["contract",""],["test",""],["trait_definition",""]]});
+initSidebarItems({"attr":[["contract","Entry point for writing ink! smart contracts."],["test","Defines a unit test that makes use of ink!'s off-chain testing capabilities."],["trait_definition","Marks trait definitions to ink! as special ink! trait definitions."]]});

@@ -1,5 +1,6 @@
 (function() {var implementors = {};
 implementors["ink_env"] = [{"text":"impl Hash for AccountId","synthetic":false,"types":[]},{"text":"impl Hash for Hash","synthetic":false,"types":[]}];
+implementors["ink_lang_ir"] = [{"text":"impl Hash for Namespace","synthetic":false,"types":[]},{"text":"impl Hash for Selector","synthetic":false,"types":[]}];
 implementors["ink_primitives"] = [{"text":"impl Hash for Key","synthetic":false,"types":[]}];
 implementors["ink_storage"] = [{"text":"impl Hash for DynamicAllocation","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; Hash for StorageBox&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: Hash + SpreadLayout,&nbsp;</span>","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; Hash for Lazy&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: Hash + SpreadLayout,&nbsp;</span>","synthetic":false,"types":[]},{"text":"impl&lt;T:&nbsp;Hash&gt; Hash for Memory&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl&lt;T&gt; Hash for Pack&lt;T&gt; <span class=\"where fmt-newline\">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: Hash,&nbsp;</span>","synthetic":false,"types":[]}];
 implementors["scale_info"] = [{"text":"impl Hash for MetaType","synthetic":false,"types":[]}];
