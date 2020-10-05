@@ -59,7 +59,7 @@ use proc_macro::TokenStream;
 ///     their data in a way that contains storage entites within other storage
 ///     entities.
 ///     An example for this is the following type that could potentially be used
-///     within an ink!'s storage struct definition:
+///     within a contract's storage struct definition:
 ///     ```
 ///     // A storage vector of storage vectors.
 ///     # use ink_storage as storage;
@@ -92,7 +92,7 @@ use proc_macro::TokenStream;
 ///     Tells the ink! code generator to always or never
 ///     compile the smart contract as if it was used as a dependency of another ink!
 ///     smart contract.
-///     Normally this flag is only really useful for ink! developers of people that
+///     Normally this flag is only really useful for ink! developers who
 ///     want to inspect code generation of ink! smart contracts.
 ///     The author is not aware of any particular practical use case for users that
 ///     makes use of this flag.
@@ -177,7 +177,7 @@ use proc_macro::TokenStream;
 ///
 /// - There must be exactly one `#[ink(storage)]` struct.
 ///
-///     This struct defined the layout of the storage that the ink! smart contract operates on.
+///     This struct defines the layout of the storage that the ink! smart contract operates on.
 ///     The user is able to use a variety of built-in facitilies, combine them in various way
 ///     or even provide their own implementations of storage data structures.
 ///
@@ -235,8 +235,8 @@ use proc_macro::TokenStream;
 /// - There must be at least one `#[ink(message)]` defined method.
 ///
 ///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
-///     upon contract invokation. The set of ink! messages defined for an ink! smart contract
-///     define the smart contract's API surface with which users are allowed to interact.
+///     upon contract invocation. The set of ink! messages defined for an ink! smart contract
+///     define its API surface with which users are allowed to interact.
 ///
 ///     An ink! smart contract can have multiple such ink! messages defined.
 ///
@@ -345,7 +345,7 @@ use proc_macro::TokenStream;
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = "0xFEEDBEEF")] // ... or specify payable inline.
+///         #[ink(message, selector = "0xFEEDBEEF")] // ... or specify selector inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
@@ -508,7 +508,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
-///     /// Constructors a new ERC-20 compliant smart contract using the initial supply.
+///     /// Constructs a new ERC-20 compliant smart contract using the initial supply.
 ///     #[ink(constructor)]
 ///     fn new(initial_supply: Balance) -> Self;
 ///
