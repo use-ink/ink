@@ -24,7 +24,7 @@ use serde_json::json;
 fn spec_constructor_selector_must_serialize_to_hex() {
     // given
     let name = "foo";
-    let cs = ConstructorSpec::name(name)
+    let cs = ConstructorSpec::from_name(name)
         .selector(123_456_789u32.to_be_bytes())
         .done();
     let mut registry = Registry::new();
@@ -53,7 +53,7 @@ fn spec_contract_json() {
     // given
     let contract: ContractSpec = ContractSpec::new()
         .constructors(vec![
-            ConstructorSpec::name("new")
+            ConstructorSpec::from_name("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
                 .args(vec![MessageParamSpec::new("init_value")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
@@ -62,14 +62,14 @@ fn spec_contract_json() {
                     .done()])
                 .docs(Vec::new())
                 .done(),
-            ConstructorSpec::name("default")
+            ConstructorSpec::from_name("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
                 .args(Vec::new())
                 .docs(Vec::new())
                 .done(),
         ])
         .messages(vec![
-            MessageSpec::name("inc")
+            MessageSpec::from_name("inc")
                 .selector([231u8, 208u8, 89u8, 15u8])
                 .mutates(true)
                 .payable(true)
@@ -81,7 +81,7 @@ fn spec_contract_json() {
                 .docs(Vec::new())
                 .returns(ReturnTypeSpec::new(None))
                 .done(),
-            MessageSpec::name("get")
+            MessageSpec::from_name("get")
                 .selector([37u8, 68u8, 74u8, 254u8])
                 .mutates(false)
                 .payable(false)
@@ -114,7 +114,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     "i32"
                                 ],
-                                "id": 1
+                                "type": 1
                             }
                         }
                     ],
@@ -140,7 +140,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     "i32"
                                 ],
-                                "id": 1
+                                "type": 1
                             }
                         }
                     ],
@@ -161,7 +161,7 @@ fn spec_contract_json() {
                         "displayName": [
                             "i32"
                         ],
-                        "id": 1
+                        "type": 1
                     },
                     "selector": "0x25444afe"
                 }
