@@ -345,7 +345,7 @@ use proc_macro::TokenStream;
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = "0xFEEDBEEF")] // ... or specify payable inline.
+///         #[ink(message, selector = "0xFEEDBEEF")] // ... or specify selector inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
