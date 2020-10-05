@@ -284,6 +284,9 @@ use proc_macro::TokenStream;
 ///     Authors of ink! smart contracts can make an ink! message payable by adding the `payable`
 ///     flag to it. An example below:
 ///
+///     Note that ink! constructors are always implicitely payable and thus cannot be flagged
+///     as such.
+///
 ///     ```
 ///     # use ink_lang as ink;
 ///     # #[ink::contract]
