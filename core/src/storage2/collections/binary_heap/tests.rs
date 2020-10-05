@@ -290,7 +290,6 @@ where
         let net_reads = reads - base_reads;
         let net_writes = writes - base_writes;
 
-        // println!("{}: reads {}, writes {}", heap_size, net_reads, net_writes);
         assert_eq!(
             net_reads, expected_net_reads,
             "size {}: storage reads",
