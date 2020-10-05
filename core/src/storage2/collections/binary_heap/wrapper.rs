@@ -68,7 +68,7 @@ where
 
     /// Returns the amount of groups stored in the vector.
     #[allow(dead_code)]
-    #[cfg(feature = "ink-fuzz-tests")]
+    #[cfg(all(test, feature = "ink-fuzz-tests"))]
     pub fn group_count(&self) -> u32 {
         self.elems.len()
     }
