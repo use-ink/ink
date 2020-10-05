@@ -330,10 +330,10 @@ where
 
 #[test]
 fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
-    // 1 group overhead + group.len + heap overhead + heap.len + cell
+    // 1 group overhead (#508) + 1 group.len + 1 heap overhead (#508) + 1 heap.len + 1 cell
     const CONST_READS: usize = 5;
 
-    // 1 group.len + cell which was pushed to
+    // 1 group.len + 1 cell which was pushed to
     // vec.len doesn't get larger because no cell is added
     const CONST_WRITES: usize = 2;
 
@@ -355,8 +355,8 @@ fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
 fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
     const SMALLEST_VALUE: u32 = 0;
 
-    // 1 wrapper overhead root + wrapper.len + 1 vec overhead +
-    // vec.len + vec.cell in which to insert + parent cell during `sift_up`
+    // 1 wrapper overhead (#508) + 1 wrapper.len + 1 vec overhead (#508) +
+    // 1 vec.len + 1 vec.cell in which to insert + 1 parent cell during `sift_up`
     const EXPECTED_READS: usize = 6;
 
     // binary heap len + one cell
@@ -378,8 +378,8 @@ fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
 
 #[test]
 fn pop_complexity_big_o_log_n() -> env::Result<()> {
-    // 1 wrapper overhead root + wrapper.len + 1 vec overhead root +
-    // vec.len + vec.cell from which to pop
+    // 1 wrapper overhead (#508) + wrapper.len + 1 vec overhead (#508) +
+    // 1 vec.len + 1 vec.cell from which to pop
     const CONST_READS: usize = 5;
 
     // 1 wrapper.len + 1 vec.len + cell which was modified
