@@ -132,6 +132,10 @@ use proc_macro::TokenStream;
 ///     The environment must implement the `EnvTypes` (defined in `ink_env`) trait and provides
 ///     all the necessary fundamental type definitions for `Balance`, `AccountId` etc.
 ///
+///     When using a custom `EnvTypes` implementation for a smart contract all types
+///     that it exposes to the ink! smart contract and the mirrored types used in the runtime
+///     must be aligned with respect to SCALE encoding and semantics.
+///
 ///     **Usage Example:**
 ///
 ///     Given a custom `EnvTypes` implementation:
