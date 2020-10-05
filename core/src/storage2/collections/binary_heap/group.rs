@@ -22,6 +22,8 @@ use crate::storage2::traits::{
     SpreadLayout,
 };
 use ink_primitives::Key;
+
+#[cfg(feature = "std")]
 use scale_info::TypeInfo;
 
 /// Each group may contain up to two elements. Each group is always stored

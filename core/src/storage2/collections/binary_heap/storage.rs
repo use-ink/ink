@@ -16,13 +16,7 @@
 
 use super::BinaryHeap;
 use crate::storage2::{
-    collections::{
-        binary_heap::{
-            wrapper::Wrapper,
-            Group,
-        },
-        Vec as StorageVec,
-    },
+    collections::binary_heap::wrapper::Wrapper,
     traits::{
         KeyPtr,
         PackedLayout,
@@ -56,6 +50,10 @@ const _: () = {
 #[cfg(feature = "std")]
 const _: () = {
     use crate::storage2::{
+        collections::binary_heap::{
+            Group,
+            StorageVec,
+        },
         lazy::Lazy,
         traits::StorageLayout,
     };
