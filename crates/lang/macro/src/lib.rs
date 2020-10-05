@@ -94,13 +94,18 @@ use proc_macro::TokenStream;
 ///
 /// - `compile_as_dependency: bool`
 ///
-///     Tells the ink! code generator to always or never
+///     Tells the ink! code generator to **always** or **never**
 ///     compile the smart contract as if it was used as a dependency of another ink!
 ///     smart contract.
+///
 ///     Normally this flag is only really useful for ink! developers who
 ///     want to inspect code generation of ink! smart contracts.
 ///     The author is not aware of any particular practical use case for users that
-///     makes use of this flag.
+///     makes use of this flag but contract writers are encouraged to disprove this.
+///
+///     Note that it is recommended to make use of the built-in crate feature
+///     `ink-as-dependency` to flag smart contract dependencies listed in a contract's
+///     `Cargo.toml` as actual dependencies to ink! so that ink!.
 ///
 ///     **Usage Example:**
 ///     ```
