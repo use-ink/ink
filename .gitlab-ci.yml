@@ -270,8 +270,10 @@ publish-docs:
     - git fetch origin gh-pages
     # Generating Docs
     - time cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude -p ink_lang -p ink_lang_macro
+        -p scale-info -p ink_metadata
+        -p ink_env -p ink_storage -p ink_storage_derive
+        -p ink_primitives -p ink_prelude
+        -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     # saving README and docs
     - mv target/doc/ /tmp/
     - cp README.md /tmp/doc/
