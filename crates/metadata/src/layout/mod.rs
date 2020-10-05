@@ -173,7 +173,7 @@ impl IntoCompact for Layout {
 
 impl<F> CellLayout<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the offset key into the storage.
     pub fn key(&self) -> &LayoutKey {
@@ -218,9 +218,9 @@ impl IntoCompact for HashLayout {
 impl HashLayout {
     /// Creates a new unbounded layout.
     pub fn new<K, L>(offset: K, strategy: HashingStrategy, layout: L) -> Self
-        where
-            K: Into<LayoutKey>,
-            L: Into<Layout>,
+    where
+        K: Into<LayoutKey>,
+        L: Into<Layout>,
     {
         Self {
             offset: offset.into(),
@@ -232,7 +232,7 @@ impl HashLayout {
 
 impl<F> HashLayout<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the key offset used by the strategy.
     pub fn offset(&self) -> &LayoutKey {
@@ -410,7 +410,7 @@ impl StructLayout {
 
 impl<F> StructLayout<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the fields of the struct layout.
     pub fn fields(&self) -> &[FieldLayout<F>] {
@@ -466,7 +466,7 @@ impl FieldLayout {
 
 impl<F> FieldLayout<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the field.
     ///
@@ -541,7 +541,7 @@ impl EnumLayout {
 
 impl<F> EnumLayout<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the key where the discriminant is stored to dispatch the variants.
     pub fn dispatch_key(&self) -> &LayoutKey {

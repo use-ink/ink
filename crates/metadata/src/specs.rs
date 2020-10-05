@@ -83,7 +83,7 @@ impl IntoCompact for ContractSpec {
 
 impl<F> ContractSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the set of constructors of the contract.
     pub fn constructors(&self) -> &[ConstructorSpec<F>] {
@@ -251,7 +251,7 @@ impl IntoCompact for ConstructorSpec {
 
 impl<F> ConstructorSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the message.
     ///
@@ -305,7 +305,9 @@ impl ConstructorSpec {
     }
 
     /// Creates a new constructor spec builder.
-    pub fn from_name(name: &'static str) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    pub fn from_name(
+        name: &'static str,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         Self::from_name_segments(vec![name])
     }
 
@@ -459,7 +461,7 @@ impl MessageSpec {
 
 impl<F> MessageSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the message and some optional prefixes.
     ///
@@ -707,7 +709,7 @@ impl EventSpec {
 
 impl<F> EventSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the event.
     pub fn name(&self) -> &F::String {
@@ -874,7 +876,7 @@ impl TypeSpec {
 
 impl<F> TypeSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the actual type.
     pub fn ty(&self) -> &F::Type {
@@ -937,7 +939,7 @@ impl EventParamSpec {
 
 impl<F> EventParamSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the parameter.
     pub fn name(&self) -> &F::String {
@@ -1047,7 +1049,7 @@ impl ReturnTypeSpec {
 
 impl<F> ReturnTypeSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the optional return type
     pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
@@ -1095,7 +1097,7 @@ impl MessageParamSpec {
 
 impl<F> MessageParamSpec<F>
 where
-    F: Form
+    F: Form,
 {
     /// Returns the name of the parameter.
     pub fn name(&self) -> &F::String {
