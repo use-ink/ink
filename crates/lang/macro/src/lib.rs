@@ -58,6 +58,11 @@ use proc_macro::TokenStream;
 ///     This feature is generally only needed for smart contracts that try to model
 ///     their data in a way that contains storage entites within other storage
 ///     entities.
+///
+///     Contract writers should try to write smart contracts that do not depend on the
+///     dynamic storage allocator since enabling it comes at a cost of increased Wasm
+///     file size. Although it will enable interesting use cases. Use it with care!
+///
 ///     An example for this is the following type that could potentially be used
 ///     within a contract's storage struct definition:
 ///     ```
