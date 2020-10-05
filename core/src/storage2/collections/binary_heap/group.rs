@@ -73,7 +73,11 @@ pub(crate) fn get_ingroup_index(n: u32) -> Ingroup {
             match ingroup_index {
                 0 => Ingroup::Left,
                 1 => Ingroup::Right,
-                _ => unreachable!("COUNT is 2, following the modulo op index must be 0 or 1"),
+                _ => {
+                    unreachable!(
+                        "COUNT is 2, following the modulo op index must be 0 or 1"
+                    )
+                }
             }
         }
     }
