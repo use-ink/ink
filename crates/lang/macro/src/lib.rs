@@ -181,7 +181,7 @@ use proc_macro::TokenStream;
 ///     The user is able to use a variety of built-in facitilies, combine them in various way
 ///     or even provide their own implementations of storage data structures.
 ///
-///     For more information the user shall visit the `ink_storage` crate documentation.
+///     For more information visit the `ink_storage` crate documentation.
 ///
 ///     **Example:**
 ///
