@@ -416,7 +416,7 @@ fn pop_always_returns_largest_element(xs: Vec<i32>) {
         assert_eq!(heap.len(), 0);
 
         // all groups must have been removed as well
-        assert_eq!(heap.groups.elems.len(), 0);
+        assert_eq!(heap.groups.group_count(), 0);
 
         Ok(())
     })

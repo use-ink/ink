@@ -66,6 +66,13 @@ where
         *self.len
     }
 
+    /// Returns the amount of groups stored in the vector.
+    #[allow(dead_code)]
+    #[cfg(feature = "ink-fuzz-tests")]
+    pub fn group_count(&self) -> u32 {
+        self.elems.len()
+    }
+
     /// Returns `true` if the heap contains no elements.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
