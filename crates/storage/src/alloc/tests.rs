@@ -194,7 +194,7 @@ fn test_call_setup_works() {
         assert_eq!(allocator.alloc(), DynamicAllocation(0));
         assert_eq!(allocator.alloc(), DynamicAllocation(1));
         let root_key = Key::from([0xFE; 32]);
-        SpreadLayout::push_spread(&allocator, &mut KeyPtr::from(root_key));
+        DynamicAllocator::push_spread(&allocator, &mut KeyPtr::from(root_key));
         alloc::initialize(ContractPhase::Call);
         assert_eq!(alloc(), DynamicAllocation(2));
         assert_eq!(alloc(), DynamicAllocation(3));

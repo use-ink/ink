@@ -126,7 +126,7 @@ impl DynamicAllocatorState {
             DynamicAllocatorState::Finalized => {
                 panic!(
                     "cannot finalize the dynamic storage allocator \
-                 after it has already been finalized"
+                     after it has already been finalized"
                 )
             }
             DynamicAllocatorState::UninitCall | DynamicAllocatorState::UninitDeploy => {

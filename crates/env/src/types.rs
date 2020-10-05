@@ -216,12 +216,22 @@ pub trait Clear {
     fn clear() -> Self;
 }
 
-impl Clear for Hash {
+impl Clear for [u8; 32] {
     fn is_clear(&self) -> bool {
         self.as_ref().iter().all(|&byte| byte == 0x00)
     }
 
     fn clear() -> Self {
-        Self([0x00; 32])
+        [0x00; 32]
+    }
+}
+
+impl Clear for Hash {
+    fn is_clear(&self) -> bool {
+        <[u8; 32] as Clear>::is_clear(&self.0)
+    }
+
+    fn clear() -> Self {
+        Self(<[u8; 32] as Clear>::clear())
     }
 }
