@@ -335,14 +335,14 @@ use proc_macro::TokenStream;
 ///         # }
 ///     impl Flipper {
 ///         #[ink(constructor)]
-///         #[ink(selector = "0xDEADBEEF")]
+///         #[ink(selector = "0xDEADBEEF")] // Works on constructors as well.
 ///         pub fn new(initial_value: bool) -> Self {
 ///             Flipper { value: false }
 ///         }
 ///
 ///         # /// Flips the current value.
 ///         # #[ink(message)]
-///         # #[ink(payable)] // You can either specify payable out-of-line.
+///         # #[ink(selector = "0xCAFEBABE")] // You can either specify selector out-of-line.
 ///         # pub fn flip(&mut self) {
 ///         #     self.value = !self.value;
 ///         # }
