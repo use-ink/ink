@@ -29,7 +29,7 @@ ink_env = { version = "3.0.0", path = "../../env/" }
 ink_storage = { version = "3.0.0", path = "../../storage/" }
 ink_lang = { version = "3.0.0", path = ".." }
 
-trybuild = "=1.0.23"
+trybuild = "=1.0.24"
 scale-info = { version = "0.3", default-features = false, features = ["derive"] }
 
 [lib]
