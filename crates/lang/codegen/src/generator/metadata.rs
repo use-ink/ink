@@ -137,10 +137,10 @@ impl Metadata<'_> {
                 let constr = match trait_ident {
                     Some(trait_ident) => {
                         let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
                     }
                     None => {
-                        quote_spanned!(span => name(#ident_lit))
+                        quote_spanned!(span => from_name(#ident_lit))
                     }
                 };
                 quote_spanned!(span =>
@@ -231,10 +231,10 @@ impl Metadata<'_> {
                 let constr = match trait_ident {
                     Some(trait_ident) => {
                         let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
                     }
                     None => {
-                        quote_spanned!(span => name(#ident_lit))
+                        quote_spanned!(span => from_name(#ident_lit))
                     }
                 };
                 quote_spanned!(span =>

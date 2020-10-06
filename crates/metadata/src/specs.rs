@@ -312,7 +312,7 @@ impl ConstructorSpec {
     }
 
     /// Creates a new constructor spec builder for a trait provided constructor.
-    pub fn trait_and_name(
+    pub fn from_trait_and_name(
         trait_name: &'static str,
         constructor_name: &'static str,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
@@ -446,7 +446,7 @@ impl MessageSpec {
     }
 
     /// Creates a new message spec builder for a trait provided message.
-    pub fn trait_and_name(
+    pub fn from_trait_and_name(
         trait_name: &'static str,
         message_name: &'static str,
     ) -> MessageSpecBuilder<
