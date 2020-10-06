@@ -51,11 +51,14 @@ fn heap_of_size(n: u32) -> BinaryHeap<u32> {
 /// there might be two leaf cells with one element each or alternatively
 /// one leaf with two elements.
 fn get_count_cells(heap_size: u32) -> u32 {
+    fn division_round_up(dividend: u32, divisor: u32) -> u32 {
+        (dividend + divisor - 1) / divisor
+    }
     assert!(heap_size % 2 == 0, "heap_size must be even");
     let rest = match heap_size {
         0 => 0,
         1 => 0,
-        _ => (heap_size + 2 - 1) / 2,
+        _ => division_round_up(heap_size, super::group::COUNT),
     };
     rest + 1
 }

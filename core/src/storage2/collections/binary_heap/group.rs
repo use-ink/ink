@@ -43,7 +43,7 @@ pub enum Ingroup {
 /// Number of element stored in each group.
 /// Note that the first group (at index `0`) will only ever
 /// contain one element (the root element).
-const COUNT: u32 = 2;
+pub(crate) const COUNT: u32 = 2;
 
 /// Returns the index of the group in which the `n`-th element is stored.
 pub(crate) fn get_group_index(n: u32) -> u32 {
