@@ -62,7 +62,8 @@ where
     }
 }
 
-mod state {
+#[doc(hidden)]
+pub mod state {
     /// The topic builder is uninitialized and needs to be provided with the
     /// expected number of topics that need to be constructed.
     pub enum Uninit {}
