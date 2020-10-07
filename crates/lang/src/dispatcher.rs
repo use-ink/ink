@@ -143,7 +143,7 @@ where
 {
     let transferred = ink_env::transferred_balance::<E>()
         .expect("encountered error while querying transferred balance");
-    if transferred != <E as EnvTypes>::Balance::from(0) {
+    if transferred != <E as EnvTypes>::Balance::from(0u32) {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())

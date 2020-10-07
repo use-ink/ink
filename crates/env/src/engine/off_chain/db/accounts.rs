@@ -96,7 +96,7 @@ impl AccountsDb {
             self.get_account_mut::<T>(at)
                 .expect("just checked that account exists")
         } else {
-            self.add_user_account::<T>(at.clone(), 0.into());
+            self.add_user_account::<T>(at.clone(), 0u32.into());
             self.get_account_mut::<T>(at)
                 .expect("just added the account so it must exist")
         }

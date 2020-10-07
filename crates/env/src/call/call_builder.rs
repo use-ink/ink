@@ -393,7 +393,7 @@ where
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             transferred_value: self
                 .transferred_value
-                .unwrap_or_else(|| E::Balance::from(0)),
+                .unwrap_or_else(|| E::Balance::from(0u32)),
             return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
