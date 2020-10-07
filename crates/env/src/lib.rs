@@ -66,6 +66,8 @@ pub mod call;
 mod engine;
 mod error;
 pub mod hash;
+#[doc(hidden)]
+pub mod topics;
 mod types;
 
 #[cfg(test)]
@@ -92,6 +94,6 @@ pub use self::{
         DefaultEnvTypes,
         EnvTypes,
         Hash,
-        Topics,
     },
+    topics::Topics,
 };
