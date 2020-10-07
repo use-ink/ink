@@ -127,13 +127,27 @@ impl<'a> Events<'a> {
             )*
 
             const _: () = {
+                pub enum __ink_UndefinedAmountOfTopics {}
+                impl ::ink_env::topics::EventTopicsAmount for __ink_UndefinedAmountOfTopics {
+                    const AMOUNT: usize = 0;
+                }
+
                 #no_cross_calling_cfg
-                impl ::ink_env::Topics<EnvTypes> for #base_event_ident {
-                    fn topics(&self) -> &'static [Hash] {
+                impl ::ink_env::Topics for #base_event_ident {
+                    type RemainingTopics = __ink_UndefinedAmountOfTopics;
+
+                    fn topics<E, B>(
+                        &self,
+                        builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
+                    ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                    where
+                        E: ::ink_env::EnvTypes,
+                        B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                    {
                         match self {
                             #(
                                 Self::#event_idents(event) => {
-                                    <#event_idents as ::ink_env::Topics<EnvTypes>>::topics(event)
+                                    <#event_idents as ::ink_env::Topics>::topics::<E, B>(event, builder)
                                 }
                             )*
                         }
@@ -203,16 +217,46 @@ impl<'a> Events<'a> {
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
+        // let contract_ident = self.contract.module().storage().ident();
         self.contract.module().events().map(move |event| {
             let span = event.span();
-            let ident = event.ident();
+            let event_ident = event.ident();
+            let len_topics = event.fields().filter(|field| field.is_topic).count();
+            let topic_impls = event
+                .fields()
+                .enumerate()
+                .filter(|(_, field)| field.is_topic)
+                .map(|(n, topic_field)| {
+                    let span = topic_field.span();
+                    let field_ident = topic_field
+                        .ident()
+                        .map(quote::ToTokens::into_token_stream)
+                        .unwrap_or_else(|| quote_spanned!(span => #n));
+                    let field_type = topic_field.ty();
+                    quote_spanned!(span =>
+                        .push_topic::<#field_type>(&self.#field_ident)
+                    )
+                });
             quote_spanned!(span =>
                 #no_cross_calling_cfg
                 const _: () = {
-                    impl ::ink_env::Topics<EnvTypes> for #ident {
-                        fn topics(&self) -> &'static [Hash] {
-                            // Issue: https://github.com/paritytech/ink/issues/105
-                            &[]
+                    impl ::ink_env::Topics for #event_ident {
+                        type RemainingTopics = [::ink_env::topics::state::HasRemainingTopics; #len_topics];
+
+                        fn topics<E, B>(
+                            &self,
+                            builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
+                        ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
+                        where
+                            E: ::ink_env::EnvTypes,
+                            B: ::ink_env::topics::TopicsBuilderBackend<E>,
+                        {
+                            builder
+                                .build::<Self>()
+                                #(
+                                    #topic_impls
+                                )*
+                                .finish()
                         }
                     }
                 };
