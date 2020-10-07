@@ -88,6 +88,7 @@ pub use self::{
         EnvError,
         Result,
     },
+    topics::Topics,
     types::{
         AccountId,
         Clear,
@@ -95,5 +96,4 @@ pub use self::{
         EnvTypes,
         Hash,
     },
-    topics::Topics,
 };

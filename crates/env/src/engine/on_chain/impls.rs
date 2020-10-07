@@ -32,14 +32,16 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    topics::TopicsBuilderBackend,
+    topics::{
+        Topics,
+        TopicsBuilderBackend,
+    },
     Clear,
     Env,
     EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
-    topics::Topics,
     TypedEnv,
 };
 use ink_primitives::Key;
@@ -118,7 +120,10 @@ where
     E: EnvTypes,
 {
     fn from(scoped_buffer: ScopedBuffer<'a>) -> Self {
-        Self { scoped_buffer, marker: Default::default() }
+        Self {
+            scoped_buffer,
+            marker: Default::default(),
+        }
     }
 }
 

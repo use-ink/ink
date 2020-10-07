@@ -22,9 +22,9 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
+    topics::Topics,
     EnvTypes,
     Result,
-    topics::Topics,
 };
 use ink_primitives::Key;
 

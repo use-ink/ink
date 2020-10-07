@@ -124,7 +124,10 @@ impl<'a> ScopedBuffer<'a> {
     ///
     /// The splitted buffer will have an offset of 0 but be offset by `self`'s offset.
     pub fn split(&mut self) -> ScopedBuffer {
-        ScopedBuffer { offset: 0, buffer: &mut self.buffer[self.offset..] }
+        ScopedBuffer {
+            offset: 0,
+            buffer: &mut self.buffer[self.offset..],
+        }
     }
 
     /// Returns the first `len` bytes of the buffer as mutable slice.
