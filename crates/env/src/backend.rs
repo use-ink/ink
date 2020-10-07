@@ -24,7 +24,7 @@ use crate::{
     },
     EnvTypes,
     Result,
-    Topics,
+    topics::Topics,
 };
 use ink_primitives::Key;
 
@@ -232,7 +232,7 @@ pub trait TypedEnv: Env {
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: EnvTypes,
-        Event: Topics<T> + scale::Encode;
+        Event: Topics + scale::Encode;
 
     /// Sets the rent allowance of the executed contract to the new value.
     ///

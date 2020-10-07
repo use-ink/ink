@@ -35,7 +35,7 @@ use crate::{
     },
     EnvTypes,
     Result,
-    Topics,
+    topics::Topics,
 };
 use ink_primitives::Key;
 
@@ -195,7 +195,7 @@ where
 pub fn emit_event<T, Event>(event: Event)
 where
     T: EnvTypes,
-    Event: Topics<T> + scale::Encode,
+    Event: Topics + scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnv::emit_event::<T, Event>(instance, event)

@@ -31,12 +31,12 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    topics::Topics,
     Env,
     EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
-    Topics,
     TypedEnv,
 };
 use core::convert::TryInto;
@@ -325,7 +325,7 @@ impl TypedEnv for EnvInstance {
     fn emit_event<T, Event>(&mut self, new_event: Event)
     where
         T: EnvTypes,
-        Event: Topics<T> + scale::Encode,
+        Event: Topics + scale::Encode,
     {
         self.emitted_events.record::<T, Event>(new_event)
     }
