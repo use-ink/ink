@@ -359,7 +359,7 @@ fn unbounded_layout_works() {
                 "strategy": {
                         "hasher": "Blake2x256",
                         "prefix": "0x696e6b2073746f7261676520686173686d6170",
-                        "postfix": "0x",
+                        "postfix": "",
                 }
             }
         }

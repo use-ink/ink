@@ -22,6 +22,7 @@ mod tests;
 
 pub mod layout;
 mod specs;
+mod utils;
 
 pub use self::specs::{
     ConstructorSpec,

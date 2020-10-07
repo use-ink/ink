@@ -15,7 +15,10 @@
 #[cfg(test)]
 mod tests;
 
-use crate::serde_hex;
+use crate::{
+    serde_hex,
+    utils::serialize_as_byte_str,
+};
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
@@ -261,13 +264,13 @@ pub struct HashingStrategy {
     hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
     #[serde(
-        serialize_with = "serde_hex::serialize",
+        serialize_with = "serialize_as_byte_str",
         deserialize_with = "serde_hex::deserialize"
     )]
     prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
     #[serde(
-        serialize_with = "serde_hex::serialize",
+        serialize_with = "serialize_as_byte_str",
         deserialize_with = "serde_hex::deserialize"
     )]
     postfix: Vec<u8>,
