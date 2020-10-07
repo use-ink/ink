@@ -94,17 +94,6 @@ pub trait EnvTypes {
         + AtLeast32BitUnsigned;
 }
 
-/// Implemented by event types to communicate their topic hashes.
-pub trait Topics<T>
-where
-    T: EnvTypes,
-{
-    /// Returns the topic hashes of `self`.
-    ///
-    /// The length of the slice must be less than or equal to `<T as EvnTypes>::MAX_EVENT_TOPICS`.
-    fn topics(&self) -> &'static [<T as EnvTypes>::Hash];
-}
-
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
