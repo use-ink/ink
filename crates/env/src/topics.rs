@@ -201,30 +201,3 @@ pub trait Topics {
         E: EnvTypes,
         B: TopicsBuilderBackend<E>;
 }
-
-// /// Bla bla bla.
-// pub struct DummyEvent {
-//     a: i32,
-//     b: bool,
-//     c: [u8; 32],
-// }
-
-// impl Topics for DummyEvent {
-//     type RemainingTopics = [state::HasRemainingTopics; 3];
-
-//     fn topics<E, B>(
-//         &self,
-//         builder: TopicsBuilder<state::Uninit, E, B>,
-//     ) -> <B as TopicsBuilderBackend<E>>::Output
-//     where
-//         E: EnvTypes,
-//         B: TopicsBuilderBackend<E>,
-//     {
-//         builder
-//             .build::<Self>()
-//             .push_topic(&self.a)
-//             .push_topic(&self.b)
-//             .push_topic(&self.c)
-//             .finish()
-//     }
-// }
