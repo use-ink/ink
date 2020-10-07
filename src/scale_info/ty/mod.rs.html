@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/ci-cache/ink/cargo/publish-docs/registry/src/github.com-1ecc6299db9ec823/scale-info-0.3.0/src/ty/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/ci-cache/ink/cargo/publish-docs/registry/src/github.com-1ecc6299db9ec823/scale-info-0.4.0/src/ty/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -271,6 +271,69 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -294,7 +357,8 @@
 	<span class="ident">IntoCompact</span>, <span class="ident">MetaType</span>, <span class="ident">Registry</span>, <span class="ident">TypeInfo</span>,
 };
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
+<span class="kw">use</span> <span class="ident">scale</span>::{<span class="ident">Decode</span>, <span class="ident">Encode</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">mod</span> <span class="ident">composite</span>;
 <span class="kw">mod</span> <span class="ident">fields</span>;
@@ -304,18 +368,21 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{<span class="ident">composite</span>::<span class="kw-2">*</span>, <span class="ident">fields</span>::<span class="kw-2">*</span>, <span class="ident">path</span>::<span class="kw-2">*</span>, <span class="ident">variant</span>::<span class="kw-2">*</span>};
 
 <span class="doccomment">/// A [`Type`] definition with optional metadata.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
+	<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize, T::String: Serialize&quot;</span>,
+	<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned, T::String: DeserializeOwned&quot;</span>
+))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The unique path to the type. Can be empty for built-in types</span>
-	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Path::is_empty&quot;</span>)]</span>
-	<span class="ident">path</span>: <span class="ident">Path</span>,
+	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Path::is_empty&quot;</span>, <span class="ident">default</span>)]</span>
+	<span class="ident">path</span>: <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The generic type parameters of the type in use. Empty for non generic types</span>
-	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;params&quot;</span>, <span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>)]</span>
-	<span class="ident">type_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>,
+	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;params&quot;</span>, <span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)]</span>
+	<span class="ident">type_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 	<span class="doccomment">/// The actual type definition</span>
 	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;def&quot;</span>)]</span>
-	<span class="ident">type_def</span>: <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>,
+	<span class="ident">type_def</span>: <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoCompact</span> <span class="kw">for</span> <span class="ident">Type</span> {
@@ -323,7 +390,7 @@
 
 	<span class="kw">fn</span> <span class="ident">into_compact</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
 		<span class="ident">Type</span> {
-			<span class="ident">path</span>: <span class="self">self</span>.<span class="ident">path</span>,
+			<span class="ident">path</span>: <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">into_compact</span>(<span class="ident">registry</span>),
 			<span class="ident">type_params</span>: <span class="ident">registry</span>.<span class="ident">register_types</span>(<span class="self">self</span>.<span class="ident">type_params</span>),
 			<span class="ident">type_def</span>: <span class="self">self</span>.<span class="ident">type_def</span>.<span class="ident">into_compact</span>(<span class="ident">registry</span>),
 		}
@@ -373,21 +440,44 @@
 	}
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Form</span>,
+{
+	<span class="doccomment">/// Returns the path of the type</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>
+	}
+
+	<span class="doccomment">/// Returns the generic type parameters of the type</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">T</span>::<span class="ident">Type</span>] {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_params</span>
+	}
+
+	<span class="doccomment">/// Returns the definition of the type</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_def</span>
+	}
+}
+
 <span class="doccomment">/// The possible types a SCALE encodable Rust value could have.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(
+	<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize, T::String: Serialize&quot;</span>,
+	<span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned, T::String: DeserializeOwned&quot;</span>
+))]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// A composite type (e.g. a struct or a tuple)</span>
-	<span class="ident">Composite</span>(<span class="ident">TypeDefComposite</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
+	<span class="ident">Composite</span>(<span class="ident">TypeDefComposite</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 	<span class="doccomment">/// A variant type (e.g. an enum)</span>
-	<span class="ident">Variant</span>(<span class="ident">TypeDefVariant</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
+	<span class="ident">Variant</span>(<span class="ident">TypeDefVariant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 	<span class="doccomment">/// A sequence type with runtime known length.</span>
-	<span class="ident">Sequence</span>(<span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
+	<span class="ident">Sequence</span>(<span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 	<span class="doccomment">/// An array type with compile-time known length.</span>
-	<span class="ident">Array</span>(<span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
+	<span class="ident">Array</span>(<span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 	<span class="doccomment">/// A tuple type.</span>
-	<span class="ident">Tuple</span>(<span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
+	<span class="ident">Tuple</span>(<span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 	<span class="doccomment">/// A Rust primitive type.</span>
 	<span class="ident">Primitive</span>(<span class="ident">TypeDefPrimitive</span>),
 }
@@ -408,7 +498,7 @@
 }
 
 <span class="doccomment">/// A primitive Rust type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>, <span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeDefPrimitive</span> {
 	<span class="doccomment">/// `bool` type</span>
@@ -440,14 +530,14 @@
 }
 
 <span class="doccomment">/// An array type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize&quot;</span>, <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The length of the array type.</span>
-	<span class="kw">pub</span> <span class="ident">len</span>: <span class="ident">u32</span>,
+	<span class="ident">len</span>: <span class="ident">u32</span>,
 	<span class="doccomment">/// The element type of the array type.</span>
 	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-	<span class="kw">pub</span> <span class="ident">type_param</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
+	<span class="ident">type_param</span>: <span class="ident">T</span>::<span class="ident">Type</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoCompact</span> <span class="kw">for</span> <span class="ident">TypeDefArray</span> {
@@ -468,13 +558,29 @@
 	}
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">len_without_is_empty</span>)]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Form</span>,
+{
+	<span class="doccomment">/// Returns the length of the array type.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+		<span class="self">self</span>.<span class="ident">len</span>
+	}
+
+	<span class="doccomment">/// Returns the element type of the array type.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">Type</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>
+	}
+}
+
 <span class="doccomment">/// A type to refer to tuple types.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize&quot;</span>, <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The types of the tuple fields.</span>
-	<span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">F</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>,
+	<span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoCompact</span> <span class="kw">for</span> <span class="ident">TypeDefTuple</span> {
@@ -504,13 +610,23 @@
 	}
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Form</span>,
+{
+	<span class="doccomment">/// Returns the types of the tuple fields.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fields</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">T</span>::<span class="ident">Type</span>] {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fields</span>
+	}
+}
+
 <span class="doccomment">/// A type to refer to a sequence of elements of the same type.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span> <span class="op">=</span> <span class="string">&quot;F::TypeId: Serialize&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize&quot;</span>, <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
 	<span class="doccomment">/// The element type of the sequence type.</span>
 	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>)]</span>
-	<span class="ident">type_param</span>: <span class="ident">F</span>::<span class="ident">TypeId</span>,
+	<span class="ident">type_param</span>: <span class="ident">T</span>::<span class="ident">Type</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoCompact</span> <span class="kw">for</span> <span class="ident">TypeDefSequence</span> {
@@ -540,6 +656,16 @@
 		<span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 	{
 		<span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
+	}
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+	<span class="ident">T</span>: <span class="ident">Form</span>,
+{
+	<span class="doccomment">/// Returns the element type of the sequence type.</span>
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">Type</span> {
+		<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>
 	}
 }
 </pre></div>
