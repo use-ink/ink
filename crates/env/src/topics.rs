@@ -128,7 +128,6 @@ where
     /// No more event topics can be serialized afterwards but the environment will be
     /// able to extract the information collected by the topics builder in order to
     /// emit the serialized event.
-    // pub fn finish(self) -> TopicsBuilder<state::Finish, B>
     pub fn finish(self) -> <B as TopicsBuilderBackend<E>>::Output
     where
         B: TopicsBuilderBackend<E>,
