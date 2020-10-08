@@ -16,9 +16,9 @@
 
 use crate::{
     backend::{
-        Env,
+        EnvBackend,
         ReturnFlags,
-        TypedEnv,
+        TypedEnvBackend,
     },
     call::{
         utils::ReturnType,
@@ -48,7 +48,7 @@ pub fn caller<T>() -> Result<T::AccountId>
 where
     T: EnvTypes,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::caller::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::caller::<T>(instance))
 }
 
 /// Returns the transferred balance for the contract execution.
@@ -61,7 +61,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::transferred_balance::<T>(instance)
+        TypedEnvBackend::transferred_balance::<T>(instance)
     })
 }
 
@@ -75,7 +75,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::weight_to_fee::<T>(instance, gas)
+        TypedEnvBackend::weight_to_fee::<T>(instance, gas)
     })
 }
 
@@ -88,7 +88,7 @@ pub fn gas_left<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::gas_left::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::gas_left::<T>(instance))
 }
 
 /// Returns the current block timestamp.
@@ -101,7 +101,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::block_timestamp::<T>(instance)
+        TypedEnvBackend::block_timestamp::<T>(instance)
     })
 }
 
@@ -119,7 +119,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::account_id::<T>(instance)
+        TypedEnvBackend::account_id::<T>(instance)
     })
 }
 
@@ -132,7 +132,7 @@ pub fn balance<T>() -> Result<T::Balance>
 where
     T: EnvTypes,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::balance::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::balance::<T>(instance))
 }
 
 /// Returns the current rent allowance for the executed contract.
@@ -145,7 +145,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::rent_allowance::<T>(instance)
+        TypedEnvBackend::rent_allowance::<T>(instance)
     })
 }
 
@@ -159,7 +159,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::block_number::<T>(instance)
+        TypedEnvBackend::block_number::<T>(instance)
     })
 }
 
@@ -173,7 +173,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::minimum_balance::<T>(instance)
+        TypedEnvBackend::minimum_balance::<T>(instance)
     })
 }
 
@@ -187,7 +187,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::tombstone_deposit::<T>(instance)
+        TypedEnvBackend::tombstone_deposit::<T>(instance)
     })
 }
 
@@ -198,7 +198,7 @@ where
     Event: Topics + scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::emit_event::<T, Event>(instance, event)
+        TypedEnvBackend::emit_event::<T, Event>(instance, event)
     })
 }
 
@@ -208,7 +208,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::set_rent_allowance::<T>(instance, new_value)
+        TypedEnvBackend::set_rent_allowance::<T>(instance, new_value)
     })
 }
 
@@ -222,7 +222,7 @@ where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<V>(instance, key, value)
     })
 }
 
@@ -236,14 +236,14 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<R>(instance, key)
     })
 }
 
 /// Clears the contract's storage key entry.
 pub fn clear_contract_storage(key: &Key) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::clear_contract_storage(instance, key)
+        EnvBackend::clear_contract_storage(instance, key)
     })
 }
 
@@ -270,7 +270,7 @@ where
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::invoke_contract::<T, Args>(instance, params)
+        TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
     })
 }
 
@@ -297,7 +297,7 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::eval_contract::<T, Args, R>(instance, params)
+        TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
     })
 }
 
@@ -324,7 +324,7 @@ where
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::instantiate_contract::<T, Args, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<T, Args, C>(instance, params)
     })
 }
 
@@ -379,7 +379,7 @@ pub fn restore_contract<T>(
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::restore_contract::<T>(
+        TypedEnvBackend::restore_contract::<T>(
             instance,
             account_id,
             code_hash,
@@ -404,7 +404,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::terminate_contract::<T>(instance, beneficiary)
+        TypedEnvBackend::terminate_contract::<T>(instance, beneficiary)
     })
 }
 
@@ -424,7 +424,7 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::transfer::<T>(instance, destination, value)
+        TypedEnvBackend::transfer::<T>(instance, destination, value)
     })
 }
 
@@ -445,7 +445,7 @@ where
     O: scale::Codec + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::call_chain_extension(instance, func_id, input)
+        EnvBackend::call_chain_extension(instance, func_id, input)
     })
 }
 
@@ -476,7 +476,7 @@ pub fn decode_input<T>() -> Result<T>
 where
     T: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| Env::decode_input::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| EnvBackend::decode_input::<T>(instance))
 }
 
 /// Returns the value back to the caller of the executed contract.
@@ -489,7 +489,7 @@ where
     R: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::return_value::<R>(instance, return_flags, return_value)
+        EnvBackend::return_value::<R>(instance, return_flags, return_value)
     })
 }
 
@@ -508,13 +508,13 @@ where
     T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::random::<T>(instance, subject)
+        TypedEnvBackend::random::<T>(instance, subject)
     })
 }
 
 /// Prints the given contents to the environmental log.
 pub fn debug_println(content: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
+    <EnvInstance as OnInstance>::on_instance(|instance| EnvBackend::println(instance, content))
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.

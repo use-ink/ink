@@ -78,8 +78,8 @@ mod tests;
 pub use self::engine::off_chain::test_api as test;
 
 use self::backend::{
-    Env,
-    TypedEnv,
+    EnvBackend,
+    TypedEnvBackend,
 };
 pub use self::{
     api::*,

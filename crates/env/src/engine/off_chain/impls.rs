@@ -32,12 +32,12 @@ use crate::{
         Sha2x256,
     },
     topics::Topics,
-    Env,
+    EnvBackend,
     EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
-    TypedEnv,
+    TypedEnvBackend,
 };
 use core::convert::TryInto;
 use ink_primitives::Key;
@@ -117,7 +117,7 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-impl Env for EnvInstance {
+impl EnvBackend for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
@@ -232,7 +232,7 @@ impl EnvInstance {
     }
 }
 
-impl TypedEnv for EnvInstance {
+impl TypedEnvBackend for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
             .expect("uninitialized execution context")

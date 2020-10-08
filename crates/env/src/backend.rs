@@ -56,7 +56,7 @@ impl ReturnFlags {
 }
 
 /// Environmental contract functionality that does not require `EnvTypes`.
-pub trait Env {
+pub trait EnvBackend {
     /// Writes the value to the contract storage under the given key.
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
@@ -146,7 +146,7 @@ pub trait Env {
 }
 
 /// Environmental contract functionality.
-pub trait TypedEnv: Env {
+pub trait TypedEnvBackend: EnvBackend {
     /// Returns the address of the caller of the executed contract.
     ///
     /// # Note

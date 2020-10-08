@@ -37,12 +37,12 @@ use crate::{
         TopicsBuilderBackend,
     },
     Clear,
-    Env,
+    EnvBackend,
     EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
-    TypedEnv,
+    TypedEnvBackend,
 };
 use ink_primitives::Key;
 
@@ -208,7 +208,7 @@ impl EnvInstance {
     }
 }
 
-impl Env for EnvInstance {
+impl EnvBackend for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
@@ -286,7 +286,7 @@ impl Env for EnvInstance {
     }
 }
 
-impl TypedEnv for EnvInstance {
+impl TypedEnvBackend for EnvInstance {
     fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
         self.get_property::<T::AccountId>(ext::caller)
     }
