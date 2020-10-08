@@ -620,7 +620,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     // Conventional unit test that returns some Result.
 ///     // The test code can make use of operator-`?`.
 ///     #[ink::test]
-///     fn test2() -> Result<(), ink_env::EnvError> {
+///     fn test2() -> Result<(), ink_env::Error> {
 ///         // test code that returns a Rust Result type
 ///     }
 /// }

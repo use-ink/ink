@@ -38,7 +38,7 @@ use crate::{
     },
     Clear,
     EnvBackend,
-    EnvError,
+    Error,
     Environment,
     Result,
     ReturnFlags,
@@ -94,7 +94,7 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-impl From<ext::Error> for EnvError {
+impl From<ext::Error> for Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
             ext::Error::UnknownError => Self::UnknownError,
