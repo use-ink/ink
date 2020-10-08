@@ -211,7 +211,8 @@ mod erc20 {
                 encoded_into_hash(&expected_to),
                 encoded_into_hash(&expected_value),
             ];
-            for (n, (actual_topic, expected_topic)) in event.topics.iter().zip(expected_topics).enumerate()
+            for (n, (actual_topic, expected_topic)) in
+                event.topics.iter().zip(expected_topics).enumerate()
             {
                 let topic = actual_topic
                     .decode::<Hash>()
