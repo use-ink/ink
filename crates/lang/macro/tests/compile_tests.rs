@@ -43,7 +43,7 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/M-01-missing-message.rs");
     t.compile_fail("tests/ui/fail/M-02-message-missing-self-arg.rs");
     t.compile_fail("tests/ui/fail/M-03-message-returns-self.rs");
-    t.compile_fail("tests/ui/fail/M-04-message-returns-non-codec.rs");
+    // t.compile_fail("tests/ui/fail/M-04-message-returns-non-codec.rs");
     t.compile_fail("tests/ui/fail/M-10-method-unknown-ink-marker.rs");
 
     t.compile_fail("tests/ui/fail/S-01-missing-storage-struct.rs");
