@@ -319,6 +319,7 @@ pub enum CryptoHasher {
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
+#[serde(rename_all = "camelCase")]
 pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
@@ -522,6 +523,7 @@ impl Discriminant {
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
+#[serde(rename_all = "camelCase")]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
     dispatch_key: LayoutKey,
