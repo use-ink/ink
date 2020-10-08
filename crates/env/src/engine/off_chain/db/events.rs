@@ -56,7 +56,8 @@ where
             let copy_len = core::cmp::min(hash_output.len(), len_result);
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
-        self.topics.push(OffHash::new(&result));
+        let off_hash = OffHash::new(&result);
+        self.topics.push(off_hash);
     }
 
     fn output(self) -> Self::Output {
