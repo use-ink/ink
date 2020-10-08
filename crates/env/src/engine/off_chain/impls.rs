@@ -33,7 +33,7 @@ use crate::{
     },
     topics::Topics,
     EnvBackend,
-    EnvError,
+    Error,
     EnvTypes,
     Result,
     ReturnFlags,
@@ -214,7 +214,7 @@ impl EnvInstance {
             .expect("account of executed contract must exist")
             .balance::<T>()?;
         if src_value < value {
-            return Err(EnvError::TransferFailed)
+            return Err(Error::TransferFailed)
         }
         let dst_value = self
             .accounts

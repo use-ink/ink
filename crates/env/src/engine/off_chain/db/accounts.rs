@@ -21,7 +21,7 @@ use super::{
     OffBalance,
 };
 use crate::{
-    EnvError,
+    Error,
     EnvTypes,
 };
 use core::cell::Cell;
@@ -39,9 +39,9 @@ pub enum AccountError {
     NoAccountForId(OffAccountId),
 }
 
-impl From<AccountError> for EnvError {
+impl From<AccountError> for Error {
     fn from(account_error: AccountError) -> Self {
-        EnvError::OffChain(OffChainError::Account(account_error))
+        Error::OffChain(OffChainError::Account(account_error))
     }
 }
 

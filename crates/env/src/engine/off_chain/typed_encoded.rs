@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::OffChainError;
-use crate::EnvError;
+use crate::Error;
 use core::{
     any::TypeId,
     cmp::Ordering,
@@ -88,9 +88,9 @@ pub enum TypedEncodedError {
     StillUninitialized,
 }
 
-impl From<TypedEncodedError> for EnvError {
+impl From<TypedEncodedError> for Error {
     fn from(typed_encoded_error: TypedEncodedError) -> Self {
-        EnvError::OffChain(OffChainError::TypedEncoded(typed_encoded_error))
+        Error::OffChain(OffChainError::TypedEncoded(typed_encoded_error))
     }
 }
 

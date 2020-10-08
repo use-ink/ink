@@ -85,7 +85,7 @@ pub use self::{
     api::*,
     backend::ReturnFlags,
     error::{
-        EnvError,
+        Error,
         Result,
     },
     topics::Topics,
