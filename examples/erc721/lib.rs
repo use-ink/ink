@@ -449,8 +449,9 @@ mod erc721 {
 
         #[ink::test]
         fn mint_works() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Token 1 does not exists.
@@ -465,8 +466,9 @@ mod erc721 {
 
         #[ink::test]
         fn mint_existing_should_fail() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -484,8 +486,9 @@ mod erc721 {
 
         #[ink::test]
         fn transfer_works() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -506,8 +509,9 @@ mod erc721 {
 
         #[ink::test]
         fn invalid_transfer_should_fail() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Transfer token fails if it does not exists.
@@ -544,8 +548,9 @@ mod erc721 {
 
         #[ink::test]
         fn approved_transfer_works() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -589,8 +594,9 @@ mod erc721 {
 
         #[ink::test]
         fn approved_for_all_works() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -655,8 +661,9 @@ mod erc721 {
 
         #[ink::test]
         fn not_approved_transfer_should_fail() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
@@ -700,8 +707,9 @@ mod erc721 {
 
         #[ink::test]
         fn burn_works() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
@@ -728,8 +736,9 @@ mod erc721 {
 
         #[ink::test]
         fn burn_fails_not_owner() {
-            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Cannot get accounts");
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1 for Alice
