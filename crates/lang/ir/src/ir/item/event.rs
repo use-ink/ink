@@ -44,6 +44,7 @@ use syn::spanned::Spanned as _;
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
     item: syn::ItemStruct,
+    pub anonymous: bool,
 }
 
 impl quote::ToTokens for Event {
@@ -81,11 +82,16 @@ impl TryFrom<syn::ItemStruct> for Event {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
+        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Event,
-            |kind| !matches!(kind, ir::AttributeArgKind::Event),
+            |kind| {
+                !matches!(
+                    kind,
+                    ir::AttributeArgKind::Event | ir::AttributeArgKind::Anonymous
+                )
+            },
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(
@@ -124,6 +130,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 attrs: other_attrs,
                 ..item_struct
             },
+            anonymous: ink_attrs.is_anonymous(),
         })
     }
 }
@@ -443,5 +450,34 @@ mod tests {
             assert_eq!(field.ident(), Some(expected_field.ident()));
             assert_eq!(field.ty(), expected_field.ty());
         }
+    }
+
+    #[test]
+    fn anonymous_event_works() {
+        fn assert_anonymous_event(event: syn::ItemStruct) {
+            match Event::try_from(event) {
+                Ok(event) => {
+                    assert!(event.anonymous);
+                }
+                Err(_) => panic!("encountered unexpected invalid anonymous event")
+            }
+        }
+        assert_anonymous_event(syn::parse_quote! {
+            #[ink(event)]
+            #[ink(anonymous)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                field_1: i32,
+                field_2: bool,
+            }
+        });
+        assert_anonymous_event(syn::parse_quote! {
+            #[ink(event, anonymous)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                field_1: i32,
+                field_2: bool,
+            }
+        });
     }
 }
