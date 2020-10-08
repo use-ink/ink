@@ -241,7 +241,16 @@ impl<'a> Events<'a> {
                         .push_topic::<#field_type>(&self.#field_ident)
                     )
                 });
-            let remaining_topics_ty = match len_topics + 1 {
+            // Only include topic for event signature in case of non-anonymous event.
+            let event_signature_topic = match event.anonymous {
+                true => None,
+                false => Some(quote_spanned!(span=>
+                    .push_topic::<[u8; #len_event_signature]>(#event_signature)
+                ))
+            };
+            // Anonymous events require 1 fewer topics since they do not include their signature.
+            let anonymous_topics_offset = if event.anonymous { 0 } else { 1 };
+            let remaining_topics_ty = match len_topics + anonymous_topics_offset {
                 0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
                 n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
             };
@@ -261,7 +270,7 @@ impl<'a> Events<'a> {
                         {
                             builder
                                 .build::<Self>()
-                                .push_topic::<[u8; #len_event_signature]>(#event_signature)
+                                #event_signature_topic
                                 #(
                                     #topic_impls
                                 )*
