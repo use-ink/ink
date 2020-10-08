@@ -459,7 +459,7 @@ mod tests {
                 Ok(event) => {
                     assert!(event.anonymous);
                 }
-                Err(_) => panic!("encountered unexpected invalid anonymous event")
+                Err(_) => panic!("encountered unexpected invalid anonymous event"),
             }
         }
         assert_anonymous_event(syn::parse_quote! {
