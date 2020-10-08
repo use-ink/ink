@@ -166,7 +166,6 @@ mod erc20 {
             },
             Clear,
         };
-        use scale::Encode;
 
         type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
 
@@ -187,10 +186,13 @@ mod erc20 {
             } else {
                 panic!("encountered unexpected event kind: expected a Transfer event")
             }
-            fn option_account_id_into_hash(opt_account_id: Option<AccountId>) -> Hash {
+            fn encoded_into_hash<T>(entity: &T) -> Hash
+            where
+                T: scale::Encode,
+            {
                 let mut result = Hash::clear();
                 let len_result = result.as_ref().len();
-                let encoded = opt_account_id.encode();
+                let encoded = entity.encode();
                 let len_encoded = encoded.len();
                 if len_encoded <= len_result {
                     result.as_mut()[..len_encoded].copy_from_slice(&encoded);
@@ -203,16 +205,11 @@ mod erc20 {
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
                 result
             }
-            fn balance_into_hash(value: Balance) -> Hash {
-                let mut result = Hash::clear();
-                let mut result_buffer: &mut [u8] = result.as_mut();
-                value.encode_to(&mut result_buffer);
-                result
-            }
             let expected_topics = vec![
-                option_account_id_into_hash(expected_from),
-                option_account_id_into_hash(expected_to),
-                balance_into_hash(expected_value),
+                encoded_into_hash(b"Erc20::Transfer"),
+                encoded_into_hash(&expected_from),
+                encoded_into_hash(&expected_to),
+                encoded_into_hash(&expected_value),
             ];
             for (n, (actual_topic, expected_topic)) in event.topics.iter().zip(expected_topics).enumerate()
             {
