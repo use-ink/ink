@@ -32,12 +32,16 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
+    topics::{
+        Topics,
+        TopicsBuilderBackend,
+    },
+    Clear,
     Env,
     EnvError,
     EnvTypes,
     Result,
     ReturnFlags,
-    Topics,
     TypedEnv,
 };
 use ink_primitives::Key;
@@ -103,6 +107,60 @@ impl From<ext::Error> for EnvError {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
         }
+    }
+}
+
+pub struct TopicsBuilder<'a, E> {
+    scoped_buffer: ScopedBuffer<'a>,
+    marker: core::marker::PhantomData<fn() -> E>,
+}
+
+impl<'a, E> From<ScopedBuffer<'a>> for TopicsBuilder<'a, E>
+where
+    E: EnvTypes,
+{
+    fn from(scoped_buffer: ScopedBuffer<'a>) -> Self {
+        Self {
+            scoped_buffer,
+            marker: Default::default(),
+        }
+    }
+}
+
+impl<'a, E> TopicsBuilderBackend<E> for TopicsBuilder<'a, E>
+where
+    E: EnvTypes,
+{
+    type Output = (ScopedBuffer<'a>, &'a mut [u8]);
+
+    fn expect(&mut self, expected_topics: usize) {
+        self.scoped_buffer
+            .append_encoded(&scale::Compact(expected_topics as u32));
+    }
+
+    fn push_topic<T>(&mut self, topic_value: &T)
+    where
+        T: scale::Encode,
+    {
+        let mut split = self.scoped_buffer.split();
+        let encoded = split.take_encoded(topic_value);
+        let len_encoded = encoded.len();
+        let mut result = <E as EnvTypes>::Hash::clear();
+        let len_result = result.as_ref().len();
+        if len_encoded <= len_result {
+            result.as_mut()[..len_encoded].copy_from_slice(encoded);
+        } else {
+            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
+            <Blake2x256 as CryptoHash>::hash(encoded, &mut hash_output);
+            let copy_len = core::cmp::min(hash_output.len(), len_result);
+            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+        }
+        self.scoped_buffer.append_encoded(&result);
+    }
+
+    fn output(mut self) -> Self::Output {
+        let encoded_topics = self.scoped_buffer.take_appended();
+        (self.scoped_buffer, encoded_topics)
     }
 }
 
@@ -272,10 +330,10 @@ impl TypedEnv for EnvInstance {
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: EnvTypes,
-        Event: Topics<T> + scale::Encode,
+        Event: Topics + scale::Encode,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_topics = scope.take_encoded(&event.topics());
+        let (mut scope, enc_topics) =
+            event.topics::<T, _>(TopicsBuilder::from(self.scoped_buffer()).into());
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
     }
