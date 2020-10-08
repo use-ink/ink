@@ -17,7 +17,7 @@ use super::{
     OffBalance,
     OffTimestamp,
 };
-use crate::EnvTypes;
+use crate::Environment;
 
 /// The chain specification.
 pub struct ChainSpec {
@@ -53,8 +53,8 @@ impl ChainSpec {
     /// Default initialization for the off-chain specification.
     pub fn initialize_as_default<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
-        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+        T: Environment,
+        <T as Environment>::AccountId: From<[u8; 32]>,
     {
         self.gas_price
             .try_initialize::<T::Balance>(&T::Balance::from(100u32))?;
@@ -70,7 +70,7 @@ impl ChainSpec {
     /// Returns the gas price for the chain.
     pub fn gas_price<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.gas_price.decode().map_err(Into::into)
     }
@@ -78,7 +78,7 @@ impl ChainSpec {
     /// Set the gas price for the chain.
     pub fn set_gas_price<T>(&mut self, gas_price: T::Balance)
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.gas_price = OffBalance::new(&gas_price)
     }
@@ -86,7 +86,7 @@ impl ChainSpec {
     /// Returns the minimum balance for an account on the chain.
     pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.minimum_balance.decode().map_err(Into::into)
     }
@@ -94,7 +94,7 @@ impl ChainSpec {
     /// Returns the tombstone deposit for the chain.
     pub fn tombstone_deposit<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.tombstone_deposit.decode().map_err(Into::into)
     }
@@ -102,7 +102,7 @@ impl ChainSpec {
     /// Returns the targeted block time for the chain.
     pub fn block_time<T>(&self) -> Result<T::Timestamp>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.block_time.decode().map_err(Into::into)
     }

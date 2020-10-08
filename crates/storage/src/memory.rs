@@ -263,9 +263,9 @@ mod tests {
 
     fn run_test<F>(f: F)
     where
-        F: FnOnce(DefaultAccounts<ink_env::DefaultEnvTypes>),
+        F: FnOnce(DefaultAccounts<ink_env::DefaultEnvironment>),
     {
-        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|default_accounts| {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|default_accounts| {
             f(default_accounts);
             Ok(())
         })

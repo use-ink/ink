@@ -22,7 +22,7 @@ use ink_env::{
         ExecutionInput,
         Selector,
     },
-    EnvTypes,
+    Environment,
 };
 use ink_storage::traits::SpreadLayout;
 
@@ -47,7 +47,7 @@ impl<T, E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<T>
         Set<ReturnType<T>>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
 }
 
@@ -61,7 +61,7 @@ impl<E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<()>
         Set<()>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
 }
 

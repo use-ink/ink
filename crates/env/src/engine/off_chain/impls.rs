@@ -34,7 +34,7 @@ use crate::{
     topics::Topics,
     EnvBackend,
     Error,
-    EnvTypes,
+    Environment,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -205,7 +205,7 @@ impl EnvInstance {
         value: T::Balance,
     ) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let src_id = self.account_id::<T>()?;
         let src_value = self
@@ -233,7 +233,7 @@ impl EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
             .expect("uninitialized execution context")
             .caller::<T>()
@@ -241,7 +241,7 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
             .expect("uninitialized execution context")
             .transferred_value::<T>()
@@ -250,7 +250,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     /// Emulates gas price calculation
-    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
         use crate::arithmetic::Saturating as _;
 
         let gas_price = self
@@ -262,7 +262,7 @@ impl TypedEnvBackend for EnvInstance {
             .saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
     }
 
-    fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
             .expect("uninitialized execution context")
             .gas::<T>()
@@ -270,7 +270,7 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
+    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
         self.current_block()
             .expect("uninitialized execution context")
             .timestamp::<T>()
@@ -278,7 +278,7 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
             .expect("uninitialized execution context")
             .callee::<T>()
@@ -286,21 +286,21 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.callee_account()
             .balance::<T>()
             .map_err(|_| scale::Error::from("could not decode callee balance"))
             .map_err(Into::into)
     }
 
-    fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.callee_account()
             .rent_allowance::<T>()
             .map_err(|_| scale::Error::from("could not decode callee rent allowance"))
             .map_err(Into::into)
     }
 
-    fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
+    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
         self.current_block()
             .expect("uninitialized execution context")
             .number::<T>()
@@ -308,14 +308,14 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.chain_spec
             .minimum_balance::<T>()
             .map_err(|_| scale::Error::from("could not decode minimum balance"))
             .map_err(Into::into)
     }
 
-    fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
         self.chain_spec
             .tombstone_deposit::<T>()
             .map_err(|_| scale::Error::from("could not decode tombstone deposit"))
@@ -324,7 +324,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn emit_event<T, Event>(&mut self, new_event: Event)
     where
-        T: EnvTypes,
+        T: Environment,
         Event: Topics + scale::Encode,
     {
         self.emitted_events.record::<T, Event>(new_event)
@@ -332,7 +332,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance)
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.callee_account_mut()
             .set_rent_allowance::<T>(new_rent_allowance)
@@ -344,7 +344,7 @@ impl TypedEnvBackend for EnvInstance {
         _call_params: &CallParams<T, Args, ()>,
     ) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract invokation")
@@ -355,7 +355,7 @@ impl TypedEnvBackend for EnvInstance {
         _call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
@@ -367,7 +367,7 @@ impl TypedEnvBackend for EnvInstance {
         _params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
     {
         unimplemented!("off-chain environment does not support contract instantiation")
@@ -375,7 +375,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn terminate_contract<T>(&mut self, _beneficiary: T::AccountId) -> !
     where
-        T: EnvTypes,
+        T: Environment,
     {
         unimplemented!("off-chain environment does not support contract termination")
     }
@@ -387,21 +387,21 @@ impl TypedEnvBackend for EnvInstance {
         _rent_allowance: T::Balance,
         _filtered_keys: &[Key],
     ) where
-        T: EnvTypes,
+        T: Environment,
     {
         unimplemented!("off-chain environment does not support contract restoration")
     }
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.transfer_impl::<T>(destination, value)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.current_block()
             .expect("uninitialized execution context")

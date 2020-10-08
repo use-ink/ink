@@ -92,8 +92,8 @@ pub use self::{
     types::{
         AccountId,
         Clear,
-        DefaultEnvTypes,
-        EnvTypes,
+        DefaultEnvironment,
+        Environment,
         Hash,
     },
 };

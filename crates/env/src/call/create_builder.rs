@@ -24,7 +24,7 @@ use crate::{
         ExecutionInput,
     },
     Error,
-    EnvTypes,
+    Environment,
 };
 use core::marker::PhantomData;
 
@@ -36,17 +36,17 @@ use core::marker::PhantomData;
 /// in the generated code of `ink_lang`.
 pub trait FromAccountId<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// Creates the contract instance from the account ID of the already instantiated contract.
-    fn from_account_id(account_id: <T as EnvTypes>::AccountId) -> Self;
+    fn from_account_id(account_id: <T as Environment>::AccountId) -> Self;
 }
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
 pub struct CreateParams<E, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// The code hash of the created contract.
     code_hash: E::Hash,
@@ -68,7 +68,7 @@ where
 )]
 impl<E, Args, R> CreateParams<E, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// The code hash of the contract.
     #[inline]
@@ -97,7 +97,7 @@ where
 
 impl<E, Args, R> CreateParams<E, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
     Args: scale::Encode,
     R: FromAccountId<E>,
 {
@@ -111,7 +111,7 @@ where
 /// Builds up contract instantiations.
 pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     env_types: PhantomData<fn() -> E>,
     code_hash: CodeHash,
@@ -139,17 +139,17 @@ where
 ///
 /// ```should_panic
 /// # use ::ink_env::{
-/// #     EnvTypes,
-/// #     DefaultEnvTypes,
+/// #     Environment,
+/// #     DefaultEnvironment,
 /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
 /// # };
-/// # type Hash = <DefaultEnvTypes as EnvTypes>::Hash;
-/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
+/// # type Hash = <DefaultEnvironment as Environment>::Hash;
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # struct MyContract;
-/// # impl FromAccountId<DefaultEnvTypes> for MyContract {
+/// # impl FromAccountId<DefaultEnvironment> for MyContract {
 /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvTypes, MyContract>()
+/// let my_contract: MyContract = build_create::<DefaultEnvironment, MyContract>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -177,7 +177,7 @@ pub fn build_create<E, R>() -> CreateBuilder<
     R,
 >
 where
-    E: EnvTypes,
+    E: Environment,
     R: FromAccountId<E>,
 {
     CreateBuilder {
@@ -193,7 +193,7 @@ where
 impl<E, GasLimit, Endowment, Args, R>
     CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the used code hash for the contract instantiation.
     #[inline]
@@ -215,7 +215,7 @@ where
 impl<E, CodeHash, Endowment, Args, R>
     CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
     #[inline]
@@ -237,7 +237,7 @@ where
 impl<E, CodeHash, GasLimit, Args, R>
     CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -266,7 +266,7 @@ impl<E, CodeHash, GasLimit, Endowment, R>
         R,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -296,7 +296,7 @@ impl<E, GasLimit, Args, R>
         R,
     >
 where
-    E: EnvTypes,
+    E: Environment,
     GasLimit: Unwrap<Output = u64>,
 {
     /// Sets the value transferred upon the execution of the call.
@@ -322,7 +322,7 @@ impl<E, GasLimit, Args, R>
         R,
     >
 where
-    E: EnvTypes,
+    E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     R: FromAccountId<E>,

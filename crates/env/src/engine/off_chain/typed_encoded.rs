@@ -42,7 +42,7 @@ pub struct TypedEncoded<T> {
     /// and will take over any given type upon the first typed interaction.
     /// - This is needed since instances of `TypedEncoded` are going to be used
     /// in static memory where it isn't possible to decide about the used types
-    /// given by `EnvTypes` at initialization.
+    /// given by `Environment` at initialization.
     type_id: Option<TypeId>,
     /// Classification marker.
     ///

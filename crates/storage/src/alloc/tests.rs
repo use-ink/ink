@@ -28,7 +28,7 @@ use crate::{
 };
 use ink_env::{
     test,
-    DefaultEnvTypes,
+    DefaultEnvironment,
 };
 use ink_primitives::Key;
 
@@ -37,7 +37,7 @@ where
     F: FnOnce(),
 {
     alloc::initialize(ContractPhase::Deploy);
-    test::run_test::<DefaultEnvTypes, _>(|_| {
+    test::run_test::<DefaultEnvironment, _>(|_| {
         f();
         Ok(())
     })
@@ -189,7 +189,7 @@ fn spread_clear_works() {
 
 #[test]
 fn test_call_setup_works() {
-    test::run_test::<DefaultEnvTypes, _>(|_| {
+    test::run_test::<DefaultEnvironment, _>(|_| {
         let mut allocator = DynamicAllocator::default();
         assert_eq!(allocator.alloc(), DynamicAllocation(0));
         assert_eq!(allocator.alloc(), DynamicAllocation(1));

@@ -14,7 +14,7 @@
 
 //! Docs
 
-use crate::EnvTypes;
+use crate::Environment;
 
 /// The concrete implementation that is guided by the topics builder.
 ///
@@ -22,7 +22,7 @@ use crate::EnvTypes;
 #[doc(hidden)]
 pub trait TopicsBuilderBackend<E>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// The type of the serialized event topics.
     type Output;
@@ -51,7 +51,7 @@ pub struct TopicsBuilder<S, E, B> {
 
 impl<E, B> From<B> for TopicsBuilder<state::Uninit, E, B>
 where
-    E: EnvTypes,
+    E: Environment,
     B: TopicsBuilderBackend<E>,
 {
     fn from(backend: B) -> Self {
@@ -75,7 +75,7 @@ pub mod state {
 
 impl<E, B> TopicsBuilder<state::Uninit, E, B>
 where
-    E: EnvTypes,
+    E: Environment,
     B: TopicsBuilderBackend<E>,
 {
     /// Initializes the topics builder and informs it about how many topics it must expect to serialize.
@@ -95,7 +95,7 @@ where
 
 impl<E, S, B> TopicsBuilder<S, E, B>
 where
-    E: EnvTypes,
+    E: Environment,
     S: SomeRemainingTopics,
     B: TopicsBuilderBackend<E>,
 {
@@ -120,7 +120,7 @@ where
 
 impl<E, B> TopicsBuilder<state::NoRemainingTopics, E, B>
 where
-    E: EnvTypes,
+    E: Environment,
     B: TopicsBuilderBackend<E>,
 {
     /// Finalizes the topics builder.
@@ -198,6 +198,6 @@ pub trait Topics {
         builder: TopicsBuilder<state::Uninit, E, B>,
     ) -> <B as TopicsBuilderBackend<E>>::Output
     where
-        E: EnvTypes,
+        E: Environment,
         B: TopicsBuilderBackend<E>;
 }

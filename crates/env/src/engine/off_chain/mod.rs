@@ -56,7 +56,7 @@ use self::{
     },
 };
 use super::OnInstance;
-use crate::EnvTypes;
+use crate::Environment;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -118,8 +118,8 @@ impl EnvInstance {
     /// Either resets or initializes the off-chain environment to default values.
     pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
-        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+        T: Environment,
+        <T as Environment>::AccountId: From<[u8; 32]>,
     {
         if self.is_initialized() {
             self.reset()
@@ -155,8 +155,8 @@ impl EnvInstance {
     /// for most use cases.
     pub fn initialize_as_default<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
-        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+        T: Environment,
+        <T as Environment>::AccountId: From<[u8; 32]>,
     {
         use core::ops::Div as _;
         use num_traits::{
@@ -217,7 +217,7 @@ impl EnvInstance {
     /// Advances the chain by a single block.
     pub fn advance_block<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let new_block_number = T::BlockNumber::from(self.blocks.len() as u32);
         let new_timestamp = self.current_block()?.timestamp::<T>()?
