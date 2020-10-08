@@ -1,5 +1,0 @@
-error: #[ink(constructor)] functions must not have any kind of `self` receiver
-  --> $DIR/C-00-constructor-self-ref.rs:10:29
-   |
-10 |         fn invalid_self_ref(&self) -> Self {
-   |                             ^^^^^

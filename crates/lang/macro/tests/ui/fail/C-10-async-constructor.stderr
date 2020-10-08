@@ -1,0 +1,5 @@
+error: ink! constructors must not be async
+  --> $DIR/C-10-async-constructor.rs:10:13
+   |
+10 |         pub async fn async_constructor() -> Self {
+   |             ^^^^^

@@ -1,0 +1,23 @@
+error: encountered multiple ink! storage structs, expected exactly one
+  --> $DIR/S-02-multiple-storage-structs.rs:4:1
+   |
+4  | / mod multiple_storage_structs {
+5  | |     #[ink(storage)]
+6  | |     pub struct FirstStorageStruct {}
+7  | |
+...  |
+30 | |     }
+31 | | }
+   | |_^
+
+error: ink! storage struct here
+ --> $DIR/S-02-multiple-storage-structs.rs:6:5
+  |
+6 |     pub struct FirstStorageStruct {}
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: ink! storage struct here
+  --> $DIR/S-02-multiple-storage-structs.rs:10:5
+   |
+10 |     pub struct SecondStorageStruct {}
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

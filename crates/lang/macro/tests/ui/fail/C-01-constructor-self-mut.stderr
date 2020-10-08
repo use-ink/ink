@@ -1,0 +1,5 @@
+error: ink! constructors must have no `self` receiver
+  --> $DIR/C-01-constructor-self-mut.rs:10:29
+   |
+10 |         pub fn self_mut_arg(&mut self) -> Self {
+   |                             ^^^^^^^^^

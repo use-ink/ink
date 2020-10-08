@@ -1,0 +1,39 @@
+[package]
+name = "ink_metadata"
+version = "3.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "APACHE-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+homepage = "https://www.parity.io/"
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_prelude = { version = "3.0.0", path = "../prelude/", default-features = false }
+ink_primitives = { version = "3.0.0", path = "../primitives/", default-features = false }
+
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+derive_more = { version = "0.99", default-features = false, features = ["from"] }
+scale-info = { version = "0.3", default-features = false, features = ["derive"] }
+
+[dev-dependencies]
+pretty_assertions = "0.6.1"
+serde_json = "1.0"
+
+[features]
+default = [
+    "std",
+    "derive",
+]
+std = [
+    "ink_prelude/std",
+    "serde/std",
+    "scale-info/std",
+]
+derive = []

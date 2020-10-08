@@ -1,0 +1,80 @@
+[package]
+name = "ink_storage"
+version = "3.0.0"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "APACHE-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+homepage = "https://www.parity.io/"
+description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_env = { version = "3.0.0", path = "../env/", default-features = false }
+ink_metadata = { version = "3.0.0", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_primitives = { version = "3.0.0", path = "../primitives/", default-features = false }
+ink_storage_derive = { version = "3.0.0", path = "derive", default-features = false }
+ink_prelude = { version = "3.0.0", path = "../prelude/", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive", "full"] }
+derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
+scale-info = { version = "0.3", default-features = false, features = ["derive"], optional = true }
+cfg-if = "0.1"
+array-init = "0.1"
+generic-array = "0.14.1"
+
+# Workaround: we actually just need criterion as a dev-dependency, but
+# there is an issue with a doubly included std lib when executing
+# `cargo check --no-default-features --target wasm32-unknown-unknown`.
+# We haven't found a better solution yet.
+criterion = { version = "0.3", optional = true }
+
+[dev-dependencies]
+quickcheck = "0.9"
+quickcheck_macros = "0.9"
+itertools = "0.9"
+paste = "1.0"
+
+[features]
+default = ["std"]
+std = [
+    "criterion",
+    "ink_metadata",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_prelude/std",
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info",
+    "scale-info/std",
+]
+ink-fuzz-tests = ["std"]
+
+[[bench]]
+name = "bench_lazy"
+harness = false
+
+[[bench]]
+name = "bench_vec"
+harness = false
+
+[[bench]]
+name = "bench_stash"
+harness = false
+
+[[bench]]
+name = "bench_bitstash"
+harness = false
+
+[[bench]]
+name = "bench_hashmap"
+harness = false
+
+[[bench]]
+name = "bench_binary_heap"
+harness = false

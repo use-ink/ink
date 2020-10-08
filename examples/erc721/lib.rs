@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,10 +66,13 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::collections::HashMap as StorageHashMap;
+    use ink_storage::collections::{
+        hashmap::Entry,
+        HashMap as StorageHashMap,
+    };
     use scale::{
         Decode,
         Encode,
@@ -80,7 +83,7 @@ mod erc721 {
 
     #[ink(storage)]
     #[derive(Default)]
-    struct Erc721 {
+    pub struct Erc721 {
         /// Mapping from token to owner.
         token_owner: StorageHashMap<TokenId, AccountId>,
         /// Mapping from token to approvals users.
@@ -106,7 +109,7 @@ mod erc721 {
 
     /// Event emitted when a token transfer occurs.
     #[ink(event)]
-    struct Transfer {
+    pub struct Transfer {
         #[ink(topic)]
         from: Option<AccountId>,
         #[ink(topic)]
@@ -117,7 +120,7 @@ mod erc721 {
 
     /// Event emited when a token approve occurs.
     #[ink(event)]
-    struct Approval {
+    pub struct Approval {
         #[ink(topic)]
         from: AccountId,
         #[ink(topic)]
@@ -129,7 +132,7 @@ mod erc721 {
     /// Event emitted when an operator is enabled or disabled for an owner.
     /// The operator can manage all NFTs of the owner.
     #[ink(event)]
-    struct ApprovalForAll {
+    pub struct ApprovalForAll {
         #[ink(topic)]
         owner: AccountId,
         #[ink(topic)]
@@ -140,7 +143,7 @@ mod erc721 {
     impl Erc721 {
         /// Creates a new ERC721 token contract.
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Self {
                 token_owner: Default::default(),
                 token_approvals: Default::default(),
@@ -153,31 +156,31 @@ mod erc721 {
         ///
         /// This represents the amount of unique tokens the owner has.
         #[ink(message)]
-        fn balance_of(&self, owner: AccountId) -> u32 {
+        pub fn balance_of(&self, owner: AccountId) -> u32 {
             self.balance_of_or_zero(&owner)
         }
 
         /// Returns the owner of the token.
         #[ink(message)]
-        fn owner_of(&self, id: TokenId) -> Option<AccountId> {
+        pub fn owner_of(&self, id: TokenId) -> Option<AccountId> {
             self.token_owner.get(&id).cloned()
         }
 
         /// Returns the approved account ID for this token if any.
         #[ink(message)]
-        fn get_approved(&self, id: TokenId) -> Option<AccountId> {
+        pub fn get_approved(&self, id: TokenId) -> Option<AccountId> {
             self.token_approvals.get(&id).cloned()
         }
 
         /// Returns `true` if the operator is approved by the owner.
         #[ink(message)]
-        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
+        pub fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             self.approved_for_all(owner, operator)
         }
 
         /// Approves or disapproves the operator for all tokens of the caller.
         #[ink(message)]
-        fn set_approval_for_all(
+        pub fn set_approval_for_all(
             &mut self,
             to: AccountId,
             approved: bool,
@@ -188,14 +191,18 @@ mod erc721 {
 
         /// Approves the account to transfer the specified token on behalf of the caller.
         #[ink(message)]
-        fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
+        pub fn approve(&mut self, to: AccountId, id: TokenId) -> Result<(), Error> {
             self.approve_for(&to, id)?;
             Ok(())
         }
 
         /// Transfers the token from the caller to the given destination.
         #[ink(message)]
-        fn transfer(&mut self, destination: AccountId, id: TokenId) -> Result<(), Error> {
+        pub fn transfer(
+            &mut self,
+            destination: AccountId,
+            id: TokenId,
+        ) -> Result<(), Error> {
             let caller = self.env().caller();
             self.transfer_token_from(&caller, &destination, id)?;
             Ok(())
@@ -203,7 +210,7 @@ mod erc721 {
 
         /// Transfer approved or owned token.
         #[ink(message)]
-        fn transfer_from(
+        pub fn transfer_from(
             &mut self,
             from: AccountId,
             to: AccountId,
@@ -215,7 +222,7 @@ mod erc721 {
 
         /// Creates a new token.
         #[ink(message)]
-        fn mint(&mut self, id: TokenId) -> Result<(), Error> {
+        pub fn mint(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             self.add_token_to(&caller, id)?;
             self.env().emit_event(Transfer {
@@ -228,12 +235,22 @@ mod erc721 {
 
         /// Deletes an existing token. Only the owner can burn the token.
         #[ink(message)]
-        fn burn(&mut self, id: TokenId) -> Result<(), Error> {
+        pub fn burn(&mut self, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
-            if self.token_owner.get(&id) != Some(&caller) {
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let occupied = match token_owner.entry(id) {
+                Entry::Vacant(_) => return Err(Error::TokenNotFound),
+                Entry::Occupied(occupied) => occupied,
+            };
+            if occupied.get() != &caller {
                 return Err(Error::NotOwner)
             };
-            self.remove_token_from(&caller, id)?;
+            decrease_counter_of(owned_tokens_count, &caller)?;
+            occupied.remove_entry();
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
@@ -273,26 +290,37 @@ mod erc721 {
             from: &AccountId,
             id: TokenId,
         ) -> Result<(), Error> {
-            if !self.exists(id) {
-                return Err(Error::TokenNotFound)
-            }
-            self.decrease_counter_of(from)?;
-            self.token_owner.take(&id).ok_or(Error::CannotRemove)?;
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let occupied = match token_owner.entry(id) {
+                Entry::Vacant(_) => return Err(Error::TokenNotFound),
+                Entry::Occupied(occupied) => occupied,
+            };
+            decrease_counter_of(owned_tokens_count, from)?;
+            occupied.remove_entry();
             Ok(())
         }
 
         /// Adds the token `id` to the `to` AccountID.
         fn add_token_to(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
-            if self.exists(id) {
-                return Err(Error::TokenExists)
+            let Self {
+                token_owner,
+                owned_tokens_count,
+                ..
+            } = self;
+            let vacant_token_owner = match token_owner.entry(id) {
+                Entry::Vacant(vacant) => vacant,
+                Entry::Occupied(_) => return Err(Error::TokenExists),
             };
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed)
             };
-            self.increase_counter_of(to)?;
-            if self.token_owner.insert(id, *to).is_some() {
-                return Err(Error::CannotInsert)
-            }
+            let entry = owned_tokens_count.entry(*to);
+            increase_counter_of(entry)?;
+            vacant_token_owner.insert(*to);
             Ok(())
         }
 
@@ -350,33 +378,6 @@ mod erc721 {
             Ok(())
         }
 
-        /// Increase token counter from the `of` AccountId.
-        fn increase_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
-            if self.balance_of_or_zero(of) > 0 {
-                let count = self
-                    .owned_tokens_count
-                    .get_mut(of)
-                    .ok_or(Error::CannotFetchValue)?;
-                *count += 1;
-                Ok(())
-            } else {
-                match self.owned_tokens_count.insert(*of, 1) {
-                    Some(_) => Err(Error::CannotInsert),
-                    None => Ok(()),
-                }
-            }
-        }
-
-        /// Decrease token counter from the `of` AccountId.
-        fn decrease_counter_of(&mut self, of: &AccountId) -> Result<(), Error> {
-            let count = self
-                .owned_tokens_count
-                .get_mut(of)
-                .ok_or(Error::CannotFetchValue)?;
-            *count -= 1;
-            Ok(())
-        }
-
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
             if !self.token_approvals.contains_key(&id) {
@@ -420,310 +421,334 @@ mod erc721 {
         }
     }
 
+    fn decrease_counter_of(
+        hmap: &mut StorageHashMap<AccountId, u32>,
+        of: &AccountId,
+    ) -> Result<(), Error> {
+        let count = (*hmap).get_mut(of).ok_or(Error::CannotFetchValue)?;
+        *count -= 1;
+        Ok(())
+    }
+
+    /// Increase token counter from the `of` AccountId.
+    fn increase_counter_of(entry: Entry<AccountId, u32>) -> Result<(), Error> {
+        entry.and_modify(|v| *v += 1).or_insert(1);
+        Ok(())
+    }
+
     /// Unit tests
     #[cfg(test)]
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
-        use ink_core::env;
+        use ink_env::{
+            call,
+            test,
+        };
+        use ink_lang as ink;
 
-        /// Executes the given test through the off-chain environment.
-        fn run_test<F>(test_fn: F)
-        where
-            F: FnOnce(),
-        {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-                test_fn();
-                Ok(())
-            })
-            .unwrap()
-        }
-
-        #[test]
+        #[ink::test]
         fn mint_works() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Token 1 does not exists.
-                assert_eq!(erc721.owner_of(1), None);
-                // Alice does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.alice), 0);
-                // Create token Id 1.
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Token 1 does not exists.
+            assert_eq!(erc721.owner_of(1), None);
+            // Alice does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.alice), 0);
+            // Create token Id 1.
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
         }
 
-        #[test]
+        #[ink::test]
         fn mint_existing_should_fail() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1.
-                assert_eq!(erc721.mint(1), Ok(()));
-                // The first Transfer event takes place
-                assert_eq!(1, env::test::recorded_events().count());
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Alice owns token Id 1.
-                assert_eq!(erc721.owner_of(1), Some(accounts.alice));
-                // Cannot create  token Id if it exists.
-                // Bob cannot own token Id 1.
-                assert_eq!(erc721.mint(1), Err(Error::TokenExists));
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1.
+            assert_eq!(erc721.mint(1), Ok(()));
+            // The first Transfer event takes place
+            assert_eq!(1, ink_env::test::recorded_events().count());
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Alice owns token Id 1.
+            assert_eq!(erc721.owner_of(1), Some(accounts.alice));
+            // Cannot create  token Id if it exists.
+            // Bob cannot own token Id 1.
+            assert_eq!(erc721.mint(1), Err(Error::TokenExists));
         }
 
-        #[test]
+        #[ink::test]
         fn transfer_works() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1 for Alice
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Alice owns token 1
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Bob does not owns any token
-                assert_eq!(erc721.balance_of(accounts.bob), 0);
-                // The first Transfer event takes place
-                assert_eq!(1, env::test::recorded_events().count());
-                // Alice transfers token 1 to Bob
-                assert_eq!(erc721.transfer(accounts.bob, 1), Ok(()));
-                // The second Transfer event takes place
-                assert_eq!(2, env::test::recorded_events().count());
-                // Bob owns token 1
-                assert_eq!(erc721.balance_of(accounts.bob), 1);
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Alice owns token 1
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Bob does not owns any token
+            assert_eq!(erc721.balance_of(accounts.bob), 0);
+            // The first Transfer event takes place
+            assert_eq!(1, ink_env::test::recorded_events().count());
+            // Alice transfers token 1 to Bob
+            assert_eq!(erc721.transfer(accounts.bob, 1), Ok(()));
+            // The second Transfer event takes place
+            assert_eq!(2, ink_env::test::recorded_events().count());
+            // Bob owns token 1
+            assert_eq!(erc721.balance_of(accounts.bob), 1);
         }
 
-        #[test]
+        #[ink::test]
         fn invalid_transfer_should_fail() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Transfer token fails if it does not exists.
-                assert_eq!(erc721.transfer(accounts.bob, 2), Err(Error::TokenNotFound));
-                // Token Id 2 does not exists.
-                assert_eq!(erc721.owner_of(2), None);
-                // Create token Id 2.
-                assert_eq!(erc721.mint(2), Ok(()));
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Token Id 2 is owned by Alice.
-                assert_eq!(erc721.owner_of(2), Some(accounts.alice));
-                // Get contract address
-                let callee =
-                    env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
-                // Create call
-                let mut data =
-                    env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
-                data.push_arg(&accounts.bob);
-                // Push the new execution context to set Bob as caller
-                assert_eq!(
-                    env::test::push_execution_context::<env::DefaultEnvTypes>(
-                        accounts.bob,
-                        callee,
-                        1000000,
-                        1000000,
-                        data
-                    ),
-                    ()
-                );
-                // Bob cannot transfer not owned tokens.
-                assert_eq!(erc721.transfer(accounts.eve, 2), Err(Error::NotApproved));
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Transfer token fails if it does not exists.
+            assert_eq!(erc721.transfer(accounts.bob, 2), Err(Error::TokenNotFound));
+            // Token Id 2 does not exists.
+            assert_eq!(erc721.owner_of(2), None);
+            // Create token Id 2.
+            assert_eq!(erc721.mint(2), Ok(()));
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Token Id 2 is owned by Alice.
+            assert_eq!(erc721.owner_of(2), Some(accounts.alice));
+            // Get contract address
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
+            // Create call
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            data.push_arg(&accounts.bob);
+            // Push the new execution context to set Bob as caller
+            assert_eq!(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
+                    accounts.bob,
+                    callee,
+                    1000000,
+                    1000000,
+                    data
+                ),
+                ()
+            );
+            // Bob cannot transfer not owned tokens.
+            assert_eq!(erc721.transfer(accounts.eve, 2), Err(Error::NotApproved));
         }
 
-        #[test]
+        #[ink::test]
         fn approved_transfer_works() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1.
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Token Id 1 is owned by Alice.
-                assert_eq!(erc721.owner_of(1), Some(accounts.alice));
-                // Approve token Id 1 transfer for Bob on behalf of Alice.
-                assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
-                // Get contract address.
-                let callee =
-                    env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
-                // Create call
-                let mut data =
-                    env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
-                data.push_arg(&accounts.bob);
-                // Push the new execution context to set Bob as caller
-                assert_eq!(
-                    env::test::push_execution_context::<env::DefaultEnvTypes>(
-                        accounts.bob,
-                        callee,
-                        1000000,
-                        1000000,
-                        data
-                    ),
-                    ()
-                );
-                // Bob transfers token Id 1 from Alice to Eve.
-                assert_eq!(
-                    erc721.transfer_from(accounts.alice, accounts.eve, 1),
-                    Ok(())
-                );
-                // TokenId 3 is owned by Eve.
-                assert_eq!(erc721.owner_of(1), Some(accounts.eve));
-                // Alice does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.alice), 0);
-                // Bob does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.bob), 0);
-                // Eve owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.eve), 1);
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1.
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Token Id 1 is owned by Alice.
+            assert_eq!(erc721.owner_of(1), Some(accounts.alice));
+            // Approve token Id 1 transfer for Bob on behalf of Alice.
+            assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
+            // Get contract address.
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
+            // Create call
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            data.push_arg(&accounts.bob);
+            // Push the new execution context to set Bob as caller
+            assert_eq!(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
+                    accounts.bob,
+                    callee,
+                    1000000,
+                    1000000,
+                    data
+                ),
+                ()
+            );
+            // Bob transfers token Id 1 from Alice to Eve.
+            assert_eq!(
+                erc721.transfer_from(accounts.alice, accounts.eve, 1),
+                Ok(())
+            );
+            // TokenId 3 is owned by Eve.
+            assert_eq!(erc721.owner_of(1), Some(accounts.eve));
+            // Alice does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.alice), 0);
+            // Bob does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.bob), 0);
+            // Eve owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.eve), 1);
         }
 
-        #[test]
+        #[ink::test]
         fn approved_for_all_works() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1.
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Create token Id 2.
-                assert_eq!(erc721.mint(2), Ok(()));
-                // Alice owns 2 tokens.
-                assert_eq!(erc721.balance_of(accounts.alice), 2);
-                // Approve token Id 1 transfer for Bob on behalf of Alice.
-                assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
-                // Bob is an approved operator for Alice
-                assert_eq!(
-                    erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                    true
-                );
-                // Get contract address.
-                let callee =
-                    env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
-                // Create call
-                let mut data =
-                    env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
-                data.push_arg(&accounts.bob);
-                // Push the new execution context to set Bob as caller
-                assert_eq!(
-                    env::test::push_execution_context::<env::DefaultEnvTypes>(
-                        accounts.bob,
-                        callee,
-                        1000000,
-                        1000000,
-                        data
-                    ),
-                    ()
-                );
-                // Bob transfers token Id 1 from Alice to Eve.
-                assert_eq!(
-                    erc721.transfer_from(accounts.alice, accounts.eve, 1),
-                    Ok(())
-                );
-                // TokenId 1 is owned by Eve.
-                assert_eq!(erc721.owner_of(1), Some(accounts.eve));
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Bob transfers token Id 2 from Alice to Eve.
-                assert_eq!(
-                    erc721.transfer_from(accounts.alice, accounts.eve, 2),
-                    Ok(())
-                );
-                // Bob does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.bob), 0);
-                // Eve owns 2 tokens.
-                assert_eq!(erc721.balance_of(accounts.eve), 2);
-                // Get back to the parent execution context.
-                env::test::pop_execution_context();
-                // Remove operator approval for Bob on behalf of Alice.
-                assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
-                // Bob is not an approved operator for Alice.
-                assert_eq!(
-                    erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                    false
-                );
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1.
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Create token Id 2.
+            assert_eq!(erc721.mint(2), Ok(()));
+            // Alice owns 2 tokens.
+            assert_eq!(erc721.balance_of(accounts.alice), 2);
+            // Approve token Id 1 transfer for Bob on behalf of Alice.
+            assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
+            // Bob is an approved operator for Alice
+            assert_eq!(
+                erc721.is_approved_for_all(accounts.alice, accounts.bob),
+                true
+            );
+            // Get contract address.
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
+            // Create call
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            data.push_arg(&accounts.bob);
+            // Push the new execution context to set Bob as caller
+            assert_eq!(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
+                    accounts.bob,
+                    callee,
+                    1000000,
+                    1000000,
+                    data
+                ),
+                ()
+            );
+            // Bob transfers token Id 1 from Alice to Eve.
+            assert_eq!(
+                erc721.transfer_from(accounts.alice, accounts.eve, 1),
+                Ok(())
+            );
+            // TokenId 1 is owned by Eve.
+            assert_eq!(erc721.owner_of(1), Some(accounts.eve));
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Bob transfers token Id 2 from Alice to Eve.
+            assert_eq!(
+                erc721.transfer_from(accounts.alice, accounts.eve, 2),
+                Ok(())
+            );
+            // Bob does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.bob), 0);
+            // Eve owns 2 tokens.
+            assert_eq!(erc721.balance_of(accounts.eve), 2);
+            // Get back to the parent execution context.
+            ink_env::test::pop_execution_context();
+            // Remove operator approval for Bob on behalf of Alice.
+            assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
+            // Bob is not an approved operator for Alice.
+            assert_eq!(
+                erc721.is_approved_for_all(accounts.alice, accounts.bob),
+                false
+            );
         }
 
-        #[test]
+        #[ink::test]
         fn not_approved_transfer_should_fail() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1.
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Bob does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.bob), 0);
-                // Eve does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.eve), 0);
-                // Get contract address.
-                let callee =
-                    env::account_id::<env::DefaultEnvTypes>().unwrap_or([0x0; 32].into());
-                // Create call
-                let mut data =
-                    env::test::CallData::new(env::call::Selector::new([0x00; 4])); // balance_of
-                data.push_arg(&accounts.bob);
-                // Push the new execution context to set Eve as caller
-                assert_eq!(
-                    env::test::push_execution_context::<env::DefaultEnvTypes>(
-                        accounts.eve,
-                        callee,
-                        1000000,
-                        1000000,
-                        data
-                    ),
-                    ()
-                );
-                // Eve is not an approved operator by Alice.
-                assert_eq!(
-                    erc721.transfer_from(accounts.alice, accounts.frank, 1),
-                    Err(Error::NotApproved)
-                );
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Bob does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.bob), 0);
-                // Eve does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.eve), 0);
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1.
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Bob does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.bob), 0);
+            // Eve does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.eve), 0);
+            // Get contract address.
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
+            // Create call
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            data.push_arg(&accounts.bob);
+            // Push the new execution context to set Eve as caller
+            assert_eq!(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
+                    accounts.eve,
+                    callee,
+                    1000000,
+                    1000000,
+                    data
+                ),
+                ()
+            );
+            // Eve is not an approved operator by Alice.
+            assert_eq!(
+                erc721.transfer_from(accounts.alice, accounts.frank, 1),
+                Err(Error::NotApproved)
+            );
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Bob does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.bob), 0);
+            // Eve does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.eve), 0);
         }
 
-        #[test]
+        #[ink::test]
         fn burn_works() {
-            run_test(|| {
-                let accounts = env::test::default_accounts::<env::DefaultEnvTypes>()
-                    .expect("Cannot get accounts");
-                // Create a new contract instance.
-                let mut erc721 = Erc721::new();
-                // Create token Id 1 for Alice
-                assert_eq!(erc721.mint(1), Ok(()));
-                // Alice owns 1 token.
-                assert_eq!(erc721.balance_of(accounts.alice), 1);
-                // Alice owns token Id 1.
-                assert_eq!(erc721.owner_of(1), Some(accounts.alice));
-                // Destroy token Id 1.
-                assert_eq!(erc721.burn(1), Ok(()));
-                // Alice does not owns tokens.
-                assert_eq!(erc721.balance_of(accounts.alice), 0);
-                // Token Id 1 does not exists
-                assert_eq!(erc721.owner_of(1), None);
-            })
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Alice owns 1 token.
+            assert_eq!(erc721.balance_of(accounts.alice), 1);
+            // Alice owns token Id 1.
+            assert_eq!(erc721.owner_of(1), Some(accounts.alice));
+            // Destroy token Id 1.
+            assert_eq!(erc721.burn(1), Ok(()));
+            // Alice does not owns tokens.
+            assert_eq!(erc721.balance_of(accounts.alice), 0);
+            // Token Id 1 does not exists
+            assert_eq!(erc721.owner_of(1), None);
+        }
+
+        #[ink::test]
+        fn burn_fails_token_not_found() {
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Try burning a non existent token
+            assert_eq!(erc721.burn(1), Err(Error::TokenNotFound));
+        }
+
+        #[ink::test]
+        fn burn_fails_not_owner() {
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+                .expect("Cannot get accounts");
+            // Create a new contract instance.
+            let mut erc721 = Erc721::new();
+            // Create token Id 1 for Alice
+            assert_eq!(erc721.mint(1), Ok(()));
+            // Try burning this token with a different account
+            set_sender(accounts.eve);
+            assert_eq!(erc721.burn(1), Err(Error::NotOwner));
+        }
+
+        fn set_sender(sender: AccountId) {
+            let callee = ink_env::account_id::<ink_env::DefaultEnvTypes>()
+                .unwrap_or([0x0; 32].into());
+            test::push_execution_context::<EnvTypes>(
+                sender,
+                callee,
+                1000000,
+                1000000,
+                test::CallData::new(call::Selector::new([0x00; 4])), // dummy
+            );
         }
     }
 }

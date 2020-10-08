@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 pub use self::subber::Subber;
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod subber {
     use accumulator::Accumulator;
 
     /// Decreases the underlying accumulator's value.
     #[ink(storage)]
-    struct Subber {
+    pub struct Subber {
         /// The accumulator to store the value.
         accumulator: accumulator::Accumulator,
     }
@@ -31,13 +31,13 @@ mod subber {
     impl Subber {
         /// Creates a new subber from the given accumulator.
         #[ink(constructor)]
-        fn new(accumulator: Accumulator) -> Self {
+        pub fn new(accumulator: Accumulator) -> Self {
             Self { accumulator }
         }
 
         /// Decreases the accumulator's value by some amount.
         #[ink(message)]
-        fn dec(&mut self, by: i32) {
+        pub fn dec(&mut self, by: i32) {
             self.accumulator.inc(-by)
         }
     }

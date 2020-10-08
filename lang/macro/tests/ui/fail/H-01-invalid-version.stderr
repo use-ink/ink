@@ -1,6 +1,0 @@
-error: couldn't match provided version as semantic version string: foo.
-info: The format expects a number triplet x.y.z, e.g. "0.1.0"
- --> $DIR/H-01-invalid-version.rs:3:27
-  |
-3 | #[ink::contract(version = "foo")]
-  |                           ^^^^^

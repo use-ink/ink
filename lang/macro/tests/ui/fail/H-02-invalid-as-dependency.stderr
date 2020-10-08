@@ -1,5 +1,0 @@
-error: expected boolean literal
- --> $DIR/H-02-invalid-as-dependency.rs:5:29
-  |
-5 |     compile_as_dependency = "yes",
-  |                             ^^^^^

@@ -1,5 +1,0 @@
-error: specifying ABI is not allowed in ink! functions
-  --> $DIR/C-13-abi-constructor.rs:10:9
-   |
-10 |         extern "C" fn abi_constructor() -> Self {
-   |         ^^^^^^^^^^
