@@ -28,7 +28,7 @@ use super::{
     OnInstance,
 };
 use crate::{
-    EnvTypes,
+    Environment,
     Result,
 };
 use ink_prelude::string::String;
@@ -48,7 +48,7 @@ pub fn push_execution_context<T>(
     endowment: T::Balance,
     call_data: CallData,
 ) where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.exec_context.push(
@@ -92,7 +92,7 @@ pub fn set_account_balance<T>(
     new_balance: T::Balance,
 ) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -118,7 +118,7 @@ where
 /// - If the underlying `account` type does not match.
 pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -142,7 +142,7 @@ pub fn set_contract_rent_allowance<T>(
     new_rent_allowance: T::Balance,
 ) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -167,7 +167,7 @@ where
 /// - If the returned rent allowance cannot be properly decoded.
 pub fn get_contract_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -201,7 +201,7 @@ where
 /// This allows to control what [`crate::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.current_block_mut()?.set_entropy::<T>(entropy)
@@ -255,7 +255,7 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// Advances the chain by a single block.
 pub fn advance_block<T>() -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }
@@ -263,7 +263,7 @@ where
 /// The default accounts.
 pub struct DefaultAccounts<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// The predefined `ALICE` account holding substantial amounts of value.
     pub alice: T::AccountId,
@@ -283,8 +283,8 @@ where
 /// Alice, Bob, Charlie, Django, Eve and Frank.
 pub fn default_accounts<T>() -> Result<DefaultAccounts<T>>
 where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     Ok(DefaultAccounts {
         alice: T::AccountId::from([0x01; 32]),
@@ -304,8 +304,8 @@ where
 /// uses cases.
 pub fn initialize_or_reset_as_default<T>() -> Result<()>
 where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.initialize_or_reset_as_default::<T>()
@@ -316,9 +316,9 @@ where
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     initialize_or_reset_as_default::<T>()?;
     let default_accounts = default_accounts::<T>()?;
@@ -328,7 +328,7 @@ where
 /// Returns the total number of reads and writes of the contract's storage.
 pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance

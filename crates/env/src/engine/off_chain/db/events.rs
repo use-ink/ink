@@ -24,7 +24,7 @@ use crate::{
         TopicsBuilderBackend,
     },
     Clear,
-    EnvTypes,
+    Environment,
 };
 
 #[derive(Default)]
@@ -34,7 +34,7 @@ pub struct TopicsBuilder {
 
 impl<E> TopicsBuilderBackend<E> for TopicsBuilder
 where
-    E: EnvTypes,
+    E: Environment,
 {
     type Output = Vec<OffHash>;
 
@@ -46,7 +46,7 @@ where
     {
         let encoded = topic_value.encode();
         let len_encoded = encoded.len();
-        let mut result = <E as EnvTypes>::Hash::clear();
+        let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
         if len_encoded <= len_result {
             result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
@@ -78,7 +78,7 @@ impl EmittedEvent {
     /// Creates a new emitted event.
     pub fn new<T, E>(emitted_event: E) -> Self
     where
-        T: EnvTypes,
+        T: Environment,
         E: Topics + scale::Encode,
     {
         let topics = emitted_event.topics::<T, _>(TopicsBuilder::default().into());
@@ -110,7 +110,7 @@ impl EmittedEventsRecorder {
     /// Records a new emitted event.
     pub fn record<T, E>(&mut self, new_event: E)
     where
-        T: EnvTypes,
+        T: Environment,
         E: Topics + scale::Encode,
     {
         self.emitted_events

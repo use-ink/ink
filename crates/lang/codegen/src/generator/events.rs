@@ -71,13 +71,13 @@ impl<'a> Events<'a> {
         quote! {
             const _: () = {
                 #no_cross_calling_cfg
-                impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, EnvTypes> {
+                impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
                         E: Into<<#storage_ident as ::ink_lang::BaseEvent>::Type>,
                     {
                         ::ink_env::emit_event::<
-                            EnvTypes,
+                            Environment,
                             <#storage_ident as ::ink_lang::BaseEvent>::Type
                         >(event.into());
                     }
@@ -141,7 +141,7 @@ impl<'a> Events<'a> {
                         builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
                     ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
                     where
-                        E: ::ink_env::EnvTypes,
+                        E: ::ink_env::Environment,
                         B: ::ink_env::topics::TopicsBuilderBackend<E>,
                     {
                         match self {
@@ -186,7 +186,7 @@ impl<'a> Events<'a> {
 
                 #[allow(non_upper_case_globals)]
                 const __ink_MAX_EVENT_TOPICS: usize = <
-                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::EnvTypes
+                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment
                 >::MAX_EVENT_TOPICS;
 
                 fn __ink_ensure_max_event_topics<T>(_: T)
@@ -265,7 +265,7 @@ impl<'a> Events<'a> {
                             builder: ::ink_env::topics::TopicsBuilder<::ink_env::topics::state::Uninit, E, B>,
                         ) -> <B as ::ink_env::topics::TopicsBuilderBackend<E>>::Output
                         where
-                            E: ::ink_env::EnvTypes,
+                            E: ::ink_env::Environment,
                             B: ::ink_env::topics::TopicsBuilderBackend<E>,
                         {
                             builder

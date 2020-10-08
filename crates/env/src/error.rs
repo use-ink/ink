@@ -19,7 +19,7 @@ use crate::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
 #[derive(Debug, From, PartialEq, Eq)]
-pub enum EnvError {
+pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
     /// An error that can only occure in the off-chain environment.
@@ -49,4 +49,4 @@ pub enum EnvError {
 }
 
 /// A result of environmental operations.
-pub type Result<T> = core::result::Result<T, EnvError>;
+pub type Result<T> = core::result::Result<T, Error>;

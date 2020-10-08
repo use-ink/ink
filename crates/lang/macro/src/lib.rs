@@ -126,23 +126,23 @@ use proc_macro::TokenStream;
 ///
 ///     **Default value:** Depends on the crate feature propagation of `Cargo.toml`.
 ///
-/// - `env: impl EnvTypes`
+/// - `env: impl Environment`
 ///
 ///     Tells the ink! code generator which environment to use for the ink! smart contract.
-///     The environment must implement the `EnvTypes` (defined in `ink_env`) trait and provides
+///     The environment must implement the `Environment` (defined in `ink_env`) trait and provides
 ///     all the necessary fundamental type definitions for `Balance`, `AccountId` etc.
 ///
-///     When using a custom `EnvTypes` implementation for a smart contract all types
+///     When using a custom `Environment` implementation for a smart contract all types
 ///     that it exposes to the ink! smart contract and the mirrored types used in the runtime
 ///     must be aligned with respect to SCALE encoding and semantics.
 ///
 ///     **Usage Example:**
 ///
-///     Given a custom `EnvTypes` implementation:
+///     Given a custom `Environment` implementation:
 ///     ```
-///     pub struct MyEnvTypes;
+///     pub struct MyEnvironment;
 ///
-///     impl ink_env::EnvTypes for MyEnvTypes {
+///     impl ink_env::Environment for MyEnvironment {
 ///         const MAX_EVENT_TOPICS: usize = 3;
 ///         type AccountId = u64;
 ///         type Balance = u128;
@@ -151,15 +151,15 @@ use proc_macro::TokenStream;
 ///         type BlockNumber = u32;
 ///     }
 ///     ```
-///     A user might implement their ink! smart contract using the above custom `EnvTypes`
+///     A user might implement their ink! smart contract using the above custom `Environment`
 ///     implementation as demonstrated below:
 ///     ```
 ///     # use ink_lang as ink;
-///     #[ink::contract(env_types = MyEnvTypes)]
+///     #[ink::contract(env_types = MyEnvironment)]
 ///     mod my_contract {
-///         # pub struct MyEnvTypes;
+///         # pub struct MyEnvironment;
 ///         #
-///         # impl ink_env::EnvTypes for MyEnvTypes {
+///         # impl ink_env::Environment for MyEnvironment {
 ///         #     const MAX_EVENT_TOPICS: usize = 3;
 ///         #     type AccountId = u64;
 ///         #     type Balance = u128;
@@ -180,7 +180,7 @@ use proc_macro::TokenStream;
 ///     }
 ///     ```
 ///
-///     **Default value:** `DefaultEnvTypes` defined in `ink_env` crate.
+///     **Default value:** `DefaultEnvironment` defined in `ink_env` crate.
 ///
 /// ## Anaylsis
 ///
@@ -377,8 +377,8 @@ use proc_macro::TokenStream;
 ///
 /// For example it is possible to query the current call's caller via:
 /// ```
-/// # ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
-/// let caller = ink_env::caller::<ink_env::DefaultEnvTypes>();
+/// # ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+/// let caller = ink_env::caller::<ink_env::DefaultEnvironment>();
 /// # let _caller = caller;
 /// # Ok(())
 /// # }).unwrap();
@@ -521,7 +521,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ```
 /// use ink_lang as ink;
-/// # type Balance = <ink_env::DefaultEnvTypes as ink_env::EnvTypes>::Balance;
+/// # type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
@@ -620,7 +620,7 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     // Conventional unit test that returns some Result.
 ///     // The test code can make use of operator-`?`.
 ///     #[ink::test]
-///     fn test2() -> Result<(), ink_env::EnvError> {
+///     fn test2() -> Result<(), ink_env::Error> {
 ///         // test code that returns a Rust Result type
 ///     }
 /// }

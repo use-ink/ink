@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::EnvTypes;
+use ink_env::Environment;
 
 /// The type that can never be returned because it is not possible to craft an instance of it.
 #[doc(hidden)]
@@ -49,8 +49,8 @@ pub trait ForwardCallMut {
 /// Allows them to return their underlying account identifier.
 pub trait ToAccountId<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as EnvTypes>::AccountId;
+    fn to_account_id(&self) -> <T as Environment>::AccountId;
 }

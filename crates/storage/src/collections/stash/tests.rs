@@ -25,7 +25,7 @@ fn regression_stash_unreachable_minified() {
     // `approved_for_all_works` unit test. The fix was to adjust
     // `Stash::remove_vacant_entry` to update `header.last_vacant` if the
     // removed index was the last remaining vacant index in the stash.
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut stash: StorageStash<u32> = StorageStash::new();
         stash.put(1);
         stash.put(2);
@@ -137,7 +137,7 @@ fn remove_out_of_bounds_works() {
 
 #[test]
 fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // First populate some storage Stash and writes that to the contract storage using pull_spread
         // and some known Key.
         let stash = [b'A', b'B', b'C']
@@ -715,7 +715,7 @@ fn take_rev_order_works() {
 
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
@@ -731,7 +731,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[test]
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));

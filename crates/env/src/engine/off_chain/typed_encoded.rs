@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::OffChainError;
-use crate::EnvError;
+use crate::Error;
 use core::{
     any::TypeId,
     cmp::Ordering,
@@ -42,7 +42,7 @@ pub struct TypedEncoded<T> {
     /// and will take over any given type upon the first typed interaction.
     /// - This is needed since instances of `TypedEncoded` are going to be used
     /// in static memory where it isn't possible to decide about the used types
-    /// given by `EnvTypes` at initialization.
+    /// given by `Environment` at initialization.
     type_id: Option<TypeId>,
     /// Classification marker.
     ///
@@ -88,9 +88,9 @@ pub enum TypedEncodedError {
     StillUninitialized,
 }
 
-impl From<TypedEncodedError> for EnvError {
+impl From<TypedEncodedError> for Error {
     fn from(typed_encoded_error: TypedEncodedError) -> Self {
-        EnvError::OffChain(OffChainError::TypedEncoded(typed_encoded_error))
+        Error::OffChain(OffChainError::TypedEncoded(typed_encoded_error))
     }
 }
 

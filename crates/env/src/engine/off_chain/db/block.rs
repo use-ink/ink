@@ -21,7 +21,7 @@ use super::{
     OffHash,
     OffTimestamp,
 };
-use crate::EnvTypes;
+use crate::Environment;
 
 /// An emulated block in the chain.
 pub struct Block {
@@ -42,11 +42,11 @@ impl Block {
     /// Creates a new block for the given number and time stamp.
     pub fn new<T>(number: T::BlockNumber, timestamp: T::Timestamp) -> Self
     where
-        T: EnvTypes,
+        T: Environment,
     {
         use crate::Clear;
         use rand::Rng as _;
-        let mut entropy = <T as EnvTypes>::Hash::clear();
+        let mut entropy = <T as Environment>::Hash::clear();
         rand::thread_rng().fill(entropy.as_mut());
         Self {
             number: TypedEncoded::new(&number),
@@ -58,7 +58,7 @@ impl Block {
     /// Returns the block number.
     pub fn number<T>(&self) -> Result<T::BlockNumber>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.number.decode().map_err(Into::into)
     }
@@ -66,7 +66,7 @@ impl Block {
     /// Returns the timestamp of the block.
     pub fn timestamp<T>(&self) -> Result<T::Timestamp>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.timestamp.decode().map_err(Into::into)
     }
@@ -79,7 +79,7 @@ impl Block {
     /// in the off-chain environment.
     pub fn set_entropy<T>(&mut self, new_entropy: T::Hash) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.entropy.assign(&new_entropy).map_err(Into::into)
     }
@@ -99,7 +99,7 @@ impl Block {
     /// with the eventually repeated sequence of the subject buffer.
     pub fn random<T>(&self, subject: &[u8]) -> Result<T::Hash>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let mut entropy = self.entropy.clone();
         let entropy_bytes = entropy.encoded_bytes_mut()?;

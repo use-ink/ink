@@ -248,7 +248,7 @@ mod tests {
     where
         F: FnOnce(),
     {
-        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             f();
             Ok(())
         })

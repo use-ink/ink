@@ -37,12 +37,12 @@ use crate::{
         TopicsBuilderBackend,
     },
     Clear,
-    Env,
-    EnvError,
-    EnvTypes,
+    EnvBackend,
+    Environment,
+    Error,
     Result,
     ReturnFlags,
-    TypedEnv,
+    TypedEnvBackend,
 };
 use ink_primitives::Key;
 
@@ -94,7 +94,7 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-impl From<ext::Error> for EnvError {
+impl From<ext::Error> for Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
             ext::Error::UnknownError => Self::UnknownError,
@@ -117,7 +117,7 @@ pub struct TopicsBuilder<'a, E> {
 
 impl<'a, E> From<ScopedBuffer<'a>> for TopicsBuilder<'a, E>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     fn from(scoped_buffer: ScopedBuffer<'a>) -> Self {
         Self {
@@ -129,7 +129,7 @@ where
 
 impl<'a, E> TopicsBuilderBackend<E> for TopicsBuilder<'a, E>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     type Output = (ScopedBuffer<'a>, &'a mut [u8]);
 
@@ -145,7 +145,7 @@ where
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
         let len_encoded = encoded.len();
-        let mut result = <E as EnvTypes>::Hash::clear();
+        let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
         if len_encoded <= len_result {
             result.as_mut()[..len_encoded].copy_from_slice(encoded);
@@ -186,7 +186,7 @@ impl EnvInstance {
         params: &CallParams<T, Args, RetType>,
     ) -> Result<R>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
@@ -208,7 +208,7 @@ impl EnvInstance {
     }
 }
 
-impl Env for EnvInstance {
+impl EnvBackend for EnvInstance {
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,
@@ -286,50 +286,50 @@ impl Env for EnvInstance {
     }
 }
 
-impl TypedEnv for EnvInstance {
-    fn caller<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+impl TypedEnvBackend for EnvInstance {
+    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.get_property::<T::AccountId>(ext::caller)
     }
 
-    fn transferred_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::gas_left)
     }
 
-    fn block_timestamp<T: EnvTypes>(&mut self) -> Result<T::Timestamp> {
+    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
         self.get_property::<T::Timestamp>(ext::now)
     }
 
-    fn account_id<T: EnvTypes>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.get_property::<T::AccountId>(ext::address)
     }
 
-    fn balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::balance)
     }
 
-    fn rent_allowance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::rent_allowance)
     }
 
-    fn block_number<T: EnvTypes>(&mut self) -> Result<T::BlockNumber> {
+    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
         self.get_property::<T::BlockNumber>(ext::block_number)
     }
 
-    fn minimum_balance<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::minimum_balance)
     }
 
-    fn tombstone_deposit<T: EnvTypes>(&mut self) -> Result<T::Balance> {
+    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
         self.get_property::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
     where
-        T: EnvTypes,
+        T: Environment,
         Event: Topics + scale::Encode,
     {
         let (mut scope, enc_topics) =
@@ -340,7 +340,7 @@ impl TypedEnv for EnvInstance {
 
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&new_value);
         ext::set_rent_allowance(&buffer[..])
@@ -351,7 +351,7 @@ impl TypedEnv for EnvInstance {
         call_params: &CallParams<T, Args, ()>,
     ) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
     {
         self.invoke_contract_impl(call_params)
@@ -362,7 +362,7 @@ impl TypedEnv for EnvInstance {
         call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
@@ -374,7 +374,7 @@ impl TypedEnv for EnvInstance {
         params: &CreateParams<T, Args, C>,
     ) -> Result<T::AccountId>
     where
-        T: EnvTypes,
+        T: Environment,
         Args: scale::Encode,
     {
         let mut scoped = self.scoped_buffer();
@@ -410,7 +410,7 @@ impl TypedEnv for EnvInstance {
         rent_allowance: T::Balance,
         filtered_keys: &[Key],
     ) where
-        T: EnvTypes,
+        T: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_account_id = scope.take_encoded(&account_id);
@@ -426,7 +426,7 @@ impl TypedEnv for EnvInstance {
 
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
         ext::terminate(&buffer[..]);
@@ -434,7 +434,7 @@ impl TypedEnv for EnvInstance {
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_destination = scope.take_encoded(&destination);
@@ -442,7 +442,7 @@ impl TypedEnv for EnvInstance {
         ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
-    fn weight_to_fee<T: EnvTypes>(&mut self, gas: u64) -> Result<T::Balance> {
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
         let output = &mut self.scoped_buffer().take_rest();
         ext::weight_to_fee(gas, output);
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
@@ -450,7 +450,7 @@ impl TypedEnv for EnvInstance {
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_subject = scope.take_bytes(subject);

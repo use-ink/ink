@@ -23,7 +23,7 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
-    EnvTypes,
+    Environment,
     Result,
 };
 use ink_primitives::Key;
@@ -31,7 +31,7 @@ use ink_primitives::Key;
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
     /// The environment type.
-    type Env: ::ink_env::EnvTypes;
+    type Env: ::ink_env::Environment;
 }
 
 /// Simplifies interaction with the host environment via `self`.
@@ -91,7 +91,7 @@ impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
 
 impl<'a, T> EnvAccess<'a, T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// Returns the address of the caller of the executed contract.
     ///

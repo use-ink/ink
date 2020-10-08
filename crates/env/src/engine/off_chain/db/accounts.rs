@@ -21,8 +21,8 @@ use super::{
     OffBalance,
 };
 use crate::{
-    EnvError,
-    EnvTypes,
+    Environment,
+    Error,
 };
 use core::cell::Cell;
 use derive_more::From;
@@ -39,9 +39,9 @@ pub enum AccountError {
     NoAccountForId(OffAccountId),
 }
 
-impl From<AccountError> for EnvError {
+impl From<AccountError> for Error {
     fn from(account_error: AccountError) -> Self {
-        EnvError::OffChain(OffChainError::Account(account_error))
+        Error::OffChain(OffChainError::Account(account_error))
     }
 }
 
@@ -49,7 +49,7 @@ impl AccountError {
     /// Creates a new error to indicate a missing account.
     pub fn no_account_for_id<T>(account_id: &T::AccountId) -> Self
     where
-        T: EnvTypes,
+        T: Environment,
     {
         Self::NoAccountForId(OffAccountId::new(account_id))
     }
@@ -86,7 +86,7 @@ impl AccountsDb {
     /// Returns the account at the given account ID or creates it.
     pub fn get_or_create_account<T>(&mut self, at: &T::AccountId) -> &mut Account
     where
-        T: EnvTypes,
+        T: Environment,
     {
         // Note: We cannot do a normal match for `Some(account)` here since
         //       the borrow-checker somehow cannot make sense of it according
@@ -105,7 +105,7 @@ impl AccountsDb {
     /// Returns the account for the given account ID if any.
     pub fn get_account<T>(&self, at: &T::AccountId) -> Option<&Account>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.accounts.get(&OffAccountId::new(at))
     }
@@ -113,7 +113,7 @@ impl AccountsDb {
     /// Returns the account for the given account ID if any.
     pub fn get_account_mut<T>(&mut self, at: &T::AccountId) -> Option<&mut Account>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.accounts.get_mut(&OffAccountId::new(at))
     }
@@ -134,7 +134,7 @@ impl AccountsDb {
         account_id: T::AccountId,
         initial_balance: T::Balance,
     ) where
-        T: EnvTypes,
+        T: Environment,
     {
         self.accounts.insert(
             OffAccountId::new(&account_id),
@@ -152,7 +152,7 @@ impl AccountsDb {
         initial_balance: T::Balance,
         rent_allowance: T::Balance,
     ) where
-        T: EnvTypes,
+        T: Environment,
     {
         self.accounts.insert(
             OffAccountId::new(&account_id),
@@ -176,7 +176,7 @@ impl Account {
     /// Returns the balance of the account.
     pub fn balance<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.balance.decode().map_err(Into::into)
     }
@@ -184,7 +184,7 @@ impl Account {
     /// Sets the balance of the account.
     pub fn set_balance<T>(&mut self, new_balance: T::Balance) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.balance.assign(&new_balance).map_err(Into::into)
     }
@@ -212,7 +212,7 @@ impl Account {
     /// Returns the rent allowance of the contract account or an error.
     pub fn rent_allowance<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.contract_or_err()
             .and_then(|contract| contract.rent_allowance.decode().map_err(Into::into))
@@ -221,7 +221,7 @@ impl Account {
     /// Sets the rent allowance for the contract account or returns an error.
     pub fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance) -> Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.contract_or_err_mut().and_then(|contract| {
             contract
@@ -281,7 +281,7 @@ impl ContractAccount {
     /// Creates a new contract account with the given initial rent allowance.
     pub fn new<T>(rent_allowance: T::Balance) -> Self
     where
-        T: EnvTypes,
+        T: Environment,
     {
         Self {
             rent_allowance: OffBalance::new(&rent_allowance),

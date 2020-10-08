@@ -25,7 +25,7 @@ use core::{
     mem::ManuallyDrop,
 };
 use ink_env::{
-    EnvTypes,
+    Environment,
     ReturnFlags,
 };
 use ink_primitives::Key;
@@ -105,7 +105,7 @@ pub fn execute_message<E, M, F>(
     f: F,
 ) -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
     M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
@@ -139,11 +139,11 @@ where
 #[doc(hidden)]
 pub fn deny_payment<E>() -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     let transferred = ink_env::transferred_balance::<E>()
         .expect("encountered error while querying transferred balance");
-    if transferred != <E as EnvTypes>::Balance::from(0u32) {
+    if transferred != <E as Environment>::Balance::from(0u32) {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
@@ -163,7 +163,7 @@ pub fn execute_message_mut<E, M, F>(
     f: F,
 ) -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
     M: MessageMut,
     F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
 {

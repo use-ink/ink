@@ -298,7 +298,7 @@ fn defrag_works() {
 
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
             .iter()
             .copied()
@@ -315,7 +315,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[test]
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
             .iter()
             .copied()

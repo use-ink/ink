@@ -70,7 +70,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
 
 #[quickcheck]
 fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         insert_and_remove(xs, inserts_each);
         Ok(())
     })
@@ -81,7 +81,7 @@ fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
 /// and asserts that all non-`xth` elements are still in the map.
 #[quickcheck]
 fn removes(xs: Vec<i32>, xth: usize) {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
         let xs: Vec<i32> = xs.into_iter().unique().collect();
         let xth = xth.max(1);

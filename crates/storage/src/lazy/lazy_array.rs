@@ -860,7 +860,7 @@ mod tests {
 
     #[test]
     fn spread_layout_works() -> ink_env::Result<()> {
-        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut larray = <LazyArray<u8, U4>>::new();
             let nothing_changed = &[
                 (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),

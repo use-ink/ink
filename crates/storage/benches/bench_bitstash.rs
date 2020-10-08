@@ -112,7 +112,7 @@ mod empty_cache {
 /// into the contract storage. We then load the stash from storage lazily in each
 /// benchmark iteration.
 fn bench_empty_cache(c: &mut Criterion) {
-    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Bench: empty cache");
         group
             .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
