@@ -21,8 +21,8 @@ use super::{
     OffBalance,
 };
 use crate::{
-    Error,
     Environment,
+    Error,
 };
 use core::cell::Cell;
 use derive_more::From;

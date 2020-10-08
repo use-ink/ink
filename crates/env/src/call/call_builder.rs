@@ -23,8 +23,8 @@ use crate::{
         },
         ExecutionInput,
     },
-    Error,
     Environment,
+    Error,
 };
 use core::marker::PhantomData;
 

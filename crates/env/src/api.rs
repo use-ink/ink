@@ -48,7 +48,9 @@ pub fn caller<T>() -> Result<T::AccountId>
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::caller::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller::<T>(instance)
+    })
 }
 
 /// Returns the transferred balance for the contract execution.
@@ -88,7 +90,9 @@ pub fn gas_left<T>() -> Result<T::Balance>
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::gas_left::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::gas_left::<T>(instance)
+    })
 }
 
 /// Returns the current block timestamp.
@@ -132,7 +136,9 @@ pub fn balance<T>() -> Result<T::Balance>
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnvBackend::balance::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::balance::<T>(instance)
+    })
 }
 
 /// Returns the current rent allowance for the executed contract.
@@ -476,7 +482,9 @@ pub fn decode_input<T>() -> Result<T>
 where
     T: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| EnvBackend::decode_input::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::decode_input::<T>(instance)
+    })
 }
 
 /// Returns the value back to the caller of the executed contract.
@@ -514,7 +522,9 @@ where
 
 /// Prints the given contents to the environmental log.
 pub fn debug_println(content: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| EnvBackend::println(instance, content))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::println(instance, content)
+    })
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
