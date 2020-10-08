@@ -237,11 +237,15 @@ impl<'a> Events<'a> {
                         .push_topic::<#field_type>(&self.#field_ident)
                     )
                 });
+            let remaining_topics_ty = match len_topics {
+                0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
+                n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
+            };
             quote_spanned!(span =>
                 #no_cross_calling_cfg
                 const _: () = {
                     impl ::ink_env::Topics for #event_ident {
-                        type RemainingTopics = [::ink_env::topics::state::HasRemainingTopics; #len_topics];
+                        type RemainingTopics = #remaining_topics_ty;
 
                         fn topics<E, B>(
                             &self,
