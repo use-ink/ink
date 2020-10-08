@@ -764,23 +764,23 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///     **Default value:** Depends on the crate feature propagation of `Cargo.toml`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `env: impl EnvTypes`</span>
+<span class="doccomment">/// - `env: impl Environment`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     Tells the ink! code generator which environment to use for the ink! smart contract.</span>
-<span class="doccomment">///     The environment must implement the `EnvTypes` (defined in `ink_env`) trait and provides</span>
+<span class="doccomment">///     The environment must implement the `Environment` (defined in `ink_env`) trait and provides</span>
 <span class="doccomment">///     all the necessary fundamental type definitions for `Balance`, `AccountId` etc.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     When using a custom `EnvTypes` implementation for a smart contract all types</span>
+<span class="doccomment">///     When using a custom `Environment` implementation for a smart contract all types</span>
 <span class="doccomment">///     that it exposes to the ink! smart contract and the mirrored types used in the runtime</span>
 <span class="doccomment">///     must be aligned with respect to SCALE encoding and semantics.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     **Usage Example:**</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     Given a custom `EnvTypes` implementation:</span>
+<span class="doccomment">///     Given a custom `Environment` implementation:</span>
 <span class="doccomment">///     ```</span>
-<span class="doccomment">///     pub struct MyEnvTypes;</span>
+<span class="doccomment">///     pub struct MyEnvironment;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     impl ink_env::EnvTypes for MyEnvTypes {</span>
+<span class="doccomment">///     impl ink_env::Environment for MyEnvironment {</span>
 <span class="doccomment">///         const MAX_EVENT_TOPICS: usize = 3;</span>
 <span class="doccomment">///         type AccountId = u64;</span>
 <span class="doccomment">///         type Balance = u128;</span>
@@ -789,15 +789,15 @@
 <span class="doccomment">///         type BlockNumber = u32;</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///     ```</span>
-<span class="doccomment">///     A user might implement their ink! smart contract using the above custom `EnvTypes`</span>
+<span class="doccomment">///     A user might implement their ink! smart contract using the above custom `Environment`</span>
 <span class="doccomment">///     implementation as demonstrated below:</span>
 <span class="doccomment">///     ```</span>
 <span class="doccomment">///     # use ink_lang as ink;</span>
-<span class="doccomment">///     #[ink::contract(env_types = MyEnvTypes)]</span>
+<span class="doccomment">///     #[ink::contract(env_types = MyEnvironment)]</span>
 <span class="doccomment">///     mod my_contract {</span>
-<span class="doccomment">///         # pub struct MyEnvTypes;</span>
+<span class="doccomment">///         # pub struct MyEnvironment;</span>
 <span class="doccomment">///         #</span>
-<span class="doccomment">///         # impl ink_env::EnvTypes for MyEnvTypes {</span>
+<span class="doccomment">///         # impl ink_env::Environment for MyEnvironment {</span>
 <span class="doccomment">///         #     const MAX_EVENT_TOPICS: usize = 3;</span>
 <span class="doccomment">///         #     type AccountId = u64;</span>
 <span class="doccomment">///         #     type Balance = u128;</span>
@@ -818,7 +818,7 @@
 <span class="doccomment">///     }</span>
 <span class="doccomment">///     ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     **Default value:** `DefaultEnvTypes` defined in `ink_env` crate.</span>
+<span class="doccomment">///     **Default value:** `DefaultEnvironment` defined in `ink_env` crate.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Anaylsis</span>
 <span class="doccomment">///</span>
@@ -1015,8 +1015,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// For example it is possible to query the current call&#39;s caller via:</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// # ink_env::test::run_test::&lt;ink_env::DefaultEnvTypes, _&gt;(|_| {</span>
-<span class="doccomment">/// let caller = ink_env::caller::&lt;ink_env::DefaultEnvTypes&gt;();</span>
+<span class="doccomment">/// # ink_env::test::run_test::&lt;ink_env::DefaultEnvironment, _&gt;(|_| {</span>
+<span class="doccomment">/// let caller = ink_env::caller::&lt;ink_env::DefaultEnvironment&gt;();</span>
 <span class="doccomment">/// # let _caller = caller;</span>
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }).unwrap();</span>
@@ -1159,7 +1159,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use ink_lang as ink;</span>
-<span class="doccomment">/// # type Balance = &lt;ink_env::DefaultEnvTypes as ink_env::EnvTypes&gt;::Balance;</span>
+<span class="doccomment">/// # type Balance = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Balance;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// #[ink::trait_definition]</span>
 <span class="doccomment">/// pub trait Erc20 {</span>
@@ -1258,7 +1258,7 @@
 <span class="doccomment">///     // Conventional unit test that returns some Result.</span>
 <span class="doccomment">///     // The test code can make use of operator-`?`.</span>
 <span class="doccomment">///     #[ink::test]</span>
-<span class="doccomment">///     fn test2() -&gt; Result&lt;(), ink_env::EnvError&gt; {</span>
+<span class="doccomment">///     fn test2() -&gt; Result&lt;(), ink_env::Error&gt; {</span>
 <span class="doccomment">///         // test code that returns a Rust Result type</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">/// }</span>

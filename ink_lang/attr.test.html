@@ -27,7 +27,7 @@ call a method defined in <code>self.env()</code> or <code>Self::env()</code>.</p
     <span class="comment">// Conventional unit test that returns some Result.</span>
     <span class="comment">// The test code can make use of operator-`?`.</span>
     <span class="attribute">#[<span class="ident">ink</span>::<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test2</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ink_env</span>::<span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">test2</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ink_env</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// test code that returns a Rust Result type</span>
     }
 }</pre></div>

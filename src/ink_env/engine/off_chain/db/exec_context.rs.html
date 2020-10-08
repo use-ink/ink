@@ -256,7 +256,7 @@
     <span class="ident">OffAccountId</span>,
     <span class="ident">OffBalance</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">EnvTypes</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Environment</span>;
 <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Bytes</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
@@ -287,7 +287,7 @@
     <span class="doccomment">/// Constructs a new execution context.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExecContextBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="ident">ExecContextBuilder</span>::<span class="ident">new</span>()
     }
@@ -295,7 +295,7 @@
     <span class="doccomment">/// Returns the caller.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">caller</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -303,7 +303,7 @@
     <span class="doccomment">/// Returns the callee.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">callee</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -311,7 +311,7 @@
     <span class="doccomment">/// Returns the transferred value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">transferred_value</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -319,7 +319,7 @@
     <span class="doccomment">/// Returns the gas.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">gas</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -348,7 +348,7 @@
 <span class="doccomment">/// Builder for execution contexts.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExecContextBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The caller of the newly created execution context.</span>
     <span class="ident">caller</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>,
@@ -364,7 +364,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ExecContextBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Constructs a new execution context builder.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {

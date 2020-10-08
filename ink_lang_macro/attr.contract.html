@@ -74,20 +74,20 @@ makes use of this flag but contract writers are encouraged to disprove this.</p>
 <p><strong>Default value:</strong> Depends on the crate feature propagation of <code>Cargo.toml</code>.</p>
 </li>
 <li>
-<p><code>env: impl EnvTypes</code></p>
+<p><code>env: impl Environment</code></p>
 <p>Tells the ink! code generator which environment to use for the ink! smart contract.
-The environment must implement the <code>EnvTypes</code> (defined in <code>ink_env</code>) trait and provides
+The environment must implement the <code>Environment</code> (defined in <code>ink_env</code>) trait and provides
 all the necessary fundamental type definitions for <code>Balance</code>, <code>AccountId</code> etc.</p>
-<p>When using a custom <code>EnvTypes</code> implementation for a smart contract all types
+<p>When using a custom <code>Environment</code> implementation for a smart contract all types
 that it exposes to the ink! smart contract and the mirrored types used in the runtime
 must be aligned with respect to SCALE encoding and semantics.</p>
 <p><strong>Usage Example:</strong></p>
-<p>Given a custom <code>EnvTypes</code> implementation:</p>
+<p>Given a custom <code>Environment</code> implementation:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEnvTypes</span>;
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEnvironment</span>;
 
-<span class="kw">impl</span> <span class="ident">ink_env</span>::<span class="ident">EnvTypes</span> <span class="kw">for</span> <span class="ident">MyEnvTypes</span> {
+<span class="kw">impl</span> <span class="ident">ink_env</span>::<span class="ident">Environment</span> <span class="kw">for</span> <span class="ident">MyEnvironment</span> {
     <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
     <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> <span class="ident">u64</span>;
     <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span>;
@@ -95,15 +95,15 @@ must be aligned with respect to SCALE encoding and semantics.</p>
     <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">u64</span>;
     <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">u32</span>;
 }</pre></div>
-<p>A user might implement their ink! smart contract using the above custom <code>EnvTypes</code>
+<p>A user might implement their ink! smart contract using the above custom <code>Environment</code>
 implementation as demonstrated below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>(<span class="ident">env_types</span> <span class="op">=</span> <span class="ident">MyEnvTypes</span>)]</span>
+<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>(<span class="ident">env_types</span> <span class="op">=</span> <span class="ident">MyEnvironment</span>)]</span>
 <span class="kw">mod</span> <span class="ident">my_contract</span> {
     <span class="comment">// ...</span>
 }</pre></div>
-<p><strong>Default value:</strong> <code>DefaultEnvTypes</code> defined in <code>ink_env</code> crate.</p>
+<p><strong>Default value:</strong> <code>DefaultEnvironment</code> defined in <code>ink_env</code> crate.</p>
 </li>
 </ul>
 <h2 id="anaylsis" class="section-header"><a href="#anaylsis">Anaylsis</a></h2>
@@ -225,7 +225,7 @@ connects ink! smart contracts with the outer world.</p>
 <p>For example it is possible to query the current call's caller via:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvTypes</span><span class="op">&gt;</span>();</pre></div>
+<span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span><span class="op">&gt;</span>();</pre></div>
 <p>However, ink! provides a much simpler way to interact with the contract executor
 via its environment accessor. An example below:</p>
 

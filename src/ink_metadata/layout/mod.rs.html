@@ -577,6 +577,8 @@
 <span id="574">574</span>
 <span id="575">575</span>
 <span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -899,6 +901,7 @@
     <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
 ))]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArrayLayout</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The offset key of the array layout.</span>
     <span class="doccomment">///</span>
@@ -1102,6 +1105,7 @@
     <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: Serialize, F::String: Serialize&quot;</span>,
     <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;F::Type: DeserializeOwned, F::String: DeserializeOwned&quot;</span>
 ))]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EnumLayout</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The key where the discriminant is stored to dispatch the variants.</span>
     <span class="ident">dispatch_key</span>: <span class="ident">LayoutKey</span>,

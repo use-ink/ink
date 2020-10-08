@@ -362,8 +362,8 @@
         },
         <span class="ident">ExecutionInput</span>,
     },
-    <span class="ident">EnvError</span>,
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">Environment</span>,
+    <span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
@@ -375,17 +375,17 @@
 <span class="doccomment">/// in the generated code of `ink_lang`.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Creates the contract instance from the account ID of the already instantiated contract.</span>
-    <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
 }
 
 <span class="doccomment">/// Builds up contract instantiations.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The code hash of the created contract.</span>
     <span class="ident">code_hash</span>: <span class="ident">E</span>::<span class="ident">Hash</span>,
@@ -407,7 +407,7 @@
 )]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The code hash of the contract.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -436,13 +436,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Instantiates the contract and returns its account ID back to the caller.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span>::<span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">crate</span>::<span class="ident">instantiate_contract</span>(<span class="self">self</span>).<span class="ident">map</span>(<span class="ident">FromAccountId</span>::<span class="ident">from_account_id</span>)
     }
 }
@@ -450,7 +450,7 @@
 <span class="doccomment">/// Builds up contract instantiations.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="ident">env_types</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span><span class="op">&gt;</span>,
     <span class="ident">code_hash</span>: <span class="ident">CodeHash</span>,
@@ -478,17 +478,17 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```should_panic</span>
 <span class="doccomment">/// # use ::ink_env::{</span>
-<span class="doccomment">/// #     EnvTypes,</span>
-<span class="doccomment">/// #     DefaultEnvTypes,</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
 <span class="doccomment">/// #     call::{build_create, Selector, ExecutionInput, FromAccountId}</span>
 <span class="doccomment">/// # };</span>
-<span class="doccomment">/// # type Hash = &lt;DefaultEnvTypes as EnvTypes&gt;::Hash;</span>
-<span class="doccomment">/// # type AccountId = &lt;DefaultEnvTypes as EnvTypes&gt;::AccountId;</span>
+<span class="doccomment">/// # type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
 <span class="doccomment">/// # struct MyContract;</span>
-<span class="doccomment">/// # impl FromAccountId&lt;DefaultEnvTypes&gt; for MyContract {</span>
+<span class="doccomment">/// # impl FromAccountId&lt;DefaultEnvironment&gt; for MyContract {</span>
 <span class="doccomment">/// #     fn from_account_id(account_id: AccountId) -&gt; Self { Self }</span>
 <span class="doccomment">/// # }</span>
-<span class="doccomment">/// let my_contract: MyContract = build_create::&lt;DefaultEnvTypes, MyContract&gt;()</span>
+<span class="doccomment">/// let my_contract: MyContract = build_create::&lt;DefaultEnvironment, MyContract&gt;()</span>
 <span class="doccomment">///     .code_hash(Hash::from([0x42; 32]))</span>
 <span class="doccomment">///     .gas_limit(4000)</span>
 <span class="doccomment">///     .endowment(25)</span>
@@ -516,7 +516,7 @@
     <span class="ident">R</span>,
 <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {
     <span class="ident">CreateBuilder</span> {
@@ -532,7 +532,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
     <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the used code hash for the contract instantiation.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -554,7 +554,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
     <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the maximum allowed gas costs for the contract instantiation.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -576,7 +576,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
     <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the value transferred upon the execution of the call.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -605,7 +605,7 @@
         <span class="ident">R</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the value transferred upon the execution of the call.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -635,7 +635,7 @@
         <span class="ident">R</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Sets the value transferred upon the execution of the call.</span>
@@ -661,14 +661,14 @@
         <span class="ident">R</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Instantiates the contract using the given instantiation parameters.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">instantiate</span>()
     }
 }

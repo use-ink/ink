@@ -148,7 +148,7 @@
         <span class="ident">ExecutionInput</span>,
         <span class="ident">Selector</span>,
     },
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">Environment</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_storage</span>::<span class="ident">traits</span>::<span class="ident">SpreadLayout</span>;
 
@@ -173,7 +173,7 @@
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
 }
 
@@ -187,7 +187,7 @@
         <span class="ident">Set</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
 }
 

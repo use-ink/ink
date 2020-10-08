@@ -72,7 +72,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">ink_env</span>::<span class="ident">EnvTypes</span>;
+<span class="kw">use</span> <span class="ident">ink_env</span>::<span class="ident">Environment</span>;
 
 <span class="doccomment">/// The type that can never be returned because it is not possible to craft an instance of it.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -109,10 +109,10 @@
 <span class="doccomment">/// Allows them to return their underlying account identifier.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ToAccountId</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Returns the underlying account identifier of the instantiated contract.</span>
-    <span class="kw">fn</span> <span class="ident">to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>;
+    <span class="kw">fn</span> <span class="ident">to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>;
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_lang";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

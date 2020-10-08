@@ -375,8 +375,8 @@
     <span class="ident">OffBalance</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">EnvError</span>,
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">Environment</span>,
+    <span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
@@ -393,9 +393,9 @@
     <span class="ident">NoAccountForId</span>(<span class="ident">OffAccountId</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AccountError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EnvError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AccountError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">account_error</span>: <span class="ident">AccountError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">EnvError</span>::<span class="ident">OffChain</span>(<span class="ident">OffChainError</span>::<span class="ident">Account</span>(<span class="ident">account_error</span>))
+        <span class="ident">Error</span>::<span class="ident">OffChain</span>(<span class="ident">OffChainError</span>::<span class="ident">Account</span>(<span class="ident">account_error</span>))
     }
 }
 
@@ -403,7 +403,7 @@
     <span class="doccomment">/// Creates a new error to indicate a missing account.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_account_for_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">Self</span>::<span class="ident">NoAccountForId</span>(<span class="ident">OffAccountId</span>::<span class="ident">new</span>(<span class="ident">account_id</span>))
     }
@@ -440,7 +440,7 @@
     <span class="doccomment">/// Returns the account at the given account ID or creates it.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_or_create_account</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Account</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="comment">// Note: We cannot do a normal match for `Some(account)` here since</span>
         <span class="comment">//       the borrow-checker somehow cannot make sense of it according</span>
@@ -450,7 +450,7 @@
             <span class="self">self</span>.<span class="ident">get_account_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;just checked that account exists&quot;</span>)
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">add_user_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at</span>.<span class="ident">clone</span>(), <span class="number">0</span>.<span class="ident">into</span>());
+            <span class="self">self</span>.<span class="ident">add_user_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at</span>.<span class="ident">clone</span>(), <span class="number">0u32</span>.<span class="ident">into</span>());
             <span class="self">self</span>.<span class="ident">get_account_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;just added the account so it must exist&quot;</span>)
         }
@@ -459,7 +459,7 @@
     <span class="doccomment">/// Returns the account for the given account ID if any.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_account</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Account</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">OffAccountId</span>::<span class="ident">new</span>(<span class="ident">at</span>))
     }
@@ -467,7 +467,7 @@
     <span class="doccomment">/// Returns the account for the given account ID if any.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_account_mut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Account</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">OffAccountId</span>::<span class="ident">new</span>(<span class="ident">at</span>))
     }
@@ -488,7 +488,7 @@
         <span class="ident">account_id</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
         <span class="ident">initial_balance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
     ) <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">insert</span>(
             <span class="ident">OffAccountId</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>),
@@ -506,7 +506,7 @@
         <span class="ident">initial_balance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
         <span class="ident">rent_allowance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
     ) <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">insert</span>(
             <span class="ident">OffAccountId</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>),
@@ -530,7 +530,7 @@
     <span class="doccomment">/// Returns the balance of the account.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">balance</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -538,7 +538,7 @@
     <span class="doccomment">/// Sets the balance of the account.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_balance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">balance</span>.<span class="ident">assign</span>(<span class="kw-2">&amp;</span><span class="ident">new_balance</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
     }
@@ -566,7 +566,7 @@
     <span class="doccomment">/// Returns the rent allowance of the contract account or an error.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">contract_or_err</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">contract</span><span class="op">|</span> <span class="ident">contract</span>.<span class="ident">rent_allowance</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
@@ -575,7 +575,7 @@
     <span class="doccomment">/// Sets the rent allowance for the contract account or returns an error.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_rent_allowance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">self</span>.<span class="ident">contract_or_err_mut</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">contract</span><span class="op">|</span> {
             <span class="ident">contract</span>
@@ -635,7 +635,7 @@
     <span class="doccomment">/// Creates a new contract account with the given initial rent allowance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">rent_allowance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">rent_allowance</span>: <span class="ident">OffBalance</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">rent_allowance</span>),

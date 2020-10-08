@@ -952,6 +952,22 @@
 <span id="949">949</span>
 <span id="950">950</span>
 <span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1190,6 +1206,12 @@
         <span class="self">self</span>.<span class="ident">args</span>()
             .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArgKind</span>::<span class="ident">Payable</span>))
     }
+
+    <span class="doccomment">/// Returns `true` if the ink! attribute contains the `anonymous` argument.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_anonymous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">args</span>()
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArgKind</span>::<span class="ident">Anonymous</span>))
+    }
 }
 
 <span class="doccomment">/// An ink! specific attribute argument.</span>
@@ -1224,6 +1246,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Applied on `struct` types in order to flag them for being an ink! event.</span>
     <span class="ident">Event</span>,
+    <span class="doccomment">/// `#[ink(anonymous)]`</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Applied on `struct` event types in order to flag them as anonymous.</span>
+    <span class="doccomment">/// Anonymous events have similar semantics as in Solidity in that their</span>
+    <span class="doccomment">/// event signature won&#39;t be included in their event topics serialization</span>
+    <span class="doccomment">/// to reduce event emitting overhead. This is especially useful for user</span>
+    <span class="doccomment">/// defined events.</span>
+    <span class="ident">Anonymous</span>,
     <span class="doccomment">/// `#[ink(topic)]`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Applied on fields of ink! event types to indicate that they are topics.</span>
@@ -1272,6 +1302,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="self">Self</span>::<span class="ident">Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;storage&quot;</span>),
             <span class="self">Self</span>::<span class="ident">Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;event&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;anonymous&quot;</span>),
             <span class="self">Self</span>::<span class="ident">Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;topic&quot;</span>),
             <span class="self">Self</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
             <span class="self">Self</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
@@ -1571,6 +1602,7 @@
                                     <span class="string">&quot;message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>),
                                     <span class="string">&quot;constructor&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span>),
                                     <span class="string">&quot;event&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Event</span>),
+                                    <span class="string">&quot;anonymous&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Anonymous</span>),
                                     <span class="string">&quot;topic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Topic</span>),
                                     <span class="string">&quot;payable&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Payable</span>),
                                     <span class="string">&quot;impl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">AttributeArgKind</span>::<span class="ident">Implementation</span>),

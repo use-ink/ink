@@ -564,9 +564,9 @@
 
     <span class="kw">fn</span> <span class="ident">run_test</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>)
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvTypes</span><span class="op">&gt;</span>),
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span><span class="op">&gt;</span>),
     {
-        <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvTypes</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">default_accounts</span><span class="op">|</span> {
+        <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">default_accounts</span><span class="op">|</span> {
             <span class="ident">f</span>(<span class="ident">default_accounts</span>);
             <span class="prelude-val">Ok</span>(())
         })

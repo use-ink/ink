@@ -6,7 +6,7 @@
 is designed in such a way to carefully avoid reallocations: the
 <a href="../../ink_prelude/string/struct.FromUtf8Error.html#method.into_bytes"><code>into_bytes</code></a> method will give back the byte vector that was used in the
 conversion attempt.</p>
-<p>The <a href="https://doc.rust-lang.org/nightly/core/str/struct.Utf8Error.html"><code>Utf8Error</code></a> type provided by <a href="https://doc.rust-lang.org/nightly/core/str/index.html"><code>std::str</code></a> represents an error that may
+<p>The <a href="https://doc.rust-lang.org/nightly/core/str/error/struct.Utf8Error.html"><code>Utf8Error</code></a> type provided by <a href="https://doc.rust-lang.org/nightly/core/str/index.html"><code>std::str</code></a> represents an error that may
 occur when converting a slice of <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="u8"><code>u8</code></a>s to a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html"><code>&amp;str</code></a>. In this sense, it's
 an analogue to <code>FromUtf8Error</code>, and you can get one from a <code>FromUtf8Error</code>
 through the <a href="../../ink_prelude/string/struct.FromUtf8Error.html#method.utf8_error"><code>utf8_error</code></a> method.</p>
@@ -46,8 +46,8 @@ does not need to be made.</p>
 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">bytes</span>);
 
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>, <span class="number">159</span>], <span class="ident">value</span>.<span class="ident">unwrap_err</span>().<span class="ident">into_bytes</span>());</pre></div>
-</div><h4 id='method.utf8_error' class="method"><code>pub fn <a href='#method.utf8_error' class='fnname'>utf8_error</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/core/str/struct.Utf8Error.html" title="struct core::str::Utf8Error">Utf8Error</a></code><a class='srclink' href='https://doc.rust-lang.org/nightly/src/alloc/string.rs.html#1658-1660' title='goto source code'>[src]</a></h4><div class='docblock'><p>Fetch a <code>Utf8Error</code> to get more details about the conversion failure.</p>
-<p>The <a href="https://doc.rust-lang.org/nightly/core/str/struct.Utf8Error.html" title="Utf8Error"><code>Utf8Error</code></a> type provided by <a href="https://doc.rust-lang.org/nightly/core/str/index.html"><code>std::str</code></a> represents an error that may
+</div><h4 id='method.utf8_error' class="method"><code>pub fn <a href='#method.utf8_error' class='fnname'>utf8_error</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/core/str/error/struct.Utf8Error.html" title="struct core::str::error::Utf8Error">Utf8Error</a></code><a class='srclink' href='https://doc.rust-lang.org/nightly/src/alloc/string.rs.html#1658-1660' title='goto source code'>[src]</a></h4><div class='docblock'><p>Fetch a <code>Utf8Error</code> to get more details about the conversion failure.</p>
+<p>The <a href="https://doc.rust-lang.org/nightly/core/str/error/struct.Utf8Error.html" title="Utf8Error"><code>Utf8Error</code></a> type provided by <a href="https://doc.rust-lang.org/nightly/core/str/index.html"><code>std::str</code></a> represents an error that may
 occur when converting a slice of <a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="u8"><code>u8</code></a>s to a <a href="https://doc.rust-lang.org/nightly/std/primitive.str.html"><code>&amp;str</code></a>. In this sense, it's
 an analogue to <code>FromUtf8Error</code>. See its documentation for more details
 on using it.</p>

@@ -471,8 +471,8 @@
         },
         <span class="ident">ExecutionInput</span>,
     },
-    <span class="ident">EnvError</span>,
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">Environment</span>,
+    <span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
 
@@ -480,7 +480,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The account ID of the to-be-called smart contract.</span>
     <span class="ident">callee</span>: <span class="ident">E</span>::<span class="ident">AccountId</span>,
@@ -502,7 +502,7 @@
 )]</span>
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Returns the account ID of the called contract instance.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -531,7 +531,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, ()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="doccomment">/// Invokes the contract with the given built-up call parameters.</span>
@@ -540,14 +540,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">crate</span>::<span class="ident">invoke_contract</span>(<span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
 {
@@ -559,7 +559,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span>::<span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">crate</span>::<span class="ident">eval_contract</span>(<span class="self">self</span>)
     }
 }
@@ -587,12 +587,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```should_panic</span>
 <span class="doccomment">/// # use ::ink_env::{</span>
-<span class="doccomment">/// #     EnvTypes,</span>
-<span class="doccomment">/// #     DefaultEnvTypes,</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
 <span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput}</span>
 <span class="doccomment">/// # };</span>
-<span class="doccomment">/// # type AccountId = &lt;DefaultEnvTypes as EnvTypes&gt;::AccountId;</span>
-<span class="doccomment">/// build_call::&lt;DefaultEnvTypes&gt;()</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">/// build_call::&lt;DefaultEnvironment&gt;()</span>
 <span class="doccomment">///     .callee(AccountId::from([0x42; 32]))</span>
 <span class="doccomment">///     .gas_limit(5000)</span>
 <span class="doccomment">///     .transferred_value(10)</span>
@@ -622,12 +622,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```should_panic</span>
 <span class="doccomment">/// # use ::ink_env::{</span>
-<span class="doccomment">/// #     EnvTypes,</span>
-<span class="doccomment">/// #     DefaultEnvTypes,</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
 <span class="doccomment">/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},</span>
 <span class="doccomment">/// # };</span>
-<span class="doccomment">/// # type AccountId = &lt;DefaultEnvTypes as EnvTypes&gt;::AccountId;</span>
-<span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvTypes&gt;()</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
 <span class="doccomment">///     .callee(AccountId::from([0x42; 32]))</span>
 <span class="doccomment">///     .gas_limit(5000)</span>
 <span class="doccomment">///     .transferred_value(10)</span>
@@ -651,7 +651,7 @@
     <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>,
 <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="ident">CallBuilder</span> {
         <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
@@ -666,7 +666,7 @@
 <span class="doccomment">/// Builds up a cross contract call.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="ident">env_types</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The current parameters that have been built up so far.</span>
@@ -680,7 +680,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
     <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the called smart contract instance account ID to the given value.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -703,7 +703,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
     <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the maximumly allowed gas costs for the call.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -725,7 +725,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
     <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the value transferred upon the execution of the call.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -758,7 +758,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span><span class="op">&gt;</span>
     <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the type of the returned value upon the execution of the call.</span>
     <span class="doccomment">///</span>
@@ -795,7 +795,7 @@
         <span class="ident">RetType</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Sets the execution input to the given value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exec_input</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>(
@@ -830,7 +830,7 @@
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">RetType</span><span class="op">&gt;</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
 {
@@ -841,7 +841,7 @@
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">0</span>),
             <span class="ident">transferred_value</span>: <span class="self">self</span>
                 .<span class="ident">transferred_value</span>
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">E</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0</span>)),
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">E</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0u32</span>)),
             <span class="ident">return_type</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>.<span class="ident">value</span>(),
         }
@@ -858,13 +858,13 @@
         <span class="ident">Set</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Invokes the cross-chain function call.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
@@ -879,14 +879,14 @@
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Invokes the cross-chain function call and returns the result.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">EnvError</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">eval</span>()
     }
 }

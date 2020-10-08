@@ -98,6 +98,8 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -158,7 +160,7 @@
 <span class="comment">// This extern crate definition is required since otherwise rustc</span>
 <span class="comment">// is not recognizing its allocator and panic handler definitions.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">ink_alloc</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">ink_allocator</span>;
 
 <span class="kw">mod</span> <span class="ident">api</span>;
 <span class="kw">mod</span> <span class="ident">arithmetic</span>;
@@ -167,6 +169,8 @@
 <span class="kw">mod</span> <span class="ident">engine</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hash</span>;
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">topics</span>;
 <span class="kw">mod</span> <span class="ident">types</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -177,23 +181,23 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">engine</span>::<span class="ident">off_chain</span>::<span class="ident">test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::<span class="ident">backend</span>::{
-    <span class="ident">Env</span>,
-    <span class="ident">TypedEnv</span>,
+    <span class="ident">EnvBackend</span>,
+    <span class="ident">TypedEnvBackend</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">api</span>::<span class="kw-2">*</span>,
     <span class="ident">backend</span>::<span class="ident">ReturnFlags</span>,
     <span class="ident">error</span>::{
-        <span class="ident">EnvError</span>,
+        <span class="ident">Error</span>,
         <span class="prelude-ty">Result</span>,
     },
+    <span class="ident">topics</span>::<span class="ident">Topics</span>,
     <span class="ident">types</span>::{
         <span class="ident">AccountId</span>,
         <span class="ident">Clear</span>,
-        <span class="ident">DefaultEnvTypes</span>,
-        <span class="ident">EnvTypes</span>,
+        <span class="ident">DefaultEnvironment</span>,
+        <span class="ident">Environment</span>,
         <span class="ident">Hash</span>,
-        <span class="ident">Topics</span>,
     },
 };
 </pre></div>

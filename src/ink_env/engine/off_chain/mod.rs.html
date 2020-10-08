@@ -333,7 +333,7 @@
     },
 };
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">OnInstance</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">EnvTypes</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Environment</span>;
 <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
 
@@ -395,8 +395,8 @@
     <span class="doccomment">/// Either resets or initializes the off-chain environment to default values.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_or_reset_as_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_initialized</span>() {
             <span class="self">self</span>.<span class="ident">reset</span>()
@@ -432,8 +432,8 @@
     <span class="doccomment">/// for most use cases.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_as_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
     {
         <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Div</span> <span class="kw">as</span> <span class="kw">_</span>;
         <span class="kw">use</span> <span class="ident">num_traits</span>::{
@@ -444,12 +444,12 @@
         <span class="comment">// Alice has half of the maximum possible amount.</span>
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">add_user_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
             <span class="ident">default_accounts</span>.<span class="ident">alice</span>.<span class="ident">clone</span>(),
-            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">max_value</span>().<span class="ident">div</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">2</span>)),
+            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">max_value</span>().<span class="ident">div</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">2u32</span>)),
         );
         <span class="comment">// Bob has half the balance that alice got.</span>
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">add_user_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
             <span class="ident">default_accounts</span>.<span class="ident">bob</span>,
-            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">max_value</span>().<span class="ident">div</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">4</span>)),
+            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">max_value</span>().<span class="ident">div</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">4u32</span>)),
         );
         <span class="comment">// All other default accounts have zero balance.</span>
         <span class="self">self</span>.<span class="ident">accounts</span>
@@ -462,8 +462,8 @@
             .<span class="ident">add_user_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">default_accounts</span>.<span class="ident">frank</span>, <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">zero</span>());
         <span class="comment">// Initialize our first block.</span>
         <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">Block</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-            <span class="ident">T</span>::<span class="ident">BlockNumber</span>::<span class="ident">from</span>(<span class="number">0</span>),
-            <span class="ident">T</span>::<span class="ident">Timestamp</span>::<span class="ident">from</span>(<span class="number">0</span>),
+            <span class="ident">T</span>::<span class="ident">BlockNumber</span>::<span class="ident">from</span>(<span class="number">0u32</span>),
+            <span class="ident">T</span>::<span class="ident">Timestamp</span>::<span class="ident">from</span>(<span class="number">0u32</span>),
         ));
         <span class="comment">// Initialize chain specification.</span>
         <span class="self">self</span>.<span class="ident">chain_spec</span>.<span class="ident">initialize_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
@@ -471,8 +471,8 @@
         <span class="kw">let</span> <span class="ident">contract_account_id</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x07</span>; <span class="number">32</span>]);
         <span class="self">self</span>.<span class="ident">accounts</span>.<span class="ident">add_contract_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
             <span class="ident">contract_account_id</span>.<span class="ident">clone</span>(),
-            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0</span>),
-            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">20</span>),
+            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0u32</span>),
+            <span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">20u32</span>),
         );
         <span class="comment">// Initialize the execution context for the first contract execution.</span>
         <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">call</span>::<span class="ident">Selector</span>;
@@ -483,8 +483,8 @@
             <span class="ident">ExecContext</span>::<span class="ident">build</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
                 .<span class="ident">caller</span>(<span class="ident">default_accounts</span>.<span class="ident">alice</span>)
                 .<span class="ident">callee</span>(<span class="ident">contract_account_id</span>)
-                .<span class="ident">gas</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500_000</span>))
-                .<span class="ident">transferred_value</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500</span>))
+                .<span class="ident">gas</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500_000u32</span>))
+                .<span class="ident">transferred_value</span>(<span class="ident">T</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">500u32</span>))
                 .<span class="ident">call_data</span>(<span class="ident">CallData</span>::<span class="ident">new</span>(<span class="ident">Selector</span>::<span class="ident">new</span>(<span class="ident">selector_bytes_for_call</span>)))
                 .<span class="ident">finish</span>(),
         );
@@ -494,7 +494,7 @@
     <span class="doccomment">/// Advances the chain by a single block.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance_block</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="kw">let</span> <span class="ident">new_block_number</span> <span class="op">=</span> <span class="ident">T</span>::<span class="ident">BlockNumber</span>::<span class="ident">from</span>(<span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>);
         <span class="kw">let</span> <span class="ident">new_timestamp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_block</span>()<span class="question-mark">?</span>.<span class="ident">timestamp</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>

@@ -250,7 +250,7 @@
     <span class="ident">mem</span>::<span class="ident">ManuallyDrop</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_env</span>::{
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">Environment</span>,
     <span class="ident">ReturnFlags</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
@@ -330,7 +330,7 @@
     <span class="ident">f</span>: <span class="ident">F</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">M</span>: <span class="ident">MessageRef</span>,
     <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="ident">M</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span>::<span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">M</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span>::<span class="ident">Output</span>,
 {
@@ -364,11 +364,11 @@
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deny_payment</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="kw">let</span> <span class="ident">transferred</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">transferred_balance</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>()
         .<span class="ident">expect</span>(<span class="string">&quot;encountered error while querying transferred balance&quot;</span>);
-    <span class="kw">if</span> <span class="ident">transferred</span> <span class="op">!</span><span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">EnvTypes</span><span class="op">&gt;</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0</span>) {
+    <span class="kw">if</span> <span class="ident">transferred</span> <span class="op">!</span><span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">Balance</span>::<span class="ident">from</span>(<span class="number">0u32</span>) {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError</span>::<span class="ident">PaidUnpayableMessage</span>)
     }
     <span class="prelude-val">Ok</span>(())
@@ -388,7 +388,7 @@
     <span class="ident">f</span>: <span class="ident">F</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">M</span>: <span class="ident">MessageMut</span>,
     <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">M</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span>::<span class="ident">State</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">M</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span>::<span class="ident">Output</span>,
 {

@@ -346,7 +346,7 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">OffChainError</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">EnvError</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">core</span>::{
     <span class="ident">any</span>::<span class="ident">TypeId</span>,
     <span class="ident">cmp</span>::<span class="ident">Ordering</span>,
@@ -375,7 +375,7 @@
     <span class="doccomment">/// and will take over any given type upon the first typed interaction.</span>
     <span class="doccomment">/// - This is needed since instances of `TypedEncoded` are going to be used</span>
     <span class="doccomment">/// in static memory where it isn&#39;t possible to decide about the used types</span>
-    <span class="doccomment">/// given by `EnvTypes` at initialization.</span>
+    <span class="doccomment">/// given by `Environment` at initialization.</span>
     <span class="ident">type_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Classification marker.</span>
     <span class="doccomment">///</span>
@@ -421,9 +421,9 @@
     <span class="ident">StillUninitialized</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TypedEncodedError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EnvError</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TypedEncodedError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">typed_encoded_error</span>: <span class="ident">TypedEncodedError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">EnvError</span>::<span class="ident">OffChain</span>(<span class="ident">OffChainError</span>::<span class="ident">TypedEncoded</span>(<span class="ident">typed_encoded_error</span>))
+        <span class="ident">Error</span>::<span class="ident">OffChain</span>(<span class="ident">OffChainError</span>::<span class="ident">TypedEncoded</span>(<span class="ident">typed_encoded_error</span>))
     }
 }
 

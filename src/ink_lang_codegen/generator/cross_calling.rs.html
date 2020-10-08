@@ -946,14 +946,14 @@
         <span class="macro">quote</span><span class="macro">!</span> {
             #<span class="ident">cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
+                <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
                     <span class="attribute">#[<span class="ident">inline</span>]</span>
                     <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                         <span class="self">Self</span> { <span class="ident">account_id</span> }
                     }
                 }
 
-                <span class="kw">impl</span> ::<span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span><span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
+                <span class="kw">impl</span> ::<span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
                     <span class="attribute">#[<span class="ident">inline</span>]</span>
                     <span class="kw">fn</span> <span class="ident">to_account_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccountId</span> {
                         <span class="self">self</span>.<span class="ident">account_id</span>
@@ -1070,7 +1070,7 @@
         <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">type_complexity</span>)]</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">CallBuilder</span><span class="op">&lt;</span>
-                <span class="ident">EnvTypes</span>,
+                <span class="ident">Environment</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span><span class="ident">AccountId</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
@@ -1083,7 +1083,7 @@
             #<span class="ident">pub_tok</span> <span class="kw">fn</span> #<span class="ident">ident</span>(
                 #<span class="ident">receiver</span> #(, #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_call</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span>()
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_call</span>::<span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>()
                     .<span class="ident">callee</span>(::<span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span>::<span class="ident">to_account_id</span>(<span class="self">self</span>.<span class="ident">contract</span>))
                     .<span class="ident">exec_input</span>(
                         ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span>::<span class="ident">new</span>(
@@ -1251,14 +1251,14 @@
                 <span class="self">self</span>,
                 #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">CallBuilder</span><span class="op">&lt;</span>
-                <span class="ident">EnvTypes</span>,
+                <span class="ident">Environment</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span><span class="ident">AccountId</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span>#<span class="ident">output_sig</span><span class="op">&gt;</span>,
             <span class="op">&gt;</span> {
-                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_call</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span>()
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_call</span>::<span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>()
                     .<span class="ident">callee</span>(::<span class="ident">ink_lang</span>::<span class="ident">ToAccountId</span>::<span class="ident">to_account_id</span>(<span class="self">self</span>.<span class="ident">contract</span>))
                     .<span class="ident">exec_input</span>(
                         ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span>::<span class="ident">new</span>(
@@ -1439,7 +1439,7 @@
         <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">type_complexity</span>)]</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">CreateBuilder</span><span class="op">&lt;</span>
-                <span class="ident">EnvTypes</span>,
+                <span class="ident">Environment</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
@@ -1452,7 +1452,7 @@
             <span class="kw">fn</span> #<span class="ident">ident</span>(
                 #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, <span class="self">Self</span><span class="op">&gt;</span>()
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
                     .<span class="ident">exec_input</span>(
                         ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span>::<span class="ident">new</span>(
                             ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([ #( #<span class="ident">composed_selector</span> ),<span class="op">*</span> ])
@@ -1542,14 +1542,14 @@
             <span class="kw">pub</span> <span class="kw">fn</span> #<span class="ident">ident</span>(
                 #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">CreateBuilder</span><span class="op">&lt;</span>
-                <span class="ident">EnvTypes</span>,
+                <span class="ident">Environment</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Hash</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span><span class="op">&gt;</span>,
                 <span class="self">Self</span>,
             <span class="op">&gt;</span> {
-                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">EnvTypes</span>, <span class="self">Self</span><span class="op">&gt;</span>()
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
                     .<span class="ident">exec_input</span>(
                         ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span>::<span class="ident">new</span>(
                             ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([ #( #<span class="ident">composed_selector</span> ),<span class="op">*</span> ])

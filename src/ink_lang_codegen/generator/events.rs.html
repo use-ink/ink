@@ -253,6 +253,68 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -327,13 +389,13 @@
         <span class="macro">quote</span><span class="macro">!</span> {
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 #<span class="ident">no_cross_calling_cfg</span>
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> ::<span class="ident">ink_lang</span>::<span class="ident">EmitEvent</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="kw">for</span> ::<span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">EnvTypes</span><span class="op">&gt;</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> ::<span class="ident">ink_lang</span>::<span class="ident">EmitEvent</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="kw">for</span> ::<span class="ident">ink_lang</span>::<span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Environment</span><span class="op">&gt;</span> {
                     <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">event</span>: <span class="ident">E</span>)
                     <span class="kw">where</span>
                         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> ::<span class="ident">ink_lang</span>::<span class="ident">BaseEvent</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>,
                     {
                         ::<span class="ident">ink_env</span>::<span class="ident">emit_event</span>::<span class="op">&lt;</span>
-                            <span class="ident">EnvTypes</span>,
+                            <span class="ident">Environment</span>,
                             <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> ::<span class="ident">ink_lang</span>::<span class="ident">BaseEvent</span><span class="op">&gt;</span>::<span class="ident">Type</span>
                         <span class="op">&gt;</span>(<span class="ident">event</span>.<span class="ident">into</span>());
                     }
@@ -383,13 +445,27 @@
             )<span class="op">*</span>
 
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">__ink_UndefinedAmountOfTopics</span> {}
+                <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">EventTopicsAmount</span> <span class="kw">for</span> <span class="ident">__ink_UndefinedAmountOfTopics</span> {
+                    <span class="kw">const</span> <span class="ident">AMOUNT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
+                }
+
                 #<span class="ident">no_cross_calling_cfg</span>
-                <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span><span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">base_event_ident</span> {
-                    <span class="kw">fn</span> <span class="ident">topics</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">Hash</span>] {
+                <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span> <span class="kw">for</span> #<span class="ident">base_event_ident</span> {
+                    <span class="kw">type</span> <span class="ident">RemainingTopics</span> <span class="op">=</span> <span class="ident">__ink_UndefinedAmountOfTopics</span>;
+
+                    <span class="kw">fn</span> <span class="ident">topics</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(
+                        <span class="kw-2">&amp;</span><span class="self">self</span>,
+                        <span class="ident">builder</span>: ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilder</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">state</span>::<span class="ident">Uninit</span>, <span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>,
+                    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">B</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Output</span>
+                    <span class="kw">where</span>
+                        <span class="ident">E</span>: ::<span class="ident">ink_env</span>::<span class="ident">Environment</span>,
+                        <span class="ident">B</span>: ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+                    {
                         <span class="kw">match</span> <span class="self">self</span> {
                             #(
                                 <span class="self">Self</span>::#<span class="ident">event_idents</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="op">&lt;</span>#<span class="ident">event_idents</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span><span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">topics</span>(<span class="ident">event</span>)
+                                    <span class="op">&lt;</span>#<span class="ident">event_idents</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span><span class="op">&gt;</span>::<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(<span class="ident">event</span>, <span class="ident">builder</span>)
                                 }
                             )<span class="op">*</span>
                         }
@@ -428,7 +504,7 @@
 
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
                 <span class="kw">const</span> <span class="ident">__ink_MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="op">&lt;</span>
-                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> ::<span class="ident">ink_lang</span>::<span class="ident">ContractEnv</span><span class="op">&gt;</span>::<span class="ident">Env</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">EnvTypes</span>
+                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> ::<span class="ident">ink_lang</span>::<span class="ident">ContractEnv</span><span class="op">&gt;</span>::<span class="ident">Env</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">Environment</span>
                 <span class="op">&gt;</span>::<span class="ident">MAX_EVENT_TOPICS</span>;
 
                 <span class="kw">fn</span> <span class="ident">__ink_ensure_max_event_topics</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">_</span>: <span class="ident">T</span>)
@@ -459,16 +535,64 @@
     <span class="kw">fn</span> <span class="ident">generate_topics_impls</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;a</span> {
         <span class="kw">let</span> <span class="ident">no_cross_calling_cfg</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator</span>::<span class="ident">CrossCallingConflictCfg</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">contract_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
+            <span class="kw">let</span> <span class="ident">event_ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
+            <span class="kw">let</span> <span class="ident">event_signature</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">LitByteStr</span>::<span class="ident">new</span>(
+                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}::{}&quot;</span>, <span class="ident">contract_ident</span>, <span class="ident">event_ident</span>
+            ).<span class="ident">as_bytes</span>(), <span class="ident">span</span>);
+            <span class="kw">let</span> <span class="ident">len_event_signature</span> <span class="op">=</span> <span class="ident">event_signature</span>.<span class="ident">value</span>().<span class="ident">len</span>();
+            <span class="kw">let</span> <span class="ident">len_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">fields</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">field</span><span class="op">|</span> <span class="ident">field</span>.<span class="ident">is_topic</span>).<span class="ident">count</span>();
+            <span class="kw">let</span> <span class="ident">topic_impls</span> <span class="op">=</span> <span class="ident">event</span>
+                .<span class="ident">fields</span>()
+                .<span class="ident">enumerate</span>()
+                .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">field</span>)<span class="op">|</span> <span class="ident">field</span>.<span class="ident">is_topic</span>)
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">topic_field</span>)<span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">topic_field</span>.<span class="ident">span</span>();
+                    <span class="kw">let</span> <span class="ident">field_ident</span> <span class="op">=</span> <span class="ident">topic_field</span>
+                        .<span class="ident">ident</span>()
+                        .<span class="ident">map</span>(<span class="ident">quote</span>::<span class="ident">ToTokens</span>::<span class="ident">into_token_stream</span>)
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span> #<span class="ident">n</span>));
+                    <span class="kw">let</span> <span class="ident">field_type</span> <span class="op">=</span> <span class="ident">topic_field</span>.<span class="ident">ty</span>();
+                    <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+                        .<span class="ident">push_topic</span>::<span class="op">&lt;</span>#<span class="ident">field_type</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.#<span class="ident">field_ident</span>)
+                    )
+                });
+            <span class="comment">// Only include topic for event signature in case of non-anonymous event.</span>
+            <span class="kw">let</span> <span class="ident">event_signature_topic</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">event</span>.<span class="ident">anonymous</span> {
+                <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span>
+                    .<span class="ident">push_topic</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; #<span class="ident">len_event_signature</span>]<span class="op">&gt;</span>(#<span class="ident">event_signature</span>)
+                ))
+            };
+            <span class="comment">// Anonymous events require 1 fewer topics since they do not include their signature.</span>
+            <span class="kw">let</span> <span class="ident">anonymous_topics_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">event</span>.<span class="ident">anonymous</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">1</span> };
+            <span class="kw">let</span> <span class="ident">remaining_topics_ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">len_topics</span> <span class="op">+</span> <span class="ident">anonymous_topics_offset</span> {
+                <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span> ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">state</span>::<span class="ident">NoRemainingTopics</span>),
+                <span class="ident">n</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span> [::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">state</span>::<span class="ident">HasRemainingTopics</span>; #<span class="ident">n</span>]),
+            };
             <span class="macro">quote_spanned</span><span class="macro">!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                 #<span class="ident">no_cross_calling_cfg</span>
                 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                    <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span><span class="op">&lt;</span><span class="ident">EnvTypes</span><span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">ident</span> {
-                        <span class="kw">fn</span> <span class="ident">topics</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">Hash</span>] {
-                            <span class="comment">// Issue: https://github.com/paritytech/ink/issues/105</span>
-                            <span class="kw-2">&amp;</span>[]
+                    <span class="kw">impl</span> ::<span class="ident">ink_env</span>::<span class="ident">Topics</span> <span class="kw">for</span> #<span class="ident">event_ident</span> {
+                        <span class="kw">type</span> <span class="ident">RemainingTopics</span> <span class="op">=</span> #<span class="ident">remaining_topics_ty</span>;
+
+                        <span class="kw">fn</span> <span class="ident">topics</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>(
+                            <span class="kw-2">&amp;</span><span class="self">self</span>,
+                            <span class="ident">builder</span>: ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilder</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">state</span>::<span class="ident">Uninit</span>, <span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span>,
+                        ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">B</span> <span class="kw">as</span> ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Output</span>
+                        <span class="kw">where</span>
+                            <span class="ident">E</span>: ::<span class="ident">ink_env</span>::<span class="ident">Environment</span>,
+                            <span class="ident">B</span>: ::<span class="ident">ink_env</span>::<span class="ident">topics</span>::<span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
+                        {
+                            <span class="ident">builder</span>
+                                .<span class="ident">build</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>()
+                                #<span class="ident">event_signature_topic</span>
+                                #(
+                                    #<span class="ident">topic_impls</span>
+                                )<span class="op">*</span>
+                                .<span class="ident">finish</span>()
                         }
                     }
                 };

@@ -554,6 +554,16 @@
 <span id="551">551</span>
 <span id="552">552</span>
 <span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -573,9 +583,9 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">backend</span>::{
-        <span class="ident">Env</span>,
+        <span class="ident">EnvBackend</span>,
         <span class="ident">ReturnFlags</span>,
-        <span class="ident">TypedEnv</span>,
+        <span class="ident">TypedEnvBackend</span>,
     },
     <span class="ident">call</span>::{
         <span class="ident">utils</span>::<span class="ident">ReturnType</span>,
@@ -590,9 +600,9 @@
         <span class="ident">CryptoHash</span>,
         <span class="ident">HashOutput</span>,
     },
-    <span class="ident">EnvTypes</span>,
+    <span class="ident">topics</span>::<span class="ident">Topics</span>,
+    <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
-    <span class="ident">Topics</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 
@@ -603,9 +613,11 @@
 <span class="doccomment">/// If the returned caller cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">TypedEnv</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    })
 }
 
 <span class="doccomment">/// Returns the transferred balance for the contract execution.</span>
@@ -615,10 +627,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -629,10 +641,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">gas</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">weight_to_fee</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">gas</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">weight_to_fee</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">gas</span>)
     })
 }
 
@@ -643,9 +655,11 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">TypedEnv</span>::<span class="ident">gas_left</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">gas_left</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    })
 }
 
 <span class="doccomment">/// Returns the current block timestamp.</span>
@@ -655,10 +669,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Timestamp</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">block_timestamp</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">block_timestamp</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -673,10 +687,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">account_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">account_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -687,9 +701,11 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">TypedEnv</span>::<span class="ident">balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    })
 }
 
 <span class="doccomment">/// Returns the current rent allowance for the executed contract.</span>
@@ -699,10 +715,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -713,10 +729,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">BlockNumber</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">block_number</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">block_number</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -727,10 +743,10 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">minimum_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">minimum_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
@@ -741,31 +757,31 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tombstone_deposit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 
 <span class="doccomment">/// Emits an event with the given event data.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">event</span>: <span class="ident">Event</span>)
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
-    <span class="ident">Event</span>: <span class="ident">Topics</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">emit_event</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">event</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">emit_event</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">event</span>)
     })
 }
 
 <span class="doccomment">/// Sets the rent allowance of the executed contract to the new value.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">new_value</span>: <span class="ident">T</span>::<span class="ident">Balance</span>)
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">set_rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">new_value</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">set_rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">new_value</span>)
     })
 }
 
@@ -779,7 +795,7 @@
     <span class="ident">V</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">Env</span>::<span class="ident">set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>, <span class="ident">value</span>)
+        <span class="ident">EnvBackend</span>::<span class="ident">set_contract_storage</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>, <span class="ident">value</span>)
     })
 }
 
@@ -793,14 +809,14 @@
     <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">Env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+        <span class="ident">EnvBackend</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
     })
 }
 
 <span class="doccomment">/// Clears the contract&#39;s storage key entry.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_contract_storage</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">Env</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
+        <span class="ident">EnvBackend</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">instance</span>, <span class="ident">key</span>)
     })
 }
 
@@ -823,11 +839,11 @@
 <span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, ()<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">invoke_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">invoke_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
     })
 }
 
@@ -849,12 +865,12 @@
 <span class="doccomment">/// - If the returned value failed to decode properly.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">eval_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">eval_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
     })
 }
 
@@ -877,11 +893,11 @@
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">C</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">instantiate_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">instantiate_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
     })
 }
 
@@ -933,10 +949,10 @@
     <span class="ident">rent_allowance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
     <span class="ident">filtered_keys</span>: <span class="kw-2">&amp;</span>[<span class="ident">Key</span>],
 ) <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">restore_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">restore_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
             <span class="ident">instance</span>,
             <span class="ident">account_id</span>,
             <span class="ident">code_hash</span>,
@@ -958,10 +974,10 @@
 <span class="doccomment">/// which is considered fatal and results in a trap + rollback.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">beneficiary</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">terminate_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">beneficiary</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">terminate_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">beneficiary</span>)
     })
 }
 
@@ -978,10 +994,10 @@
 <span class="doccomment">/// If the contract doesn&#39;t have sufficient funds.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">destination</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>, <span class="ident">value</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">transfer</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">destination</span>, <span class="ident">value</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">transfer</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">destination</span>, <span class="ident">value</span>)
     })
 }
 
@@ -1002,7 +1018,7 @@
     <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">Env</span>::<span class="ident">call_chain_extension</span>(<span class="ident">instance</span>, <span class="ident">func_id</span>, <span class="ident">input</span>)
+        <span class="ident">EnvBackend</span>::<span class="ident">call_chain_extension</span>(<span class="ident">instance</span>, <span class="ident">func_id</span>, <span class="ident">input</span>)
     })
 }
 
@@ -1033,7 +1049,9 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">Env</span>::<span class="ident">decode_input</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">EnvBackend</span>::<span class="ident">decode_input</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    })
 }
 
 <span class="doccomment">/// Returns the value back to the caller of the executed contract.</span>
@@ -1046,7 +1064,7 @@
     <span class="ident">R</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">Env</span>::<span class="ident">return_value</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">return_flags</span>, <span class="ident">return_value</span>)
+        <span class="ident">EnvBackend</span>::<span class="ident">return_value</span>::<span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">return_flags</span>, <span class="ident">return_value</span>)
     })
 }
 
@@ -1062,16 +1080,18 @@
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">random</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">subject</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Hash</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">EnvTypes</span>,
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnv</span>::<span class="ident">random</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">subject</span>)
+        <span class="ident">TypedEnvBackend</span>::<span class="ident">random</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">subject</span>)
     })
 }
 
 <span class="doccomment">/// Prints the given contents to the environmental log.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_println</span>(<span class="ident">content</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">Env</span>::<span class="ident">println</span>(<span class="ident">instance</span>, <span class="ident">content</span>))
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">EnvBackend</span>::<span class="ident">println</span>(<span class="ident">instance</span>, <span class="ident">content</span>)
+    })
 }
 
 <span class="doccomment">/// Conducts the crypto hash of the given input and stores the result in `output`.</span>
