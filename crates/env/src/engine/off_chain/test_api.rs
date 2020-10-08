@@ -267,7 +267,9 @@ where
 /// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(disable: bool) {
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.clear_storage_disabled = disable)
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.clear_storage_disabled = disable
+    })
 }
 
 /// The default accounts.
@@ -353,7 +355,7 @@ where
 /// Returns the account id of the currently executing contract.
 pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
 where
-    T: EnvTypes
+    T: EnvTypes,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let exec_context = instance.exec_context()?;

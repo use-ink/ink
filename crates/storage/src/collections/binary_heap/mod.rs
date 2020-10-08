@@ -29,7 +29,7 @@ use super::vec::{
     IterMut,
     Vec as StorageVec,
 };
-use crate::storage2::traits::PackedLayout;
+use crate::traits::PackedLayout;
 pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
@@ -115,7 +115,7 @@ where
     /// # Example
     ///
     /// ```
-    /// use ink_core::storage2::collections::BinaryHeap;
+    /// use ink_core::collections::BinaryHeap;
     /// let mut heap = BinaryHeap::new();
     /// assert!(heap.peek_mut().is_none());
     ///

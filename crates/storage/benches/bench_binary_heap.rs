@@ -21,17 +21,14 @@ use criterion::{
     BenchmarkId,
     Criterion,
 };
-use ink_core::{
-    env,
-    storage2::{
-        collections::BinaryHeap,
-        traits::{
-            KeyPtr,
-            SpreadLayout,
-        },
+use ink_primitives::Key;
+use ink_storage::{
+    collections::BinaryHeap,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
     },
 };
-use ink_primitives::Key;
 use std::time::Duration;
 
 criterion_group!(push, bench_push_empty_cache, bench_push_populated_cache);
@@ -61,7 +58,7 @@ mod binary_heap {
 
         // prevents storage for the test heap being cleared when the heap is dropped after each
         // benchmark iteration
-        env::test::set_clear_storage_disabled(true);
+        ink_env::test::set_clear_storage_disabled(true);
     }
 
     /// Creates a binary heap from the given slice.
@@ -112,7 +109,7 @@ where
     H: Fn(Key, Vec<u32>) -> NewHeap,
     B: Benchmark,
 {
-    let _ = env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
         let mut group = c.benchmark_group(name);
         group.warm_up_time(Duration::from_secs(6));
         group.measurement_time(Duration::from_secs(10));

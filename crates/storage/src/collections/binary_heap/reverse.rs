@@ -20,7 +20,7 @@
 //! [`Reverse`] simply wraps [`core::cmp::Reverse`] and implements all the required traits for use
 //! as a storage struct.
 
-use crate::storage2::traits::{
+use crate::traits::{
     KeyPtr,
     PackedLayout,
     SpreadLayout,
