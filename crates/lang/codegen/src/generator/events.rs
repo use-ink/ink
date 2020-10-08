@@ -217,10 +217,14 @@ impl<'a> Events<'a> {
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
-        // let contract_ident = self.contract.module().storage().ident();
+        let contract_ident = self.contract.module().storage().ident();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let event_ident = event.ident();
+            let event_signature = syn::LitByteStr::new(
+                format!("{}::{}", contract_ident, event_ident
+            ).as_bytes(), span);
+            let len_event_signature = event_signature.value().len();
             let len_topics = event.fields().filter(|field| field.is_topic).count();
             let topic_impls = event
                 .fields()
@@ -237,7 +241,7 @@ impl<'a> Events<'a> {
                         .push_topic::<#field_type>(&self.#field_ident)
                     )
                 });
-            let remaining_topics_ty = match len_topics {
+            let remaining_topics_ty = match len_topics + 1 {
                 0 => quote_spanned!(span=> ::ink_env::topics::state::NoRemainingTopics),
                 n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
             };
@@ -257,6 +261,7 @@ impl<'a> Events<'a> {
                         {
                             builder
                                 .build::<Self>()
+                                .push_topic::<[u8; #len_event_signature]>(#event_signature)
                                 #(
                                     #topic_impls
                                 )*
