@@ -44,12 +44,14 @@ pub enum ChildPosition {
     Right,
 }
 
-/// Number of elements stored in each node.
+/// Number of elements stored in each `Children` object.
+///
 /// Note that the first `Children` object (at index `0`) will only ever
 /// contain one element (the root element).
 pub(crate) const CHILDREN_PER_NODE: u32 = 2;
 
-/// Returns the index of the `Children` object in which the `n`-th element is stored.
+/// Returns the index of the `Children` object in which the `n`-th element of
+/// the heap is stored.
 pub(crate) fn get_children_storage_index(n: u32) -> u32 {
     if n == 0 {
         return 0
