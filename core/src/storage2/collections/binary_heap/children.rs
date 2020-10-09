@@ -37,7 +37,7 @@ pub struct Children<T: PackedLayout + Ord> {
     right: Option<T>,
 }
 
-/// The position in the tree which a child has below a node.
+/// The position which child has within a `Children` object.
 #[derive(PartialEq, Debug)]
 pub enum ChildPosition {
     Left,
@@ -89,12 +89,12 @@ impl<T> Children<T>
 where
     T: PackedLayout + Ord,
 {
-    /// Creates a new `Children` object with a left and right node.
+    /// Creates a new `Children` object with a left and right element.
     pub fn new(left: Option<T>, right: Option<T>) -> Self {
         Self { left, right }
     }
 
-    /// Returns `true` if this child exists, otherwise `false`.
+    /// Returns `true` if an element is existent at `which`, otherwise `false`.
     pub fn exists(&self, which: ChildPosition) -> bool {
         match which {
             ChildPosition::Left => self.left.is_some(),
@@ -102,7 +102,7 @@ where
         }
     }
 
-    /// Returns a shared reference to the element at `index`.
+    /// Returns a shared reference to the element at `which`.
     pub fn child(&self, which: ChildPosition) -> Option<&T> {
         match which {
             ChildPosition::Left => self.left.as_ref(),
@@ -110,7 +110,7 @@ where
         }
     }
 
-    /// Returns an exclusive reference to the element at `index`.
+    /// Returns an exclusive reference to the element at `which`.
     pub fn child_mut(&mut self, which: ChildPosition) -> &mut Option<T> {
         match which {
             ChildPosition::Left => &mut self.left,

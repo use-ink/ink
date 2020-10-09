@@ -38,10 +38,11 @@ use crate::storage2::{
 
 /// Provides an interface for accessing elements in the `BinaryHeap`.
 ///
-/// Elements are stored in a vector of `Children` objects, whereby
-/// each object contains two elements.
-/// When operating on element indices the index needs to be transposed
-/// to the `Children` object in which the element is stored.
+/// In storage elements of the heap are stored in a vector of `Children`
+/// objects, whereby each `Children` object contains two elements.
+/// When operating on indices of the `BinaryHeap` this interface
+/// transposes indices to the child inside the `Children` object, in
+/// which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
 pub struct Elements<T>
 where
@@ -168,7 +169,6 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        // self.elems.iter_mut()
         IterMut::new(&mut self.children)
     }
 

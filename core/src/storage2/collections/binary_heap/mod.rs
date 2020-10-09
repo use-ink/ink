@@ -276,7 +276,7 @@ where
     }
 }
 
-/// An iterator over shared references to the `Children` objects of the `BinaryHeap`.
+/// An iterator over shared references to the elements of the `BinaryHeap`.
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T>
 where
