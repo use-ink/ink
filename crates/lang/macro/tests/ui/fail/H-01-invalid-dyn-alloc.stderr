@@ -1,0 +1,5 @@
+error: expected a bool literal for `dynamic_storage_allocator` ink! config argument
+ --> $DIR/H-01-invalid-dyn-alloc.rs:3:17
+  |
+3 | #[ink::contract(dynamic_storage_allocator = "foo")]
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

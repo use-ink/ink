@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,31 +16,31 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod incrementer {
     #[ink(storage)]
-    struct Incrementer {
+    pub struct Incrementer {
         value: i32,
     }
 
     impl Incrementer {
         #[ink(constructor)]
-        fn new(init_value: i32) -> Self {
+        pub fn new(init_value: i32) -> Self {
             Self { value: init_value }
         }
 
         #[ink(constructor)]
-        fn default() -> Self {
+        pub fn default() -> Self {
             Self::new(Default::default())
         }
 
         #[ink(message)]
-        fn inc(&mut self, by: i32) {
+        pub fn inc(&mut self, by: i32) {
             self.value += by;
         }
 
         #[ink(message)]
-        fn get(&self) -> i32 {
+        pub fn get(&self) -> i32 {
             self.value
         }
     }

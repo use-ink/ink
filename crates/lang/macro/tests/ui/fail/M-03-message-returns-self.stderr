@@ -1,0 +1,5 @@
+error: ink! messages must not return `Self`
+  --> $DIR/M-03-message-returns-self.rs:15:39
+   |
+15 |         pub fn returns_self(&self) -> Self {}
+   |                                       ^^^^
