@@ -431,6 +431,10 @@ use base_erc20::BaseErc20;
 assert_eq!(erc20.total_supply(), 1000);
 ```
 
+There are still many limitations to ink! trait definitions and trait implementations.
+For example it is not possible to define associated constants or types or have default implemented methods.
+These limitations exist because of technical intricacies, however, please expect that many of those will be tackled in future ink! releases.
+
 # Version 2.0 Syntax (2019-12-03)
 
 The ink! version 2.0 syntax has one major philosophy:
