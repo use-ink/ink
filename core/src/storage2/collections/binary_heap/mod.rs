@@ -283,7 +283,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The storage vector to iterate over.
-    elems: &'a StorageVec<Children<T>>,
+    elements: &'a Elements<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -295,11 +295,11 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(elems: &'a StorageVec<Children<T>>) -> Self {
+    pub(crate) fn new(elements: &'a Elements<T>) -> Self {
         Self {
-            elems,
+            elements,
             begin: 0,
-            end: elems.len(),
+            end: elements.len(),
         }
     }
 
@@ -337,12 +337,7 @@ where
         let cur = self.begin + n;
         self.begin += 1 + n;
 
-        let children_index = children::get_children_storage_index(cur);
-        let children = self
-            .elems
-            .get(children_index)
-            .expect("access is out of bounds");
-        children.child(children::get_child_pos(children_index))
+        self.elements.get_child(cur)?.child.as_ref()
     }
 }
 
@@ -353,7 +348,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The storage vector to iterate over.
-    elems: &'a mut StorageVec<Children<T>>,
+    elements: &'a mut Elements<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -365,10 +360,10 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(elems: &'a mut StorageVec<Children<T>>) -> Self {
-        let end = elems.len();
+    pub(crate) fn new(elements: &'a mut Elements<T>) -> Self {
+        let end = elements.len();
         Self {
-            elems,
+            elements,
             begin: 0,
             end,
         }
@@ -385,13 +380,8 @@ where
     T: PackedLayout + Ord,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
-        let storage_index = children::get_children_storage_index(at);
-        let children = self
-            .elems
-            .get_mut(storage_index)
-            .expect("access is within bounds");
-        let child_pos = children::get_child_pos(at);
-        children.child_mut(child_pos).as_mut().map(|value| {
+        let child_mut = self.elements.get_child_mut(at)?.child.as_mut();
+        child_mut.map(|value| {
             // SAFETY: We extend the lifetime of the reference here.
             //
             //         This is safe because the iterator yields an exclusive

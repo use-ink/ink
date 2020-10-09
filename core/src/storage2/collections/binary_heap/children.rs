@@ -38,7 +38,7 @@ pub struct Children<T: PackedLayout + Ord> {
 }
 
 /// The position which a child has in a `Children` object.
-#[derive(PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ChildPosition {
     Left,
     Right,
@@ -96,16 +96,20 @@ where
         Self { left, right }
     }
 
-    /// Returns `true` if no child exists in this object, otherwise `false`.
-    pub fn is_empty(&self) -> bool {
-        self.left.is_none() && self.right.is_none()
+    /// Returns the number of existent children in this object.
+    pub fn count(&self) -> usize {
+        CHILDREN_PER_NODE as usize
+            - [self.left.as_ref(), self.right.as_ref()]
+                .iter()
+                .flatten()
+                .count()
     }
 
     /// Returns a shared reference to the element at `which`.
-    pub fn child(&self, which: ChildPosition) -> Option<&T> {
+    pub fn child(&self, which: ChildPosition) -> &Option<T> {
         match which {
-            ChildPosition::Left => self.left.as_ref(),
-            ChildPosition::Right => self.right.as_ref(),
+            ChildPosition::Left => &self.left,
+            ChildPosition::Right => &self.right,
         }
     }
 

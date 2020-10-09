@@ -20,10 +20,7 @@
 use crate::storage2::{
     collections::binary_heap::{
         children,
-        children::{
-            ChildPosition,
-            Children,
-        },
+        children::Children,
         Iter,
         IterMut,
         StorageVec,
@@ -43,7 +40,7 @@ use crate::storage2::{
 /// the `BinaryHeap` this interface transposes heap indices to the child inside
 /// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
-pub struct Elements<T>
+pub(crate) struct Elements<T>
 where
     T: PackedLayout + Ord,
 {
@@ -54,6 +51,34 @@ where
     len: Lazy<u32>,
     /// The underlying storage vec containing the `Children`.
     children: StorageVec<Children<T>>,
+}
+
+/// Encapsulates information regarding a particular child.
+pub(crate) struct ChildInfo<'a, T> {
+    /// A reference to the value in this child, if existent.
+    pub(crate) child: &'a Option<T>,
+}
+
+impl<'a, T> ChildInfo<'a, T> {
+    /// Creates a new `ChildInfo` object.
+    fn new(child: &'a Option<T>) -> Self {
+        Self { child }
+    }
+}
+
+/// Encapsulates information regarding a particular child.
+pub(crate) struct ChildInfoMut<'a, T> {
+    /// A mutable reference to the value in this child, if existent.
+    pub(crate) child: &'a mut Option<T>,
+    /// The number of children which are set in this `Children` object.
+    pub(crate) child_count: usize,
+}
+
+impl<'a, T> ChildInfoMut<'a, T> {
+    /// Creates a new `ChildInfoMut` object.
+    fn new(child: &'a mut Option<T>, child_count: usize) -> Self {
+        Self { child, child_count }
+    }
 }
 
 impl<T> Elements<T>
@@ -89,24 +114,16 @@ where
     ///
     /// Returns `None` if `index` is out of bounds.
     pub fn get(&self, index: u32) -> Option<&T> {
-        let storage_index = children::get_children_storage_index(index);
-        let i = self.within_bounds(storage_index)?;
-        let children = self.children.get(i)?;
-        let child_pos = children::get_child_pos(index);
-        children.child(child_pos)
+        self.get_child(index)?.child.as_ref()
     }
 
     /// Returns an exclusive reference to the indexed element.
     /// The element in a `Children` is an `Option<T>`.
     ///
     /// Returns `None` if `index` is out of bounds.
-    pub fn get_mut(&mut self, index: u32) -> Option<&mut Option<T>> {
-        let storage_index = children::get_children_storage_index(index);
-        self.within_bounds(storage_index)?;
-        self.children.get_mut(storage_index).map(|children| {
-            let child_pos = children::get_child_pos(index);
-            children.child_mut(child_pos)
-        })
+    pub fn get_mut(&mut self, index: u32) -> Option<&mut T> {
+        let child_info = self.get_child_mut(index)?;
+        child_info.child.as_mut()
     }
 
     /// Swaps the elements at the given indices.
@@ -121,16 +138,14 @@ where
         assert!(a < self.len(), "a is out of bounds");
         assert!(b < self.len(), "b is out of bounds");
 
-        let old_a = self.get_mut(a).expect("index a must exist").take();
+        let child_info_a = self.get_child_mut(a).expect("index a must exist");
+        let a_opt = child_info_a.child.take();
 
-        let old_b = {
-            let b_opt = self.get_mut(b).expect("index b must exist");
-            let old_b = b_opt.take();
-            *b_opt = old_a;
-            old_b
-        };
+        let child_info_b = self.get_child_mut(b).expect("index b must exist");
+        let b_opt = core::mem::replace(child_info_b.child, a_opt);
 
-        *self.get_mut(a).expect("index a must exist") = old_b;
+        let child_info_a = self.get_child_mut(a).expect("index a must exist");
+        *child_info_a.child = b_opt;
     }
 
     /// Removes the indexed element from the vector and returns it.
@@ -157,7 +172,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        Iter::new(&self.children)
+        Iter::new(&self)
     }
 
     /// Returns an iterator yielding exclusive references to all elements of the vector.
@@ -168,7 +183,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        IterMut::new(&mut self.children)
+        IterMut::new(self)
     }
 
     /// Returns a shared reference to the first element if any.
@@ -184,7 +199,7 @@ where
         if self.is_empty() {
             return None
         }
-        self.get_mut(0)?.as_mut()
+        self.get_mut(0)
     }
 
     /// Removes all elements from this vector.
@@ -213,57 +228,65 @@ where
         self.push_to(last_index, Some(value));
     }
 
+    /// If existent information about the child at this heap index is returned.
+    pub fn get_child(&self, index: u32) -> Option<ChildInfo<T>> {
+        let storage_index = children::get_children_storage_index(index);
+        let child_pos = children::get_child_pos(index);
+        let children = self.children.get(storage_index)?;
+        let child = children.child(child_pos);
+        Some(ChildInfo::new(child))
+    }
+
+    /// If existent information about the child at this heap index is returned.
+    /// The returned `ChildInfoMut` contains a mutable reference to the value `T`.
+    pub fn get_child_mut(&mut self, index: u32) -> Option<ChildInfoMut<T>> {
+        let storage_index = children::get_children_storage_index(index);
+        let child_pos = children::get_child_pos(index);
+        let children = self.children.get_mut(storage_index)?;
+        let count = children.count();
+        let child = children.child_mut(child_pos);
+        Some(ChildInfoMut::new(child, count))
+    }
+
+    /// Pushes `value` to the heap index `index`.
+    /// If there is already a child in storage which `index` resolves to
+    /// then `value` is inserted there. Otherwise a new child is created.
     fn push_to(&mut self, index: u32, value: Option<T>) {
-        let children_index = children::get_children_storage_index(index);
-        match self.children.get_mut(children_index) {
-            Some(children) => {
-                let child_pos = children::get_child_pos(index);
-                *children.child_mut(child_pos) = value;
-            }
-            None => {
-                self.children.push(Children::new(value, None));
-                debug_assert!(
-                    self.children.get(children_index).is_some(),
-                    "the new children were not placed at children_index!"
-                );
-            }
-        };
+        let info = self.get_child_mut(index);
+        if let Some(info) = info {
+            *info.child = value;
+            return
+        }
+
+        self.children.push(Children::new(value, None));
+        debug_assert!(
+            {
+                let storage_index = children::get_children_storage_index(index);
+                self.children.get(storage_index).is_some()
+            },
+            "the new children were not placed at children_index!"
+        );
     }
 
     /// Pops the last element from the vector and returns it.
     //
     /// Returns `None` if the vector is empty.
-    pub fn pop(&mut self) -> Option<T> {
+    fn pop(&mut self) -> Option<T> {
         if self.is_empty() {
             return None
         }
         let last_index = self.len() - 1;
         *self.len = last_index;
 
-        let children_index = children::get_children_storage_index(last_index);
-        let old = self.children.get_mut(children_index);
-        match old {
-            Some(children) => {
-                let child_pos = children::get_child_pos(last_index);
-                let popped_val = children.child_mut(child_pos).take();
-                if children.is_empty() {
-                    // if both children are non-existent the entire children object can be removed
-                    self.children.pop();
-                }
-                popped_val
-            }
-            None => {
-                unreachable!("vec must contain children at children_index of last_index")
-            }
+        let info = self
+            .get_child_mut(last_index)
+            .expect("children must exist at last_index");
+        let popped_val = info.child.take();
+        if info.child_count == 1 {
+            // if both children are non-existent the entire children object can be removed
+            self.children.pop();
         }
-    }
-
-    /// Returns the index if it is within bounds or `None` otherwise.
-    fn within_bounds(&self, index: u32) -> Option<u32> {
-        if index < self.len() {
-            return Some(index)
-        }
-        None
+        popped_val
     }
 }
 
