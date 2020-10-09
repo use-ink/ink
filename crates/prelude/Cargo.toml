@@ -17,10 +17,6 @@ categories = ["no-std", "embedded"]
 
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
-[lib]
-name = "ink_prelude"
-path = "lib.rs"
-
 [dependencies]
 cfg-if = "1.0"
 
