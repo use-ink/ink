@@ -3,7 +3,7 @@
 Be prepared for the ink! 3.0 release notes because the whole version was basically a rewrite of
 all the major components that make up ink!. With our experience gained by the last released versions
 of ink! we were able to detect weak spots of the design and provided ink! with more tools,
-more features and more efficiency as ever. Read more below ...
+more features and more efficiency as ever. Read more below …
 
 ## Just. Be. Rust. 3.0
 
