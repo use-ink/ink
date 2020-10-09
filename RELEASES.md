@@ -435,7 +435,16 @@ There are still many limitations to ink! trait definitions and trait implementat
 For example it is not possible to define associated constants or types or have default implemented methods.
 These limitations exist because of technical intricacies, however, please expect that many of those will be tackled in future ink! releases.
 
-# Version 2.0 Syntax (2019-12-03)
+# Version 2.1 (2020-03-25)
+
+- Add built-in support for cryptographic hashes:
+    - Blake2 with 128-bit and 256-bit
+    - Sha2 with 256-bit
+    - Keccak with 256-bit
+- Add `ink_core::hash` module for high-level API to the new built-in hashes.
+- Update `runtime-storage` example ink! smart contract to demonstrate the new built-in hashes.
+
+# Version 2.0 (2019-12-03)
 
 The ink! version 2.0 syntax has one major philosophy:
 
