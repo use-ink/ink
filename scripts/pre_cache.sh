@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ux
+set -u
 
 # if there is no directory for this $CI_COMMIT_REF_NAME/$CI_JOB_NAME
 # create such directory and
@@ -24,5 +24,8 @@ function prepopulate {
   fi
 }
 
+# CARGO_HOME cache was moved to the same "project/cache_type/branch_name/job_name" level as
+# CARGO_TARGET_DIR because of frequent weird data-race issues. This just means that the same cache that 
+# would have been used for the entire pipeline will be duplicated for the each job.
 prepopulate "$CARGO_HOME" cargo
 prepopulate "$CARGO_TARGET_DIR" targets
