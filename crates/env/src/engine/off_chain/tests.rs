@@ -17,7 +17,7 @@ use ink_primitives::Key;
 
 #[test]
 fn store_load_clear() -> Result<()> {
-    crate::test::run_test::<crate::DefaultEnvTypes, _>(|_| {
+    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key = Key::from([0x42; 32]);
         assert_eq!(crate::get_contract_storage::<()>(&key), Ok(None));
         crate::set_contract_storage(&key, &[0x05_u8; 5]);
@@ -33,7 +33,7 @@ fn store_load_clear() -> Result<()> {
 
 #[test]
 fn key_add() -> Result<()> {
-    crate::test::run_test::<crate::DefaultEnvTypes, _>(|_| {
+    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key00 = Key::from([0x0; 32]);
         let key05 = key00 + 05_u64; // -> 5
         let key10 = key00 + 10_u64; // -> 10         | same as key55
@@ -48,7 +48,7 @@ fn key_add() -> Result<()> {
 
 #[test]
 fn key_add_sub() -> Result<()> {
-    crate::test::run_test::<crate::DefaultEnvTypes, _>(|_| {
+    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key0a = Key::from([0x0; 32]);
         let key1a = key0a + 1337_u64;
         let key2a = key0a + 42_u64;
@@ -68,23 +68,23 @@ fn key_add_sub() -> Result<()> {
 
 #[test]
 fn gas_price() -> crate::Result<()> {
-    crate::test::run_test::<crate::DefaultEnvTypes, _>(|_| {
+    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let gas_price = 2u32;
         crate::test::update_chain_spec(|chain_spec| {
-            chain_spec.set_gas_price::<crate::DefaultEnvTypes>(gas_price.into())
+            chain_spec.set_gas_price::<crate::DefaultEnvironment>(gas_price.into())
         })?;
 
         assert_eq!(
             2u128,
-            crate::weight_to_fee::<crate::DefaultEnvTypes>(1).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(1).unwrap()
         );
         assert_eq!(
             20u128,
-            crate::weight_to_fee::<crate::DefaultEnvTypes>(10).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(10).unwrap()
         );
         assert_eq!(
             6u128,
-            crate::weight_to_fee::<crate::DefaultEnvTypes>(3).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(3).unwrap()
         );
 
         Ok(())

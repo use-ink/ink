@@ -292,7 +292,7 @@ mod multisig_plain {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
         /// ```no_run
-        /// use ink_env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
+        /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
@@ -659,7 +659,7 @@ mod multisig_plain {
             call,
             test,
         };
-        type Accounts = test::DefaultAccounts<EnvTypes>;
+        type Accounts = test::DefaultAccounts<Environment>;
         const WALLET: [u8; 32] = [7; 32];
 
         impl Transaction {
@@ -677,7 +677,7 @@ mod multisig_plain {
         }
 
         fn set_sender(sender: AccountId) {
-            test::push_execution_context::<EnvTypes>(
+            test::push_execution_context::<Environment>(
                 sender,
                 WALLET.into(),
                 1000000,

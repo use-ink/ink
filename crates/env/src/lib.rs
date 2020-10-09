@@ -57,7 +57,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 // This extern crate definition is required since otherwise rustc
 // is not recognizing its allocator and panic handler definitions.
 #[cfg(not(feature = "std"))]
-extern crate ink_alloc;
+extern crate ink_allocator;
 
 mod api;
 mod arithmetic;
@@ -66,6 +66,8 @@ pub mod call;
 mod engine;
 mod error;
 pub mod hash;
+#[doc(hidden)]
+pub mod topics;
 mod types;
 
 #[cfg(test)]
@@ -76,22 +78,22 @@ mod tests;
 pub use self::engine::off_chain::test_api as test;
 
 use self::backend::{
-    Env,
-    TypedEnv,
+    EnvBackend,
+    TypedEnvBackend,
 };
 pub use self::{
     api::*,
     backend::ReturnFlags,
     error::{
-        EnvError,
+        Error,
         Result,
     },
+    topics::Topics,
     types::{
         AccountId,
         Clear,
-        DefaultEnvTypes,
-        EnvTypes,
+        DefaultEnvironment,
+        Environment,
         Hash,
-        Topics,
     },
 };

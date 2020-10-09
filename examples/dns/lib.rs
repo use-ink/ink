@@ -187,14 +187,14 @@ mod dns {
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
         const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
 
-        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvTypes>
-        {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvTypes>()
+        fn default_accounts(
+        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
+            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("off-chain environment should have been initialized already")
         }
 
         fn set_next_caller(caller: AccountId) {
-            ink_env::test::push_execution_context::<ink_env::DefaultEnvTypes>(
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 caller,
                 AccountId::from(DEFAULT_CALLEE_HASH),
                 DEFAULT_ENDOWMENT,

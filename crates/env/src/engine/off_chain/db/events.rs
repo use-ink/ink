@@ -14,9 +14,56 @@
 
 use super::super::OffHash;
 use crate::{
-    EnvTypes,
-    Topics,
+    hash::{
+        Blake2x256,
+        CryptoHash,
+        HashOutput,
+    },
+    topics::{
+        Topics,
+        TopicsBuilderBackend,
+    },
+    Clear,
+    Environment,
 };
+
+#[derive(Default)]
+pub struct TopicsBuilder {
+    topics: Vec<OffHash>,
+}
+
+impl<E> TopicsBuilderBackend<E> for TopicsBuilder
+where
+    E: Environment,
+{
+    type Output = Vec<OffHash>;
+
+    fn expect(&mut self, _expected_topics: usize) {}
+
+    fn push_topic<T>(&mut self, topic_value: &T)
+    where
+        T: scale::Encode,
+    {
+        let encoded = topic_value.encode();
+        let len_encoded = encoded.len();
+        let mut result = <E as Environment>::Hash::clear();
+        let len_result = result.as_ref().len();
+        if len_encoded <= len_result {
+            result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
+        } else {
+            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
+            <Blake2x256 as CryptoHash>::hash(&encoded[..], &mut hash_output);
+            let copy_len = core::cmp::min(hash_output.len(), len_result);
+            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+        }
+        let off_hash = OffHash::new(&result);
+        self.topics.push(off_hash);
+    }
+
+    fn output(self) -> Self::Output {
+        self.topics
+    }
+}
 
 /// Record for an emitted event.
 #[derive(Debug, Clone)]
@@ -31,15 +78,12 @@ impl EmittedEvent {
     /// Creates a new emitted event.
     pub fn new<T, E>(emitted_event: E) -> Self
     where
-        T: EnvTypes,
-        E: Topics<T> + scale::Encode,
+        T: Environment,
+        E: Topics + scale::Encode,
     {
+        let topics = emitted_event.topics::<T, _>(TopicsBuilder::default().into());
         Self {
-            topics: emitted_event
-                .topics()
-                .iter()
-                .map(|hash| OffHash::new(hash))
-                .collect::<Vec<_>>(),
+            topics,
             data: emitted_event.encode(),
         }
     }
@@ -66,10 +110,11 @@ impl EmittedEventsRecorder {
     /// Records a new emitted event.
     pub fn record<T, E>(&mut self, new_event: E)
     where
-        T: EnvTypes,
-        E: Topics<T> + scale::Encode,
+        T: Environment,
+        E: Topics + scale::Encode,
     {
-        self.emitted_events.push(EmittedEvent::new(new_event));
+        self.emitted_events
+            .push(EmittedEvent::new::<T, E>(new_event));
     }
 
     /// Returns an iterator over the emitted events in their emission order.

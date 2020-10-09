@@ -34,10 +34,10 @@ pub struct Config {
     as_dependency: Option<bool>,
     /// The environmental types definition.
     ///
-    /// This must be a type that implements `ink_env::EnvTypes` and can
+    /// This must be a type that implements `ink_env::Environment` and can
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
-    env_types: Option<EnvTypes>,
+    env_types: Option<Environment>,
 }
 
 /// Return an error to notify about duplicate ink! config arguments.
@@ -64,7 +64,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut dynamic_storage_allocator: Option<(bool, ast::MetaNameValue)> = None;
         let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
-        let mut env_types: Option<(EnvTypes, ast::MetaNameValue)> = None;
+        let mut env_types: Option<(Environment, ast::MetaNameValue)> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("dynamic_storage_allocator") {
                 if let Some((_, ast)) = dynamic_storage_allocator {
@@ -99,7 +99,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                     return Err(duplicate_config_err(ast, arg, "env_types"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
-                    env_types = Some((EnvTypes { path: path.clone() }, arg))
+                    env_types = Some((Environment { path: path.clone() }, arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
@@ -130,7 +130,7 @@ impl Config {
             .as_ref()
             .map(|env_types| &env_types.path)
             .cloned()
-            .unwrap_or(EnvTypes::default().path)
+            .unwrap_or(Environment::default().path)
     }
 
     /// Returns `true` if the dynamic storage allocator facilities are enabled
@@ -153,15 +153,15 @@ impl Config {
 
 /// The environmental types definition.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EnvTypes {
+pub struct Environment {
     /// The underlying Rust type.
     pub path: syn::Path,
 }
 
-impl Default for EnvTypes {
+impl Default for Environment {
     fn default() -> Self {
         Self {
-            path: syn::parse_quote! { ::ink_env::DefaultEnvTypes },
+            path: syn::parse_quote! { ::ink_env::DefaultEnvironment },
         }
     }
 }
@@ -243,7 +243,7 @@ mod tests {
             Ok(Config {
                 dynamic_storage_allocator: None,
                 as_dependency: None,
-                env_types: Some(EnvTypes {
+                env_types: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
             }),

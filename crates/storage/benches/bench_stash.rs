@@ -119,7 +119,7 @@ mod empty_cache {
 /// into the contract storage. We then load the stash from storage lazily in each
 /// benchmark iteration.
 fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
-    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group(
             "Compare: `remove_occupied_all` and `take_all` (empty cache)",
         );

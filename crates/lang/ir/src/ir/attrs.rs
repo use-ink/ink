@@ -235,6 +235,12 @@ impl InkAttribute {
         self.args()
             .any(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
     }
+
+    /// Returns `true` if the ink! attribute contains the `anonymous` argument.
+    pub fn is_anonymous(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArgKind::Anonymous))
+    }
 }
 
 /// An ink! specific attribute argument.
@@ -269,6 +275,14 @@ pub enum AttributeArgKind {
     ///
     /// Applied on `struct` types in order to flag them for being an ink! event.
     Event,
+    /// `#[ink(anonymous)]`
+    ///
+    /// Applied on `struct` event types in order to flag them as anonymous.
+    /// Anonymous events have similar semantics as in Solidity in that their
+    /// event signature won't be included in their event topics serialization
+    /// to reduce event emitting overhead. This is especially useful for user
+    /// defined events.
+    Anonymous,
     /// `#[ink(topic)]`
     ///
     /// Applied on fields of ink! event types to indicate that they are topics.
@@ -317,6 +331,7 @@ impl core::fmt::Display for AttributeArgKind {
         match self {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
+            Self::Anonymous => write!(f, "anonymous"),
             Self::Topic => write!(f, "topic"),
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
@@ -616,6 +631,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     "message" => Some(AttributeArgKind::Message),
                                     "constructor" => Some(AttributeArgKind::Constructor),
                                     "event" => Some(AttributeArgKind::Event),
+                                    "anonymous" => Some(AttributeArgKind::Anonymous),
                                     "topic" => Some(AttributeArgKind::Topic),
                                     "payable" => Some(AttributeArgKind::Payable),
                                     "impl" => Some(AttributeArgKind::Implementation),

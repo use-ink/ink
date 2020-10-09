@@ -165,7 +165,7 @@ mod empty_cache {
 /// into the contract storage. We then load the vec from storage lazily in each
 /// benchmark iteration.
 fn bench_clear_empty_cache(c: &mut Criterion) {
-    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `clear` and `pop_all` (empty cache)");
         group.bench_function("clear", |b| b.iter(|| empty_cache::clear()));
         group.bench_function("pop_all", |b| b.iter(|| empty_cache::pop_all()));
@@ -179,7 +179,7 @@ fn bench_clear_empty_cache(c: &mut Criterion) {
 /// into the contract storage. We then load the vec from storage lazily in each
 /// benchmark iteration.
 fn bench_put_empty_cache(c: &mut Criterion) {
-    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `get_mut` (empty cache)");
         group.bench_function("set", |b| b.iter(|| empty_cache::set()));
         group.bench_function("get_mut", |b| b.iter(|| empty_cache::get_mut()));

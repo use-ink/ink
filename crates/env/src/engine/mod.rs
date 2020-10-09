@@ -13,12 +13,12 @@
 // limitations under the License.
 
 use crate::backend::{
-    Env,
-    TypedEnv,
+    EnvBackend,
+    TypedEnvBackend,
 };
 use cfg_if::cfg_if;
 
-pub trait OnInstance: Env + TypedEnv {
+pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R;

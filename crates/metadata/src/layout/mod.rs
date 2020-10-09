@@ -15,7 +15,10 @@
 #[cfg(test)]
 mod tests;
 
-use crate::utils::serialize_as_byte_str;
+use crate::{
+    serde_hex,
+    utils::serialize_as_byte_str,
+};
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
@@ -30,10 +33,18 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Represents the static storage layout of an ink! smart contract.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 #[serde(rename_all = "camelCase")]
 pub enum Layout<F: Form = MetaForm> {
     /// An encoded cell.
@@ -58,11 +69,29 @@ pub enum Layout<F: Form = MetaForm> {
 }
 
 /// A pointer into some storage region.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(transparent)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From)]
 pub struct LayoutKey {
-    #[serde(serialize_with = "serialize_as_byte_str")]
     key: [u8; 32],
+}
+
+impl serde::Serialize for LayoutKey {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serde_hex::serialize(&self.key, serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for LayoutKey {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let mut arr = [0; 32];
+        serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
+        Ok(arr.into())
+    }
 }
 
 impl<'a> From<&'a Key> for LayoutKey {
@@ -81,14 +110,24 @@ impl From<Key> for LayoutKey {
     }
 }
 
+impl LayoutKey {
+    /// Returns the underlying bytes of the layout key.
+    pub fn to_bytes(&self) -> &[u8] {
+        &self.key
+    }
+}
+
 /// An encoded cell.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct CellLayout<F: Form = MetaForm> {
     /// The offset key into the storage.
     key: LayoutKey,
     /// The type of the encoded entity.
-    ty: <F as Form>::TypeId,
+    ty: <F as Form>::Type,
 }
 
 impl CellLayout {
@@ -135,11 +174,29 @@ impl IntoCompact for Layout {
     }
 }
 
+impl<F> CellLayout<F>
+where
+    F: Form,
+{
+    /// Returns the offset key into the storage.
+    pub fn key(&self) -> &LayoutKey {
+        &self.key
+    }
+
+    /// Returns the type of the encoded entity.
+    pub fn ty(&self) -> &F::Type {
+        &self.ty
+    }
+}
+
 /// A hashing layout potentially hitting all cells of the storage.
 ///
 /// Every hashing layout has an offset and a strategy to compute its keys.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct HashLayout<F: Form = MetaForm> {
     /// The key offset used by the strategy.
     offset: LayoutKey,
@@ -147,6 +204,18 @@ pub struct HashLayout<F: Form = MetaForm> {
     strategy: HashingStrategy,
     /// The storage layout of the unbounded layout elements.
     layout: Box<Layout<F>>,
+}
+
+impl IntoCompact for HashLayout {
+    type Output = HashLayout<CompactForm>;
+
+    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+        HashLayout {
+            offset: self.offset,
+            strategy: self.strategy,
+            layout: Box::new(self.layout.into_compact(registry)),
+        }
+    }
 }
 
 impl HashLayout {
@@ -164,15 +233,23 @@ impl HashLayout {
     }
 }
 
-impl IntoCompact for HashLayout {
-    type Output = HashLayout<CompactForm>;
+impl<F> HashLayout<F>
+where
+    F: Form,
+{
+    /// Returns the key offset used by the strategy.
+    pub fn offset(&self) -> &LayoutKey {
+        &self.offset
+    }
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
-        HashLayout {
-            offset: self.offset,
-            strategy: self.strategy,
-            layout: Box::new(self.layout.into_compact(registry)),
-        }
+    /// Returns the hashing strategy to layout the underlying elements.
+    pub fn strategy(&self) -> &HashingStrategy {
+        &self.strategy
+    }
+
+    /// Returns the storage layout of the unbounded layout elements.
+    pub fn layout(&self) -> &Layout<F> {
+        &self.layout
     }
 }
 
@@ -181,15 +258,21 @@ impl IntoCompact for HashLayout {
 /// The offset key is used as another postfix for the computation.
 /// So the actual formula is: `hasher(prefix + encoded(key) + offset + postfix)`
 /// Where `+` in this contexts means append of the byte slices.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct HashingStrategy {
     /// One of the supported crypto hashers.
     hasher: CryptoHasher,
     /// An optional prefix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
+    #[serde(
+        serialize_with = "serialize_as_byte_str",
+        deserialize_with = "serde_hex::deserialize"
+    )]
     prefix: Vec<u8>,
     /// An optional postfix to the computed hash.
-    #[serde(serialize_with = "serialize_as_byte_str")]
+    #[serde(
+        serialize_with = "serialize_as_byte_str",
+        deserialize_with = "serde_hex::deserialize"
+    )]
     postfix: Vec<u8>,
 }
 
@@ -202,10 +285,25 @@ impl HashingStrategy {
             postfix,
         }
     }
+
+    /// Returns the supported crypto hasher.
+    pub fn hasher(&self) -> &CryptoHasher {
+        &self.hasher
+    }
+
+    /// Returns the optional prefix to the computed hash.
+    pub fn prefix(&self) -> &[u8] {
+        &self.prefix
+    }
+
+    /// Returns the optional postfix to the computed hash.
+    pub fn postfix(&self) -> &[u8] {
+        &self.postfix
+    }
 }
 
 /// One of the supported crypto hashers.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum CryptoHasher {
     /// The BLAKE-2 crypto hasher with an output of 256 bits.
     Blake2x256,
@@ -216,8 +314,12 @@ pub enum CryptoHasher {
 }
 
 /// A layout for an array of associated cells with the same encoding.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
+#[serde(rename_all = "camelCase")]
 pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
@@ -247,6 +349,34 @@ impl ArrayLayout {
     }
 }
 
+#[allow(clippy::len_without_is_empty)]
+impl<F> ArrayLayout<F>
+where
+    F: Form,
+{
+    /// Returns the offset key of the array layout.
+    ///
+    /// This is the same key as the 0-th element of the array layout.
+    pub fn offset(&self) -> &LayoutKey {
+        &self.offset
+    }
+
+    /// Returns the number of elements in the array layout.
+    pub fn len(&self) -> u32 {
+        self.len
+    }
+
+    /// Returns he number of cells each element in the array layout consists of.
+    pub fn cells_per_elem(&self) -> u64 {
+        self.cells_per_elem
+    }
+
+    /// Returns the layout of the elements stored in the array layout.
+    pub fn layout(&self) -> &Layout<F> {
+        &self.layout
+    }
+}
+
 impl IntoCompact for ArrayLayout {
     type Output = ArrayLayout<CompactForm>;
 
@@ -261,8 +391,11 @@ impl IntoCompact for ArrayLayout {
 }
 
 /// A struct layout with consecutive fields of different layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct StructLayout<F: Form = MetaForm> {
     /// The fields of the struct layout.
     fields: Vec<FieldLayout<F>>,
@@ -277,6 +410,16 @@ impl StructLayout {
         Self {
             fields: fields.into_iter().collect(),
         }
+    }
+}
+
+impl<F> StructLayout<F>
+where
+    F: Form,
+{
+    /// Returns the fields of the struct layout.
+    pub fn fields(&self) -> &[FieldLayout<F>] {
+        &self.fields
     }
 }
 
@@ -295,13 +438,16 @@ impl IntoCompact for StructLayout {
 }
 
 /// The layout for a particular field of a struct layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct FieldLayout<F: Form = MetaForm> {
     /// The name of the field.
     ///
     /// Can be missing, e.g. in case of an enum tuple struct variant.
-    name: Option<&'static str>,
+    name: Option<F::String>,
     /// The kind of the field.
     ///
     /// This is either a direct layout bound
@@ -323,29 +469,39 @@ impl FieldLayout {
     }
 }
 
+impl<F> FieldLayout<F>
+where
+    F: Form,
+{
+    /// Returns the name of the field.
+    ///
+    /// Can be missing, e.g. in case of an enum tuple struct variant.
+    pub fn name(&self) -> Option<&F::String> {
+        self.name.as_ref()
+    }
+
+    /// Returns the kind of the field.
+    ///
+    /// This is either a direct layout bound
+    /// or another recursive layout sub-struct.
+    pub fn layout(&self) -> &Layout<F> {
+        &self.layout
+    }
+}
+
 impl IntoCompact for FieldLayout {
     type Output = FieldLayout<CompactForm>;
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name,
+            name: self.name.map(|name| name.into_compact(registry)),
             layout: self.layout.into_compact(registry),
         }
     }
 }
 
 /// The discriminant of an enum variant.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    serde::Serialize,
-    serde::Deserialize,
-)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Discriminant(usize);
 
 impl From<usize> for Discriminant {
@@ -354,9 +510,20 @@ impl From<usize> for Discriminant {
     }
 }
 
+impl Discriminant {
+    /// Returns the value of the discriminant
+    pub fn value(&self) -> usize {
+        self.0
+    }
+}
+
 /// An enum storage layout.
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
-#[serde(bound = "F::TypeId: serde::Serialize")]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
+#[serde(rename_all = "camelCase")]
 pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
     dispatch_key: LayoutKey,
@@ -375,6 +542,21 @@ impl EnumLayout {
             dispatch_key: dispatch_key.into(),
             variants: variants.into_iter().collect(),
         }
+    }
+}
+
+impl<F> EnumLayout<F>
+where
+    F: Form,
+{
+    /// Returns the key where the discriminant is stored to dispatch the variants.
+    pub fn dispatch_key(&self) -> &LayoutKey {
+        &self.dispatch_key
+    }
+
+    /// Returns the variants of the enum.
+    pub fn variants(&self) -> &BTreeMap<Discriminant, StructLayout<F>> {
+        &self.variants
     }
 }
 

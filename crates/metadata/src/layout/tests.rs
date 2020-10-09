@@ -161,7 +161,7 @@ fn clike_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatch_key": "0x\
+                "dispatchKey": "0x\
                     0000000000000000\
                     0000000000000000\
                     0000000000000000\
@@ -242,7 +242,7 @@ fn mixed_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatch_key": "0x\
+                "dispatchKey": "0x\
                     0000000000000000\
                     0000000000000000\
                     0000000000000000\
