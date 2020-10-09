@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A `Children` object consists of two elements, a left and right child..
+//! A `Children` object consists of two elements: a left and right child.
 
 use crate::storage2::traits::{
     forward_clear_packed,
