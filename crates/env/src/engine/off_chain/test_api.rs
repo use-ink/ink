@@ -353,7 +353,7 @@ where
 /// Returns the account id of the currently executing contract.
 pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
 where
-    T: EnvTypes
+    T: Environment
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         let exec_context = instance.exec_context()?;

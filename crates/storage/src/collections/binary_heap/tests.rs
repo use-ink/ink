@@ -17,13 +17,10 @@ use super::{
     PeekMut,
     Reverse,
 };
-use crate::{
-    env,
-    storage2::traits::{
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 use ink_primitives::Key;
 
@@ -184,8 +181,8 @@ fn min_heap_works() {
 }
 
 #[test]
-fn spread_layout_push_pull_works() -> env::Result<()> {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+fn spread_layout_push_pull_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
@@ -201,7 +198,7 @@ fn spread_layout_push_pull_works() -> env::Result<()> {
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
@@ -222,7 +219,7 @@ fn spread_layout_clear_works() {
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn drop_works() {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let root_key = Key::from([0x42; 32]);
 
         // if the setup panics it should not cause the test to pass
@@ -264,22 +261,22 @@ fn check_complexity_read_writes<F>(
     heap_op: F,
     expected_net_reads: usize,
     expected_net_writes: usize,
-) -> env::Result<()>
+) -> ink_env::Result<()>
 where
     F: FnOnce(&mut BinaryHeap<u32>),
 {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let heap1 = heap_of_size(heap_size);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
         let contract_account =
-            env::test::get_current_contract_account_id::<env::DefaultEnvTypes>()?;
+            ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()?;
 
         let mut lazy_heap =
             <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
 
-        let (base_reads, base_writes) = env::test::get_contract_storage_rw::<
-            env::DefaultEnvTypes,
+        let (base_reads, base_writes) = ink_env::test::get_contract_storage_rw::<
+            ink_env::DefaultEnvironment,
         >(&contract_account)?;
         assert_eq!((base_reads as u32, base_writes as u32), (0, heap_size + 1));
 
@@ -288,7 +285,7 @@ where
         // write back to storage so we can see how many writes required
         SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
 
-        let (reads, writes) = env::test::get_contract_storage_rw::<env::DefaultEnvTypes>(
+        let (reads, writes) = ink_env::test::get_contract_storage_rw::<ink_env::DefaultEnvironment>(
             &contract_account,
         )?;
         let net_reads = reads - base_reads;
@@ -310,7 +307,7 @@ where
 }
 
 #[test]
-fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
+fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
     const CONST_READ_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
@@ -328,7 +325,7 @@ fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
 }
 
 #[test]
-fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
+fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
     const SMALLEST_VALUE: u32 = 0;
     const EXPECTED_READS: usize = 3;
     const EXPECTED_WRITES: usize = 2;
@@ -345,7 +342,7 @@ fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
 }
 
 #[test]
-fn pop_complexity_big_o_log_n() -> env::Result<()> {
+fn pop_complexity_big_o_log_n() -> ink_env::Result<()> {
     const CONST_READ_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
@@ -366,7 +363,7 @@ fn pop_complexity_big_o_log_n() -> env::Result<()> {
 #[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
 fn pop_always_returns_largest_element(xs: Vec<i32>) {
-    env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut sorted = xs.clone();
         sorted.sort();
         let mut heap = heap_from_slice(&xs);

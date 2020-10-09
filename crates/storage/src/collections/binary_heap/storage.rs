@@ -15,7 +15,7 @@
 //! Implementation of ink! storage traits.
 
 use super::BinaryHeap;
-use crate::storage2::{
+use crate::{
     collections::Vec as StorageVec,
     traits::{
         KeyPtr,
@@ -26,8 +26,8 @@ use crate::storage2::{
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::storage2::traits::StorageLayout;
-    use ink_metadata::layout2::{
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{
         FieldLayout,
         Layout,
         StructLayout,

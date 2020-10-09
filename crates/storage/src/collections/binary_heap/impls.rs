@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::BinaryHeap;
-use crate::storage2::traits::PackedLayout;
+use crate::traits::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,
