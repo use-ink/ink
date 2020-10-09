@@ -115,7 +115,7 @@ where
     /// # Example
     ///
     /// ```
-    /// use ink_core::storage2::collections::BinaryHeap;
+    /// use ink_storage::collections::BinaryHeap;
     /// let mut heap = BinaryHeap::new();
     /// assert!(heap.peek_mut().is_none());
     ///
