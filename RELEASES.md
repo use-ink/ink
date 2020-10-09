@@ -15,7 +15,7 @@ In this vein `#[ink(storage)]` and `#[ink(event)]` structs as well as `#[ink(mes
 `#[ink(constructor)]` methods now need to be specified with public visibility (`pub`).
 
 The `#[ink(constructors)]` syntax also changes and no longer uses a `&mut self` receiver but
-is now follows the natural Rust constructors scheme. So it is no longer possible to shoot
+now follows the natural Rust constructors scheme. So it is no longer possible to shoot
 yourself in the foot by accidentally forgetting to initialize some important data structures.
 
 **Old ink! 2.0:**
