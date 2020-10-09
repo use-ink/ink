@@ -1,6 +1,6 @@
 [package]
 name = "ink_prelude"
-version = "3.0.0"
+version = "3.0.0-rc1"
 authors = ["Robin Freyler <robin@parity.io>", "Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
