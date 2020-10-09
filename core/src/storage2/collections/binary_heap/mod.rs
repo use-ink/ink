@@ -17,11 +17,11 @@
 //! Insertion and popping the largest element have `O(log(n))` complexity.
 //! Checking the largest element is `O(1)`.
 
-mod group;
+mod children;
+mod elements;
 mod impls;
 mod reverse;
 mod storage;
-mod wrapper;
 
 #[cfg(test)]
 mod tests;
@@ -34,8 +34,8 @@ use crate::storage2::{
 pub use reverse::Reverse;
 
 use self::{
-    group::Group,
-    wrapper::Wrapper,
+    children::Children,
+    elements::Elements,
 };
 
 /// A priority queue implemented with a binary heap.
@@ -51,8 +51,8 @@ pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// A collection of groups of elements.
-    groups: Wrapper<T>,
+    /// The individual elements of the heap.
+    elements: Elements<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -62,18 +62,18 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            groups: Wrapper::new(),
+            elements: Elements::new(),
         }
     }
 
     /// Returns the number of elements in the heap, also referred to as its 'length'.
     pub fn len(&self) -> u32 {
-        self.groups.len()
+        self.elements.len()
     }
 
     /// Returns `true` if the heap contains no elements.
     pub fn is_empty(&self) -> bool {
-        self.groups.is_empty()
+        self.elements.is_empty()
     }
 }
 
@@ -89,7 +89,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        self.groups.iter()
+        self.elements.iter()
     }
 
     /// Returns an iterator yielding exclusive references to all elements of the heap.
@@ -100,14 +100,14 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        self.groups.iter_mut()
+        self.elements.iter_mut()
     }
 
     /// Returns a shared reference to the greatest element of the heap
     ///
     /// Returns `None` if the heap is empty
     pub fn peek(&self) -> Option<&T> {
-        self.groups.first()
+        self.elements.first()
     }
 
     /// Returns an exclusive reference to the greatest element of the heap
@@ -153,14 +153,14 @@ where
         while child < end {
             let right = child + 1;
             // compare with the greater of the two children
-            if right < end && self.groups.get(child) <= self.groups.get(right) {
+            if right < end && self.elements.get(child) <= self.elements.get(right) {
                 child = right;
             }
             // if we are already in order, stop.
-            if self.groups.get(pos) >= self.groups.get(child) {
+            if self.elements.get(pos) >= self.elements.get(child) {
                 break
             }
-            self.groups.swap(child, pos);
+            self.elements.swap(child, pos);
             pos = child;
             child = 2 * pos + 1;
         }
@@ -171,7 +171,7 @@ where
     /// Returns `None` if the heap is empty
     pub fn pop(&mut self) -> Option<T> {
         // replace the root of the heap with the last element
-        let elem = self.groups.swap_remove(0);
+        let elem = self.elements.swap_remove(0);
         self.sift_down(0);
         elem
     }
@@ -184,7 +184,7 @@ where
     /// This method performs significantly better and does not actually read
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
-        self.groups.clear()
+        self.elements.clear()
     }
 }
 
@@ -197,10 +197,10 @@ where
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;
-            if self.groups.get(pos) <= self.groups.get(parent) {
+            if self.elements.get(pos) <= self.elements.get(parent) {
                 break
             }
-            self.groups.swap(parent, pos);
+            self.elements.swap(parent, pos);
             pos = parent;
         }
     }
@@ -208,7 +208,7 @@ where
     /// Pushes the given element to the binary heap.
     pub fn push(&mut self, value: T) {
         let old_len = self.len();
-        self.groups.push(value);
+        self.elements.push(value);
         self.sift_up(old_len)
     }
 }
@@ -243,7 +243,7 @@ where
     type Target = T;
     fn deref(&self) -> &T {
         self.heap
-            .groups
+            .elements
             .first()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }
@@ -255,7 +255,7 @@ where
 {
     fn deref_mut(&mut self) -> &mut T {
         self.heap
-            .groups
+            .elements
             .first_mut()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }
@@ -283,7 +283,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The storage vector to iterate over.
-    elems: &'a StorageVec<Group<T>>,
+    elems: &'a StorageVec<Children<T>>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -295,7 +295,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(elems: &'a StorageVec<Group<T>>) -> Self {
+    pub(crate) fn new(elems: &'a StorageVec<Children<T>>) -> Self {
         Self {
             elems,
             begin: 0,
@@ -337,11 +337,12 @@ where
         let cur = self.begin + n;
         self.begin += 1 + n;
 
-        let group_index = group::get_group_index(cur);
-        self.elems
-            .get(group_index)
-            .expect("access is out of bounds")
-            .as_ref(group_index)
+        let children_index = children::get_children_storage_index(cur);
+        let children = self
+            .elems
+            .get(children_index)
+            .expect("access is out of bounds");
+        children.child(children::get_child_pos(children_index))
     }
 }
 
@@ -352,7 +353,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The storage vector to iterate over.
-    elems: &'a mut StorageVec<Group<T>>,
+    elems: &'a mut StorageVec<Children<T>>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -364,7 +365,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given storage vector.
-    pub(crate) fn new(elems: &'a mut StorageVec<Group<T>>) -> Self {
+    pub(crate) fn new(elems: &'a mut StorageVec<Children<T>>) -> Self {
         let end = elems.len();
         Self {
             elems,
@@ -384,12 +385,13 @@ where
     T: PackedLayout + Ord,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
-        let group_index = group::get_group_index(at);
-        let group = self
+        let storage_index = children::get_children_storage_index(at);
+        let children = self
             .elems
-            .get_mut(group_index)
+            .get_mut(storage_index)
             .expect("access is within bounds");
-        group.get_mut(at).as_mut().map(|value| {
+        let child_pos = children::get_child_pos(at);
+        children.child_mut(child_pos).as_mut().map(|value| {
             // SAFETY: We extend the lifetime of the reference here.
             //
             //         This is safe because the iterator yields an exclusive

@@ -16,7 +16,7 @@
 
 use super::BinaryHeap;
 use crate::storage2::{
-    collections::binary_heap::wrapper::Wrapper,
+    collections::binary_heap::elements::Elements,
     traits::{
         KeyPtr,
         PackedLayout,
@@ -41,7 +41,7 @@ const _: () = {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![FieldLayout::new(
                 "elems",
-                <Wrapper<T> as StorageLayout>::layout(key_ptr),
+                <Elements<T> as StorageLayout>::layout(key_ptr),
             )]))
         }
     }
@@ -51,7 +51,7 @@ const _: () = {
 const _: () = {
     use crate::storage2::{
         collections::binary_heap::{
-            Group,
+            Children,
             StorageVec,
         },
         lazy::Lazy,
@@ -64,7 +64,7 @@ const _: () = {
     };
     use scale_info::TypeInfo;
 
-    impl<T> StorageLayout for Wrapper<T>
+    impl<T> StorageLayout for Elements<T>
     where
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
@@ -73,7 +73,7 @@ const _: () = {
                 FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",
-                    <StorageVec<Group<T>> as StorageLayout>::layout(key_ptr),
+                    <StorageVec<Children<T>> as StorageLayout>::layout(key_ptr),
                 ),
             ]))
         }
@@ -84,19 +84,19 @@ impl<T> SpreadLayout for BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    const FOOTPRINT: u64 = 1 + <Wrapper<T> as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = 1 + <Elements<T> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
-            groups: SpreadLayout::pull_spread(ptr),
+            elements: SpreadLayout::pull_spread(ptr),
         }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.groups, ptr);
+        SpreadLayout::push_spread(&self.elements, ptr);
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.groups, ptr);
+        SpreadLayout::clear_spread(&self.elements, ptr);
     }
 }

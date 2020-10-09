@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Wrapper which provides an interface around the vector used to store
-//! elements of the [`BinaryHeap`](`super::BinaryHeap`) in storage.
+//! Provides an interface around the vector used to store elements of the
+//! [`BinaryHeap`](`super::BinaryHeap`) in storage. This is necessary since
+//! we don't just store each element in it's own storage cell, but rather
+//! optimize storage access by putting children together in one storage cell.
 
 use crate::storage2::{
     collections::binary_heap::{
-        group,
-        group::Ingroup,
-        Group,
+        children,
+        children::{
+            ChildPosition,
+            Children,
+        },
         Iter,
         IterMut,
         StorageVec,
@@ -33,24 +37,24 @@ use crate::storage2::{
 };
 
 /// The wrapper provides an interface for accessing elements.
-/// Since elements are stored in groups of two the requested element
-/// index needs to be transposed to the group in which the element
-/// is stored.
+/// Since elements are stored in a `Children` object of two children
+/// the requested element index needs to be transposed to the `Children`
+/// in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
-pub struct Wrapper<T>
+pub struct Elements<T>
 where
     T: PackedLayout + Ord,
 {
     /// The number of elements stored in the heap.
-    /// We cannot use the length of the storage vector, since each entry (= `Group`)
-    /// in the vector contains two child elements (except the root element which occupies
-    /// a `Group` on its own.
+    /// We cannot use the length of the storage vector, since each entry (i.e. each
+    /// `Children` object) in the vector contains two child elements (except the root
+    /// element which occupies a `Children` object on its own.
     len: Lazy<u32>,
-    /// The underlying storage vec containing the grouped elements.
-    elems: StorageVec<Group<T>>,
+    /// The underlying storage vec containing the children.
+    children: StorageVec<Children<T>>,
 }
 
-impl<T> Wrapper<T>
+impl<T> Elements<T>
 where
     T: PackedLayout + Ord,
 {
@@ -58,7 +62,7 @@ where
     pub fn new() -> Self {
         Self {
             len: Lazy::new(0),
-            elems: StorageVec::new(),
+            children: StorageVec::new(),
         }
     }
 
@@ -67,11 +71,11 @@ where
         *self.len
     }
 
-    /// Returns the amount of groups stored in the vector.
+    /// Returns the amount of `Children` objects stored in the vector.
     #[allow(dead_code)]
     #[cfg(all(test, feature = "ink-fuzz-tests"))]
-    pub fn group_count(&self) -> u32 {
-        self.elems.len()
+    pub fn children_count(&self) -> u32 {
+        self.children.len()
     }
 
     /// Returns `true` if the heap contains no elements.
@@ -83,22 +87,24 @@ where
     ///
     /// Returns `None` if `index` is out of bounds.
     pub fn get(&self, index: u32) -> Option<&T> {
-        let group_index = group::get_group_index(index);
-        let i = self.within_bounds(group_index)?;
-        let group = self.elems.get(i)?;
-        group.as_ref(index)
+        let storage_index = children::get_children_storage_index(index);
+        let i = self.within_bounds(storage_index)?;
+        let children = self.children.get(i)?;
+        let child_pos = children::get_child_pos(index);
+        children.child(child_pos)
     }
 
     /// Returns an exclusive reference to the indexed element.
-    /// The element in a group is an `Option<T>`.
+    /// The element in a `Children` is an `Option<T>`.
     ///
     /// Returns `None` if `index` is out of bounds.
     pub fn get_mut(&mut self, index: u32) -> Option<&mut Option<T>> {
-        let group_index = group::get_group_index(index);
-        self.within_bounds(group_index)?;
-        self.elems
-            .get_mut(group_index)
-            .map(|group| group.get_mut(index))
+        let storage_index = children::get_children_storage_index(index);
+        self.within_bounds(storage_index)?;
+        self.children.get_mut(storage_index).map(|children| {
+            let child_pos = children::get_child_pos(index);
+            children.child_mut(child_pos)
+        })
     }
 
     /// Swaps the elements at the given indices.
@@ -149,7 +155,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        Iter::new(&self.elems)
+        Iter::new(&self.children)
     }
 
     /// Returns an iterator yielding exclusive references to all elements of the vector.
@@ -161,7 +167,7 @@ where
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
         // self.elems.iter_mut()
-        IterMut::new(&mut self.elems)
+        IterMut::new(&mut self.children)
     }
 
     /// Returns a shared reference to the first element if any.
@@ -191,7 +197,7 @@ where
         if self.is_empty() {
             return
         }
-        self.elems.clear();
+        self.children.clear();
         self.len = Lazy::new(0);
     }
 
@@ -207,16 +213,17 @@ where
     }
 
     fn push_to(&mut self, index: u32, value: Option<T>) {
-        let group_index = group::get_group_index(index);
-        match self.elems.get_mut(group_index) {
-            Some(group) => *group.get_mut(index) = value,
+        let children_index = children::get_children_storage_index(index);
+        match self.children.get_mut(children_index) {
+            Some(children) => {
+                let child_pos = children::get_child_pos(index);
+                *children.child_mut(child_pos) = value;
+            }
             None => {
-                let new_group = Group(value, None);
-                self.elems.push(new_group);
-
+                self.children.push(Children::new(value, None));
                 debug_assert!(
-                    self.elems.get(group_index).is_some(),
-                    "the new group was not placed at group_index!"
+                    self.children.get(children_index).is_some(),
+                    "the new children were not placed at children_index!"
                 );
             }
         };
@@ -232,20 +239,25 @@ where
         let last_index = self.len() - 1;
         *self.len = last_index;
 
-        let group_index = group::get_group_index(last_index);
-        let old = self.elems.get_mut(group_index);
+        let children_index = children::get_children_storage_index(last_index);
+        let old = self.children.get_mut(children_index);
         match old {
-            Some(group) => {
-                let popped_val = group.get_mut(last_index).take();
+            Some(children) => {
+                let child_pos = children::get_child_pos(last_index);
+                let popped_val = children.child_mut(child_pos).take();
 
-                // if both children are non-existent the entire group can be removed
-                if !group.exists(Ingroup::Left) && !group.exists(Ingroup::Right) {
-                    self.elems.pop();
+                // if both children are non-existent the entire children object can be removed
+                if !children.exists(ChildPosition::Left)
+                    && !children.exists(ChildPosition::Right)
+                {
+                    self.children.pop();
                 }
 
                 popped_val
             }
-            None => unreachable!("vec must contain group at group index of last_index"),
+            None => {
+                unreachable!("vec must contain children at children_index of last_index")
+            }
         }
     }
 
@@ -258,25 +270,28 @@ where
     }
 }
 
-impl<T> SpreadLayout for Wrapper<T>
+impl<T> SpreadLayout for Elements<T>
 where
     T: SpreadLayout + Ord + PackedLayout,
 {
-    const FOOTPRINT: u64 = 1 + <StorageVec<Group<T>> as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = 1 + <StorageVec<Children<T>> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let len = SpreadLayout::pull_spread(ptr);
         let elems = SpreadLayout::pull_spread(ptr);
-        Self { len, elems }
+        Self {
+            len,
+            children: elems,
+        }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::push_spread(&self.len, ptr);
-        SpreadLayout::push_spread(&self.elems, ptr);
+        SpreadLayout::push_spread(&self.children, ptr);
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.len, ptr);
-        SpreadLayout::clear_spread(&self.elems, ptr);
+        SpreadLayout::clear_spread(&self.children, ptr);
     }
 }

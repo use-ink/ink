@@ -58,7 +58,7 @@ fn get_count_cells(heap_size: u32) -> u32 {
     let rest = match heap_size {
         0 => 0,
         1 => 0,
-        _ => division_round_up(heap_size, super::group::COUNT),
+        _ => division_round_up(heap_size, super::children::CHILDREN_PER_NODE),
     };
     rest + 1
 }
@@ -333,10 +333,10 @@ where
 
 #[test]
 fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
-    // 1 group overhead (#508) + 1 group.len + 1 heap overhead (#508) + 1 heap.len + 1 cell
+    // 1 elements overhead (#508) + 1 elements.len + 1 heap overhead (#508) + 1 heap.len + 1 cell
     const CONST_READS: usize = 5;
 
-    // 1 group.len + 1 cell which was pushed to
+    // 1 elements.len + 1 cell which was pushed to
     // vec.len doesn't get larger because no cell is added
     const CONST_WRITES: usize = 2;
 
@@ -418,8 +418,8 @@ fn pop_always_returns_largest_element(xs: Vec<i32>) {
 
         assert_eq!(heap.len(), 0);
 
-        // all groups must have been removed as well
-        assert_eq!(heap.groups.group_count(), 0);
+        // all elements must have been removed as well
+        assert_eq!(heap.elements.children_count(), 0);
 
         Ok(())
     })
