@@ -36,10 +36,12 @@ use crate::storage2::{
     Lazy,
 };
 
-/// The wrapper provides an interface for accessing elements.
-/// Since elements are stored in a `Children` object of two children
-/// the requested element index needs to be transposed to the `Children`
-/// in which the element is stored.
+/// Provides an interface for accessing elements in the `BinaryHeap`.
+///
+/// Elements are stored in a vector of `Children` objects, whereby
+/// each object contains two elements.
+/// When operating on element indices the index needs to be transposed
+/// to the `Children` object in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
 pub struct Elements<T>
 where
@@ -50,7 +52,7 @@ where
     /// `Children` object) in the vector contains two child elements (except the root
     /// element which occupies a `Children` object on its own.
     len: Lazy<u32>,
-    /// The underlying storage vec containing the children.
+    /// The underlying storage vec containing the `Children`.
     children: StorageVec<Children<T>>,
 }
 

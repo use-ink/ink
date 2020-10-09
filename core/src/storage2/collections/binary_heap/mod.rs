@@ -276,7 +276,7 @@ where
     }
 }
 
-/// An iterator over shared references to the elements of a storage vector.
+/// An iterator over shared references to the `Children` objects of the `BinaryHeap`.
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T>
 where
@@ -431,6 +431,6 @@ where
         }
         let cur = self.begin + n;
         self.begin += 1 + n;
-        self.get_mut(cur).expect("access is within bounds").into()
+        self.get_mut(cur).expect("access is out of bounds").into()
     }
 }
