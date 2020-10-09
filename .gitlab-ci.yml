@@ -15,7 +15,7 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
-  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_JOB_NAME}"
+  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   ALL_CRATES:                      "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
 
@@ -125,15 +125,18 @@ codecov:
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-    # We removed the `-Cinline-threshold=0` flag from the above `RUSTFLAGS` since it was bugged
-    # at the time and lead to inlining of functions that shouldn't be inlined for the coverage
-    # report. (More information here: https://github.com/Kogia-sima/rust-covfix/issues/2)
+  before_script:
+    - cargo -vV
+    - rustc -vV
+    - rustup show
+    - bash --version
+    - unset "CARGO_TARGET_DIR"
+    - unset "CARGO_HOME"
+    - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
-    - unset "CARGO_TARGET_DIR"
-    - cargo clean
-    - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo build --verbose --all-features --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
     - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
     - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
