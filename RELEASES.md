@@ -1,7 +1,7 @@
 # Version 3.0 (2020-10-09)
 
 Be prepared for the ink! 3.0 release notes because the whole version was basically a rewrite of
-all the major components that make up ink!. With our experience gained by the last released versions
+all the major components that make up ink!. With our experience gained from previous releases
 of ink! we were able to detect weak spots of the design and provided ink! with more tools,
 more features and more efficiency as ever. Read more below …
 
