@@ -56,7 +56,7 @@ necessary tools and data structures to organize and operate the contract's stora
 ### Lazy
 
 The most fundamental change in how you should think about data structures provided by the new `ink_storage`
-crate is that they are inherently lazy.
+crate is that they are inherently lazy. We will explain what this means below!
 The `ink_storage` crate provides high-level and low-level lazy data structures.
 The difference between high-level and low-level lies in the distinction in how these data structures are aware
 of the elements that they operate on. For high-level data structures they are fully aware about the elements
