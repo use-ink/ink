@@ -47,17 +47,15 @@ pub(crate) const COUNT: u32 = 2;
 
 /// Returns the index of the group in which the `n`-th element is stored.
 pub(crate) fn get_group_index(n: u32) -> u32 {
-    match n {
-        0 => 0,
-        _ => {
-            // The first group only ever contains the root element:
-            // `[Some(root), None]`. So when calculating indices we
-            // need to account for the items which have been left
-            // empty in the first group.
-            let padding = COUNT - 1;
-            (n + padding) / COUNT
-        }
+    if n == 0 {
+        return 0
     }
+    // The first group only ever contains the root element:
+    // `[Some(root), None]`. So when calculating indices we
+    // need to account for the items which have been left
+    // empty in the first group.
+    let padding = COUNT - 1;
+    (n + padding) / COUNT
 }
 
 /// Returns the in-group index of the `n`-th element.

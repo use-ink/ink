@@ -109,10 +109,8 @@ where
         if a == b {
             return
         }
-        assert!(
-            a < self.len() && b < self.len(),
-            "indices are out of bounds"
-        );
+        assert!(a < self.len(), "a is out of bounds");
+        assert!(b < self.len(), "b is out of bounds");
 
         let old_a = self.get_mut(a).expect("index a must exist").take();
 
@@ -150,7 +148,6 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        // self.iter()
         Iter::new(&self.elems)
     }
 
