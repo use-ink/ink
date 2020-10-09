@@ -248,8 +248,8 @@ where
                 let popped_val = children.child_mut(child_pos).take();
 
                 // if both children are non-existent the entire children object can be removed
-                if !children.exists(ChildPosition::Left)
-                    && !children.exists(ChildPosition::Right)
+                if children.is_empty(ChildPosition::Left)
+                    && children.is_empty(ChildPosition::Right)
                 {
                     self.children.pop();
                 }
@@ -280,10 +280,7 @@ where
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let len = SpreadLayout::pull_spread(ptr);
         let children = SpreadLayout::pull_spread(ptr);
-        Self {
-            len,
-            children,
-        }
+        Self { len, children }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {

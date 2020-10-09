@@ -96,11 +96,11 @@ where
         Self { left, right }
     }
 
-    /// Returns `true` if an element is existent at `which`, otherwise `false`.
-    pub fn exists(&self, which: ChildPosition) -> bool {
+    /// Returns `true` if no element is existent at `which`, otherwise `false`.
+    pub fn is_empty(&self, which: ChildPosition) -> bool {
         match which {
-            ChildPosition::Left => self.left.is_some(),
-            ChildPosition::Right => self.right.is_some(),
+            ChildPosition::Left => self.left.is_none(),
+            ChildPosition::Right => self.right.is_none(),
         }
     }
 
