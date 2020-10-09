@@ -15,6 +15,9 @@
 //! A `Children` object consists of two elements, a left and right child..
 
 use crate::storage2::traits::{
+    forward_clear_packed,
+    forward_pull_packed,
+    forward_push_packed,
     KeyPtr,
     PackedLayout,
     SpreadLayout,
@@ -121,10 +124,8 @@ const _: () = {
     use crate::storage2::traits::StorageLayout;
     use ink_metadata::layout2::{
         CellLayout,
-        FieldLayout,
         Layout,
         LayoutKey,
-        StructLayout,
     };
 
     impl<T> StorageLayout for Children<T>
@@ -132,17 +133,9 @@ const _: () = {
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            StructLayout::new(vec![
-                FieldLayout::new(
-                    None,
-                    CellLayout::new::<i32>(LayoutKey::from(key_ptr.advance_by(1))),
-                ),
-                FieldLayout::new(
-                    None,
-                    CellLayout::new::<i64>(LayoutKey::from(key_ptr.advance_by(1))),
-                ),
-            ])
-            .into()
+            Layout::Cell(CellLayout::new::<Children<T>>(LayoutKey::from(
+                key_ptr.advance_by(1),
+            )))
         }
     }
 };
@@ -151,23 +144,19 @@ impl<T> SpreadLayout for Children<T>
 where
     T: PackedLayout + Ord,
 {
-    const FOOTPRINT: u64 = 2 * <T as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Self::new(
-            SpreadLayout::pull_spread(ptr),
-            SpreadLayout::pull_spread(ptr),
-        )
+        forward_pull_packed::<Self>(ptr)
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.left, ptr);
-        SpreadLayout::push_spread(&self.right, ptr);
+        forward_push_packed::<Self>(self, ptr)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.left, ptr);
-        SpreadLayout::clear_spread(&self.right, ptr);
+        forward_clear_packed::<Self>(self, ptr)
     }
 }
 
@@ -175,20 +164,9 @@ impl<T> PackedLayout for Children<T>
 where
     T: PackedLayout + Ord,
 {
-    fn push_packed(&self, at: &Key) {
-        <Option<T> as PackedLayout>::push_packed(&self.left, at);
-        <Option<T> as PackedLayout>::push_packed(&self.right, at);
-    }
-
-    fn clear_packed(&self, at: &Key) {
-        <Option<T> as PackedLayout>::clear_packed(&self.left, at);
-        <Option<T> as PackedLayout>::clear_packed(&self.right, at);
-    }
-
-    fn pull_packed(&mut self, at: &Key) {
-        <Option<T> as PackedLayout>::pull_packed(&mut self.left, at);
-        <Option<T> as PackedLayout>::pull_packed(&mut self.right, at);
-    }
+    fn pull_packed(&mut self, _at: &Key) {}
+    fn push_packed(&self, _at: &Key) {}
+    fn clear_packed(&self, _at: &Key) {}
 }
 
 #[test]
