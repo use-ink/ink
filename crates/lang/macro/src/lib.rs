@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+extern crate proc_macro;
+
 mod contract;
 mod ink_test;
 mod trait_def;

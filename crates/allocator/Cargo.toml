@@ -1,7 +1,7 @@
 [package]
 name = "ink_allocator"
 version = "3.0.0-rc1"
-authors = ["Parity Technologies <admin@parity.io>"]
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
 license = "APACHE-2.0"
