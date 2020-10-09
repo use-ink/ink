@@ -163,9 +163,20 @@ impl<T> PackedLayout for Children<T>
 where
     T: PackedLayout + Ord,
 {
-    fn pull_packed(&mut self, _at: &Key) {}
-    fn push_packed(&self, _at: &Key) {}
-    fn clear_packed(&self, _at: &Key) {}
+    fn push_packed(&self, at: &Key) {
+        <Option<T> as PackedLayout>::push_packed(&self.left, at);
+        <Option<T> as PackedLayout>::push_packed(&self.right, at);
+    }
+
+    fn clear_packed(&self, at: &Key) {
+        <Option<T> as PackedLayout>::clear_packed(&self.left, at);
+        <Option<T> as PackedLayout>::clear_packed(&self.right, at);
+    }
+
+    fn pull_packed(&mut self, at: &Key) {
+        <Option<T> as PackedLayout>::pull_packed(&mut self.left, at);
+        <Option<T> as PackedLayout>::pull_packed(&mut self.right, at);
+    }
 }
 
 #[test]
