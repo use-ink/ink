@@ -298,7 +298,7 @@ where
             env::DefaultEnvTypes,
         >(&contract_account)?;
 
-        // wrapper.len + vec.len
+        // elements.len + vec.len
         const CONST_WRITES: u32 = 2;
         assert_eq!(
             (base_reads as u32, base_writes as u32),
@@ -358,7 +358,7 @@ fn push_largest_value_complexity_big_o_log_n() -> env::Result<()> {
 fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
     const SMALLEST_VALUE: u32 = 0;
 
-    // 1 wrapper overhead (#508) + 1 wrapper.len + 1 vec overhead (#508) +
+    // 1 elements overhead (#508) + 1 elements.len + 1 vec overhead (#508) +
     // 1 vec.len + 1 vec.cell in which to insert + 1 parent cell during `sift_up`
     const EXPECTED_READS: usize = 6;
 
@@ -381,11 +381,11 @@ fn push_smallest_value_complexity_big_o_1() -> env::Result<()> {
 
 #[test]
 fn pop_complexity_big_o_log_n() -> env::Result<()> {
-    // 1 wrapper overhead (#508) + wrapper.len + 1 vec overhead (#508) +
+    // 1 elements overhead (#508) + elements.len + 1 vec overhead (#508) +
     // 1 vec.len + 1 vec.cell from which to pop
     const CONST_READS: usize = 5;
 
-    // 1 wrapper.len + 1 vec.len + cell which was modified
+    // 1 elements.len + 1 vec.len + cell which was modified
     const CONST_WRITES: usize = 3;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {

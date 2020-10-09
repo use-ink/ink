@@ -280,10 +280,10 @@ where
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let len = SpreadLayout::pull_spread(ptr);
-        let elems = SpreadLayout::pull_spread(ptr);
+        let children = SpreadLayout::pull_spread(ptr);
         Self {
             len,
-            children: elems,
+            children,
         }
     }
 
