@@ -125,10 +125,16 @@ codecov:
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+  before_script:
+    - cargo -vV
+    - rustc -vV
+    - rustup show
+    - bash --version
+    - unset "CARGO_TARGET_DIR"
+    - unset "CARGO_HOME"
+    - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
-    - unset "CARGO_TARGET_DIR"
-    - cargo clean
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
