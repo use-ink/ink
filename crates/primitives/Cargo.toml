@@ -4,7 +4,7 @@ version = "3.0.0-rc1"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
-license = "APACHE-2.0"
+license = "Apache-2.0"
 readme = "README.md"
 
 repository = "https://github.com/paritytech/ink"
