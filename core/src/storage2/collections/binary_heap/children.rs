@@ -37,7 +37,7 @@ pub struct Children<T: PackedLayout + Ord> {
     right: Option<T>,
 }
 
-/// The position which child has within a `Children` object.
+/// The position which a child has in a `Children` object.
 #[derive(PartialEq, Debug)]
 pub enum ChildPosition {
     Left,
