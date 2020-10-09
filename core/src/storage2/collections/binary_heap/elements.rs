@@ -246,14 +246,10 @@ where
             Some(children) => {
                 let child_pos = children::get_child_pos(last_index);
                 let popped_val = children.child_mut(child_pos).take();
-
-                // if both children are non-existent the entire children object can be removed
-                if children.is_empty(ChildPosition::Left)
-                    && children.is_empty(ChildPosition::Right)
-                {
+                if children.is_empty() {
+                    // if both children are non-existent the entire children object can be removed
                     self.children.pop();
                 }
-
                 popped_val
             }
             None => {

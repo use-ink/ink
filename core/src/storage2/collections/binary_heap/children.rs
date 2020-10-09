@@ -96,12 +96,9 @@ where
         Self { left, right }
     }
 
-    /// Returns `true` if no element is existent at `which`, otherwise `false`.
-    pub fn is_empty(&self, which: ChildPosition) -> bool {
-        match which {
-            ChildPosition::Left => self.left.is_none(),
-            ChildPosition::Right => self.right.is_none(),
-        }
+    /// Returns `true` if no child exists in this object, otherwise `false`.
+    pub fn is_empty(&self) -> bool {
+        self.left.is_none() && self.right.is_none()
     }
 
     /// Returns a shared reference to the element at `which`.
