@@ -57,20 +57,25 @@ ink-fuzz-tests = ["std"]
 
 [[bench]]
 name = "bench_lazy"
+path = "benches/bench_lazy.rs"
 harness = false
 
 [[bench]]
 name = "bench_vec"
+path = "benches/bench_vec.rs"
 harness = false
 
 [[bench]]
 name = "bench_stash"
+path = "benches/bench_stash.rs"
 harness = false
 
 [[bench]]
 name = "bench_bitstash"
+path = "benches/bench_bitstash.rs"
 harness = false
 
 [[bench]]
 name = "bench_hashmap"
+path = "benches/bench_hashmap.rs"
 harness = false
