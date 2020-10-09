@@ -87,6 +87,14 @@ impl<T> Group<T>
 where
     T: PackedLayout + Ord,
 {
+    /// Returns `true` if this child exists, otherwise `false`.
+    pub fn exists(&self, ingroup_index: Ingroup) -> bool {
+        match ingroup_index {
+            Ingroup::Left => self.0.is_some(),
+            Ingroup::Right => self.1.is_some(),
+        }
+    }
+
     /// Returns a shared reference to the element at `index`.
     pub fn as_ref(&self, index: u32) -> Option<&T> {
         let ingroup_index = get_ingroup_index(index);

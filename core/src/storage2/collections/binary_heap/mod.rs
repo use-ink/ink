@@ -34,10 +34,7 @@ use crate::storage2::{
 pub use reverse::Reverse;
 
 use self::{
-    group::{
-        Group,
-        Ingroup,
-    },
+    group::Group,
     wrapper::Wrapper,
 };
 
@@ -341,15 +338,10 @@ where
         self.begin += 1 + n;
 
         let group_index = group::get_group_index(cur);
-        let ingroup = group::get_ingroup_index(cur);
-        let group = self
-            .elems
+        self.elems
             .get(group_index)
-            .expect("access is within bounds");
-        match ingroup {
-            Ingroup::Left => group.0.as_ref(),
-            Ingroup::Right => group.1.as_ref(),
-        }
+            .expect("access is out of bounds")
+            .as_ref(group_index)
     }
 }
 
@@ -393,16 +385,11 @@ where
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         let group_index = group::get_group_index(at);
-        let ingroup = group::get_ingroup_index(at);
         let group = self
             .elems
             .get_mut(group_index)
             .expect("access is within bounds");
-        let v = match ingroup {
-            Ingroup::Left => group.0.as_mut(),
-            Ingroup::Right => group.1.as_mut(),
-        };
-        v.map(|value| {
+        group.get_mut(at).as_mut().map(|value| {
             // SAFETY: We extend the lifetime of the reference here.
             //
             //         This is safe because the iterator yields an exclusive

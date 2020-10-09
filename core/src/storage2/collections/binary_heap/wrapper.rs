@@ -18,6 +18,7 @@
 use crate::storage2::{
     collections::binary_heap::{
         group,
+        group::Ingroup,
         Group,
         Iter,
         IterMut,
@@ -237,8 +238,8 @@ where
             Some(group) => {
                 let popped_val = group.get_mut(last_index).take();
 
-                // if both groups are empty the entire group can be removed
-                if group.0.is_none() && group.1.is_none() {
+                // if both children are non-existent the entire group can be removed
+                if !group.exists(Ingroup::Left) && !group.exists(Ingroup::Right) {
                     self.elems.pop();
                 }
 
