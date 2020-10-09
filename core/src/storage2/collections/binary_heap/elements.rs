@@ -38,11 +38,10 @@ use crate::storage2::{
 
 /// Provides an interface for accessing elements in the `BinaryHeap`.
 ///
-/// In storage elements of the heap are stored in a vector of `Children`
-/// objects, whereby each `Children` object contains two elements.
-/// When operating on indices of the `BinaryHeap` this interface
-/// transposes indices to the child inside the `Children` object, in
-/// which the element is stored.
+/// Elements of the heap are stored in a vector of `Children` objects, whereby
+/// each `Children` object contains two elements. When operating on indices of
+/// the `BinaryHeap` this interface transposes heap indices to the child inside
+/// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
 pub struct Elements<T>
 where
