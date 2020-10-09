@@ -21,14 +21,14 @@ use criterion::{
     BenchmarkId,
     Criterion,
 };
+use ink_primitives::Key;
 use ink_storage::{
     collections::BinaryHeap,
     traits::{
         KeyPtr,
         SpreadLayout,
     },
-}
-use ink_primitives::Key;
+};
 use std::time::Duration;
 
 criterion_group!(push, bench_push_empty_cache, bench_push_populated_cache);
