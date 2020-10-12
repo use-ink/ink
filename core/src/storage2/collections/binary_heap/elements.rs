@@ -17,14 +17,14 @@
 //! we don't just store each element in it's own storage cell, but rather
 //! optimize storage access by putting children together in one storage cell.
 
+use super::{
+    children,
+    children::Children,
+    Iter,
+    IterMut,
+    StorageVec,
+};
 use crate::storage2::{
-    collections::binary_heap::{
-        children,
-        children::Children,
-        Iter,
-        IterMut,
-        StorageVec,
-    },
     traits::{
         KeyPtr,
         PackedLayout,
