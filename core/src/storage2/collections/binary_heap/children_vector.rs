@@ -40,7 +40,7 @@ use crate::storage2::{
 /// the `BinaryHeap` this interface transposes heap indices to the child inside
 /// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
-pub(crate) struct Elements<T>
+pub(crate) struct ChildrenVector<T>
 where
     T: PackedLayout + Ord,
 {
@@ -81,7 +81,7 @@ impl<'a, T> ChildInfoMut<'a, T> {
     }
 }
 
-impl<T> Elements<T>
+impl<T> ChildrenVector<T>
 where
     T: PackedLayout + Ord,
 {
@@ -286,7 +286,7 @@ where
     }
 }
 
-impl<T> SpreadLayout for Elements<T>
+impl<T> SpreadLayout for ChildrenVector<T>
 where
     T: SpreadLayout + Ord + PackedLayout,
 {

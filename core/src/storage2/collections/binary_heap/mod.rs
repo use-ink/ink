@@ -18,7 +18,7 @@
 //! Checking the largest element is `O(1)`.
 
 mod children;
-mod elements;
+mod children_vector;
 mod impls;
 mod reverse;
 mod storage;
@@ -35,7 +35,7 @@ pub use reverse::Reverse;
 
 use self::{
     children::Children,
-    elements::Elements,
+    children_vector::ChildrenVector,
 };
 
 /// A priority queue implemented with a binary heap.
@@ -52,7 +52,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The individual elements of the heap.
-    elements: Elements<T>,
+    elements: ChildrenVector<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -62,7 +62,7 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            elements: Elements::new(),
+            elements: ChildrenVector::new(),
         }
     }
 
@@ -283,7 +283,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The storage to iterate over.
-    elements: &'a Elements<T>,
+    elements: &'a ChildrenVector<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -295,7 +295,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub(crate) fn new(elements: &'a Elements<T>) -> Self {
+    pub(crate) fn new(elements: &'a ChildrenVector<T>) -> Self {
         Self {
             elements,
             begin: 0,
@@ -348,7 +348,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The heap elements to iterate over.
-    elements: &'a mut Elements<T>,
+    elements: &'a mut ChildrenVector<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -360,7 +360,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub(crate) fn new(elements: &'a mut Elements<T>) -> Self {
+    pub(crate) fn new(elements: &'a mut ChildrenVector<T>) -> Self {
         let end = elements.len();
         Self {
             elements,
