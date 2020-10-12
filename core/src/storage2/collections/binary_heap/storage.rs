@@ -84,7 +84,7 @@ impl<T> SpreadLayout for BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    const FOOTPRINT: u64 = 1 + <ChildrenVector<T> as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = <ChildrenVector<T> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
