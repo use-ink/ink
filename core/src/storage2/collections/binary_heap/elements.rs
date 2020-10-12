@@ -148,38 +148,34 @@ where
         *child_info_a.child = b_opt;
     }
 
-    /// Removes the indexed element from the vector and returns it.
+    /// Removes the element at `index` from the heap and returns it.
     ///
-    /// The last element of the vector is put into the indexed slot.
-    /// Returns `None` and does not mutate the vector if the index is out of bounds.
-    ///
-    /// # Note
-    ///
-    /// This operation does not preserve ordering but is constant time.
-    pub fn swap_remove(&mut self, n: u32) -> Option<T> {
+    /// The last element of the heap is put into the slot at `index`.
+    /// Returns `None` and does not mutate the heap is empty.
+    pub fn swap_remove(&mut self, index: u32) -> Option<T> {
         if self.is_empty() {
             return None
         }
-        self.swap(n, self.len() - 1);
+        self.swap(index, self.len() - 1);
         self.pop()
     }
 
-    /// Returns an iterator yielding shared references to all elements of the vector.
+    /// Returns an iterator yielding shared references to all elements of the heap.
     ///
     /// # Note
     ///
-    /// Avoid unbounded iteration over big storage vectors.
+    /// Avoid unbounded iteration over big storage heaps.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
         Iter::new(&self)
     }
 
-    /// Returns an iterator yielding exclusive references to all elements of the vector.
+    /// Returns an iterator yielding exclusive references to all elements of the heap.
     ///
     /// # Note
     ///
-    /// Avoid unbounded iteration over big storage vectors.
+    /// Avoid unbounded iteration over big storage heaps.
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
@@ -202,11 +198,11 @@ where
         self.get_mut(0)
     }
 
-    /// Removes all elements from this vector.
+    /// Removes all elements from this heap.
     ///
     /// # Note
     ///
-    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// Use this method to clear the heap instead of e.g. iterative `pop()`.
     /// This method performs significantly better and does not actually read
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
@@ -217,11 +213,11 @@ where
         self.len = Lazy::new(0);
     }
 
-    /// Appends an element to the back of the vector.
+    /// Appends an element to the back of the heap.
     pub fn push(&mut self, value: T) {
         assert!(
             self.len() < core::u32::MAX,
-            "cannot push more elements into the storage vector"
+            "cannot push more elements into the storage heap"
         );
         let last_index = self.len();
         *self.len += 1;
@@ -268,9 +264,9 @@ where
         );
     }
 
-    /// Pops the last element from the vector and returns it.
+    /// Pops the last element from the heap and returns it.
     //
-    /// Returns `None` if the vector is empty.
+    /// Returns `None` if the heap is empty.
     fn pop(&mut self) -> Option<T> {
         if self.is_empty() {
             return None

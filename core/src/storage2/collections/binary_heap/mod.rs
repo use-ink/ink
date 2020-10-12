@@ -180,7 +180,7 @@ where
     ///
     /// # Note
     ///
-    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// Use this method to clear the heap instead of e.g. iterative `pop()`.
     /// This method performs significantly better and does not actually read
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
@@ -282,7 +282,7 @@ pub struct Iter<'a, T>
 where
     T: PackedLayout + Ord,
 {
-    /// The storage vector to iterate over.
+    /// The storage to iterate over.
     elements: &'a Elements<T>,
     /// The current begin of the iteration.
     begin: u32,
@@ -294,7 +294,7 @@ impl<'a, T> Iter<'a, T>
 where
     T: PackedLayout + Ord,
 {
-    /// Creates a new iterator for the given storage vector.
+    /// Creates a new iterator for the given heap elements.
     pub(crate) fn new(elements: &'a Elements<T>) -> Self {
         Self {
             elements,
@@ -341,13 +341,13 @@ where
     }
 }
 
-/// An iterator over exclusive references to the elements of a storage vector.
+/// An iterator over exclusive references to the elements of a heap.
 #[derive(Debug)]
 pub struct IterMut<'a, T>
 where
     T: PackedLayout + Ord,
 {
-    /// The storage vector to iterate over.
+    /// The heap elements to iterate over.
     elements: &'a mut Elements<T>,
     /// The current begin of the iteration.
     begin: u32,
@@ -359,7 +359,7 @@ impl<'a, T> IterMut<'a, T>
 where
     T: PackedLayout + Ord,
 {
-    /// Creates a new iterator for the given storage vector.
+    /// Creates a new iterator for the given heap elements.
     pub(crate) fn new(elements: &'a mut Elements<T>) -> Self {
         let end = elements.len();
         Self {
@@ -385,9 +385,9 @@ where
             // SAFETY: We extend the lifetime of the reference here.
             //
             //         This is safe because the iterator yields an exclusive
-            //         reference to every element in the iterated vector
+            //         reference to every element in the iterated heap
             //         just once and also there can be only one such iterator
-            //         for the same vector at the same time which is
+            //         for the same heap at the same time which is
             //         guaranteed by the constructor of the iterator.
             unsafe { extend_lifetime::<'b, 'a, T>(value) }
         })
