@@ -1,0 +1,5 @@
+error: unknown ink! attribute (path)
+ --> $DIR/S-03-struct-unknown-ink-marker.rs:8:11
+  |
+8 |     #[ink(unknown_or_unsupported)]
+  |           ^^^^^^^^^^^^^^^^^^^^^^

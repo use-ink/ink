@@ -1,0 +1,11 @@
+error: missing ink! storage struct
+  --> $DIR/S-01-missing-storage-struct.rs:4:1
+   |
+4  | / mod missing_storage_struct {
+5  | |     // We are missing the #[ink(storage)] attribute here
+6  | |     pub struct MissingStorageStruct {}
+7  | |
+...  |
+14 | |     }
+15 | | }
+   | |_^

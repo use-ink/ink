@@ -1,0 +1,5 @@
+error: ink! constructors must not be const
+  --> $DIR/C-12-const-constructor.rs:10:13
+   |
+10 |         pub const fn const_constructor() -> Self {
+   |             ^^^^^

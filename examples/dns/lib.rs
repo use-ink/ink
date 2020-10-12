@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2020 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,18 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage2::{
+    use ink_storage::{
+        collections::hashmap::Entry,
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
     };
 
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
-    struct Register {
+    pub struct Register {
         #[ink(topic)]
         name: Hash,
         #[ink(topic)]
@@ -35,7 +36,7 @@ mod dns {
 
     /// Emitted whenever an address changes.
     #[ink(event)]
-    struct SetAddress {
+    pub struct SetAddress {
         #[ink(topic)]
         name: Hash,
         from: AccountId,
@@ -47,7 +48,7 @@ mod dns {
 
     /// Emitted whenver a name is being transferred.
     #[ink(event)]
-    struct Transfer {
+    pub struct Transfer {
         #[ink(topic)]
         name: Hash,
         from: AccountId,
@@ -74,7 +75,7 @@ mod dns {
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
     #[derive(Default)]
-    struct DomainNameService {
+    pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: StorageHashMap<Hash, AccountId>,
         /// A hashmap to store all name to owners mapping.
@@ -99,25 +100,28 @@ mod dns {
     impl DomainNameService {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Default::default()
         }
 
         /// Register specific name with caller as owner.
         #[ink(message)]
-        fn register(&mut self, name: Hash) -> Result<()> {
+        pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            if self.is_name_assigned(name) {
-                return Err(Error::NameAlreadyExists)
+            let entry = self.name_to_owner.entry(name);
+            match entry {
+                Entry::Occupied(_) => return Err(Error::NameAlreadyExists),
+                Entry::Vacant(vacant) => {
+                    vacant.insert(caller);
+                    self.env().emit_event(Register { name, from: caller });
+                }
             }
-            self.name_to_owner.insert(name, caller);
-            self.env().emit_event(Register { name, from: caller });
             Ok(())
         }
 
         /// Set address for specific name.
         #[ink(message)]
-        fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
+        pub fn set_address(&mut self, name: Hash, new_address: AccountId) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -135,7 +139,7 @@ mod dns {
 
         /// Transfer owner to another address.
         #[ink(message)]
-        fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
+        pub fn transfer(&mut self, name: Hash, to: AccountId) -> Result<()> {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
@@ -153,14 +157,8 @@ mod dns {
 
         /// Get address for specific name.
         #[ink(message)]
-        fn get_address(&self, name: Hash) -> AccountId {
+        pub fn get_address(&self, name: Hash) -> AccountId {
             self.get_address_or_default(name)
-        }
-
-        /// Returns `true` if the name already assigned.
-        #[ink(message)]
-        fn is_name_assigned(&self, name: Hash) -> bool {
-            self.name_to_owner.get(&name).is_some()
         }
 
         /// Returns the owner given the hash or the default address.
@@ -183,103 +181,86 @@ mod dns {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_core::env;
-
-        /// Executes the given test through the off-chain environment.
-        fn run_test<F>(test_fn: F)
-        where
-            F: FnOnce(),
-        {
-            env::test::run_test::<env::DefaultEnvTypes, _>(|_| {
-                test_fn();
-                Ok(())
-            })
-            .unwrap()
-        }
+        use ink_lang as ink;
 
         const DEFAULT_CALLEE_HASH: [u8; 32] = [0x07; 32];
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
         const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
 
-        fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvTypes> {
-            env::test::default_accounts::<env::DefaultEnvTypes>()
+        fn default_accounts(
+        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
+            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("off-chain environment should have been initialized already")
         }
 
         fn set_next_caller(caller: AccountId) {
-            env::test::push_execution_context::<env::DefaultEnvTypes>(
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 caller,
                 AccountId::from(DEFAULT_CALLEE_HASH),
                 DEFAULT_ENDOWMENT,
                 DEFAULT_GAS_LIMIT,
-                env::test::CallData::new(env::call::Selector::new([0x00; 4])),
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])),
             )
         }
 
-        #[test]
+        #[ink::test]
         fn register_works() {
-            run_test(|| {
-                let default_accounts = default_accounts();
-                let name = Hash::from([0x99; 32]);
+            let default_accounts = default_accounts();
+            let name = Hash::from([0x99; 32]);
 
-                set_next_caller(default_accounts.alice);
-                let mut contract = DomainNameService::new();
+            set_next_caller(default_accounts.alice);
+            let mut contract = DomainNameService::new();
 
-                assert_eq!(contract.register(name), Ok(()));
-                assert_eq!(contract.register(name), Err(Error::NameAlreadyExists));
-            })
+            assert_eq!(contract.register(name), Ok(()));
+            assert_eq!(contract.register(name), Err(Error::NameAlreadyExists));
         }
 
-        #[test]
+        #[ink::test]
         fn set_address_works() {
-            run_test(|| {
-                let accounts = default_accounts();
-                let name = Hash::from([0x99; 32]);
+            let accounts = default_accounts();
+            let name = Hash::from([0x99; 32]);
 
-                set_next_caller(accounts.alice);
+            set_next_caller(accounts.alice);
 
-                let mut contract = DomainNameService::new();
-                assert_eq!(contract.register(name), Ok(()));
+            let mut contract = DomainNameService::new();
+            assert_eq!(contract.register(name), Ok(()));
 
-                // Caller is not owner, `set_address` should fail.
-                set_next_caller(accounts.bob);
-                assert_eq!(
-                    contract.set_address(name, accounts.bob),
-                    Err(Error::CallerIsNotOwner)
-                );
+            // Caller is not owner, `set_address` should fail.
+            set_next_caller(accounts.bob);
+            assert_eq!(
+                contract.set_address(name, accounts.bob),
+                Err(Error::CallerIsNotOwner)
+            );
 
-                // caller is owner, set_address will be successful
-                set_next_caller(accounts.alice);
-                assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-                assert_eq!(contract.get_address(name), accounts.bob);
-            })
+            // caller is owner, set_address will be successful
+            set_next_caller(accounts.alice);
+            assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
+            assert_eq!(contract.get_address(name), accounts.bob);
         }
 
-        #[test]
+        #[ink::test]
         fn transfer_works() {
-            run_test(|| {
-                let accounts = default_accounts();
-                let name = Hash::from([0x99; 32]);
+            let accounts = default_accounts();
+            let name = Hash::from([0x99; 32]);
 
-                set_next_caller(accounts.alice);
+            set_next_caller(accounts.alice);
 
-                let mut contract = DomainNameService::new();
-                assert_eq!(contract.register(name), Ok(()));
+            let mut contract = DomainNameService::new();
+            assert_eq!(contract.register(name), Ok(()));
 
-                // Test transfer of owner.
-                assert_eq!(contract.transfer(name, accounts.bob), Ok(()));
+            // Test transfer of owner.
+            assert_eq!(contract.transfer(name, accounts.bob), Ok(()));
 
-                // Owner is bob, alice `set_address` should fail.
-                assert_eq!(
-                    contract.set_address(name, accounts.bob),
-                    Err(Error::CallerIsNotOwner)
-                );
+            // Owner is bob, alice `set_address` should fail.
+            assert_eq!(
+                contract.set_address(name, accounts.bob),
+                Err(Error::CallerIsNotOwner)
+            );
 
-                set_next_caller(accounts.bob);
-                // Now owner is bob, `set_address` should be successful.
-                assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
-                assert_eq!(contract.get_address(name), accounts.bob);
-            })
+            set_next_caller(accounts.bob);
+            // Now owner is bob, `set_address` should be successful.
+            assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
+            assert_eq!(contract.get_address(name), accounts.bob);
         }
     }
 }

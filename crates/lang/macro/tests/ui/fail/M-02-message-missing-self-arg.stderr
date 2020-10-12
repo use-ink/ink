@@ -1,0 +1,6 @@
+error: ink! messages must have `&self` or `&mut self` receiver
+  --> $DIR/M-02-message-missing-self-arg.rs:14:9
+   |
+14 | /         #[ink(message)]
+15 | |         pub fn missing_self_arg() {}
+   | |____________________________________^

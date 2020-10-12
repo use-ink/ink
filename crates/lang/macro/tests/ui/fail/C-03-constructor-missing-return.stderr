@@ -1,0 +1,5 @@
+error: missing return for ink! constructor
+  --> $DIR/C-03-constructor-missing-return.rs:10:13
+   |
+10 |         pub fn missing_return() {}
+   |             ^^^^^^^^^^^^^^^^^^^

@@ -12,12 +12,16 @@
 [d2]: https://coveralls.io/github/paritytech/ink?branch=master
 [e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
-[f1]: https://img.shields.io/badge/docs-core-blue.svg
-[f2]: https://paritytech.github.io/ink/ink_core
+[f1]: https://img.shields.io/badge/docs-storage-blue.svg
+[f2]: https://paritytech.github.io/ink/ink_storage
+[g1]: https://img.shields.io/badge/docs-env-blue.svg
+[g2]: https://paritytech.github.io/ink/ink_env
 [h1]: https://img.shields.io/badge/docs-metadata-blue.svg
 [h2]: https://paritytech.github.io/ink/ink_metadata
 [i1]: https://img.shields.io/badge/docs-prelude-blue.svg
 [i2]: https://paritytech.github.io/ink/ink_prelude
+[j1]: https://img.shields.io/badge/docs-lang-blue.svg
+[j2]: https://paritytech.github.io/ink/ink_lang
 
 **IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
 
@@ -27,9 +31,9 @@ For more information please visit [the ink! tutorial](https://substrate.dev/subs
 
 ## Developer Documentation
 
-| `ink_metadata`     | `ink_core`    | `ink_prelude` |
-| ------------- | ------------- | ------------- |
-| [![][h1]][h2] | [![][f1]][f2] | [![][i1]][i2] |
+| `ink_metadata` | `ink_env` | `ink_storage` | `ink_lang` | `ink_prelude` |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| [![][h1]][h2] | [![][g1]][g2] | [![][f1]][f2] | [![][j1]][j2] | [![][i1]][i2] |
 
 ### Interaction with Substrate
 
@@ -86,13 +90,11 @@ Below you can see the code using the `ink_lang` version of ink!.
 ```rust
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod flipper {
-    use ink_core::storage;
-
     /// The storage of the flipper contract.
     #[ink(storage)]
-    struct Flipper {
+    pub struct Flipper {
         /// The single `bool` value.
         value: bool,
     }
@@ -100,7 +102,7 @@ mod flipper {
     impl Flipper {
         /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
         #[ink(constructor)]
-        fn new(init_value: bool) -> Self {
+        pub fn new(init_value: bool) -> Self {
             Self {
                 value: init_value,
             }
@@ -108,35 +110,30 @@ mod flipper {
 
         /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
         #[ink(constructor)]
-        fn default() -> Self {
+        pub fn default() -> Self {
             Self::new(false)
         }
 
         /// Flips `value` from `true` to `false` or vice versa.
         #[ink(message)]
-        fn flip(&mut self) {
+        pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
         /// Returns the current state of `value`.
         #[ink(message)]
-        fn get(&self) -> bool {
+        pub fn get(&self) -> bool {
             self.value
         }
     }
 
-    /// As in normal Rust code we are able to define tests like below.
-    ///
-    /// Simply execute `cargo test` in order to test your contract.
+    /// Simply execute `cargo test` in order to test your contract using the below unit tests.
     #[cfg(test)]
     mod tests {
         use super::*;
 
         #[test]
         fn default_works() {
-            // Note that `#[ink(constructor)]` functions that above have been
-            // defined as `&mut self` can be used as normal Rust constructors
-            // in test mode.
             let flipper = Flipper::default();
             assert_eq!(flipper.get(), false);
         }
