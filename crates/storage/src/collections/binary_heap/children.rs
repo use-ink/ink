@@ -98,11 +98,7 @@ where
 
     /// Returns the number of existent children in this object.
     pub fn count(&self) -> usize {
-        CHILDREN_PER_NODE as usize
-            - [self.left.as_ref(), self.right.as_ref()]
-                .iter()
-                .flatten()
-                .count()
+        self.left.is_some() as usize + self.right.is_some() as usize
     }
 
     /// Returns a shared reference to the element at `which`.
