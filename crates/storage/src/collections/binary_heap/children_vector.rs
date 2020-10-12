@@ -150,7 +150,7 @@ where
     /// Removes the element at `index` from the heap and returns it.
     ///
     /// The last element of the heap is put into the slot at `index`.
-    /// Returns `None` and does not mutate the heap is empty.
+    /// Returns `None` and does not mutate the heap if it is empty.
     pub fn swap_remove(&mut self, index: u32) -> Option<T> {
         if self.is_empty() {
             return None
@@ -280,7 +280,7 @@ where
             .expect("children must exist at last_index");
         let popped_val = info.child.take();
         if info.child_count == 1 {
-            // if both children are non-existent the entire children object can be removed
+            // if both children are non-existent the entire `Children` object can be removed
             self.children.pop();
         }
         popped_val
