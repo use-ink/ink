@@ -32,14 +32,14 @@ use scale_info::TypeInfo;
 /// of the binary heap algorithm.
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 #[derive(scale::Encode, scale::Decode, Default, PartialEq, Eq, Debug)]
-pub struct Children<T: PackedLayout + Ord> {
+pub(super) struct Children<T: PackedLayout + Ord> {
     left: Option<T>,
     right: Option<T>,
 }
 
 /// The position which a child has in a `Children` object.
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub enum ChildPosition {
+pub(super) enum ChildPosition {
     Left,
     Right,
 }
@@ -48,11 +48,11 @@ pub enum ChildPosition {
 ///
 /// Note that the first `Children` object (at index `0`) will only ever
 /// contain one element (the root element).
-pub(crate) const CHILDREN_PER_NODE: u32 = 2;
+pub(super) const CHILDREN_PER_NODE: u32 = 2;
 
 /// Returns the index of the `Children` object in which the `n`-th element of
 /// the heap is stored.
-pub(crate) fn get_children_storage_index(n: u32) -> u32 {
+pub(super) fn get_children_storage_index(n: u32) -> u32 {
     if n == 0 {
         return 0
     }
@@ -67,7 +67,7 @@ pub(crate) fn get_children_storage_index(n: u32) -> u32 {
 ///
 /// For example, the element `3` is found at the child position `0`
 /// (within the `Children` object at storage index `2`).
-pub(crate) fn get_child_pos(n: u32) -> ChildPosition {
+pub(super) fn get_child_pos(n: u32) -> ChildPosition {
     let storage_index = get_children_storage_index(n);
     match (storage_index, n) {
         (0, 0) => ChildPosition::Left,

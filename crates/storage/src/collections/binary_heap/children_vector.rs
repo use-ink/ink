@@ -39,7 +39,7 @@ use crate::{
 /// the `BinaryHeap` this interface transposes heap indices to the child inside
 /// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
-pub(crate) struct ChildrenVector<T>
+pub struct ChildrenVector<T>
 where
     T: PackedLayout + Ord,
 {
@@ -53,9 +53,9 @@ where
 }
 
 /// Encapsulates information regarding a particular child.
-pub(crate) struct ChildInfo<'a, T> {
+pub(super) struct ChildInfo<'a, T> {
     /// A reference to the value in this child, if existent.
-    pub(crate) child: &'a Option<T>,
+    pub(super) child: &'a Option<T>,
 }
 
 impl<'a, T> ChildInfo<'a, T> {
@@ -66,11 +66,11 @@ impl<'a, T> ChildInfo<'a, T> {
 }
 
 /// Encapsulates information regarding a particular child.
-pub(crate) struct ChildInfoMut<'a, T> {
+pub(super) struct ChildInfoMut<'a, T> {
     /// A mutable reference to the value in this child, if existent.
-    pub(crate) child: &'a mut Option<T>,
+    pub(super) child: &'a mut Option<T>,
     /// The number of children which are set in this `Children` object.
-    pub(crate) child_count: usize,
+    pub(super) child_count: usize,
 }
 
 impl<'a, T> ChildInfoMut<'a, T> {
@@ -224,7 +224,7 @@ where
     }
 
     /// Returns information about the child at the heap index if any.
-    pub fn get_child(&self, index: u32) -> Option<ChildInfo<T>> {
+    pub(super) fn get_child(&self, index: u32) -> Option<ChildInfo<T>> {
         let storage_index = children::get_children_storage_index(index);
         let child_pos = children::get_child_pos(index);
         let children = self.children.get(storage_index)?;
@@ -235,7 +235,7 @@ where
     /// Returns information about the child at the heap index if any.
     ///
     /// The returned `ChildInfoMut` contains a mutable reference to the value `T`.
-    pub fn get_child_mut(&mut self, index: u32) -> Option<ChildInfoMut<T>> {
+    pub(super) fn get_child_mut(&mut self, index: u32) -> Option<ChildInfoMut<T>> {
         let storage_index = children::get_children_storage_index(index);
         let child_pos = children::get_child_pos(index);
         let children = self.children.get_mut(storage_index)?;
@@ -329,7 +329,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub(crate) fn new(elements: &'a ChildrenVector<T>) -> Self {
+    pub fn new(elements: &'a ChildrenVector<T>) -> Self {
         Self {
             elements,
             begin: 0,
@@ -394,7 +394,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub(crate) fn new(elements: &'a mut ChildrenVector<T>) -> Self {
+    pub fn new(elements: &'a mut ChildrenVector<T>) -> Self {
         let end = elements.len();
         Self {
             elements,
