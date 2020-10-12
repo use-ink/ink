@@ -20,11 +20,10 @@
 use super::{
     children,
     children::Children,
-    Iter,
-    IterMut,
     StorageVec,
 };
 use crate::{
+    collections::extend_lifetime,
     traits::{
         KeyPtr,
         PackedLayout,
@@ -308,5 +307,154 @@ where
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.children, ptr);
+    }
+}
+
+/// An iterator over shared references to the elements of the `BinaryHeap`.
+#[derive(Debug, Clone, Copy)]
+pub struct Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// The heap elements to iterate over.
+    elements: &'a ChildrenVector<T>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T> Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// Creates a new iterator for the given heap elements.
+    pub(crate) fn new(elements: &'a ChildrenVector<T>) -> Self {
+        Self {
+            elements,
+            begin: 0,
+            end: elements.len(),
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+
+        self.elements.get_child(cur)?.child.as_ref()
+    }
+}
+
+/// An iterator over exclusive references to the elements of a heap.
+#[derive(Debug)]
+pub struct IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// The heap elements to iterate over.
+    elements: &'a mut ChildrenVector<T>,
+    /// The current begin of the iteration.
+    begin: u32,
+    /// The current end of the iteration.
+    end: u32,
+}
+
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    /// Creates a new iterator for the given heap elements.
+    pub(crate) fn new(elements: &'a mut ChildrenVector<T>) -> Self {
+        let end = elements.len();
+        Self {
+            elements,
+            begin: 0,
+            end,
+        }
+    }
+
+    /// Returns the amount of remaining elements to yield by the iterator.
+    fn remaining(&self) -> u32 {
+        self.end - self.begin
+    }
+}
+
+impl<'a, T> IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
+        let child_mut = self.elements.get_child_mut(at)?.child.as_mut();
+        child_mut.map(|value| {
+            // SAFETY: We extend the lifetime of the reference here.
+            //
+            //         This is safe because the iterator yields an exclusive
+            //         reference to every element in the iterated heap
+            //         just once and also there can be only one such iterator
+            //         for the same heap at the same time which is
+            //         guaranteed by the constructor of the iterator.
+            unsafe { extend_lifetime::<'b, 'a, T>(value) }
+        })
+    }
+}
+
+impl<'a, T> Iterator for IterMut<'a, T>
+where
+    T: PackedLayout + Ord,
+{
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        <Self as Iterator>::nth(self, 0)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.remaining() as usize;
+        (remaining, Some(remaining))
+    }
+
+    fn count(self) -> usize {
+        self.remaining() as usize
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        debug_assert!(self.begin <= self.end);
+        let n = n as u32;
+        if self.begin + n >= self.end {
+            return None
+        }
+        let cur = self.begin + n;
+        self.begin += 1 + n;
+        self.get_mut(cur).expect("access is out of bounds").into()
     }
 }
