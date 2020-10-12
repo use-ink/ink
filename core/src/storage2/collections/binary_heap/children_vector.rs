@@ -224,7 +224,7 @@ where
         self.push_to(last_index, Some(value));
     }
 
-    /// If existent information about the child at this heap index is returned.
+    /// Returns information about the child at the heap index if any.
     pub fn get_child(&self, index: u32) -> Option<ChildInfo<T>> {
         let storage_index = children::get_children_storage_index(index);
         let child_pos = children::get_child_pos(index);
@@ -233,7 +233,8 @@ where
         Some(ChildInfo::new(child))
     }
 
-    /// If existent information about the child at this heap index is returned.
+    /// Returns information about the child at the heap index if any.
+    ///
     /// The returned `ChildInfoMut` contains a mutable reference to the value `T`.
     pub fn get_child_mut(&mut self, index: u32) -> Option<ChildInfoMut<T>> {
         let storage_index = children::get_children_storage_index(index);
@@ -245,6 +246,7 @@ where
     }
 
     /// Pushes `value` to the heap index `index`.
+    ///
     /// If there is already a child in storage which `index` resolves to
     /// then `value` is inserted there. Otherwise a new child is created.
     fn push_to(&mut self, index: u32, value: Option<T>) {
