@@ -49,7 +49,7 @@ const _: () = {
 
 #[cfg(feature = "std")]
 const _: () = {
-    use super::Children;
+    use super::children::Children;
     use crate::{
         collections::binary_heap::StorageVec,
         lazy::Lazy,

@@ -26,10 +26,7 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-use self::{
-    children::Children,
-    children_vec::ChildrenVec,
-};
+use self::children_vec::ChildrenVec;
 use super::vec::Vec as StorageVec;
 use crate::traits::PackedLayout;
 
