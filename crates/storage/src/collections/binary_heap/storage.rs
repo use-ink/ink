@@ -49,11 +49,9 @@ const _: () = {
 
 #[cfg(feature = "std")]
 const _: () = {
+    use super::Children;
     use crate::{
-        collections::binary_heap::{
-            Children,
-            StorageVec,
-        },
+        collections::binary_heap::StorageVec,
         lazy::Lazy,
         traits::StorageLayout,
     };

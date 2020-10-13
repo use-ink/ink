@@ -26,18 +26,18 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+use self::{
+    children::Children,
+    children_vector::ChildrenVector,
+};
 use super::vec::Vec as StorageVec;
 use crate::traits::PackedLayout;
+
 pub use children_vector::{
     Iter,
     IterMut,
 };
 pub use reverse::Reverse;
-
-use self::{
-    children::Children,
-    children_vector::ChildrenVector,
-};
 
 /// A priority queue implemented with a binary heap.
 ///
