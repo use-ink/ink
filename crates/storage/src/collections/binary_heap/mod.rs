@@ -18,7 +18,7 @@
 //! Checking the largest element is `O(1)`.
 
 mod children;
-mod children_vector;
+mod children_vec;
 mod impls;
 mod reverse;
 mod storage;
@@ -28,12 +28,12 @@ mod tests;
 
 use self::{
     children::Children,
-    children_vector::ChildrenVector,
+    children_vec::ChildrenVec,
 };
 use super::vec::Vec as StorageVec;
 use crate::traits::PackedLayout;
 
-pub use children_vector::{
+pub use children_vec::{
     Iter,
     IterMut,
 };
@@ -53,7 +53,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The individual elements of the heap.
-    elements: ChildrenVector<T>,
+    elements: ChildrenVec<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -63,7 +63,7 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            elements: ChildrenVector::new(),
+            elements: ChildrenVec::new(),
         }
     }
 

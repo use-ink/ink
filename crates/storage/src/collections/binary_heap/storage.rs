@@ -16,7 +16,7 @@
 
 use super::{
     BinaryHeap,
-    ChildrenVector,
+    ChildrenVec,
 };
 use crate::traits::{
     KeyPtr,
@@ -41,7 +41,7 @@ const _: () = {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![FieldLayout::new(
                 "elems",
-                <ChildrenVector<T> as StorageLayout>::layout(key_ptr),
+                <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
             )]))
         }
     }
@@ -62,7 +62,7 @@ const _: () = {
     };
     use scale_info::TypeInfo;
 
-    impl<T> StorageLayout for ChildrenVector<T>
+    impl<T> StorageLayout for ChildrenVec<T>
     where
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
@@ -82,7 +82,7 @@ impl<T> SpreadLayout for BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    const FOOTPRINT: u64 = <ChildrenVector<T> as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = <ChildrenVec<T> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {

@@ -39,7 +39,7 @@ use crate::{
 /// the `BinaryHeap` this interface transposes heap indices to the child inside
 /// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
-pub struct ChildrenVector<T>
+pub struct ChildrenVec<T>
 where
     T: PackedLayout + Ord,
 {
@@ -80,7 +80,7 @@ impl<'a, T> ChildInfoMut<'a, T> {
     }
 }
 
-impl<T> ChildrenVector<T>
+impl<T> ChildrenVec<T>
 where
     T: PackedLayout + Ord,
 {
@@ -287,7 +287,7 @@ where
     }
 }
 
-impl<T> SpreadLayout for ChildrenVector<T>
+impl<T> SpreadLayout for ChildrenVec<T>
 where
     T: SpreadLayout + Ord + PackedLayout,
 {
@@ -317,7 +317,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The heap elements to iterate over.
-    elements: &'a ChildrenVector<T>,
+    elements: &'a ChildrenVec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -329,7 +329,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub fn new(elements: &'a ChildrenVector<T>) -> Self {
+    pub fn new(elements: &'a ChildrenVec<T>) -> Self {
         Self {
             elements,
             begin: 0,
@@ -382,7 +382,7 @@ where
     T: PackedLayout + Ord,
 {
     /// The heap elements to iterate over.
-    elements: &'a mut ChildrenVector<T>,
+    elements: &'a mut ChildrenVec<T>,
     /// The current begin of the iteration.
     begin: u32,
     /// The current end of the iteration.
@@ -394,7 +394,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new iterator for the given heap elements.
-    pub fn new(elements: &'a mut ChildrenVector<T>) -> Self {
+    pub fn new(elements: &'a mut ChildrenVec<T>) -> Self {
         let end = elements.len();
         Self {
             elements,
