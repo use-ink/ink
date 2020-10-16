@@ -205,7 +205,7 @@ mod erc20 {
         }
 
         fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
-            *self.balances.get(owner).unwrap_or(&0)
+            self.balances.get(owner).copied().unwrap_or(0)
         }
 
         fn allowance_of_or_zero(
@@ -213,7 +213,10 @@ mod erc20 {
             owner: &AccountId,
             spender: &AccountId,
         ) -> Balance {
-            *self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
+            self.allowances
+                .get(&(*owner, *spender))
+                .copied()
+                .unwrap_or(0)
         }
     }
 
