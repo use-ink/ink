@@ -51,6 +51,17 @@ mod erc20 {
         value: Balance,
     }
 
+    /// The ERC-20 error types.
+    #[derive(Debug, PartialEq, Eq, scale::Encode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if not enough balance to fulfill a request is available.
+        InsufficientBalance,
+    }
+
+    /// The ERC-20 result type.
+    pub type Result<T> = core::result::Result<T, Error>;
+
     impl Erc20 {
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
@@ -86,13 +97,13 @@ mod erc20 {
         }
 
         #[ink(message)]
-        pub fn transfer(&mut self, to: AccountId, value: Balance) -> bool {
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
             let from = self.env().caller();
             self.transfer_from_to(from, to, value)
         }
 
         #[ink(message)]
-        pub fn approve(&mut self, spender: AccountId, value: Balance) -> bool {
+        pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
             self.allowances.insert((owner, spender), value);
             self.env().emit_event(Approval {
@@ -100,7 +111,7 @@ mod erc20 {
                 spender,
                 value,
             });
-            true
+            Ok(())
         }
 
         #[ink(message)]
@@ -109,11 +120,11 @@ mod erc20 {
             from: AccountId,
             to: AccountId,
             value: Balance,
-        ) -> bool {
+        ) -> Result<()> {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < value {
-                return false
+                return Err(Error::InsufficientBalance)
             }
             self.allowances.insert((from, caller), allowance - value);
             self.transfer_from_to(from, to, value)
@@ -124,10 +135,10 @@ mod erc20 {
             from: AccountId,
             to: AccountId,
             value: Balance,
-        ) -> bool {
+        ) -> Result<()> {
             let from_balance = self.balance_of_or_zero(&from);
             if from_balance < value {
-                return false
+                return Err(Error::InsufficientBalance)
             }
             self.balances.insert(from, from_balance - value);
             let to_balance = self.balance_of_or_zero(&to);
@@ -137,7 +148,7 @@ mod erc20 {
                 to: Some(to),
                 value,
             });
-            true
+            Ok(())
         }
 
         fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
@@ -289,7 +300,7 @@ mod erc20 {
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Alice transfers 10 tokens to Bob.
-            assert_eq!(erc20.transfer(accounts.bob, 10), true);
+            assert_eq!(erc20.transfer(accounts.bob, 10), Ok(()));
             // Bob owns 10 tokens.
             assert_eq!(erc20.balance_of(accounts.bob), 10);
 
@@ -340,7 +351,10 @@ mod erc20 {
             );
 
             // Bob fails to transfers 10 tokens to Eve.
-            assert_eq!(erc20.transfer(accounts.eve, 10), false);
+            assert_eq!(
+                erc20.transfer(accounts.eve, 10),
+                Err(Error::InsufficientBalance)
+            );
             // Alice owns all the tokens.
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             assert_eq!(erc20.balance_of(accounts.bob), 0);
@@ -367,9 +381,12 @@ mod erc20 {
                     .expect("Cannot get accounts");
 
             // Bob fails to transfer tokens owned by Alice.
-            assert_eq!(erc20.transfer_from(accounts.alice, accounts.eve, 10), false);
+            assert_eq!(
+                erc20.transfer_from(accounts.alice, accounts.eve, 10),
+                Err(Error::InsufficientBalance)
+            );
             // Alice approves Bob for token transfers on her behalf.
-            assert_eq!(erc20.approve(accounts.bob, 10), true);
+            assert_eq!(erc20.approve(accounts.bob, 10), Ok(()));
 
             // The approve event takes place.
             assert_eq!(ink_env::test::recorded_events().count(), 2);
@@ -394,7 +411,10 @@ mod erc20 {
             );
 
             // Bob transfers tokens from Alice to Eve.
-            assert_eq!(erc20.transfer_from(accounts.alice, accounts.eve, 10), true);
+            assert_eq!(
+                erc20.transfer_from(accounts.alice, accounts.eve, 10),
+                Ok(())
+            );
             // Eve owns tokens.
             assert_eq!(erc20.balance_of(accounts.eve), 10);
 
