@@ -270,7 +270,7 @@ mod tests {
                             let y: $name = pull_spread_root(&key);
                             assert_eq!(x, y);
                             push_packed_root(&x, &key2);
-                            let z: $name = pull_packed_root(&key);
+                            let z: $name = pull_packed_root(&key2);
                             assert_eq!(x, z);
                         })*
                     })
