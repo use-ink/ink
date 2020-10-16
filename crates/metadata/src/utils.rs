@@ -28,8 +28,8 @@ where
 
 /// Deserializes the given hex string with optional `0x` prefix.
 pub fn deserialize_from_byte_str<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
-    where
-        D: serde::Deserializer<'de>,
+where
+    D: serde::Deserializer<'de>,
 {
     struct Visitor;
 
@@ -41,12 +41,11 @@ pub fn deserialize_from_byte_str<'de, D>(deserializer: D) -> Result<Vec<u8>, D::
         }
 
         fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
-            let result =
-                if v.starts_with("0x") {
-                    serde_hex::from_hex(v)
-                } else {
-                    serde_hex::from_hex(&format!("0x{}", v))
-                };
+            let result = if v.starts_with("0x") {
+                serde_hex::from_hex(v)
+            } else {
+                serde_hex::from_hex(&format!("0x{}", v))
+            };
             result.map_err(E::custom)
         }
 

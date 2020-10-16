@@ -19,7 +19,7 @@ use crate::{
     serde_hex,
     utils::{
         deserialize_from_byte_str,
-        serialize_as_byte_str
+        serialize_as_byte_str,
     },
 };
 use derive_more::From;
