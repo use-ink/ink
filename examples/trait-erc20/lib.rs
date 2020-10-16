@@ -20,8 +20,6 @@ use ink_env::{
 };
 use ink_lang as ink;
 
-pub use erc20::Erc20;
-
 type Balance = <DefaultEnvironment as Environment>::Balance;
 type AccountId = <DefaultEnvironment as Environment>::AccountId;
 
