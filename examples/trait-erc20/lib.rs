@@ -105,7 +105,8 @@ mod erc20 {
         value: Balance,
     }
 
-    /// Event emitted when a token approve occurs.
+    /// Event emitted when an approval occurs that `spender` is allowed to withdraw
+    /// up to the amount of `value` tokens from `owner`.
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
