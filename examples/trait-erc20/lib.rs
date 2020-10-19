@@ -14,63 +14,12 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use ink_env::{
-    DefaultEnvironment,
-    Environment,
-};
 use ink_lang as ink;
-
-type Balance = <DefaultEnvironment as Environment>::Balance;
-type AccountId = <DefaultEnvironment as Environment>::AccountId;
-
-/// The ERC-20 error types.
-#[derive(Debug, PartialEq, Eq, scale::Encode)]
-#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub enum Error {
-    /// Returned if not enough balance to fulfill a request is available.
-    InsufficientBalance,
-}
-
-/// The ERC-20 result type.
-pub type Result<T> = core::result::Result<T, Error>;
-
-/// Trait implemented by all ERC-20 respecting smart contracts.
-#[ink::trait_definition]
-pub trait BaseErc20 {
-    #[ink(constructor)]
-    fn new(initial_supply: Balance) -> Self;
-
-    #[ink(message)]
-    fn total_supply(&self) -> Balance;
-
-    #[ink(message)]
-    fn balance_of(&self, owner: AccountId) -> Balance;
-
-    #[ink(message)]
-    fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance;
-
-    #[ink(message)]
-    fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()>;
-
-    #[ink(message)]
-    fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()>;
-
-    #[ink(message)]
-    fn transfer_from(
-        &mut self,
-        from: AccountId,
-        to: AccountId,
-        value: Balance,
-    ) -> Result<()>;
-}
 
 #[ink::contract]
 mod erc20 {
-    use super::{
-        BaseErc20,
-        Error,
-        Result,
-    };
+    #[cfg(not(feature = "ink-as-dependency"))]
+    use ink_lang as ink;
 
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang::{
@@ -83,6 +32,47 @@ mod erc20 {
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
     };
+
+    /// The ERC-20 error types.
+    #[derive(Debug, PartialEq, Eq, scale::Encode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if not enough balance to fulfill a request is available.
+        InsufficientBalance,
+    }
+
+    /// The ERC-20 result type.
+    pub type Result<T> = core::result::Result<T, Error>;
+
+    /// Trait implemented by all ERC-20 respecting smart contracts.
+    #[ink::trait_definition]
+    pub trait BaseErc20 {
+        #[ink(constructor)]
+        fn new(initial_supply: Balance) -> Self;
+
+        #[ink(message)]
+        fn total_supply(&self) -> Balance;
+
+        #[ink(message)]
+        fn balance_of(&self, owner: AccountId) -> Balance;
+
+        #[ink(message)]
+        fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance;
+
+        #[ink(message)]
+        fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()>;
+
+        #[ink(message)]
+        fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()>;
+
+        #[ink(message)]
+        fn transfer_from(
+            &mut self,
+            from: AccountId,
+            to: AccountId,
+            value: Balance,
+        ) -> Result<()>;
+    }
 
     #[ink(storage)]
     pub struct Erc20 {
