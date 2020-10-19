@@ -171,6 +171,8 @@ mod erc20 {
         /// the `value` amount.
         ///
         /// If this function is called again it overwrites the current allowance with `value`.
+        ///
+        /// An `Approval` event is emitted.
         #[ink(message)]
         fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
