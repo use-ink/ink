@@ -65,6 +65,8 @@ mod erc20 {
     pub enum Error {
         /// Returned if not enough balance to fulfill a request is available.
         InsufficientBalance,
+        /// Returned if not enough allowance to fulfill a request is available.
+        InsufficientAllowance,
     }
 
     /// The ERC-20 result type.
@@ -112,7 +114,7 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error:InsufficientBalance)` if there are not enough tokens on
+        /// Returns `Err(Error::InsufficientBalance)` if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
         pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
@@ -145,7 +147,7 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error:InsufficientBalance)` if there are not enough tokens on
+        /// Returns `Err(Error::InsufficientAllowance)` if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
         pub fn transfer_from(
@@ -157,7 +159,7 @@ mod erc20 {
             let caller = self.env().caller();
             let allowance = self.allowance_of_or_zero(&from, &caller);
             if allowance < value {
-                return Err(Error::InsufficientBalance)
+                return Err(Error::InsufficientAllowance)
             }
             self.allowances.insert((from, caller), allowance - value);
             self.transfer_from_to(from, to, value)
@@ -167,7 +169,7 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error:InsufficientBalance)` if there are not enough tokens on
+        /// Returns `Err(Error::InsufficientBalance)` if there are not enough tokens on
         /// the caller's account balance.
         fn transfer_from_to(
             &mut self,
@@ -431,7 +433,7 @@ mod erc20 {
             // Bob fails to transfer tokens owned by Alice.
             assert_eq!(
                 erc20.transfer_from(accounts.alice, accounts.eve, 10),
-                Err(Error::InsufficientBalance)
+                Err(Error::InsufficientAllowance)
             );
             // Alice approves Bob for token transfers on her behalf.
             assert_eq!(erc20.approve(accounts.bob, 10), Ok(()));
