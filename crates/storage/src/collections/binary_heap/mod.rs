@@ -27,7 +27,7 @@ mod storage;
 mod tests;
 
 use self::children_vec::ChildrenVec;
-use super::vec::Vec as StorageVec;
+use crate::collections::vec::Vec as StorageVec;
 use crate::traits::PackedLayout;
 
 pub use children_vec::{
