@@ -146,15 +146,22 @@ mod erc20 {
         }
 
         /// Returns the account balance for the specified `owner`.
+        ///
+        /// Returns `0` if the account is non-existent.
         #[ink(message)]
         fn balance_of(&self, owner: AccountId) -> Balance {
-            self.balance_of_or_zero(&owner)
+            self.balances.get(&owner).copied().unwrap_or(0)
         }
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+        ///
+        /// Returns `0` if no allowance has been set `0`.
         #[ink(message)]
         fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowance_of_or_zero(&owner, &spender)
+            self.allowances
+                .get(&(owner, spender))
+                .copied()
+                .unwrap_or(0)
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -208,7 +215,7 @@ mod erc20 {
             value: Balance,
         ) -> Result<()> {
             let caller = self.env().caller();
-            let allowance = self.allowance_of_or_zero(&from, &caller);
+            let allowance = self.allowance(from, caller);
             if allowance < value {
                 return Err(Error::InsufficientAllowance)
             }
@@ -232,12 +239,12 @@ mod erc20 {
             to: AccountId,
             value: Balance,
         ) -> Result<()> {
-            let from_balance = self.balance_of_or_zero(&from);
+            let from_balance = self.balance_of(from);
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
             self.balances.insert(from, from_balance - value);
-            let to_balance = self.balance_of_or_zero(&to);
+            let to_balance = self.balance_of(to);
             self.balances.insert(to, to_balance + value);
             self.env().emit_event(Transfer {
                 from: Some(from),
@@ -245,27 +252,6 @@ mod erc20 {
                 value,
             });
             Ok(())
-        }
-
-        /// Returns the balance of the `owner` account.
-        ///
-        /// Returns `0` if the account is non-existent..
-        fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
-            self.balances.get(owner).copied().unwrap_or(0)
-        }
-
-        /// Returns the amount which `spender` is allowed to withdraw from `owner`.
-        ///
-        /// Returns `0` if no allowance has been set `0`.
-        fn allowance_of_or_zero(
-            &self,
-            owner: &AccountId,
-            spender: &AccountId,
-        ) -> Balance {
-            self.allowances
-                .get(&(*owner, *spender))
-                .copied()
-                .unwrap_or(0)
         }
     }
 
