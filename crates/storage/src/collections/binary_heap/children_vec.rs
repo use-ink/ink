@@ -223,7 +223,7 @@ where
         );
         let last_index = self.len();
         *self.len += 1;
-        self.push_to(last_index, Some(value));
+        self.insert(last_index, Some(value));
     }
 
     /// Returns information about the child at the heap index if any.
@@ -247,11 +247,11 @@ where
         Some(ChildInfoMut::new(child, count))
     }
 
-    /// Pushes `value` to the heap index `index`.
+    /// Inserts `value` at the heap index `index`.
     ///
     /// If there is already a child in storage which `index` resolves to
     /// then `value` is inserted there. Otherwise a new child is created.
-    fn push_to(&mut self, index: u32, value: Option<T>) {
+    fn insert(&mut self, index: u32, value: Option<T>) {
         let info = self.get_child_mut(index);
         if let Some(info) = info {
             *info.child = value;
