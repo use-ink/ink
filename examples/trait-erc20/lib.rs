@@ -158,10 +158,7 @@ mod erc20 {
         /// Returns `0` if no allowance has been set `0`.
         #[ink(message)]
         fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowances
-                .get(&(owner, spender))
-                .copied()
-                .unwrap_or(0)
+            self.allowances.get(&(owner, spender)).copied().unwrap_or(0)
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -566,15 +563,20 @@ mod erc20 {
             );
 
             // Bob tries to transfer tokens from Alice to Eve.
-            let emitted_events_before = ink_env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events_before =
+                ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(
                 erc20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1),
                 Err(Error::InsufficientBalance)
             );
             // Allowance must have stayed the same
-            assert_eq!(erc20.allowance(accounts.alice, accounts.bob), initial_allowance);
+            assert_eq!(
+                erc20.allowance(accounts.alice, accounts.bob),
+                initial_allowance
+            );
             // No more events must have been emitted
-            let emitted_events_after = ink_env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events_after =
+                ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events_before.len(), emitted_events_after.len());
         }
     }
