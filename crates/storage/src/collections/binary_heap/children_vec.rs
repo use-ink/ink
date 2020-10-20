@@ -55,7 +55,7 @@ where
 /// Encapsulates information regarding a particular child.
 pub(super) struct ChildInfo<'a, T> {
     /// A reference to the value in this child, if existent.
-    pub(super) child: &'a Option<T>,
+    pub child: &'a Option<T>,
 }
 
 impl<'a, T> ChildInfo<'a, T> {
@@ -68,9 +68,9 @@ impl<'a, T> ChildInfo<'a, T> {
 /// Encapsulates information regarding a particular child.
 pub(super) struct ChildInfoMut<'a, T> {
     /// A mutable reference to the value in this child, if existent.
-    pub(super) child: &'a mut Option<T>,
+    pub child: &'a mut Option<T>,
     /// The number of children which are set in this `Children` object.
-    pub(super) child_count: usize,
+    pub child_count: usize,
 }
 
 impl<'a, T> ChildInfoMut<'a, T> {
