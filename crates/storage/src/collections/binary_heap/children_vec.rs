@@ -70,6 +70,12 @@ pub(super) struct ChildInfoMut<'a, T> {
     /// A mutable reference to the value in this child, if existent.
     pub child: &'a mut Option<T>,
     /// The number of children which are set in this `Children` object.
+    ///
+    /// This property exists only in `ChildInfoMut`, but not in `ChildInfo`.
+    /// The reason is that in the case of pop-ping a child from a `Children`
+    /// object we need to check if the child count of that object is `0` after
+    /// the pop operation. In that case no children are left in the object
+    /// and it can be removed altogether from the heap.
     pub child_count: usize,
 }
 
