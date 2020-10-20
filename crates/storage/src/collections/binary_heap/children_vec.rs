@@ -85,6 +85,7 @@ where
     T: PackedLayout + Ord,
 {
     /// Creates a new empty storage heap.
+    #[inline]
     pub fn new() -> Self {
         Self {
             len: Lazy::new(0),
@@ -93,6 +94,7 @@ where
     }
 
     /// Returns the number of elements in the heap, also referred to as its 'length'.
+    #[inline]
     pub fn len(&self) -> u32 {
         *self.len
     }
@@ -105,6 +107,7 @@ where
     }
 
     /// Returns `true` if the heap contains no elements.
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
