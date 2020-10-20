@@ -533,5 +533,49 @@ mod erc20 {
                 10,
             );
         }
+
+        #[ink::test]
+        fn allowance_must_not_change_on_failed_transfer() {
+            let mut erc20 = Erc20::new(100);
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
+
+            // Alice approves Bob for token transfers on her behalf.
+            let alice_balance = erc20.balance_of(accounts.alice);
+            let initial_allowance = alice_balance + 2;
+            assert_eq!(erc20.approve(accounts.bob, initial_allowance), Ok(()));
+
+            // Get contract address.
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
+                .unwrap_or([0x0; 32].into());
+            // Create call.
+            let mut data =
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
+            data.push_arg(&accounts.bob);
+            // Push the new execution context to set Bob as caller.
+            assert_eq!(
+                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                    accounts.bob,
+                    callee,
+                    1000000,
+                    1000000,
+                    data
+                ),
+                ()
+            );
+
+            // Bob tries to transfer tokens from Alice to Eve.
+            let emitted_events_before = ink_env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(
+                erc20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1),
+                Err(Error::InsufficientBalance)
+            );
+            // Allowance must have stayed the same
+            assert_eq!(erc20.allowance(accounts.alice, accounts.bob), initial_allowance);
+            // No more events must have been emitted
+            let emitted_events_after = ink_env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(emitted_events_before.len(), emitted_events_after.len());
+        }
     }
 }
