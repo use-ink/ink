@@ -161,7 +161,9 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error::InsufficientBalance)` if there are not enough tokens on
+        /// # Errors
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
         fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
@@ -194,7 +196,9 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error::InsufficientAllowance)` if there are not enough tokens on
+        /// # Errors
+        ///
+        /// Returns `InsufficientAllowance` error if there are not enough tokens on
         /// the caller's account balance.
         #[ink(message)]
         fn transfer_from(
@@ -218,7 +222,9 @@ mod erc20 {
         ///
         /// On success a `Transfer` event is emitted.
         ///
-        /// Returns `Err(Error::InsufficientBalance)` if there are not enough tokens on
+        /// # Errors
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
         /// the caller's account balance.
         fn transfer_from_to(
             &mut self,
