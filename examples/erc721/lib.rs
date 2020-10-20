@@ -118,7 +118,7 @@ mod erc721 {
         id: TokenId,
     }
 
-    /// Event emmited when a token approve occurs.
+    /// Event emitted when a token approve occurs.
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
