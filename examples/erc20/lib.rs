@@ -158,8 +158,11 @@ mod erc20 {
         ///
         /// # Errors
         ///
-        /// Returns `InsufficientAllowance` error if there are not enough tokens on
-        /// the caller's account balance.
+        /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+        /// for the caller to withdraw from `from`.
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
+        /// the the account balance of `from`.
         #[ink(message)]
         pub fn transfer_from(
             &mut self,
@@ -172,8 +175,9 @@ mod erc20 {
             if allowance < value {
                 return Err(Error::InsufficientAllowance)
             }
+            self.transfer_from_to(from, to, value)?;
             self.allowances.insert((from, caller), allowance - value);
-            self.transfer_from_to(from, to, value)
+            Ok(())
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
