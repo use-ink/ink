@@ -579,6 +579,9 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -599,7 +602,10 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">serde_hex</span>,
-    <span class="ident">utils</span>::<span class="ident">serialize_as_byte_str</span>,
+    <span class="ident">utils</span>::{
+        <span class="ident">deserialize_from_byte_str</span>,
+        <span class="ident">serialize_as_byte_str</span>,
+    },
 };
 <span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
 <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">collections</span>::<span class="ident">btree_map</span>::<span class="ident">BTreeMap</span>;
@@ -847,13 +853,13 @@
     <span class="doccomment">/// An optional prefix to the computed hash.</span>
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_as_byte_str&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;serde_hex::deserialize&quot;</span>
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_from_byte_str&quot;</span>
     )]</span>
     <span class="ident">prefix</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
     <span class="doccomment">/// An optional postfix to the computed hash.</span>
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_as_byte_str&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;serde_hex::deserialize&quot;</span>
+        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_from_byte_str&quot;</span>
     )]</span>
     <span class="ident">postfix</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
