@@ -154,6 +154,9 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -244,6 +247,9 @@
 <span class="kw">mod</span> <span class="ident">collections</span>;
 <span class="kw">mod</span> <span class="ident">prims</span>;
 <span class="kw">mod</span> <span class="ident">tuples</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-fuzz-tests&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">fuzz_tests</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">clear_packed_root</span>,

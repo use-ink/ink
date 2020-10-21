@@ -941,7 +941,7 @@
         <span class="comment">// limit set to 1 after every successful removal.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="number">0</span>) <span class="op">=</span> <span class="ident">max_iterations</span> {
             <span class="comment">// Bail out early if the iteration limit is set to 0 anyways to</span>
-            <span class="comment">// completely avoid doing work in this case.y</span>
+            <span class="comment">// completely avoid doing work in this case.</span>
             <span class="kw">return</span> <span class="number">0</span>
         }
         <span class="kw">let</span> <span class="ident">len_vacant</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">capacity</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">keys</span>.<span class="ident">len</span>();
