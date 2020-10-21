@@ -277,6 +277,12 @@
 <span id="274">274</span>
 <span id="275">275</span>
 <span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -297,6 +303,8 @@
 <span class="doccomment">//! Insertion and popping the largest element have `O(log(n))` complexity.</span>
 <span class="doccomment">//! Checking the largest element is `O(1)`.</span>
 
+<span class="kw">mod</span> <span class="ident">children</span>;
+<span class="kw">mod</span> <span class="ident">children_vec</span>;
 <span class="kw">mod</span> <span class="ident">impls</span>;
 <span class="kw">mod</span> <span class="ident">reverse</span>;
 <span class="kw">mod</span> <span class="ident">storage</span>;
@@ -304,12 +312,16 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">vec</span>::{
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">children_vec</span>::<span class="ident">ChildrenVec</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">collections</span>::<span class="ident">vec</span>::<span class="ident">Vec</span> <span class="kw">as</span> <span class="ident">StorageVec</span>,
+    <span class="ident">traits</span>::<span class="ident">PackedLayout</span>,
+};
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">children_vec</span>::{
     <span class="ident">Iter</span>,
     <span class="ident">IterMut</span>,
-    <span class="ident">Vec</span> <span class="kw">as</span> <span class="ident">StorageVec</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">PackedLayout</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">reverse</span>::<span class="ident">Reverse</span>;
 
 <span class="doccomment">/// A priority queue implemented with a binary heap.</span>
@@ -325,8 +337,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
-    <span class="doccomment">/// The underlying storage vec.</span>
-    <span class="ident">elems</span>: <span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The individual elements of the heap.</span>
+    <span class="ident">elements</span>: <span class="ident">ChildrenVec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
@@ -336,18 +348,18 @@
     <span class="doccomment">/// Creates a new empty storage heap.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">elems</span>: <span class="ident">StorageVec</span>::<span class="ident">new</span>(),
+            <span class="ident">elements</span>: <span class="ident">ChildrenVec</span>::<span class="ident">new</span>(),
         }
     }
 
     <span class="doccomment">/// Returns the number of elements in the heap, also referred to as its &#39;length&#39;.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">len</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">len</span>()
     }
 
     <span class="doccomment">/// Returns `true` if the heap contains no elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">is_empty</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">is_empty</span>()
     }
 }
 
@@ -363,7 +375,7 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">iter</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">iter</span>()
     }
 
     <span class="doccomment">/// Returns an iterator yielding exclusive references to all elements of the heap.</span>
@@ -374,14 +386,14 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">iter_mut</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">iter_mut</span>()
     }
 
     <span class="doccomment">/// Returns a shared reference to the greatest element of the heap</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the heap is empty</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peek</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">first</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">first</span>()
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the greatest element of the heap</span>
@@ -427,14 +439,14 @@
         <span class="kw">while</span> <span class="ident">child</span> <span class="op">&lt;</span> <span class="ident">end</span> {
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">child</span> <span class="op">+</span> <span class="number">1</span>;
             <span class="comment">// compare with the greater of the two children</span>
-            <span class="kw">if</span> <span class="ident">right</span> <span class="op">&lt;</span> <span class="ident">end</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">child</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">right</span>) {
+            <span class="kw">if</span> <span class="ident">right</span> <span class="op">&lt;</span> <span class="ident">end</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">child</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">right</span>) {
                 <span class="ident">child</span> <span class="op">=</span> <span class="ident">right</span>;
             }
             <span class="comment">// if we are already in order, stop.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">pos</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">child</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">pos</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">child</span>) {
                 <span class="kw">break</span>
             }
-            <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">swap</span>(<span class="ident">child</span>, <span class="ident">pos</span>);
+            <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">swap</span>(<span class="ident">child</span>, <span class="ident">pos</span>);
             <span class="ident">pos</span> <span class="op">=</span> <span class="ident">child</span>;
             <span class="ident">child</span> <span class="op">=</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>;
         }
@@ -445,7 +457,7 @@
     <span class="doccomment">/// Returns `None` if the heap is empty</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="comment">// replace the root of the heap with the last element</span>
-        <span class="kw">let</span> <span class="ident">elem</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">elem</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>);
         <span class="self">self</span>.<span class="ident">sift_down</span>(<span class="number">0</span>);
         <span class="ident">elem</span>
     }
@@ -454,11 +466,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Use this method to clear the vector instead of e.g. iterative `pop()`.</span>
+    <span class="doccomment">/// Use this method to clear the heap instead of e.g. iterative `pop()`.</span>
     <span class="doccomment">/// This method performs significantly better and does not actually read</span>
     <span class="doccomment">/// any of the elements (whereas `pop()` does).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">clear</span>()
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">clear</span>()
     }
 }
 
@@ -471,10 +483,10 @@
     <span class="kw">fn</span> <span class="ident">sift_up</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">pos</span>: <span class="ident">u32</span>) {
         <span class="kw">while</span> <span class="ident">pos</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> (<span class="ident">pos</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">/</span> <span class="number">2</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">pos</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">get</span>(<span class="ident">parent</span>) {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">pos</span>) <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">get</span>(<span class="ident">parent</span>) {
                 <span class="kw">break</span>
             }
-            <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">swap</span>(<span class="ident">parent</span>, <span class="ident">pos</span>);
+            <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">swap</span>(<span class="ident">parent</span>, <span class="ident">pos</span>);
             <span class="ident">pos</span> <span class="op">=</span> <span class="ident">parent</span>;
         }
     }
@@ -482,7 +494,7 @@
     <span class="doccomment">/// Pushes the given element to the binary heap.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
         <span class="kw">let</span> <span class="ident">old_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">push</span>(<span class="ident">value</span>);
+        <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">push</span>(<span class="ident">value</span>);
         <span class="self">self</span>.<span class="ident">sift_up</span>(<span class="ident">old_len</span>)
     }
 }
@@ -522,7 +534,7 @@
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
     <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">heap</span>
-            .<span class="ident">elems</span>
+            .<span class="ident">elements</span>
             .<span class="ident">first</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;PeekMut is only instantiated for non-empty heaps&quot;</span>)
     }
@@ -534,7 +546,7 @@
 {
     <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
         <span class="self">self</span>.<span class="ident">heap</span>
-            .<span class="ident">elems</span>
+            .<span class="ident">elements</span>
             .<span class="ident">first_mut</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;PeekMut is only instantiated for non-empty heaps&quot;</span>)
     }
