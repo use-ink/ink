@@ -57,6 +57,9 @@ pub mod traits;
 #[cfg(test)]
 mod hashmap_entry_api_tests;
 
+#[cfg(test)]
+mod test_utils;
+
 #[doc(inline)]
 pub use self::{
     alloc::Box,

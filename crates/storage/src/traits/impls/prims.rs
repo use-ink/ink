@@ -233,70 +233,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::traits::{
-        clear_spread_root,
-        pull_packed_root,
-        pull_spread_root,
-        push_packed_root,
-        push_spread_root,
-    };
+    use crate::push_pull_works_for_primitive;
     use ink_env::AccountId;
     use ink_primitives::Key;
 
-    /// Runs `f` using the off-chain testing environment.
-    fn run_test<F>(f: F)
-    where
-        F: FnOnce(),
-    {
-        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            f();
-            Ok(())
-        })
-        .unwrap()
-    }
-
-    macro_rules! push_pull_works_for_primitive {
-        ( $name:ty, [$($value:expr),*] ) => {
-            paste::item! {
-                #[test]
-                #[allow(non_snake_case)]
-                fn [<$name _pull_push_works>] () {
-                    run_test(|| {
-                        $({
-                            let x: $name = $value;
-                            let key = Key::from([0x42; 32]);
-                            let key2 = Key::from([0x77; 32]);
-                            push_spread_root(&x, &key);
-                            let y: $name = pull_spread_root(&key);
-                            assert_eq!(x, y);
-                            push_packed_root(&x, &key2);
-                            let z: $name = pull_packed_root(&key);
-                            assert_eq!(x, z);
-                        })*
-                    })
-                }
-
-                #[test]
-                #[should_panic(expected = "storage entry was empty")]
-                #[allow(non_snake_case)]
-                fn [<$name _clean_works>]() {
-                    run_test(|| {
-                        $({
-                            let x: $name = $value;
-                            let key = Key::from([0x42; 32]);
-                            push_spread_root(&x, &key);
-                            // Works since we just populated the storage.
-                            let y: $name = pull_spread_root(&key);
-                            assert_eq!(x, y);
-                            clear_spread_root(&x, &key);
-                            // Panics since it loads eagerly from cleared storage.
-                            let _: $name = pull_spread_root(&key);
-                        })*
-                    })
-                }
-            }
-        };
-    }
     push_pull_works_for_primitive!(bool, [false, true]);
     push_pull_works_for_primitive!(
         String,
