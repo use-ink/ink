@@ -64,7 +64,7 @@ fn bench_set_populated_cache(c: &mut Criterion) {
 fn push_storage_lazy(value: i32) -> Lazy<i32> {
     let root_key = Key::from([0x00; 32]);
     SpreadLayout::push_spread(&Lazy::new(value), &mut KeyPtr::from(root_key));
-    <Lazy<i32>>::lazy(root_key)
+    SpreadLayout::pull_spread(&mut KeyPtr::from(root_key))
 }
 
 mod empty_cache {
