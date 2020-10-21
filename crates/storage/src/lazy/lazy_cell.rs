@@ -503,4 +503,44 @@ mod tests {
             Ok(())
         })
     }
+
+    #[test]
+    fn regression_test_for_issue_528() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x00; 32]);
+            {
+                // Step 1: Push a valid pair onto the contract storage.
+                let pair = (LazyCell::new(Some(1i32)), 2i32);
+                SpreadLayout::push_spread(&pair, &mut KeyPtr::from(root_key));
+            }
+            {
+                // Step 2: Pull the pair from the step before.
+                //
+                // 1. Change the second `i32` value of the pair.
+                // 2. Push the pair again to contract storage.
+                //
+                // We prevent the intermediate instance from clearing the storage preemtively by wrapping
+                // it inside `ManuallyDrop`. The third step will clean up the same storage region afterwards.
+                //
+                // We explicitely do not touch or assert the value of `pulled_pair.0` in order to trigger
+                // the bug.
+                let pulled_pair: (LazyCell<i32>, i32) = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+                let mut pulled_pair = core::mem::ManuallyDrop::new(pulled_pair);
+                assert_eq!(pulled_pair.1, 2i32);
+                pulled_pair.1 = 3i32;
+                SpreadLayout::push_spread(&*pulled_pair, &mut KeyPtr::from(root_key));
+            }
+            {
+                // Step 3: Pull the pair again from the storage.
+                //
+                // If the bug with `Lazy` that has been fixed in PR #528 has been fixed we should be
+                // able to inspect the correct values for both pair entries which is: `(Some(1), 3)`
+                let pulled_pair: (LazyCell<i32>, i32) =
+                    SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+                assert_eq!(pulled_pair.0.get(), Some(&1i32));
+                assert_eq!(pulled_pair.1, 3i32);
+            }
+            Ok(())
+        })
+    }
 }
