@@ -249,7 +249,7 @@ impl Account {
     /// Returns `true` if a storage entry at `key` exists.
     pub fn is_storage(&self, at: Key) -> Result<bool> {
         self.contract_or_err()
-            .and_then(|contract| Ok(contract.storage.is_storage(at)))
+            .map(|contract| contract.storage.is_storage(at))
     }
 
     /// Returns the value stored in the contract storage at the given key.
