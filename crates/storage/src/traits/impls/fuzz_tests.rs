@@ -35,7 +35,15 @@ where
 /// pushed/pulled from storage (for `spread` and `packed`).
 #[quickcheck]
 fn fuzz_pull_push_pull_array(x: Vec<i32>) -> TestResult {
-    if x.len() < 32 {
+    // We want to have only vectors of length 32 fuzzed in here.
+    // The reason is that quickcheck does not directly support
+    // Array's as a parameter to be fuzzed. So we use this
+    // workaround of asking for a Vec with length 32 and convert
+    // it to an array with 32 elements subsequently.
+    //
+    // The guided fuzzing will notice that every Vec of greater/smaller
+    // length is always discarded and aim to input vectors of length 32.
+    if x.len() != 32 {
         return TestResult::discard()
     }
 
