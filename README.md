@@ -23,11 +23,9 @@
 [j1]: https://img.shields.io/badge/docs-lang-blue.svg
 [j2]: https://paritytech.github.io/ink/ink_lang
 
-**IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
-
 ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language targeting Substrate blockchains.
 
-For more information please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
+For a guided workshop targeting beginners please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
 
 ## Developer Documentation
 
