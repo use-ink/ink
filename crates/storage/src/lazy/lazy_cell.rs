@@ -525,7 +525,8 @@ mod tests {
                 //
                 // We explicitely do not touch or assert the value of `pulled_pair.0` in order to trigger
                 // the bug.
-                let pulled_pair: (LazyCell<i32>, i32) = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+                let pulled_pair: (LazyCell<i32>, i32) =
+                    SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
                 let mut pulled_pair = core::mem::ManuallyDrop::new(pulled_pair);
                 assert_eq!(pulled_pair.1, 2i32);
                 pulled_pair.1 = 3i32;
