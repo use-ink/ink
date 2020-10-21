@@ -373,7 +373,7 @@ where
         // limit set to 1 after every successful removal.
         if let Some(0) = max_iterations {
             // Bail out early if the iteration limit is set to 0 anyways to
-            // completely avoid doing work in this case.y
+            // completely avoid doing work in this case.
             return 0
         }
         let len_vacant = self.keys.capacity() - self.keys.len();
