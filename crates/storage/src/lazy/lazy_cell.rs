@@ -142,14 +142,16 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         if let Some(entry) = self.entry() {
-            SpreadLayout::push_spread(entry, ptr)
+            SpreadLayout::push_spread(entry, &mut KeyPtr::from(*root_key))
         }
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         if let Some(entry) = self.entry() {
-            SpreadLayout::clear_spread(entry, ptr)
+            SpreadLayout::clear_spread(entry, &mut KeyPtr::from(*root_key))
         }
     }
 }
