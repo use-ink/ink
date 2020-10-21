@@ -39,6 +39,7 @@ use self::{
         StorageEntry,
     },
 };
+#[doc(inline)]
 pub use self::{
     lazy_array::{
         LazyArray,
