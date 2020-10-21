@@ -2,7 +2,7 @@
 
 First of all, thank you for taking your time to contribute to ink!
 
-> [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contrubute-I-just-have-some-questions)
+> [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contribute-I-just-have-some-questions)
 
 ## Code of Conduct
 
@@ -98,7 +98,7 @@ A pull request should be doing or implementing exactly one semantic issue. So fo
 
 For a nice list of hints visit this [link][GitHub Perfect Pull Reqest].
 
-## I don't want to contrubute I just have some questions
+## I don't want to contribute, I just have some questions
 
 For questions about the ink project, about Parity Technologies or general technical related questions you are welcome to contact us via [Riot][Riot-Substrate-Technical]. For technical questions specifically about the ink and its sub-projects you may also file an issue. For more information about filing issues go [here](#Issues-&-pull-requests).
 
