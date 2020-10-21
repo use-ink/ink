@@ -17,6 +17,8 @@
 //! Insertion and popping the largest element have `O(log(n))` complexity.
 //! Checking the largest element is `O(1)`.
 
+mod children;
+mod children_vec;
 mod impls;
 mod reverse;
 mod storage;
@@ -24,12 +26,16 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
-use super::vec::{
+use self::children_vec::ChildrenVec;
+use crate::{
+    collections::vec::Vec as StorageVec,
+    traits::PackedLayout,
+};
+
+pub use children_vec::{
     Iter,
     IterMut,
-    Vec as StorageVec,
 };
-use crate::traits::PackedLayout;
 pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
@@ -45,8 +51,8 @@ pub struct BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// The underlying storage vec.
-    elems: StorageVec<T>,
+    /// The individual elements of the heap.
+    elements: ChildrenVec<T>,
 }
 
 impl<T> BinaryHeap<T>
@@ -56,18 +62,18 @@ where
     /// Creates a new empty storage heap.
     pub fn new() -> Self {
         Self {
-            elems: StorageVec::new(),
+            elements: ChildrenVec::new(),
         }
     }
 
     /// Returns the number of elements in the heap, also referred to as its 'length'.
     pub fn len(&self) -> u32 {
-        self.elems.len()
+        self.elements.len()
     }
 
     /// Returns `true` if the heap contains no elements.
     pub fn is_empty(&self) -> bool {
-        self.elems.is_empty()
+        self.elements.is_empty()
     }
 }
 
@@ -83,7 +89,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        self.elems.iter()
+        self.elements.iter()
     }
 
     /// Returns an iterator yielding exclusive references to all elements of the heap.
@@ -94,14 +100,14 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        self.elems.iter_mut()
+        self.elements.iter_mut()
     }
 
     /// Returns a shared reference to the greatest element of the heap
     ///
     /// Returns `None` if the heap is empty
     pub fn peek(&self) -> Option<&T> {
-        self.elems.first()
+        self.elements.first()
     }
 
     /// Returns an exclusive reference to the greatest element of the heap
@@ -147,14 +153,14 @@ where
         while child < end {
             let right = child + 1;
             // compare with the greater of the two children
-            if right < end && self.elems.get(child) <= self.elems.get(right) {
+            if right < end && self.elements.get(child) <= self.elements.get(right) {
                 child = right;
             }
             // if we are already in order, stop.
-            if self.elems.get(pos) >= self.elems.get(child) {
+            if self.elements.get(pos) >= self.elements.get(child) {
                 break
             }
-            self.elems.swap(child, pos);
+            self.elements.swap(child, pos);
             pos = child;
             child = 2 * pos + 1;
         }
@@ -165,7 +171,7 @@ where
     /// Returns `None` if the heap is empty
     pub fn pop(&mut self) -> Option<T> {
         // replace the root of the heap with the last element
-        let elem = self.elems.swap_remove(0);
+        let elem = self.elements.swap_remove(0);
         self.sift_down(0);
         elem
     }
@@ -174,11 +180,11 @@ where
     ///
     /// # Note
     ///
-    /// Use this method to clear the vector instead of e.g. iterative `pop()`.
+    /// Use this method to clear the heap instead of e.g. iterative `pop()`.
     /// This method performs significantly better and does not actually read
     /// any of the elements (whereas `pop()` does).
     pub fn clear(&mut self) {
-        self.elems.clear()
+        self.elements.clear()
     }
 }
 
@@ -191,10 +197,10 @@ where
     fn sift_up(&mut self, mut pos: u32) {
         while pos > 0 {
             let parent = (pos - 1) / 2;
-            if self.elems.get(pos) <= self.elems.get(parent) {
+            if self.elements.get(pos) <= self.elements.get(parent) {
                 break
             }
-            self.elems.swap(parent, pos);
+            self.elements.swap(parent, pos);
             pos = parent;
         }
     }
@@ -202,7 +208,7 @@ where
     /// Pushes the given element to the binary heap.
     pub fn push(&mut self, value: T) {
         let old_len = self.len();
-        self.elems.push(value);
+        self.elements.push(value);
         self.sift_up(old_len)
     }
 }
@@ -242,7 +248,7 @@ where
     type Target = T;
     fn deref(&self) -> &T {
         self.heap
-            .elems
+            .elements
             .first()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }
@@ -254,7 +260,7 @@ where
 {
     fn deref_mut(&mut self) -> &mut T {
         self.heap
-            .elems
+            .elements
             .first_mut()
             .expect("PeekMut is only instantiated for non-empty heaps")
     }

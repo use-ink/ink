@@ -14,14 +14,14 @@
 
 //! Implementation of ink! storage traits.
 
-use super::BinaryHeap;
-use crate::{
-    collections::Vec as StorageVec,
-    traits::{
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use super::{
+    BinaryHeap,
+    ChildrenVec,
+};
+use crate::traits::{
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 
 #[cfg(feature = "std")]
@@ -40,9 +40,40 @@ const _: () = {
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![FieldLayout::new(
-                "elems",
-                <StorageVec<T> as StorageLayout>::layout(key_ptr),
+                "elements",
+                <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
             )]))
+        }
+    }
+};
+
+#[cfg(feature = "std")]
+const _: () = {
+    use super::children::Children;
+    use crate::{
+        collections::binary_heap::StorageVec,
+        lazy::Lazy,
+        traits::StorageLayout,
+    };
+    use ink_metadata::layout::{
+        FieldLayout,
+        Layout,
+        StructLayout,
+    };
+    use scale_info::TypeInfo;
+
+    impl<T> StorageLayout for ChildrenVec<T>
+    where
+        T: PackedLayout + Ord + TypeInfo + 'static,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Struct(StructLayout::new(vec![
+                FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
+                FieldLayout::new(
+                    "children",
+                    <StorageVec<Children<T>> as StorageLayout>::layout(key_ptr),
+                ),
+            ]))
         }
     }
 };
@@ -51,19 +82,19 @@ impl<T> SpreadLayout for BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    const FOOTPRINT: u64 = 1 + <StorageVec<T> as SpreadLayout>::FOOTPRINT;
+    const FOOTPRINT: u64 = <ChildrenVec<T> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {
-            elems: SpreadLayout::pull_spread(ptr),
+            elements: SpreadLayout::pull_spread(ptr),
         }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.elems, ptr);
+        SpreadLayout::push_spread(&self.elements, ptr);
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.elems, ptr);
+        SpreadLayout::clear_spread(&self.elements, ptr);
     }
 }

@@ -40,6 +40,26 @@ fn heap_of_size(n: u32) -> BinaryHeap<u32> {
         .collect()
 }
 
+/// Returns the number of cells a binary tree of `heap_size` occupies
+/// in the storage.
+///
+/// *Note*: `heap_size` must be even, if it is odd we cannot calculate
+/// the number of cells with certainty, since for e.g. `heap_size = 5`
+/// there might be two leaf cells with one element each or alternatively
+/// one leaf with two elements.
+fn get_count_cells(heap_size: u32) -> u32 {
+    fn division_round_up(dividend: u32, divisor: u32) -> u32 {
+        (dividend + divisor - 1) / divisor
+    }
+    assert!(heap_size % 2 == 0, "heap_size must be even");
+    let rest = match heap_size {
+        0 => 0,
+        1 => 0,
+        _ => division_round_up(heap_size, super::children::CHILDREN_PER_NODE),
+    };
+    rest + 1
+}
+
 #[test]
 fn new_binary_heap_works() {
     // `BinaryHeap::new`
@@ -279,7 +299,13 @@ where
         let (base_reads, base_writes) = ink_env::test::get_contract_storage_rw::<
             ink_env::DefaultEnvironment,
         >(&contract_account)?;
-        assert_eq!((base_reads as u32, base_writes as u32), (0, heap_size + 1));
+
+        // elements.len + vec.len
+        const CONST_WRITES: u32 = 2;
+        assert_eq!(
+            (base_reads as u32, base_writes as u32),
+            (0, CONST_WRITES + get_count_cells(heap_size))
+        );
 
         heap_op(&mut lazy_heap);
 
@@ -309,12 +335,17 @@ where
 
 #[test]
 fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
-    const CONST_READ_WRITES: usize = 2;
+    // 1 elements overhead (#508) + 1 elements.len + 1 heap overhead (#508) + 1 heap.len + 1 cell
+    const CONST_READS: usize = 5;
+
+    // 1 elements.len + 1 cell which was pushed to
+    // vec.len doesn't get larger because no cell is added
+    const CONST_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
         let largest_value = n + 1;
-        let expected_reads = log_n + CONST_READ_WRITES;
-        let expected_writes = log_n + CONST_READ_WRITES;
+        let expected_reads = log_n + CONST_READS;
+        let expected_writes = log_n + CONST_WRITES;
         check_complexity_read_writes(
             *n,
             |heap| heap.push(largest_value),
@@ -328,13 +359,21 @@ fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
 #[test]
 fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
     const SMALLEST_VALUE: u32 = 0;
-    const EXPECTED_READS: usize = 3;
+
+    // 1 elements overhead (#508) + 1 elements.len + 1 vec overhead (#508) +
+    // 1 vec.len + 1 vec.cell in which to insert + 1 parent cell during `sift_up`
+    const EXPECTED_READS: usize = 6;
+
+    // binary heap len + one cell
+    // vec.len doesn't get larger because no cell is added
     const EXPECTED_WRITES: usize = 2;
 
     for n in &[2, 4, 8, 16, 32, 64] {
         check_complexity_read_writes(
             *n,
-            |heap| heap.push(SMALLEST_VALUE),
+            |heap| {
+                heap.push(SMALLEST_VALUE);
+            },
             EXPECTED_READS,
             EXPECTED_WRITES,
         )?;
@@ -344,11 +383,17 @@ fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
 
 #[test]
 fn pop_complexity_big_o_log_n() -> ink_env::Result<()> {
-    const CONST_READ_WRITES: usize = 2;
+    // 1 elements overhead (#508) + elements.len + 1 vec overhead (#508) +
+    // 1 vec.len + 1 vec.cell from which to pop
+    const CONST_READS: usize = 5;
+
+    // 1 elements.len + 1 vec.len + cell which was modified
+    const CONST_WRITES: usize = 3;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
-        let expected_reads = log_n * 2 + CONST_READ_WRITES;
-        let expected_writes = log_n + CONST_READ_WRITES;
+        let expected_reads = log_n + CONST_READS;
+        let expected_writes = log_n + CONST_WRITES;
+
         check_complexity_read_writes(
             *n,
             |heap| {
@@ -372,6 +417,11 @@ fn pop_always_returns_largest_element(xs: Vec<i32>) {
         for x in sorted.iter().rev() {
             assert_eq!(Some(*x), heap.pop())
         }
+
+        assert_eq!(heap.len(), 0);
+
+        // all elements must have been removed as well
+        assert_eq!(heap.elements.children_count(), 0);
 
         Ok(())
     })
