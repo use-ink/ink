@@ -434,15 +434,12 @@ mod erc20 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
 
             // Bob fails to transfers 10 tokens to Eve.
@@ -494,15 +491,12 @@ mod erc20 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller.
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
 
             // Bob transfers tokens from Alice to Eve.
@@ -551,15 +545,12 @@ mod erc20 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller.
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
 
             // Bob tries to transfer tokens from Alice to Eve.
