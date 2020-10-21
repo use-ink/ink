@@ -209,6 +209,15 @@ impl EnvInstance {
 }
 
 impl EnvBackend for EnvInstance {
+    fn is_contract_storage(&mut self, key: &Key) -> bool {
+        let output = &mut self.scoped_buffer().take_rest();
+        match ext::get_storage(key.as_bytes(), output) {
+            Ok(_) => true,
+            Err(ExtError::KeyNotFound) => false,
+            Err(_) => panic!("encountered unexpected error"),
+        }
+    }
+
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,

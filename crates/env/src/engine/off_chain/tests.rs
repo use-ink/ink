@@ -19,14 +19,14 @@ use ink_primitives::Key;
 fn store_load_clear() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key = Key::from([0x42; 32]);
-        assert_eq!(crate::get_contract_storage::<()>(&key), Ok(None));
-        crate::set_contract_storage(&key, &[0x05_u8; 5]);
-        assert_eq!(
-            crate::get_contract_storage::<[i8; 5]>(&key),
-            Ok(Some([0x05; 5])),
-        );
-        crate::clear_contract_storage(&key);
-        assert_eq!(crate::get_contract_storage::<[u8; 5]>(&key), Ok(None));
+        let mut storage_entry = crate::storage_entry(&key);
+        let ret = storage_entry.is_vacant();
+        assert!(storage_entry.is_vacant());
+        storage_entry.set(&[0x05_u8; 5]);
+        assert!(storage_entry.is_occupied());
+        assert_eq!(storage_entry.get::<[i8; 5]>(), Ok(Some([0x05; 5])),);
+        storage_entry.clear();
+        assert!(storage_entry.is_vacant());
         Ok(())
     })
 }
@@ -38,10 +38,14 @@ fn key_add() -> Result<()> {
         let key05 = key00 + 05_u64; // -> 5
         let key10 = key00 + 10_u64; // -> 10         | same as key55
         let key55 = key05 + 05_u64; // -> 5 + 5 = 10 | same as key10
-        crate::set_contract_storage(&key55, &42);
-        assert_eq!(crate::get_contract_storage::<i32>(&key10), Ok(Some(42)));
-        crate::set_contract_storage(&key10, &1337);
-        assert_eq!(crate::get_contract_storage::<i32>(&key55), Ok(Some(1337)));
+        let mut storage_entry_55 = crate::storage_entry(&key55);
+        storage_entry_55.set(&42);
+
+        let mut storage_entry_10 = crate::storage_entry(&key10);
+        assert_eq!(storage_entry_10.get::<i32>(), Ok(Some(42)));
+        storage_entry_10.set(&1337);
+
+        assert_eq!(storage_entry_55.get::<i32>(), Ok(Some(1337)));
         Ok(())
     })
 }
@@ -56,9 +60,9 @@ fn key_add_sub() -> Result<()> {
         // let key2b = key3a - 10_u64;
         // let key1b = key2b - 42_u64;
         // let key0b = key1b + 2000_u64 - 663_u64; // same as key1a
-        crate::set_contract_storage(&key0a, &1);
-        crate::set_contract_storage(&key1a, &2);
-        crate::set_contract_storage(&key2a, &3);
+        crate::storage_entry(&key0a).set(&1);
+        crate::storage_entry(&key1a).set(&2);
+        crate::storage_entry(&key2a).set(&3);
         // assert_eq!(crate::get_contract_storage::<i32>(&key2b), Some(Ok(3)));
         // assert_eq!(crate::get_contract_storage::<i32>(&key1b), Some(Ok(1)));
         // assert_eq!(crate::get_contract_storage::<i32>(&key0b), Some(Ok(2)));

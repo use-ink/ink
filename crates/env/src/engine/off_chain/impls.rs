@@ -118,6 +118,13 @@ impl CryptoHash for Keccak256 {
 }
 
 impl EnvBackend for EnvInstance {
+    fn is_contract_storage(&mut self, key: &Key) -> bool {
+        match self.callee_account().is_storage(*key) {
+            Ok(ret) => ret,
+            Err(_) => panic!("callee account is not a smart contract"),
+        }
+    }
+
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
         V: scale::Encode,

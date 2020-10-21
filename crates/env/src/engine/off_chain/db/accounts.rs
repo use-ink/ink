@@ -246,6 +246,12 @@ impl Account {
             .map(|contract| contract.storage.clear_storage(at))
     }
 
+    /// Returns `true` if a storage entry at `key` exists.
+    pub fn is_storage(&self, at: Key) -> Result<bool> {
+        self.contract_or_err()
+            .and_then(|contract| Ok(contract.storage.is_storage(at)))
+    }
+
     /// Returns the value stored in the contract storage at the given key.
     pub fn get_storage<T>(&self, at: Key) -> Result<Option<T>>
     where
@@ -318,6 +324,12 @@ impl ContractStorage {
     /// Returns the number of reads and writes from and to the contract storage.
     pub fn get_rw(&self) -> (usize, usize) {
         (self.count_reads.get(), self.count_writes)
+    }
+
+    /// Returns `true` if a storage entry at `key` exists.
+    pub fn is_storage(&self, at: Key) -> bool {
+        self.count_reads.set(self.count_reads.get() + 1);
+        self.entries.get(&at).is_some()
     }
 
     /// Returns the decoded storage at the key if any.

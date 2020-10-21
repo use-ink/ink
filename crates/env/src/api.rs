@@ -218,39 +218,80 @@ where
     })
 }
 
-/// Writes the value to the contract storage under the given key.
-///
-/// # Panics
-///
-/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
-pub fn set_contract_storage<V>(key: &Key, value: &V)
-where
-    V: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::set_contract_storage::<V>(instance, key, value)
-    })
+/// Represents the storage entry for a key.
+pub struct StorageEntry<'a> {
+    key: &'a Key,
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
-///
-/// # Errors
-///
-/// - If the decoding of the typed value failed (`KeyNotFound`)
-pub fn get_contract_storage<R>(key: &Key) -> Result<Option<R>>
-where
-    R: scale::Decode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::get_contract_storage::<R>(instance, key)
-    })
+/// The state of a storage entry.
+pub enum StorageEntryState {
+    /// The storage entry does not exist.
+    Vacant,
+    /// The storage entry exists.
+    Occupied,
 }
 
-/// Clears the contract's storage key entry.
-pub fn clear_contract_storage(key: &Key) {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::clear_contract_storage(instance, key)
-    })
+/// Returns a `StorageEntry` corresponding to the given key.
+/// Provides access to storage operations corresponding to this key.
+pub fn storage_entry(key: &Key) -> StorageEntry {
+    StorageEntry { key }
+}
+
+impl StorageEntry<'_> {
+    /// Returns `true` if the queried contract storage entry exists.
+    ///
+    /// # Note
+    ///
+    /// - This method does not give any guarantees on if the entry can be decoded.
+    pub fn is_occupied(&self) -> bool {
+        <EnvInstance as OnInstance>::on_instance(|instance| {
+            EnvBackend::is_contract_storage(instance, self.key)
+        })
+    }
+
+    /// Returns `true` if the queried contract storage entry does not exist.
+    ///
+    /// # Note
+    ///
+    /// - This method does not give any guarantees on if the entry can be decoded.
+    pub fn is_vacant(&self) -> bool {
+        !self.is_occupied()
+    }
+
+    /// Writes the value to the contract storage under the given key.
+    ///
+    /// # Panics
+    ///
+    /// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+    pub fn set<V>(&mut self, value: &V)
+    where
+        V: scale::Encode,
+    {
+        <EnvInstance as OnInstance>::on_instance(|instance| {
+            EnvBackend::set_contract_storage::<V>(instance, self.key, value)
+        })
+    }
+
+    /// Returns the value stored under the given key in the contract's storage if any.
+    ///
+    /// # Errors
+    ///
+    /// - If the decoding of the typed value failed (`KeyNotFound`)
+    pub fn get<R>(&self) -> Result<Option<R>>
+    where
+        R: scale::Decode,
+    {
+        <EnvInstance as OnInstance>::on_instance(|instance| {
+            EnvBackend::get_contract_storage::<R>(instance, self.key)
+        })
+    }
+
+    /// Clears the contract's storage key entry.
+    pub fn clear(&mut self) {
+        <EnvInstance as OnInstance>::on_instance(|instance| {
+            EnvBackend::clear_contract_storage(instance, self.key)
+        })
+    }
 }
 
 /// Invokes a contract message.

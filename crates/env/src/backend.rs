@@ -57,6 +57,13 @@ impl ReturnFlags {
 
 /// Environmental contract functionality that does not require `Environment`.
 pub trait EnvBackend {
+    /// Returns `true` if a value is stored under the given key in the contract's storage.
+    ///
+    /// # Note
+    ///
+    /// - This method does not give any guarantees on if the value can be decoded.
+    fn is_contract_storage(&mut self, key: &Key) -> bool;
+
     /// Writes the value to the contract storage under the given key.
     fn set_contract_storage<V>(&mut self, key: &Key, value: &V)
     where
