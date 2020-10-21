@@ -422,7 +422,6 @@ fn pop_always_returns_largest_element(xs: Vec<i32>) {
 
         // all elements must have been removed as well
         assert_eq!(heap.elements.children_count(), 0);
-
         Ok(())
     })
     .unwrap()

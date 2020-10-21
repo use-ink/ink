@@ -118,7 +118,7 @@ mod erc721 {
         id: TokenId,
     }
 
-    /// Event emited when a token approve occurs.
+    /// Event emitted when a token approve occurs.
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
@@ -532,15 +532,12 @@ mod erc721 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
             // Bob cannot transfer not owned tokens.
             assert_eq!(erc721.transfer(accounts.eve, 2), Err(Error::NotApproved));
@@ -567,15 +564,12 @@ mod erc721 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
             // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
@@ -620,15 +614,12 @@ mod erc721 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Bob as caller
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.bob,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
             // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
@@ -682,15 +673,12 @@ mod erc721 {
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
             data.push_arg(&accounts.bob);
             // Push the new execution context to set Eve as caller
-            assert_eq!(
-                ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                    accounts.eve,
-                    callee,
-                    1000000,
-                    1000000,
-                    data
-                ),
-                ()
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.eve,
+                callee,
+                1000000,
+                1000000,
+                data,
             );
             // Eve is not an approved operator by Alice.
             assert_eq!(

@@ -40,7 +40,7 @@ const _: () = {
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![FieldLayout::new(
-                "elems",
+                "elements",
                 <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
             )]))
         }
@@ -70,7 +70,7 @@ const _: () = {
             Layout::Struct(StructLayout::new(vec![
                 FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
-                    "elems",
+                    "children",
                     <StorageVec<Children<T>> as StorageLayout>::layout(key_ptr),
                 ),
             ]))
