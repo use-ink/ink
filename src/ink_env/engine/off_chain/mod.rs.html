@@ -274,6 +274,10 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -370,6 +374,8 @@
     <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>,
     <span class="doccomment">/// Emitted events recorder.</span>
     <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>,
+    <span class="doccomment">/// Set to true to disable clearing storage</span>
+    <span class="ident">clear_storage_disabled</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EnvInstance</span> {
@@ -384,6 +390,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
             <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>::<span class="ident">new</span>(),
             <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>::<span class="ident">new</span>(),
+            <span class="ident">clear_storage_disabled</span>: <span class="bool-val">false</span>,
         }
     }
 
@@ -415,6 +422,7 @@
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
         <span class="self">self</span>.<span class="ident">chain_extension_handler</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">emitted_events</span>.<span class="ident">reset</span>();
+        <span class="self">self</span>.<span class="ident">clear_storage_disabled</span> <span class="op">=</span> <span class="bool-val">false</span>;
     }
 
     <span class="doccomment">/// Initializes the whole off-chain environment.</span>

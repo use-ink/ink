@@ -342,6 +342,30 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -605,6 +629,18 @@
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">instance</span>.<span class="ident">advance_block</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
 }
 
+<span class="doccomment">/// Set to true to disable clearing storage</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,</span>
+<span class="doccomment">/// because lazy storage structures automatically clear their associated cells when they are dropped.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clear_storage_disabled</span>(<span class="ident">disable</span>: <span class="ident">bool</span>) {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">clear_storage_disabled</span> <span class="op">=</span> <span class="ident">disable</span>
+    })
+}
+
 <span class="doccomment">/// The default accounts.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -682,6 +718,18 @@
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>))
             .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">get_storage_rw</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+    })
+}
+
+<span class="doccomment">/// Returns the account id of the currently executing contract.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_current_contract_account_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">exec_context</span> <span class="op">=</span> <span class="ident">instance</span>.<span class="ident">exec_context</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">callee</span> <span class="op">=</span> <span class="ident">exec_context</span>.<span class="ident">callee</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">callee</span>)
     })
 }
 </pre></div>
