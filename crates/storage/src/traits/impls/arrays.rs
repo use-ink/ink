@@ -88,3 +88,31 @@ macro_rules! impl_layout_for_array {
     }
 }
 forward_supported_array_lens!(impl_layout_for_array);
+
+#[cfg(test)]
+mod tests {
+    use crate::push_pull_works_for_primitive;
+
+    type Array = [i32; 4];
+    push_pull_works_for_primitive!(
+        Array,
+        [
+            [0, 1, 2, 3],
+            [i32::MAX, i32::MIN, i32::MAX, i32::MIN],
+            [Default::default(), i32::MAX, Default::default(), i32::MIN]
+        ]
+    );
+
+    type ArrayTuples = [(i32, i32); 2];
+    push_pull_works_for_primitive!(
+        ArrayTuples,
+        [
+            [(0, 1), (2, 3)],
+            [(i32::MAX, i32::MIN), (i32::MIN, i32::MAX)],
+            [
+                (Default::default(), i32::MAX),
+                (Default::default(), i32::MIN)
+            ]
+        ]
+    );
+}
