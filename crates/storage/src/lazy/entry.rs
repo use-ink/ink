@@ -107,20 +107,17 @@ where
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
+        Self::pull_spread_root(root_key)
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let old_state = self.replace_state(EntryState::Preserved);
-        if old_state.is_mutated() {
-            let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-            push_spread_root_opt::<T>(self.value().into(), &root_key);
-        }
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
+        self.push_spread_root(root_key)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
+        self.clear_spread_root(root_key)
     }
 }
 
@@ -178,6 +175,44 @@ where
     #[inline]
     fn clear_packed(&self, at: &Key) {
         PackedLayout::clear_packed(&self.value, at)
+    }
+}
+
+impl<T> StorageEntry<T>
+where
+    T: SpreadLayout,
+{
+    /// Pulls the entity from the underlying associated storage as spreaded representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyCell`].
+    pub fn pull_spread_root(root_key: &Key) -> Self {
+        Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
+    }
+
+    /// Pushes the underlying associated storage as spreaded representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyCell`].
+    pub fn push_spread_root(&self, root_key: &Key) {
+        let old_state = self.replace_state(EntryState::Preserved);
+        if old_state.is_mutated() {
+            push_spread_root_opt::<T>(self.value().into(), &root_key);
+        }
+    }
+
+    /// Clears the underlying associated storage as spreaded representation.
+    ///
+    /// # Note
+    ///
+    /// Mainly used by lazy storage abstractions that only allow operating on
+    /// packed storage entities such as [`LazyCell`].
+    pub fn clear_spread_root(&self, root_key: &Key) {
+        clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
     }
 }
 
