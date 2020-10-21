@@ -641,7 +641,7 @@ where
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
-            ink_env::clear_contract_storage(&root_key);
+            ink_env::storage_entry(&root_key).clear();
         }
     }
 

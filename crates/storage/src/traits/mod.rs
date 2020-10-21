@@ -136,7 +136,8 @@ pub fn pull_packed_root<T>(root_key: &Key) -> T
 where
     T: PackedLayout,
 {
-    let mut entity = ink_env::get_contract_storage::<T>(root_key)
+    let mut entity = ink_env::storage_entry(root_key)
+        .get::<T>()
         .expect("could not properly decode storage entry")
         .expect("storage entry was empty");
     <T as PackedLayout>::pull_packed(&mut entity, root_key);
@@ -159,7 +160,7 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::push_packed(entity, root_key);
-    ink_env::set_contract_storage(root_key, entity);
+    ink_env::storage_entry(root_key).set(entity);
 }
 
 /// Clears the entity from the contract storage using packed layout.
@@ -178,5 +179,5 @@ where
     T: PackedLayout,
 {
     <T as PackedLayout>::clear_packed(entity, root_key);
-    ink_env::clear_contract_storage(root_key);
+    ink_env::storage_entry(root_key).clear();
 }
