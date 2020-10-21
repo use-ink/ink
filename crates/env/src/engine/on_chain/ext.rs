@@ -448,22 +448,6 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     ret_code.into()
 }
 
-/// Returns `true` if a storage entry at `key` exists.
-pub fn is_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
-    let mut output_len = output.len() as u32;
-    let ret_code = {
-        unsafe {
-            sys::seal_get_storage(
-                Ptr32::from_slice(key),
-                Ptr32Mut::from_slice(output),
-                Ptr32Mut::from_ref(&mut output_len),
-            )
-        }
-    };
-    extract_from_slice(output, output_len as usize);
-    ret_code.into()
-}
-
 /// Restores a tombstone to the original smart contract.
 ///
 /// # Params
