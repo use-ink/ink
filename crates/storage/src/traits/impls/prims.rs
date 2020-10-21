@@ -276,11 +276,14 @@ mod tests {
     );
 
     type OptionU8 = Option<u8>;
-    push_pull_works_for_primitive!(OptionU8, [Some(13u8)]);
+    push_pull_works_for_primitive!(OptionU8, [Some(13u8), None]);
 
     type ResultU8 = Result<u8, bool>;
     push_pull_works_for_primitive!(ResultU8, [Ok(13u8), Err(false)]);
 
     type BoxU8 = Box<u8>;
     push_pull_works_for_primitive!(BoxU8, [Box::new(27u8)]);
+
+    type BoxOptionU8 = Box<Option<u8>>;
+    push_pull_works_for_primitive!(BoxOptionU8, [Box::new(Some(27)), Box::new(None)]);
 }
