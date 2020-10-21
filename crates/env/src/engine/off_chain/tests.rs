@@ -20,7 +20,6 @@ fn store_load_clear() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key = Key::from([0x42; 32]);
         let mut storage_entry = crate::storage_entry(&key);
-        let ret = storage_entry.is_vacant();
         assert!(storage_entry.is_vacant());
         storage_entry.set(&[0x05_u8; 5]);
         assert!(storage_entry.is_occupied());
