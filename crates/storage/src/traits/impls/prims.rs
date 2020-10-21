@@ -274,4 +274,13 @@ mod tests {
         u128,
         [0, Default::default(), 50, u128::MIN, u128::MAX]
     );
+
+    type OptionU8 = Option<u8>;
+    push_pull_works_for_primitive!(OptionU8, [Some(13u8)]);
+
+    type ResultU8 = Result<u8, bool>;
+    push_pull_works_for_primitive!(ResultU8, [Ok(13u8), Err(false)]);
+
+    type BoxU8 = Box<u8>;
+    push_pull_works_for_primitive!(BoxU8, [Box::new(27u8)]);
 }
