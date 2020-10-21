@@ -79,3 +79,7 @@ harness = false
 name = "bench_hashmap"
 path = "benches/bench_hashmap.rs"
 harness = false
+
+[[bench]]
+name = "bench_binary_heap"
+harness = false

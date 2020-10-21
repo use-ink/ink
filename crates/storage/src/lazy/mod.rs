@@ -119,7 +119,7 @@ where
 
     /// Creates a true lazy storage value for the given key.
     #[must_use]
-    pub fn lazy(key: Key) -> Self {
+    pub(crate) fn lazy(key: Key) -> Self {
         Self {
             cell: LazyCell::lazy(key),
         }
