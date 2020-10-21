@@ -204,7 +204,6 @@ where
     pub fn push_packed_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
-            self.replace_state(EntryState::Preserved);
             push_packed_root_opt::<T>(self.value().into(), &root_key);
         }
     }
