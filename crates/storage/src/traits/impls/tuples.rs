@@ -100,3 +100,30 @@ impl_layout_for_tuple!(A, B, C, D, E, F, G);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+
+#[cfg(test)]
+mod tests {
+    use crate::push_pull_works_for_primitive;
+
+    type TupleTwo = (i32, u32, String, u8, bool);
+    push_pull_works_for_primitive!(
+        TupleTwo,
+        [
+            (-1, 1, String::from("foobar"), 13, true),
+            (
+                i32::MIN,
+                u32::MAX,
+                String::from("❤ ♡ ❤ ♡ ❤"),
+                Default::default(),
+                false
+            ),
+            (
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default()
+            )
+        ]
+    );
+}
