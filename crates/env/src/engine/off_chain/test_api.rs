@@ -260,6 +260,18 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }
 
+/// Set to true to disable clearing storage
+///
+/// # Note
+///
+/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// because lazy storage structures automatically clear their associated cells when they are dropped.
+pub fn set_clear_storage_disabled(disable: bool) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.clear_storage_disabled = disable
+    })
+}
+
 /// The default accounts.
 pub struct DefaultAccounts<T>
 where
@@ -337,5 +349,17 @@ where
             .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
             .map_err(Into::into)
             .and_then(|account| account.get_storage_rw().map_err(Into::into))
+    })
+}
+
+/// Returns the account id of the currently executing contract.
+pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let exec_context = instance.exec_context()?;
+        let callee = exec_context.callee.decode()?;
+        Ok(callee)
     })
 }

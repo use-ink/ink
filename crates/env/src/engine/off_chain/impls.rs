@@ -137,9 +137,11 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        self.callee_account_mut()
-            .clear_storage(*key)
-            .expect("callee account is not a smart contract");
+        if !self.clear_storage_disabled {
+            self.callee_account_mut()
+                .clear_storage(*key)
+                .expect("callee account is not a smart contract");
+        }
     }
 
     fn decode_input<T>(&mut self) -> Result<T>

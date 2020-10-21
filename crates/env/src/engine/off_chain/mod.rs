@@ -93,6 +93,8 @@ pub struct EnvInstance {
     chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
+    /// Set to true to disable clearing storage
+    clear_storage_disabled: bool,
 }
 
 impl EnvInstance {
@@ -107,6 +109,7 @@ impl EnvInstance {
             #[cfg(feature = "ink-unstable-chain-extensions")]
             chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
+            clear_storage_disabled: false,
         }
     }
 
@@ -138,6 +141,7 @@ impl EnvInstance {
         #[cfg(feature = "ink-unstable-chain-extensions")]
         self.chain_extension_handler.reset();
         self.emitted_events.reset();
+        self.clear_storage_disabled = false;
     }
 
     /// Initializes the whole off-chain environment.
