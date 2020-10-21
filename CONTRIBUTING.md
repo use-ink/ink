@@ -17,13 +17,16 @@ Please follow our simple commit style guidelines.
 
 1. Prepend all commits with a topic.
    Available topics are:
-    - `[core]` For changes to `ink_core`
-    - `[model]` For changes to `ink_model`
-    - `[lang]` For changes to `ink_lang`
-    - `[cli]` For changes to `cargo-pdsl` also known as `pdsl_cli`
+    - `[storage]` For changes to `ink_storage`.
+    - `[env]` For changes to `ink_env`.
+    - `[lang]` For changes to `ink_lang`.
+    - `[allocator]` For changes to `ink_allocator`.
+    - `[metadata]` For changes to `ink_metadata`.
+    - `[prelude]` For changes to `ink_prelude`.
+    - `[primitives]` For changes to `ink_primitives`.
     - `[ci]` For changes to the continuous integration.
     - `[chores]` For general non-technical changes.
-    - `[examples/{core,model,lang}]` For changes to the examples in either `core`, `model` or `lang`.
+    - `[examples]` For changes to the examples.
 
 For other purposes and sections please try to find a good fit for the topic.
 
