@@ -176,6 +176,7 @@ fmt:
   <<:                              *docker-env
   script:
     - cargo fmt --verbose --all -- --check
+    - rustfmt --version
     - rustfmt --verbose --check --config license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
 
 
