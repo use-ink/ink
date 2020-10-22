@@ -29,6 +29,24 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
+
+    impl<T> StorageLayout for StorageBox<T>
+    where
+        T: SpreadLayout,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
+            Layout::Cell(CellLayout::new::<DynamicAllocation>(LayoutKey::from(
+                key_ptr.advance_by(1),
+            )))
+        }
+    }
+
     impl<T> scale_info::TypeInfo for StorageBox<T>
     where
         T: SpreadLayout,
