@@ -1,6 +1,6 @@
 [package]
 name = "ink_lang_ir"
-version = "3.0.0-rc1"
+version = "3.0.0-rc2"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
