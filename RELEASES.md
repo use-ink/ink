@@ -22,6 +22,8 @@ the following improvements, new features and bug fixes:
 - The `Cargo.toml` documentation now properly links to the one deployed at docs.rs.
   On top of that crate level documentation for the `ink_allocator` crate has been
   added.
+- Add new ERC-20 example contract based on a trait implementation. Also modernized
+  the old non-trait based ERC-20 example token contract.
 
 # Version 3.0-rc1 (2020-10-09)
 
