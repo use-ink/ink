@@ -1,4 +1,29 @@
-# Version 3.0 (2020-10-09)
+# Version 3.0-rc2 (2020-10-22)
+
+This is the 2nd release candidate for ink! 3.0.
+
+On top of the changes introduced in the first release candidate for ink! 3.0 we introduced
+the following improvements, new features and bug fixes:
+
+- The `ink_storage` crate now comes with a new `BinaryHeap` data structure
+  that has a very similar interface to the well known Rust standard library
+  `BinaryHeap`. It features specific optimizations to reduce the storage reads
+  and writes required for its operations.
+- Fixed a bug with `ink_storage::Lazy` that corrupted the storage of
+  other storage data structures if it was unused in a contract execution.
+- The `ink_storage::alloc::Box` type now implements `scale_info::TypeInfo` which
+  now allows it to be fully used inside other storage data structures such as
+  `ink_storage::collections::Vec`. The missing of this implementation was
+  considered a bug.
+- The `LazyHashMap` low-level storage abstraction is now re-exported from within
+  the `ink_storage::lazy` module and docs are inlined.
+- Added note about the `ink_core` split into `ink_env` and `ink_storage` crates
+  to the release notes of ink! 3.0-rc1.
+- The `Cargo.toml` documentation now properly links to the one deployed at docs.rs.
+  On top of that crate level documentation for the `ink_allocator` crate has been
+  added.
+
+# Version 3.0-rc1 (2020-10-09)
 
 Be prepared for the ink! 3.0 release notes because the whole version was basically a rewrite of
 all the major components that make up ink!. With our experience gained from previous releases
