@@ -46,6 +46,30 @@ const _: () = {
             )))
         }
     }
+
+    impl<T> scale_info::TypeInfo for StorageBox<T>
+    where
+        T: SpreadLayout,
+    {
+        fn type_info() -> scale_info::Type {
+            scale_info::Type::builder()
+                .path(
+                    scale_info::Path::from_segments(vec!["ink_storage", "alloc", "Box"])
+                        .expect("encountered invalid Rust path"),
+                )
+                // Unfortunately we cannot encode the type parameters of the box since they
+                // have to be `T: scale::Codec`. However, them not requiring to be encodable
+                // is the purpose of the storage `Box<T>`.
+                // Until we found a solution to this problem we cannot uncomment the below
+                // line of code:
+                //
+                // .type_params(vec![scale_info::MetaType::new::<T>()])
+                .composite(
+                    scale_info::build::Fields::named()
+                        .field_of::<DynamicAllocation>("allocation"),
+                )
+        }
+    }
 };
 
 impl<T> SpreadLayout for StorageBox<T>

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Crate providing `WEE_ALLOC` support for all Wasm compilations of ink! smart contract.
+//!
+//! The Wee allocator is an allocator specifically designed to have a low footprint albeith
+//! being less efficient for allocation and deallocation operations.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(not(feature = "std"), feature(alloc_error_handler, core_intrinsics))]
 

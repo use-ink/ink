@@ -120,7 +120,7 @@ impl LayoutKey {
     }
 }
 
-/// An encoded cell.
+/// A SCALE encoded cell.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",

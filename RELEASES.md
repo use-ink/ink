@@ -20,7 +20,7 @@ yourself in the foot by accidentally forgetting to initialize some important dat
 
 **Old ink! 2.0:**
 ```rust
-#[ink(storage)]
+#[ink(constructor)]
 fn new_erc20(&mut self, initial_supply: Balance) {
     let caller = self.env().caller();
     self.total_supply.set(initial_supply);
@@ -29,7 +29,7 @@ fn new_erc20(&mut self, initial_supply: Balance) {
 ```
 **New ink! 3.0:**
 ```rust
-#[ink(storage)]
+#[ink(constructor)]
 pub fn new_erc20(initial_supply: Balance) -> Self {
     let caller = self.env().caller();
     let mut balances = ink_storage::HashMap::new();
@@ -44,6 +44,14 @@ pub fn new_erc20(initial_supply: Balance) -> Self {
 Also ink! 3.0 no longer requires a mandatory `version` field in the header of the ink! module attribute.
 
 Syntactically this is all it takes to port your current ink! smart contracts over to ink! 3.0 syntax.
+
+## Split of ink_core
+
+The `ink_core` crate no longer exists. It has been split into the new `ink_env` and `ink_storage` crates.
+
+Everything that was previously accessed through `ink_core::env` now lives in `ink_env` and everything
+that was previously accessed through `ink_core::storage` now lives in `ink_storage`. Both crates keep
+the responsibilities of their former originating `ink_core` modules.
 
 ## New Storage Module
 
