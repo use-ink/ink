@@ -5,7 +5,7 @@
 | [![linux][a1]][a2] | [![codecov][c1]][c2] | [![coveralls][d1]][d2] | [![loc][e1]][e2] |
 
 [a1]: https://gitlab.parity.io/parity/ink/badges/master/pipeline.svg
-[a2]: https://gitlab.parity.io/parity/ink/pipelines
+[a2]: https://gitlab.parity.io/parity/ink/pipelines?ref=master
 [c1]: https://codecov.io/gh/paritytech/ink/branch/master/graph/badge.svg
 [c2]: https://codecov.io/gh/paritytech/ink/branch/master
 [d1]: https://coveralls.io/repos/github/paritytech/ink/badge.svg?branch=master
@@ -23,11 +23,9 @@
 [j1]: https://img.shields.io/badge/docs-lang-blue.svg
 [j2]: https://paritytech.github.io/ink/ink_lang
 
-**IMPORTANT NOTE:** WORK IN PROGRESS! Do not expect this to be working.
-
 ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language targeting Substrate blockchains.
 
-For more information please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
+For a guided workshop targeting beginners please visit [the ink! tutorial](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract).
 
 ## Developer Documentation
 
