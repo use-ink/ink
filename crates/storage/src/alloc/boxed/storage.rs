@@ -29,21 +29,27 @@ use ink_primitives::Key;
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::traits::StorageLayout;
-    use ink_metadata::layout::{
-        CellLayout,
-        Layout,
-        LayoutKey,
-    };
-
-    impl<T> StorageLayout for StorageBox<T>
+    impl<T> scale_info::TypeInfo for StorageBox<T>
     where
         T: SpreadLayout,
     {
-        fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Cell(CellLayout::new::<DynamicAllocation>(LayoutKey::from(
-                key_ptr.advance_by(1),
-            )))
+        fn type_info() -> scale_info::Type {
+            scale_info::Type::builder()
+                .path(
+                    scale_info::Path::from_segments(vec!["ink_storage", "alloc", "Box"])
+                        .expect("encountered invalid Rust path"),
+                )
+                // Unfortunately we cannot encode the type parameters of the box since they
+                // have to be `T: scale::Codec`. However, them not requiring to be encodable
+                // is the purpose of the storage `Box<T>`.
+                // Until we found a solution to this problem we cannot uncomment the below
+                // line of code:
+                //
+                // .type_params(vec![scale_info::MetaType::new::<T>()])
+                .composite(
+                    scale_info::build::Fields::named()
+                        .field_of::<DynamicAllocation>("allocation"),
+                )
         }
     }
 };
