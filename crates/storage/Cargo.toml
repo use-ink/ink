@@ -82,4 +82,5 @@ harness = false
 
 [[bench]]
 name = "bench_binary_heap"
+path = "benches/bench_binary_heap.rs"
 harness = false
