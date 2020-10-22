@@ -170,7 +170,7 @@ clippy-wasm:
         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
-  # For the UI tests we need to disable the license check
+# For the UI tests we need to disable the license check
 fmt:
   stage:                           workspace
   <<:                              *docker-env
