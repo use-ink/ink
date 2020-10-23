@@ -17,7 +17,9 @@ variables:
   CARGO_INCREMENTAL:               0
   CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
-  ALL_CRATES:                      "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
+  PURELY_STD_CRATES:               "lang/codegen metadata"
+  ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
+  ALL_CRATES:                      "${PURELY_STD_CRATES $ALSO_WASM_CRATES}"
 
 workflow:
   rules:
@@ -73,7 +75,7 @@ check-wasm:
   stage:                           check
   <<:                              *docker-env
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
@@ -98,7 +100,7 @@ build-wasm:
     - job:                         check-wasm
       artifacts:                   false
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in ${ALSO_WASM_CRATES}; do
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
@@ -166,7 +168,7 @@ clippy-wasm:
     - job:                         check-wasm
       artifacts:                   false
   script:
-    - for crate in ${ALL_CRATES}; do
+    - for crate in ${ALSO_WASM_CRATES}; do
         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
