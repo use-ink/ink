@@ -88,8 +88,8 @@ banner="---------------"
 echo "Example Results"
 echo "$banner"
 for entry in ${!results_wasm[@]}; do
-    echo "- $entry (wasm): ${results_wasm[$entry]}"
-    echo "- $entry (test): ${results_test[$entry]}"
+    echo "- $entry (wasm):      ${results_wasm[$entry]}"
+    echo "- $entry (test):      ${results_test[$entry]}"
     echo "- $entry (metadata) : ${results_metadata[$entry]}"
 done
 echo ""
