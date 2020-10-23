@@ -109,6 +109,12 @@ test:
   needs:
     - job:                         check-std
       artifacts:                   false
+  variables:
+      # Since we run the tests with `--all-features` this implies the feature
+      # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+      # There's no way to disable a single feature while enabling all features
+      # at the same time, hence we use this workaround.
+      QUICKCHECK_TESTS:            0
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
 
@@ -119,6 +125,8 @@ codecov:
     - job:                         check-std
       artifacts:                   false
   variables:
+    # For codecov it's sufficient to run the fuzz tests only once.
+    QUICKCHECK_TESTS:            1
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
