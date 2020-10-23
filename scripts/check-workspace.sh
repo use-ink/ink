@@ -17,7 +17,7 @@
 
 declare -A results
 
-all_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir")
+all_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir" "lang/codegen" "metadata")
 
 results["check_all_features"]=true
 for crate in "${all_crates[@]}"; do
