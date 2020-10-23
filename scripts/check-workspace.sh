@@ -17,7 +17,9 @@
 
 declare -A results
 
-all_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir" "lang/codegen" "metadata")
+purely_std_crates=("lang/codegen" "metadata")
+also_wasm_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir")
+all_crates=("${also_wasm_crates[@]}" "${purely_std_crates[@]}")
 
 results["check_all_features"]=true
 for crate in "${all_crates[@]}"; do
@@ -26,7 +28,9 @@ for crate in "${all_crates[@]}"; do
 
     cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml
     let "results['build_std'] |= $?"
+done
 
+for crate in "${also_wasm_crates[@]}"; do
     cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml
     let "results['build_wasm'] |= $?"
 done
