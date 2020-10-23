@@ -310,10 +310,9 @@ fuzz-tests:
     variables:
         # The QUICKCHECK_TESTS default is 100
         QUICKCHECK_TESTS:            1000
-    only:
-        refs:
-            - master
-            - schedules
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "schedule"
+        - if: $CI_COMMIT_REF_NAME == "master"
     script:
         - cargo test --verbose --features ink-fuzz-tests --no-fail-fast --workspace -- fuzz_
         - if [ $? -eq 0 ]; then exit 0; fi
