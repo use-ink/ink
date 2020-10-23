@@ -108,7 +108,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(field_span, "at this invokation",))
+                    err.into_combine(format_err!(field_span, "at this invocation",))
                 })?;
             if !matches!(normalized.first().kind(), ir::AttributeArgKind::Topic) {
                 return Err(format_err!(

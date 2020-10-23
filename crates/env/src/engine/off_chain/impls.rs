@@ -349,7 +349,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
         Args: scale::Encode,
     {
-        unimplemented!("off-chain environment does not support contract invokation")
+        unimplemented!("off-chain environment does not support contract invocation")
     }
 
     fn eval_contract<T, Args, R>(
