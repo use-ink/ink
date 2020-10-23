@@ -499,6 +499,12 @@ impl InkTrait {
             constructor.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
             |c| !matches!(c, ir::AttributeArgKind::Constructor),
+            |arg| {
+                if matches!(arg.kind(), ir::AttributeArgKind::Payable) {
+                    return Some("constructor is implicitly payable")
+                }
+                None
+            },
         )?;
         if let Some(receiver) = constructor.sig.receiver() {
             return Err(format_err_spanned!(
@@ -546,6 +552,7 @@ impl InkTrait {
             message.attrs.clone(),
             &ir::AttributeArgKind::Message,
             |c| !matches!(c, ir::AttributeArgKind::Message),
+            |_| None,
         )?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
@@ -923,7 +930,7 @@ mod tests {
             }
         );
         assert_ink_trait_eq_err!(
-            error: "encountered conflicting ink! attribute argument",
+            error: "encountered conflicting ink! attribute argument: constructor is implicitly payable",
             pub trait MyTrait {
                 #[ink(constructor)]
                 #[ink(payable)]

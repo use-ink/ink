@@ -230,6 +230,12 @@ impl InkAttribute {
         })
     }
 
+    /// Returns `true` if the ink! attribute contains the `constructor` argument.
+    pub fn is_constructor(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArgKind::Constructor))
+    }
+
     /// Returns `true` if the ink! attribute contains the `payable` argument.
     pub fn is_payable(&self) -> bool {
         self.args()
@@ -441,15 +447,17 @@ where
 /// - If there are duplicate ink! attributes.
 /// - If the first ink! attribute is not matching the expected.
 /// - If there are conflicting ink! attributes.
-pub fn sanitize_attributes<I, C>(
+pub fn sanitize_attributes<I, C, R>(
     parent_span: Span,
     attrs: I,
     is_valid_first: &ir::AttributeArgKind,
     mut is_conflicting_attr: C,
+    conflict_reason: R,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
     C: FnMut(&AttributeArgKind) -> bool,
+    R: Fn(&AttributeArg) -> Option<&str>,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -462,7 +470,25 @@ where
             is_valid_first,
         ))
     })?;
-    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))?;
+    normalized
+        .ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))
+        .map_err(|arg| {
+            match conflict_reason(&arg) {
+                Some(reason) => {
+                    format_err!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute argument: {}",
+                        reason
+                    )
+                }
+                None => {
+                    format_err!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute argument"
+                    )
+                }
+            }
+        })?;
     Ok((normalized, other_attrs))
 }
 
@@ -549,16 +575,13 @@ impl InkAttribute {
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,
-    ) -> Result<(), syn::Error>
+    ) -> Result<(), &'a ir::AttributeArg>
     where
         P: FnMut(&'a ir::AttributeArg) -> bool,
     {
         for arg in self.args() {
             if is_conflicting(arg) {
-                return Err(format_err!(
-                    arg.span(),
-                    "encountered conflicting ink! attribute argument",
-                ))
+                return Err(&arg)
             }
         }
         Ok(())

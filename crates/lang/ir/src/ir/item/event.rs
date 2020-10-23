@@ -92,6 +92,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                     ir::AttributeArgKind::Event | ir::AttributeArgKind::Anonymous
                 )
             },
+            |_| None,
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(

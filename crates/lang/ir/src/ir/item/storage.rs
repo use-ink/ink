@@ -87,6 +87,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
             item_struct.attrs,
             &ir::AttributeArgKind::Storage,
             |kind| !matches!(kind, ir::AttributeArgKind::Storage),
+            |_| None,
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(

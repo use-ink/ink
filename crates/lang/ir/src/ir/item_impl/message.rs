@@ -187,6 +187,7 @@ impl Message {
                     | ir::AttributeArgKind::Selector(_)
                 )
             },
+            |_| None,
         )
     }
 }

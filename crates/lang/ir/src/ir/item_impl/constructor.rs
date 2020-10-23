@@ -159,6 +159,12 @@ impl Constructor {
                     | ir::AttributeArgKind::Selector(_)
                 )
             },
+            |arg| {
+                if matches!(arg.kind(), ir::AttributeArgKind::Payable) {
+                    return Some("constructor is implicitly payable")
+                }
+                None
+            },
         )
     }
 }
@@ -553,12 +559,6 @@ mod tests {
                 #[ink(event)]
                 fn my_constructor() -> Self {}
             },
-            // constructor + payable
-            syn::parse_quote! {
-                #[ink(constructor)]
-                #[ink(payable)]
-                fn my_constructor() -> Self {}
-            },
         ];
         for item_method in item_methods {
             assert_try_from_fails(
@@ -566,5 +566,18 @@ mod tests {
                 "encountered conflicting ink! attribute argument",
             )
         }
+    }
+
+    #[test]
+    fn conflicting_attributes_fails_with_reason() {
+        let payable_constructor = syn::parse_quote! {
+            #[ink(constructor)]
+            #[ink(payable)]
+            fn my_constructor() -> Self {}
+        };
+        assert_try_from_fails(
+            payable_constructor,
+            "encountered conflicting ink! attribute argument: constructor is implicitly payable",
+        );
     }
 }

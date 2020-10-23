@@ -299,6 +299,18 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 })?;
             normalized.ensure_no_conflicts(|arg| {
                 !matches!(arg.kind(), ir::AttributeArgKind::Implementation | ir::AttributeArgKind::Namespace(_))
+            }).map_err(|arg| {
+                if normalized.is_constructor() && matches!(arg.kind(), ir::AttributeArgKind::Payable) {
+                    format_err!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute argument: constructor is implicitly payable",
+                    )
+                } else {
+                    format_err!(
+                        arg.span(),
+                        "encountered conflicting ink! attribute argument",
+                    )
+                }
             })?;
             namespace = normalized.namespace();
         }
