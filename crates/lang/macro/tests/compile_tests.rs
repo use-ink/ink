@@ -35,6 +35,8 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/C-11-unsafe-constructor.rs");
     t.compile_fail("tests/ui/fail/C-12-const-constructor.rs");
     t.compile_fail("tests/ui/fail/C-13-abi-constructor.rs");
+    t.compile_fail("tests/ui/fail/C-14-payable-constructor.rs");
+    t.compile_fail("tests/ui/fail/C-15-trait-payable-constructor.rs");
 
     t.compile_fail("tests/ui/fail/H-01-invalid-dyn-alloc.rs");
     t.compile_fail("tests/ui/fail/H-02-invalid-as-dependency.rs");
