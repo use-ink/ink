@@ -174,7 +174,7 @@ where
         ink_env::block_number::<T>().expect("couldn't decode block number")
     }
 
-    /// Returns the minimum balance for the contracts chain.
+    /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///

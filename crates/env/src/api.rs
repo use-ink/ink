@@ -169,7 +169,7 @@ where
     })
 }
 
-/// Returns the minimum balance for the contracts chain.
+/// Returns the minimum balance that is required for creating an account.
 ///
 /// # Errors
 ///
