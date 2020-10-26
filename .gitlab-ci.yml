@@ -315,7 +315,6 @@ fuzz-tests:
     rules:
         - if: $CI_PIPELINE_SOURCE == "schedule"
         - if: $CI_COMMIT_REF_NAME == "master"
-    timeout: 1h 0m
     script:
         - for crate in ${ALL_CRATES}; do
             cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
