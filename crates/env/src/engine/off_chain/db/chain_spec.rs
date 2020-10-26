@@ -83,7 +83,7 @@ impl ChainSpec {
         self.gas_price = OffBalance::new(&gas_price)
     }
 
-    /// Returns the minimum balance for an account on the chain.
+    /// Returns the minimum balance that is required for creating an account.
     pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
         T: Environment,
