@@ -314,7 +314,9 @@ fuzz-tests:
         - if: $CI_PIPELINE_SOURCE == "schedule"
         - if: $CI_COMMIT_REF_NAME == "master"
     script:
-        - cargo test --verbose --features ink-fuzz-tests --no-fail-fast --workspace -- fuzz_
+        - for crate in ${ALL_CRATES}; do
+            cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
+          done
         - if [ $? -eq 0 ]; then exit 0; fi
         - |
              curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues?state=all" \
