@@ -210,7 +210,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`ink_env::block_number`]
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber>;
 
-    /// Returns the minimum balance of the contracts chain.
+    /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///
