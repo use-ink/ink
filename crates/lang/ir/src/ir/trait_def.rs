@@ -499,7 +499,8 @@ impl InkTrait {
             constructor.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
             |c| !matches!(c, ir::AttributeArgKind::Constructor),
-            |arg| {
+            |err| {
+                let arg = err.for_attribute();
                 if matches!(arg.kind(), ir::AttributeArgKind::Payable) {
                     return Some("constructor is implicitly payable")
                 }

@@ -457,7 +457,7 @@ pub fn sanitize_attributes<I, C, R>(
 where
     I: IntoIterator<Item = syn::Attribute>,
     C: FnMut(&AttributeArgKind) -> bool,
-    R: Fn(&AttributeArg) -> Option<&str>,
+    R: Fn(&InkAttributeConflictErr) -> Option<&'static str>,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -472,8 +472,9 @@ where
     })?;
     normalized
         .ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))
-        .map_err(|arg| {
-            match conflict_reason(&arg) {
+        .map_err(|err| {
+            let arg = err.for_attribute();
+            match conflict_reason(&err) {
                 Some(reason) => {
                     format_err!(
                         arg.span(),
@@ -567,6 +568,23 @@ impl TryFrom<syn::Attribute> for InkAttribute {
     }
 }
 
+pub struct InkAttributeConflictErr<'a> {
+    for_attr: &'a ir::AttributeArg,
+}
+
+impl<'a> InkAttributeConflictErr<'a> {
+    /// Creates a new `InkAttributeConflictErr`.
+    pub fn new(for_attr: &'a ir::AttributeArg) -> Self {
+        Self { for_attr }
+    }
+
+    /// Returns the ink! specific attribute argument for which the conflict
+    /// error occurred.
+    pub fn for_attribute(&self) -> &ir::AttributeArg {
+        self.for_attr
+    }
+}
+
 impl InkAttribute {
     /// Ensures that there are no conflicting ink! attribute arguments in `self`.
     ///
@@ -575,13 +593,13 @@ impl InkAttribute {
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,
-    ) -> Result<(), &'a ir::AttributeArg>
+    ) -> Result<(), InkAttributeConflictErr>
     where
         P: FnMut(&'a ir::AttributeArg) -> bool,
     {
         for arg in self.args() {
             if is_conflicting(arg) {
-                return Err(&arg)
+                return Err(InkAttributeConflictErr::new(&arg))
             }
         }
         Ok(())

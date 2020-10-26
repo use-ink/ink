@@ -159,8 +159,8 @@ impl Constructor {
                     | ir::AttributeArgKind::Selector(_)
                 )
             },
-            |arg| {
-                if matches!(arg.kind(), ir::AttributeArgKind::Payable) {
+            |err| {
+                if matches!(err.for_attribute().kind(), ir::AttributeArgKind::Payable) {
                     return Some("constructor is implicitly payable")
                 }
                 None

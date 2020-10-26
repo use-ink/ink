@@ -299,7 +299,8 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 })?;
             normalized.ensure_no_conflicts(|arg| {
                 !matches!(arg.kind(), ir::AttributeArgKind::Implementation | ir::AttributeArgKind::Namespace(_))
-            }).map_err(|arg| {
+            }).map_err(|err| {
+                let arg = err.for_attribute();
                 if normalized.is_constructor() && matches!(arg.kind(), ir::AttributeArgKind::Payable) {
                     format_err!(
                         arg.span(),
