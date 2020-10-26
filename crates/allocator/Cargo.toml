@@ -20,3 +20,7 @@ wee_alloc = { version = "0.4", default-features = false }
 [features]
 default = ["std"]
 std = []
+
+# The feature is not yet utilized in this crate, but we need to add it
+# here already anyway, since the CI tries to execute fuzzing on each crate.
+ink-fuzz-tests = ["std"]

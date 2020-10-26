@@ -27,3 +27,8 @@ synstructure = "0.12.4"
 ink_primitives = { version = "3.0.0-rc2", path = "../../primitives" }
 ink_metadata = { version = "3.0.0-rc2", path = "../../metadata" }
 ink_storage = { version = "3.0.0-rc2", path = ".." }
+
+[features]
+# The feature is not yet utilized in this crate, but we need to add it
+# here already anyway, since the CI tries to execute fuzzing on each crate.
+ink-fuzz-tests = []

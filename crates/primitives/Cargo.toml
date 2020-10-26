@@ -32,6 +32,10 @@ std = [
     "scale-info/std",
 ]
 
+# The feature is not yet utilized in this crate, but we need to add it
+# here already anyway, since the CI tries to execute fuzzing on each crate.
+ink-fuzz-tests = ["std"]
+
 [[bench]]
 name = "bench"
 path = "benches/bench.rs"
