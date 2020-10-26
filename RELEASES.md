@@ -402,15 +402,15 @@ use ink_lang as ink;
 pub trait BaseErc20 {
     /// Creates a new ERC-20 contract and initializes it with the initial supply for the instantiator.
     #[ink(constructor)]
-    pub fn new(initial_supply: Balance) -> Self;
+    fn new(initial_supply: Balance) -> Self;
 
     /// Returns the total supply.
     #[ink(message)]
-    pub fn total_supply(&self) -> Balance;
+    fn total_supply(&self) -> Balance;
 
     /// Transfers `amount` from caller to `to`.
     #[ink(message, payable)]
-    pub fn transfer(&mut self, to: AccountId, amount: Balance);
+    fn transfer(&mut self, to: AccountId, amount: Balance);
 }
 ```
 
