@@ -564,6 +564,8 @@
 <span id="561">561</span>
 <span id="562">562</span>
 <span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -736,7 +738,7 @@
     })
 }
 
-<span class="doccomment">/// Returns the minimum balance for the contracts chain.</span>
+<span class="doccomment">/// Returns the minimum balance that is required for creating an account.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
@@ -989,9 +991,11 @@
 <span class="doccomment">/// contract call or invoke a runtime function that performs the</span>
 <span class="doccomment">/// transaction.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
+<span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If the contract doesn&#39;t have sufficient funds.</span>
+<span class="doccomment">/// - If the contract doesn&#39;t have sufficient funds.</span>
+<span class="doccomment">/// - If the transfer would have brought the sender&#39;s total balance below the</span>
+<span class="doccomment">///   subsistence threshold.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">destination</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>, <span class="ident">value</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
