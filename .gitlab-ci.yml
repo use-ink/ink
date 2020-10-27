@@ -309,12 +309,9 @@ publish-docs:
 fuzz-tests:
     stage:                           fuzz
     <<:                              *docker-env
-    variables:
-        # The QUICKCHECK_TESTS default is 100
-        QUICKCHECK_TESTS:            50000
     rules:
         - if: $CI_PIPELINE_SOURCE == "schedule"
-        - if: $CI_COMMIT_REF_NAME == "master"
+        - if: $CI_COMMIT_REF_NAME == "cmichi-test-fuzz-setup"
     script:
         # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
         - all_tests_passed=0
