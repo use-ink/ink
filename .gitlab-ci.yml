@@ -9,8 +9,8 @@ stages:
   - check
   - workspace
   - examples
-  - publish
   - fuzz
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
