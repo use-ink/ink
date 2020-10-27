@@ -326,14 +326,14 @@ fuzz-tests:
         - if [ $? -eq 0 ]; then exit 0; fi
         - |
              curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues?state=all" \
-                -H "Cookie: logged_in=no" \
-                -H "Authorization: token ${GITHUB_TOKEN}" \
-                -H "Content-Type: text/plain; charset=utf-8" \
-                -d $'{
-                    "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"'),
-                    "body": "This CI job '"${CI_JOB_ID}"' just failed: '"${CI_JOB_URL}"'.\n\nThe offending commit is `['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"')`.",
-                    "assignees": [],
-                    "labels": [
-                        "P-high"
-                    ]
-                }'
+               -H "Cookie: logged_in=no" \
+               -H "Authorization: token ${GITHUB_TOKEN}" \
+               -H "Content-Type: text/plain; charset=utf-8" \
+               -d $'{
+                 "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"'),
+                 "body": "This CI job '"${CI_JOB_ID}"' just failed: '"${CI_JOB_URL}"'.\n\nThe offending commit is `['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"')`.",
+                 "assignees": [],
+                 "labels": [
+                   "P-high"
+                 ]
+               }'
