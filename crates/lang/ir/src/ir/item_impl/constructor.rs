@@ -574,3 +574,23 @@ mod tests {
         }
     }
 }
+
+#[test]
+fn conflicting_attributes_fails_with_reason() {
+    let payable_constructor = syn::parse_quote! {
+        #[ink(constructor)]
+        #[ink(payable)]
+        fn my_constructor() -> Self {}
+    };
+    let parse_err =
+        <ir::Constructor as TryFrom<_>>::try_from(payable_constructor).unwrap_err();
+    let compile_errs: Vec<String> =
+        parse_err.into_iter().map(|err| err.to_string()).collect();
+    assert_eq!(
+        compile_errs,
+        [
+            "encountered conflicting ink! attribute argument",
+            "constructor is implicitly payable"
+        ]
+    );
+}
