@@ -340,7 +340,7 @@ fuzz-tests:
                 -H "Content-Type: application/json; charset=utf-8" \
                 -d $'{
                     "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
-                    "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is `['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"')`.",
+                    "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is ['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"').",
                     "assignees": [],
                     "labels": [
                         "P-high"
