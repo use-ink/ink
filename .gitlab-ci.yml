@@ -326,7 +326,10 @@ fuzz-tests:
                 echo "starting tests for " ${crate};
                 cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
                 echo "ending tests for " ${crate};
-                let "all_tests_passed |= $?";
+                ret=$?;
+                echo "ret " ${ret};
+                let "all_tests_passed |= $ret";
+                echo "all_tests_passed " ${all_tests_passed};
             fi
           done
         - echo "all_tests_passed " ${all_tests_passed}
