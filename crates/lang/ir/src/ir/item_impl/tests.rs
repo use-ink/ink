@@ -163,7 +163,7 @@ fn conflicting_attributes_fails_with_reason() {
         impl MyStorage {
             #[ink(constructor)]
             #[ink(payable)]
-            pub fn my_private_constructor() -> Self {}
+            pub fn my_constructor() -> Self {}
         }
     };
     let parse_err =
