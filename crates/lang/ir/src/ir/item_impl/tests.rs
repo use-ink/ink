@@ -160,24 +160,17 @@ fn is_ink_impl_block_fails() {
 #[test]
 fn conflicting_attributes_fails_with_reason() {
     let payable_constructor = syn::parse_quote! {
-        impl MyStorage {
-            #[ink(constructor)]
-            #[ink(payable)]
-            pub fn my_constructor() -> Self {}
-        }
+        #[ink(constructor)]
+        #[ink(payable)]
+        fn my_constructor() -> Self {}
     };
-    let parse_err =
-        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(payable_constructor)
-            .unwrap_err();
-    let compile_errs: Vec<String> =
-        parse_err.into_iter().map(|err| err.to_string()).collect();
-    assert_eq!(
-        compile_errs,
-        [
+    assert_try_from_item_impl_fails_multiple_times(
+        payable_constructor,
+        vec![
             "encountered conflicting ink! attribute argument",
-            "constructor is implicitly payable"
-        ]
-    );
+            "constructor is implicitly payable",
+        ],
+    )
 }
 
 /// Asserts that the `TryFrom` application on the given [`syn::ItemImpl`]
@@ -188,6 +181,19 @@ fn assert_try_from_item_impl_fails(item_impl: syn::ItemImpl, expected_err: &str)
             .map_err(|err| err.to_string()),
         Err(expected_err.to_string())
     )
+}
+
+/// Asserts that the `TryFrom` application on the given [`syn::ItemImpl`]
+/// fails with the expected error messages.
+fn assert_try_from_item_impl_fails_multiple_times(
+    item_method: syn::ImplItemMethod,
+    expected_errs: Vec<&str>,
+) {
+    let parse_err: syn::Error =
+        <ir::Constructor as TryFrom<_>>::try_from(item_method).unwrap_err();
+    let compile_errs: Vec<String> =
+        parse_err.into_iter().map(|err| err.to_string()).collect();
+    assert_eq!(compile_errs, expected_errs);
 }
 
 #[test]

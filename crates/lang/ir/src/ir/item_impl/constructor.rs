@@ -348,6 +348,17 @@ mod tests {
         );
     }
 
+    fn assert_try_from_fails_multiple_times(
+        item_method: syn::ImplItemMethod,
+        expected_errs: Vec<&str>,
+    ) {
+        let parse_err: syn::Error =
+            <ir::Constructor as TryFrom<_>>::try_from(item_method).unwrap_err();
+        let compile_errs: Vec<String> =
+            parse_err.into_iter().map(|err| err.to_string()).collect();
+        assert_eq!(compile_errs, expected_errs);
+    }
+
     #[test]
     fn try_from_missing_return_fails() {
         let item_methods: Vec<syn::ImplItemMethod> = vec![
@@ -577,20 +588,16 @@ mod tests {
 
 #[test]
 fn conflicting_attributes_fails_with_reason() {
-    let payable_constructor: syn::ImplItemMethod = syn::parse_quote! {
+    let payable_constructor = syn::parse_quote! {
         #[ink(constructor)]
         #[ink(payable)]
         fn my_constructor() -> Self {}
     };
-    let parse_err: syn::Error =
-        <ir::Constructor as TryFrom<_>>::try_from(payable_constructor).unwrap_err();
-    let compile_errs: Vec<String> =
-        parse_err.into_iter().map(|err| err.to_string()).collect();
-    assert_eq!(
-        compile_errs,
-        [
+    assert_try_from_fails_multiple_times(
+        payable_constructor,
+        vec![
             "encountered conflicting ink! attribute argument",
-            "constructor is implicitly payable"
-        ]
-    );
+            "constructor is implicitly payable",
+        ],
+    )
 }
