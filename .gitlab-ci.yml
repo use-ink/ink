@@ -6,10 +6,10 @@
 
 
 stages:
-  - fuzz
   - check
   - workspace
   - examples
+  - fuzz
   - publish
 
 variables:
@@ -311,27 +311,20 @@ fuzz-tests:
     <<:                              *docker-env
     variables:
         # The QUICKCHECK_TESTS default is 100
-        QUICKCHECK_TESTS:            1
+        QUICKCHECK_TESTS:            50000
     rules:
         - if: $CI_PIPELINE_SOURCE == "schedule"
-        - if: $CI_COMMIT_REF_NAME == "cmichi-test-fuzz-setup"
+        - if: $CI_COMMIT_REF_NAME == "master"
     script:
         # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
-        - set -x
-        - set +e
         - all_tests_passed=0
         - for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
             then
-                echo "starting tests for " ${crate};
                 cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
-                ret=$?;
-                echo "ret " ${ret};
-                let "all_tests_passed |= $ret";
-                echo "all_tests_passed " ${all_tests_passed};
+                let "all_tests_passed |= $?";
             fi
           done
-        - echo "all_tests_passed " ${all_tests_passed}
         - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
         - |
              curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \

@@ -72,7 +72,6 @@ fn fuzz_pull_push_pull_array(x: Vec<i32>) -> TestResult {
 #[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
 fn fuzz_pull_push_pull_string(x: String) {
-    assert!(false);
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let key = ink_primitives::Key::from([0x42; 32]);
         let key2 = ink_primitives::Key::from([0x77; 32]);
