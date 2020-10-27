@@ -303,11 +303,12 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 let arg = err.for_attribute();
                 let mut conflict = format_err!(arg.span(), "encountered conflicting ink! attribute argument");
                 if normalized.is_constructor() && matches!(arg.kind(), ir::AttributeArgKind::Payable) {
-                    let implicitly = format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute argument: constructor is implicitly payable",
+                    conflict.combine(
+                        format_err!(
+                            arg.span(),
+                            "constructor is implicitly payable",
+                        )
                     );
-                    conflict.combine(implicitly);
                 }
                 conflict
             })?;

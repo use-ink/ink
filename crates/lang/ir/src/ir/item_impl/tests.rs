@@ -157,6 +157,29 @@ fn is_ink_impl_block_fails() {
     );
 }
 
+#[test]
+fn conflicting_attributes_fails_with_reason() {
+    let payable_constructor = syn::parse_quote! {
+        impl MyStorage {
+            #[ink(constructor)]
+            #[ink(payable)]
+            pub fn my_private_constructor() -> Self {}
+        }
+    };
+    let parse_err =
+        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(payable_constructor)
+            .unwrap_err();
+    let compile_errs: Vec<String> =
+        parse_err.into_iter().map(|err| err.to_string()).collect();
+    assert_eq!(
+        compile_errs,
+        [
+            "encountered conflicting ink! attribute argument",
+            "constructor is implicitly payable"
+        ]
+    );
+}
+
 /// Asserts that the `TryFrom` application on the given [`syn::ItemImpl`]
 /// fails with the expected error message.
 fn assert_try_from_item_impl_fails(item_impl: syn::ItemImpl, expected_err: &str) {
