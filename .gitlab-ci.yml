@@ -311,12 +311,13 @@ fuzz-tests:
     <<:                              *docker-env
     variables:
         # The QUICKCHECK_TESTS default is 100
-        QUICKCHECK_TESTS:            100
+        QUICKCHECK_TESTS:            1
     rules:
         - if: $CI_PIPELINE_SOURCE == "schedule"
         - if: $CI_COMMIT_REF_NAME == "cmichi-test-fuzz-setup"
     script:
         # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+        - set -x
         - all_tests_passed=0
         - for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
