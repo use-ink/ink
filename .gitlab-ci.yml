@@ -321,8 +321,8 @@ fuzz-tests:
         - for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
             then
-                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_
-                let "all_tests_passed |= $?"
+                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
+                let "all_tests_passed |= $?";
             fi
           done
         - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
