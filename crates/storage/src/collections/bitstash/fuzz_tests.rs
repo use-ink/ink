@@ -65,7 +65,7 @@ fn put_and_take(xs: Vec<i32>, additional_puts_each: u8) {
 }
 
 #[quickcheck]
-fn repeated_puts_and_takes(xs: Vec<i32>, additional_puts_each: u8) {
+fn fuzz_repeated_puts_and_takes(xs: Vec<i32>, additional_puts_each: u8) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         put_and_take(xs, additional_puts_each);
         Ok(())
