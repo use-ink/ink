@@ -317,7 +317,11 @@ fuzz-tests:
         - if: $CI_COMMIT_REF_NAME == "master"
     script:
         - for crate in ${ALL_CRATES}; do
-            cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
+            # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+            if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
+            then
+              cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_
+            fi
           done
         - if [ $? -eq 0 ]; then exit 0; fi
         - |
