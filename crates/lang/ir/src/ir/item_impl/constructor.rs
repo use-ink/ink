@@ -584,20 +584,20 @@ mod tests {
             )
         }
     }
-}
 
-#[test]
-fn conflicting_attributes_fails_with_reason() {
-    let payable_constructor = syn::parse_quote! {
-        #[ink(constructor)]
-        #[ink(payable)]
-        fn my_constructor() -> Self {}
-    };
-    assert_try_from_fails_multiple_times(
-        payable_constructor,
-        vec![
-            "encountered conflicting ink! attribute argument",
-            "constructor is implicitly payable",
-        ],
-    )
+    #[test]
+    fn conflicting_attributes_fails_with_reason() {
+        let payable_constructor = syn::parse_quote! {
+            #[ink(constructor)]
+            #[ink(payable)]
+            fn my_constructor() -> Self {}
+        };
+        assert_try_from_fails_multiple_times(
+            payable_constructor,
+            vec![
+                "encountered conflicting ink! attribute argument",
+                "constructor is implicitly payable",
+            ],
+        )
+    }
 }
