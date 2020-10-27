@@ -577,12 +577,12 @@ mod tests {
 
 #[test]
 fn conflicting_attributes_fails_with_reason() {
-    let payable_constructor = syn::parse_quote! {
+    let payable_constructor: syn::ImplItemMethod = syn::parse_quote! {
         #[ink(constructor)]
         #[ink(payable)]
         fn my_constructor() -> Self {}
     };
-    let parse_err =
+    let parse_err: syn::Error =
         <ir::Constructor as TryFrom<_>>::try_from(payable_constructor).unwrap_err();
     let compile_errs: Vec<String> =
         parse_err.into_iter().map(|err| err.to_string()).collect();
