@@ -75,7 +75,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) -> StorageHashMap<i32, i32>
 }
 
 #[quickcheck]
-fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
+fn fuzz_inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let _ = insert_and_remove(xs, inserts_each);
         Ok(())
@@ -86,7 +86,7 @@ fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
 /// Inserts all elements from `xs`. Then removes each `xth` element from the map
 /// and asserts that all non-`xth` elements are still in the map.
 #[quickcheck]
-fn removes(xs: Vec<i32>, xth: usize) {
+fn fuzz_removes(xs: Vec<i32>, xth: usize) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
         let xs: Vec<i32> = xs.into_iter().unique().collect();
@@ -134,7 +134,7 @@ fn removes(xs: Vec<i32>, xth: usize) {
 }
 
 #[quickcheck]
-fn defrag(xs: Vec<i32>, inserts_each: u8) {
+fn fuzz_defrag(xs: Vec<i32>, inserts_each: u8) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // Create a `HashMap<i32, i32>` and execute some pseudo-randomized
         // insert/remove operations on it.
