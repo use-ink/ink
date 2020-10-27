@@ -334,13 +334,13 @@ fuzz-tests:
         - echo "all_tests_passed " ${all_tests_passed}
         - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
         - |
-             curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues?state=all" \
+             curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
                 -H "Cookie: logged_in=no" \
                 -H "Authorization: token ${GITHUB_TOKEN}" \
-                -H "Content-Type: text/plain; charset=utf-8" \
+                -H "Content-Type: application/json; charset=utf-8" \
                 -d $'{
-                    "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"'),
-                    "body": "This CI job '"${CI_JOB_ID}"' just failed: '"${CI_JOB_URL}"'.\n\nThe offending commit is `['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"')`.",
+                    "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
+                    "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is `['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"')`.",
                     "assignees": [],
                     "labels": [
                         "P-high"
