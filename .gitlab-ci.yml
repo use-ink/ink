@@ -346,3 +346,4 @@ fuzz-tests:
                         "P-high"
                     ]
                 }'
+        - exit 1
