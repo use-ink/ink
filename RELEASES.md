@@ -431,17 +431,17 @@ mod erc20 {
 
     impl BaseErc20 for Erc20 {
         #[ink(constructor)]
-        pub fn new(initial_supply: Balance) -> Self {
+        fn new(initial_supply: Balance) -> Self {
             // implementation ...
         }
 
         #[ink(message)]
-        pub fn total_supply(&self) -> Balance {
+        fn total_supply(&self) -> Balance {
             // implementation ...
         }
 
         #[ink(message, payable)]
-        pub fn transfer(&mut self, to: AccountId, amount: Balance) {
+        fn transfer(&mut self, to: AccountId, amount: Balance) {
             // implementation ...
         }
     }
