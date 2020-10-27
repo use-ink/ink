@@ -301,17 +301,15 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 !matches!(arg.kind(), ir::AttributeArgKind::Implementation | ir::AttributeArgKind::Namespace(_))
             }).map_err(|err| {
                 let arg = err.for_attribute();
+                let mut conflict = format_err!(arg.span(), "encountered conflicting ink! attribute argument");
                 if normalized.is_constructor() && matches!(arg.kind(), ir::AttributeArgKind::Payable) {
-                    format_err!(
+                    let implicitly = format_err!(
                         arg.span(),
                         "encountered conflicting ink! attribute argument: constructor is implicitly payable",
-                    )
-                } else {
-                    format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute argument",
-                    )
+                    );
+                    conflict.combine(implicitly);
                 }
+                conflict
             })?;
             namespace = normalized.namespace();
         }

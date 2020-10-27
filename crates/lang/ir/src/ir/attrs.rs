@@ -474,21 +474,15 @@ where
         .ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))
         .map_err(|err| {
             let arg = err.for_attribute();
-            match conflict_reason(&err) {
-                Some(reason) => {
-                    format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute argument: {}",
-                        reason
-                    )
-                }
-                None => {
-                    format_err!(
-                        arg.span(),
-                        "encountered conflicting ink! attribute argument"
-                    )
-                }
+            let mut conflict = format_err!(
+                arg.span(),
+                "encountered conflicting ink! attribute argument"
+            );
+            if let Some(reason) = conflict_reason(&err) {
+                let reason_err = format_err!(arg.span(), "{}", reason);
+                conflict.combine(reason_err);
             }
+            conflict
         })?;
     Ok((normalized, other_attrs))
 }

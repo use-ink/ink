@@ -931,7 +931,7 @@ mod tests {
             }
         );
         assert_ink_trait_eq_err!(
-            error: "encountered conflicting ink! attribute argument: constructor is implicitly payable",
+            error: "encountered conflicting ink! attribute argument",
             pub trait MyTrait {
                 #[ink(constructor)]
                 #[ink(payable)]

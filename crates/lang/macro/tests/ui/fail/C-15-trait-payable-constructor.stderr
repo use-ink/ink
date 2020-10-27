@@ -1,4 +1,10 @@
-error: encountered conflicting ink! attribute argument: constructor is implicitly payable
+error: encountered conflicting ink! attribute argument
+  --> $DIR/C-15-trait-payable-constructor.rs:15:28
+   |
+15 |         #[ink(constructor, payable)]
+   |                            ^^^^^^^
+
+error: constructor is implicitly payable
   --> $DIR/C-15-trait-payable-constructor.rs:15:28
    |
 15 |         #[ink(constructor, payable)]
