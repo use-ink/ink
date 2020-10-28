@@ -339,4 +339,4 @@ fuzz-tests:
                         "P-high"
                     ]
                 }'
-        - exit 1
+        - exit ${all_tests_passed}
