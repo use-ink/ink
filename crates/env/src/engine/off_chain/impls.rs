@@ -232,6 +232,20 @@ impl EnvInstance {
             .set_balance::<T>(dst_value + value)?;
         Ok(())
     }
+
+    fn terminate_contract_impl<T>(&mut self, beneficiary: T::AccountId) -> Result<()>
+    where
+        T: Environment,
+    {
+        // Send the remaining balance to the beneficiary
+        let all: T::Balance = self.balance::<T>().expect("could not decode balance");
+        self.transfer_impl::<T>(beneficiary, all)?;
+
+        let contract_id = self.account_id::<T>().expect("could not decode account id");
+        self.accounts.remove_account::<T>(contract_id);
+
+        Ok(())
+    }
 }
 
 impl TypedEnvBackend for EnvInstance {
@@ -375,11 +389,11 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
-    fn terminate_contract<T>(&mut self, _beneficiary: T::AccountId) -> !
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> Result<()>
     where
         T: Environment,
     {
-        unimplemented!("off-chain environment does not support contract termination")
+        self.terminate_contract_impl::<T>(beneficiary)
     }
 
     fn restore_contract<T>(
