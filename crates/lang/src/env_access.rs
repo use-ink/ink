@@ -129,7 +129,7 @@ where
         ink_env::gas_left::<T>().expect("couldn't decode gas left")
     }
 
-    /// Returns the timstamp of the current block.
+    /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
@@ -269,7 +269,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: T::AccountId) -> ! {
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> Result<()> {
         ink_env::terminate_contract::<T>(beneficiary)
     }
 
