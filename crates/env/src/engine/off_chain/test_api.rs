@@ -375,3 +375,44 @@ where
     /// The value which was transferred to the `beneficiary`.
     pub transferred: <E as Environment>::Balance,
 }
+
+#[cfg(feature = "std")]
+use std::panic::UnwindSafe;
+
+/// Tests if a contract terminates successfully after `self.env().terminate()`
+/// has been called.
+///
+/// # Usage
+///
+/// ```no_compile
+/// let should_terminate = move || your_contract.fn_which_should_terminate();
+/// ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+///     should_terminate,
+///     expected_beneficiary,
+///     expected_value_transferred_to_beneficiary
+/// );
+/// ```
+///
+/// See `examples/contract-terminate` for a complete usage example.
+#[cfg(feature = "std")]
+pub fn assert_contract_termination<T, F>(
+    should_terminate: F,
+    expected_beneficiary: T::AccountId,
+    expected_balance: T::Balance,
+) where
+    T: Environment,
+    F: FnMut() + UnwindSafe,
+    <T as Environment>::AccountId: core::fmt::Debug,
+    <T as Environment>::Balance: core::fmt::Debug,
+{
+    let value_any = ::std::panic::catch_unwind(should_terminate)
+        .expect_err("contract did not terminate");
+    let encoded_input: &Vec<u8> = value_any
+        .downcast_ref::<Vec<u8>>()
+        .expect("panic object can not be cast");
+    let res: ContractTerminationResult<T> =
+        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+
+    assert_eq!(res.beneficiary, expected_beneficiary);
+    assert_eq!(res.transferred, expected_balance);
+}

@@ -19,9 +19,6 @@
 
 use ink_lang as ink;
 
-#[cfg(test)]
-mod test_utils;
-
 #[ink::contract]
 pub mod just_terminates {
     /// No storage is needed for this simple contract.
@@ -68,7 +65,11 @@ pub mod just_terminates {
             let should_terminate = move || contract.terminate_me();
 
             // then
-            crate::assert_contract_termination!(should_terminate, accounts.alice, 100);
+            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+                should_terminate,
+                accounts.alice,
+                100,
+            );
         }
 
         fn default_accounts(
