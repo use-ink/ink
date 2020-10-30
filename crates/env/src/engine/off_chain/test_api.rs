@@ -408,10 +408,10 @@ macro_rules! assert_contract_termination {
         let __act_info: ::ink_env::test::ContractTerminationResult<E as Environment> =
             ::scale::Decode::decode(&mut &__act_encoded_input[..]).expect("must work");
 
-        let __act_expected_beneficiary: AccountId = $beneficiary;
+        let __act_expected_beneficiary: <E as ::ink_env::Environment>::AccountId = $beneficiary;
         assert_eq!(__act_info.beneficiary, __act_expected_beneficiary);
 
-        let __act_expected_balance: Balance = $balance;
+        let __act_expected_balance: <E as ::ink_env::Environment>::Balance = $balance;
         ::std::assert_eq!(__act_info.transferred, __act_expected_balance);
     }};
 }
