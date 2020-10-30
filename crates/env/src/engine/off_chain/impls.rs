@@ -251,6 +251,10 @@ impl EnvInstance {
         let contract_id = self.account_id::<T>().expect("could not decode account id");
         self.accounts.remove_account::<T>(contract_id);
 
+        // The on-chain implementation would set a tombstone with a code hash here
+        // and remove the contract storage subsequently. Both is not easily achievable
+        // with our current off-chain env, hence we left it out here for the moment.
+
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
