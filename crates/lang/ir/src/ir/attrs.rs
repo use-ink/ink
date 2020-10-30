@@ -453,7 +453,7 @@ where
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-        err.into_combine(format_err!(parent_span, "at this invokation",))
+        err.into_combine(format_err!(parent_span, "at this invocation",))
     })?;
     normalized.ensure_first(is_valid_first).map_err(|err| {
         err.into_combine(format_err!(

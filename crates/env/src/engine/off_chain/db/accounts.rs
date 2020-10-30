@@ -162,6 +162,14 @@ impl AccountsDb {
             },
         );
     }
+
+    /// Removes an account.
+    pub fn remove_account<T>(&mut self, account_id: T::AccountId)
+    where
+        T: Environment,
+    {
+        self.accounts.remove(&OffAccountId::new(&account_id));
+    }
 }
 
 /// An account within the chain.

@@ -177,7 +177,7 @@ impl ItemImpl {
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(impl_block_span, "at this invokation",))
+                    err.into_combine(format_err!(impl_block_span, "at this invocation",))
                 })?;
             if normalized
                 .ensure_first(&ir::AttributeArgKind::Implementation)
@@ -295,7 +295,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(impl_block_span, "at this invokation",))
+                    err.into_combine(format_err!(impl_block_span, "at this invocation",))
                 })?;
             normalized.ensure_no_conflicts(|arg| {
                 !matches!(arg.kind(), ir::AttributeArgKind::Implementation | ir::AttributeArgKind::Namespace(_))
