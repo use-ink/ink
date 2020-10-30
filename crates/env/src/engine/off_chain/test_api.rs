@@ -405,7 +405,7 @@ macro_rules! assert_contract_termination {
             .expect_err("contract did not terminate");
         let __act_encoded_input: &::std::vec::Vec<::core::primitive::u8> =
             __act_value_any.downcast_ref::<::std::vec::Vec<::core::primitive::u8>>().expect("must work");
-        let __act_info: ::ink_env::test::ContractTerminationResult<AccountId, Balance> =
+        let __act_info: ::ink_env::test::ContractTerminationResult<E as Environment> =
             ::scale::Decode::decode(&mut &__act_encoded_input[..]).expect("must work");
 
         let __act_expected_beneficiary: AccountId = $beneficiary;

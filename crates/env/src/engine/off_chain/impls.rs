@@ -254,7 +254,7 @@ impl EnvInstance {
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
-        let res = crate::test::ContractTerminationResult::<T::AccountId, T::Balance> {
+        let res = crate::test::ContractTerminationResult::<T> {
             beneficiary,
             transferred: all,
         };
