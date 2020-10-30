@@ -392,7 +392,7 @@ where
 /// );
 /// ```
 ///
-/// See `examples/lock-until` for a complete usage example.
+/// See `examples/contract-terminate` for a complete usage example.
 #[cfg(feature = "std")]
 #[macro_export]
 macro_rules! assert_contract_termination {
