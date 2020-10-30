@@ -67,10 +67,7 @@ pub mod lock_until {
             if now < self.lock_until {
                 return Err(Error::LockPeriodNotOver)
             }
-            self.env()
-                .terminate_contract(self.env().caller())
-                .expect("failed at contract termination");
-            Ok(())
+            self.env().terminate_contract(self.env().caller());
         }
     }
 
@@ -78,16 +75,16 @@ pub mod lock_until {
     mod tests {
         use super::*;
 
-        use ink_lang as ink;
         use ink_env::{
             call,
             test,
         };
+        use ink_lang as ink;
 
         #[ink::test]
         fn unlocking_before_end_does_not_work() {
             // given
-            let (mut lock_until, _contract_id) = create_contract();
+            let mut lock_until = create_contract(100);
 
             // when
             let maybe_unlocked = lock_until.unlock();
@@ -102,12 +99,11 @@ pub mod lock_until {
         #[ink::test]
         fn unlocking_works() {
             // given
+            let contract_balance = 100;
             let accounts = default_accounts();
-            let (mut lock_until, contract_id) = create_contract();
+            let mut lock_until = create_contract(contract_balance);
             assert_eq!(lock_until.unlock(), Err(Error::LockPeriodNotOver));
             set_sender(accounts.eve);
-            let old_balance_contract = get_balance(contract_id);
-            let old_balance_eve = get_balance(accounts.eve);
 
             // when
             // in order to change the result of `now()` the block needs to
@@ -116,34 +112,26 @@ pub mod lock_until {
                 .expect("Cannot advance block");
 
             // then
-            assert_eq!(lock_until.unlock(), Ok(()));
-            assert!(
-                ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(
-                    contract_id
-                )
-                .is_err()
-            );
-            assert_eq!(
-                old_balance_eve + old_balance_contract,
-                get_balance(accounts.eve)
-            );
+            let should_terminate = move || lock_until.unlock();
+            ink_env::assert_contract_termination!(should_terminate, accounts.eve, 100);
         }
 
-        /// Returns `(contract_instance, contract_id)`.
-        ///
+        /// Creates a new instance of `LockUntil` with `initial_balance`.
         /// The created contract is set to lock until `now() + 1`.
-        fn create_contract() -> (LockUntil, AccountId) {
+        ///
+        /// Returns the `contract_instance`.
+        fn create_contract(initial_balance: Balance) -> LockUntil {
             let accounts = default_accounts();
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
-                .expect("Cannot get contract id");
+            .expect("Cannot get contract id");
 
             set_sender(accounts.alice);
-            set_balance(contract_id, 100);
+            set_balance(contract_id, initial_balance);
             set_balance(accounts.eve, 200);
 
-            (LockUntil::new(now() + 1), contract_id)
+            LockUntil::new(now() + 1)
         }
 
         fn set_sender(sender: AccountId) {
@@ -164,16 +152,11 @@ pub mod lock_until {
                 .expect("Off-chain environment should have been initialized already")
         }
 
-        fn get_balance(account_id: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
-                .expect("Cannot get account balance")
-        }
-
         fn set_balance(account_id: AccountId, balance: Balance) {
             ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
                 account_id, balance,
             )
-                .expect("Cannot set account balance");
+            .expect("Cannot set account balance");
         }
 
         fn now() -> Timestamp {

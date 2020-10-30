@@ -203,7 +203,7 @@ impl EnvBackend for EnvInstance {
 impl EnvInstance {
     fn transfer_impl<T>(
         &mut self,
-        destination: T::AccountId,
+        destination: &T::AccountId,
         value: T::Balance,
     ) -> Result<()>
     where
@@ -220,31 +220,45 @@ impl EnvInstance {
         }
         let dst_value = self
             .accounts
-            .get_or_create_account::<T>(&destination)
+            .get_or_create_account::<T>(destination)
             .balance::<T>()?;
         self.accounts
             .get_account_mut::<T>(&src_id)
             .expect("account of executed contract must exist")
             .set_balance::<T>(src_value - value)?;
         self.accounts
-            .get_account_mut::<T>(&destination)
+            .get_account_mut::<T>(destination)
             .expect("the account must exist already or has just been created")
             .set_balance::<T>(dst_value + value)?;
         Ok(())
     }
 
-    fn terminate_contract_impl<T>(&mut self, beneficiary: T::AccountId) -> Result<()>
+    // Remove the calling account and transfer remaining balance.
+    //
+    // This function never returns. Either the termination was successful and the
+    // execution of the destroyed contract is halted. Or it failed during the termination
+    // which is considered fatal.
+    fn terminate_contract_impl<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: Environment,
     {
         // Send the remaining balance to the beneficiary
         let all: T::Balance = self.balance::<T>().expect("could not decode balance");
-        self.transfer_impl::<T>(beneficiary, all)?;
+        self.transfer_impl::<T>(&beneficiary, all)
+            .expect("transfer did not work ");
 
+        // Remove account
         let contract_id = self.account_id::<T>().expect("could not decode account id");
         self.accounts.remove_account::<T>(contract_id);
 
-        Ok(())
+        // Encode the result of the termination and panic with it.
+        // This enables testing for the proper result and makes sure this
+        // method returns `Never`.
+        let res = crate::test::ContractTerminationResult::<T::AccountId, T::Balance> {
+            beneficiary,
+            transferred: all,
+        };
+        panic!(scale::Encode::encode(&res));
     }
 }
 
@@ -389,7 +403,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
-    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> Result<()>
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: Environment,
     {
@@ -412,7 +426,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         T: Environment,
     {
-        self.transfer_impl::<T>(destination, value)
+        self.transfer_impl::<T>(&destination, value)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>

@@ -269,7 +269,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: T::AccountId) -> Result<()> {
+    pub fn terminate_contract(self, beneficiary: T::AccountId) -> ! {
         ink_env::terminate_contract::<T>(beneficiary)
     }
 

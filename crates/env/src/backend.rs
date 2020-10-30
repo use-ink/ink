@@ -302,7 +302,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> Result<()>
+    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: Environment;
 

@@ -363,3 +363,58 @@ where
         Ok(callee)
     })
 }
+
+/// The result of a successful contract termination.
+#[derive(scale::Encode, scale::Decode)]
+pub struct ContractTerminationResult<AccountId, Balance>
+where
+    AccountId: scale::Codec,
+    Balance: scale::Codec,
+{
+    /// The beneficiary account who received the remaining value in the contract.
+    pub beneficiary: AccountId,
+    /// The value which was transferred to the `beneficiary`.
+    pub transferred: Balance,
+}
+
+/// Tests if a contract terminates successfully after `self.env().terminate()`
+/// has been called.
+///
+/// # Usage
+///
+/// The macro is used like this:
+///
+/// ```no_compile
+/// let should_terminate = move || your_contract.fn_which_should_terminate();
+/// ink_env::assert_contract_termination!(
+///     should_terminate,
+///     expected_beneficiary,
+///     expected_value_transferred_to_beneficiary
+/// );
+/// ```
+///
+/// See `examples/lock-until` for a complete usage example.
+#[cfg(feature = "std")]
+#[macro_export]
+macro_rules! assert_contract_termination {
+    (
+        $should_terminate:tt,
+        $beneficiary:expr,
+        $balance:expr
+    ) => {
+        use std::panic;
+
+        let value_any = panic::catch_unwind($should_terminate)
+            .expect_err("contract did not terminate");
+        let encoded_input: &Vec<u8> =
+            value_any.downcast_ref::<Vec<u8>>().expect("must work");
+        let info: ink_env::test::ContractTerminationResult<AccountId, Balance> =
+            scale::Decode::decode(&mut &encoded_input[..]).expect("must work");
+
+        let expected_beneficiary: AccountId = $beneficiary;
+        assert_eq!(info.beneficiary, expected_beneficiary);
+
+        let expected_balance: Balance = $balance;
+        assert_eq!(info.transferred, expected_balance);
+    };
+}
