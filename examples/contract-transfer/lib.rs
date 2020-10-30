@@ -76,12 +76,6 @@ pub mod give_me {
         }
     }
 
-    impl Default for GiveMe {
-        fn default() -> Self {
-            Self::new()
-        }
-    }
-
     #[cfg(test)]
     mod tests {
         use super::*;

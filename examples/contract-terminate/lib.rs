@@ -39,12 +39,6 @@ pub mod just_terminates {
         }
     }
 
-    impl Default for JustTerminate {
-        fn default() -> Self {
-            Self::new()
-        }
-    }
-
     #[cfg(test)]
     mod tests {
         use super::*;
