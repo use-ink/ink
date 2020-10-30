@@ -405,13 +405,13 @@ macro_rules! assert_contract_termination {
             .expect_err("contract did not terminate");
         let __act_encoded_input: &::std::vec::Vec<::core::primitive::u8> =
             __act_value_any.downcast_ref::<::std::vec::Vec<::core::primitive::u8>>().expect("must work");
-        let __act_info: ::ink_env::test::ContractTerminationResult<E as Environment> =
+        let __act_info: ::ink_env::test::ContractTerminationResult<Environment> =
             ::scale::Decode::decode(&mut &__act_encoded_input[..]).expect("must work");
 
-        let __act_expected_beneficiary: <E as ::ink_env::Environment>::AccountId = $beneficiary;
+        let __act_expected_beneficiary: <Environment as  ::ink_env::Environment>::AccountId = $beneficiary;
         assert_eq!(__act_info.beneficiary, __act_expected_beneficiary);
 
-        let __act_expected_balance: <E as ::ink_env::Environment>::Balance = $balance;
+        let __act_expected_balance: <Environment as ::ink_env::Environment>::Balance = $balance;
         ::std::assert_eq!(__act_info.transferred, __act_expected_balance);
     }};
 }
