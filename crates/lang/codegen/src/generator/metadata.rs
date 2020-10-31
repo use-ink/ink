@@ -293,9 +293,7 @@ impl Metadata<'_> {
     }
 
     /// Generate ink! metadata for a single argument of an ink! event definition.
-    fn generate_event_args(
-        event: &ir::Event,
-    ) -> impl Iterator<Item = TokenStream2> + '_ {
+    fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
         event.fields().map(|event_field| {
             let span = event_field.span();
             let ident = event_field.ident();
@@ -317,7 +315,7 @@ impl Metadata<'_> {
     }
 
     /// Generates the documentation for the contract module.
-    fn generate_docs(&self) -> impl Iterator<Item = String> + '_{
+    fn generate_docs(&self) -> impl Iterator<Item = String> + '_ {
         Self::extract_doc_comments(self.contract.module().attrs())
     }
 }
