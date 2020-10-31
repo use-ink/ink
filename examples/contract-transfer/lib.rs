@@ -137,7 +137,7 @@ pub mod give_me {
             let mut give_me = create_contract(100);
 
             // when
-            set_sender(&accounts.eve);
+            set_sender(accounts.eve);
             let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
                 0xCA, 0xFE, 0xBA, 0xBE,
             ]));
