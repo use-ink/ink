@@ -353,7 +353,7 @@ We won't be going into the details for any of those but will briefly present the
 |:--|:--|:--|
 | `#[ink(storage)]` | On `struct` definitions. | Defines the ink! storage struct. There can only be one ink! storage definition per contract. |
 | `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
-| `#[ink(anonymous)]` **new** | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonmyous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
+| `#[ink(anonymous)]` **new** | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
 | `#[ink(topic)]` | Applicate on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
 | `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
 | `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
