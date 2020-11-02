@@ -125,12 +125,6 @@ mod flipper {
             }
         }
 
-        /// Instantiates a new Flipper contract and initializes `value` to `false` by default.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(false)
-        }
-
         /// Flips `value` from `true` to `false` or vice versa.
         #[ink(message)]
         pub fn flip(&mut self) {
