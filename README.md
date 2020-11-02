@@ -240,22 +240,13 @@ The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the `examples
 
 ## Developer Documentation
 
-* `ink_lang`[![][j1]][j2]<br/>
-Language features expose by ink!.
-See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html)
-for a detailed description of attributes which you can use in an `#[ink::contract]`.
-
-* `ink_storage`[![][f1]][f2]<br/>
-Data structures available in ink!.
-
-* `ink_prelude`[![][i1]][i2]<br/>
-Common API for no_std and std to access alloc crate types.
-
-* `ink_metadata` [![][h1]][h2]<br/>
-Metadata definitions for contracts.
-
-* `ink_env` [![][g1]][g2]<br/>
-Low-level interface for interacting with the smart contract Wasm executor.
+| Crate | Docs | Description |
+|:--|:--|:--|
+`ink_lang` | [![][j1]][j2] | Language features expose by ink!. See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
+`ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
+`ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
+`ink_metadata` | [![][h1]][h2] | Metadata definitions for contracts. |
+`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. |
 
 
 ## Contributing
