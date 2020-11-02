@@ -14,15 +14,13 @@
 [d2]: https://coveralls.io/github/paritytech/ink?branch=master
 [e1]: https://tokei.rs/b1/github/paritytech/ink?category=code
 [e2]: https://github.com/Aaronepower/tokei#badges
-[f1]: https://img.shields.io/badge/docs-storage-blue.svg
+[f1]: https://img.shields.io/badge/click-blue.svg
 [f2]: https://paritytech.github.io/ink/ink_storage
-[g1]: https://img.shields.io/badge/docs-env-blue.svg
+[g1]: https://img.shields.io/badge/click-blue.svg
 [g2]: https://paritytech.github.io/ink/ink_env
-[h1]: https://img.shields.io/badge/docs-metadata-blue.svg
-[h2]: https://paritytech.github.io/ink/ink_metadata
-[i1]: https://img.shields.io/badge/docs-prelude-blue.svg
+[i1]: https://img.shields.io/badge/click-blue.svg
 [i2]: https://paritytech.github.io/ink/ink_prelude
-[j1]: https://img.shields.io/badge/docs-lang-blue.svg
+[j1]: https://img.shields.io/badge/click-blue.svg
 [j2]: https://paritytech.github.io/ink/ink_lang
 [k1]: https://img.shields.io/badge/chat%20on-matrix-brightgreen.svg?style=flat
 [k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
@@ -232,9 +230,8 @@ The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the `examples
 |:--|:--|:--|
 `ink_lang` | [![][j1]][j2] | Language features expose by ink!. See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
-`ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
-`ink_metadata` | [![][h1]][h2] | Metadata definitions for contracts. |
 `ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. |
+`ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
 
 ## Contributing
