@@ -168,18 +168,10 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract build
+cargo contract build && cargo contract generate-metadata
 ```
 
-This will generate the contracts Wasm file.
-
-To generate the contract metadata run the following command:
-
-```
-cargo contract generate-metadata
-```
-
-You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of the contract.
+You should now have an optimized `<contract-name>.wasm` file and a `metadata.json` file in the `target` folder of the contract.
 
 For further information, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
 
