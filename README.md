@@ -45,7 +45,7 @@ Talk to us on [Matrix]([k3]) or [Discord]([l1])
 * [Examples](#examples)
 * [How it Works](#how-it-works)
 * [ink! Macros & Attributes Overview](#ink-macros--attributes-overview)
-  * [Entry Point: `#[ink::contract]`](#entry-point-inkcontract)
+  * [Entry Point](#entry-point)
   * [Trait Definitions](#trait-definitions)
   * [Off-chain Testing](#off-chain-testing)
 * [Developer Documentation](#developer-documentation)
@@ -196,7 +196,7 @@ It contains information about e.g. what methods the contract provides for others
 
 ## ink! Macros & Attributes Overview
 
-### Entry Point: `#[ink::contract]`
+### Entry Point
 
 In a module annotated with `#[ink::contract]` these attributes are available:
 
