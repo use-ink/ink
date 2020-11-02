@@ -210,7 +210,7 @@ See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a m
 ### Trait Definitions
 
 Use`#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/master/examples/trait-erc20/lib.rs#51) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.trait_definition.html) for details.
+See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/master/examples/trait-erc20/lib.rs#L51) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.trait_definition.html) for details.
 
 ### Off-chain Testing
 
