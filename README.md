@@ -47,9 +47,9 @@ Talk to us on [Matrix]([k3]) or [Discord]([l1])
 * [Examples](#examples)
 * [How it Works](#how-it-works)
 * [ink! Macros & Attributes Overview](#overview-of-ink-macros--attributes)
-  * [`#[ink::contract]`](#inkcontract)
-  * [`#[ink::trait_definition]`](#inktrait_definition)
-  * [`#[ink::test]`](#inktest)
+  * [Entry Point: `#[ink::contract]`](#entry-point-inkcontract)
+  * [Trait Definitions](#trait-definitions)
+  * [Off-chain Testing](#off-chain-testing)
 * [Developer Documentation](#developer-documentation)
 * [Contributing](#contributing)
 * [License](#license)
@@ -210,7 +210,7 @@ It contains information about e.g. what methods the contract provides for others
 
 ## ink! Macros & Attributes Overview
 
-### `#[ink::contract]`
+### Entry Point: `#[ink::contract]`
 
 In a module annotated with `#[ink::contract]` these attributes are available:
 
@@ -229,12 +229,12 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 
 See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a more detailed description of those and also for details on the `#[ink::contract]` macro.
 
-### `#[ink::trait_definition]`
+### Trait Definitions
 
-Used to define your very own trait definitions that are then implementable by ink! smart contracts.
+Use`#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
 See e.g. the `examples/trait-erc20` contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.trait_definition.html) for details.
 
-### `#[ink::test]`
+### Off-chain Testing
 
 The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the `examples/erc20` contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
 
