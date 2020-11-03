@@ -585,7 +585,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 })?;
                                 let str = lit_str.value();
                                 let cap = regex.captures(&str)
-                                .ok_or(
+                                .ok_or_else(||
                                    format_err_spanned!(
                                         meta,
                                         "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
