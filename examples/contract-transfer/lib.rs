@@ -75,6 +75,18 @@ pub mod give_me {
                     }
                 })
         }
+
+        /// Returns `true` if the token amount which the contract received
+        /// with this call is exactly `10`.
+        ///
+        /// # Note
+        ///
+        /// The method needs to be annotated with `payable`; only then it is
+        /// allowed to receive value as part of the call.
+        #[ink(message, payable, selector = "0xCAFEBABE")]
+        pub fn was_it_ten(&mut self) -> bool {
+            self.env().transferred_balance() == 10
+        }
     }
 
     #[cfg(test)]
@@ -118,18 +130,49 @@ pub mod give_me {
             assert_eq!(ret, Err(Error::InsufficientFunds));
         }
 
+        #[ink::test]
+        fn test_transferred_value() {
+            // given
+            let accounts = default_accounts();
+            let mut give_me = create_contract(100);
+
+            // when
+            set_sender(accounts.eve);
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
+                0xCA, 0xFE, 0xBA, 0xBE,
+            ]));
+            data.push_arg(&accounts.eve);
+            let mock_transferred_balance = 10;
+
+            // Push the new execution context which sets Eve as caller and
+            // the `mock_transferred_balance` as the value which the contract
+            // will see as transferred to it.
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.eve,
+                contract_id(),
+                1000000,
+                mock_transferred_balance,
+                data,
+            );
+
+            // then
+            assert_eq!(give_me.was_it_ten(), true);
+        }
+
         /// Creates a new instance of `GiveMe` with `initial_balance`.
         ///
         /// Returns the `contract_instance`.
         fn create_contract(initial_balance: Balance) -> GiveMe {
             let accounts = default_accounts();
-            let contract_id = ink_env::test::get_current_contract_account_id::<
-                ink_env::DefaultEnvironment,
-            >()
-            .expect("Cannot get contract id");
             set_sender(accounts.alice);
-            set_balance(contract_id, initial_balance);
+            set_balance(contract_id(), initial_balance);
             GiveMe::new()
+        }
+
+        fn contract_id() -> AccountId {
+            ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>(
+            )
+            .expect("Cannot get contract id")
         }
 
         fn set_sender(sender: AccountId) {
