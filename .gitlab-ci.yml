@@ -21,7 +21,7 @@ variables:
   PURELY_STD_CRATES:               "lang/codegen metadata"
   ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  CARGO_LOG:                       "debug"
+  # CARGO_LOG:                       "debug"
 
 workflow:
   rules:
