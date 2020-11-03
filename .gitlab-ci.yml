@@ -25,8 +25,8 @@ variables:
 
 workflow:
   rules:
-    - if: ${CI_COMMIT_TAG}
-    - if: ${CI_COMMIT_BRANCH}
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH
 
 .collect-artifacts:                &collect-artifacts
   artifacts:
@@ -46,12 +46,12 @@ workflow:
     - ./scripts/pre_cache.sh
     - sccache -s
   rules:
-    - if: ${CI_PIPELINE_SOURCE} == "web"
-    - if: ${CI_PIPELINE_SOURCE} == "schedule"
-    - if: ${CI_COMMIT_REF_NAME} == "master"
-    - if: ${CI_COMMIT_REF_NAME} == "tags"
-    - if: ${CI_COMMIT_BRANCH}
-    - if: ${CI_COMMIT_REF_NAME} =~ /^v[0-9]+\.[0-9]+.*$/              # i.e. v1.0, v2.1rc1
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME == "tags"
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/              # i.e. v1.0, v2.1rc1
   interruptible:                   true
   retry:
     max: 2
@@ -154,7 +154,7 @@ codecov:
     - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "${CODECOV_P_TOKEN}" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
     # lines coverage
     - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
     - rust-covfix -o lcov-lines.info lcov-lines.info
@@ -242,7 +242,7 @@ examples-contract-build:
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
-        pushd ${example} &&
+        pushd $example &&
         cargo contract build &&
         popd;
       done
@@ -256,7 +256,7 @@ examples-generate-metadata:
   script:
     - *update-cargo-contract
     - for example in examples/*/; do
-        pushd ${example} &&
+        pushd $example &&
         cargo contract generate-metadata &&
         popd;
       done
@@ -269,10 +269,10 @@ publish-docs:
   variables:
     GIT_DEPTH:                     0
   rules:
-    - if: ${CI_PIPELINE_SOURCE} == "web"
-    - if: ${CI_PIPELINE_SOURCE} == "schedule"
-    - if: ${CI_COMMIT_REF_NAME} == "master"
-    - if: ${CI_COMMIT_REF_NAME} == "tags"
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME == "tags"
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
@@ -314,8 +314,8 @@ fuzz-tests:
         # The QUICKCHECK_TESTS default is 100
         QUICKCHECK_TESTS:            50000
     rules:
-        - if: ${CI_PIPELINE_SOURCE} == "schedule"
-        - if: ${CI_COMMIT_REF_NAME} == "master"
+        - if: $CI_PIPELINE_SOURCE == "schedule"
+        - if: $CI_COMMIT_REF_NAME == "master"
     script:
         # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
         - all_tests_passed=0
@@ -326,7 +326,7 @@ fuzz-tests:
                 let "all_tests_passed |= $?";
             fi
           done
-        - if [ ${all_tests_passed} -eq 0 ]; then exit 0; fi
+        - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
         - |
              curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
                 -H "Cookie: logged_in=no" \
