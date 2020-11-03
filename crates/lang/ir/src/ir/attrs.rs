@@ -592,18 +592,30 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     )
                                 )?;
                                 let selector_bytes = [
-                                    u8::from_str_radix(&cap[1], 16).expect(
-                                        "encountered non-hex digit at position 0",
-                                    ),
-                                    u8::from_str_radix(&cap[2], 16).expect(
-                                        "encountered non-hex digit at position 1",
-                                    ),
-                                    u8::from_str_radix(&cap[3], 16).expect(
-                                        "encountered non-hex digit at position 2",
-                                    ),
-                                    u8::from_str_radix(&cap[4], 16).expect(
-                                        "encountered non-hex digit at position 3",
-                                    ),
+                                    u8::from_str_radix(&cap[1], 16).map_err(|_| {
+                                        format_err_spanned!(
+                                            meta,
+                                            "encountered non-hex digit at position 0",
+                                        )
+                                    })?,
+                                    u8::from_str_radix(&cap[2], 16).map_err(|_| {
+                                        format_err_spanned!(
+                                            meta,
+                                            "encountered non-hex digit at position 1",
+                                        )
+                                    })?,
+                                    u8::from_str_radix(&cap[3], 16).map_err(|_| {
+                                        format_err_spanned!(
+                                            meta,
+                                            "encountered non-hex digit at position 2",
+                                        )
+                                    })?,
+                                    u8::from_str_radix(&cap[4], 16).map_err(|_| {
+                                        format_err_spanned!(
+                                            meta,
+                                            "encountered non-hex digit at position 3",
+                                        )
+                                    })?,
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,
