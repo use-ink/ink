@@ -580,12 +580,17 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 ).map_err(|_| {
                                     format_err_spanned!(
                                         meta,
-                                        "invalid selector bytes"
+                                        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
                                     )
                                 })?;
                                 let str = lit_str.value();
                                 let cap = regex.captures(&str)
-                                    .expect("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)");
+                                .ok_or(
+                                   format_err_spanned!(
+                                        meta,
+                                        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
+                                    )
+                                )?;
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16).expect(
                                         "encountered non-hex digit at position 0",

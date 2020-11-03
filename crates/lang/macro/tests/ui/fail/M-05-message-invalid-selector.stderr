@@ -1,7 +1,5 @@
-error: custom attribute panicked
- --> $DIR/M-05-message-invalid-selector.rs:3:1
-  |
-3 | #[ink::contract]
-  | ^^^^^^^^^^^^^^^^
-  |
-  = help: message: invalid selector - a selector must consist of four bytes in hex (e.g. `selector = "0xCAFEBABE"`)
+error: invalid selector - a selector must consist of four bytes in hex (e.g. `selector = "0xCAFEBABE"`)
+  --> $DIR/M-05-message-invalid-selector.rs:14:24
+   |
+14 |         #[ink(message, selector = "0x00")]
+   |                        ^^^^^^^^^^^^^^^^^
