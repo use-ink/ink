@@ -584,7 +584,8 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     )
                                 })?;
                                 let str = lit_str.value();
-                                let cap = regex.captures(&str).unwrap();
+                                let cap = regex.captures(&str)
+                                    .expect("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)");
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16).expect(
                                         "encountered non-hex digit at position 0",
