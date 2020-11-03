@@ -129,7 +129,7 @@ where
         ink_env::gas_left::<T>().expect("couldn't decode gas left")
     }
 
-    /// Returns the timstamp of the current block.
+    /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
@@ -174,7 +174,7 @@ where
         ink_env::block_number::<T>().expect("couldn't decode block number")
     }
 
-    /// Returns the minimum balance for the contracts chain.
+    /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///

@@ -32,7 +32,7 @@ pub enum Error {
     /// The queried contract storage entry is missing.
     KeyNotFound,
     /// Transfer failed because it would have brought the sender's total balance
-    /// bwlow the subsistence threshold.
+    /// below the subsistence threshold.
     BelowSubsistenceThreshold,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.

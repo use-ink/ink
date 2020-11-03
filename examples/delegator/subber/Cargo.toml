@@ -1,17 +1,17 @@
 [package]
 name = "subber"
-version = "3.0.0-rc1"
+version = "3.0.0-rc2"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { version = "3.0.0-rc1", path = "../../../crates/primitives", default-features = false }
-ink_metadata = { version = "3.0.0-rc1", path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc1", path = "../../../crates/env", default-features = false }
-ink_storage = { version = "3.0.0-rc1", path = "../../../crates/storage", default-features = false }
-ink_lang = { version = "3.0.0-rc1", path = "../../../crates/lang", default-features = false }
+ink_primitives = { version = "3.0.0-rc2", path = "../../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc2", path = "../../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc2", path = "../../../crates/env", default-features = false }
+ink_storage = { version = "3.0.0-rc2", path = "../../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.0-rc2", path = "../../../crates/lang", default-features = false }
 
-accumulator = { version = "3.0.0-rc1", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
+accumulator = { version = "3.0.0-rc2", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive"] }
 scale-info = { version = "0.4", default-features = false, features = ["derive"], optional = true }
@@ -39,5 +39,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+
+    "accumulator/std",
 ]
 ink-as-dependency = []

@@ -408,7 +408,7 @@ fn pop_complexity_big_o_log_n() -> ink_env::Result<()> {
 
 #[cfg(feature = "ink-fuzz-tests")]
 #[quickcheck]
-fn pop_always_returns_largest_element(xs: Vec<i32>) {
+fn fuzz_pop_always_returns_largest_element(xs: Vec<i32>) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut sorted = xs.clone();
         sorted.sort();

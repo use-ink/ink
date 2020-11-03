@@ -64,7 +64,7 @@ define_error_codes! {
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
     /// Transfer failed because it would have brought the sender's total balance
-    /// bwlow the subsistence threshold.
+    /// below the subsistence threshold.
     BelowSubsistenceThreshold = 4,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.

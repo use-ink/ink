@@ -169,7 +169,7 @@ where
     })
 }
 
-/// Returns the minimum balance for the contracts chain.
+/// Returns the minimum balance that is required for creating an account.
 ///
 /// # Errors
 ///
@@ -422,9 +422,11 @@ where
 /// contract call or invoke a runtime function that performs the
 /// transaction.
 ///
-/// # Panics
+/// # Errors
 ///
-/// If the contract doesn't have sufficient funds.
+/// - If the contract doesn't have sufficient funds.
+/// - If the transfer would have brought the sender's total balance below the
+///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
     T: Environment,
