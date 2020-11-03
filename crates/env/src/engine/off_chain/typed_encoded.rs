@@ -123,7 +123,7 @@ impl<M> TypedEncoded<M> {
         }
     }
 
-    /// Creates a new typed-encoded ininitialized by `value` of type `T`.
+    /// Creates a new typed-encoded initialized by `value` of type `T`.
     pub fn new<T>(value: &T) -> Self
     where
         T: scale::Encode + 'static,

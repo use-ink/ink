@@ -129,7 +129,7 @@ where
         ink_env::gas_left::<T>().expect("couldn't decode gas left")
     }
 
-    /// Returns the timstamp of the current block.
+    /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
