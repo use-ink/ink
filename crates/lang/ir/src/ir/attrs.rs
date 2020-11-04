@@ -566,7 +566,7 @@ impl InkAttribute {
     }
 }
 
-fn non_hex_err<'a>(
+fn err_non_hex<'a>(
     meta: &'a syn::Meta,
     pos: usize,
 ) -> impl FnOnce(ParseIntError) -> syn::Error + 'a {
@@ -601,13 +601,13 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 )?;
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16)
-                                        .map_err(non_hex_err(&meta, 0))?,
+                                        .map_err(err_non_hex(&meta, 0))?,
                                     u8::from_str_radix(&cap[2], 16)
-                                        .map_err(non_hex_err(&meta, 1))?,
+                                        .map_err(err_non_hex(&meta, 1))?,
                                     u8::from_str_radix(&cap[3], 16)
-                                        .map_err(non_hex_err(&meta, 2))?,
+                                        .map_err(err_non_hex(&meta, 2))?,
                                     u8::from_str_radix(&cap[4], 16)
-                                        .map_err(non_hex_err(&meta, 3))?,
+                                        .map_err(err_non_hex(&meta, 3))?,
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,
