@@ -566,12 +566,12 @@ impl InkAttribute {
 }
 
 /// Returns an error to notify about non-hex digits at a position.
-fn err_non_hex(meta: &'_ syn::Meta, pos: usize) -> syn::Error {
+fn err_non_hex(meta: &syn::Meta, pos: usize) -> syn::Error {
     format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
 }
 
 /// Returns an error to notify about an invalid ink! selector.
-fn invalid_selector_err_regex(meta: &'_ syn::Meta) -> syn::Error {
+fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
     format_err_spanned!(
         meta,
         "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
