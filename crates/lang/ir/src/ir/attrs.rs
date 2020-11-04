@@ -19,6 +19,7 @@ use crate::{
 };
 use core::{
     convert::TryFrom,
+    num::ParseIntError,
     result::Result,
 };
 use proc_macro2::{
@@ -565,6 +566,13 @@ impl InkAttribute {
     }
 }
 
+fn non_hex_err<'a>(
+    meta: &'a syn::Meta,
+    pos: usize,
+) -> impl FnOnce(ParseIntError) -> syn::Error + 'a {
+    move |_| format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
+}
+
 impl TryFrom<syn::NestedMeta> for AttributeArg {
     type Error = syn::Error;
 
@@ -592,30 +600,14 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     )
                                 )?;
                                 let selector_bytes = [
-                                    u8::from_str_radix(&cap[1], 16).map_err(|_| {
-                                        format_err_spanned!(
-                                            meta,
-                                            "encountered non-hex digit at position 0",
-                                        )
-                                    })?,
-                                    u8::from_str_radix(&cap[2], 16).map_err(|_| {
-                                        format_err_spanned!(
-                                            meta,
-                                            "encountered non-hex digit at position 1",
-                                        )
-                                    })?,
-                                    u8::from_str_radix(&cap[3], 16).map_err(|_| {
-                                        format_err_spanned!(
-                                            meta,
-                                            "encountered non-hex digit at position 2",
-                                        )
-                                    })?,
-                                    u8::from_str_radix(&cap[4], 16).map_err(|_| {
-                                        format_err_spanned!(
-                                            meta,
-                                            "encountered non-hex digit at position 3",
-                                        )
-                                    })?,
+                                    u8::from_str_radix(&cap[1], 16)
+                                        .map_err(non_hex_err(&meta, 0))?,
+                                    u8::from_str_radix(&cap[2], 16)
+                                        .map_err(non_hex_err(&meta, 1))?,
+                                    u8::from_str_radix(&cap[3], 16)
+                                        .map_err(non_hex_err(&meta, 2))?,
+                                    u8::from_str_radix(&cap[4], 16)
+                                        .map_err(non_hex_err(&meta, 3))?,
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,
