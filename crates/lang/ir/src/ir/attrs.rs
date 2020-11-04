@@ -19,7 +19,6 @@ use crate::{
 };
 use core::{
     convert::TryFrom,
-    num::ParseIntError,
     result::Result,
 };
 use proc_macro2::{
@@ -566,11 +565,15 @@ impl InkAttribute {
     }
 }
 
-fn err_non_hex<'a>(
-    meta: &'a syn::Meta,
-    pos: usize,
-) -> impl FnOnce(ParseIntError) -> syn::Error + 'a {
-    move |_| format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
+fn err_non_hex(meta: &'_ syn::Meta, pos: usize) -> syn::Error {
+    format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
+}
+
+fn invalid_selector_err_regex(meta: &'_ syn::Meta) -> syn::Error {
+    format_err_spanned!(
+        meta,
+        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
+    )
 }
 
 impl TryFrom<syn::NestedMeta> for AttributeArg {
@@ -585,29 +588,20 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let regex = Regex::new(
                                     r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
-                                ).map_err(|_| {
-                                    format_err_spanned!(
-                                        meta,
-                                        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
-                                    )
-                                })?;
+                                ).map_err(|_| invalid_selector_err_regex(&meta))?;
                                 let str = lit_str.value();
-                                let cap = regex.captures(&str)
-                                .ok_or_else(||
-                                   format_err_spanned!(
-                                        meta,
-                                        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
-                                    )
-                                )?;
+                                let cap = regex
+                                    .captures(&str)
+                                    .ok_or_else(|| invalid_selector_err_regex(&meta))?;
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16)
-                                        .map_err(err_non_hex(&meta, 0))?,
+                                        .map_err(|_| err_non_hex(&meta, 0))?,
                                     u8::from_str_radix(&cap[2], 16)
-                                        .map_err(err_non_hex(&meta, 1))?,
+                                        .map_err(|_| err_non_hex(&meta, 1))?,
                                     u8::from_str_radix(&cap[3], 16)
-                                        .map_err(err_non_hex(&meta, 2))?,
+                                        .map_err(|_| err_non_hex(&meta, 2))?,
                                     u8::from_str_radix(&cap[4], 16)
-                                        .map_err(err_non_hex(&meta, 3))?,
+                                        .map_err(|_| err_non_hex(&meta, 3))?,
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,
