@@ -23,7 +23,6 @@ use super::{
     StorageVec,
 };
 use crate::{
-    collections::extend_lifetime,
     traits::{
         KeyPtr,
         PackedLayout,
