@@ -24,6 +24,9 @@ mod storage;
 #[cfg(test)]
 mod tests;
 
+#[cfg(all(test, feature = "ink-fuzz-tests"))]
+mod fuzz_tests;
+
 pub use self::iter::{
     Iter,
     IterMut,

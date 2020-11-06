@@ -428,3 +428,17 @@ mod tests {
         })
     }
 }
+
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
+use quickcheck::{
+    Arbitrary,
+    Gen,
+};
+
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
+impl<T: Arbitrary + Send + Clone + 'static> Arbitrary for Pack<T> {
+    fn arbitrary<G: Gen>(g: &mut G) -> Pack<T> {
+        let a = <T as Arbitrary>::arbitrary(g);
+        Pack::new(a)
+    }
+}
