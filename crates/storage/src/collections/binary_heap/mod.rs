@@ -32,10 +32,7 @@ use crate::{
     traits::PackedLayout,
 };
 
-pub use children_vec::{
-    Iter,
-    IterMut,
-};
+pub use children_vec::Iter;
 pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
@@ -90,17 +87,6 @@ where
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
         self.elements.iter()
-    }
-
-    /// Returns an iterator yielding exclusive references to all elements of the heap.
-    ///
-    /// # Note
-    ///
-    /// Avoid unbounded iteration over big heaps.
-    /// Prefer using methods like `Iterator::take` in order to limit the number
-    /// of yielded elements.
-    pub fn iter_mut(&mut self) -> IterMut<T> {
-        self.elements.iter_mut()
     }
 
     /// Returns a shared reference to the greatest element of the heap
