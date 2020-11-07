@@ -24,7 +24,6 @@
 [j2]: https://paritytech.github.io/ink/ink_lang
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
 [k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
-[k3]: https://app.element.io/#/room/!tYUCYdSvSYPMjWNDDD:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
 [l2]: https://discord.gg/ztCASQE
 
@@ -35,7 +34,7 @@
 [Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract) •
 [`cargo-contract`](https://github.com/paritytech/cargo-contract) cli tool for ink! contracts •
 [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) for contract deployment/interaction •
-Talk to us on [Element]([k3]) or [Discord]([l2])
+Talk to us on [Element](https://app.element.io/#/room/!tYUCYdSvSYPMjWNDDD:matrix.parity.io) or [Discord](https://discord.gg/ztCASQE)
 </div>
 
 ## Table of Contents
