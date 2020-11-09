@@ -523,7 +523,7 @@ mod tests {
                 // We prevent the intermediate instance from clearing the storage preemtively by wrapping
                 // it inside `ManuallyDrop`. The third step will clean up the same storage region afterwards.
                 //
-                // We explicitely do not touch or assert the value of `pulled_pair.0` in order to trigger
+                // We explicitly do not touch or assert the value of `pulled_pair.0` in order to trigger
                 // the bug.
                 let pulled_pair: (LazyCell<i32>, i32) =
                     SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
