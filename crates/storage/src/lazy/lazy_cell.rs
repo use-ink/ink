@@ -559,9 +559,9 @@ mod tests {
                 // following pointers for an Option.
                 let v1: V1 = None;
                 let v2: V2 = 13;
+                let mut ptr = KeyPtr::from(root_key);
 
                 let v1_cell = v1;
-                let mut ptr = KeyPtr::from(root_key);
                 SpreadLayout::push_spread(&v1_cell, &mut ptr);
 
                 let v2_cell = v2;
