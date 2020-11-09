@@ -513,7 +513,7 @@ mod multisig_plain {
         /// Evaluate a confirmed execution and return its output as bytes.
         ///
         /// Its return value indicates whether the called transaction was successful and contains
-        /// its output when sucesful.
+        /// its output when successful.
         /// This can be called by anyone.
         #[ink(message)]
         pub fn eval_transaction(
