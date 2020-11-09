@@ -155,6 +155,9 @@ mod multisig_plain {
         pub gas_limit: u64,
     }
 
+    /// Type alias for the contract's result type.
+    pub type Result<T> = core::result::Result<T, Error>;
+
     #[ink(storage)]
     pub struct MultisigPlain {
         /// Every entry in this map represents the confirmation of an owner for a
@@ -227,7 +230,7 @@ mod multisig_plain {
         /// the output in bytes. The Option is `None` when the transaction was executed through
         /// `invoke_transaction` rather than `evaluate_transaction`.
         #[ink(topic)]
-        result: Result<Option<Vec<u8>>, ()>,
+        result: Result<Option<Vec<u8>>>,
     }
 
     /// Emitted when an owner is added to the wallet.
@@ -479,7 +482,7 @@ mod multisig_plain {
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
         #[ink(message)]
-        pub fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
+        pub fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<()> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
@@ -508,7 +511,7 @@ mod multisig_plain {
         pub fn eval_transaction(
             &mut self,
             trans_id: TransactionId,
-        ) -> Result<Vec<u8>, ()> {
+        ) -> Result<Vec<u8>> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
