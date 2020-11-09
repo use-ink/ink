@@ -545,4 +545,63 @@ mod tests {
             Ok(())
         })
     }
+
+    #[test]
+    fn regression_test_for_issue_570() -> ink_env::Result<()> {
+        type V1 = Option<u32>;
+        type V2 = u32;
+
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x00; 32]);
+            {
+                // Step 1: Push two valid values one after the other to contract storage.
+                // The first value needs to be an Option, since the bug was messing up
+                // following pointers for an Option.
+                let v1: V1 = None;
+                let v2: V2 = 13;
+
+                let v1_cell = v1;
+                let mut ptr = KeyPtr::from(root_key);
+                SpreadLayout::push_spread(&v1_cell, &mut ptr);
+
+                let v2_cell = v2;
+                SpreadLayout::push_spread(&v2_cell, &mut ptr);
+            }
+            {
+                // Step 2: Pull the values from the step before.
+                //
+                // 1. Change the first values `None` to `Some(...)`.
+                // 2. Push the first value again to contract storage.
+                //
+                // We prevent the intermediate instance from clearing the storage preemptively
+                // by wrapping it inside `ManuallyDrop`. The third step will clean up the same
+                // storage region afterwards.
+                let mut ptr = KeyPtr::from(root_key);
+                let pulled_v1: V1 = SpreadLayout::pull_spread(&mut ptr);
+                let mut pulled_v1 = core::mem::ManuallyDrop::new(pulled_v1);
+
+                let pulled_v2: V2 = SpreadLayout::pull_spread(&mut ptr);
+                let pulled_v2 = core::mem::ManuallyDrop::new(pulled_v2);
+
+                assert_eq!(*pulled_v1, None);
+                assert_eq!(*pulled_v2, 13);
+
+                *pulled_v1 = Some(99u32);
+                SpreadLayout::push_spread(&*pulled_v1, &mut KeyPtr::from(root_key));
+            }
+            {
+                // Step 3: Pull the values again from the storage.
+                //
+                // If the bug with `Option` has been fixed in PR #520 we must be able to inspect
+                // the correct values for both entries.
+                let mut ptr = KeyPtr::from(root_key);
+                let pulled_v1: V1 = SpreadLayout::pull_spread(&mut ptr);
+                let pulled_v2: V2 = SpreadLayout::pull_spread(&mut ptr);
+
+                assert_eq!(pulled_v1, Some(99));
+                assert_eq!(pulled_v2, 13);
+            }
+            Ok(())
+        })
+    }
 }
