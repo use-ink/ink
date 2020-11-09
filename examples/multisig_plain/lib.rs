@@ -155,8 +155,13 @@ mod multisig_plain {
         pub gas_limit: u64,
     }
 
-    /// Type alias for the contract's result type.
-    pub type Result<T> = core::result::Result<T, Error>;
+    /// Errors that can occur upon calling this contract.
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if the call failed.
+        TransactionFailed,
+    }
 
     #[ink(storage)]
     pub struct MultisigPlain {
@@ -230,7 +235,7 @@ mod multisig_plain {
         /// the output in bytes. The Option is `None` when the transaction was executed through
         /// `invoke_transaction` rather than `evaluate_transaction`.
         #[ink(topic)]
-        result: Result<Option<Vec<u8>>>,
+        result: Result<Option<Vec<u8>>, Error>,
     }
 
     /// Emitted when an owner is added to the wallet.
@@ -482,7 +487,10 @@ mod multisig_plain {
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
         #[ink(message)]
-        pub fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<()> {
+        pub fn invoke_transaction(
+            &mut self,
+            trans_id: TransactionId,
+        ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
@@ -494,7 +502,7 @@ mod multisig_plain {
                 )
                 .returns::<()>()
                 .fire()
-                .map_err(|_| ());
+                .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -511,7 +519,7 @@ mod multisig_plain {
         pub fn eval_transaction(
             &mut self,
             trans_id: TransactionId,
-        ) -> Result<Vec<u8>> {
+        ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
@@ -523,7 +531,7 @@ mod multisig_plain {
                 )
                 .returns::<ReturnType<Vec<u8>>>()
                 .fire()
-                .map_err(|_| ());
+                .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
