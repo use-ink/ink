@@ -11,7 +11,9 @@ mod non_storage_ink_impls {
     // This ink! impl block is okay.
     impl StorageStruct {
         #[ink(constructor)]
-        pub fn constructor1() -> Self {}
+        pub fn constructor1() -> Self {
+            Self {}
+        }
 
         #[ink(message)]
         pub fn message1(&self) {}
@@ -25,7 +27,9 @@ mod non_storage_ink_impls {
     // storage struct. We expect a failure here.
     impl NonStorageStruct {
         #[ink(constructor)]
-        pub fn constructor2() -> Self {}
+        pub fn constructor2() -> Self {
+            Self {}
+        }
 
         #[ink(message)]
         pub fn message2(&self) {}
