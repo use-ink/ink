@@ -16,7 +16,7 @@ error[E0599]: no function or associated item named `constructor2` found for stru
 9  |     pub struct StorageStruct {}
    |     ------------------------ function or associated item `constructor2` not found for this
 ...
-28 |         pub fn constructor2() -> Self { todo!() }
+28 |         pub fn constructor2() -> Self {}
    |                ^^^^^^^^^^^^
    |                |
    |                function or associated item not found in `StorageStruct`
