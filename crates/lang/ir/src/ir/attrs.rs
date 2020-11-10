@@ -565,6 +565,19 @@ impl InkAttribute {
     }
 }
 
+/// Returns an error to notify about non-hex digits at a position.
+fn err_non_hex(meta: &syn::Meta, pos: usize) -> syn::Error {
+    format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
+}
+
+/// Returns an error to notify about an invalid ink! selector.
+fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
+    format_err_spanned!(
+        meta,
+        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
+    )
+}
+
 impl TryFrom<syn::NestedMeta> for AttributeArg {
     type Error = syn::Error;
 
@@ -577,27 +590,20 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let regex = Regex::new(
                                     r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
-                                ).map_err(|_| {
-                                    format_err_spanned!(
-                                        meta,
-                                        "invalid selector bytes"
-                                    )
-                                })?;
+                                ).map_err(|_| invalid_selector_err_regex(&meta))?;
                                 let str = lit_str.value();
-                                let cap = regex.captures(&str).unwrap();
+                                let cap = regex
+                                    .captures(&str)
+                                    .ok_or_else(|| invalid_selector_err_regex(&meta))?;
                                 let selector_bytes = [
-                                    u8::from_str_radix(&cap[1], 16).expect(
-                                        "encountered non-hex digit at position 0",
-                                    ),
-                                    u8::from_str_radix(&cap[2], 16).expect(
-                                        "encountered non-hex digit at position 1",
-                                    ),
-                                    u8::from_str_radix(&cap[3], 16).expect(
-                                        "encountered non-hex digit at position 2",
-                                    ),
-                                    u8::from_str_radix(&cap[4], 16).expect(
-                                        "encountered non-hex digit at position 3",
-                                    ),
+                                    u8::from_str_radix(&cap[1], 16)
+                                        .map_err(|_| err_non_hex(&meta, 0))?,
+                                    u8::from_str_radix(&cap[2], 16)
+                                        .map_err(|_| err_non_hex(&meta, 1))?,
+                                    u8::from_str_radix(&cap[3], 16)
+                                        .map_err(|_| err_non_hex(&meta, 2))?,
+                                    u8::from_str_radix(&cap[4], 16)
+                                        .map_err(|_| err_non_hex(&meta, 3))?,
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,

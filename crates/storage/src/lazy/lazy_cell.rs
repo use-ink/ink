@@ -523,7 +523,7 @@ mod tests {
                 // We prevent the intermediate instance from clearing the storage preemtively by wrapping
                 // it inside `ManuallyDrop`. The third step will clean up the same storage region afterwards.
                 //
-                // We explicitely do not touch or assert the value of `pulled_pair.0` in order to trigger
+                // We explicitly do not touch or assert the value of `pulled_pair.0` in order to trigger
                 // the bug.
                 let pulled_pair: (LazyCell<i32>, i32) =
                     SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
@@ -541,6 +541,59 @@ mod tests {
                     SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
                 assert_eq!(pulled_pair.0.get(), Some(&1i32));
                 assert_eq!(pulled_pair.1, 3i32);
+            }
+            Ok(())
+        })
+    }
+
+    #[test]
+    fn regression_test_for_issue_570() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x00; 32]);
+            {
+                // Step 1: Push two valid values one after the other to contract storage.
+                // The first value needs to be an `Option::None` value, since the bug was
+                // then messing up following pointers.
+                let v1: Option<u32> = None;
+                let v2: u32 = 13;
+                let mut ptr = KeyPtr::from(root_key);
+
+                SpreadLayout::push_spread(&v1, &mut ptr);
+                SpreadLayout::push_spread(&v2, &mut ptr);
+            }
+            {
+                // Step 2: Pull the values from the step before.
+                //
+                // 1. Change the first values `None` to `Some(...)`.
+                // 2. Push the first value again to contract storage.
+                //
+                // We prevent the intermediate instance from clearing the storage preemptively
+                // by wrapping it inside `ManuallyDrop`. The third step will clean up the same
+                // storage region afterwards.
+                let mut ptr = KeyPtr::from(root_key);
+                let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
+                let mut pulled_v1 = core::mem::ManuallyDrop::new(pulled_v1);
+
+                let pulled_v2: u32 = SpreadLayout::pull_spread(&mut ptr);
+                let pulled_v2 = core::mem::ManuallyDrop::new(pulled_v2);
+
+                assert_eq!(*pulled_v1, None);
+                assert_eq!(*pulled_v2, 13);
+
+                *pulled_v1 = Some(99u32);
+                SpreadLayout::push_spread(&*pulled_v1, &mut KeyPtr::from(root_key));
+            }
+            {
+                // Step 3: Pull the values again from the storage.
+                //
+                // If the bug with `Option` has been fixed in PR #520 we must be able to inspect
+                // the correct values for both entries.
+                let mut ptr = KeyPtr::from(root_key);
+                let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
+                let pulled_v2: u32 = SpreadLayout::pull_spread(&mut ptr);
+
+                assert_eq!(pulled_v1, Some(99));
+                assert_eq!(pulled_v2, 13);
             }
             Ok(())
         })

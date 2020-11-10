@@ -49,7 +49,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
-    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                         # PRs
     - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/              # i.e. v1.0, v2.1rc1
   interruptible:                   true
   retry:
@@ -326,7 +326,7 @@ fuzz-tests:
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
             then
                 cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
-                let "all_tests_passed |= $?";
+                all_tests_passed=$(( all_tests_passed | $? ));
             fi
           done
         - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
