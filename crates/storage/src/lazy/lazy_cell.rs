@@ -555,8 +555,8 @@ mod tests {
             let root_key = Key::from([0x00; 32]);
             {
                 // Step 1: Push two valid values one after the other to contract storage.
-                // The first value needs to be an Option, since the bug was messing up
-                // following pointers for an Option.
+                // The first value needs to be an `Option::None` value, since the bug was
+                // then messing up following pointers.
                 let v1: V1 = None;
                 let v2: V2 = 13;
                 let mut ptr = KeyPtr::from(root_key);
