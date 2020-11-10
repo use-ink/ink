@@ -66,6 +66,8 @@ where
         <u8 as SpreadLayout>::push_spread(&(self.is_some() as u8), ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::push_spread(value, ptr);
+        } else {
+            ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
         }
     }
 
@@ -76,12 +78,17 @@ where
         <u8 as SpreadLayout>::clear_spread(&0, ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::clear_spread(value, ptr)
+        } else {
+            ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
         }
     }
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         match <u8 as SpreadLayout>::pull_spread(ptr) {
-            0u8 => None,
+            0u8 => {
+                ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
+                None
+            }
             1u8 => Some(<T as SpreadLayout>::pull_spread(ptr)),
             _ => unreachable!("invalid Option discriminant"),
         }
