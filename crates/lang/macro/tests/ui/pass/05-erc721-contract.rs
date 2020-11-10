@@ -342,11 +342,11 @@ mod erc721 {
             let owner = self.owner_of(id);
             from != Some(AccountId::from([0x0; 32]))
                 && (from == owner
-                || from == self.token_approvals.get(&id).cloned()
-                || self.approved_for_all(
-                owner.expect("Error with AccountId"),
-                from.expect("Error with AccountId"),
-            ))
+                    || from == self.token_approvals.get(&id).cloned()
+                    || self.approved_for_all(
+                        owner.expect("Error with AccountId"),
+                        from.expect("Error with AccountId"),
+                    ))
         }
 
         /// Returns true if token `id` exists or false if it does not.

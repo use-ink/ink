@@ -187,7 +187,7 @@ fmt:
   <<:                              *docker-env
   script:
     - cargo fmt --verbose --all -- --check
-    - rustfmt --verbose --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
 
 
 
