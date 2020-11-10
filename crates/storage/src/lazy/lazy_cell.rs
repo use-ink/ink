@@ -561,11 +561,8 @@ mod tests {
                 let v2: V2 = 13;
                 let mut ptr = KeyPtr::from(root_key);
 
-                let v1_cell = v1;
-                SpreadLayout::push_spread(&v1_cell, &mut ptr);
-
-                let v2_cell = v2;
-                SpreadLayout::push_spread(&v2_cell, &mut ptr);
+                SpreadLayout::push_spread(&v1, &mut ptr);
+                SpreadLayout::push_spread(&v2, &mut ptr);
             }
             {
                 // Step 2: Pull the values from the step before.
