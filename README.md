@@ -34,7 +34,7 @@
 [Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract) •
 [`cargo-contract`](https://github.com/paritytech/cargo-contract) cli tool for ink! contracts •
 [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) for contract deployment/interaction •
-Talk to us on [Matrix]([k3]) or [Discord]([l1])
+Talk to us on [Element][k2] or [Discord][l2]
 </div>
 
 ## Table of Contents
