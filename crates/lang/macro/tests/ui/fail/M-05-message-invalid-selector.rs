@@ -12,7 +12,7 @@ mod message_invalid_selector {
         }
 
         #[ink(message, selector = "0x00")]
-        pub fn invalid_selector(&self) { }
+        pub fn invalid_selector(&self) {}
     }
 }
 
