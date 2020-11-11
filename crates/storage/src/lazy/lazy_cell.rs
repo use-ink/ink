@@ -549,52 +549,38 @@ mod tests {
     #[test]
     fn regression_test_for_issue_570() -> ink_env::Result<()> {
         run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
             let root_key = Key::from([0x00; 32]);
-            {
-                // Step 1: Push two valid values one after the other to contract storage.
-                // The first value needs to be an `Option::None` value, since the bug was
-                // then messing up following pointers.
-                let v1: Option<u32> = None;
-                let v2: u32 = 13;
-                let mut ptr = KeyPtr::from(root_key);
+            let none: Option<u32> = None;
+            let some: Option<u32> = Some(13);
 
-                SpreadLayout::push_spread(&v1, &mut ptr);
-                SpreadLayout::push_spread(&v2, &mut ptr);
-            }
-            {
-                // Step 2: Pull the values from the step before.
-                //
-                // 1. Change the first values `None` to `Some(...)`.
-                // 2. Push the first value again to contract storage.
-                //
-                // We prevent the intermediate instance from clearing the storage preemptively
-                // by wrapping it inside `ManuallyDrop`. The third step will clean up the same
-                // storage region afterwards.
-                let mut ptr = KeyPtr::from(root_key);
-                let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
-                let mut pulled_v1 = core::mem::ManuallyDrop::new(pulled_v1);
+            // when
+            let mut ptr_push_none = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&none, &mut ptr_push_none);
+            let mut ptr_pull_none = KeyPtr::from(root_key);
+            let _: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
+            let mut ptr_clear_none = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&none, &mut ptr_clear_none);
 
-                let pulled_v2: u32 = SpreadLayout::pull_spread(&mut ptr);
-                let pulled_v2 = core::mem::ManuallyDrop::new(pulled_v2);
+            let mut ptr_push_some = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&some, &mut ptr_push_some);
+            let mut ptr_pull_some = KeyPtr::from(root_key);
+            let _: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
+            let mut ptr_clear_some = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&some, &mut ptr_clear_some);
 
-                assert_eq!(*pulled_v1, None);
-                assert_eq!(*pulled_v2, 13);
-
-                *pulled_v1 = Some(99u32);
-                SpreadLayout::push_spread(&*pulled_v1, &mut KeyPtr::from(root_key));
-            }
-            {
-                // Step 3: Pull the values again from the storage.
-                //
-                // If the bug with `Option` has been fixed in PR #520 we must be able to inspect
-                // the correct values for both entries.
-                let mut ptr = KeyPtr::from(root_key);
-                let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
-                let pulled_v2: u32 = SpreadLayout::pull_spread(&mut ptr);
-
-                assert_eq!(pulled_v1, Some(99));
-                assert_eq!(pulled_v2, 13);
-            }
+            // then
+            // the bug which we observed was that the pointer after push/pull/clear
+            // was set so a different value if the `Option` was `None` vs. if it was
+            // `Some`.
+            //
+            // if the bug has been fixed the pointer must be the same for `None`
+            // and `Some` after push/pull/clear. otherwise subsequent operations using
+            // the pointer will break as soon as the `Option` is changed to it's
+            // opposite (`None` -> `Some`, `Some` -> `None`).
+            assert_eq!(ptr_push_none, ptr_push_some);
+            assert_eq!(ptr_pull_none, ptr_pull_some);
+            assert_eq!(ptr_clear_none, ptr_clear_some);
             Ok(())
         })
     }
