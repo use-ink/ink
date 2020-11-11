@@ -86,10 +86,11 @@ The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we expla
 
 In order to build the contract just execute these commmands in the `flipper` folder:
 ```
-cargo contract build && cargo contract generate-metadata
+cargo contract build
 ```
 
-As a result you'll get a file `target/flipper.wasm` and `target/metadata.json`. Those need to be used when deploying the contract.
+As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+The `.contract` file combines the Wasm and metadata into one file and needs to be used when deploying the contract.
 
 
 ## Hello, World! ‒ The Flipper
@@ -152,7 +153,7 @@ mod flipper {
 }
 ```
 
-Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
+Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build` to build your first ink! smart contract example.
 
 ## Examples
 
@@ -168,7 +169,7 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract build && cargo contract generate-metadata
+cargo contract build
 ```
 
 You should now have an optimized `<contract-name>.wasm` file and a `metadata.json` file in the `target` folder of the contract.

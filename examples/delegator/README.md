@@ -13,8 +13,8 @@ In order to test this bundle of smart contracts you need to do the following:
 
 1. Compile all dependencies of the Delegator smart contract using the `./build-all.sh` script.
    As usual you will receive their respective Wasm blobs in their respective `target` folders.
-1. Go to the delegator directory (root of the example) and run `cargo contract generate-metadata`
-   in order to generate the ABI file for the Delegator smart contract.
+   For the delegator (root of the example) you will additionally get the ABI file for the
+   smart contract in the `target` folder.
    Note: You won't need an ABI file for the other smart contracts since we won't operate on them
          using the Polkadot UI.
 1. Put the Wasm blobs of Accumulator, Adder, Subber and the Delegator on the chain via `put_code` command.
