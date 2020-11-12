@@ -547,7 +547,7 @@ mod tests {
     }
 
     #[test]
-    fn regression_test_for_issue_570() -> ink_env::Result<()> {
+    fn second_regression_test_for_issue_570() -> ink_env::Result<()> {
         run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
             let root_key = Key::from([0x00; 32]);
