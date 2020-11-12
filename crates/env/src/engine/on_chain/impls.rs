@@ -36,6 +36,12 @@ use crate::{
         Topics,
         TopicsBuilderBackend,
     },
+    zk_snarks::{
+        AltBn128Add,
+        AltBn128Mul,
+        CurvePoint,
+        CurvePointOutput,
+    },
     Clear,
     EnvBackend,
     Environment,
@@ -91,6 +97,30 @@ impl CryptoHash for Keccak256 {
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
         ext::hash_keccak_256(input, output);
+    }
+}
+
+impl CurvePoint for AltBn128Add {
+    fn inflect(input: &[u8], output: &mut <Self as CurvePointOutput>::Type) {
+        type OutputType = [u8; 64];
+        static_assertions::assert_type_eq_all!(
+            <AltBn128Add as CurvePointOutput>::Type,
+            OutputType,
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 64);
+        ext::curve_bn_256_add(input, output)
+    }
+}
+
+impl CurvePoint for AltBn128Mul {
+    fn inflect(input: &[u8], output: &mut <Self as CurvePointOutput>::Type) {
+        type OutputType = [u8; 64];
+        static_assertions::assert_type_eq_all!(
+            <AltBn128Add as CurvePointOutput>::Type,
+            OutputType,
+        );
+        let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 64);
+        ext::curve_bn_256_mul(input, output)
     }
 }
 

@@ -30,8 +30,8 @@ cfg_if! {
         pub use self::on_chain::EnvInstance;
     } else if #[cfg(feature = "std")] {
         pub mod off_chain;
-        pub use self::off_chain::EnvInstance;
         pub use self::off_chain::{
+            EnvInstance,
             AccountError,
             TypedEncodedError,
         };

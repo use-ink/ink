@@ -328,6 +328,16 @@ mod sys {
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
+        pub fn seal_curve_bn_256_add(
+            input_ptr: Ptr32<[u8]>,
+            input_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+        );
+        pub fn seal_curve_bn_256_mul(
+            input_ptr: Ptr32<[u8]>,
+            input_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+        );
     }
 }
 
@@ -618,3 +628,22 @@ impl_hash_fn!(sha2_256, 32);
 impl_hash_fn!(keccak_256, 32);
 impl_hash_fn!(blake2_256, 32);
 impl_hash_fn!(blake2_128, 16);
+
+macro_rules! impl_curve_fn {
+    ( $name:ident, $bytes_result:literal ) => {
+        paste::item! {
+            pub fn [<curve_ $name>](input: &[u8], output: &mut [u8; $bytes_result]) {
+                unsafe {
+                    sys::[<seal_curve_ $name>](
+                        Ptr32::from_slice(input),
+                        input.len() as u32,
+                        Ptr32Mut::from_slice(output),
+                    )
+                }
+            }
+        }
+    };
+}
+
+impl_curve_fn!(bn_256_add, 64);
+impl_curve_fn!(bn_256_mul, 64);

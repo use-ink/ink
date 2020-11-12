@@ -33,6 +33,9 @@ sha2 = { version = "0.9", optional = true }
 sha3 = { version = "0.9", optional = true }
 blake2 = { version = "0.9", optional = true }
 
+# Mocking altbn128
+altbn128 = { git = "https://github.com/patractlabs/jupiter.git", branch = "altbn128" }
+
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
