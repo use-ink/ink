@@ -558,14 +558,16 @@ mod tests {
             let mut ptr_push_none = KeyPtr::from(root_key);
             SpreadLayout::push_spread(&none, &mut ptr_push_none);
             let mut ptr_pull_none = KeyPtr::from(root_key);
-            let _: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
+            let v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
+            assert!(v1.is_none());
             let mut ptr_clear_none = KeyPtr::from(root_key);
             SpreadLayout::clear_spread(&none, &mut ptr_clear_none);
 
             let mut ptr_push_some = KeyPtr::from(root_key);
             SpreadLayout::push_spread(&some, &mut ptr_push_some);
             let mut ptr_pull_some = KeyPtr::from(root_key);
-            let _: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
+            let v2: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
+            assert!(v2.is_some());
             let mut ptr_clear_some = KeyPtr::from(root_key);
             SpreadLayout::clear_spread(&some, &mut ptr_clear_some);
 
