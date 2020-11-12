@@ -66,7 +66,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This wraps a base key and provides an interface to mimic pointer arithmetics.</span>
 <span class="doccomment">/// Mainly used to coordinate keys through static storage structures.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">KeyPtr</span> {
     <span class="doccomment">/// The underlying offset key.</span>
     <span class="ident">key</span>: <span class="ident">Key</span>,
