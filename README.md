@@ -59,7 +59,8 @@ We have [a demonstration testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F
 You can request some tokens to play with from our [Faucet](https://riot.im/app/#/room/#canvas_faucet:matrix.parity.io) and deploy your contracts via the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload).
 
 The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can also be used to deploy your contract to e.g. a Substrate chain which you run locally and execute calls there.
-If you want a quickstart you can use our [canvas-node](https://github.com/paritytech/canvas-node#note) project ‒ a simple Substrate blockchain which is configured to include the `contracts` pallet (see [How it Works](#how-it-works) for more).
+If you want a quickstart you can use our [canvas-node](https://github.com/paritytech/canvas-node#note) project.
+It's a simple Substrate blockchain which is configured to include the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 ## Usage
 
@@ -179,11 +180,12 @@ For further information, please have a look at the [Play with It](#play-with-it)
 
 ## How it Works
 
-* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains the `contracts` pallet,
-which implements an API for typical functions smart contracts need (storage, querying information about account, …).
+* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains
+a module  which implements an API for typical functions smart contracts need (storage, querying information about accounts, …).
+This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
-Hence ink! smart contracts are compiled to Wasm.
+Hence ink! contracts are compiled to Wasm.
 * When executing `cargo contract build` an additional file `metadata.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
