@@ -598,4 +598,59 @@ mod tests {
             Ok(())
         })
     }
+
+    #[test]
+    fn second_regression_test_for_issue_570() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x00; 32]);
+            let none: Option<u32> = None;
+            let some: Option<u32> = Some(13);
+
+            // when
+            let mut ptr_push_none = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&none, &mut ptr_push_none);
+            let mut ptr_pull_none = KeyPtr::from(root_key);
+            let v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
+            assert!(v1.is_none());
+            let mut ptr_clear_none = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&none, &mut ptr_clear_none);
+
+            let mut ptr_push_some = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&some, &mut ptr_push_some);
+            let mut ptr_pull_some = KeyPtr::from(root_key);
+            let v2: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
+            assert!(v2.is_some());
+            let mut ptr_clear_some = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&some, &mut ptr_clear_some);
+
+            // then
+            // the bug which we observed was that the pointer after push/pull/clear
+            // was set so a different value if the `Option` was `None` vs. if it was
+            // `Some`.
+            //
+            // if the bug has been fixed the pointer must be the same for `None`
+            // and `Some` after push/pull/clear. otherwise subsequent operations using
+            // the pointer will break as soon as the `Option` is changed to it's
+            // opposite (`None` -> `Some`, `Some` -> `None`).
+            let mut expected_post_op_ptr = KeyPtr::from(root_key);
+            // advance one time after the cell containing `self.is_some() as u8` has been read
+            expected_post_op_ptr.advance_by(1);
+            // advance another time after the cell containing the inner `Option` value
+            // has either been skipped (in case of the previous cell being `None`) or
+            // read (in case of `Some`).
+            expected_post_op_ptr.advance_by(1);
+
+            assert_eq!(expected_post_op_ptr, ptr_push_none);
+            assert_eq!(ptr_push_none, ptr_push_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_pull_none);
+            assert_eq!(ptr_pull_none, ptr_pull_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_clear_none);
+            assert_eq!(ptr_clear_none, ptr_clear_some);
+
+            Ok(())
+        })
+    }
 }
