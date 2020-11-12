@@ -580,9 +580,23 @@ mod tests {
             // and `Some` after push/pull/clear. otherwise subsequent operations using
             // the pointer will break as soon as the `Option` is changed to it's
             // opposite (`None` -> `Some`, `Some` -> `None`).
+            let mut expected_post_op_ptr = KeyPtr::from(root_key);
+            // advance one time after the cell containing `self.is_some() as u8` has been read
+            expected_post_op_ptr.advance_by(1);
+            // advance another time after the cell containing the inner `Option` value
+            // has either been skipped (in case of the previous cell being `None`) or
+            // read (in case of `Some`).
+            expected_post_op_ptr.advance_by(1);
+
+            assert_eq!(expected_post_op_ptr, ptr_push_none);
             assert_eq!(ptr_push_none, ptr_push_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_pull_none);
             assert_eq!(ptr_pull_none, ptr_pull_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_clear_none);
             assert_eq!(ptr_clear_none, ptr_clear_some);
+
             Ok(())
         })
     }
