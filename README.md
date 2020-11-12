@@ -89,8 +89,8 @@ In order to build the contract just execute these commmands in the `flipper` fol
 cargo contract build
 ```
 
-As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the Wasm and metadata into one file and needs to be used when deploying the contract.
+As a result you'll get a file `target/flipper.wasm` file and a `metadata.json` file in the `target` folder of your contract.
+These need to be used when deploying the contract.
 
 
 ## Hello, World! ‒ The Flipper

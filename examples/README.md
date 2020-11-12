@@ -20,8 +20,7 @@ To build a single example and generate the contracts Wasm file, navigate to the 
 
 `cargo contract build`
 
-You should now have an optimized `<contract-name>.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the Wasm and metadata into one file and can be used for deployment.
+You should now have an optimized `<contract-name>.wasm` and a `metadata.json` file in the `target` folder of your contract.
 
 ## License
 
