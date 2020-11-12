@@ -597,6 +597,7 @@ mod tests {
             }
             Ok(())
         })
+    }
 
     #[test]
     fn second_regression_test_for_issue_570() -> ink_env::Result<()> {
