@@ -197,7 +197,7 @@ fmt:
   # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
 # restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
 #  - cargo install cargo-contract || echo $?
-  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
+  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci-v0.8.0 || echo $?
   - cargo contract -V
 
 examples-test:
@@ -246,20 +246,6 @@ examples-contract-build:
     - for example in examples/*/; do
         pushd $example &&
         cargo contract build &&
-        popd;
-      done
-
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - job:                         build-wasm
-      artifacts:                   false
-  script:
-    - *update-cargo-contract
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract generate-metadata &&
         popd;
       done
 
