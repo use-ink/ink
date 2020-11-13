@@ -1,5 +1,5 @@
 [package]
-name = "contract-transfer"
+name = "contract_transfer"
 version = "3.0.0-rc1"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
