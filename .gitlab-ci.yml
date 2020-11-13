@@ -194,11 +194,12 @@ fmt:
 #### stage:                        examples
 
 .update-cargo-contract:            &update-cargo-contract
-  # `cargo install` returns an error if there is nothing to update, so have to suppress it here temporarily
-# restore this once ink! 3.0 is published and the new version of cargo-contract has been released to crates.io
-#  - cargo install cargo-contract || echo $?
-  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci || echo $?
-  - cargo contract -V
+  # Hotfix, should be reverted as soon as https://github.com/paritytech/scripts/issues/240
+  # has been addressed. Then we can remove this entire part.
+  - export CXX="/usr/bin/clang++"
+  - apt-get update
+  - apt-get install -y --no-install-recommends python
+  - cargo install --git https://github.com/paritytech/cargo-contract --tag ink-ci-v0.8.0
 
 examples-test:
   stage:                           examples
