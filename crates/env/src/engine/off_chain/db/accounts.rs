@@ -267,6 +267,12 @@ impl Account {
     pub fn get_storage_rw(&self) -> Result<(usize, usize)> {
         self.contract_or_err().map(|contract| contract.get_rw())
     }
+
+    /// Returns the amount of used storage entries.
+    pub fn get_storage_used(&self) -> Result<usize> {
+        self.contract_or_err()
+            .map(|contract| contract.get_storage_used())
+    }
 }
 
 /// The kind of the account.
@@ -300,6 +306,11 @@ impl ContractAccount {
     /// Returns the number of reads and writes from and to the contract storage.
     pub fn get_rw(&self) -> (usize, usize) {
         self.storage.get_rw()
+    }
+
+    /// Returns the number of used storage entries.
+    pub fn get_storage_used(&self) -> usize {
+        self.storage.storage_used()
     }
 }
 
@@ -354,5 +365,10 @@ impl ContractStorage {
     pub fn clear_storage(&mut self, at: Key) {
         self.count_writes += 1;
         self.entries.remove(&at);
+    }
+
+    /// Returns the number of used storage entries.
+    pub fn storage_used(&self) -> usize {
+        self.entries.len()
     }
 }

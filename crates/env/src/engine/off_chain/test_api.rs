@@ -352,6 +352,41 @@ where
     })
 }
 
+/// Returns the amount of storage entries used by the account `account_id`.
+///
+/// Returns `None` if the account is non-existent.
+pub fn get_storage_used<T>(account_id: &T::AccountId) -> Result<usize>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(account_id)
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.get_storage_used().map_err(Into::into))
+    })
+}
+
+/// Returns the amount of storage entries used by the account `account_id`.
+///
+/// Returns `None` if no current account is existent.
+pub fn get_current_contract_storage_used<T>() -> Result<usize>
+where
+    T: Environment,
+{
+    let account_id = get_current_contract_account_id::<T>()?;
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(&account_id)
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.get_storage_used().map_err(Into::into))
+    })
+}
+
 /// Returns the account id of the currently executing contract.
 pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
 where
