@@ -35,6 +35,13 @@ fn pull_hmap() -> StorageHashMap<u8, i32> {
     <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
 }
 
+fn filled_hmap() -> StorageHashMap<u8, i32> {
+    [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>()
+}
+
 #[test]
 fn new_works() {
     // `StorageHashMap::new`
@@ -102,10 +109,7 @@ fn get_works() {
     assert_eq!(hmap.get(&b'A'), None);
     assert_eq!(hmap.get(&b'E'), None);
     // Filled hash map: `get`
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     assert_eq!(hmap.get(&b'A'), Some(&1));
     assert_eq!(hmap.get(&b'B'), Some(&2));
     assert_eq!(hmap.get(&b'C'), Some(&3));
@@ -150,10 +154,7 @@ fn take_works() {
     assert_eq!(hmap.take(&b'A'), None);
     assert_eq!(hmap.take(&b'E'), None);
     // Filled hash map: `get`
-    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let mut hmap = filled_hmap();
     assert_eq!(hmap.len(), 4);
     assert_eq!(hmap.take(&b'A'), Some(1));
     assert_eq!(hmap.len(), 3);
@@ -171,10 +172,7 @@ fn take_works() {
 
 #[test]
 fn iter_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     // Test iterator over shared references:
     let mut iter = hmap.iter();
     assert_eq!(iter.count(), 4);
@@ -208,10 +206,7 @@ fn iter_next_works() {
 
 #[test]
 fn values_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     // Test iterator over shared references:
     let mut iter = hmap.values();
     assert_eq!(iter.count(), 4);
@@ -245,10 +240,7 @@ fn values_next_works() {
 
 #[test]
 fn keys_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     let mut iter = hmap.keys();
     assert_eq!(iter.count(), 4);
     assert_eq!(iter.size_hint(), (4, Some(4)));
@@ -272,10 +264,7 @@ fn defrag_works() {
         .copied()
         .collect::<StorageHashMap<u8, i32>>();
     // Defrag without limits:
-    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let mut hmap = filled_hmap();
     assert_eq!(hmap.defrag(None), 0);
     assert_eq!(hmap.take(&b'B'), Some(2));
     assert_eq!(hmap.take(&b'C'), Some(3));
@@ -299,10 +288,7 @@ fn defrag_works() {
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-            .iter()
-            .copied()
-            .collect::<StorageHashMap<u8, i32>>();
+        let hmap1 = filled_hmap();
         push_hmap(&hmap1);
         // Load the pushed storage hmap into another instance and check that
         // both instances are equal:
@@ -316,10 +302,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-            .iter()
-            .copied()
-            .collect::<StorageHashMap<u8, i32>>();
+        let hmap1 = filled_hmap();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
