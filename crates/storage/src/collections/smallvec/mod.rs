@@ -85,7 +85,7 @@ where
     ///
     /// # Note
     ///
-    /// This completely invalidates the storage vector's invariances about
+    /// This completely invalidates the storage vector's invariants about
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
