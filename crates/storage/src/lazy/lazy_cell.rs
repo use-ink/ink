@@ -151,8 +151,22 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        if let Some(entry) = self.entry() {
-            entry.clear_spread_root(root_key)
+        match <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            true => {
+                // The inner cell needs to be cleared, no matter if it has
+                // been loaded or not. Otherwise there might be leftovers.
+                // Load from storage and then clear:
+                clear_spread_root_opt::<T, _>(root_key, || self.get())
+            }
+            false => {
+                // Clear without loading from storage:
+                let footprint = <T as SpreadLayout>::FOOTPRINT;
+                assert!(footprint <= 16); // magic number
+                let mut key_ptr = KeyPtr::from(*root_key);
+                for _ in 0..footprint {
+                    ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                }
+            }
         }
     }
 }
@@ -652,5 +666,38 @@ mod tests {
 
             Ok(())
         })
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn nested_lazies_are_cleared_completely_after_pull() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+            let nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
+            SpreadLayout::push_spread(&nested_lazy, &mut KeyPtr::from(root_key));
+            let pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+
+            // when
+            SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot yet contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            Ok(())
+        })
+        .unwrap()
     }
 }
