@@ -418,7 +418,7 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         >()
         .expect("contract id must exist");
         let storage_used =
-            ink_env::test::get_storage_used::<ink_env::DefaultEnvironment>(&contract_id)
+            ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(&contract_id)
                 .expect("used storage must be returned");
         assert_eq!(storage_used, 0);
 

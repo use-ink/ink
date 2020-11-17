@@ -365,7 +365,7 @@ where
             .get_account::<T>(account_id)
             .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
             .map_err(Into::into)
-            .and_then(|account| account.get_storage_used().map_err(Into::into))
+            .and_then(|account| account.count_used_storage_cells().map_err(Into::into))
     })
 }
 
@@ -383,7 +383,7 @@ where
             .get_account::<T>(&account_id)
             .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
             .map_err(Into::into)
-            .and_then(|account| account.get_storage_used().map_err(Into::into))
+            .and_then(|account| account.count_used_storage_cells().map_err(Into::into))
     })
 }
 
