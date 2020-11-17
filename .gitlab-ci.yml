@@ -242,20 +242,6 @@ examples-contract-build:
         popd;
       done
 
-examples-generate-metadata:
-  stage:                           examples
-  <<:                              *docker-env
-  needs:
-    - job:                         build-wasm
-      artifacts:                   false
-  script:
-    - cargo contract -V
-    - for example in examples/*/; do
-        pushd $example &&
-        cargo contract generate-metadata &&
-        popd;
-      done
-
 #### stage:                        publish
 
 publish-docs:
