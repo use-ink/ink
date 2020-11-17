@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./.images/ink-logo.svg" alt="ink!" height="120" />
+    <img src="./.images/ink-logo-white-bg.svg" alt="ink!" height="131" />
 <h1 align="center">
     Parity's ink! for writing smart contracts
 </h1>
