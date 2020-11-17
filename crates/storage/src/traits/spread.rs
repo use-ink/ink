@@ -14,6 +14,11 @@
 
 use super::KeyPtr;
 
+/// The maximum number of adjunctive storage cells a type may require in
+/// order to be stored in the contract storage with `SpreadLayout`.
+/// The number is arbitrarily chosen. Might need adjustments later.
+pub const MAX_FOOTPRINT: u64 = 16;
+
 /// Types that can be stored to and loaded from the contract storage.
 pub trait SpreadLayout {
     /// The footprint of the type.
