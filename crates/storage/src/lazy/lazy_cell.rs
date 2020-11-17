@@ -150,12 +150,23 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        // the inner cell needs to be cleared, no matter if it has been loaded or not.
-        // otherwise there might be leftovers.
-        let _ = self.get();
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        if let Some(entry) = self.entry() {
-            entry.clear_spread_root(root_key)
+        match <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            true => {
+                // The inner cell needs to be cleared, no matter if it has
+                // been loaded or not. Otherwise there might be leftovers.
+                // Load from storage and then clear:
+                clear_spread_root_opt::<T, _>(root_key, || self.get())
+            }
+            false => {
+                // Clear without loading from storage:
+                let footprint = <T as SpreadLayout>::FOOTPRINT;
+                assert!(footprint <= 16); // magic number
+                let mut key_ptr = KeyPtr::from(*root_key);
+                for _ in 0..footprint {
+                    ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                }
+            }
         }
     }
 }
