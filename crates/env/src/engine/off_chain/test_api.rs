@@ -355,7 +355,7 @@ where
 /// Returns the amount of storage entries used by the account `account_id`.
 ///
 /// Returns `None` if the account is non-existent.
-pub fn get_storage_used<T>(account_id: &T::AccountId) -> Result<usize>
+pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
 where
     T: Environment,
 {

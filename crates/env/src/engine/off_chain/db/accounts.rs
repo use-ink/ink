@@ -269,7 +269,7 @@ impl Account {
     }
 
     /// Returns the amount of used storage entries.
-    pub fn get_storage_used(&self) -> Result<usize> {
+    pub fn count_used_storage_cells(&self) -> Result<usize> {
         self.contract_or_err()
             .map(|contract| contract.get_storage_used())
     }
@@ -309,7 +309,7 @@ impl ContractAccount {
     }
 
     /// Returns the number of used storage entries.
-    pub fn get_storage_used(&self) -> usize {
+    pub fn count_used_storage_cells(&self) -> usize {
         self.storage.storage_used()
     }
 }
@@ -368,7 +368,7 @@ impl ContractStorage {
     }
 
     /// Returns the number of used storage entries.
-    pub fn storage_used(&self) -> usize {
+    pub fn count_used_storage_cells(&self) -> usize {
         self.entries.len()
     }
 }
