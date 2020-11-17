@@ -653,4 +653,33 @@ mod tests {
             Ok(())
         })
     }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn nested_lazies_are_cleared_completely_after_pull() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+            let nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
+            SpreadLayout::push_spread(&nested_lazy, &mut KeyPtr::from(root_key));
+            let pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+
+            // when
+            SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
+
+            // then
+            let storage_used = ink_env::test::get_current_contract_storage_used::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("used storage must be returned");
+            assert_eq!(storage_used, 0);
+            let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            Ok(())
+        })
+        .unwrap()
+    }
 }
