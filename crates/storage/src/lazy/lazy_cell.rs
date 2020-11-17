@@ -150,6 +150,9 @@ where
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
+        // the inner cell needs to be cleared, no matter if it has been loaded or not.
+        // otherwise there might be leftovers.
+        let _ = self.get();
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         if let Some(entry) = self.entry() {
             entry.clear_spread_root(root_key)
