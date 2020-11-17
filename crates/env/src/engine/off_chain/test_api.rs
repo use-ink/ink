@@ -352,9 +352,9 @@ where
     })
 }
 
-/// Returns the amount of storage entries used by the account `account_id`.
+/// Returns the amount of storage cells used by the account `account_id`.
 ///
-/// Returns `None` if the account is non-existent.
+/// Returns `None` if the `account_id` is non-existent.
 pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
 where
     T: Environment,
