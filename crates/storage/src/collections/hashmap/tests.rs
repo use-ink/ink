@@ -304,7 +304,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
             .copied()
             .collect::<StorageHashMap<u8, i32>>();
         push_hmap(&hmap1);
-        // Load the pushed storage vector into another instance and check that
+        // Load the pushed storage hmap into another instance and check that
         // both instances are equal:
         let hmap2 = pull_hmap();
         assert_eq!(hmap1, hmap2);
@@ -327,7 +327,7 @@ fn spread_layout_clear_works() {
         //
         // Now clear the associated storage from `hmap1` and check whether
         // loading another instance from this storage will panic since the
-        // vector's length property cannot read a value:
+        // hmap's length property cannot read a value:
         SpreadLayout::clear_spread(&hmap1, &mut KeyPtr::from(root_key));
         let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
