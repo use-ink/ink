@@ -417,10 +417,11 @@ fn storage_is_cleared_completely_after_pull_lazy() {
             ink_env::DefaultEnvironment,
         >()
         .expect("contract id must exist");
-        let storage_used =
-            ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(&contract_id)
-                .expect("used storage must be returned");
-        assert_eq!(storage_used, 0);
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
 
         Ok(())
     })
@@ -444,11 +445,15 @@ fn drop_works() {
         });
         assert!(setup_result.is_ok(), "setup should not panic");
 
-        let storage_used = ink_env::test::get_current_contract_storage_used::<
+        let contract_id = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()
-        .expect("used storage must be returned");
-        assert_eq!(storage_used, 0);
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
 
         let _ =
             <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
