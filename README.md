@@ -1,9 +1,8 @@
 <div align="center">
-    <img src="./.images/ink-logo-glow.svg" alt="ink!" height="136" />
-</div>
-<h1 align="center">
-    Parity's ink! for writing smart contracts
-</h1>
+	<img src="./.images/ink-logo-glow.svg" alt="ink!" height="136" />
+	<h1 align="center">
+			Parity's ink! for writing smart contracts
+	</h1>
 
 [![linux][a1]][a2] [![codecov][c1]][c2] [![coveralls][d1]][d2] [![loc][e1]][e2] [![matrix][k1]][k2] [![discord][l1]][l2]
 
@@ -29,6 +28,7 @@
 [l2]: https://discord.gg/ztCASQE
 
 > <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language. The compilation target are blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework.
+</div>
 
 <br/>
 
