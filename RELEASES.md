@@ -260,7 +260,7 @@ pub struct OptedOut {
 ```
 
 The the above example `a` and `b` are normal storage entities, however, `c` on the other hand side will never load from or store to contract storage and will always be reset to the default value of its `i32` type for every contract call.
-It can be accesses from all ink! messages or methods via `self.c` but will never manipulate the contract storage and thus acts wonderfully as some shared local information.
+It can be accessed from all ink! messages or methods via `self.c` but will never manipulate the contract storage and thus acts wonderfully as some shared local information.
 
 ### Dynamic Storage Allocator
 
