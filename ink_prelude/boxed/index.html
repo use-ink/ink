@@ -47,6 +47,12 @@ a <code>value: *mut T</code> that has been allocated with the <a href="https://d
 with <code>Layout::for_value(&amp;*value)</code> may be converted into a box using
 <a href="../../ink_prelude/boxed/struct.Box.html#method.from_raw"><code>Box::&lt;T&gt;::from_raw(value)</code></a>. Conversely, the memory backing a <code>value: *mut T</code> obtained from <a href="../../ink_prelude/boxed/struct.Box.html#method.into_raw"><code>Box::&lt;T&gt;::into_raw</code></a> may be deallocated using the
 <a href="https://doc.rust-lang.org/nightly/alloc/alloc/struct.Global.html"><code>Global</code></a> allocator with <a href="https://doc.rust-lang.org/nightly/core/alloc/layout/struct.Layout.html#method.for_value"><code>Layout::for_value(&amp;*value)</code></a>.</p>
+<p>For zero-sized values, the <code>Box</code> pointer still has to be <a href="https://doc.rust-lang.org/nightly/core/ptr/index.html#safety">valid</a> for reads
+and writes and sufficiently aligned. In particular, casting any aligned
+non-zero integer literal to a raw pointer produces a valid pointer, but a
+pointer pointing into previously allocated memory that since got freed is
+not valid. The recommended way to build a Box to a ZST if <code>Box::new</code> cannot
+be used is to use <a href="https://doc.rust-lang.org/nightly/core/ptr/non_null/struct.NonNull.html#method.dangling" title="ptr::NonNull::dangling"><code>ptr::NonNull::dangling</code></a>.</p>
 <p>So long as <code>T: Sized</code>, a <code>Box&lt;T&gt;</code> is guaranteed to be represented
 as a single pointer and is also ABI-compatible with C pointers
 (i.e. the C type <code>T*</code>). This means that if you have extern &quot;C&quot;
