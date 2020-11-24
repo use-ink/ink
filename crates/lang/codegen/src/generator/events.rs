@@ -237,15 +237,24 @@ impl<'a> Events<'a> {
                         .map(quote::ToTokens::into_token_stream)
                         .unwrap_or_else(|| quote_spanned!(span => #n));
                     let field_type = topic_field.ty();
+                    let signature = syn::LitByteStr::new(
+                        format!("{}::{}::{}", contract_ident, event_ident,
+                            field_ident
+                        ).as_bytes(), span);
+                    let len_signature = signature.value().len();
                     quote_spanned!(span =>
-                        .push_topic::<#field_type>(&self.#field_ident)
+                        .push_topic::<#field_type, [u8; #len_signature]>(&self.#field_ident, Some(#signature))
                     )
                 });
             // Only include topic for event signature in case of non-anonymous event.
             let event_signature_topic = match event.anonymous {
                 true => None,
+
+                // the second `u8` type for `push_topic` is not actually used, since we
+                // pass `None` for the salt. we just need to pass some dummy type here
+                // which implements `scale::Encode`.
                 false => Some(quote_spanned!(span=>
-                    .push_topic::<[u8; #len_event_signature]>(#event_signature)
+                    .push_topic::<[u8; #len_event_signature], _>(#event_signature, None)
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.

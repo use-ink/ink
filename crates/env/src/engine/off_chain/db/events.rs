@@ -40,11 +40,15 @@ where
 
     fn expect(&mut self, _expected_topics: usize) {}
 
-    fn push_topic<T>(&mut self, topic_value: &T)
+    fn push_topic<T, S>(&mut self, topic_value: &T, salt: Option<&S>)
     where
         T: scale::Encode,
+        S: scale::Encode,
     {
-        let encoded = topic_value.encode();
+        let mut encoded = topic_value.encode();
+        if let Some(salt) = salt {
+            encoded.extend(&salt.encode());
+        }
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
@@ -57,6 +61,10 @@ where
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
         let off_hash = OffHash::new(&result);
+        debug_assert!(
+            !self.topics.contains(&off_hash),
+            "duplicate topic hash discovered!"
+        );
         self.topics.push(off_hash);
     }
 

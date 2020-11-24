@@ -31,9 +31,12 @@ where
     fn expect(&mut self, expected_topics: usize);
 
     /// Pushes another topic for serialization to the backend.
-    fn push_topic<T>(&mut self, topic_value: &T)
+    ///
+    /// The `salt` is added to the value used for generating the topic hash.
+    fn push_topic<T, S>(&mut self, topic_value: &T, salt: Option<&S>)
     where
-        T: scale::Encode;
+        T: scale::Encode,
+        S: scale::Encode;
 
     /// Extracts the serialized topics.
     fn output(self) -> Self::Output;
@@ -103,14 +106,16 @@ where
     ///
     /// Returns a topics builder that expects one less event topic for serialization
     /// than before the call.
-    pub fn push_topic<T>(
+    pub fn push_topic<T, X>(
         mut self,
         value: &T,
+        salt: Option<&X>,
     ) -> TopicsBuilder<<S as SomeRemainingTopics>::Next, E, B>
     where
         T: scale::Encode,
+        X: scale::Encode,
     {
-        self.backend.push_topic(value);
+        self.backend.push_topic(value, salt);
         TopicsBuilder {
             backend: self.backend,
             state: Default::default(),

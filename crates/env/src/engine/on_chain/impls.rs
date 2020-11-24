@@ -138,12 +138,16 @@ where
             .append_encoded(&scale::Compact(expected_topics as u32));
     }
 
-    fn push_topic<T>(&mut self, topic_value: &T)
+    fn push_topic<T, S>(&mut self, topic_value: &T, salt: Option<&S>)
     where
         T: scale::Encode,
+        S: scale::Encode,
     {
         let mut split = self.scoped_buffer.split();
-        let encoded = split.take_encoded(topic_value);
+        let mut encoded = split.take_encoded(topic_value);
+        if let Some(salt) = salt {
+            encoded.push(salt);
+        }
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
@@ -155,6 +159,10 @@ where
             let copy_len = core::cmp::min(hash_output.len(), len_result);
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
+        debug_assert!(
+            !self.scoped_buffer.contains(&result),
+            "duplicate topic hash discovered!"
+        );
         self.scoped_buffer.append_encoded(&result);
     }
 
