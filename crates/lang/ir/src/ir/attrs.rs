@@ -98,7 +98,7 @@ impl Attrs for syn::Item {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
     /// The internal non-empty sequence of arguments of the ink! attribute.
-    args: Vec<AttributeArg>,
+    args: Vec<AttributeFrag>,
 }
 
 impl Spanned for InkAttribute {
@@ -139,11 +139,11 @@ impl InkAttribute {
     /// If the given iterator yields duplicate ink! attribute arguments.
     fn ensure_no_duplicate_args<'a, A>(args: A) -> Result<(), syn::Error>
     where
-        A: IntoIterator<Item = &'a ir::AttributeArg>,
+        A: IntoIterator<Item = &'a ir::AttributeFrag>,
     {
         use crate::error::ExtError as _;
         use std::collections::HashSet;
-        let mut seen: HashSet<&AttributeArg> = HashSet::new();
+        let mut seen: HashSet<&AttributeFrag> = HashSet::new();
         for arg in args.into_iter() {
             if let Some(seen) = seen.get(arg) {
                 return Err(format_err!(
@@ -192,7 +192,7 @@ impl InkAttribute {
     }
 
     /// Returns the first ink! attribute argument.
-    pub fn first(&self) -> &AttributeArg {
+    pub fn first(&self) -> &AttributeFrag {
         self.args
             .first()
             .expect("encountered invalid empty ink! attribute list")
@@ -203,7 +203,7 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> ::core::slice::Iter<AttributeArg> {
+    pub fn args(&self) -> ::core::slice::Iter<AttributeFrag> {
         self.args.iter()
     }
 
@@ -242,19 +242,19 @@ impl InkAttribute {
 
 /// An ink! specific attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AttributeArg {
+pub struct AttributeFrag {
     pub ast: syn::Meta,
     pub kind: AttributeArgKind,
 }
 
-impl AttributeArg {
+impl AttributeFrag {
     /// Returns a shared reference to the attribute argument kind.
     pub fn kind(&self) -> &AttributeArgKind {
         &self.kind
     }
 }
 
-impl Spanned for AttributeArg {
+impl Spanned for AttributeFrag {
     fn span(&self) -> Span {
         self.ast.span()
     }
@@ -542,7 +542,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                 let args = meta_list
                     .nested
                     .into_iter()
-                    .map(<AttributeArg as TryFrom<_>>::try_from)
+                    .map(<AttributeFrag as TryFrom<_>>::try_from)
                     .collect::<Result<Vec<_>, syn::Error>>()?;
                 Self::ensure_no_duplicate_args(&args)?;
                 if args.is_empty() {
@@ -568,7 +568,7 @@ impl InkAttribute {
         mut is_conflicting: P,
     ) -> Result<(), syn::Error>
     where
-        P: FnMut(&'a ir::AttributeArg) -> bool,
+        P: FnMut(&'a ir::AttributeFrag) -> bool,
     {
         for arg in self.args() {
             if is_conflicting(arg) {
@@ -595,7 +595,7 @@ fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
     )
 }
 
-impl TryFrom<syn::NestedMeta> for AttributeArg {
+impl TryFrom<syn::NestedMeta> for AttributeFrag {
     type Error = syn::Error;
 
     fn try_from(nested_meta: syn::NestedMeta) -> Result<Self, Self::Error> {
@@ -635,7 +635,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     u8::from_str_radix(&cap[4], 16)
                                         .map_err(|_| err_non_hex(&meta, 3))?,
                                 ];
-                                return Ok(AttributeArg {
+                                return Ok(AttributeFrag {
                                     ast: meta,
                                     kind: AttributeArgKind::Selector(
                                         Selector::new(selector_bytes),
@@ -647,7 +647,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let bytes = lit_str.value().into_bytes();
-                                return Ok(AttributeArg {
+                                return Ok(AttributeFrag {
                                     ast: meta,
                                     kind: AttributeArgKind::Namespace(
                                         Namespace::from(bytes),
@@ -664,7 +664,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                         "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
                                     ).into_combine(parse_err)
                                 })?;
-                                return Ok(AttributeArg {
+                                return Ok(AttributeFrag {
                                     ast: meta,
                                     kind: AttributeArgKind::Extension(
                                         Extension::new(id),
@@ -708,7 +708,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 }
                             });
                         if let Some(kind) = kind {
-                            return Ok(AttributeArg { ast: meta, kind })
+                            return Ok(AttributeFrag { ast: meta, kind })
                         }
                         Err(format_err_spanned!(
                             meta,
