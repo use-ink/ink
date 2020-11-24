@@ -85,7 +85,7 @@ impl TryFrom<syn::ItemStruct> for Storage {
         let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir::AttributeArg::Storage,
+            &ir::AttributeArgKind::Storage,
             |kind| !matches!(kind, ir::AttributeArg::Storage),
         )?;
         if !item_struct.generics.params.is_empty() {

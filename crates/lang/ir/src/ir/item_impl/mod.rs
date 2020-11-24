@@ -180,7 +180,7 @@ impl ItemImpl {
                     err.into_combine(format_err!(impl_block_span, "at this invocation",))
                 })?;
             if normalized
-                .ensure_first(&ir::AttributeArg::Implementation)
+                .ensure_first(&ir::AttributeArgKind::Implementation)
                 .is_ok()
             {
                 return Ok(true)

@@ -85,7 +85,7 @@ impl TryFrom<syn::ItemStruct> for Event {
         let (ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir::AttributeArg::Event,
+            &ir::AttributeArgKind::Event,
             |kind| !matches!(kind, ir::AttributeArg::Event | ir::AttributeArg::Anonymous),
         )?;
         if !item_struct.generics.params.is_empty() {

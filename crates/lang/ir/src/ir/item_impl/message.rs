@@ -179,7 +179,7 @@ impl Message {
         ir::sanitize_attributes(
             method_item.span(),
             method_item.attrs.clone(),
-            &ir::AttributeArg::Message,
+            &ir::AttributeArgKind::Message,
             |kind| {
                 !matches!(kind,
                     ir::AttributeArg::Message

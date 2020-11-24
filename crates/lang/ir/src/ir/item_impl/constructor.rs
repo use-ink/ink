@@ -152,7 +152,7 @@ impl Constructor {
         ir::sanitize_attributes(
             method_item.span(),
             method_item.attrs.clone(),
-            &ir::AttributeArg::Constructor,
+            &ir::AttributeArgKind::Constructor,
             |kind| {
                 !matches!(kind,
                     ir::AttributeArg::Constructor

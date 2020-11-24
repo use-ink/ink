@@ -253,7 +253,7 @@ impl ChainExtension {
         ir::sanitize_attributes(
             item_method.span(),
             item_method.attrs.clone(),
-            &ir::AttributeArg::Implementation, // TODO
+            &ir::AttributeArgKind::Extension,
             |c| !matches!(c, ir::AttributeArg::Constructor),
         )?;
         if let Some(receiver) = item_method.sig.receiver() {

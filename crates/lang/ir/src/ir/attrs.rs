@@ -127,8 +127,8 @@ impl InkAttribute {
     /// # Errors
     ///
     /// If the first ink! attribute argument is not of expected kind.
-    pub fn ensure_first(&self, expected: &AttributeArg) -> Result<(), syn::Error> {
-        if &self.first().arg != expected {
+    pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
+        if &self.first().arg.kind() != expected {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
@@ -527,7 +527,7 @@ where
 pub fn sanitize_attributes<I, C>(
     parent_span: Span,
     attrs: I,
-    is_valid_first: &ir::AttributeArg,
+    is_valid_first: &ir::AttributeArgKind,
     mut is_conflicting_attr: C,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where

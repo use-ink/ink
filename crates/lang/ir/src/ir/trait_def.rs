@@ -497,7 +497,7 @@ impl InkTrait {
         ir::sanitize_attributes(
             constructor.span(),
             constructor.attrs.clone(),
-            &ir::AttributeArg::Constructor,
+            &ir::AttributeArgKind::Constructor,
             |c| !matches!(c, ir::AttributeArg::Constructor),
         )?;
         if let Some(receiver) = constructor.sig.receiver() {
@@ -544,7 +544,7 @@ impl InkTrait {
         ir::sanitize_attributes(
             message.span(),
             message.attrs.clone(),
-            &ir::AttributeArg::Message,
+            &ir::AttributeArgKind::Message,
             |c| !matches!(c, ir::AttributeArg::Message),
         )?;
         match message.sig.receiver() {
