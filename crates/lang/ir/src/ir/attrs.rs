@@ -596,13 +596,26 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let regex = Regex::new(
-                                    r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
-                                ).map_err(|_| invalid_selector_err_regex(&meta))?;
+                                let regex = Regex::new(r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})")
+                                    .map_err(|_| {
+                                    invalid_selector_err_regex(&meta)
+                                })?;
                                 let str = lit_str.value();
-                                let cap = regex
-                                    .captures(&str)
-                                    .ok_or_else(|| invalid_selector_err_regex(&meta))?;
+                                let cap =
+                                    regex.captures(&str).ok_or_else(|| {
+                                        invalid_selector_err_regex(&meta)
+                                    })?;
+                                if !regex.is_match(&str) {
+                                    return Err(invalid_selector_err_regex(&meta))
+                                }
+                                let len_digits = (str.as_bytes().len() - 2) / 2;
+                                if len_digits != 4 {
+                                    return Err(format_err!(
+                                            name_value,
+                                            "expected 4-digit hexcode for `selector` argument, found {} digits",
+                                            len_digits,
+                                        ))
+                                }
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16)
                                         .map_err(|_| err_non_hex(&meta, 0))?,
@@ -620,6 +633,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     )),
                                 })
                             }
+                            return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
@@ -631,6 +645,7 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     )),
                                 })
                             }
+                            return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
                         }
                         Err(format_err_spanned!(
                             meta,
