@@ -24,6 +24,7 @@ mod item_impl;
 mod item_mod;
 mod selector;
 mod trait_def;
+mod chain_extension;
 pub mod utils;
 
 #[cfg(test)]
@@ -43,6 +44,7 @@ pub use self::{
     config::Config,
     contract::Contract,
     ink_test::InkTest,
+    chain_extension::Extension,
     item::{
         Event,
         InkItem,

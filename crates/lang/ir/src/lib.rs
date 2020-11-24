@@ -63,4 +63,5 @@ pub use self::ir::{
     Selector,
     Storage,
     Visibility,
+    Extension,
 };

@@ -14,6 +14,7 @@
 
 extern crate proc_macro;
 
+mod chain_extension;
 mod contract;
 mod ink_test;
 mod trait_def;
@@ -630,6 +631,11 @@ pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
     ink_test::generate(attr.into(), item.into()).into()
+}
+
+#[proc_macro_attribute]
+pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
+    chain_extension::generate(attr.into(), item.into()).into()
 }
 
 #[cfg(test)]
