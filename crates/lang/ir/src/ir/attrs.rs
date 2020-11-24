@@ -120,7 +120,7 @@ impl InkAttribute {
     /// If the first ink! attribute argument is not of expected kind.
     pub fn ensure_first(
         &self,
-        expected: &AttributeArgKind,
+        expected: &AttributeArg,
     ) -> Result<(), syn::Error> {
         if &self.first().arg != expected {
             return Err(format_err!(
@@ -210,7 +210,7 @@ impl InkAttribute {
     /// Returns the namespace of the ink! attribute if any.
     pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArgKind::Namespace(namespace) = arg.kind() {
+            if let ir::AttributeArg::Namespace(namespace) = arg.kind() {
                 return Some(namespace.clone())
             }
             None
@@ -220,7 +220,7 @@ impl InkAttribute {
     /// Returns the selector of the ink! attribute if any.
     pub fn selector(&self) -> Option<ir::Selector> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArgKind::Selector(selector) = arg.kind() {
+            if let ir::AttributeArg::Selector(selector) = arg.kind() {
                 return Some(*selector)
             }
             None
@@ -230,13 +230,13 @@ impl InkAttribute {
     /// Returns `true` if the ink! attribute contains the `payable` argument.
     pub fn is_payable(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
+            .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
     }
 
     /// Returns `true` if the ink! attribute contains the `anonymous` argument.
     pub fn is_anonymous(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArgKind::Anonymous))
+            .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 }
 
@@ -244,12 +244,12 @@ impl InkAttribute {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeFrag {
     pub ast: syn::Meta,
-    pub arg: AttributeArgKind,
+    pub arg: AttributeArg,
 }
 
 impl AttributeFrag {
     /// Returns a shared reference to the attribute argument kind.
-    pub fn kind(&self) -> &AttributeArgKind {
+    pub fn kind(&self) -> &AttributeArg {
         &self.arg
     }
 }
@@ -260,9 +260,36 @@ impl Spanned for AttributeFrag {
     }
 }
 
-/// An ink! specific attribute flag.
+/// The kind of an ink! attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AttributeArgKind {
+    /// `#[ink(storage)]`
+    Storage,
+    /// `#[ink(event)]`
+    Event,
+    /// `#[ink(anonymous)]`
+    Anonymous,
+    /// `#[ink(topic)]`
+    Topic,
+    /// `#[ink(message)]`
+    Message,
+    /// `#[ink(constructor)]`
+    Constructor,
+    /// `#[ink(payable)]`
+    Payable,
+    /// `#[ink(selector = "0xDEADBEEF")]`
+    Selector,
+    /// `#[ink(extension = N: usize)]`
+    Extension,
+    /// `#[ink(namespace = "my_namespace")]`
+    Namespace,
+    /// `#[ink(impl)]`
+    Implementation,
+}
+
+/// An ink! specific attribute flag.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum AttributeArg {
     /// `#[ink(storage)]`
     ///
     /// Applied on `struct` types in order to flag them for being the
@@ -328,7 +355,26 @@ pub enum AttributeArgKind {
     Implementation,
 }
 
-impl core::fmt::Display for AttributeArgKind {
+impl AttributeArg {
+    /// Returns the kind of the ink! attribute argument.
+    pub fn kind(&self) -> AttributeArgKind {
+        match self {
+            Self::Storage => AttributeArgKind::Storage,
+            Self::Event => AttributeArgKind::Event,
+            Self::Anonymous => AttributeArgKind::Anonymous,
+            Self::Topic => AttributeArgKind::Topic,
+            Self::Message => AttributeArgKind::Message,
+            Self::Constructor => AttributeArgKind::Constructor,
+            Self::Payable => AttributeArgKind::Payable,
+            Self::Selector(_) => AttributeArgKind::Selector,
+            Self::Extension(_) => AttributeArgKind::Extension,
+            Self::Namespace(_) => AttributeArgKind::Namespace,
+            Self::Implementation => AttributeArgKind::Implementation,
+        }
+    }
+}
+
+impl core::fmt::Display for AttributeArg {
     fn fmt(
         &self,
         f: &mut core::fmt::Formatter,
@@ -454,12 +500,12 @@ where
 pub fn sanitize_attributes<I, C>(
     parent_span: Span,
     attrs: I,
-    is_valid_first: &ir::AttributeArgKind,
+    is_valid_first: &ir::AttributeArg,
     mut is_conflicting_attr: C,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
-    C: FnMut(&AttributeArgKind) -> bool,
+    C: FnMut(&AttributeArg) -> bool,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized =
@@ -615,7 +661,9 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                         invalid_selector_err_regex(&meta)
                                     })?;
                                 if !regex.is_match(&str) {
-                                    return Err(invalid_selector_err_regex(&meta))
+                                    return Err(invalid_selector_err_regex(
+                                        &meta,
+                                    ))
                                 }
                                 let len_digits = (str.as_bytes().len() - 2) / 2;
                                 if len_digits != 4 {
@@ -637,9 +685,9 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 ];
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArgKind::Selector(
-                                        Selector::new(selector_bytes),
-                                    ),
+                                    arg: AttributeArg::Selector(Selector::new(
+                                        selector_bytes,
+                                    )),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
@@ -649,7 +697,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let bytes = lit_str.value().into_bytes();
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArgKind::Namespace(
+                                    arg: AttributeArg::Namespace(
                                         Namespace::from(bytes),
                                     ),
                                 })
@@ -666,7 +714,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 })?;
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArgKind::Extension(
+                                    arg: AttributeArg::Extension(
                                         Extension::new(id),
                                     ),
                                 })
@@ -679,36 +727,33 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                         ))
                     }
                     syn::Meta::Path(path) => {
-                        let kind: Option<AttributeArgKind> = path
+                        let kind: Option<AttributeArg> = path
                             .get_ident()
                             .map(Ident::to_string)
                             .and_then(|ident| {
                                 match ident.as_str() {
-                                    "storage" => {
-                                        Some(AttributeArgKind::Storage)
-                                    }
-                                    "message" => {
-                                        Some(AttributeArgKind::Message)
-                                    }
+                                    "storage" => Some(AttributeArg::Storage),
+                                    "message" => Some(AttributeArg::Message),
                                     "constructor" => {
-                                        Some(AttributeArgKind::Constructor)
+                                        Some(AttributeArg::Constructor)
                                     }
-                                    "event" => Some(AttributeArgKind::Event),
+                                    "event" => Some(AttributeArg::Event),
                                     "anonymous" => {
-                                        Some(AttributeArgKind::Anonymous)
+                                        Some(AttributeArg::Anonymous)
                                     }
-                                    "topic" => Some(AttributeArgKind::Topic),
-                                    "payable" => {
-                                        Some(AttributeArgKind::Payable)
-                                    }
+                                    "topic" => Some(AttributeArg::Topic),
+                                    "payable" => Some(AttributeArg::Payable),
                                     "impl" => {
-                                        Some(AttributeArgKind::Implementation)
+                                        Some(AttributeArg::Implementation)
                                     }
                                     _ => None,
                                 }
                             });
                         if let Some(kind) = kind {
-                            return Ok(AttributeFrag { ast: meta, arg: kind })
+                            return Ok(AttributeFrag {
+                                ast: meta,
+                                arg: kind,
+                            })
                         }
                         Err(format_err_spanned!(
                             meta,
@@ -761,7 +806,7 @@ mod tests {
     /// Can be used to assert against the success and failure path.
     fn assert_first_ink_attribute(
         input: &[syn::Attribute],
-        expected: Result<Option<Vec<ir::AttributeArgKind>>, &'static str>,
+        expected: Result<Option<Vec<ir::AttributeArg>>, &'static str>,
     ) {
         assert_eq!(
             first_ink_attribute(input)
@@ -783,7 +828,7 @@ mod tests {
         assert_first_ink_attribute(&[], Ok(None));
         assert_first_ink_attribute(
             &[syn::parse_quote! { #[ink(storage)] }],
-            Ok(Some(vec![AttributeArgKind::Storage])),
+            Ok(Some(vec![AttributeArg::Storage])),
         );
         assert_first_ink_attribute(
             &[syn::parse_quote! { #[ink(invalid)] }],
@@ -797,7 +842,7 @@ mod tests {
         /// Mock for `ir::Attribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub enum Attribute {
-            Ink(Vec<ir::AttributeArgKind>),
+            Ink(Vec<ir::AttributeArg>),
             Other(syn::Attribute),
         }
 
@@ -827,7 +872,7 @@ mod tests {
         /// Mock for `ir::InkAttribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub struct InkAttribute {
-            args: Vec<ir::AttributeArgKind>,
+            args: Vec<ir::AttributeArg>,
         }
 
         impl From<ir::InkAttribute> for InkAttribute {
@@ -844,7 +889,7 @@ mod tests {
 
         impl<I> From<I> for InkAttribute
         where
-            I: IntoIterator<Item = ir::AttributeArgKind>,
+            I: IntoIterator<Item = ir::AttributeArg>,
         {
             fn from(args: I) -> Self {
                 Self {
@@ -874,7 +919,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(storage)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Storage])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::Storage])),
         );
     }
 
@@ -886,7 +931,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(impl)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Implementation])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::Implementation])),
         );
     }
 
@@ -896,7 +941,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = "0xDEADBEEF")]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Selector(
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
                 Selector::new([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
@@ -938,7 +983,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = "my_namespace")]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Namespace(
+            Ok(test::Attribute::Ink(vec![AttributeArg::Namespace(
                 Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
         );
@@ -960,7 +1005,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = 42)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Extension(
+            Ok(test::Attribute::Ink(vec![AttributeArg::Extension(
                 Extension::new(42),
             )])),
         );
@@ -1004,8 +1049,8 @@ mod tests {
                 #[ink(message, namespace = "my_namespace")]
             },
             Ok(test::Attribute::Ink(vec![
-                AttributeArgKind::Message,
-                AttributeArgKind::Namespace(Namespace::from(
+                AttributeArg::Message,
+                AttributeArg::Namespace(Namespace::from(
                     "my_namespace".to_string().into_bytes(),
                 )),
             ])),
@@ -1027,13 +1072,13 @@ mod tests {
                 )]
             },
             Ok(test::Attribute::Ink(vec![
-                AttributeArgKind::Storage,
-                AttributeArgKind::Message,
-                AttributeArgKind::Constructor,
-                AttributeArgKind::Event,
-                AttributeArgKind::Topic,
-                AttributeArgKind::Payable,
-                AttributeArgKind::Implementation,
+                AttributeArg::Storage,
+                AttributeArg::Message,
+                AttributeArg::Constructor,
+                AttributeArg::Event,
+                AttributeArg::Topic,
+                AttributeArg::Payable,
+                AttributeArg::Implementation,
             ])),
         );
     }
@@ -1109,7 +1154,7 @@ mod tests {
                 syn::parse_quote! { #[non_ink_attribute] },
             ],
             Ok((
-                vec![test::InkAttribute::from(vec![AttributeArgKind::Message])],
+                vec![test::InkAttribute::from(vec![AttributeArg::Message])],
                 vec![syn::parse_quote! { #[non_ink_attribute] }],
             )),
         )

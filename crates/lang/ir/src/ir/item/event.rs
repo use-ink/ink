@@ -73,7 +73,7 @@ impl Event {
         // an ink! event or an invalid ink! attribute.
         let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        Ok(matches!(attr.first().kind(), ir::AttributeArgKind::Event))
+        Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
     }
 }
 
@@ -85,11 +85,11 @@ impl TryFrom<syn::ItemStruct> for Event {
         let (ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir::AttributeArgKind::Event,
+            &ir::AttributeArg::Event,
             |kind| {
                 !matches!(
                     kind,
-                    ir::AttributeArgKind::Event | ir::AttributeArgKind::Anonymous
+                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous
                 )
             },
         )?;
@@ -110,14 +110,14 @@ impl TryFrom<syn::ItemStruct> for Event {
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
                     err.into_combine(format_err!(field_span, "at this invocation",))
                 })?;
-            if !matches!(normalized.first().kind(), ir::AttributeArgKind::Topic) {
+            if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
                 return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
                 ))
             }
             for arg in normalized.args() {
-                if !matches!(arg.kind(), ir::AttributeArgKind::Topic) {
+                if !matches!(arg.kind(), ir::AttributeArg::Topic) {
                     return Err(format_err!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
@@ -215,7 +215,7 @@ impl<'a> Iterator for EventFieldsIter<'a> {
                 let is_topic = ir::first_ink_attribute(&field.attrs)
                     .unwrap_or_default()
                     .map(|attr| {
-                        matches!(attr.first().kind(), ir::AttributeArgKind::Topic)
+                        matches!(attr.first().kind(), ir::AttributeArg::Topic)
                     })
                     .unwrap_or_default();
                 Some(EventField { is_topic, field })

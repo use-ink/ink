@@ -223,7 +223,7 @@ impl ChainExtension {
                 "generic ink! chain extension methods are not supported"
             ))
         }
-        if let Some(ir::AttributeArgKind::Extension(extension)) =
+        if let Some(ir::AttributeArg::Extension(extension)) =
             ir::first_ink_attribute(&method.attrs)?
                 .map(|attr| attr.first().kind().clone())
         {
@@ -249,8 +249,8 @@ impl ChainExtension {
         ir::sanitize_attributes(
             item_method.span(),
             item_method.attrs.clone(),
-            &ir::AttributeArgKind::Implementation, // TODO
-            |c| !matches!(c, ir::AttributeArgKind::Constructor),
+            &ir::AttributeArg::Implementation, // TODO
+            |c| !matches!(c, ir::AttributeArg::Constructor),
         )?;
         if let Some(receiver) = item_method.sig.receiver() {
             return Err(format_err_spanned!(

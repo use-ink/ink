@@ -73,7 +73,7 @@ impl Storage {
         // an ink! event or an invalid ink! attribute.
         let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        Ok(matches!(attr.first().kind(), ir::AttributeArgKind::Storage))
+        Ok(matches!(attr.first().kind(), ir::AttributeArg::Storage))
     }
 }
 
@@ -85,8 +85,8 @@ impl TryFrom<syn::ItemStruct> for Storage {
         let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
-            &ir::AttributeArgKind::Storage,
-            |kind| !matches!(kind, ir::AttributeArgKind::Storage),
+            &ir::AttributeArg::Storage,
+            |kind| !matches!(kind, ir::AttributeArg::Storage),
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(

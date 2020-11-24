@@ -36,7 +36,7 @@ use self::attrs::{
     partition_attributes,
     sanitize_attributes,
     AttributeFrag,
-    AttributeArgKind,
+    AttributeArg,
     InkAttribute,
 };
 pub use self::{
