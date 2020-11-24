@@ -122,7 +122,7 @@ impl InkAttribute {
         &self,
         expected: &AttributeArgKind,
     ) -> Result<(), syn::Error> {
-        if &self.first().kind != expected {
+        if &self.first().arg != expected {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
@@ -244,13 +244,13 @@ impl InkAttribute {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AttributeFrag {
     pub ast: syn::Meta,
-    pub kind: AttributeArgKind,
+    pub arg: AttributeArgKind,
 }
 
 impl AttributeFrag {
     /// Returns a shared reference to the attribute argument kind.
     pub fn kind(&self) -> &AttributeArgKind {
-        &self.kind
+        &self.arg
     }
 }
 
@@ -637,7 +637,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 ];
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    kind: AttributeArgKind::Selector(
+                                    arg: AttributeArgKind::Selector(
                                         Selector::new(selector_bytes),
                                     ),
                                 })
@@ -649,7 +649,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let bytes = lit_str.value().into_bytes();
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    kind: AttributeArgKind::Namespace(
+                                    arg: AttributeArgKind::Namespace(
                                         Namespace::from(bytes),
                                     ),
                                 })
@@ -666,7 +666,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 })?;
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    kind: AttributeArgKind::Extension(
+                                    arg: AttributeArgKind::Extension(
                                         Extension::new(id),
                                     ),
                                 })
@@ -708,7 +708,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 }
                             });
                         if let Some(kind) = kind {
-                            return Ok(AttributeFrag { ast: meta, kind })
+                            return Ok(AttributeFrag { ast: meta, arg: kind })
                         }
                         Err(format_err_spanned!(
                             meta,
@@ -769,7 +769,7 @@ mod tests {
                     maybe_attr.map(|attr: ir::InkAttribute| {
                         attr.args
                             .into_iter()
-                            .map(|arg| arg.kind)
+                            .map(|arg| arg.arg)
                             .collect::<Vec<_>>()
                     })
                 })
@@ -809,7 +809,7 @@ mod tests {
                             ink_attr
                                 .args
                                 .into_iter()
-                                .map(|arg| arg.kind)
+                                .map(|arg| arg.arg)
                                 .collect::<Vec<_>>(),
                         )
                     }
@@ -836,7 +836,7 @@ mod tests {
                     args: ink_attr
                         .args
                         .into_iter()
-                        .map(|arg| arg.kind)
+                        .map(|arg| arg.arg)
                         .collect::<Vec<_>>(),
                 }
             }
