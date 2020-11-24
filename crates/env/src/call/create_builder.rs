@@ -28,7 +28,7 @@ use crate::{
 };
 use core::marker::PhantomData;
 
-/// Contracts that can be contructed from an `AccountId`.
+/// Contracts that can be constructed from an `AccountId`.
 ///
 /// # Note
 ///
@@ -54,8 +54,10 @@ where
     gas_limit: u64,
     /// The endowment for the instantiated contract.
     endowment: E::Balance,
-    /// The input data for the instantation.
+    /// The input data for the instantiation.
     exec_input: ExecutionInput<Args>,
+    /// The salt for determining the hash for the contract account ID.
+    salt: Vec<u8>,
     /// The type of the instantiated contract.
     return_type: ReturnType<R>,
 }
@@ -86,6 +88,12 @@ where
     #[inline]
     pub(crate) fn endowment(&self) -> &E::Balance {
         &self.endowment
+    }
+
+    /// The salt for determining the hash for the contract account ID.
+    #[inline]
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+        &self.exec_input
     }
 
     /// The raw encoded input data.
