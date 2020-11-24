@@ -647,6 +647,23 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                             }
                             return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
                         }
+                        if name_value.path.is_ident("extension") {
+                            if let syn::Lit::Int(lit_int) = &name_value.lit {
+                                let id = lit_int.base10_parse::<u32>().map_err(|parse_err| {
+                                    format_err!(
+                                        name_value,
+                                        "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+                                    ).into_combine(parse_err)
+                                })?;
+                                return Ok(AttributeArg {
+                                    ast: meta,
+                                    kind: AttributeArgKind::Extension(
+                                        Extension::new(id),
+                                    ),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `u32` integer type for `N` in #[ink(extension = N)]"))
+                        }
                         Err(format_err_spanned!(
                             meta,
                             "unknown ink! attribute argument (name = value)",
@@ -908,6 +925,49 @@ mod tests {
                 #[ink(namespace = 42)]
             },
             Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+        );
+    }
+
+    #[test]
+    fn extension_works() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArgKind::Extension(
+                Extension::new(42),
+            )])),
+        );
+    }
+
+    #[test]
+    fn extension_invalid_value_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = "string")]
+            },
+            Err("expecteded `u32` integer type for `N` in #[ink(extension = N)]"),
+        );
+    }
+
+    #[test]
+    fn extension_negative_integer() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = -1)]
+            },
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer"),
+        );
+    }
+
+    #[test]
+    fn extension_too_big_integer() {
+        let max_u32_plus_1 = (u32::MAX as u64) + 1;
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = #max_u32_plus_1)]
+            },
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer"),
         );
     }
 
