@@ -86,12 +86,7 @@ impl TryFrom<syn::ItemStruct> for Event {
             struct_span,
             item_struct.attrs,
             &ir::AttributeArg::Event,
-            |kind| {
-                !matches!(
-                    kind,
-                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous
-                )
-            },
+            |kind| !matches!(kind, ir::AttributeArg::Event | ir::AttributeArg::Anonymous),
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(
@@ -214,9 +209,7 @@ impl<'a> Iterator for EventFieldsIter<'a> {
             Some(field) => {
                 let is_topic = ir::first_ink_attribute(&field.attrs)
                     .unwrap_or_default()
-                    .map(|attr| {
-                        matches!(attr.first().kind(), ir::AttributeArg::Topic)
-                    })
+                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
                     .unwrap_or_default();
                 Some(EventField { is_topic, field })
             }

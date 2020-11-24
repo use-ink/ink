@@ -15,6 +15,7 @@
 #![allow(dead_code)]
 
 mod attrs;
+mod chain_extension;
 mod config;
 mod contract;
 mod idents_lint;
@@ -24,7 +25,6 @@ mod item_impl;
 mod item_mod;
 mod selector;
 mod trait_def;
-mod chain_extension;
 pub mod utils;
 
 #[cfg(test)]
@@ -35,16 +35,16 @@ use self::attrs::{
     first_ink_attribute,
     partition_attributes,
     sanitize_attributes,
-    AttributeFrag,
     AttributeArg,
+    AttributeFrag,
     InkAttribute,
 };
 pub use self::{
     attrs::Namespace,
+    chain_extension::Extension,
     config::Config,
     contract::Contract,
     ink_test::InkTest,
-    chain_extension::Extension,
     item::{
         Event,
         InkItem,

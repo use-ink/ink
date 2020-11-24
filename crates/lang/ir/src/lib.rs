@@ -41,6 +41,7 @@ pub use self::ir::{
     Constructor,
     Contract,
     Event,
+    Extension,
     ImplItem,
     InkItem,
     InkTest,
@@ -63,5 +64,4 @@ pub use self::ir::{
     Selector,
     Storage,
     Visibility,
-    Extension,
 };

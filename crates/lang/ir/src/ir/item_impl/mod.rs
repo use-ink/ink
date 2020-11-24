@@ -197,8 +197,9 @@ impl ItemImpl {
                     let attr = ir::first_ink_attribute(&method_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
-                        ir::AttributeArg::Constructor
-                        | ir::AttributeArg::Message => return Ok(true),
+                        ir::AttributeArg::Constructor | ir::AttributeArg::Message => {
+                            return Ok(true)
+                        }
                         _ => continue 'repeat,
                     }
                 }
