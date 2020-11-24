@@ -15,7 +15,7 @@
 use crate::{
     error::ExtError as _,
     ir,
-    ir::Selector,
+    ir::{Extension, Selector},
 };
 use core::{
     convert::TryFrom,
@@ -307,6 +307,11 @@ pub enum AttributeArgKind {
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
     Selector(Selector),
+    /// `#[ink(extension = N: usize)]`
+    ///
+    /// Applies on ink! chain extension method to set their `func_id` parameter.
+    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    Extension(Extension),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -337,6 +342,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
+            Self::Extension(extension) => {
+                write!(f, "extension = {:?}", extension.id())
+            }
             Self::Namespace(namespace) => {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
@@ -837,6 +845,36 @@ mod tests {
     }
 
     #[test]
+    fn selector_non_hexcode() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = "0xhelloworld")]
+            },
+            Err("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"),
+        );
+    }
+
+    #[test]
+    fn selector_too_long() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = "0xDEADBEEFC0FEBABE")]
+            },
+            Err("expected 4-digit hexcode for `selector` argument, found 8 digits"),
+        );
+    }
+
+    #[test]
+    fn selector_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = 42)]
+            },
+            Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
+        );
+    }
+
+    #[test]
     fn namespace_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
@@ -845,6 +883,16 @@ mod tests {
             Ok(test::Attribute::Ink(vec![AttributeArgKind::Namespace(
                 Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
+        );
+    }
+
+    #[test]
+    fn namespace_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace = 42)]
+            },
+            Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
         );
     }
 
