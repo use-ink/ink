@@ -361,6 +361,30 @@ pub enum AttributeArg {
     Implementation,
 }
 
+impl core::fmt::Display for AttributeArgKind {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+        match self {
+            Self::Storage => write!(f, "storage"),
+            Self::Event => write!(f, "event"),
+            Self::Anonymous => write!(f, "anonymous"),
+            Self::Topic => write!(f, "topic"),
+            Self::Message => write!(f, "message"),
+            Self::Constructor => write!(f, "constructor"),
+            Self::Payable => write!(f, "payable"),
+            Self::Selector => {
+                write!(f, "selector = S:[u8; 4]")
+            }
+            Self::Extension => {
+                write!(f, "extension = N:u32)")
+            }
+            Self::Namespace => {
+                write!(f, "namespace = N:string")
+            }
+            Self::Implementation => write!(f, "impl"),
+        }
+    }
+}
+
 impl AttributeArg {
     /// Returns the kind of the ink! attribute argument.
     pub fn kind(&self) -> AttributeArgKind {
