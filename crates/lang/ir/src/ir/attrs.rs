@@ -17,14 +17,8 @@ use crate::{
     ir,
     ir::{Extension, Selector},
 };
-use core::{
-    convert::TryFrom,
-    result::Result,
-};
-use proc_macro2::{
-    Ident,
-    Span,
-};
+use core::{convert::TryFrom, result::Result};
+use proc_macro2::{Ident, Span};
 use regex::Regex;
 use syn::spanned::Spanned;
 
@@ -124,7 +118,10 @@ impl InkAttribute {
     /// # Errors
     ///
     /// If the first ink! attribute argument is not of expected kind.
-    pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
+    pub fn ensure_first(
+        &self,
+        expected: &AttributeArgKind,
+    ) -> Result<(), syn::Error> {
         if &self.first().kind != expected {
             return Err(format_err!(
                 self.span(),
@@ -332,7 +329,10 @@ pub enum AttributeArgKind {
 }
 
 impl core::fmt::Display for AttributeArgKind {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+    fn fmt(
+        &self,
+        f: &mut core::fmt::Formatter,
+    ) -> Result<(), core::fmt::Error> {
         match self {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
@@ -341,7 +341,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
+            Self::Selector(selector) => {
+                write!(f, "selector = {:?}", selector.as_bytes())
+            }
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.id())
             }
@@ -460,9 +462,10 @@ where
     C: FnMut(&AttributeArgKind) -> bool,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
-    let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-        err.into_combine(format_err!(parent_span, "at this invocation",))
-    })?;
+    let normalized =
+        ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+            err.into_combine(format_err!(parent_span, "at this invocation",))
+        })?;
     normalized.ensure_first(is_valid_first).map_err(|err| {
         err.into_combine(format_err!(
             parent_span,
@@ -494,7 +497,10 @@ impl Attribute {
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
+                .into_combine(format_err!(
+                    seen.span(),
+                    "first ink! attribute here"
+                )))
             }
             seen.insert(attr);
         }
@@ -524,7 +530,10 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path.is_ident("ink") {
-            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
+            return Err(format_err_spanned!(
+                attr,
+                "unexpected non-ink! attribute"
+            ))
         }
         match attr.parse_meta().map_err(|_| {
             format_err_spanned!(attr, "unexpected ink! attribute structure")
@@ -628,9 +637,9 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 ];
                                 return Ok(AttributeArg {
                                     ast: meta,
-                                    kind: AttributeArgKind::Selector(Selector::new(
-                                        selector_bytes,
-                                    )),
+                                    kind: AttributeArgKind::Selector(
+                                        Selector::new(selector_bytes),
+                                    ),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
@@ -640,9 +649,9 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                 let bytes = lit_str.value().into_bytes();
                                 return Ok(AttributeArg {
                                     ast: meta,
-                                    kind: AttributeArgKind::Namespace(Namespace::from(
-                                        bytes,
-                                    )),
+                                    kind: AttributeArgKind::Namespace(
+                                        Namespace::from(bytes),
+                                    ),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
@@ -670,24 +679,41 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                         ))
                     }
                     syn::Meta::Path(path) => {
-                        let kind: Option<AttributeArgKind> =
-                            path.get_ident().map(Ident::to_string).and_then(|ident| {
+                        let kind: Option<AttributeArgKind> = path
+                            .get_ident()
+                            .map(Ident::to_string)
+                            .and_then(|ident| {
                                 match ident.as_str() {
-                                    "storage" => Some(AttributeArgKind::Storage),
-                                    "message" => Some(AttributeArgKind::Message),
-                                    "constructor" => Some(AttributeArgKind::Constructor),
+                                    "storage" => {
+                                        Some(AttributeArgKind::Storage)
+                                    }
+                                    "message" => {
+                                        Some(AttributeArgKind::Message)
+                                    }
+                                    "constructor" => {
+                                        Some(AttributeArgKind::Constructor)
+                                    }
                                     "event" => Some(AttributeArgKind::Event),
-                                    "anonymous" => Some(AttributeArgKind::Anonymous),
+                                    "anonymous" => {
+                                        Some(AttributeArgKind::Anonymous)
+                                    }
                                     "topic" => Some(AttributeArgKind::Topic),
-                                    "payable" => Some(AttributeArgKind::Payable),
-                                    "impl" => Some(AttributeArgKind::Implementation),
+                                    "payable" => {
+                                        Some(AttributeArgKind::Payable)
+                                    }
+                                    "impl" => {
+                                        Some(AttributeArgKind::Implementation)
+                                    }
                                     _ => None,
                                 }
                             });
                         if let Some(kind) = kind {
                             return Ok(AttributeArg { ast: meta, kind })
                         }
-                        Err(format_err_spanned!(meta, "unknown ink! attribute (path)"))
+                        Err(format_err_spanned!(
+                            meta,
+                            "unknown ink! attribute (path)"
+                        ))
                     }
                     syn::Meta::List(_) => {
                         Err(format_err_spanned!(
@@ -1017,7 +1043,10 @@ mod tests {
         let attr: syn::Attribute = syn::parse_quote! {
             #[non_ink(message)]
         };
-        assert_attribute_try_from(attr.clone(), Ok(test::Attribute::Other(attr)));
+        assert_attribute_try_from(
+            attr.clone(),
+            Ok(test::Attribute::Other(attr)),
+        );
     }
 
     #[test]
@@ -1051,7 +1080,10 @@ mod tests {
     /// or that the expected error is returned.
     fn assert_parition_attributes(
         input: Vec<syn::Attribute>,
-        expected: Result<(Vec<test::InkAttribute>, Vec<syn::Attribute>), &'static str>,
+        expected: Result<
+            (Vec<test::InkAttribute>, Vec<syn::Attribute>),
+            &'static str,
+        >,
     ) {
         assert_eq!(
             partition_attributes(input)
