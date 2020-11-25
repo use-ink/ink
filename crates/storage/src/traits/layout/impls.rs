@@ -202,39 +202,3 @@ where
         )))
     }
 }
-
-// impl<T> StorageLayout for BinaryHeap<T>
-// where
-//     T: TypeInfo + 'static,
-// {
-//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
-//     }
-// }
-
-// impl<T> StorageLayout for BTreeSet<T>
-// where
-//     T: TypeInfo + 'static,
-// {
-//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
-//     }
-// }
-
-// impl<T> StorageLayout for VecDeque<T>
-// where
-//     T: TypeInfo + 'static,
-// {
-//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
-//     }
-// }
-
-// impl<T> StorageLayout for LinkedList<T>
-// where
-//     T: TypeInfo + 'static,
-// {
-//     fn layout(key_ptr: &mut KeyPtr) -> Layout {
-//         Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(key_ptr.advance_by(1))))
-//     }
-// }
