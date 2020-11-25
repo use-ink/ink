@@ -431,7 +431,7 @@ mod erc721 {
     }
 
     /// Increase token counter from the `of` AccountId.
-    fn increase_counter_of(entry: Entry<AccountId, u32>) -> () {
+    fn increase_counter_of(entry: Entry<AccountId, u32>) {
         entry.and_modify(|v| *v += 1).or_insert(1);
     }
 
