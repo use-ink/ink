@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use scale;
+
 /// Implemented by contracts in order to override `env().emit_event(..)`
 /// syntax for emitting of ink! contract events.
 ///
@@ -36,4 +38,25 @@ where
 pub trait BaseEvent {
     /// The generated base event enum.
     type Type;
+}
+
+pub struct PrefixedValue<'a, 'b, T> {
+    pub prefix: &'a [u8],
+    pub value: &'b T,
+}
+
+impl<X> scale::Encode for PrefixedValue<'_, '_, X>
+where
+    X: scale::Encode,
+{
+    #[inline(always)]
+    fn size_hint(&self) -> usize {
+        self.prefix.encode().len() + self.value.encode().len()
+    }
+
+    #[inline]
+    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+        dest.write(self.prefix.encode().as_slice());
+        dest.write(self.value.encode().as_slice());
+    }
 }

@@ -40,15 +40,11 @@ where
 
     fn expect(&mut self, _expected_topics: usize) {}
 
-    fn push_topic<T, S>(&mut self, topic_value: &T, salt: Option<&S>)
+    fn push_topic<T>(&mut self, topic_value: &T)
     where
         T: scale::Encode,
-        S: scale::Encode,
     {
-        let mut encoded = topic_value.encode();
-        if let Some(salt) = salt {
-            encoded.extend(&salt.encode());
-        }
+        let encoded = topic_value.encode();
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
