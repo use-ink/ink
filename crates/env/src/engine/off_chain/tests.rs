@@ -49,19 +49,23 @@ fn key_add() -> Result<()> {
 #[test]
 fn key_add_sub() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
+        // given
         let key0a = Key::from([0x0; 32]);
         let key1a = key0a + 1337_u64;
         let key2a = key0a + 42_u64;
-         let key3a = key0a + 52_u64;
-         let key2b = key3a - 10_u64;
-         let key1b = key2b - 42_u64;
-         let key0b = key1b + 2000_u64 - 663_u64; // same as key1a
+        let key3a = key0a + 52_u64;
+
+        // when
         crate::set_contract_storage(&key0a, &1);
         crate::set_contract_storage(&key1a, &2);
         crate::set_contract_storage(&key2a, &3);
-         assert_eq!(crate::get_contract_storage::<i32>(&key2b), Some(Ok(3)));
-         assert_eq!(crate::get_contract_storage::<i32>(&key1b), Some(Ok(1)));
-         assert_eq!(crate::get_contract_storage::<i32>(&key0b), Some(Ok(2)));
+        crate::set_contract_storage(&key3a, &4);
+
+        // then
+        assert_eq!(crate::get_contract_storage::<i32>(&key0a), Ok(Some(1)));
+        assert_eq!(crate::get_contract_storage::<i32>(&key1a), Ok(Some(2)));
+        assert_eq!(crate::get_contract_storage::<i32>(&key2a), Ok(Some(3)));
+        assert_eq!(crate::get_contract_storage::<i32>(&key3a), Ok(Some(4)));
         Ok(())
     })
 }
