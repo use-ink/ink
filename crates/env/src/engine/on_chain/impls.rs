@@ -143,7 +143,7 @@ where
         T: scale::Encode,
     {
         let mut split = self.scoped_buffer.split();
-        split.take_encoded(topic_value);
+        let encoded = split.take_encoded(topic_value);
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
