@@ -159,10 +159,6 @@ where
             let copy_len = core::cmp::min(hash_output.len(), len_result);
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
-        debug_assert!(
-            !self.scoped_buffer.contains(&result),
-            "duplicate topic hash discovered!"
-        );
         self.scoped_buffer.append_encoded(&result);
     }
 
