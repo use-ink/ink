@@ -163,10 +163,7 @@ where
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
                 assert!(
                     footprint <= crate::traits::MAX_FOOTPRINT,
-                    format!(
-                        "The footprint is limited to {}.",
-                        crate::traits::MAX_FOOTPRINT
-                    )
+                    "The footprint limit is violated for this type!"
                 );
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
