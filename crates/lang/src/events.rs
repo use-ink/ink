@@ -56,7 +56,7 @@ where
 
     #[inline]
     fn encode_to<T: scale::Output>(&self, dest: &mut T) {
-        dest.write(self.prefix.encode().as_slice());
-        dest.write(self.value.encode().as_slice());
+        dest.write(self.prefix.encode_to(dest));
+        dest.write(self.value.encode_to(dest));
     }
 }
