@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use scale;
-
 /// Implemented by contracts in order to override `env().emit_event(..)`
 /// syntax for emitting of ink! contract events.
 ///
@@ -51,12 +49,12 @@ where
 {
     #[inline(always)]
     fn size_hint(&self) -> usize {
-        self.prefix.encode().len() + self.value.encode().len()
+        self.prefix.size_hint() + self.value.size_hint()
     }
 
     #[inline]
     fn encode_to<T: scale::Output>(&self, dest: &mut T) {
-        dest.write(self.prefix.encode_to(dest));
-        dest.write(self.value.encode_to(dest));
+        self.prefix.encode_to(dest);
+        self.value.encode_to(dest);
     }
 }
