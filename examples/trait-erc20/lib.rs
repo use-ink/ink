@@ -308,10 +308,22 @@ mod erc20 {
                 result
             }
             let expected_topics = vec![
-                encoded_into_hash(b"Erc20::Transfer"),
-                encoded_into_hash(&expected_from),
-                encoded_into_hash(&expected_to),
-                encoded_into_hash(&expected_value),
+                encoded_into_hash(&ink::PrefixedValue {
+                    prefix: b"",
+                    value: b"Erc20::Transfer",
+                }),
+                encoded_into_hash(&ink::PrefixedValue {
+                    prefix: b"Erc20::Transfer::from",
+                    value: &expected_from,
+                }),
+                encoded_into_hash(&ink::PrefixedValue {
+                    prefix: b"Erc20::Transfer::to",
+                    value: &expected_to,
+                }),
+                encoded_into_hash(&ink::PrefixedValue {
+                    prefix: b"Erc20::Transfer::value",
+                    value: &expected_value,
+                }),
             ];
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
