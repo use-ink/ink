@@ -144,10 +144,10 @@ where
         S: scale::Encode,
     {
         let mut split = self.scoped_buffer.split();
-        let mut encoded = split.take_encoded(topic_value);
-        if let Some(salt) = salt {
-            encoded.push(salt);
-        }
+        let encoded = match salt {
+            Some(salt) => split.take_encoded(&(topic_value, salt)),
+            None => split.take_encoded(topic_value),
+        };
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
