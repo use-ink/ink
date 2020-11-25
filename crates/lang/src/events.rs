@@ -47,7 +47,7 @@ impl<X> scale::Encode for PrefixedValue<'_, '_, X>
 where
     X: scale::Encode,
 {
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> usize {
         self.prefix.size_hint() + self.value.size_hint()
     }
