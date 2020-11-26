@@ -38,6 +38,7 @@ pub trait BaseEvent {
     type Type;
 }
 
+#[doc(hidden)]
 pub struct PrefixedValue<'a, 'b, T> {
     pub prefix: &'a [u8],
     pub value: &'b T,
