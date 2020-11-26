@@ -209,8 +209,8 @@ pub struct PrefixedValue<'a, 'b, T> {
 }
 
 impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-    where
-        X: scale::Encode,
+where
+    X: scale::Encode,
 {
     #[inline]
     fn size_hint(&self) -> usize {
