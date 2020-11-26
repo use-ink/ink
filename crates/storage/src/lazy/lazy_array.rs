@@ -171,7 +171,6 @@ fn array_capacity<T, const N: usize>() -> u32
 pub struct EntryArray<T, const N: usize>
 {
     /// The cache entries of the entry array.
-    //entries: GenericArray<CacheCell<Option<StorageEntry<T>>>, N>,
     entries: [CacheCell<Option<StorageEntry<T>>>; N],
 }
 
