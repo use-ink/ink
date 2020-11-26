@@ -539,8 +539,8 @@ mod erc20 {
     }
 
     impl<X> scale::Encode for PrefixedValue<'_, '_, X>
-        where
-            X: scale::Encode,
+    where
+        X: scale::Encode,
     {
         #[inline]
         fn size_hint(&self) -> usize {
