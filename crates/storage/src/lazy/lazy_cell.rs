@@ -161,7 +161,13 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
-                assert!(footprint <= 16); // magic number
+                let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
+                assert!(
+                    footprint <= footprint_threshold,
+                    "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+                    footprint,
+                    footprint_threshold,
+                );
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
                     ink_env::clear_contract_storage(key_ptr.advance_by(1));

@@ -55,7 +55,10 @@ pub use self::{
         KeyPtr,
     },
     packed::PackedLayout,
-    spread::SpreadLayout,
+    spread::{
+        SpreadLayout,
+        FOOTPRINT_CLEANUP_THRESHOLD,
+    },
 };
 pub use ::ink_storage_derive::{
     PackedLayout,
