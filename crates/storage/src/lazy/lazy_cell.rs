@@ -109,8 +109,18 @@ where
 {
     fn drop(&mut self) {
         if let Some(key) = self.key() {
-            if let Some(entry) = self.entry() {
-                clear_spread_root_opt::<T, _>(key, || entry.value().into())
+            match self.entry() {
+                Some(entry) => {
+                    clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                }
+                None => {
+                    // the value is not yet in the cache. we need it in there
+                    // though in order to properly clean up.
+                    assert_footprint_threshold!(<T as SpreadLayout>::FOOTPRINT);
+                    let _ = self.get();
+                    let entry = self.entry().expect("entry must exist after prior get");
+                    clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                }
             }
         }
     }
@@ -161,13 +171,7 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
-                let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
-                assert!(
-                    footprint <= footprint_threshold,
-                    "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
-                    footprint,
-                    footprint_threshold,
-                );
+                assert_footprint_threshold!(footprint);
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
                     ink_env::clear_contract_storage(key_ptr.advance_by(1));
@@ -358,6 +362,20 @@ where
             *cache = Some(StorageEntry::new(Some(new_value), EntryState::Mutated));
         }
         debug_assert!(cache.is_some());
+    }
+}
+
+/// Asserts that the given `footprint` is below `FOOTPRINT_CLEANUP_THRESHOLD`.
+#[macro_export]
+macro_rules! assert_footprint_threshold {
+    ($footprint:expr) => {
+        let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
+        assert!(
+            $footprint <= footprint_threshold,
+            "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+            $footprint,
+            footprint_threshold,
+        );
     }
 }
 
@@ -702,6 +720,40 @@ mod tests {
             let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 root_key,
             ));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<u32> = Lazy::new(13u32);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy =
+                    <Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot yet contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             Ok(())
         })
         .unwrap()
