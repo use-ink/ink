@@ -161,11 +161,12 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
+                let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
                 assert!(
-                    footprint <= crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
+                    footprint <= footprint_threshold,
                     "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
                     footprint,
-                    crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
+                    footprint_threshold,
                 );
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
