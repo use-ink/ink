@@ -111,24 +111,30 @@ where
     T: SpreadLayout,
 {
     fn drop(&mut self) {
-        if let Some(key) = self.key() {
+        if let Some(root_key) = self.key() {
             match self.entry() {
                 Some(entry) => {
-                    clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                    // The inner cell needs to be cleared, no matter if it has
+                    // been loaded or not. Otherwise there might be leftovers.
+                    // Load from storage and then clear:
+                    clear_spread_root_opt::<T, _>(root_key, || entry.value().into())
                 }
                 None => {
                     // the value is not yet in the cache. we need it in there
                     // though in order to properly clean up.
-                    crate::assert_footprint_threshold!(<T as SpreadLayout>::FOOTPRINT);
                     if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
-                        let _ = self.get();
-                        let entry =
-                            self.entry().expect("entry must exist after prior get");
-                        clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                        // The inner cell needs to be cleared, no matter if it has
+                        // been loaded or not. Otherwise there might be leftovers.
+                        // Load from storage and then clear:
+                        clear_spread_root_opt::<T, _>(root_key, || self.get())
                     } else {
-                        // The type does not require deep clean-up so we can simply clean-up
-                        // its associated storage cell and be done without having to load it first.
-                        ink_env::clear_contract_storage(&key);
+                        // Clear without loading from storage:
+                        let footprint = <T as SpreadLayout>::FOOTPRINT;
+                        crate::assert_footprint_threshold!(footprint);
+                        let mut key_ptr = KeyPtr::from(*root_key);
+                        for _ in 0..footprint {
+                            ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                        }
                     }
                 }
             }
@@ -760,6 +766,41 @@ mod tests {
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot yet contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works_with_greater_footprint() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy = <Lazy<[u32; 5]> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
