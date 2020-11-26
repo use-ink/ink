@@ -116,7 +116,7 @@ where
                 None => {
                     // the value is not yet in the cache. we need it in there
                     // though in order to properly clean up.
-                    assert_footprint_threshold!(<T as SpreadLayout>::FOOTPRINT);
+                    crate::assert_footprint_threshold!(<T as SpreadLayout>::FOOTPRINT);
                     let _ = self.get();
                     let entry = self.entry().expect("entry must exist after prior get");
                     clear_spread_root_opt::<T, _>(key, || entry.value().into())
@@ -171,7 +171,7 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
-                assert_footprint_threshold!(footprint);
+                crate::assert_footprint_threshold!(footprint);
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
                     ink_env::clear_contract_storage(key_ptr.advance_by(1));
