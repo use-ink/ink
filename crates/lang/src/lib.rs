@@ -58,7 +58,6 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
-        PrefixedValue,
     },
     traits::{
         CheckedInkTrait,
