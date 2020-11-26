@@ -165,7 +165,7 @@ where
                     footprint <= crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
                     "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
                     footprint,
-                    footprint_threshold,
+                    crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
                 );
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
