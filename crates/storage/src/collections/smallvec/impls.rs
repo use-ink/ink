@@ -17,7 +17,6 @@ use super::{
     SmallVec,
 };
 use crate::{
-    lazy::LazyArrayLength,
     traits::PackedLayout,
 };
 use core::iter::{
@@ -25,20 +24,18 @@ use core::iter::{
     FromIterator,
 };
 
-impl<T, N> Drop for SmallVec<T, N>
+impl<T, const N: usize> Drop for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn drop(&mut self) {
         self.clear_cells()
     }
 }
 
-impl<T, N> core::ops::Index<u32> for SmallVec<T, N>
+impl<T, const N: usize> core::ops::Index<u32> for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     type Output = T;
 
@@ -56,10 +53,9 @@ where
     }
 }
 
-impl<T, N> core::ops::IndexMut<u32> for SmallVec<T, N>
+impl<T, const N: usize> core::ops::IndexMut<u32> for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn index_mut(&mut self, index: u32) -> &mut Self::Output {
         let len = self.len();
@@ -75,10 +71,9 @@ where
     }
 }
 
-impl<'a, T: 'a, N> IntoIterator for &'a SmallVec<T, N>
+impl<'a, T: 'a, const N: usize> IntoIterator for &'a SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     type Item = &'a T;
     type IntoIter = Iter<'a, T, N>;
@@ -88,10 +83,9 @@ where
     }
 }
 
-impl<T, N> Extend<T> for SmallVec<T, N>
+impl<T, const N: usize> Extend<T> for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn extend<I>(&mut self, iter: I)
     where
@@ -103,10 +97,9 @@ where
     }
 }
 
-impl<T, N> FromIterator<T> for SmallVec<T, N>
+impl<T, const N: usize> FromIterator<T> for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn from_iter<I>(iter: I) -> Self
     where
@@ -118,10 +111,9 @@ where
     }
 }
 
-impl<T, N> core::cmp::PartialEq for SmallVec<T, N>
+impl<T, const N: usize> core::cmp::PartialEq for SmallVec<T, N>
 where
     T: PartialEq + PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
@@ -131,9 +123,8 @@ where
     }
 }
 
-impl<T, N> core::cmp::Eq for SmallVec<T, N>
+impl<T, const N: usize> core::cmp::Eq for SmallVec<T, N>
 where
     T: Eq + PackedLayout,
-    N: LazyArrayLength<T>,
 {
 }

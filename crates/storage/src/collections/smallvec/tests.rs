@@ -20,17 +20,16 @@ use crate::{
     },
     Lazy,
 };
-use generic_array::typenum::*;
 use ink_primitives::Key;
 
 #[test]
 fn new_vec_works() {
-    let vec = <SmallVec<i32, U4>>::new();
+    let vec = <SmallVec<i32, 4>>::new();
     assert!(vec.is_empty());
     assert_eq!(vec.len(), 0);
     assert_eq!(vec.get(0), None);
     assert!(vec.iter().next().is_none());
-    let default = <SmallVec<i32, U4> as Default>::default();
+    let default = <SmallVec<i32, 4> as Default>::default();
     assert!(default.is_empty());
     assert_eq!(default.len(), 0);
     assert_eq!(vec.get(0), None);
@@ -40,7 +39,7 @@ fn new_vec_works() {
 #[test]
 fn from_iterator_works() {
     let some_primes = [b'A', b'B', b'C', b'D'];
-    assert_eq!(some_primes.iter().copied().collect::<SmallVec<_, U4>>(), {
+    assert_eq!(some_primes.iter().copied().collect::<SmallVec<_, 4>>(), {
         let mut vec = SmallVec::new();
         for prime in &some_primes {
             vec.push(*prime)
@@ -53,20 +52,20 @@ fn from_iterator_works() {
 #[should_panic]
 fn from_iterator_too_many() {
     let some_primes = [b'A', b'B', b'C', b'D', b'E'];
-    let _ = some_primes.iter().copied().collect::<SmallVec<_, U4>>();
+    let _ = some_primes.iter().copied().collect::<SmallVec<_, 4>>();
 }
 
 #[test]
 fn from_empty_iterator_works() {
     assert_eq!(
-        [].iter().copied().collect::<SmallVec<u8, U4>>(),
+        [].iter().copied().collect::<SmallVec<u8, 4>>(),
         SmallVec::new(),
     );
 }
 
 #[test]
 fn first_last_of_empty() {
-    let mut vec = <SmallVec<u8, U4>>::new();
+    let mut vec = <SmallVec<u8, 4>>::new();
     assert_eq!(vec.first(), None);
     assert_eq!(vec.first_mut(), None);
     assert_eq!(vec.last(), None);
@@ -75,14 +74,14 @@ fn first_last_of_empty() {
 
 #[test]
 fn pop_on_empty_works() {
-    let mut vec = <SmallVec<u8, U4>>::new();
+    let mut vec = <SmallVec<u8, 4>>::new();
     assert_eq!(vec.pop(), None);
 }
 
 #[test]
 fn push_pop_first_last_works() {
     /// Asserts conditions are met for the given storage vector.
-    fn assert_vec<F, L>(vec: &SmallVec<u8, U4>, len: u32, first: F, last: L)
+    fn assert_vec<F, L>(vec: &SmallVec<u8, 4>, len: u32, first: F, last: L)
     where
         F: Into<Option<u8>>,
         L: Into<Option<u8>>,
@@ -127,18 +126,18 @@ fn push_beyond_limits_fails() {
     let mut vec = [b'A', b'B', b'C', b'D']
         .iter()
         .copied()
-        .collect::<SmallVec<_, U4>>();
+        .collect::<SmallVec<_, 4>>();
     vec.push(b'E');
 }
 
 /// Creates a storage vector from the given slice.
-fn vec_from_slice(slice: &[u8]) -> SmallVec<u8, U4> {
-    slice.iter().copied().collect::<SmallVec<u8, U4>>()
+fn vec_from_slice(slice: &[u8]) -> SmallVec<u8, 4> {
+    slice.iter().copied().collect::<SmallVec<u8, 4>>()
 }
 
 /// Asserts that the the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
-fn assert_eq_slice(vec: &SmallVec<u8, U4>, slice: &[u8]) {
+fn assert_eq_slice(vec: &SmallVec<u8, 4>, slice: &[u8]) {
     assert_eq!(vec.len() as usize, slice.len());
     let vec_copy = vec.iter().copied().collect::<Vec<u8>>();
     assert_eq!(vec_copy.as_slice(), slice);
@@ -371,7 +370,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
         // Load the pushed storage vector into another instance and check that
         // both instances are equal:
         let vec2 =
-            <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            <SmallVec<u8, 4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(vec1, vec2);
         Ok(())
     })
@@ -392,7 +391,7 @@ fn spread_layout_clear_works() {
         // vector's length property cannot read a value:
         SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
         let _ =
-            <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            <SmallVec<u8, 4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
     })
     .unwrap()
@@ -405,7 +404,7 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         let root_key = Key::from([0x42; 32]);
         let lazy_vec = Lazy::new(vec_from_slice(&[b'a', b'b', b'c', b'd']));
         SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
-        let pulled_vec = <Lazy<SmallVec<u8, U4>> as SpreadLayout>::pull_spread(
+        let pulled_vec = <Lazy<SmallVec<u8, 4>> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
         );
 
@@ -438,7 +437,7 @@ fn drop_works() {
         let setup_result = std::panic::catch_unwind(|| {
             let vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
             SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
-            let _ = <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+            let _ = <SmallVec<u8, 4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 root_key,
             ));
             // vec is dropped which should clear the cells
@@ -456,7 +455,7 @@ fn drop_works() {
         assert_eq!(used_cells, 0);
 
         let _ =
-            <SmallVec<u8, U4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            <SmallVec<u8, 4> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
     })
     .unwrap()

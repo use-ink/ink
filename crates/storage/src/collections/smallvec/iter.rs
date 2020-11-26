@@ -15,16 +15,14 @@
 use super::SmallVec;
 use crate::{
     collections::extend_lifetime,
-    lazy::LazyArrayLength,
     traits::PackedLayout,
 };
 
 /// An iterator over shared references to the elements of a small storage vector.
 #[derive(Debug, Clone, Copy)]
-pub struct Iter<'a, T, N>
+pub struct Iter<'a, T, const N: usize>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// The storage vector to iterate over.
     vec: &'a SmallVec<T, N>,
@@ -34,10 +32,9 @@ where
     end: u32,
 }
 
-impl<'a, T, N> Iter<'a, T, N>
+impl<'a, T, const N: usize> Iter<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Creates a new iterator for the given storage vector.
     pub(crate) fn new(vec: &'a SmallVec<T, N>) -> Self {
@@ -54,10 +51,9 @@ where
     }
 }
 
-impl<'a, T, N> Iterator for Iter<'a, T, N>
+impl<'a, T, const N: usize> Iterator for Iter<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     type Item = &'a T;
 
@@ -86,17 +82,15 @@ where
     }
 }
 
-impl<'a, T, N> ExactSizeIterator for Iter<'a, T, N>
+impl<'a, T, const N: usize> ExactSizeIterator for Iter<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
 }
 
-impl<'a, T, N> DoubleEndedIterator for Iter<'a, T, N>
+impl<'a, T, const N: usize> DoubleEndedIterator for Iter<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         <Self as DoubleEndedIterator>::nth_back(self, 0)
@@ -118,10 +112,9 @@ where
 
 /// An iterator over exclusive references to the elements of a small storage vector.
 #[derive(Debug)]
-pub struct IterMut<'a, T, N>
+pub struct IterMut<'a, T, const N: usize>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// The storage vector to iterate over.
     vec: &'a mut SmallVec<T, N>,
@@ -131,10 +124,9 @@ where
     end: u32,
 }
 
-impl<'a, T, N> IterMut<'a, T, N>
+impl<'a, T, const N: usize> IterMut<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Creates a new iterator for the given storage vector.
     pub(crate) fn new(vec: &'a mut SmallVec<T, N>) -> Self {
@@ -152,10 +144,9 @@ where
     }
 }
 
-impl<'a, T, N> IterMut<'a, T, N>
+impl<'a, T, const N: usize> IterMut<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn get_mut<'b>(&'b mut self, at: u32) -> Option<&'a mut T> {
         self.vec.get_mut(at).map(|value| {
@@ -171,10 +162,9 @@ where
     }
 }
 
-impl<'a, T, N> Iterator for IterMut<'a, T, N>
+impl<'a, T, const N: usize> Iterator for IterMut<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     type Item = &'a mut T;
 
@@ -203,17 +193,15 @@ where
     }
 }
 
-impl<'a, T, N> ExactSizeIterator for IterMut<'a, T, N>
+impl<'a, T, const N: usize> ExactSizeIterator for IterMut<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
 }
 
-impl<'a, T, N> DoubleEndedIterator for IterMut<'a, T, N>
+impl<'a, T, const N: usize> DoubleEndedIterator for IterMut<'a, T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         <Self as DoubleEndedIterator>::nth_back(self, 0)

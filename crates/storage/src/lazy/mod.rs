@@ -43,7 +43,6 @@ use self::{
 pub use self::{
     lazy_array::{
         LazyArray,
-        LazyArrayLength,
     },
     lazy_cell::LazyCell,
     lazy_hmap::LazyHashMap,

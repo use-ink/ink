@@ -14,14 +14,12 @@
 
 use super::SmallVec;
 use crate::{
-    lazy::LazyArrayLength,
     traits::{
         KeyPtr,
         PackedLayout,
         SpreadLayout,
     },
 };
-use generic_array::typenum::Unsigned;
 
 #[cfg(feature = "std")]
 const _: () = {
@@ -36,10 +34,9 @@ const _: () = {
     };
     use scale_info::TypeInfo;
 
-    impl<T, N> StorageLayout for SmallVec<T, N>
+    impl<T, const N: usize> StorageLayout for SmallVec<T, N>
     where
         T: PackedLayout + TypeInfo + 'static,
-        N: LazyArrayLength<T>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Struct(StructLayout::new(vec![
@@ -53,12 +50,11 @@ const _: () = {
     }
 };
 
-impl<T, N> SpreadLayout for SmallVec<T, N>
+impl<T, const N: usize> SpreadLayout for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
-    const FOOTPRINT: u64 = 1 + <N as Unsigned>::U64;
+    const FOOTPRINT: u64 = 1 + N as u64;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self {

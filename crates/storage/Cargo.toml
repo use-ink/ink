@@ -26,7 +26,6 @@ derive_more = { version = "0.99", default-features = false, features = ["from", 
 scale-info = { version = "0.4", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
 array-init = "1.0"
-generic-array = "0.14.1"
 
 # Workaround: we actually just need criterion as a dev-dependency, but
 # there is an issue with a doubly included std lib when executing
