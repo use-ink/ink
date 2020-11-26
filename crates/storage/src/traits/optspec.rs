@@ -80,7 +80,9 @@ where
     // we will still load it first in order to not clean-up too many unneeded
     // storage cells.
     let footprint = <T as SpreadLayout>::FOOTPRINT;
-    if footprint >= super::MAX_FOOTPRINT || <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+    if footprint >= super::FOOTPRINT_CLEANUP_THRESHOLD
+        || <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
+    {
         // We need to load the entity before we remove its associated contract storage
         // because it requires a deep clean-up which propagates clearing to its fields,
         // for example in the case of `T` being a `storage::Box`.

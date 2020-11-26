@@ -57,7 +57,7 @@ pub use self::{
     packed::PackedLayout,
     spread::{
         SpreadLayout,
-        MAX_FOOTPRINT,
+        FOOTPRINT_CLEANUP_THRESHOLD,
     },
 };
 pub use ::ink_storage_derive::{

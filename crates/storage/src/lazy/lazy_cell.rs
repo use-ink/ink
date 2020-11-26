@@ -162,7 +162,7 @@ where
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
                 assert!(
-                    footprint <= crate::traits::MAX_FOOTPRINT,
+                    footprint <= crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
                     "The footprint limit is violated for this type!"
                 );
                 let mut key_ptr = KeyPtr::from(*root_key);
