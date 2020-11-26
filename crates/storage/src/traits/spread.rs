@@ -14,6 +14,13 @@
 
 use super::KeyPtr;
 
+/// This constant is used by some types to make sure that cleaning up
+/// behind them won't become way too expensive. Since we are missing
+/// Substrate's storage bulk removal feature we cannot do better than
+/// this at the moment.
+/// The number is arbitrarily chosen. Might need adjustments later.
+pub const FOOTPRINT_CLEANUP_THRESHOLD: u64 = 32;
+
 /// Types that can be stored to and loaded from the contract storage.
 pub trait SpreadLayout {
     /// The footprint of the type.

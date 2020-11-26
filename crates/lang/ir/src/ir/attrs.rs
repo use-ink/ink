@@ -268,8 +268,8 @@ impl Spanned for AttributeArg {
 pub enum AttributeArgKind {
     /// `#[ink(storage)]`
     ///
-    /// Applied on `struct` or `enum` types in order to flag them for being
-    /// the contract's storage definition.
+    /// Applied on `struct` types in order to flag them for being the
+    /// contract's storage definition.
     Storage,
     /// `#[ink(event)]`
     ///
