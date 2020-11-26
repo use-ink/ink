@@ -33,6 +33,7 @@ use core::{
     mem,
     ptr::NonNull,
 };
+use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// The index type used in the lazy storage chunk.
