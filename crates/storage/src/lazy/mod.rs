@@ -41,9 +41,7 @@ use self::{
 };
 #[doc(inline)]
 pub use self::{
-    lazy_array::{
-        LazyArray,
-    },
+    lazy_array::LazyArray,
     lazy_cell::LazyCell,
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,

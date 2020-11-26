@@ -13,12 +13,10 @@
 // limitations under the License.
 
 use super::SmallVec;
-use crate::{
-    traits::{
-        KeyPtr,
-        PackedLayout,
-        SpreadLayout,
-    },
+use crate::traits::{
+    KeyPtr,
+    PackedLayout,
+    SpreadLayout,
 };
 
 #[cfg(feature = "std")]

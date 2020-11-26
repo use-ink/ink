@@ -26,8 +26,10 @@ use crate::traits::{
     SpreadLayout,
 };
 use core::{
+    convert::TryInto,
     fmt,
     fmt::Debug,
+    iter,
     mem,
     ptr::NonNull,
 };
@@ -49,8 +51,7 @@ pub type Index = u32;
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
 /// chunk of storage cells.
-pub struct LazyArray<T, const N: usize>
-{
+pub struct LazyArray<T, const N: usize> {
     /// The offset key for the N cells.
     ///
     /// If the lazy chunk has been initialized during contract initialization
@@ -161,15 +162,13 @@ fn debug_impl_works() {
 }
 
 /// Returns the capacity for an array with the given array length.
-fn array_capacity<T, const N: usize>() -> u32
-{
+fn array_capacity<T, const N: usize>() -> u32 {
     N as u32
 }
 
 /// The underlying array cache for the [`LazyArray`].
 #[derive(Debug)]
-pub struct EntryArray<T, const N: usize>
-{
+pub struct EntryArray<T, const N: usize> {
     /// The cache entries of the entry array.
     entries: [CacheCell<Option<StorageEntry<T>>>; N],
 }
@@ -180,8 +179,7 @@ pub struct EntriesIter<'a, T> {
 }
 
 impl<'a, T> EntriesIter<'a, T> {
-    pub fn new<const N: usize>(entry_array: &'a EntryArray<T, N>) -> Self
-    {
+    pub fn new<const N: usize>(entry_array: &'a EntryArray<T, N>) -> Self {
         Self {
             iter: entry_array.entries.iter(),
         }
@@ -215,25 +213,28 @@ impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
 
 impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 
-impl<T, const N: usize> EntryArray<T, N>
-{
+impl<T, const N: usize> EntryArray<T, N> {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
-        Self {
-            entries:  [(); N].map(|_|Default::default())
-        }
+        let entries = iter::repeat_with(|| Default::default())
+            .take(N)
+            .collect::<Vec<CacheCell<Option<StorageEntry<T>>>>>()
+            .try_into();
+        let entries = match entries {
+            Ok(entries) => entries,
+            Err(_) => unreachable!("try_into must work"),
+        };
+        Self { entries }
     }
 }
 
-impl<T, const N: usize> Default for EntryArray<T, N>
-{
+impl<T, const N: usize> Default for EntryArray<T, N> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, const N: usize> EntryArray<T, N>
-{
+impl<T, const N: usize> EntryArray<T, N> {
     /// Returns the constant capacity of the lazy array.
     #[inline]
     pub fn capacity() -> u32 {
@@ -244,7 +245,7 @@ impl<T, const N: usize> EntryArray<T, N>
     /// returns the old value if any.
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
-            unsafe { self.entries.as_slice()[at as usize].get_ptr().as_mut() },
+            unsafe { self.entries[at as usize].get_ptr().as_mut() },
             Some(StorageEntry::new(new_value, EntryState::Mutated)),
         )
         .map(StorageEntry::into_value)
@@ -310,15 +311,13 @@ where
     }
 }
 
-impl<T, const N: usize> Default for LazyArray<T, N>
-{
+impl<T, const N: usize> Default for LazyArray<T, N> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, const N: usize> LazyArray<T, N>
-{
+impl<T, const N: usize> LazyArray<T, N> {
     /// Creates a new empty lazy array.
     ///
     /// # Note
@@ -407,8 +406,7 @@ where
     }
 }
 
-impl<T, const N: usize> LazyArray<T, N>
-{
+impl<T, const N: usize> LazyArray<T, N> {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
         if at >= self.capacity() {

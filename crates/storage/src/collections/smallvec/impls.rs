@@ -16,9 +16,7 @@ use super::{
     Iter,
     SmallVec,
 };
-use crate::{
-    traits::PackedLayout,
-};
+use crate::traits::PackedLayout;
 use core::iter::{
     Extend,
     FromIterator,
@@ -123,8 +121,4 @@ where
     }
 }
 
-impl<T, const N: usize> core::cmp::Eq for SmallVec<T, N>
-where
-    T: Eq + PackedLayout,
-{
-}
+impl<T, const N: usize> core::cmp::Eq for SmallVec<T, N> where T: Eq + PackedLayout {}

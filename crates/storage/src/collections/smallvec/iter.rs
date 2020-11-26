@@ -82,11 +82,7 @@ where
     }
 }
 
-impl<'a, T, const N: usize> ExactSizeIterator for Iter<'a, T, N>
-where
-    T: PackedLayout,
-{
-}
+impl<'a, T, const N: usize> ExactSizeIterator for Iter<'a, T, N> where T: PackedLayout {}
 
 impl<'a, T, const N: usize> DoubleEndedIterator for Iter<'a, T, N>
 where
@@ -193,11 +189,7 @@ where
     }
 }
 
-impl<'a, T, const N: usize> ExactSizeIterator for IterMut<'a, T, N>
-where
-    T: PackedLayout,
-{
-}
+impl<'a, T, const N: usize> ExactSizeIterator for IterMut<'a, T, N> where T: PackedLayout {}
 
 impl<'a, T, const N: usize> DoubleEndedIterator for IterMut<'a, T, N>
 where
