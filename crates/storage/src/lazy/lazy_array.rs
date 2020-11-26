@@ -217,7 +217,7 @@ impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 impl<T, const N: usize> EntryArray<T, N> {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
-        let entries = iter::repeat_with(|| Default::default())
+        let entries = iter::repeat_with(Default::default)
             .take(N)
             .collect::<Vec<CacheCell<Option<StorageEntry<T>>>>>()
             .try_into();
