@@ -77,21 +77,22 @@ where
 }
 
 #[test]
-fn debug_impl_works() {
-    let c1 = <LazyCell<i32>>::new(None);
-    assert_eq!(
-        format!("{:?}", &c1),
-        "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
-    );
-    let c2 = <LazyCell<i32>>::new(Some(42));
-    assert_eq!(
-        format!("{:?}", &c2),
-        "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
-    );
-    let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
-    assert_eq!(
-        format!("{:?}", &c3),
-        "LazyCell { \
+fn debug_impl_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let c1 = <LazyCell<i32>>::new(None);
+        assert_eq!(
+            format!("{:?}", &c1),
+            "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
+        );
+        let c2 = <LazyCell<i32>>::new(Some(42));
+        assert_eq!(
+            format!("{:?}", &c2),
+            "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
+        );
+        let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
+        assert_eq!(
+            format!("{:?}", &c3),
+            "LazyCell { \
             key: Some(Key(0x_\
                 0000000000000000_\
                 0000000000000000_\
@@ -100,7 +101,9 @@ fn debug_impl_works() {
             ), \
             cache: None \
         }",
-    );
+        );
+        Ok(())
+    })
 }
 
 impl<T> Drop for LazyCell<T>
@@ -426,10 +429,13 @@ mod tests {
     }
 
     #[test]
-    fn lazy_works() {
-        let root_key = Key::from([0x42; 32]);
-        let cell = <LazyCell<u8>>::lazy(root_key);
-        assert_eq!(cell.key(), Some(&root_key));
+    fn lazy_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x42; 32]);
+            let cell = <LazyCell<u8>>::lazy(root_key);
+            assert_eq!(cell.key(), Some(&root_key));
+            Ok(())
+        })
     }
 
     #[test]
