@@ -135,6 +135,7 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -218,8 +219,9 @@
     <span class="comment">// we will still load it first in order to not clean-up too many unneeded</span>
     <span class="comment">// storage cells.</span>
     <span class="kw">let</span> <span class="ident">footprint</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>;
-    <span class="kw">let</span> <span class="ident">threshold</span> <span class="op">=</span> <span class="number">16</span>; <span class="comment">// Arbitrarily chosen. Might need adjustments later.</span>
-    <span class="kw">if</span> <span class="ident">footprint</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">threshold</span> <span class="op">|</span><span class="op">|</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">REQUIRES_DEEP_CLEAN_UP</span> {
+    <span class="kw">if</span> <span class="ident">footprint</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw">super</span>::<span class="ident">FOOTPRINT_CLEANUP_THRESHOLD</span>
+        <span class="op">|</span><span class="op">|</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">REQUIRES_DEEP_CLEAN_UP</span>
+    {
         <span class="comment">// We need to load the entity before we remove its associated contract storage</span>
         <span class="comment">// because it requires a deep clean-up which propagates clearing to its fields,</span>
         <span class="comment">// for example in the case of `T` being a `storage::Box`.</span>

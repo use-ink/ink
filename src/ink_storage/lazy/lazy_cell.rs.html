@@ -704,6 +704,12 @@
 <span id="701">701</span>
 <span id="702">702</span>
 <span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -868,7 +874,13 @@
             <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Clear without loading from storage:</span>
                 <span class="kw">let</span> <span class="ident">footprint</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>;
-                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">footprint</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">16</span>); <span class="comment">// magic number</span>
+                <span class="kw">let</span> <span class="ident">footprint_threshold</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">FOOTPRINT_CLEANUP_THRESHOLD</span>;
+                <span class="macro">assert</span><span class="macro">!</span>(
+                    <span class="ident">footprint</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">footprint_threshold</span>,
+                    <span class="string">&quot;cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.&quot;</span>,
+                    <span class="ident">footprint</span>,
+                    <span class="ident">footprint_threshold</span>,
+                );
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key_ptr</span> <span class="op">=</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
                 <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">footprint</span> {
                     <span class="ident">ink_env</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>));

@@ -183,6 +183,9 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -241,7 +244,10 @@
         <span class="ident">KeyPtr</span>,
     },
     <span class="ident">packed</span>::<span class="ident">PackedLayout</span>,
-    <span class="ident">spread</span>::<span class="ident">SpreadLayout</span>,
+    <span class="ident">spread</span>::{
+        <span class="ident">SpreadLayout</span>,
+        <span class="ident">FOOTPRINT_CLEANUP_THRESHOLD</span>,
+    },
 };
 <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">ink_storage_derive</span>::{
     <span class="ident">PackedLayout</span>,
