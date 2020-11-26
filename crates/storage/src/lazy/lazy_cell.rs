@@ -120,7 +120,7 @@ where
                     clear_spread_root_opt::<T, _>(root_key, || entry.value().into())
                 }
                 None => {
-                    // the value is not yet in the cache. we need it in there
+                    // The value is not yet in the cache. we need it in there
                     // though in order to properly clean up.
                     if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
                         // The inner cell needs to be cleared, no matter if it has
