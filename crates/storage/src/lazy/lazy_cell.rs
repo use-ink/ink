@@ -163,7 +163,9 @@ where
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
                 assert!(
                     footprint <= crate::traits::FOOTPRINT_CLEANUP_THRESHOLD,
-                    "The footprint limit is violated for this type!"
+                    "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+                    footprint,
+                    footprint_threshold,
                 );
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
