@@ -120,9 +120,16 @@ where
                     // the value is not yet in the cache. we need it in there
                     // though in order to properly clean up.
                     crate::assert_footprint_threshold!(<T as SpreadLayout>::FOOTPRINT);
-                    let _ = self.get();
-                    let entry = self.entry().expect("entry must exist after prior get");
-                    clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                    if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+                        let _ = self.get();
+                        let entry =
+                            self.entry().expect("entry must exist after prior get");
+                        clear_spread_root_opt::<T, _>(key, || entry.value().into())
+                    } else {
+                        // The type does not require deep clean-up so we can simply clean-up
+                        // its associated storage cell and be done without having to load it first.
+                        ink_env::clear_contract_storage(&key);
+                    }
                 }
             }
         }
