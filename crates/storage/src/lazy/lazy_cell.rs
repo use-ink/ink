@@ -130,7 +130,7 @@ where
                     } else {
                         // Clear without loading from storage:
                         let footprint = <T as SpreadLayout>::FOOTPRINT;
-                        crate::assert_footprint_threshold!(footprint);
+                        assert_footprint_threshold(footprint);
                         let mut key_ptr = KeyPtr::from(*root_key);
                         for _ in 0..footprint {
                             ink_env::clear_contract_storage(key_ptr.advance_by(1));
@@ -187,7 +187,7 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
-                crate::assert_footprint_threshold!(footprint);
+                assert_footprint_threshold(footprint);
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
                     ink_env::clear_contract_storage(key_ptr.advance_by(1));
@@ -382,17 +382,14 @@ where
 }
 
 /// Asserts that the given `footprint` is below `FOOTPRINT_CLEANUP_THRESHOLD`.
-#[macro_export]
-macro_rules! assert_footprint_threshold {
-    ($footprint:expr) => {
-        let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
-        assert!(
-            $footprint <= footprint_threshold,
-            "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
-            $footprint,
-            footprint_threshold,
-        );
-    }
+fn assert_footprint_threshold(footprint: u64) {
+    let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
+    assert!(
+        footprint <= footprint_threshold,
+        "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+        footprint,
+        footprint_threshold,
+    );
 }
 
 #[cfg(test)]
