@@ -770,7 +770,7 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         let contract_id = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()
-        .expect("Cannot yet contract id");
+        .expect("Cannot get contract id");
         let storage_used = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)
