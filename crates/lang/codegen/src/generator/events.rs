@@ -224,6 +224,7 @@ impl<'a> Events<'a> {
             let event_signature = syn::LitByteStr::new(
                 format!("{}::{}", contract_ident, event_ident
             ).as_bytes(), span);
+            let len_event_signature = event_signature.value().len();
             let len_topics = event.fields().filter(|field| field.is_topic).count();
             let topic_impls = event
                 .fields()
@@ -235,19 +236,24 @@ impl<'a> Events<'a> {
                         .ident()
                         .map(quote::ToTokens::into_token_stream)
                         .unwrap_or_else(|| quote_spanned!(span => #n));
+                    let field_type = topic_field.ty();
                     let signature = syn::LitByteStr::new(
                         format!("{}::{}::{}", contract_ident, event_ident,
                             field_ident
                         ).as_bytes(), span);
                     quote_spanned!(span =>
-                        .push_topic(&::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature })
+                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
+                        )
                     )
                 });
             // Only include topic for event signature in case of non-anonymous event.
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    .push_topic(&::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" })
+                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
+                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
+                    )
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.

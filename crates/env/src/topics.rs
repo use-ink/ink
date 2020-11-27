@@ -203,6 +203,11 @@ pub trait Topics {
 }
 
 #[doc(hidden)]
+/// For each topic a hash is generated. This hash must be unique
+/// for a field and its value. The `prefix` is concatenated
+/// with the `value` and this result is then hashed.
+/// The `prefix` is typically set to the path a field has in
+/// an event struct + the identifier of the event struct.
 pub struct PrefixedValue<'a, 'b, T> {
     pub prefix: &'a [u8],
     pub value: &'b T,

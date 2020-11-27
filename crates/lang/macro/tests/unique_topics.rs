@@ -29,7 +29,7 @@ mod my_contract {
         #[ink(topic)]
         v1: Balance,
         #[ink(topic)]
-        v2: u128,
+        v2: bool,
         #[ink(topic)]
         v3: bool,
     }
@@ -47,7 +47,7 @@ mod my_contract {
             Self::env().emit_event(MyEvent {
                 v0: None,
                 v1: 0,
-                v2: 0,
+                v2: false,
                 v3: false,
             });
         }
