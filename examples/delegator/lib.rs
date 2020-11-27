@@ -80,24 +80,29 @@ mod delegator {
         #[ink(constructor)]
         pub fn new(
             init_value: i32,
+            version: u32,
             accumulator_code_hash: Hash,
             adder_code_hash: Hash,
             subber_code_hash: Hash,
         ) -> Self {
             let total_balance = Self::env().balance();
+            let salt = version.to_le_bytes();
             let accumulator = Accumulator::new(init_value)
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
+                .salt(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Accumulator` contract");
             let adder = Adder::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(adder_code_hash)
+                .salt(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Adder` contract");
             let subber = Subber::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(subber_code_hash)
+                .salt(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Subber` contract");
             Self {
