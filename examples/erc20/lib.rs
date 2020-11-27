@@ -261,8 +261,8 @@ mod erc20 {
             }
             let expected_topics = vec![
                 encoded_into_hash(&PrefixedValue {
-                    prefix: b"Erc20::Transfer",
-                    value: b"",
+                    value: b"Erc20::Transfer",
+                    prefix: b"",
                 }),
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"Erc20::Transfer::from",
