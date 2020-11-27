@@ -44,7 +44,7 @@ where
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-pub struct CreateParams<E, Args, R>
+pub struct CreateParams<E, Args, Salt, R>
 where
     E: Environment,
 {
@@ -57,7 +57,7 @@ where
     /// The input data for the instantiation.
     exec_input: ExecutionInput<Args>,
     /// The salt for determining the hash for the contract account ID.
-    salt: Vec<u8>,
+    salt: Salt,
     /// The type of the instantiated contract.
     return_type: ReturnType<R>,
 }
@@ -68,9 +68,10 @@ where
     // off-chain environment compilation.
     all(not(feature = "std"), target_arch = "wasm32")
 )]
-impl<E, Args, R> CreateParams<E, Args, R>
+impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
 where
     E: Environment,
+    Salt: AsRef<[u8]>,
 {
     /// The code hash of the contract.
     #[inline]
@@ -90,23 +91,24 @@ where
         &self.endowment
     }
 
-    /// The salt for determining the hash for the contract account ID.
-    #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
-        &self.exec_input
-    }
-
     /// The raw encoded input data.
     #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
+
+    /// The salt for determining the hash for the contract account ID.
+    #[inline]
+    pub(crate) fn salt(&self) -> &Salt {
+        &self.salt
+    }
 }
 
-impl<E, Args, R> CreateParams<E, Args, R>
+impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
 where
     E: Environment,
     Args: scale::Encode,
+    Salt: AsRef<[u8]>,
     R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
@@ -117,7 +119,7 @@ where
 }
 
 /// Builds up contract instantiations.
-pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, R>
+pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
 where
     E: Environment,
 {
@@ -126,6 +128,7 @@ where
     gas_limit: GasLimit,
     endowment: Endowment,
     exec_input: Args,
+    salt: Salt,
     return_type: ReturnType<R>,
 }
 
@@ -153,11 +156,12 @@ where
 /// # };
 /// # type Hash = <DefaultEnvironment as Environment>::Hash;
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// # type Salt = &'static [u8];
 /// # struct MyContract;
 /// # impl FromAccountId<DefaultEnvironment> for MyContract {
 /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvironment, MyContract>()
+/// let my_contract: MyContract = build_create::<DefaultEnvironment, Salt, MyContract>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
@@ -167,6 +171,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
+///     .salt(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .params()
 ///     .instantiate()
 ///     .unwrap();
@@ -176,16 +181,18 @@ where
 ///           support in the off-chain testing environment. However, this code
 ///           should work fine in on-chain environments.
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, R>() -> CreateBuilder<
+pub fn build_create<E, Salt, R>() -> CreateBuilder<
     E,
     Unset<E::Hash>,
     Unset<u64>,
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
+    Unset<Salt>,
     R,
 >
 where
     E: Environment,
+    Salt: AsRef<[u8]>,
     R: FromAccountId<E>,
 {
     CreateBuilder {
@@ -194,12 +201,13 @@ where
         gas_limit: Default::default(),
         endowment: Default::default(),
         exec_input: Default::default(),
+        salt: Default::default(),
         return_type: Default::default(),
     }
 }
 
-impl<E, GasLimit, Endowment, Args, R>
-    CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, R>
+impl<E, GasLimit, Endowment, Args, Salt, R>
+    CreateBuilder<E, Unset<E::Hash>, GasLimit, Endowment, Args, Salt, R>
 where
     E: Environment,
 {
@@ -208,20 +216,21 @@ where
     pub fn code_hash(
         self,
         code_hash: E::Hash,
-    ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, R> {
+    ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, R> {
         CreateBuilder {
             env_types: Default::default(),
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
             endowment: self.endowment,
             exec_input: self.exec_input,
+            salt: self.salt,
             return_type: self.return_type,
         }
     }
 }
 
-impl<E, CodeHash, Endowment, Args, R>
-    CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, R>
+impl<E, CodeHash, Endowment, Args, Salt, R>
+    CreateBuilder<E, CodeHash, Unset<u64>, Endowment, Args, Salt, R>
 where
     E: Environment,
 {
@@ -230,20 +239,21 @@ where
     pub fn gas_limit(
         self,
         gas_limit: u64,
-    ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, R> {
+    ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, R> {
         CreateBuilder {
             env_types: Default::default(),
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
             endowment: self.endowment,
             exec_input: self.exec_input,
+            salt: self.salt,
             return_type: self.return_type,
         }
     }
 }
 
-impl<E, CodeHash, GasLimit, Args, R>
-    CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, R>
+impl<E, CodeHash, GasLimit, Args, Salt, R>
+    CreateBuilder<E, CodeHash, GasLimit, Unset<E::Balance>, Args, Salt, R>
 where
     E: Environment,
 {
@@ -252,25 +262,27 @@ where
     pub fn endowment(
         self,
         endowment: E::Balance,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, R> {
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, R> {
         CreateBuilder {
             env_types: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: Set(endowment),
             exec_input: self.exec_input,
+            salt: self.salt,
             return_type: self.return_type,
         }
     }
 }
 
-impl<E, CodeHash, GasLimit, Endowment, R>
+impl<E, CodeHash, GasLimit, Endowment, Salt, R>
     CreateBuilder<
         E,
         CodeHash,
         GasLimit,
         Endowment,
         Unset<ExecutionInput<EmptyArgumentList>>,
+        Salt,
         R,
     >
 where
@@ -281,7 +293,7 @@ where
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
-    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, R>
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, Salt, R>
     {
         CreateBuilder {
             env_types: Default::default(),
@@ -289,18 +301,53 @@ where
             gas_limit: self.gas_limit,
             endowment: self.endowment,
             exec_input: Set(exec_input),
+            salt: self.salt,
             return_type: self.return_type,
         }
     }
 }
 
-impl<E, GasLimit, Args, R>
+impl<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
+    CreateBuilder<
+        E,
+        CodeHash,
+        GasLimit,
+        Endowment,
+        Args,
+        Unset<Salt>,
+        R,
+    >
+where
+    E: Environment,
+    Salt: AsRef<[u8]>,
+{
+    /// Sets the value transferred upon the execution of the call.
+    #[inline]
+    pub fn salt(
+        self,
+        salt: Salt,
+    ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
+    {
+        CreateBuilder {
+            env_types: Default::default(),
+            code_hash: self.code_hash,
+            gas_limit: self.gas_limit,
+            endowment: self.endowment,
+            exec_input: self.exec_input,
+            salt: Set(salt),
+            return_type: self.return_type,
+        }
+    }
+}
+
+impl<E, GasLimit, Args, Salt, R>
     CreateBuilder<
         E,
         Set<E::Hash>,
         GasLimit,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
+        Set<Salt>,
         R,
     >
 where
@@ -309,30 +356,33 @@ where
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
-    pub fn params(self) -> CreateParams<E, Args, R> {
+    pub fn params(self) -> CreateParams<E, Args, Salt, R> {
         CreateParams {
             code_hash: self.code_hash.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
+            salt: self.salt.value(),
             return_type: self.return_type,
         }
     }
 }
 
-impl<E, GasLimit, Args, R>
+impl<E, GasLimit, Args, Salt, R>
     CreateBuilder<
         E,
         Set<E::Hash>,
         GasLimit,
         Set<E::Balance>,
         Set<ExecutionInput<Args>>,
+        Set<Salt>,
         R,
     >
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
+    Salt: AsRef<[u8]>,
     R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.

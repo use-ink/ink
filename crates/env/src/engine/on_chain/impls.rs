@@ -369,13 +369,14 @@ impl TypedEnvBackend for EnvInstance {
         self.invoke_contract_impl(call_params)
     }
 
-    fn instantiate_contract<T, Args, C>(
+    fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
         Args: scale::Encode,
+        Salt: AsRef<[u8]>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -386,6 +387,7 @@ impl TypedEnvBackend for EnvInstance {
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.
         let out_address = &mut scoped.take(1024);
+        let salt = scoped.take_bytes(params.salt().as_ref());
         let out_return_value = &mut scoped.take_rest();
         // We currently do nothing with the `out_return_value` buffer.
         // This should change in the future but for that we need to add support
@@ -398,7 +400,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_input,
             out_address,
             out_return_value,
-
+            salt,
         )?;
         let account_id = scale::Decode::decode(&mut &out_address[..])?;
         Ok(account_id)
