@@ -17,12 +17,37 @@ use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use std::collections::HashMap;
 use syn::{spanned::Spanned as _, Result};
+use core::slice::Iter as SliceIter;
 
 /// An ink! chain extension.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtension {
     item: syn::ItemTrait,
-    pub methods: Vec<ChainExtensionMethod>,
+    methods: Vec<ChainExtensionMethod>,
+}
+
+impl ChainExtension {
+    /// Returns the Rust attributes of the ink! chain extension.
+    pub fn attrs(&self) -> Vec<syn::Attribute> {
+        let (_, attrs) = ir::partition_attributes(self.item.attrs.iter().cloned())
+            .expect("encountered unexpected invalid attributes for ink! chain extension");
+        attrs
+    }
+
+    /// Returns the span of the ink! chain extension.
+    pub fn span(&self) -> proc_macro2::Span {
+        self.item.span()
+    }
+
+    /// Returns the identifier of the ink! chain extension.
+    pub fn ident(&self) -> &proc_macro2::Ident {
+        &self.item.ident
+    }
+
+    /// Returns a slice over all the chain extension methods.
+    pub fn iter_methods(&self) -> SliceIter<ChainExtensionMethod> {
+        self.methods.iter()
+    }
 }
 
 /// An ink! chain extension method.
