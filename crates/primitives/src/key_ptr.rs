@@ -41,4 +41,9 @@ impl KeyPtr {
         self.key += old_shift;
         &self.key
     }
+
+    /// Returns the underlying offset key.
+    pub fn key(&self) -> Key {
+        self.key
+    }
 }

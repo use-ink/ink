@@ -210,7 +210,10 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
         // both instances are equal:
         let heap2 =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        assert_eq!(heap1, heap2);
+        // we compare only the `elements` of the heap, since for `heap1` the `heap1.key`
+        // is `None`, since no pull was executed on this object yet. `heap2.key` will be
+        // `Some(root_key)` though, since we just pulled it from storage.
+        assert_eq!(heap1.elements, heap2.elements);
         Ok(())
     })
 }
@@ -254,6 +257,16 @@ fn drop_works() {
         });
 
         assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("Used cells must be returned");
+        assert_eq!(used_cells, 0);
 
         let _ =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
