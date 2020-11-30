@@ -77,4 +77,5 @@ pub use ink_lang_macro::{
     contract,
     test,
     trait_definition,
+    chain_extension,
 };

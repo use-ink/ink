@@ -24,6 +24,6 @@ pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
 }
 
 pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
-    let chain_extension = ink_lang_ir::InkTrait::new(attr, input)?;
+    let chain_extension = ink_lang_ir::ChainExtension::new(attr, input)?;
     Ok(generate_code(&chain_extension))
 }

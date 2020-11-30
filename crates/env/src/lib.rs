@@ -95,5 +95,6 @@ pub use self::{
         DefaultEnvironment,
         Environment,
         Hash,
+        NoChainExtension,
     },
 };

@@ -152,6 +152,7 @@ use proc_macro::TokenStream;
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
+///         type ChainExtension = ::ink_env::NoChainExtension;
 ///     }
 ///     ```
 ///     A user might implement their ink! smart contract using the above custom `Environment`
@@ -169,6 +170,7 @@ use proc_macro::TokenStream;
 ///         #     type Hash = [u8; 32];
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
+///         #     type ChainExtension = ::ink_env::NoChainExtension;
 ///         # }
 ///         #
 ///         # #[ink(storage)]
