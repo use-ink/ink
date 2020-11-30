@@ -16,7 +16,7 @@ use crate::GenerateCode;
 use derive_more::From;
 use ir::ChainExtensionMethod;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote_spanned;
+use quote::{format_ident, quote_spanned};
 use syn::{spanned::Spanned, FnArg};
 
 /// Generator to create an ink! chain extension.
@@ -26,8 +26,7 @@ pub struct ChainExtension<'a> {
 }
 
 impl ChainExtension<'_> {
-    /// Generates the code for the chain extension method.
-    fn generate_for_method(method: &ChainExtensionMethod) -> TokenStream2 {
+    fn generate_for_instance_method(method: &ChainExtensionMethod) -> TokenStream2 {
         let span = method.span();
         let attrs = method.attrs();
         let ident = method.ident();
@@ -66,7 +65,7 @@ impl ChainExtension<'_> {
         };
         quote_spanned!(span=>
             #( #attrs )*
-            pub fn #ident(#inputs) -> ::core::result::Result<#output_type, ::ink_env::Error> {
+            pub fn #ident(self, #inputs) -> ::core::result::Result<#output_type, ::ink_env::Error> {
                 ::ink_env::call_chain_extension::< #( #input_types ),*, #output_type>(
                     #raw_id,
                     #( #input_bindings ),*
@@ -81,15 +80,30 @@ impl GenerateCode for ChainExtension<'_> {
         let span = self.extension.span();
         let attrs = self.extension.attrs();
         let ident = self.extension.ident();
-        let methods =
-            self.extension.iter_methods().map(Self::generate_for_method);
+        let instance_methods = self.extension.iter_methods().map(Self::generate_for_instance_method);
+        let instance_ident = format_ident!("__ink_{}Instance", ident);
         quote_spanned!(span =>
             #(#attrs)*
             pub enum #ident {}
 
-            impl #ident {
-                #(#methods)*
-            }
+            const _: () = {
+                struct __ink_Private;
+                pub struct #instance_ident {
+                    __ink_private: __ink_Private
+                }
+
+                impl #instance_ident {
+                    #( #instance_methods )*
+                }
+
+                impl ::ink_lang::ChainExtensionInstance {
+                    type Instance = #ident;
+
+                    fn instantiate() -> Self::Instance {
+                        #instance_ident { __ink_private: __ink_Private }
+                    }
+                }
+            };
         )
     }
 }

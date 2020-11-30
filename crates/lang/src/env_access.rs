@@ -28,6 +28,8 @@ use ink_env::{
 };
 use ink_primitives::Key;
 
+use crate::ChainExtensionInstance;
+
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
     /// The environment type.
@@ -86,6 +88,17 @@ impl<'a, T> Default for EnvAccess<'a, T> {
 impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("EnvAccess").finish()
+    }
+}
+
+impl<'a, T> EnvAccess<'a, T>
+where
+    T: Environment,
+    <T as Environment>::ChainExtension: ChainExtensionInstance,
+{
+    /// Allows to call one of the available defined chain extension methods.
+    pub fn extension(self) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
+        <<T as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }
 
