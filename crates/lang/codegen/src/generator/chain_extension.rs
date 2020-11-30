@@ -56,9 +56,19 @@ impl ChainExtension<'_> {
                 }
             }
         });
+        let compound_input_type = match inputs.len() {
+            0 => quote_spanned!(span=> ()),
+            1 => quote_spanned!(span=> #( #input_types )* ),
+            _n => quote_spanned!(span=> ( #( #input_types ),* ) ),
+        };
+        let compound_input_bindings = match inputs.len() {
+            0 => quote_spanned!(span=> ()),
+            1 => quote_spanned!(span=> #( #input_bindings )* ),
+            _n => quote_spanned!(span=> ( #( #input_bindings ),* ) ),
+        };
         let output = &sig.output;
         let output_type = match output {
-            syn::ReturnType::Default => quote_spanned!(output.span()=> "()"),
+            syn::ReturnType::Default => quote_spanned!(output.span()=> ()),
             syn::ReturnType::Type(_arrow, ty) => {
                 quote_spanned!(output.span()=> #ty)
             }
@@ -66,9 +76,9 @@ impl ChainExtension<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             pub fn #ident(self, #inputs) -> ::core::result::Result<#output_type, ::ink_env::Error> {
-                ::ink_env::call_chain_extension::< #( #input_types ),*, #output_type>(
+                ::ink_env::call_chain_extension::< #compound_input_type, #output_type>(
                     #raw_id,
-                    #( #input_bindings ),*
+                    &#compound_input_bindings
                 )
             }
         )
@@ -87,7 +97,9 @@ impl GenerateCode for ChainExtension<'_> {
             pub enum #ident {}
 
             const _: () = {
+                #[allow(non_camel_case_types)]
                 struct __ink_Private;
+                #[allow(non_camel_case_types)]
                 pub struct #instance_ident {
                     __ink_private: __ink_Private
                 }
@@ -96,11 +108,11 @@ impl GenerateCode for ChainExtension<'_> {
                     #( #instance_methods )*
                 }
 
-                impl ::ink_lang::ChainExtensionInstance {
-                    type Instance = #ident;
+                impl ::ink_lang::ChainExtensionInstance for #ident {
+                    type Instance = #instance_ident;
 
                     fn instantiate() -> Self::Instance {
-                        #instance_ident { __ink_private: __ink_Private }
+                        Self::Instance { __ink_private: __ink_Private }
                     }
                 }
             };
