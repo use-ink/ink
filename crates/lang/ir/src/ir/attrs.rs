@@ -15,7 +15,7 @@
 use crate::{
     error::ExtError as _,
     ir,
-    ir::{Extension, Selector},
+    ir::{ExtensionId, Selector},
 };
 use core::{convert::TryFrom, result::Result};
 use std::collections::HashMap;
@@ -344,11 +344,11 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
     Selector(Selector),
-    /// `#[ink(extension = N: usize)]`
+    /// `#[ink(extension = N: u32)]`
     ///
     /// Applies on ink! chain extension method to set their `func_id` parameter.
     /// Every chain extension method must have exactly one ink! `extension` attribute.
-    Extension(Extension),
+    Extension(ExtensionId),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -431,7 +431,7 @@ impl core::fmt::Display for AttributeArg {
                 write!(f, "selector = {:?}", selector.as_bytes())
             }
             Self::Extension(extension) => {
-                write!(f, "extension = {:?}", extension.id())
+                write!(f, "extension = {:?}", extension.into_u32())
             }
             Self::Namespace(namespace) => {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
@@ -755,7 +755,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Extension(
-                                        Extension::new(id),
+                                        ExtensionId::from_u32(id),
                                     ),
                                 })
                             }
@@ -1033,7 +1033,7 @@ mod tests {
                 #[ink(extension = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Extension(
-                Extension::new(42),
+                ExtensionId::from_u32(42),
             )])),
         );
     }

@@ -41,7 +41,7 @@ pub use self::ir::{
     Constructor,
     Contract,
     Event,
-    Extension,
+    ExtensionId,
     ImplItem,
     InkItem,
     InkTest,

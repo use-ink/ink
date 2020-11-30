@@ -18,26 +18,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use std::collections::HashMap;
 use syn::{spanned::Spanned as _, Result};
 
-/// The ink! attribute `#[ink(function = N: usize)]` for chain extension methods.
-///
-/// Has a `func_id` extension ID to identify the associated chain extension method.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Extension {
-    id: u32,
-}
-
-impl Extension {
-    /// Creates a new chain extension identifier from the given value.
-    pub fn new(id: u32) -> Self {
-        Self { id }
-    }
-
-    /// Returns the extension ID as a `u32` value.
-    pub fn id(self) -> u32 {
-        self.id
-    }
-}
-
 /// An ink! chain extension.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtension {
@@ -82,7 +62,13 @@ impl ChainExtensionMethod {
 }
 
 /// The unique ID of an ink! chain extension method.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+///
+/// # Note
+///
+/// The ink! attribute `#[ink(extension = N: u32)]` for chain extension methods.
+///
+/// Has a `func_id` extension ID to identify the associated chain extension method.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ExtensionId {
     index: u32,
 }
@@ -327,7 +313,7 @@ impl ChainExtension {
     /// - If the chain extension method has a `self` receiver as first argument.
     fn analyse_chain_extension_method(
         item_method: &syn::TraitItemMethod,
-        extension: Extension,
+        extension: ExtensionId,
     ) -> Result<ChainExtensionMethod> {
         ir::sanitize_attributes(
             item_method.span(),
@@ -342,7 +328,7 @@ impl ChainExtension {
             ))
         }
         let result = ChainExtensionMethod {
-            id: ExtensionId::from_u32(extension.id),
+            id: extension,
             item: item_method.clone(),
         };
         Ok(result)

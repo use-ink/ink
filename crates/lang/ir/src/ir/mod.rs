@@ -42,7 +42,7 @@ use self::attrs::{
 };
 pub use self::{
     attrs::Namespace,
-    chain_extension::Extension,
+    chain_extension::ExtensionId,
     config::Config,
     contract::Contract,
     ink_test::InkTest,
