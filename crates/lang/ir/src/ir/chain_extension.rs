@@ -319,18 +319,18 @@ impl ChainExtension {
         match ir::first_ink_attribute(&method.attrs)?
                 .map(|attr| attr.first().kind().clone()) {
             Some(ir::AttributeArg::Extension(extension)) => {
-                return Self::analyse_chain_extension_method(method, extension)
+                Self::analyse_chain_extension_method(method, extension)
             }
             Some(_unsupported) => {
-                return Err(format_err_spanned!(
+                Err(format_err_spanned!(
                     method,
-                    "encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(function = N: usize)] attribute"
+                    "encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(extension = N: u32)] attribute"
                 ))
             }
             None => {
-                return Err(format_err_spanned!(
+                Err(format_err_spanned!(
                     method,
-                    "missing #[ink(function = N: usize)] flag on ink! chain extension method"
+                    "missing #[ink(extension = N: u32)] flag on ink! chain extension method"
                 ))
             }
         }
