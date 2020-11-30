@@ -202,7 +202,7 @@ impl ChainExtension {
     ///     - methods with default implementations
     /// - If the trait contains methods which do not respect the ink! trait definition requirements:
     ///     - All trait methods must not have a `self` receiver.
-    ///     - All trait methods must have an `#[ink(function = N: usize)]` attribute that is the ID that
+    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that is the ID that
     ///       corresponds with the function ID of the respective chain extension call.
     ///
     /// # Note
@@ -268,7 +268,7 @@ impl ChainExtension {
     ///
     /// # Errors
     ///
-    /// - If the method is missing the `#[ink(function = N: usize)]` attribute.
+    /// - If the method is missing the `#[ink(extension = N: u32)]` attribute.
     /// - If the method has a `self` receiver.
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
@@ -461,19 +461,19 @@ mod tests {
     #[test]
     fn chain_extension_containing_non_flagged_method_is_denied() {
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(function = N: usize)] flag on ink! chain extension method",
+            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_1(&self);
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(function = N: usize)] flag on ink! chain extension method",
+            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_2(&mut self);
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "missing #[ink(function = N: usize)] flag on ink! chain extension method",
+            error: "missing #[ink(extension = N: u32)] flag on ink! chain extension method",
             pub trait MyChainExtension {
                 fn non_flagged_3() -> Self;
             }
@@ -562,7 +562,7 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "\
                 encountered unsupported ink! attribute for ink! chain extension method. \
-                expected #[ink(function = N: usize)] attribute",
+                expected #[ink(extension = N: u32)] attribute",
             pub trait MyChainExtension {
                 #[ink(message)]
                 fn unsupported_ink_attribute(&self);
@@ -602,7 +602,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: usize)] ?",
+            error: "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?",
             pub trait MyChainExtension {
                 #[ink(extension)]
                 fn has_self_receiver();

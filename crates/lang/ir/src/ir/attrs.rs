@@ -298,7 +298,7 @@ pub enum AttributeArgKind {
     Payable,
     /// `#[ink(selector = "0xDEADBEEF")]`
     Selector,
-    /// `#[ink(extension = N: usize)]`
+    /// `#[ink(extension = N: u32)]`
     Extension,
     /// `#[ink(namespace = "my_namespace")]`
     Namespace,
@@ -773,7 +773,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
-                                "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: usize)] ?")),
+                                "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?")),
                                 _ => Err(format_err_spanned!(
                                     meta, "unknown ink! attribute (path)"
                                 ))
