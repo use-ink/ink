@@ -138,11 +138,10 @@ pub trait EnvBackend {
     /// - If the inputs had an unexpected encoding.
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
-    #[cfg(feature = "ink-unstable-chain-extensions")]
     fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static;
+        I: scale::Encode,
+        O: scale::Decode;
 }
 
 /// Environmental contract functionality.

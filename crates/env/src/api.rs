@@ -446,11 +446,10 @@ where
 /// - If the given inputs cannot be properly decoded by the runtime.
 /// - If the given output type cannot be properly decoded by the contract.
 /// - If some chain extension specific conditions are not met.
-#[cfg(feature = "ink-unstable-chain-extensions")]
 pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
 where
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
+    I: scale::Encode,
+    O: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         EnvBackend::call_chain_extension(instance, func_id, input)

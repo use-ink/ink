@@ -190,11 +190,10 @@ impl EnvBackend for EnvInstance {
         self.hash_bytes::<H>(&encoded[..], output)
     }
 
-    #[cfg(feature = "ink-unstable-chain-extensions")]
     fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
     where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static,
+        I: scale::Encode,
+        O: scale::Decode,
     {
         self.chain_extension_handler.eval(func_id, input)
     }

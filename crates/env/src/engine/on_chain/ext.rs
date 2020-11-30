@@ -255,7 +255,6 @@ mod sys {
         );
         pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
-        #[cfg(feature = "ink-unstable-chain-extensions")]
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
@@ -485,7 +484,6 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     }
 }
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
 pub fn call_chain_extension(
     func_id: u32,
     input: &[u8],

@@ -96,8 +96,8 @@ impl ChainExtensionHandler {
     /// Upon success returns the values returned by the evaluated chain extension.
     pub fn eval<I, O>(&mut self, func_id: FuncId, input: &I) -> Result<O>
     where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static,
+        I: scale::Encode,
+        O: scale::Decode,
     {
         use std::collections::hash_map::Entry;
         match self.registered.entry(func_id) {
