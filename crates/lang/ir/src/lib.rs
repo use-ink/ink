@@ -37,6 +37,8 @@ pub use self::ir::{
     Callable,
     CallableKind,
     CallableWithSelector,
+    ChainExtension,
+    ChainExtensionMethod,
     Config,
     Constructor,
     Contract,
