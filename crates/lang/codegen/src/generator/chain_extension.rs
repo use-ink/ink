@@ -16,8 +16,14 @@ use crate::GenerateCode;
 use derive_more::From;
 use ir::ChainExtensionMethod;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote_spanned};
-use syn::{spanned::Spanned, FnArg};
+use quote::{
+    format_ident,
+    quote_spanned,
+};
+use syn::{
+    spanned::Spanned,
+    FnArg,
+};
 
 /// Generator to create an ink! chain extension.
 #[derive(From)]
@@ -38,10 +44,7 @@ impl ChainExtension<'_> {
             match fn_arg {
                 FnArg::Typed(pat_type) => &*pat_type.pat,
                 FnArg::Receiver(receiver) => {
-                    panic!(
-                        "encountered unexpected self receiver: {:?}",
-                        receiver
-                    )
+                    panic!("encountered unexpected self receiver: {:?}", receiver)
                 }
             }
         });
@@ -49,10 +52,7 @@ impl ChainExtension<'_> {
             match fn_arg {
                 FnArg::Typed(pat_type) => &*pat_type.ty,
                 FnArg::Receiver(receiver) => {
-                    panic!(
-                        "encountered unexpected self receiver: {:?}",
-                        receiver
-                    )
+                    panic!("encountered unexpected self receiver: {:?}", receiver)
                 }
             }
         });
@@ -90,7 +90,10 @@ impl GenerateCode for ChainExtension<'_> {
         let span = self.extension.span();
         let attrs = self.extension.attrs();
         let ident = self.extension.ident();
-        let instance_methods = self.extension.iter_methods().map(Self::generate_for_instance_method);
+        let instance_methods = self
+            .extension
+            .iter_methods()
+            .map(Self::generate_for_instance_method);
         let instance_ident = format_ident!("__ink_{}Instance", ident);
         quote_spanned!(span =>
             #(#attrs)*

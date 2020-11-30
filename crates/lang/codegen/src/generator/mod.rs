@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod chain_extension;
 mod contract;
 mod cross_calling;
 mod dispatch;
@@ -22,9 +23,9 @@ mod item_impls;
 mod metadata;
 mod storage;
 mod trait_def;
-mod chain_extension;
 
 pub use self::{
+    chain_extension::ChainExtension,
     contract::Contract,
     cross_calling::{
         CrossCalling,
@@ -38,5 +39,4 @@ pub use self::{
     metadata::Metadata,
     storage::Storage,
     trait_def::TraitDefinition,
-    chain_extension::ChainExtension,
 };

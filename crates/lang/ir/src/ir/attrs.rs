@@ -15,12 +15,21 @@
 use crate::{
     error::ExtError as _,
     ir,
-    ir::{ExtensionId, Selector},
+    ir::{
+        ExtensionId,
+        Selector,
+    },
 };
-use core::{convert::TryFrom, result::Result};
-use std::collections::HashMap;
-use proc_macro2::{Ident, Span};
+use core::{
+    convert::TryFrom,
+    result::Result,
+};
+use proc_macro2::{
+    Ident,
+    Span,
+};
 use regex::Regex;
+use std::collections::HashMap;
 use syn::spanned::Spanned;
 
 /// Either an ink! specific attribute, or another uninterpreted attribute.
@@ -119,10 +128,7 @@ impl InkAttribute {
     /// # Errors
     ///
     /// If the first ink! attribute argument is not of expected kind.
-    pub fn ensure_first(
-        &self,
-        expected: &AttributeArgKind,
-    ) -> Result<(), syn::Error> {
+    pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
         if &self.first().arg.kind() != expected {
             return Err(format_err!(
                 self.span(),
@@ -369,10 +375,7 @@ pub enum AttributeArg {
 }
 
 impl core::fmt::Display for AttributeArgKind {
-    fn fmt(
-        &self,
-        f: &mut core::fmt::Formatter,
-    ) -> Result<(), core::fmt::Error> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
@@ -415,10 +418,7 @@ impl AttributeArg {
 }
 
 impl core::fmt::Display for AttributeArg {
-    fn fmt(
-        &self,
-        f: &mut core::fmt::Formatter,
-    ) -> Result<(), core::fmt::Error> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
             Self::Storage => write!(f, "storage"),
             Self::Event => write!(f, "event"),
@@ -548,10 +548,9 @@ where
     C: FnMut(&AttributeArg) -> bool,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
-    let normalized =
-        ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-            err.into_combine(format_err!(parent_span, "at this invocation",))
-        })?;
+    let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+        err.into_combine(format_err!(parent_span, "at this invocation",))
+    })?;
     normalized.ensure_first(is_valid_first).map_err(|err| {
         err.into_combine(format_err!(
             parent_span,
@@ -583,10 +582,7 @@ impl Attribute {
                     attr.span(),
                     "encountered duplicate ink! attribute"
                 )
-                .into_combine(format_err!(
-                    seen.span(),
-                    "first ink! attribute here"
-                )))
+                .into_combine(format_err!(seen.span(), "first ink! attribute here")))
             }
             seen.insert(attr);
         }
@@ -616,10 +612,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 
     fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path.is_ident("ink") {
-            return Err(format_err_spanned!(
-                attr,
-                "unexpected non-ink! attribute"
-            ))
+            return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
         match attr.parse_meta().map_err(|_| {
             format_err_spanned!(attr, "unexpected ink! attribute structure")
@@ -839,10 +832,7 @@ mod tests {
             first_ink_attribute(input)
                 .map(|maybe_attr: Option<ir::InkAttribute>| {
                     maybe_attr.map(|attr: ir::InkAttribute| {
-                        attr.args
-                            .into_iter()
-                            .map(|arg| arg.arg)
-                            .collect::<Vec<_>>()
+                        attr.args.into_iter().map(|arg| arg.arg).collect::<Vec<_>>()
                     })
                 })
                 .map_err(|err| err.to_string()),
@@ -1115,10 +1105,7 @@ mod tests {
         let attr: syn::Attribute = syn::parse_quote! {
             #[non_ink(message)]
         };
-        assert_attribute_try_from(
-            attr.clone(),
-            Ok(test::Attribute::Other(attr)),
-        );
+        assert_attribute_try_from(attr.clone(), Ok(test::Attribute::Other(attr)));
     }
 
     #[test]
@@ -1152,10 +1139,7 @@ mod tests {
     /// or that the expected error is returned.
     fn assert_parition_attributes(
         input: Vec<syn::Attribute>,
-        expected: Result<
-            (Vec<test::InkAttribute>, Vec<syn::Attribute>),
-            &'static str,
-        >,
+        expected: Result<(Vec<test::InkAttribute>, Vec<syn::Attribute>), &'static str>,
     ) {
         assert_eq!(
             partition_attributes(input)

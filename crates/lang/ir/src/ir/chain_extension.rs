@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{error::ExtError, ir, ir::idents_lint};
-use core::convert::TryFrom;
+use crate::{
+    error::ExtError,
+    ir,
+    ir::idents_lint,
+};
+use core::{
+    convert::TryFrom,
+    slice::Iter as SliceIter,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use std::collections::HashMap;
-use syn::{spanned::Spanned as _, Result};
-use core::slice::Iter as SliceIter;
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// An ink! chain extension.
 #[derive(Debug, PartialEq, Eq)]
@@ -61,7 +70,9 @@ impl ChainExtensionMethod {
     /// Returns the Rust attributes of the ink! chain extension method.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
         let (_, attrs) = ir::partition_attributes(self.item.attrs.iter().cloned())
-            .expect("encountered unexpected invalid attributes for ink! chain extension method");
+            .expect(
+            "encountered unexpected invalid attributes for ink! chain extension method",
+        );
         attrs
     }
 
@@ -113,9 +124,7 @@ impl ExtensionId {
 impl TryFrom<syn::ItemTrait> for ChainExtension {
     type Error = syn::Error;
 
-    fn try_from(
-        item_trait: syn::ItemTrait,
-    ) -> core::result::Result<Self, Self::Error> {
+    fn try_from(item_trait: syn::ItemTrait) -> core::result::Result<Self, Self::Error> {
         idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
         let methods = Self::analyse_items(&item_trait)?;
@@ -200,9 +209,7 @@ impl ChainExtension {
     ///
     /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
     /// as a result of this proc. macro invocation.
-    fn analyse_items(
-        item_trait: &syn::ItemTrait,
-    ) -> Result<Vec<ChainExtensionMethod>> {
+    fn analyse_items(item_trait: &syn::ItemTrait) -> Result<Vec<ChainExtensionMethod>> {
         let mut methods = Vec::new();
         let mut seen_ids = HashMap::new();
         for trait_item in &item_trait.items {
@@ -266,9 +273,7 @@ impl ChainExtension {
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    fn analyse_methods(
-        method: &syn::TraitItemMethod,
-    ) -> Result<ChainExtensionMethod> {
+    fn analyse_methods(method: &syn::TraitItemMethod) -> Result<ChainExtensionMethod> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -553,8 +558,7 @@ mod tests {
     }
 
     #[test]
-    fn chain_extension_containing_method_with_unsupported_ink_attribute_is_denied(
-    ) {
+    fn chain_extension_containing_method_with_unsupported_ink_attribute_is_denied() {
         assert_ink_chain_extension_eq_err!(
             error: "\
                 encountered unsupported ink! attribute for ink! chain extension method. \

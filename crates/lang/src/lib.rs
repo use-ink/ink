@@ -25,8 +25,16 @@ mod traits;
 
 pub use self::{
     chain_extension::ChainExtensionInstance,
-    contract::{DispatchMode, DispatchUsingMode},
-    cross_calling::{ForwardCall, ForwardCallMut, NeverReturns, ToAccountId},
+    contract::{
+        DispatchMode,
+        DispatchUsingMode,
+    },
+    cross_calling::{
+        ForwardCall,
+        ForwardCallMut,
+        NeverReturns,
+        ToAccountId,
+    },
     dispatcher::{
         deny_payment,
         execute_constructor,
@@ -38,9 +46,21 @@ pub use self::{
         Execute,
         MessageDispatcher,
     },
-    env_access::{ContractEnv, Env, EnvAccess, StaticEnv},
-    error::{DispatchError, DispatchResult, DispatchRetCode},
-    events::{BaseEvent, EmitEvent},
+    env_access::{
+        ContractEnv,
+        Env,
+        EnvAccess,
+        StaticEnv,
+    },
+    error::{
+        DispatchError,
+        DispatchResult,
+        DispatchRetCode,
+    },
+    events::{
+        BaseEvent,
+        EmitEvent,
+    },
     traits::{
         CheckedInkTrait,
         Constructor,
@@ -55,4 +75,9 @@ pub use self::{
     },
 };
 pub use ::static_assertions;
-pub use ink_lang_macro::{chain_extension, contract, test, trait_definition};
+pub use ink_lang_macro::{
+    chain_extension,
+    contract,
+    test,
+    trait_definition,
+};

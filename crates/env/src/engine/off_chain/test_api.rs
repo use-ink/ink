@@ -14,17 +14,17 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::chain_extension::ChainExtension;
-pub use super::{
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
-};
 use super::{
+    chain_extension::ChainExtension,
     db::ExecContext,
     AccountError,
     EnvInstance,
     OnInstance,
+};
+pub use super::{
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
 };
 use crate::{
     Environment,

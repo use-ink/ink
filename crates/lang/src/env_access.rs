@@ -97,7 +97,9 @@ where
     <T as Environment>::ChainExtension: ChainExtensionInstance,
 {
     /// Allows to call one of the available defined chain extension methods.
-    pub fn extension(self) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
+    pub fn extension(
+        self,
+    ) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
         <<T as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }

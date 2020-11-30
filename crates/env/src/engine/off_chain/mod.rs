@@ -24,7 +24,6 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-use self::chain_extension::ChainExtensionHandler;
 pub use self::{
     call_data::CallData,
     db::{
@@ -35,6 +34,7 @@ pub use self::{
     typed_encoded::TypedEncodedError,
 };
 use self::{
+    chain_extension::ChainExtensionHandler,
     db::{
         Account,
         AccountsDb,
