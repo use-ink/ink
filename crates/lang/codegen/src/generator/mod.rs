@@ -22,6 +22,7 @@ mod item_impls;
 mod metadata;
 mod storage;
 mod trait_def;
+mod chain_extension;
 
 pub use self::{
     contract::Contract,
@@ -37,4 +38,5 @@ pub use self::{
     metadata::Metadata,
     storage::Storage,
     trait_def::TraitDefinition,
+    chain_extension::ChainExtension,
 };
