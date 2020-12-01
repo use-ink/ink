@@ -246,7 +246,7 @@ where
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (&index, entry) in self.entries().iter() {
             let root_key = offset_key + (index as u64);
@@ -255,7 +255,7 @@ where
     }
 
     #[inline]
-    fn clear_spread(&mut self, _ptr: &mut KeyPtr) {
+    fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
@@ -277,14 +277,14 @@ where
     ///
     /// The general use of this API is to streamline `Drop` implementations of
     /// high-level abstractions that build upon this low-level data strcuture.
-    pub fn clear_packed_at(&mut self, index: Index) {
+    pub fn clear_packed_at(&self, index: Index) {
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             // We need to load the entity before we remove its associated contract storage
             // because it requires a deep clean-up which propagates clearing to its fields,
             // for example in the case of `T` being a `storage::Box`.
-            let mut entity = self.get_mut(index).expect("cannot clear a non existing entity");
-            clear_packed_root::<V>(&mut entity, &root_key);
+            let entity = self.get(index).expect("cannot clear a non existing entity");
+            clear_packed_root::<V>(&entity, &root_key);
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
@@ -717,8 +717,8 @@ mod tests {
             // another instance of it from the contract stoarge.
             // Then: Compare both instances to be equal.
             let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&mut imap, &mut KeyPtr::from(root_key));
-            let mut imap2 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
+            SpreadLayout::push_spread(&imap, &mut KeyPtr::from(root_key));
+            let imap2 = <LazyIndexMap<u8> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),
             );
             assert_cached_entries(&imap2, &[]);
@@ -738,7 +738,7 @@ mod tests {
             // Clear the first lazy index map instance and reload another instance
             // to check whether the associated storage has actually been freed
             // again:
-            SpreadLayout::clear_spread(&mut imap2, &mut KeyPtr::from(root_key));
+            SpreadLayout::clear_spread(&imap2, &mut KeyPtr::from(root_key));
             // The above `clear_spread` call is a no-op since lazy index map is
             // generally not aware of its associated elements. So we have to
             // manually clear them from the contract storage which is what the

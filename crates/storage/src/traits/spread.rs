@@ -74,7 +74,7 @@ pub trait SpreadLayout {
     ///
     /// This method of pushing is depth-first: Sub-types are pushed before
     /// their parent or super type.
-    fn push_spread(&mut self, ptr: &mut KeyPtr);
+    fn push_spread(&self, ptr: &mut KeyPtr);
 
     /// Clears an instance of `Self` from the contract storage.
     ///
@@ -87,5 +87,5 @@ pub trait SpreadLayout {
     ///
     /// This method of clearing is depth-first: Sub-types are cleared before
     /// their parent or super type.
-    fn clear_spread(&mut self, ptr: &mut KeyPtr);
+    fn clear_spread(&self, ptr: &mut KeyPtr);
 }

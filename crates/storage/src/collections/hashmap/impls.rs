@@ -45,7 +45,6 @@ where
     Key: From<<H as HashOutput>::Type>,
 {
     fn drop(&mut self) {
-        // First call site of `clear_cells()`.
         self.clear_cells();
     }
 }

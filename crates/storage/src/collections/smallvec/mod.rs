@@ -90,7 +90,7 @@ where
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
     /// for the [`SpreadLayout::clear_spread`] trait implementation.
-    fn clear_cells(&mut self) {
+    fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
             // probably has not been any state written to storage, yet.

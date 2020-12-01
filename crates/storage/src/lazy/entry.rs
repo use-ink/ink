@@ -110,12 +110,12 @@ where
         Self::pull_spread_root(root_key)
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.push_spread_root(root_key)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.clear_spread_root(root_key)
     }
@@ -173,8 +173,8 @@ where
     }
 
     #[inline]
-    fn clear_packed(&mut self, at: &Key) {
-        PackedLayout::clear_packed(&mut self.value, at)
+    fn clear_packed(&self, at: &Key) {
+        PackedLayout::clear_packed(&self.value, at)
     }
 }
 
@@ -198,10 +198,10 @@ where
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyCell`].
-    pub fn push_spread_root(&mut self, root_key: &Key) {
+    pub fn push_spread_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
-            push_spread_root_opt::<T>(self.value_mut().into(), &root_key);
+            push_spread_root_opt::<T>(self.value().into(), &root_key);
         }
     }
 
@@ -211,8 +211,8 @@ where
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyCell`].
-    pub fn clear_spread_root(&mut self, root_key: &Key) {
-        clear_spread_root_opt::<T, _>(&root_key, || self.value_mut().into());
+    pub fn clear_spread_root(&self, root_key: &Key) {
+        clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
     }
 }
 
@@ -249,8 +249,8 @@ where
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
-    pub fn clear_packed_root(&mut self, root_key: &Key) {
-        clear_packed_root::<Option<T>>(self.value_mut(), &root_key);
+    pub fn clear_packed_root(&self, root_key: &Key) {
+        clear_packed_root::<Option<T>>(self.value(), &root_key);
     }
 }
 

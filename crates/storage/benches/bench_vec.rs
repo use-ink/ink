@@ -54,7 +54,7 @@ fn storage_vec_from_slice(slice: &[u8]) -> StorageVec<u8> {
 fn push_storage_vec() {
     let vec = storage_vec_from_slice(test_values());
     let root_key = Key::from([0x00; 32]);
-    SpreadLayout::push_spread(&mut vec, &mut KeyPtr::from(root_key));
+    SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
 }
 
 /// Pulls a lazily loading storage vector instance from the contract storage.

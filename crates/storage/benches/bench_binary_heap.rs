@@ -54,7 +54,7 @@ mod binary_heap {
     /// at the start of contract execution.
     pub fn init_storage(root_key: Key, values: &[u32]) {
         let heap = from_slice(values);
-        SpreadLayout::push_spread(&mut heap, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
         // prevents storage for the test heap being cleared when the heap is dropped after each
         // benchmark iteration

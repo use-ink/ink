@@ -127,9 +127,9 @@ fn take_refill_rev_works() {
 #[test]
 fn spread_layout_push_pull_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let mut default = filled_bitstash();
+        let default = filled_bitstash();
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&mut default, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&default, &mut KeyPtr::from(root_key));
         let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);
         Ok(())
@@ -141,16 +141,16 @@ fn spread_layout_push_pull_works() {
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let mut default = filled_bitstash();
+        let default = filled_bitstash();
         // First push the instance to the contract storage.
         // Then load a valid instance, check it and clear its associated storage.
         // Afterwards load the invalid instance from the same storage region
         // and try to interact with it which is expected to fail.
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&mut default, &mut KeyPtr::from(root_key));
-        let mut pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&default, &mut KeyPtr::from(root_key));
+        let pulled = <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(default, pulled);
-        SpreadLayout::clear_spread(&mut pulled, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&pulled, &mut KeyPtr::from(root_key));
         let invalid =
             <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         // We have to prevent calling its destructor since that would also panic but

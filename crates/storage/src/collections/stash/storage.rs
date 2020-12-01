@@ -79,11 +79,11 @@ impl SpreadLayout for Header {
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -91,7 +91,7 @@ impl SpreadLayout for Header {
 impl PackedLayout for Header {
     fn pull_packed(&mut self, _at: &Key) {}
     fn push_packed(&self, _at: &Key) {}
-    fn clear_packed(&mut self, _at: &Key) {}
+    fn clear_packed(&self, _at: &Key) {}
 }
 
 impl<T> SpreadLayout for Entry<T>
@@ -105,11 +105,11 @@ where
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -130,7 +130,7 @@ where
         }
     }
 
-    fn clear_packed(&mut self, at: &Key) {
+    fn clear_packed(&self, at: &Key) {
         if let Entry::Occupied(value) = self {
             <T as PackedLayout>::clear_packed(value, at)
         }
@@ -150,14 +150,14 @@ where
         }
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&mut self.header, ptr);
-        SpreadLayout::push_spread(&mut self.entries, ptr);
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&self.header, ptr);
+        SpreadLayout::push_spread(&self.entries, ptr);
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
         self.clear_cells();
-        SpreadLayout::clear_spread(&mut self.header, ptr);
-        SpreadLayout::clear_spread(&mut self.entries, ptr);
+        SpreadLayout::clear_spread(&self.header, ptr);
+        SpreadLayout::clear_spread(&self.entries, ptr);
     }
 }

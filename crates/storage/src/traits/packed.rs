@@ -42,5 +42,5 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     /// Most types will have to implement a simple forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
     /// are required to perform some special handling upon receiving this signal.
-    fn clear_packed(&mut self, at: &Key);
+    fn clear_packed(&self, at: &Key);
 }

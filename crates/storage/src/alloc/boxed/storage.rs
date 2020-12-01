@@ -82,12 +82,12 @@ where
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(&self, ptr)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
-        forward_clear_packed::<Self>(self, ptr)
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        forward_clear_packed::<Self>(&self, ptr)
     }
 }
 
@@ -130,12 +130,10 @@ where
     fn pull_packed(&mut self, _at: &Key) {}
 
     fn push_packed(&self, _at: &Key) {
-        <T as SpreadLayout>::push_spread(Self::get_mut(&mut self), &mut KeyPtr::from(self.key()))
+        <T as SpreadLayout>::push_spread(Self::get(self), &mut KeyPtr::from(self.key()))
     }
 
-    fn clear_packed(&mut self, _at: &Key) {
-        let mut key = KeyPtr::from(self.key());
-        let borrow = Self::get_mut(self);
-        <T as SpreadLayout>::clear_spread(borrow, &mut key)
+    fn clear_packed(&self, _at: &Key) {
+        <T as SpreadLayout>::clear_spread(Self::get(self), &mut KeyPtr::from(self.key()))
     }
 }

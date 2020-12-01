@@ -97,12 +97,12 @@ where
         }
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&mut self.cell, ptr)
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&self.cell, ptr)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&mut self.cell, ptr)
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&self.cell, ptr)
     }
 }
 

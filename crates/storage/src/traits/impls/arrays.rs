@@ -42,13 +42,13 @@ macro_rules! impl_layout_for_array {
                 const FOOTPRINT: u64 = $len * <T as SpreadLayout>::FOOTPRINT;
                 const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
-                fn push_spread(&mut self, ptr: &mut KeyPtr) {
+                fn push_spread(&self, ptr: &mut KeyPtr) {
                     for elem in self {
                         <T as SpreadLayout>::push_spread(elem, ptr)
                     }
                 }
 
-                fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+                fn clear_spread(&self, ptr: &mut KeyPtr) {
                     for elem in self {
                         <T as SpreadLayout>::clear_spread(elem, ptr)
                     }
@@ -71,7 +71,7 @@ macro_rules! impl_layout_for_array {
                 }
 
                 #[inline]
-                fn clear_packed(&mut self, at: &Key) {
+                fn clear_packed(&self, at: &Key) {
                     for elem in self {
                         <T as PackedLayout>::clear_packed(elem, at)
                     }

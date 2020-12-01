@@ -173,12 +173,12 @@ where
         }
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+    fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<T>(Self::as_inner(self), ptr)
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
-        forward_clear_packed::<T>(Self::as_inner_mut(self), ptr)
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        forward_clear_packed::<T>(Self::as_inner(self), ptr)
     }
 }
 
@@ -192,8 +192,8 @@ where
     fn push_packed(&self, at: &Key) {
         <T as PackedLayout>::push_packed(Self::as_inner(self), at)
     }
-    fn clear_packed(&mut self, at: &Key) {
-        <T as PackedLayout>::clear_packed(Self::as_inner_mut(self), at)
+    fn clear_packed(&self, at: &Key) {
+        <T as PackedLayout>::clear_packed(Self::as_inner(self), at)
     }
 }
 
@@ -463,7 +463,7 @@ mod tests {
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
             let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&mut p1, &mut KeyPtr::from(root_key));
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             // Now load another instance of a pack from the same key and check
             // if both instances are equal:
             let p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
@@ -478,14 +478,14 @@ mod tests {
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
             let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&mut p1, &mut KeyPtr::from(root_key));
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             // Now load another instance of a pack from the same key and check
             // if both instances are equal:
-            let mut p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+            let p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(p1, p2);
             // Clearing the underlying storage of p2 immediately so that
             // loading another instance of pack again should panic.
-            SpreadLayout::clear_spread(&mut p2, &mut KeyPtr::from(root_key));
+            SpreadLayout::clear_spread(&p2, &mut KeyPtr::from(root_key));
             let p3 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(p1, p3);
         })
@@ -498,7 +498,7 @@ mod tests {
             let p1 = Pack::new((b'A', [0x00; 4], (true, 42)));
             assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
             let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&mut p1, &mut KeyPtr::from(root_key));
+            SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
             let p2 = pull_packed_root::<Pack<(u8, [i32; 4], (bool, i32))>>(&root_key);
             assert_eq!(p1, p2);
             // Push as packed, pull as spread:

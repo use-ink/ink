@@ -49,7 +49,7 @@ fn storage_stash_from_slice(slice: &[u8]) -> StorageStash<u8> {
 fn push_storage_stash() {
     let stash = storage_stash_from_slice(test_values());
     let root_key = Key::from([0x00; 32]);
-    SpreadLayout::push_spread(&mut stash, &mut KeyPtr::from(root_key));
+    SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 }
 
 /// Pulls a lazily loading storage stash instance from the contract storage.

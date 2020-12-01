@@ -296,14 +296,14 @@ where
         Self { len, children }
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&mut self.len, ptr);
-        SpreadLayout::push_spread(&mut self.children, ptr);
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&self.len, ptr);
+        SpreadLayout::push_spread(&self.children, ptr);
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&mut self.len, ptr);
-        SpreadLayout::clear_spread(&mut self.children, ptr);
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&self.len, ptr);
+        SpreadLayout::clear_spread(&self.children, ptr);
     }
 }
 

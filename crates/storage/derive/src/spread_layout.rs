@@ -109,10 +109,10 @@ fn spread_layout_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
             fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
                 #pull_body
             }
-            fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+            fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                 match self { #push_body }
             }
-            fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+            fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                 match self { #clear_body }
             }
         }
@@ -179,14 +179,14 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
                     _ => unreachable!("encountered invalid enum discriminant"),
                 }
             }
-            fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+            fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                 match self {
                     #(
                         #push_body
                     )*
                 }
             }
-            fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+            fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                 match self {
                     #clear_body
                 }

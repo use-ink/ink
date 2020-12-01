@@ -205,7 +205,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&mut heap1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
         // Load the pushed binary heap into another instance and check that
         // both instances are equal:
         let heap2 =
@@ -219,16 +219,16 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let mut heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
+        let heap1 = heap_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&mut heap1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
         // from contract storage after a push to the same storage region.
         //
         // Now clear the associated storage from `heap1` and check whether
         // loading another instance from this storage will panic since the
         // heap's length property cannot read a value:
-        SpreadLayout::clear_spread(&mut heap1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&heap1, &mut KeyPtr::from(root_key));
         let _ =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
@@ -245,7 +245,7 @@ fn drop_works() {
         // if the setup panics it should not cause the test to pass
         let setup_result = std::panic::catch_unwind(|| {
             let heap = heap_from_slice(&[23, 25, 65]);
-            SpreadLayout::push_spread(&mut heap, &mut KeyPtr::from(root_key));
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
 
             let _ = <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 root_key,
@@ -298,7 +298,7 @@ where
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let heap1 = heap_of_size(heap_size);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&mut heap1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
         let contract_account = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()?;
@@ -320,7 +320,7 @@ where
         heap_op(&mut lazy_heap);
 
         // write back to storage so we can see how many writes required
-        SpreadLayout::push_spread(&mut lazy_heap, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
 
         let (reads, writes) = ink_env::test::get_contract_storage_rw::<
             ink_env::DefaultEnvironment,

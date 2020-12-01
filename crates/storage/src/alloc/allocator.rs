@@ -57,12 +57,12 @@ impl SpreadLayout for DynamicAllocator {
         }
     }
 
-    fn push_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&mut self.allocations, ptr);
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&self.allocations, ptr);
     }
 
-    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&mut self.allocations, ptr);
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&self.allocations, ptr);
     }
 }
 

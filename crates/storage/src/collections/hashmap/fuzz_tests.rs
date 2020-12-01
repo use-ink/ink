@@ -158,7 +158,7 @@ fn fuzz_defrag(xs: Vec<i32>, inserts_each: u8) {
 
         // Then we push the defragmented hash map to storage and pull it again
         let root_key = Key::from([0x00; 32]);
-        SpreadLayout::push_spread(&mut map, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&map, &mut KeyPtr::from(root_key));
         let map2: StorageHashMap<i32, i32> =
             SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
 

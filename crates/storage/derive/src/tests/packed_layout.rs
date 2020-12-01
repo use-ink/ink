@@ -35,7 +35,7 @@ fn unit_struct_works() {
                         }
                     }
 
-                    fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
+                    fn clear_packed(&self, __key: &::ink_primitives::Key) {
                         match self {
                             UnitStruct => {}
                         }
@@ -98,7 +98,7 @@ fn struct_works() {
                             }
                         }
                     }
-                    fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
+                    fn clear_packed(&self, __key: &::ink_primitives::Key) {
                         match self {
                             NamedFields {
                                 a: __binding_0,
@@ -185,7 +185,7 @@ fn enum_works() {
                             }
                         }
                     }
-                    fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
+                    fn clear_packed(&self, __key: &::ink_primitives::Key) {
                         match self {
                             MixedEnum::A => {}
                             MixedEnum::B(__binding_0, __binding_1,) => {
@@ -262,7 +262,7 @@ fn generic_struct_works() {
                             }
                         }
                     }
-                    fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
+                    fn clear_packed(&self, __key: &::ink_primitives::Key) {
                         match self {
                             GenericStruct {
                                 a: __binding_0,
@@ -346,7 +346,7 @@ fn generic_enum_works() {
                             }
                         }
                     }
-                    fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
+                    fn clear_packed(&self, __key: &::ink_primitives::Key) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {

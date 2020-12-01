@@ -39,7 +39,7 @@ criterion_main!(populated_cache, empty_cache,);
 fn push_stash() {
     let stash = BitStash::default();
     let root_key = Key::from([0x00; 32]);
-    SpreadLayout::push_spread(&mut stash, &mut KeyPtr::from(root_key));
+    SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 }
 
 /// Creates a `BitStash` and pushes it to the contract storage.

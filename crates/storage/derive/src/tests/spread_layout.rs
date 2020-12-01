@@ -32,13 +32,13 @@ fn unit_struct_works() {
                         UnitStruct
                     }
 
-                    fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             UnitStruct => {}
                         }
                     }
 
-                    fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             UnitStruct => {}
                         }
@@ -96,7 +96,7 @@ fn struct_works() {
                         }
                     }
 
-                    fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             NamedFields {
                                 a: __binding_0,
@@ -125,7 +125,7 @@ fn struct_works() {
                         }
                     }
 
-                    fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             NamedFields {
                                 a: __binding_0,
@@ -338,7 +338,7 @@ fn enum_works() {
                             _ => unreachable!("encountered invalid enum discriminant"),
                         }
                     }
-                    fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             MixedEnum::A => {
                                 {
@@ -392,7 +392,7 @@ fn enum_works() {
                             }
                         }
                     }
-                    fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             MixedEnum::A => {}
                             MixedEnum::B(__binding_0, __binding_1,) => {
@@ -481,7 +481,7 @@ fn generic_struct_works() {
                         }
                     }
 
-                    fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             GenericStruct {
                                 a: __binding_0,
@@ -503,7 +503,7 @@ fn generic_struct_works() {
                         }
                     }
 
-                    fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             GenericStruct {
                                 a: __binding_0,
@@ -604,7 +604,7 @@ fn generic_enum_works() {
                         }
                     }
 
-                    fn push_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
@@ -646,7 +646,7 @@ fn generic_enum_works() {
                         }
                     }
 
-                    fn clear_spread(&mut self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
