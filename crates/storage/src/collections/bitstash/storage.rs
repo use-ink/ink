@@ -65,11 +65,11 @@ impl SpreadLayout for CountFree {
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -77,7 +77,7 @@ impl SpreadLayout for CountFree {
 impl PackedLayout for CountFree {
     fn pull_packed(&mut self, _at: &Key) {}
     fn push_packed(&self, _at: &Key) {}
-    fn clear_packed(&self, _at: &Key) {}
+    fn clear_packed(&mut self, _at: &Key) {}
 }
 
 impl SpreadLayout for BitStash {
@@ -91,13 +91,13 @@ impl SpreadLayout for BitStash {
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.counts, ptr);
-        SpreadLayout::push_spread(&self.free, ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&mut self.counts, ptr);
+        SpreadLayout::push_spread(&mut self.free, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.counts, ptr);
-        SpreadLayout::clear_spread(&self.free, ptr);
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&mut self.counts, ptr);
+        SpreadLayout::clear_spread(&mut self.free, ptr);
     }
 }

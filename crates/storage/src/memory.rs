@@ -78,8 +78,8 @@ where
         Default::default()
     }
 
-    fn push_spread(&self, _ptr: &mut KeyPtr) {}
-    fn clear_spread(&self, _ptr: &mut KeyPtr) {}
+    fn push_spread(&mut self, _ptr: &mut KeyPtr) {}
+    fn clear_spread(&mut self, _ptr: &mut KeyPtr) {}
 }
 
 impl<T> Memory<T> {
@@ -253,7 +253,7 @@ mod tests {
         assert_eq!(*p1, (b'A', [0x00; 4], (true, 42)));
         assert_ne!(p1, Default::default());
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut p1, &mut KeyPtr::from(root_key));
         // Now load another instance of a pack from the same key and check
         // if both instances are equal:
         let p2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
@@ -279,16 +279,16 @@ mod tests {
             // contract storage. We can test this by pushing and pulling a storage
             // affecting entity in between on the same storage region:
             let root_key = Key::from([0x42; 32]);
-            <i32 as SpreadLayout>::push_spread(&42, &mut KeyPtr::from(root_key));
+            <i32 as SpreadLayout>::push_spread(&mut 42, &mut KeyPtr::from(root_key));
             let loaded1 = <i32 as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(loaded1, 42);
             let mem = Memory::new(77);
-            SpreadLayout::push_spread(&mem, &mut KeyPtr::from(root_key));
-            let loaded2 = <i32 as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            SpreadLayout::push_spread(&mut mem, &mut KeyPtr::from(root_key));
+            let mut loaded2 = <i32 as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(loaded2, 42);
             // Now we clear the `i32` from storage and check whether that works.
             // We load as `Option<i32>` in order to expect `None`:
-            <i32 as SpreadLayout>::clear_spread(&loaded2, &mut KeyPtr::from(root_key));
+            <i32 as SpreadLayout>::clear_spread(&mut loaded2, &mut KeyPtr::from(root_key));
             use crate::traits::pull_packed_root_opt;
             let loaded3 = pull_packed_root_opt::<Option<i32>>(&root_key);
             assert_eq!(loaded3, None);

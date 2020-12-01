@@ -38,7 +38,7 @@ macro_rules! gen_tests_for_backend {
         }
 
         /// Pushes a `HashMap` instance into the contract storage.
-        fn push_hmap(hmap: &$backend) {
+        fn push_hmap(hmap: &mut $backend) {
             SpreadLayout::push_spread(hmap, &mut key_ptr());
         }
 
@@ -48,9 +48,9 @@ macro_rules! gen_tests_for_backend {
         }
 
         fn push_pull_prefilled_hmap() -> $backend {
-            let hmap1 = prefilled_hmap();
+            let mut hmap1 = prefilled_hmap();
             assert_eq!(hmap1.get(&b'A'), Some(&13));
-            push_hmap(&hmap1);
+            push_hmap(&mut hmap1);
             pull_hmap()
         }
 
@@ -90,9 +90,9 @@ macro_rules! gen_tests_for_backend {
         fn mutations_work_with_push_pull() -> ink_env::Result<()> {
             ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
+                let mut hmap1 = prefilled_hmap();
                 assert_eq!(hmap1.get(&b'A'), Some(&13));
-                push_hmap(&hmap1);
+                push_hmap(&mut hmap1);
 
                 let mut hmap2 = pull_hmap();
                 assert_eq!(hmap2.get(&b'A'), Some(&13));
@@ -101,7 +101,7 @@ macro_rules! gen_tests_for_backend {
                 let v = hmap2.entry(b'A').or_insert(42);
                 *v += 1;
                 assert_eq!(hmap2.get(&b'A'), Some(&14));
-                push_hmap(&hmap2);
+                push_hmap(&mut hmap2);
 
                 // then
                 let hmap3 = pull_hmap();
@@ -162,7 +162,7 @@ macro_rules! gen_tests_for_backend {
 
                 // when
                 *value = 43;
-                push_hmap(&hmap1);
+                push_hmap(&mut hmap1);
 
                 // then
                 let hmap2 = pull_hmap();
@@ -234,7 +234,7 @@ macro_rules! gen_tests_for_backend {
                     }
                     Entry::Vacant(_) => panic!(),
                 }
-                push_hmap(&hmap1);
+                push_hmap(&mut hmap1);
 
                 // when
                 let mut hmap2 = pull_hmap();
@@ -245,7 +245,7 @@ macro_rules! gen_tests_for_backend {
                     }
                     Entry::Vacant(_) => panic!(),
                 }
-                push_hmap(&hmap2);
+                push_hmap(&mut hmap2);
 
                 // then
                 let hmap3 = pull_hmap();
@@ -279,7 +279,7 @@ macro_rules! gen_tests_for_backend {
                         *val += 1;
                     }
                 }
-                push_hmap(&hmap1);
+                push_hmap(&mut hmap1);
 
                 // when
                 let hmap2 = pull_hmap();
@@ -294,8 +294,8 @@ macro_rules! gen_tests_for_backend {
         fn pulling_occupied_entry_must_succeed() -> ink_env::Result<()> {
             ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
                 // given
-                let hmap1 = prefilled_hmap();
-                push_hmap(&hmap1);
+                let mut hmap1 = prefilled_hmap();
+                push_hmap(&mut hmap1);
 
                 // when
                 let mut hmap2 = pull_hmap();
@@ -360,7 +360,7 @@ macro_rules! gen_tests_for_backend {
                     Entry::Occupied(o) => {
                         assert_eq!(o.remove_entry(), (b'A', 13));
                         assert_eq!(hmap2.get(&b'A'), None);
-                        push_hmap(&hmap2);
+                        push_hmap(&mut hmap2);
                     }
                     Entry::Vacant(_) => panic!(),
                 }
@@ -385,7 +385,7 @@ macro_rules! gen_tests_for_backend {
                     Entry::Vacant(_) => panic!(),
                 }
                 assert_eq!(hmap2.get(&b'A'), Some(&999));
-                push_hmap(&hmap2);
+                push_hmap(&mut hmap2);
 
                 // then
                 // the value must have been flushed, which implies that after the

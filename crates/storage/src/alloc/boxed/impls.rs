@@ -23,7 +23,8 @@ where
     T: SpreadLayout,
 {
     fn drop(&mut self) {
-        clear_spread_root::<T>(self, &self.allocation.key());
+        let key = self.allocation.key();
+        clear_spread_root::<T>(self, &key);
         crate::alloc::free(self.allocation);
     }
 }

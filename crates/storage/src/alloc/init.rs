@@ -114,7 +114,7 @@ impl DynamicAllocatorState {
                 // Push all state of the global dynamic storage allocator
                 // instance back onto the contract storage.
                 push_spread_root::<DynamicAllocator>(
-                    &allocator,
+                    &mut allocator,
                     &Key::from(DYNAMIC_ALLOCATOR_KEY_OFFSET),
                 );
                 // Prevent calling `drop` on the dynamic storage allocator

@@ -97,7 +97,7 @@ where
 ///   the contract storage using spread layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`SpreadLayout`].
-pub fn clear_spread_root<T>(entity: &T, root_key: &Key)
+pub fn clear_spread_root<T>(entity: &mut T, root_key: &Key)
 where
     T: SpreadLayout,
 {
@@ -116,7 +116,7 @@ where
 ///   spread layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`SpreadLayout`].
-pub fn push_spread_root<T>(entity: &T, root_key: &Key)
+pub fn push_spread_root<T>(entity: &mut T, root_key: &Key)
 where
     T: SpreadLayout,
 {
@@ -176,7 +176,7 @@ where
 ///   the contract storage using packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
-pub fn clear_packed_root<T>(entity: &T, root_key: &Key)
+pub fn clear_packed_root<T>(entity: &mut T, root_key: &Key)
 where
     T: PackedLayout,
 {

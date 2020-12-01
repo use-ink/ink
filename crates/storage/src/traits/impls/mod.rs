@@ -38,12 +38,12 @@ macro_rules! impl_always_packed_layout {
                 }
 
                 #[inline]
-                fn push_spread(&self, ptr: &mut KeyPtr) {
+                fn push_spread(&mut self, ptr: &mut KeyPtr) {
                     forward_push_packed::<Self>(self, ptr)
                 }
 
                 #[inline]
-                fn clear_spread(&self, ptr: &mut KeyPtr) {
+                fn clear_spread(&mut self, ptr: &mut KeyPtr) {
                     forward_clear_packed::<Self>(self, ptr)
                 }
             }
@@ -70,12 +70,12 @@ macro_rules! impl_always_packed_layout {
                 }
 
                 #[inline]
-                fn push_spread(&self, ptr: &mut KeyPtr) {
+                fn push_spread(&mut self, ptr: &mut KeyPtr) {
                     forward_push_packed::<Self>(self, ptr)
                 }
 
                 #[inline]
-                fn clear_spread(&self, ptr: &mut KeyPtr) {
+                fn clear_spread(&mut self, ptr: &mut KeyPtr) {
                     forward_clear_packed::<Self>(self, ptr)
                 }
             }
@@ -148,7 +148,7 @@ where
 /// Use this utility function to use a packed clear operation for the type
 /// instead of a spreaded clear operation.
 #[inline]
-pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
+pub fn forward_clear_packed<T>(entity: &mut T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,
 {

@@ -150,11 +150,11 @@ where
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -168,9 +168,9 @@ where
         <Option<T> as PackedLayout>::push_packed(&self.right, at);
     }
 
-    fn clear_packed(&self, at: &Key) {
-        <Option<T> as PackedLayout>::clear_packed(&self.left, at);
-        <Option<T> as PackedLayout>::clear_packed(&self.right, at);
+    fn clear_packed(&mut self, at: &Key) {
+        <Option<T> as PackedLayout>::clear_packed(&mut self.left, at);
+        <Option<T> as PackedLayout>::clear_packed(&mut self.right, at);
     }
 
     fn pull_packed(&mut self, at: &Key) {

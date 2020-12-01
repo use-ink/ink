@@ -37,7 +37,7 @@ where
         .map(|_| super::pull_spread_root::<T>(root_key))
 }
 
-pub fn push_spread_root_opt<T>(entity: Option<&T>, root_key: &Key)
+pub fn push_spread_root_opt<T>(entity: Option<&mut T>, root_key: &Key)
 where
     T: SpreadLayout,
 {
@@ -56,7 +56,7 @@ where
 pub fn clear_spread_root_opt<'a, T: 'a, F>(root_key: &Key, f: F)
 where
     T: SpreadLayout,
-    F: FnOnce() -> Option<&'a T>,
+    F: FnOnce() -> Option<&'a mut T>,
 {
     // We can clean up some storage entity using its `SpreadLayout::clear_spread`
     // implementation or its defined storage footprint.

@@ -361,9 +361,9 @@ fn swap_remove_drop_works() {
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+        let mut vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut vec1, &mut KeyPtr::from(root_key));
         // Load the pushed storage vector into another instance and check that
         // both instances are equal:
         let vec2 =
@@ -377,16 +377,16 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+        let mut vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&vec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut vec1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
         // from contract storage after a push to the same storage region.
         //
         // Now clear the associated storage from `vec1` and check whether
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
-        SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut vec1, &mut KeyPtr::from(root_key));
         let _ =
             <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
@@ -436,13 +436,13 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         let mut lazy_vec: Lazy<StorageVec<u32>> = Lazy::new(StorageVec::new());
         lazy_vec.push(13u32);
         lazy_vec.push(13u32);
-        SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
-        let pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
+        SpreadLayout::push_spread(&mut lazy_vec, &mut KeyPtr::from(root_key));
+        let mut pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
         );
 
         // when
-        SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut pulled_vec, &mut KeyPtr::from(root_key));
 
         // then
         let contract_id = ink_env::test::get_current_contract_account_id::<
@@ -470,8 +470,8 @@ fn drop_works() {
 
         // if the setup panics it should not cause the test to pass
         let setup_result = std::panic::catch_unwind(|| {
-            let vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-            SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
+            let mut vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
+            SpreadLayout::push_spread(&mut vec, &mut KeyPtr::from(root_key));
             let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 root_key,
             ));

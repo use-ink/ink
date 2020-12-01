@@ -67,14 +67,14 @@ where
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.len, ptr);
-        SpreadLayout::push_spread(&self.elems, ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&mut self.len, ptr);
+        SpreadLayout::push_spread(&mut self.elems, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         self.clear_cells();
-        SpreadLayout::clear_spread(&self.len, ptr);
-        SpreadLayout::clear_spread(&self.elems, ptr);
+        SpreadLayout::clear_spread(&mut self.len, ptr);
+        SpreadLayout::clear_spread(&mut self.elems, ptr);
     }
 }

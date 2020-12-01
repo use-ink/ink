@@ -73,7 +73,7 @@ macro_rules! gen_tests_for_backend {
         /// Creates a hashmap and pushes it to the contract storage.
         fn push_storage_hashmap() {
             let hmap = setup_hashmap();
-            SpreadLayout::push_spread(&hmap, &mut key_ptr());
+            SpreadLayout::push_spread(&mut hmap, &mut key_ptr());
         }
 
         /// Pulls a lazily loading hashmap instance from the contract storage.

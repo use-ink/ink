@@ -143,12 +143,12 @@ fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // First populate some storage Stash and writes that to the contract storage using pull_spread
         // and some known Key.
-        let stash = [b'A', b'B', b'C']
+        let mut stash = [b'A', b'B', b'C']
             .iter()
             .copied()
             .collect::<StorageStash<_>>();
         let root_key = Key::from([0x00; 32]);
-        SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut stash, &mut KeyPtr::from(root_key));
 
         // Then load another instance from the same key lazily and remove some of
         // the known-to-be-populated entries from it. Afterwards push_spread this second instance and
@@ -156,7 +156,7 @@ fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
         let mut stash2 =
             <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(unsafe { stash2.remove_occupied(0) }, Some(()));
-        SpreadLayout::push_spread(&stash2, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut stash2, &mut KeyPtr::from(root_key));
 
         // This time we check from the third instance using
         // get if the expected cells are still there or have been successfully removed.
@@ -719,9 +719,9 @@ fn take_rev_order_works() {
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let stash1 = create_holey_stash();
+        let mut stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut stash1, &mut KeyPtr::from(root_key));
         // Load the pushed storage vector into another instance and check that
         // both instances are equal:
         let stash2 =
@@ -735,16 +735,16 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let stash1 = create_holey_stash();
+        let mut stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut stash1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
         // from contract storage after a push to the same storage region.
         //
         // Now clear the associated storage from `stash1` and check whether
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
-        SpreadLayout::clear_spread(&stash1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut stash1, &mut KeyPtr::from(root_key));
         let _ =
             <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
@@ -757,14 +757,14 @@ fn storage_is_cleared_completely_after_pull_lazy() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
         let root_key = Key::from([0x42; 32]);
-        let lazy_stash = Lazy::new(create_holey_stash());
-        SpreadLayout::push_spread(&lazy_stash, &mut KeyPtr::from(root_key));
-        let pulled_stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
+        let mut lazy_stash = Lazy::new(create_holey_stash());
+        SpreadLayout::push_spread(&mut lazy_stash, &mut KeyPtr::from(root_key));
+        let mut pulled_stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
         );
 
         // when
-        SpreadLayout::clear_spread(&pulled_stash, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut pulled_stash, &mut KeyPtr::from(root_key));
 
         // then
         let contract_id = ink_env::test::get_current_contract_account_id::<

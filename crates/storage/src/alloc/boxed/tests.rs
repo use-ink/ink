@@ -106,7 +106,7 @@ fn spread_layout_push_pull_works() {
         let b1 = StorageBox::new(b'A');
         assert_eq!(*b1, b'A');
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&b1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut b1, &mut KeyPtr::from(root_key));
         // Now load another instance of storage box from the same key and check
         // if both instances are equal:
         let b2 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
@@ -122,13 +122,13 @@ fn spread_layout_push_pull_works() {
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
     run_test(|_| {
-        let b1 = StorageBox::new(b'A');
+        let mut b1 = StorageBox::new(b'A');
         assert_eq!(*b1, b'A');
         let root_key = Key::from([0x42; 32]);
         // Manually clear the storage of `b1`. Then another load from the same
         // key region should panic since the entry is empty:
-        SpreadLayout::push_spread(&b1, &mut KeyPtr::from(root_key));
-        SpreadLayout::clear_spread(&b1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut b1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut b1, &mut KeyPtr::from(root_key));
         let b2: StorageBox<u8> = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
         // We have to forget one of the storage boxes because we otherwise get
         // a double free panic since their `Drop` implementations both try to
@@ -144,7 +144,7 @@ fn packed_layout_works() {
         assert_eq!(*p1.0, b'A');
         assert_eq!(*p1.1, [0x01; 4]);
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&p1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut p1, &mut KeyPtr::from(root_key));
         // Now load another instance of storage box from the same key and check
         // if both instances are equal:
         let p2: Pack<(StorageBox<u8>, StorageBox<[i32; 4]>)> =
@@ -163,7 +163,7 @@ fn recursive_pull_push_works() {
         let rec1 = StorageBox::new(StorageBox::new(b'A'));
         assert_eq!(**rec1, b'A');
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&rec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut rec1, &mut KeyPtr::from(root_key));
         // Now load another instance of storage box from the same key and check
         // if both instances are equal:
         let rec2: StorageBox<StorageBox<u8>> =
@@ -180,13 +180,13 @@ fn recursive_pull_push_works() {
 #[should_panic(expected = "storage entry was empty")]
 fn recursive_clear_works() {
     run_test(|_| {
-        let rec1 = StorageBox::new(StorageBox::new(b'A'));
+        let mut rec1 = StorageBox::new(StorageBox::new(b'A'));
         assert_eq!(**rec1, b'A');
         let root_key = Key::from([0x42; 32]);
         // Manually clear the storage of `rec1`. Then another load from the same
         // key region should panic since the entry is empty:
-        SpreadLayout::push_spread(&rec1, &mut KeyPtr::from(root_key));
-        SpreadLayout::clear_spread(&rec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut rec1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut rec1, &mut KeyPtr::from(root_key));
         let rec2: StorageBox<StorageBox<u8>> =
             SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
         // We have to forget one of the storage boxes because we otherwise get
@@ -204,7 +204,7 @@ fn double_free_panics() {
         let root_key = Key::from([0x42; 32]);
         // Manually clear the storage of `rec1`. Then another load from the same
         // key region should panic since the entry is empty:
-        SpreadLayout::push_spread(&b1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut b1, &mut KeyPtr::from(root_key));
         let b2: StorageBox<u8> = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(b1, b2);
         // At this point both `b1` and `b2` are getting dropped trying to free

@@ -38,7 +38,7 @@ macro_rules! impl_layout_for_primitive {
                 #[inline(always)]
                 fn push_packed(&self, _at: &Key) {}
                 #[inline(always)]
-                fn clear_packed(&self, _at: &Key) {}
+                fn clear_packed(&mut self, _at: &Key) {}
             }
         )*
     };
@@ -62,8 +62,8 @@ where
     const FOOTPRINT: u64 = 1 + <T as SpreadLayout>::FOOTPRINT;
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        <u8 as SpreadLayout>::push_spread(&(self.is_some() as u8), ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        <u8 as SpreadLayout>::push_spread(&mut (self.is_some() as u8), ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::push_spread(value, ptr);
         } else {
@@ -71,11 +71,11 @@ where
         }
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         // We do not really need the reference to 0 (zero)
         // in order to clean-up the `bool` value from the storage.
         // However the API is demanding a reference so we give it one.
-        <u8 as SpreadLayout>::clear_spread(&0, ptr);
+        <u8 as SpreadLayout>::clear_spread(&mut 0, ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::clear_spread(value, ptr)
         } else {
@@ -107,7 +107,7 @@ where
     }
 
     #[inline]
-    fn clear_packed(&self, at: &Key) {
+    fn clear_packed(&mut self, at: &Key) {
         if let Some(value) = self {
             <T as PackedLayout>::clear_packed(value, at)
         }
@@ -141,22 +141,22 @@ where
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         match self {
             Ok(value) => {
-                <u8 as SpreadLayout>::push_spread(&0, ptr);
+                <u8 as SpreadLayout>::push_spread(&mut 0, ptr);
                 <T as SpreadLayout>::push_spread(value, ptr);
             }
             Err(error) => {
-                <u8 as SpreadLayout>::push_spread(&1, ptr);
+                <u8 as SpreadLayout>::push_spread(&mut 1, ptr);
                 <E as SpreadLayout>::push_spread(error, ptr);
             }
         }
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         // Clear the discriminant, same for all variants.
-        <u8 as SpreadLayout>::clear_spread(&0, ptr);
+        <u8 as SpreadLayout>::clear_spread(&mut 0, ptr);
         match self {
             Ok(value) => {
                 <T as SpreadLayout>::clear_spread(value, ptr);
@@ -182,7 +182,7 @@ where
     }
 
     #[inline]
-    fn clear_packed(&self, at: &Key) {
+    fn clear_packed(&mut self, at: &Key) {
         match self {
             Ok(value) => <T as PackedLayout>::clear_packed(value, at),
             Err(error) => <E as PackedLayout>::clear_packed(error, at),
@@ -209,12 +209,13 @@ where
         Box::new(<T as SpreadLayout>::pull_spread(ptr))
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        <T as SpreadLayout>::push_spread(&*self, ptr)
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        <T as SpreadLayout>::push_spread(&mut *self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        <T as SpreadLayout>::clear_spread(&*self, ptr)
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        //<T as SpreadLayout>::clear_spread(&*self, ptr)
+        <T as SpreadLayout>::clear_spread(&mut *self, ptr)
     }
 }
 
@@ -228,8 +229,8 @@ where
     }
 
     #[inline]
-    fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(&*self, at)
+    fn clear_packed(&mut self, at: &Key) {
+        <T as PackedLayout>::clear_packed(&mut *self, at)
     }
 
     #[inline]

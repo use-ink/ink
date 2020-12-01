@@ -37,7 +37,7 @@ pub fn packed_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
             fn push_packed(&self, __key: &::ink_primitives::Key) {
                 match self { #push_body }
             }
-            fn clear_packed(&self, __key: &::ink_primitives::Key) {
+            fn clear_packed(&mut self, __key: &::ink_primitives::Key) {
                 match self { #clear_body }
             }
         }

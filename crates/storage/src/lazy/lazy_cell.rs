@@ -117,7 +117,7 @@ where
                     // The inner cell needs to be cleared, no matter if it has
                     // been loaded or not. Otherwise there might be leftovers.
                     // Load from storage and then clear:
-                    clear_spread_root_opt::<T, _>(root_key, || entry.value().into())
+                    clear_spread_root_opt::<T, _>(root_key, || entry.value_mut().into())
                 }
                 None => {
                     // The value is not yet in the cache. we need it in there
@@ -126,7 +126,7 @@ where
                         // The inner cell needs to be cleared, no matter if it has
                         // been loaded or not. Otherwise there might be leftovers.
                         // Load from storage and then clear:
-                        clear_spread_root_opt::<T, _>(root_key, || self.get())
+                        clear_spread_root_opt::<T, _>(root_key, || self.get_mut())
                     } else {
                         // Clear without loading from storage:
                         let footprint = <T as SpreadLayout>::FOOTPRINT;
@@ -168,21 +168,21 @@ where
         Self::lazy(*root_key)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        if let Some(entry) = self.entry() {
+        if let Some(entry) = self.entry_mut() {
             entry.push_spread_root(root_key)
         }
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         match <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             true => {
                 // The inner cell needs to be cleared, no matter if it has
                 // been loaded or not. Otherwise there might be leftovers.
                 // Load from storage and then clear:
-                clear_spread_root_opt::<T, _>(root_key, || self.get())
+                clear_spread_root_opt::<T, _>(root_key, || self.get_mut())
             }
             false => {
                 // Clear without loading from storage:
@@ -268,6 +268,11 @@ where
     /// Returns the cached entry.
     fn entry(&self) -> Option<&StorageEntry<T>> {
         self.cache.as_inner().as_ref()
+    }
+
+    /// Returns the mutable cached entry.
+    fn entry_mut(&mut self) -> Option<&mut StorageEntry<T>> {
+        self.cache.as_inner_mut().as_mut()
     }
 }
 
@@ -471,14 +476,14 @@ mod tests {
     #[test]
     fn spread_layout_works() -> ink_env::Result<()> {
         run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let cell_a0 = <LazyCell<u8>>::new(Some(b'A'));
+            let mut cell_a0 = <LazyCell<u8>>::new(Some(b'A'));
             assert_eq!(cell_a0.get(), Some(&b'A'));
             // Push `cell_a0` to the contract storage.
             // Then, pull `cell_a1` from the contract storage and check if it is
             // equal to `cell_a0`.
             let root_key = Key::from([0x42; 32]);
-            SpreadLayout::push_spread(&cell_a0, &mut KeyPtr::from(root_key));
-            let cell_a1 =
+            SpreadLayout::push_spread(&mut cell_a0, &mut KeyPtr::from(root_key));
+            let mut cell_a1 =
                 <LazyCell<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             assert_eq!(cell_a1.get(), cell_a0.get());
             assert_eq!(cell_a1.get(), Some(&b'A'));
@@ -495,7 +500,7 @@ mod tests {
                 Some(&StorageEntry::new(Some(b'A'), EntryState::Preserved))
             );
             // Test if clearing works:
-            SpreadLayout::clear_spread(&cell_a1, &mut KeyPtr::from(root_key));
+            SpreadLayout::clear_spread(&mut cell_a1, &mut KeyPtr::from(root_key));
             let cell_a3 = <LazyCell<u8>>::lazy(root_key);
             assert_eq!(cell_a3.get(), None);
             assert_eq!(
@@ -534,7 +539,7 @@ mod tests {
             // Initialize a LazyCell with None and push it to `k`
             let k = Key::from([0x00; 32]);
             let val: MaybeValue = None;
-            SpreadLayout::push_spread(&Lazy::new(val), &mut KeyPtr::from(k));
+            SpreadLayout::push_spread(&mut Lazy::new(val), &mut KeyPtr::from(k));
 
             // Pull another instance `v` from `k`, check that it is `None`
             let mut v =
@@ -546,7 +551,7 @@ mod tests {
             Lazy::set(&mut v, actual_value);
 
             // Push `v` to `k`
-            SpreadLayout::push_spread(&v, &mut KeyPtr::from(k));
+            SpreadLayout::push_spread(&mut v, &mut KeyPtr::from(k));
 
             // Load `v2` from `k`
             let v2 =
@@ -565,8 +570,8 @@ mod tests {
             let root_key = Key::from([0x00; 32]);
             {
                 // Step 1: Push a valid pair onto the contract storage.
-                let pair = (LazyCell::new(Some(1i32)), 2i32);
-                SpreadLayout::push_spread(&pair, &mut KeyPtr::from(root_key));
+                let mut pair = (LazyCell::new(Some(1i32)), 2i32);
+                SpreadLayout::push_spread(&mut pair, &mut KeyPtr::from(root_key));
             }
             {
                 // Step 2: Pull the pair from the step before.
@@ -584,7 +589,7 @@ mod tests {
                 let mut pulled_pair = core::mem::ManuallyDrop::new(pulled_pair);
                 assert_eq!(pulled_pair.1, 2i32);
                 pulled_pair.1 = 3i32;
-                SpreadLayout::push_spread(&*pulled_pair, &mut KeyPtr::from(root_key));
+                SpreadLayout::push_spread(&mut *pulled_pair, &mut KeyPtr::from(root_key));
             }
             {
                 // Step 3: Pull the pair again from the storage.
@@ -608,12 +613,12 @@ mod tests {
                 // Step 1: Push two valid values one after the other to contract storage.
                 // The first value needs to be an `Option::None` value, since the bug was
                 // then messing up following pointers.
-                let v1: Option<u32> = None;
-                let v2: u32 = 13;
+                let mut v1: Option<u32> = None;
+                let mut v2: u32 = 13;
                 let mut ptr = KeyPtr::from(root_key);
 
-                SpreadLayout::push_spread(&v1, &mut ptr);
-                SpreadLayout::push_spread(&v2, &mut ptr);
+                SpreadLayout::push_spread(&mut v1, &mut ptr);
+                SpreadLayout::push_spread(&mut v2, &mut ptr);
             }
             {
                 // Step 2: Pull the values from the step before.
@@ -635,7 +640,7 @@ mod tests {
                 assert_eq!(*pulled_v2, 13);
 
                 *pulled_v1 = Some(99u32);
-                SpreadLayout::push_spread(&*pulled_v1, &mut KeyPtr::from(root_key));
+                SpreadLayout::push_spread(&mut *pulled_v1, &mut KeyPtr::from(root_key));
             }
             {
                 // Step 3: Pull the values again from the storage.
@@ -658,25 +663,25 @@ mod tests {
         run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
             let root_key = Key::from([0x00; 32]);
-            let none: Option<u32> = None;
-            let some: Option<u32> = Some(13);
+            let mut none: Option<u32> = None;
+            let mut some: Option<u32> = Some(13);
 
             // when
             let mut ptr_push_none = KeyPtr::from(root_key);
-            SpreadLayout::push_spread(&none, &mut ptr_push_none);
+            SpreadLayout::push_spread(&mut none, &mut ptr_push_none);
             let mut ptr_pull_none = KeyPtr::from(root_key);
             let v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
             assert!(v1.is_none());
             let mut ptr_clear_none = KeyPtr::from(root_key);
-            SpreadLayout::clear_spread(&none, &mut ptr_clear_none);
+            SpreadLayout::clear_spread(&mut none, &mut ptr_clear_none);
 
             let mut ptr_push_some = KeyPtr::from(root_key);
-            SpreadLayout::push_spread(&some, &mut ptr_push_some);
+            SpreadLayout::push_spread(&mut some, &mut ptr_push_some);
             let mut ptr_pull_some = KeyPtr::from(root_key);
             let v2: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
             assert!(v2.is_some());
             let mut ptr_clear_some = KeyPtr::from(root_key);
-            SpreadLayout::clear_spread(&some, &mut ptr_clear_some);
+            SpreadLayout::clear_spread(&mut some, &mut ptr_clear_some);
 
             // then
             // the bug which we observed was that the pointer after push/pull/clear
@@ -714,14 +719,14 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
             let root_key = Key::from([0x42; 32]);
-            let nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
-            SpreadLayout::push_spread(&nested_lazy, &mut KeyPtr::from(root_key));
-            let pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
+            let mut nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
+            SpreadLayout::push_spread(&mut nested_lazy, &mut KeyPtr::from(root_key));
+            let mut pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),
             );
 
             // when
-            SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
+            SpreadLayout::clear_spread(&mut pulled_lazy, &mut KeyPtr::from(root_key));
 
             // then
             let contract_id = ink_env::test::get_current_contract_account_id::<
@@ -750,8 +755,8 @@ mod tests {
 
             // when
             let setup_result = std::panic::catch_unwind(|| {
-                let lazy: Lazy<u32> = Lazy::new(13u32);
-                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let mut lazy: Lazy<u32> = Lazy::new(13u32);
+                SpreadLayout::push_spread(&mut lazy, &mut KeyPtr::from(root_key));
                 let _pulled_lazy =
                     <Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
                 // lazy is dropped which should clear the cells
@@ -784,8 +789,8 @@ mod tests {
 
             // when
             let setup_result = std::panic::catch_unwind(|| {
-                let lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
-                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let mut lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
+                SpreadLayout::push_spread(&mut lazy, &mut KeyPtr::from(root_key));
                 let _pulled_lazy = <Lazy<[u32; 5]> as SpreadLayout>::pull_spread(
                     &mut KeyPtr::from(root_key),
                 );

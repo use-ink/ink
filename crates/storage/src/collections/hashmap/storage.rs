@@ -84,11 +84,11 @@ where
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -105,8 +105,8 @@ where
         <T as PackedLayout>::push_packed(&self.value, at)
     }
 
-    fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(&self.value, at)
+    fn clear_packed(&mut self, at: &Key) {
+        <T as PackedLayout>::clear_packed(&mut self.value, at)
     }
 }
 
@@ -126,14 +126,18 @@ where
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.keys, ptr);
-        SpreadLayout::push_spread(&self.values, ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&mut self.keys, ptr);
+        SpreadLayout::push_spread(&mut self.values, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        // Second call site of `clear_cells()`.
+        // `clear_spread` must take `&mut self` because `self.clear_cells()` does `drain_with`.
+        // This would change the trait.
         self.clear_cells();
-        SpreadLayout::clear_spread(&self.keys, ptr);
-        SpreadLayout::clear_spread(&self.values, ptr);
+
+        SpreadLayout::clear_spread(&mut self.keys, ptr);
+        SpreadLayout::clear_spread(&mut self.values, ptr);
     }
 }

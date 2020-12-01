@@ -63,11 +63,11 @@ impl SpreadLayout for Bits256 {
         forward_pull_packed::<Self>(ptr)
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -75,7 +75,7 @@ impl SpreadLayout for Bits256 {
 impl PackedLayout for Bits256 {
     fn pull_packed(&mut self, _at: &Key) {}
     fn push_packed(&self, _at: &Key) {}
-    fn clear_packed(&self, _at: &Key) {}
+    fn clear_packed(&mut self, _at: &Key) {}
 }
 
 impl SpreadLayout for StorageBitvec {
@@ -88,13 +88,13 @@ impl SpreadLayout for StorageBitvec {
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.len, ptr);
-        SpreadLayout::push_spread(&self.bits, ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&mut self.len, ptr);
+        SpreadLayout::push_spread(&mut self.bits, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.len, ptr);
-        SpreadLayout::clear_spread(&self.bits, ptr);
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&mut self.len, ptr);
+        SpreadLayout::clear_spread(&mut self.bits, ptr);
     }
 }

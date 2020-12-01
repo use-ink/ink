@@ -48,12 +48,12 @@ where
     }
 
     #[inline]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
     #[inline]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -70,10 +70,10 @@ where
         }
     }
 
-    fn clear_packed(&self, at: &Key) {
-        for (key, val) in self {
-            <K as PackedLayout>::clear_packed(key, at);
-            <V as PackedLayout>::clear_packed(val, at);
+    fn clear_packed(&mut self, at: &Key) {
+        for (mut key, mut val) in self {
+            <K as PackedLayout>::clear_packed(&mut key, at);
+            <V as PackedLayout>::clear_packed(&mut val, at);
         }
     }
 
@@ -99,12 +99,12 @@ where
     }
 
     #[inline]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
     #[inline]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -119,9 +119,9 @@ where
         }
     }
 
-    fn clear_packed(&self, at: &Key) {
-        for key in self {
-            <T as PackedLayout>::clear_packed(key, at);
+    fn clear_packed(&mut self, at: &Key) {
+        for mut key in &*self {
+            <T as PackedLayout>::clear_packed(&mut key, at);
         }
     }
 
@@ -144,12 +144,12 @@ where
     }
 
     #[inline]
-    fn push_spread(&self, ptr: &mut KeyPtr) {
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
     #[inline]
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
 }
@@ -164,9 +164,10 @@ where
         }
     }
 
-    fn clear_packed(&self, at: &Key) {
-        for value in self {
-            <T as PackedLayout>::clear_packed(value, at);
+    fn clear_packed(&mut self, at: &Key) {
+        for value in self.into_iter() {
+            let mut v = value;
+            <T as PackedLayout>::clear_packed(&mut v, at);
         }
     }
 
@@ -191,7 +192,7 @@ macro_rules! impl_push_at_for_collection {
                     }
                 }
 
-                fn clear_packed(&self, at: &Key) {
+                fn clear_packed(&mut self, at: &Key) {
                     for elem in self {
                         <T as PackedLayout>::clear_packed(elem, at)
                     }

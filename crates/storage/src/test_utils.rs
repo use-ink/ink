@@ -42,10 +42,10 @@ macro_rules! push_pull_works_for_primitive {
             fn [<$name _pull_push_works>] () {
                 crate::test_utils::run_test(|| {
                     $({
-                        let x: $name = $value;
+                        let mut x: $name = $value;
                         let key = ink_primitives::Key::from([0x42; 32]);
                         let key2 = ink_primitives::Key::from([0x77; 32]);
-                        crate::traits::push_spread_root(&x, &key);
+                        crate::traits::push_spread_root(&mut x, &key);
                         let y: $name = crate::traits::pull_spread_root(&key);
                         assert_eq!(x, y);
                         crate::traits::push_packed_root(&x, &key2);
@@ -61,13 +61,13 @@ macro_rules! push_pull_works_for_primitive {
             fn [<$name _clean_works>]() {
                 crate::test_utils::run_test(|| {
                     $({
-                        let x: $name = $value;
+                        let mut x: $name = $value;
                         let key = ink_primitives::Key::from([0x42; 32]);
-                        crate::traits::push_spread_root(&x, &key);
+                        crate::traits::push_spread_root(&mut x, &key);
                         // Works since we just populated the storage.
                         let y: $name = crate::traits::pull_spread_root(&key);
                         assert_eq!(x, y);
-                        crate::traits::clear_spread_root(&x, &key);
+                        crate::traits::clear_spread_root(&mut x, &key);
                         // Panics since it loads eagerly from cleared storage.
                         let _: $name = crate::traits::pull_spread_root(&key);
                     })*

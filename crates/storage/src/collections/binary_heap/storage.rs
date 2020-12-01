@@ -90,11 +90,11 @@ where
         }
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(&self.elements, ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(&mut self.elements, ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(&self.elements, ptr);
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(&mut self.elements, ptr);
     }
 }

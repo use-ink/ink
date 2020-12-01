@@ -46,6 +46,11 @@ where
     pub fn value(&self) -> &T {
         &(self.0).0
     }
+
+    /// Returns an exclusive reference to the inner value.
+    pub fn value_mut(&mut self) -> &mut T {
+        &mut (self.0).0
+    }
 }
 
 impl<T> SpreadLayout for Reverse<T>
@@ -58,12 +63,12 @@ where
         Self::new(SpreadLayout::pull_spread(ptr))
     }
 
-    fn push_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::push_spread(self.value(), ptr);
+    fn push_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::push_spread(self.value_mut(), ptr);
     }
 
-    fn clear_spread(&self, ptr: &mut KeyPtr) {
-        SpreadLayout::clear_spread(self.value(), ptr);
+    fn clear_spread(&mut self, ptr: &mut KeyPtr) {
+        SpreadLayout::clear_spread(self.value_mut(), ptr);
     }
 }
 
@@ -79,8 +84,8 @@ where
         <T as PackedLayout>::push_packed(&(self.0).0, at)
     }
 
-    fn clear_packed(&self, at: &Key) {
-        <T as PackedLayout>::clear_packed(&(self.0).0, at)
+    fn clear_packed(&mut self, at: &Key) {
+        <T as PackedLayout>::clear_packed(&mut (self.0).0, at)
     }
 }
 

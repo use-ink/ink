@@ -142,7 +142,7 @@ fn spread_pull_push_works() {
         let mut alloc = spread_layout_alloc_setup();
         let root_key = Key::from([0x77; 32]);
         // Push the current state of the dynamic storage allocator to the storage:
-        SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut alloc, &mut KeyPtr::from(root_key));
         // Now check if the new allocations are filling the freed ones:
         assert_eq!(alloc.alloc(), DynamicAllocation(1));
         assert_eq!(alloc.alloc(), DynamicAllocation(3));
@@ -164,7 +164,7 @@ fn spread_clear_works() {
         let alloc = spread_layout_alloc_setup();
         let root_key = Key::from([0x42; 32]);
         // Push the current state of the dynamic storage allocator to the storage:
-        SpreadLayout::push_spread(&alloc, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut alloc, &mut KeyPtr::from(root_key));
         // Pull another instance of the storage allocator from storage,
         // then check if both allocators are equal after also allocating the same
         // allocation slots:
@@ -173,7 +173,7 @@ fn spread_clear_works() {
         assert_eq!(alloc2, alloc);
         // Now clear the storage associated with `alloc2` again and test if another
         // loaded instance from the same storage region panics upon pulling:
-        SpreadLayout::clear_spread(&alloc2, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut alloc2, &mut KeyPtr::from(root_key));
         // We have to prevent calling `Drop` of `alloc3` since it has been created
         // deliberately upon invalid contract storage. Since interacting with `alloc3`
         // panics which immediately initiates the dropping routines we have to
@@ -194,7 +194,7 @@ fn test_call_setup_works() {
         assert_eq!(allocator.alloc(), DynamicAllocation(0));
         assert_eq!(allocator.alloc(), DynamicAllocation(1));
         let root_key = Key::from([0xFE; 32]);
-        DynamicAllocator::push_spread(&allocator, &mut KeyPtr::from(root_key));
+        DynamicAllocator::push_spread(&mut allocator, &mut KeyPtr::from(root_key));
         alloc::initialize(ContractPhase::Call);
         assert_eq!(alloc(), DynamicAllocation(2));
         assert_eq!(alloc(), DynamicAllocation(3));

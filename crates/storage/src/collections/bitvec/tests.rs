@@ -181,7 +181,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let bv1 = bitvec_600();
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&bv1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut bv1, &mut KeyPtr::from(root_key));
         // Load the pushed storage vector into another instance and check that
         // both instances are equal:
         let bv2 =
@@ -197,14 +197,14 @@ fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let bv1 = bitvec_600();
         let root_key = Key::from([0x42; 32]);
-        SpreadLayout::push_spread(&bv1, &mut KeyPtr::from(root_key));
+        SpreadLayout::push_spread(&mut bv1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
         // from contract storage after a push to the same storage region.
         //
         // Now clear the associated storage from `bv1` and check whether
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
-        SpreadLayout::clear_spread(&bv1, &mut KeyPtr::from(root_key));
+        SpreadLayout::clear_spread(&mut bv1, &mut KeyPtr::from(root_key));
         let _ = <StorageBitvec as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
     })
