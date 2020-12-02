@@ -36,6 +36,12 @@ impl<T> CacheCell<T> {
             inner: UnsafeCell::new(value),
         }
     }
+
+    /// Returns the inner value.
+    #[allow(dead_code)]
+    pub fn into_inner(self) -> T {
+        self.inner.into_inner()
+    }
 }
 
 impl<T> Debug for CacheCell<T>
