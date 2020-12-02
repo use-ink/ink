@@ -237,15 +237,23 @@ impl<'a> Events<'a> {
                         .map(quote::ToTokens::into_token_stream)
                         .unwrap_or_else(|| quote_spanned!(span => #n));
                     let field_type = topic_field.ty();
+                    let signature = syn::LitByteStr::new(
+                        format!("{}::{}::{}", contract_ident, event_ident,
+                            field_ident
+                        ).as_bytes(), span);
                     quote_spanned!(span =>
-                        .push_topic::<#field_type>(&self.#field_ident)
+                        .push_topic::<::ink_env::topics::PrefixedValue<#field_type>>(
+                            &::ink_env::topics::PrefixedValue { value: &self.#field_ident, prefix: #signature }
+                        )
                     )
                 });
             // Only include topic for event signature in case of non-anonymous event.
             let event_signature_topic = match event.anonymous {
                 true => None,
                 false => Some(quote_spanned!(span=>
-                    .push_topic::<[u8; #len_event_signature]>(#event_signature)
+                    .push_topic::<::ink_env::topics::PrefixedValue<[u8; #len_event_signature]>>(
+                        &::ink_env::topics::PrefixedValue { value: #event_signature, prefix: b"" }
+                    )
                 ))
             };
             // Anonymous events require 1 fewer topics since they do not include their signature.

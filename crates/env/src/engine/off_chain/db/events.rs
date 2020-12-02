@@ -57,6 +57,10 @@ where
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
         let off_hash = OffHash::new(&result);
+        debug_assert!(
+            !self.topics.contains(&off_hash),
+            "duplicate topic hash discovered!"
+        );
         self.topics.push(off_hash);
     }
 
