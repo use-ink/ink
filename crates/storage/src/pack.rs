@@ -126,14 +126,6 @@ where
     pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
         &mut pack.inner
     }
-
-    /// Creates a new packed value with a `key`.
-    fn new_with_key(value: T, key: Key) -> Self {
-        Self {
-            inner: value,
-            key: Some(key),
-        }
-    }
 }
 
 impl<T> Drop for Pack<T>
@@ -175,7 +167,10 @@ where
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let inner = forward_pull_packed::<T>(ptr);
-        Pack::new_with_key(inner, *ptr.key())
+        Self {
+            inner,
+            key: Some(*ptr.key()),
+        }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
