@@ -20,11 +20,8 @@ To build a single example and generate the contracts Wasm file, navigate to the 
 
 `cargo contract build`
 
-To generate the contract metadata (a.k.a. the contract ABI), run the following command:
-
-`cargo contract generate-metadata`
-
-You should now have an optimized `<contract-name>.wasm` file and an `metadata.json` file in the `target` folder of your contract.
+You should now have an optimized `<contract-name>.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+The `.contract` file combines the Wasm and metadata into one file and can be used for deployment.
 
 ## License
 
