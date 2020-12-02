@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::traits::{
+    clear_spread_root,
     forward_clear_packed,
     forward_pull_packed,
     forward_push_packed,
@@ -20,6 +21,7 @@ use crate::traits::{
     PackedLayout,
     SpreadLayout,
 };
+use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// Packs the inner `T` so that it only occupies a single contract storage cell.
@@ -53,21 +55,66 @@ use ink_primitives::Key;
 ///
 /// As a general advice pack values together that are frequently used together.
 /// Also pack many very small elements (e.g. `u8`, `bool`, `u16`) together.
-#[derive(Debug, Copy, Clone, scale::Encode, scale::Decode)]
-pub struct Pack<T> {
+#[derive(Debug, Clone)]
+pub struct Pack<T>
+where
+    T: PackedLayout,
+{
     /// The packed `T` value.
     inner: T,
+    /// The key to load the packed value from.
+    ///
+    /// # Note
+    ///
+    /// This can be `None` on contract initialization, but will be
+    /// initialized with a concrete value on `pull_spread`.
+    key: Option<Key>,
 }
 
-impl<T> Pack<T> {
-    /// Creates a new packed value.
-    pub fn new(value: T) -> Self {
-        Self { inner: value }
+impl<T> scale::Encode for Pack<T>
+where
+    T: scale::Encode + PackedLayout,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        <T as scale::Encode>::size_hint(&self.inner)
     }
 
-    /// Returns the packed value.
-    pub fn into_inner(pack: Self) -> T {
-        pack.inner
+    #[inline]
+    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+        <T as scale::Encode>::encode_to(&self.inner, dest)
+    }
+
+    #[inline]
+    fn encode(&self) -> Vec<u8> {
+        <T as scale::Encode>::encode(&self.inner)
+    }
+
+    #[inline]
+    fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
+        <T as scale::Encode>::using_encoded(&self.inner, f)
+    }
+}
+
+impl<T> scale::Decode for Pack<T>
+where
+    T: scale::Decode + PackedLayout,
+{
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        Ok(Self::new(<T as scale::Decode>::decode(input)?))
+    }
+}
+
+impl<T> Pack<T>
+where
+    T: PackedLayout,
+{
+    /// Creates a new packed value.
+    pub fn new(value: T) -> Self {
+        Self {
+            inner: value,
+            key: None,
+        }
     }
 
     /// Returns a shared reference to the packed value.
@@ -78,6 +125,17 @@ impl<T> Pack<T> {
     /// Returns an exclusive reference to the packed value.
     pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
         &mut pack.inner
+    }
+}
+
+impl<T> Drop for Pack<T>
+where
+    T: PackedLayout,
+{
+    fn drop(&mut self) {
+        if let Some(key) = self.key {
+            clear_spread_root::<T>(&self.inner, &key)
+        }
     }
 }
 
@@ -93,7 +151,7 @@ const _: () = {
 
     impl<T> StorageLayout for Pack<T>
     where
-        T: TypeInfo + 'static,
+        T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Cell(CellLayout::new::<T>(LayoutKey::from(key_ptr.advance_by(1))))
@@ -108,7 +166,11 @@ where
     const FOOTPRINT: u64 = 1;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Pack::from(forward_pull_packed::<T>(ptr))
+        let inner = forward_pull_packed::<T>(ptr);
+        Self {
+            inner,
+            key: Some(*ptr.key()),
+        }
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -135,7 +197,10 @@ where
     }
 }
 
-impl<T> From<T> for Pack<T> {
+impl<T> From<T> for Pack<T>
+where
+    T: PackedLayout,
+{
     fn from(value: T) -> Self {
         Self::new(value)
     }
@@ -143,14 +208,17 @@ impl<T> From<T> for Pack<T> {
 
 impl<T> Default for Pack<T>
 where
-    T: Default,
+    T: Default + PackedLayout,
 {
     fn default() -> Self {
         Self::new(Default::default())
     }
 }
 
-impl<T> core::ops::Deref for Pack<T> {
+impl<T> core::ops::Deref for Pack<T>
+where
+    T: PackedLayout,
+{
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -158,7 +226,10 @@ impl<T> core::ops::Deref for Pack<T> {
     }
 }
 
-impl<T> core::ops::DerefMut for Pack<T> {
+impl<T> core::ops::DerefMut for Pack<T>
+where
+    T: PackedLayout,
+{
     fn deref_mut(&mut self) -> &mut Self::Target {
         Self::as_inner_mut(self)
     }
@@ -166,18 +237,18 @@ impl<T> core::ops::DerefMut for Pack<T> {
 
 impl<T> core::cmp::PartialEq for Pack<T>
 where
-    T: PartialEq,
+    T: PartialEq + PackedLayout,
 {
     fn eq(&self, other: &Self) -> bool {
         PartialEq::eq(Self::as_inner(self), Self::as_inner(other))
     }
 }
 
-impl<T> core::cmp::Eq for Pack<T> where T: Eq {}
+impl<T> core::cmp::Eq for Pack<T> where T: Eq + PackedLayout {}
 
 impl<T> core::cmp::PartialOrd for Pack<T>
 where
-    T: PartialOrd,
+    T: PartialOrd + PackedLayout,
 {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         PartialOrd::partial_cmp(Self::as_inner(self), Self::as_inner(other))
@@ -198,7 +269,7 @@ where
 
 impl<T> core::cmp::Ord for Pack<T>
 where
-    T: core::cmp::Ord,
+    T: core::cmp::Ord + PackedLayout,
 {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         Ord::cmp(Self::as_inner(self), Self::as_inner(other))
@@ -207,7 +278,7 @@ where
 
 impl<T> core::fmt::Display for Pack<T>
 where
-    T: core::fmt::Display,
+    T: core::fmt::Display + PackedLayout,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         core::fmt::Display::fmt(Self::as_inner(self), f)
@@ -216,32 +287,44 @@ where
 
 impl<T> core::hash::Hash for Pack<T>
 where
-    T: core::hash::Hash,
+    T: core::hash::Hash + PackedLayout,
 {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         Self::as_inner(self).hash(state);
     }
 }
 
-impl<T> core::convert::AsRef<T> for Pack<T> {
+impl<T> core::convert::AsRef<T> for Pack<T>
+where
+    T: PackedLayout,
+{
     fn as_ref(&self) -> &T {
         Self::as_inner(self)
     }
 }
 
-impl<T> core::convert::AsMut<T> for Pack<T> {
+impl<T> core::convert::AsMut<T> for Pack<T>
+where
+    T: PackedLayout,
+{
     fn as_mut(&mut self) -> &mut T {
         Self::as_inner_mut(self)
     }
 }
 
-impl<T> ink_prelude::borrow::Borrow<T> for Pack<T> {
+impl<T> ink_prelude::borrow::Borrow<T> for Pack<T>
+where
+    T: PackedLayout,
+{
     fn borrow(&self) -> &T {
         Self::as_inner(self)
     }
 }
 
-impl<T> ink_prelude::borrow::BorrowMut<T> for Pack<T> {
+impl<T> ink_prelude::borrow::BorrowMut<T> for Pack<T>
+where
+    T: PackedLayout,
+{
     fn borrow_mut(&mut self) -> &mut T {
         Self::as_inner_mut(self)
     }
@@ -254,6 +337,7 @@ mod tests {
         pull_packed_root,
         push_packed_root,
         KeyPtr,
+        PackedLayout,
         SpreadLayout,
     };
     use core::{
@@ -295,7 +379,7 @@ mod tests {
         );
         assert_eq!(Pack::as_inner(&pack), &expected);
         assert_eq!(Pack::as_inner_mut(&mut pack), &mut expected);
-        assert_eq!(Pack::into_inner(pack), expected);
+        assert_eq!(pack.inner, expected);
     }
 
     #[test]
@@ -305,7 +389,7 @@ mod tests {
         assert_eq!(from, Pack::new(expected));
         assert_eq!(Pack::as_inner(&from), &expected);
         assert_eq!(Pack::as_inner_mut(&mut from), &mut expected);
-        assert_eq!(Pack::into_inner(from), expected);
+        assert_eq!(from.inner, expected);
     }
 
     #[test]
@@ -313,13 +397,10 @@ mod tests {
         use core::fmt::Debug;
         fn assert_default<T>()
         where
-            T: Debug + Default + PartialEq,
+            T: Debug + Default + PartialEq + PackedLayout,
         {
             let pack_default = <Pack<T> as Default>::default();
-            assert_eq!(
-                <Pack<T>>::into_inner(pack_default),
-                <T as Default>::default()
-            );
+            assert_eq!(pack_default.inner, <T as Default>::default());
         }
         assert_default::<bool>();
         assert_default::<u8>();
