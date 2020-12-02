@@ -117,14 +117,6 @@ where
         }
     }
 
-    /// Creates a new packed value.
-    pub fn new_with_key(value: T, key: Key) -> Self {
-        Self {
-            inner: value,
-            key: Some(key),
-        }
-    }
-
     /// Returns a shared reference to the packed value.
     pub fn as_inner(pack: &Pack<T>) -> &T {
         &pack.inner
@@ -133,6 +125,14 @@ where
     /// Returns an exclusive reference to the packed value.
     pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
         &mut pack.inner
+    }
+
+    /// Creates a new packed value with a `key`.
+    fn new_with_key(value: T, key: Key) -> Self {
+        Self {
+            inner: value,
+            key: Some(key),
+        }
     }
 }
 
