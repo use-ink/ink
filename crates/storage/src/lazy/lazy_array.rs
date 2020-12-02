@@ -26,14 +26,11 @@ use crate::traits::{
     SpreadLayout,
 };
 use core::{
-    convert::TryInto,
     fmt,
     fmt::Debug,
-    iter,
     mem,
     ptr::NonNull,
 };
-use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
 /// The index type used in the lazy storage chunk.
@@ -217,14 +214,7 @@ impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 impl<T, const N: usize> EntryArray<T, N> {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
-        let entries = iter::repeat_with(Default::default)
-            .take(N)
-            .collect::<Vec<CacheCell<Option<StorageEntry<T>>>>>()
-            .try_into();
-        let entries = match entries {
-            Ok(entries) => entries,
-            Err(_) => unreachable!("try_into must work"),
-        };
+        let entries = [(); N].map(|_| Default::default());
         Self { entries }
     }
 }
