@@ -210,10 +210,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
         // both instances are equal:
         let heap2 =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        // we compare only the `elements` of the heap, since for `heap1` the `heap1.key`
-        // is `None`, since no pull was executed on this object yet. `heap2.key` will be
-        // `Some(root_key)` though, since we just pulled it from storage.
-        assert_eq!(heap1.elements, heap2.elements);
+        assert_eq!(heap1, heap2);
         Ok(())
     })
 }

@@ -43,7 +43,7 @@ impl KeyPtr {
     }
 
     /// Returns the underlying offset key.
-    pub fn key(&self) -> Key {
-        self.key
+    pub fn key(&self) -> &Key {
+        &self.key
     }
 }

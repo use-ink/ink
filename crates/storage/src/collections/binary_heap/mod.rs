@@ -33,7 +33,6 @@ use crate::{
 };
 
 pub use children_vec::Iter;
-use ink_primitives::Key;
 pub use reverse::Reverse;
 
 /// A priority queue implemented with a binary heap.
@@ -51,14 +50,6 @@ where
 {
     /// The individual elements of the heap.
     elements: ChildrenVec<T>,
-    /// The offset key for the N cells.
-    ///
-    /// If the lazy chunk has been initialized during contract initialization
-    /// the key will be `None` since there won't be a storage region associated
-    /// to the lazy chunk which prevents it from lazily loading elements. This,
-    /// however, is only checked at contract runtime. We might incorporate
-    /// compile-time checks for this particular use case later on.
-    key: Option<Key>,
 }
 
 impl<T> BinaryHeap<T>
@@ -69,7 +60,6 @@ where
     pub fn new() -> Self {
         Self {
             elements: ChildrenVec::new(),
-            key: None,
         }
     }
 

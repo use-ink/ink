@@ -85,10 +85,8 @@ where
     const FOOTPRINT: u64 = <ChildrenVec<T> as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        let key = ptr.key();
         Self {
             elements: SpreadLayout::pull_spread(ptr),
-            key: Some(key),
         }
     }
 

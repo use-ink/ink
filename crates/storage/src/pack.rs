@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::traits::{
-    clear_spread_root_opt,
+    clear_spread_root,
     forward_clear_packed,
     forward_pull_packed,
     forward_push_packed,
@@ -117,6 +117,14 @@ where
         }
     }
 
+    /// Creates a new packed value.
+    pub fn new_with_key(value: T, key: Key) -> Self {
+        Self {
+            inner: value,
+            key: Some(key),
+        }
+    }
+
     /// Returns a shared reference to the packed value.
     pub fn as_inner(pack: &Pack<T>) -> &T {
         &pack.inner
@@ -126,12 +134,6 @@ where
     pub fn as_inner_mut(pack: &mut Pack<T>) -> &mut T {
         &mut pack.inner
     }
-
-    /// Sets the key.
-    fn set_key(mut self, value: Option<Key>) -> Self {
-        self.key = value;
-        self
-    }
 }
 
 impl<T> Drop for Pack<T>
@@ -140,7 +142,7 @@ where
 {
     fn drop(&mut self) {
         if let Some(key) = self.key {
-            clear_spread_root_opt::<T, _>(&key, || Some(&self.inner))
+            clear_spread_root::<T>(&self.inner, &key)
         }
     }
 }
@@ -172,7 +174,8 @@ where
     const FOOTPRINT: u64 = 1;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Pack::from(forward_pull_packed::<T>(ptr)).set_key(Some(ptr.key()))
+        let inner = forward_pull_packed::<T>(ptr);
+        Pack::new_with_key(inner, *ptr.key())
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
