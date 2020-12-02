@@ -13,9 +13,12 @@
 // limitations under the License.
 
 use super::Stash as StorageStash;
-use crate::traits::{
-    KeyPtr,
-    SpreadLayout,
+use crate::{
+    traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+    Lazy,
 };
 use ink_primitives::Key;
 
@@ -744,6 +747,36 @@ fn spread_layout_clear_works() {
         SpreadLayout::clear_spread(&stash1, &mut KeyPtr::from(root_key));
         let _ =
             <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+fn storage_is_cleared_completely_after_pull_lazy() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let lazy_stash = Lazy::new(create_holey_stash());
+        SpreadLayout::push_spread(&lazy_stash, &mut KeyPtr::from(root_key));
+        let pulled_stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        // when
+        SpreadLayout::clear_spread(&pulled_stash, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let storage_used = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(storage_used, 0);
+
         Ok(())
     })
     .unwrap()

@@ -77,21 +77,22 @@ where
 }
 
 #[test]
-fn debug_impl_works() {
-    let c1 = <LazyCell<i32>>::new(None);
-    assert_eq!(
-        format!("{:?}", &c1),
-        "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
-    );
-    let c2 = <LazyCell<i32>>::new(Some(42));
-    assert_eq!(
-        format!("{:?}", &c2),
-        "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
-    );
-    let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
-    assert_eq!(
-        format!("{:?}", &c3),
-        "LazyCell { \
+fn debug_impl_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let c1 = <LazyCell<i32>>::new(None);
+        assert_eq!(
+            format!("{:?}", &c1),
+            "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
+        );
+        let c2 = <LazyCell<i32>>::new(Some(42));
+        assert_eq!(
+            format!("{:?}", &c2),
+            "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
+        );
+        let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
+        assert_eq!(
+            format!("{:?}", &c3),
+            "LazyCell { \
             key: Some(Key(0x_\
                 0000000000000000_\
                 0000000000000000_\
@@ -100,7 +101,9 @@ fn debug_impl_works() {
             ), \
             cache: None \
         }",
-    );
+        );
+        Ok(())
+    })
 }
 
 impl<T> Drop for LazyCell<T>
@@ -108,9 +111,32 @@ where
     T: SpreadLayout,
 {
     fn drop(&mut self) {
-        if let Some(key) = self.key() {
-            if let Some(entry) = self.entry() {
-                clear_spread_root_opt::<T, _>(key, || entry.value().into())
+        if let Some(root_key) = self.key() {
+            match self.entry() {
+                Some(entry) => {
+                    // The inner cell needs to be cleared, no matter if it has
+                    // been loaded or not. Otherwise there might be leftovers.
+                    // Load from storage and then clear:
+                    clear_spread_root_opt::<T, _>(root_key, || entry.value().into())
+                }
+                None => {
+                    // The value is not yet in the cache. we need it in there
+                    // though in order to properly clean up.
+                    if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+                        // The inner cell needs to be cleared, no matter if it has
+                        // been loaded or not. Otherwise there might be leftovers.
+                        // Load from storage and then clear:
+                        clear_spread_root_opt::<T, _>(root_key, || self.get())
+                    } else {
+                        // Clear without loading from storage:
+                        let footprint = <T as SpreadLayout>::FOOTPRINT;
+                        assert_footprint_threshold(footprint);
+                        let mut key_ptr = KeyPtr::from(*root_key);
+                        for _ in 0..footprint {
+                            ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                        }
+                    }
+                }
             }
         }
     }
@@ -151,8 +177,22 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        if let Some(entry) = self.entry() {
-            entry.clear_spread_root(root_key)
+        match <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            true => {
+                // The inner cell needs to be cleared, no matter if it has
+                // been loaded or not. Otherwise there might be leftovers.
+                // Load from storage and then clear:
+                clear_spread_root_opt::<T, _>(root_key, || self.get())
+            }
+            false => {
+                // Clear without loading from storage:
+                let footprint = <T as SpreadLayout>::FOOTPRINT;
+                assert_footprint_threshold(footprint);
+                let mut key_ptr = KeyPtr::from(*root_key);
+                for _ in 0..footprint {
+                    ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                }
+            }
         }
     }
 }
@@ -341,6 +381,17 @@ where
     }
 }
 
+/// Asserts that the given `footprint` is below `FOOTPRINT_CLEANUP_THRESHOLD`.
+fn assert_footprint_threshold(footprint: u64) {
+    let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
+    assert!(
+        footprint <= footprint_threshold,
+        "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+        footprint,
+        footprint_threshold,
+    );
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -388,10 +439,13 @@ mod tests {
     }
 
     #[test]
-    fn lazy_works() {
-        let root_key = Key::from([0x42; 32]);
-        let cell = <LazyCell<u8>>::lazy(root_key);
-        assert_eq!(cell.key(), Some(&root_key));
+    fn lazy_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x42; 32]);
+            let cell = <LazyCell<u8>>::lazy(root_key);
+            assert_eq!(cell.key(), Some(&root_key));
+            Ok(())
+        })
     }
 
     #[test]
@@ -597,5 +651,162 @@ mod tests {
             }
             Ok(())
         })
+    }
+
+    #[test]
+    fn second_regression_test_for_issue_570() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x00; 32]);
+            let none: Option<u32> = None;
+            let some: Option<u32> = Some(13);
+
+            // when
+            let mut ptr_push_none = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&none, &mut ptr_push_none);
+            let mut ptr_pull_none = KeyPtr::from(root_key);
+            let v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_none);
+            assert!(v1.is_none());
+            let mut ptr_clear_none = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&none, &mut ptr_clear_none);
+
+            let mut ptr_push_some = KeyPtr::from(root_key);
+            SpreadLayout::push_spread(&some, &mut ptr_push_some);
+            let mut ptr_pull_some = KeyPtr::from(root_key);
+            let v2: Option<u32> = SpreadLayout::pull_spread(&mut ptr_pull_some);
+            assert!(v2.is_some());
+            let mut ptr_clear_some = KeyPtr::from(root_key);
+            SpreadLayout::clear_spread(&some, &mut ptr_clear_some);
+
+            // then
+            // the bug which we observed was that the pointer after push/pull/clear
+            // was set so a different value if the `Option` was `None` vs. if it was
+            // `Some`.
+            //
+            // if the bug has been fixed the pointer must be the same for `None`
+            // and `Some` after push/pull/clear. otherwise subsequent operations using
+            // the pointer will break as soon as the `Option` is changed to it's
+            // opposite (`None` -> `Some`, `Some` -> `None`).
+            let mut expected_post_op_ptr = KeyPtr::from(root_key);
+            // advance one time after the cell containing `self.is_some() as u8` has been read
+            expected_post_op_ptr.advance_by(1);
+            // advance another time after the cell containing the inner `Option` value
+            // has either been skipped (in case of the previous cell being `None`) or
+            // read (in case of `Some`).
+            expected_post_op_ptr.advance_by(1);
+
+            assert_eq!(expected_post_op_ptr, ptr_push_none);
+            assert_eq!(ptr_push_none, ptr_push_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_pull_none);
+            assert_eq!(ptr_pull_none, ptr_pull_some);
+
+            assert_eq!(expected_post_op_ptr, ptr_clear_none);
+            assert_eq!(ptr_clear_none, ptr_clear_some);
+
+            Ok(())
+        })
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn nested_lazies_are_cleared_completely_after_pull() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+            let nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
+            SpreadLayout::push_spread(&nested_lazy, &mut KeyPtr::from(root_key));
+            let pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+
+            // when
+            SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<u32> = Lazy::new(13u32);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy =
+                    <Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works_with_greater_footprint() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy = <Lazy<[u32; 5]> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
     }
 }

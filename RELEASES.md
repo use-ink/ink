@@ -260,7 +260,7 @@ pub struct OptedOut {
 ```
 
 The the above example `a` and `b` are normal storage entities, however, `c` on the other hand side will never load from or store to contract storage and will always be reset to the default value of its `i32` type for every contract call.
-It can be accesses from all ink! messages or methods via `self.c` but will never manipulate the contract storage and thus acts wonderfully as some shared local information.
+It can be accessed from all ink! messages or methods via `self.c` but will never manipulate the contract storage and thus acts wonderfully as some shared local information.
 
 ### Dynamic Storage Allocator
 
@@ -278,7 +278,7 @@ pub struct Matrix {
 }
 ```
 
-However, this will fail compilation with an error indicating that `StorageVec<T>` requires for its `T` to be packed (`T: PackedLayout`) which `StorageVec<T>` itself does not since it always stores all of its elements into different cells. The same applies to many other storage data sturctures provided by `ink_storage` and is a trade-off the ink! team decided for the case of efficiency of the overall system.
+However, this will fail compilation with an error indicating that `StorageVec<T>` requires for its `T` to be packed (`T: PackedLayout`) which `StorageVec<T>` itself does not since it always stores all of its elements into different cells. The same applies to many other storage data structures provided by `ink_storage` and is a trade-off the ink! team decided for the case of efficiency of the overall system.
 Instead what a user can do in order to get their vector-of-vector to be working is to make use of ink!'s dynamic storage allocator capabilities.
 
 For this the contract author has to first enable the feature via:
@@ -360,7 +360,7 @@ We won't be going into the details for any of those but will briefly present the
 | `#[ink(payable)]` **new** | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
 | `#[ink(selector = "..")]` **new** | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
 | `#[ink(namespace = "..")]` **new** | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
-| `#[ink(implementation)]` **new** | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
+| `#[ink(impl)]` **new** | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
 
 ## Merging of ink! Attributes
 

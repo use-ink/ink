@@ -18,7 +18,7 @@ use crate::Key;
 ///
 /// This wraps a base key and provides an interface to mimic pointer arithmetics.
 /// Mainly used to coordinate keys through static storage structures.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct KeyPtr {
     /// The underlying offset key.
     key: Key,

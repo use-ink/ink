@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./.images/ink-logo.svg" alt="ink!" height="120" />
+    <img src="./.images/ink-logo-glow.svg" alt="ink!" height="136" />
 <h1 align="center">
     Parity's ink! for writing smart contracts
 </h1>
@@ -27,7 +27,7 @@
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
 [l2]: https://discord.gg/ztCASQE
 
-> <img src="./.images/ink-squid.svg" alt="squid, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language. The compilation target are blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework.
+> <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language. The compilation target are blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework.
 
 <br/>
 
@@ -206,7 +206,7 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | `#[ink(payable)]` | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
 | `#[ink(selector = "..")]` | Applicable to ink! messages and ink! constructors. | Specifies a concrete dispatch selector for the flagged entity. This allows a contract author to precisely control the selectors of their APIs making it possible to rename their API without breakage. |
 | `#[ink(namespace = "..")]` | Applicable to ink! trait implementation blocks. | Changes the resulting selectors of all the ink! messages and ink! constructors within the trait implementation. Allows to disambiguate between trait implementations with overlapping message or constructor names. Use only with great care and consideration! |
-| `#[ink(implementation)]` | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
+| `#[ink(impl)]` | Applicable to ink! implementation blocks. | Tells the ink! codegen that some implementation block shall be granted access to ink! internals even without it containing any ink! messages or ink! constructors. |
 
 See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a more detailed description of those and also for details on the `#[ink::contract]` macro.
 

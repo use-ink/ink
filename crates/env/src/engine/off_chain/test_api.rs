@@ -352,6 +352,23 @@ where
     })
 }
 
+/// Returns the amount of storage cells used by the account `account_id`.
+///
+/// Returns `None` if the `account_id` is non-existent.
+pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(account_id)
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.count_used_storage_cells().map_err(Into::into))
+    })
+}
+
 /// Returns the account id of the currently executing contract.
 pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
 where
