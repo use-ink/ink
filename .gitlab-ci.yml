@@ -21,6 +21,8 @@ variables:
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
   PURELY_STD_CRATES:               "lang/codegen metadata"
   ALSO_WASM_CRATES:                "env storage storage/derive allocator prelude primitives lang lang/macro lang/ir"
+  # this var is changed to "-:staging" when the CI image gets rebuilt
+  # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
 
 workflow:
