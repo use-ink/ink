@@ -214,8 +214,9 @@ impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 impl<T, const N: usize> EntryArray<T, N> {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
-        let entries = [(); N].map(|_| Default::default());
-        Self { entries }
+        Self {
+            entries: array_init::array_init(|_| Default::default()),
+        }
     }
 }
 
