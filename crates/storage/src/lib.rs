@@ -21,7 +21,6 @@
 //! emulator for simple off-chain testing.
 
 #![feature(min_const_generics)]
-#![feature(array_map)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
