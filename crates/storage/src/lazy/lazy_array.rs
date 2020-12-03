@@ -70,7 +70,7 @@ impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
 ///
 /// Computes operations on the underlying N storage cells in a lazy fashion.
 /// Due to the size constraints the `LazyArray` is generally more efficient
-/// than the [`LazyMap`](`super::foo::FooLazyIndexMap`) for most use cases with limited elements.
+/// than the [`LazyMap`](`super::LazyIndexMap`) for most use cases with limited elements.
 ///
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
