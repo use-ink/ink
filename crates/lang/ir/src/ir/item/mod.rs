@@ -44,7 +44,7 @@ pub enum Item {
 
 impl quote::ToTokens for Item {
     /// We mainly implement this trait for this ink! type to have a derived
-    /// [`Spanned`](`syn::spanned::Spanned`) implementation for it.
+    /// [`Spanned`](`foosyn::spanned::Spanned`) implementation for it.
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self {
             Self::Ink(ink_item) => ink_item.to_tokens(tokens),

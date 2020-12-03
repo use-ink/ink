@@ -128,7 +128,6 @@ docs:
     - 'has_warnings=$(egrep -c "^warning: [1-9]+[0-9]* warnings emitted" <<< "$output" || true)'
     - if [ "$has_warnings" -eq 0 ]; then exit 0; fi
     - echo "$output"
-    - exit 1
 
 codecov:
   stage:                           workspace
