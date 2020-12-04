@@ -258,14 +258,14 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
-    /// Clears the underlying storage cells of the storage vector.
+    /// Clears the underlying storage cells of the storage stash.
     ///
     /// # Note
     ///
-    /// This completely invalidates the storage vector's invariants about
+    /// This completely invalidates the storage stash's invariants about
     /// the contents of its associated storage region.
     ///
-    /// This API is used for the `Drop` implementation of [`Vec`] as well as
+    /// This API is used for the `Drop` implementation of [`Stash`] as well as
     /// for the [`SpreadLayout::clear_spread`] trait implementation.
     fn clear_cells(&self) {
         if self.entries.key().is_none() {
