@@ -272,11 +272,6 @@ publish-docs:
   variables:
     GIT_DEPTH:                     0
     GIT_STRATEGY:                  none
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME == "tags"
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
