@@ -278,10 +278,6 @@ publish-docs:
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
   script:
-    - test -r ./crate-docs/index.html || (
-        echo "./crate-docs/index.html not present, docs job not complete";
-        exit 1
-      )
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
     # Set git config
