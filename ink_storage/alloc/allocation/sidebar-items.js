@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["_IMPL_TYPE_INFO_FOR_DynamicAllocation",""]],"struct":[["DynamicAllocation","A unique dynamic allocation."],["Wrap","Wraps a bytes buffer and turns it into an accumulator."]]});

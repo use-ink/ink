@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Contract","An ink! contract definition consisting of the ink! configuration and module."]]});

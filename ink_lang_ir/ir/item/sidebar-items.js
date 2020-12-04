@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["InkItem","An ink! specific item."],["Item","An item in the root of the ink! module (`ir::ItemMod`)."]],"mod":[["event",""],["storage",""]]});

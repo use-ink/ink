@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["impls",""],["storage",""]],"struct":[["Box","A dynamically allocated storage entity."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["_IMPL_TYPE_INFO_FOR_Bits256",""]],"struct":[["Bits256","A chunk of 256 bits."],["Iter","Iterator over the valid bits of a pack of 256 bits."],["IterMut","Iterator over the valid mutable bits of a pack of 256 bits."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Selector","A function selector."]]});

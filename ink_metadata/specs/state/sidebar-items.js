@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["IsPayable","Type state for telling if the message is payable."],["Mutates","Type state for the mutability of a message."],["Returns","Type state for the return type of a message."],["Selector","Type state for the message selector of a message."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Contract","Generates code for the entirety of the ink! contract."]]});

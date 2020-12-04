@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["TypedEncodedError","Errors that may be encountered upon operating on typed encoded instances."]],"struct":[["TypedEncoded","A wrapper around an encoded entity that only allows type safe accesses."]],"type":[["Result","The result type for typed encoded operations."]]});

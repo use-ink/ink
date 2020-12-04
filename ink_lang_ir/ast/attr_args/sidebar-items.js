@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["PathOrLit","Either a path or a literal."]],"struct":[["AttributeArgs","The attribute arguments for the configuration of an ink! smart contract."],["MetaNameValue","A name-value pair within an attribute, like feature = \"nightly\"."]]});

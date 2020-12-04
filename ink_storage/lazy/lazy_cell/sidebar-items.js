@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["assert_footprint_threshold","Asserts that the given `footprint` is below `FOOTPRINT_CLEANUP_THRESHOLD`."]],"struct":[["LazyCell","A lazy storage entity."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["InkTest","Generates code for the `[ink::test]` macro."]]});

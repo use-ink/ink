@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["build_create","Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation."]],"struct":[["CreateBuilder","Builds up contract instantiations."],["CreateParams","Builds up contract instantiations."]],"trait":[["FromAccountId","Contracts that can be contructed from an `AccountId`."]]});

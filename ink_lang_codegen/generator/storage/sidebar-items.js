@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Storage","Generator to create the ink! storage struct and important trait impls."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["impls",""]],"trait":[["LayoutCryptoHasher","Types implementing this trait are supported layouting crypto hashers."],["StorageLayout","Implemented by types that have a storage layout."]]});

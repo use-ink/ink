@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["accounts",""],["block",""],["chain_spec",""],["console",""],["events",""],["exec_context",""]]});

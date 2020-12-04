@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Bits256Iter","Iterator over the 256-bit chunks of a storage bitvector."],["Bits256IterMut","Iterator over mutable 256-bit chunks of a storage bitvector."],["BitsIter","Iterator over the bits of a storage bit vector."],["BitsIterMut","Iterator over the bits of a storage bit vector."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CacheCell","A cache for a `T` that allow to mutate the inner `T` through `&self`."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["DebugEntryMap",""],["LazyIndexMap","A lazy storage chunk that spans over a whole chunk of storage cells."]],"type":[["EntryMap","The map for the contract storage entries."],["Index","The index type used in the lazy storage chunk."]]});

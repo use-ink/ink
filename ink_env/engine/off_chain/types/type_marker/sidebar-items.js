@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["AccountId","Type marker representing an environmental `AccountId`."],["Balance","Type marker representing an environmental `Balance`."],["BlockNumber","Type marker representing an environmental `BlockNumber`."],["Hash","Type marker representing an environmental `Hash`."],["OffTimestamp","Type marker representing an environmental `Timestamp`."]]});

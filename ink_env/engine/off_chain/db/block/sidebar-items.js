@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Block","An emulated block in the chain."]]});

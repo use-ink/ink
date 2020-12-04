@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["EmittedEvent","Record for an emitted event."],["EmittedEventsRecorder","Records all emitted events for later inspection."],["TopicsBuilder",""]]});

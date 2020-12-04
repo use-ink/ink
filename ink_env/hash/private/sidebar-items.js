@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["Sealed","Seals the implementation of `CryptoHash` and `HashOutput`."]]});

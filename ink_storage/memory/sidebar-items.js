@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Memory","An instance that is solely stored within the contract's memory."]]});

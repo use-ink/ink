@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["IterConstructors","Iterator yielding all ink! constructor within a source ink! `ir::ItemImpl`."],["IterMessages","Iterator yielding all ink! messages within a source ink! `ir::ItemImpl`."]]});

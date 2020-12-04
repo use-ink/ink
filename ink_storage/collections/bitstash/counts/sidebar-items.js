@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["_IMPL_TYPE_INFO_FOR_CountFree",""],["_IMPL_TYPE_INFO_FOR_FullMask",""]],"struct":[["CountFree","Stores the number of set bits for each 256-bits block in a compact `u8`."],["FullMask",""]]});

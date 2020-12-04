@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Event","An ink! event struct definition."],["EventField","An event field with a flag indicating if this field is an event topic."],["EventFieldsIter","Iterator yielding all `#[ink(topic)]` annotated fields of an event struct."]]});

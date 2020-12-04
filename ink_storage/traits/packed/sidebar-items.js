@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["PackedLayout","Types that can be stored to and loaded from a single contract storage cell."]]});
