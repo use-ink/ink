@@ -815,3 +815,73 @@ fn drop_works() {
     })
     .unwrap()
 }
+
+#[test]
+fn drain_with_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let stash = create_holey_stash();
+        SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+        let mut pulled_stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        // when
+        pulled_stash.drain_with(|_| {});
+        SpreadLayout::push_spread(&pulled_stash, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let storage_used = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        // only the header should exist
+        assert_eq!(storage_used, 1);
+
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+fn drain_with_refill_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let stash = create_holey_stash();
+        SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+        let mut stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        stash.drain_with(|_| {});
+
+        // when
+        assert_eq!(0, stash.put(b'X'));
+        assert_eq!(stash.get(0), Some(&b'X'));
+        assert_eq!(stash.len(), 1);
+        assert_eq!(stash.len_entries(), 1);
+        assert_eq!(stash.last_vacant_index(), None);
+        SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let storage_used = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+
+        // the header + the one newly set cell should exist
+        assert_eq!(storage_used, 2);
+
+        Ok(())
+    })
+    .unwrap()
+}

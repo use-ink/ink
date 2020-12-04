@@ -45,7 +45,15 @@ where
     Key: From<<H as HashOutput>::Type>,
 {
     fn drop(&mut self) {
-        self.clear_cells();
+        if self.values.key().is_none() {
+            // We won't clear any storage if we are in lazy state since there
+            // probably has not been any state written to storage, yet.
+            return
+        }
+        let values = &mut self.values;
+        self.keys.drain_with(|key| {
+            values.clear_packed_at(&key);
+        });
     }
 }
 

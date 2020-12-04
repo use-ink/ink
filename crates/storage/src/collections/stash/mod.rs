@@ -485,6 +485,34 @@ where
         }
     }
 
+    /// Drains this stash, calls `f` with each drained `T`.
+    pub fn drain_with<F>(&mut self, mut f: F)
+    where
+        F: FnMut(T),
+    {
+        let clear = self.entries.key().is_some();
+
+        for index in 0..self.len_entries() {
+            let taken_entry = self.entries.put_get(index, None).expect("entry");
+            if let Entry::Occupied(value) = taken_entry {
+                // Call `f` for every moved out `T`.
+                f(value);
+            }
+
+            // only clear if needed. if we are in a lazy state we don't need to.
+            if clear {
+                self.entries.clear_packed_at(index);
+            }
+        }
+
+        self.header.len = 0;
+        self.header.len_entries = 0;
+        self.header.last_vacant = 0;
+
+        // At the end the stash must be empty and in a valid state.
+        debug_assert!(self.is_empty());
+    }
+
     /// Removes the element stored at the given index if any.
     ///
     /// This method acts similar to the take API and even still returns an Option.

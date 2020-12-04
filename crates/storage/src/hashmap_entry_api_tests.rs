@@ -16,6 +16,7 @@ use crate::traits::{
     KeyPtr,
     SpreadLayout,
 };
+use core::mem::ManuallyDrop;
 use ink_primitives::Key;
 
 #[cfg(test)]
@@ -104,7 +105,10 @@ macro_rules! gen_tests_for_backend {
                 push_hmap(&hmap2);
 
                 // then
-                let hmap3 = pull_hmap();
+                // We have to prevent calling `Drop` of `hmap3` since `Drop` will be called
+                // for `hmap2`, which refers to the same underlying storage key. Calling it
+                // again would result in a panic, since the storage has already been cleared.
+                let hmap3 = ManuallyDrop::new(pull_hmap());
                 assert_eq!(hmap3.get(&b'A'), Some(&14));
                 Ok(())
             })
@@ -237,7 +241,10 @@ macro_rules! gen_tests_for_backend {
                 push_hmap(&hmap1);
 
                 // when
-                let mut hmap2 = pull_hmap();
+                // We have to prevent calling `Drop` of `hmap2` since `Drop` will be called
+                // for `hmap1`, which refers to the same underlying storage key. Calling it
+                // again would result in a panic, since the storage has already been cleared.
+                let mut hmap2 = ManuallyDrop::new(pull_hmap());
                 assert_eq!(hmap2.get(&b'A'), Some(&15));
                 match hmap2.entry(b'A') {
                     Entry::Occupied(o) => {
@@ -248,7 +255,10 @@ macro_rules! gen_tests_for_backend {
                 push_hmap(&hmap2);
 
                 // then
-                let hmap3 = pull_hmap();
+                // We have to prevent calling `Drop` of `hmap3` since `Drop` will be called
+                // for `hmap1`, which refers to the same underlying storage key. Calling it
+                // again would result in a panic, since the storage has already been cleared.
+                let hmap3 = ManuallyDrop::new(pull_hmap());
                 assert_eq!(hmap3.get(&b'A'), None);
 
                 Ok(())
@@ -356,7 +366,8 @@ macro_rules! gen_tests_for_backend {
                 let mut hmap2 = push_pull_prefilled_hmap();
 
                 // then
-                match hmap2.entry(b'A') {
+                let entry = hmap2.entry(b'A');
+                match entry {
                     Entry::Occupied(o) => {
                         assert_eq!(o.remove_entry(), (b'A', 13));
                         assert_eq!(hmap2.get(&b'A'), None);
@@ -365,7 +376,10 @@ macro_rules! gen_tests_for_backend {
                     Entry::Vacant(_) => panic!(),
                 }
 
-                let hmap3 = pull_hmap();
+                // We have to prevent calling `Drop` of `hmap3` since `Drop` will be called
+                // for `hmap2`, which refers to the same underlying storage key. Calling it
+                // again would result in a panic, since the storage has already been cleared.
+                let hmap3 = ManuallyDrop::new(pull_hmap());
                 assert_eq!(hmap3.get(&b'A'), None);
                 Ok(())
             })
@@ -390,7 +404,11 @@ macro_rules! gen_tests_for_backend {
                 // then
                 // the value must have been flushed, which implies that after the
                 // insert is was marked as `Mutated`.
-                let hmap3 = pull_hmap();
+                //
+                // We have to prevent calling `Drop` of `hmap3` since `Drop` will be called
+                // for `hmap2`, which refers to the same underlying storage key. Calling it
+                // again would result in a panic, since the storage has already been cleared.
+                let hmap3 = ManuallyDrop::new(pull_hmap());
                 assert_eq!(hmap3.get(&b'A'), Some(&999));
 
                 Ok(())
