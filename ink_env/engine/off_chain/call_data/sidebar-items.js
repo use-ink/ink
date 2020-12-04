@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CallData","The raw ABI respecting input data to a call."]]});

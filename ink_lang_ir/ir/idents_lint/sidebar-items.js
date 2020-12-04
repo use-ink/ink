@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["ensure_no_ink_identifiers","Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`."]],"mod":[["private",""]],"trait":[["VisitBy","Makes sure to call the correct visitor function on the given visitor."]]});

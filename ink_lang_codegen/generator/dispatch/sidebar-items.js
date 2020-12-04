@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Dispatch","Generates code for the message and constructor dispatcher."]]});

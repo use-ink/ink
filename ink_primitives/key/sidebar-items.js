@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Key","Key into contract storage."]]});

@@ -204,39 +204,6 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -440,39 +407,6 @@
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">Environment</span>,
         <span class="ident">B</span>: <span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>;
-}
-
-<span class="doccomment">/// For each topic a hash is generated. This hash must be unique</span>
-<span class="doccomment">/// for a field and its value. The `prefix` is concatenated</span>
-<span class="doccomment">/// with the `value` and this result is then hashed.</span>
-<span class="doccomment">/// The `prefix` is typically set to the path a field has in</span>
-<span class="doccomment">/// an event struct + the identifier of the event struct.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For example, in the case of our Erc20 example contract the</span>
-<span class="doccomment">/// prefix `Erc20::Transfer::from` is concatenated with the</span>
-<span class="doccomment">/// field value of `from` and then hashed.</span>
-<span class="doccomment">/// In this example `Erc20` would be the contract identified,</span>
-<span class="doccomment">/// `Transfer` the event identifier, and `from` the field identifier.</span>
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrefixedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">prefix</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>],
-    <span class="kw">pub</span> <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">T</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span> <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">PrefixedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>, <span class="ident">X</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">X</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
-{
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">prefix</span>.<span class="ident">size_hint</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">size_hint</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="ident">prefix</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>);
-        <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>);
-    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "ink_env";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Metadata","Generates code to generate the metadata of the contract."]]});

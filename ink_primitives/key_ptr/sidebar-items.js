@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["KeyPtr","A key pointer."]]});

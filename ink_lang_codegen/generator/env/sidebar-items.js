@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Env","Generates code for the ink! environment of the contract."]]});

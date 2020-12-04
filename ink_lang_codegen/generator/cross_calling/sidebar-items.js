@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["CrossCalling","Generates code for using this ink! contract as a dependency."],["CrossCallingConflictCfg","Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`."]]});

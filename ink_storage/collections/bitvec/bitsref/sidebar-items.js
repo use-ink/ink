@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ChunkRef","A reference to a subslice within a 256-bit chunk."]]});

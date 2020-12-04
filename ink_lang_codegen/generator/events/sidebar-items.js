@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Events","Generates code for the ink! event structs of the contract."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["deserialize_from_byte_str","Deserializes the given hex string with optional `0x` prefix."],["serialize_as_byte_str","Serializes the given bytes as byte string."]]});

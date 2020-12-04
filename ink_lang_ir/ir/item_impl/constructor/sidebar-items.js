@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Constructor","An ink! constructor definition."]]});

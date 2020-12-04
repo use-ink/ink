@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["duplicate_config_err","Return an error to notify about duplicate ink! config arguments."]],"struct":[["Config","The ink! configuration."],["Environment","The environmental types definition."]]});

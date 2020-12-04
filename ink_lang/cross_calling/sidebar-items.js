@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ToAccountId","Implemented by contracts that are compiled as dependencies."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["KeyPtr","A key pointer."]],"trait":[["ExtKeyPtr","Extension trait to make `KeyPtr` simpler to use for `T: SpreadLayout` types."]]});

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["ink_lang_ir"] = [{"text":"impl Parse for AttributeArgs","synthetic":false,"types":[]},{"text":"impl Parse for MetaNameValue","synthetic":false,"types":[]},{"text":"impl Parse for PathOrLit","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

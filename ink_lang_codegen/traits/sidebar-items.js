@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["GenerateCode","Types implementing this trait are code generators for the ink! language."],["GenerateCodeUsing","Types implementing this trait can forward code generation to other generators."]]});

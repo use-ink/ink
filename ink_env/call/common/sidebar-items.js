@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ReturnType","Represents a return type."],["Set","A parameter that has been set to some value."],["Unset","A parameter that has not been set, yet."]],"trait":[["Unwrap","Implemented by [`Set`] and [`Unset`] in order to unwrap their value."]]});

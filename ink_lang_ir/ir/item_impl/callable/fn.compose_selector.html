@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `compose_selector` fn in crate `ink_lang_ir`."><meta name="keywords" content="rust, rustlang, rust-lang, compose_selector"><title>ink_lang_ir::ir::item_impl::callable::compose_selector - Rust</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../../ink_lang_ir/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="../../../index.html">ink_lang_ir</a>::<wbr><a href="../../index.html">ir</a>::<wbr><a href="../index.html">item_impl</a>::<wbr><a href="index.html">callable</a></p><script>window.sidebarCurrent = {name: "compose_selector", ty: "fn", relpath: ""};</script><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../../src/ink_lang_ir/ir/item_impl/callable.rs.html#300-348" title="goto source code">[src]</a></span><span class="in-band">Function <a href="../../../index.html">ink_lang_ir</a>::<wbr><a href="../../index.html">ir</a>::<wbr><a href="../index.html">item_impl</a>::<wbr><a href="index.html">callable</a>::<wbr><a class="fn" href="">compose_selector</a></span></h1><pre class="rust fn">pub fn compose_selector&lt;C&gt;(item_impl: &amp;<a class="struct" href="../../../../ink_lang_ir/ir/item_impl/struct.ItemImpl.html" title="struct ink_lang_ir::ir::item_impl::ItemImpl">ItemImpl</a>, callable: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>C) -&gt; <a class="struct" href="../../../../ink_lang_ir/ir/selector/struct.Selector.html" title="struct ink_lang_ir::ir::selector::Selector">Selector</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;C: <a class="trait" href="../../../../ink_lang_ir/ir/item_impl/callable/trait.Callable.html" title="trait ink_lang_ir::ir::item_impl::callable::Callable">Callable</a>,&nbsp;</span></pre><div class="docblock"><p>Returns the composed selector of the ink! callable.</p>
+<p>Composition takes into account the given <a href="../../../../ink_lang_ir/ir/item_impl/struct.ItemImpl.html" title="ir::ItemImpl"><code>ir::ItemImpl</code></a>.</p>
+<h1 id="details" class="section-header"><a href="#details">Details</a></h1>
+<p>Given</p>
+<ul>
+<li>the callable's identifier <code>i</code></li>
+<li>the optionally set callable's selector <code>s</code></li>
+<li>the impl blocks trait path in case it implements a trait, <code>P</code></li>
+<li>the impl blocks optional user provided namespace <code>S</code></li>
+</ul>
+<p>Then the selector is composed in the following way:</p>
+<ul>
+<li>If <code>s</code> is given we simply return <code>s</code>.</li>
+<li>Otherwise if <code>T</code> is not <code>None</code> (trait impl block) we concatenate
+<code>S</code>, <code>T</code> and <code>i</code> with <code>::</code> as separator if <code>T</code> refers to a full-path.
+If <code>T</code> refers to a relative path or is just an identifier we only take
+its last segment <code>p</code> (e.g. the trait's identifier) into consideration
+and use it instead of <code>P</code> in the above concatenation.
+In the following we refer to the resulting concatenation as <code>C</code>.</li>
+<li>Now we take the BLAKE-2 hash of <code>C</code> which results in 32 bytes of output
+and take the first 4 bytes that are returned in order as the composed
+selector.</li>
+</ul>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="overriding-the-composed-selector" class="section-header"><a href="#overriding-the-composed-selector">Overriding the composed selector</a></h2>
+<p>Given</p>
+<pre><code class="language-no_compile">impl MyStorage {
+    #[ink(message, selector = &quot;0xDEADBEEF&quot;)]
+    fn my_message(&amp;self) {}
+}
+</code></pre>
+<p>... then the selector of <code>my_message</code> is simply <code>0xDEADBEEF</code> since it overrides
+the composed selector.</p>
+<h2 id="inherent-implementation-block" class="section-header"><a href="#inherent-implementation-block">Inherent implementation block</a></h2>
+<p>Given</p>
+<pre><code class="language-no_compile">impl MyStorage {
+    #[ink(message)]
+    fn my_message(&amp;self) {}
+}
+</code></pre>
+<p>... then the selector of <code>my_message</code> is composed such as:</p>
+<pre><code class="language-no_compile">BLAKE2(&quot;my_message&quot;.to_string().as_bytes())[0..4]
+</code></pre>
+<h2 id="trait-implementation-block" class="section-header"><a href="#trait-implementation-block">Trait implementation block</a></h2>
+<p>Given</p>
+<pre><code class="language-no_compile">impl MyTrait for MyStorage {
+    #[ink(message)]
+    fn my_message(&amp;self) {}
+}
+</code></pre>
+<p>... then the selector of <code>my_message</code> is composed such as:</p>
+<pre><code class="language-no_compile">BLAKE2(&quot;MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+</code></pre>
+<h2 id="using-full-path-for-trait" class="section-header"><a href="#using-full-path-for-trait">Using full path for trait</a></h2>
+<p>Given</p>
+<pre><code class="language-no_compile">impl ::my_full::long_path::MyTrait for MyStorage {
+    #[ink(message)]
+    fn my_message(&amp;self) {}
+}
+</code></pre>
+<p>... then the selector of <code>my_message</code> is composed such as:</p>
+<pre><code class="language-no_compile">BLAKE2(&quot;::my_full::long_path::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+</code></pre>
+<h2 id="using-a-namespace" class="section-header"><a href="#using-a-namespace">Using a namespace</a></h2>
+<p>Given</p>
+<pre><code class="language-no_compile">#[ink(namespace = &quot;my_namespace&quot;)]
+impl MyTrait for MyStorage {
+    #[ink(message)]
+    fn my_message(&amp;self) {}
+}
+</code></pre>
+<p>... then the selector of <code>my_message</code> is composed such as:</p>
+<pre><code class="language-no_compile">BLAKE2(&quot;my_namespace::MyTrait::my_message&quot;.to_string().as_bytes())[0..4]
+</code></pre>
+<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<p>All above examples work similarly for ink! constructors interchangeably.</p>
+<h2 id="usage-recommendations" class="section-header"><a href="#usage-recommendations">Usage Recommendations</a></h2>
+<p>These recommendation mainly apply to trait implementation blocks:</p>
+<ul>
+<li>The recommendation by the ink! team is to use the full-path approach
+wherever possible; OR import the trait and use only its identifier with
+an additional namespace if required to disambiguate selectors.</li>
+<li>Try not to intermix the above recommendations.</li>
+<li>Avoid directly setting the selector of an ink! message or constuctor.
+Only do this if nothing else helps and you need a very specific selector,
+e.g. in case of backwards compatibility.</li>
+<li>Do not use the namespace unless required to disambiguate.</li>
+</ul>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "ink_lang_ir";</script><script src="../../../../main.js"></script><script defer src="../../../../search-index.js"></script></body></html>

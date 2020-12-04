@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DynamicAllocator","The dynamic allocator."]]});

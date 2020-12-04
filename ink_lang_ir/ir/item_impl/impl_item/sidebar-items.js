@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ImplItem","An item within an ink! implementation block."]]});

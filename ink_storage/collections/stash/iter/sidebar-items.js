@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Entries","An iterator over shared references to the entries of a storage stash."],["Iter","An iterator over shared references to the elements of a storage stash."],["IterMut","An iterator over exclusive references to the elements of a storage stash."]]});

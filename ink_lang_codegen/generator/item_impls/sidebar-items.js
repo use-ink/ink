@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ItemImpls","Generates code for all ink! implementation blocks."]]});

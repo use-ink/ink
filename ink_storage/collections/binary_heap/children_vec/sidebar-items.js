@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ChildInfo","Encapsulates information regarding a particular child."],["ChildInfoMut","Encapsulates information regarding a particular child."],["ChildrenVec","Provides an interface for accessing elements in the `BinaryHeap`."],["Iter","An iterator over shared references to the elements of the `BinaryHeap`."]]});

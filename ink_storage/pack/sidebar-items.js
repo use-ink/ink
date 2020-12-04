@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Pack","Packs the inner `T` so that it only occupies a single contract storage cell."]]});

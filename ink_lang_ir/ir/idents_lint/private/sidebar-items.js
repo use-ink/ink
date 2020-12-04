@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["IdentVisitor","Visitor to ensure that there are no identifiers starting with `__ink_` as prefix."]],"trait":[["Sealed","Seals the implementation of `VisitBy`."]]});

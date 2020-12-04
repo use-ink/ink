@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ChainSpec","The chain specification."]]});

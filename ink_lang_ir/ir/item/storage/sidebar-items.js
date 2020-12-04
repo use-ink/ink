@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Storage","An ink! storage struct definition."]]});

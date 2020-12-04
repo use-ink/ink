@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ReturnFlags","The flags to indicate further information about the end of a contract execution."]],"trait":[["EnvBackend","Environmental contract functionality that does not require `Environment`."],["TypedEnvBackend","Environmental contract functionality."]]});

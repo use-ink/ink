@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["callable","Utilities and helper routines that are useful for both ink! messages and ink! constructors."],["constructor",""],["impl_item",""],["iter",""],["message",""]],"struct":[["ItemImpl","An ink! implementation block."]]});

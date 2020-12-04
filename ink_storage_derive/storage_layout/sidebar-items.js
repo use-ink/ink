@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["field_layout",""],["storage_layout_derive",""],["storage_layout_enum",""],["storage_layout_struct",""]]});
