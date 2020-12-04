@@ -624,7 +624,7 @@ where
     /// Care should be taken when using this API.
     ///
     /// The general use of this API is to streamline `Drop` implementations of
-    /// high-level abstractions that build upon this low-level data strcuture.
+    /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at<Q>(&self, index: &Q)
     where
         K: Borrow<Q>,
