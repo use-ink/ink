@@ -267,8 +267,8 @@ publish-docs:
   stage:                           publish
   <<:                              *docker-env
   needs:
-      - job:                       docs
-        artifacts:                 true
+    - job:                       docs
+      artifacts:                 true
   variables:
     GIT_DEPTH:                     0
     GIT_STRATEGY:                  none
