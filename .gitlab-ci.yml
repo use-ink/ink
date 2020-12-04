@@ -272,6 +272,11 @@ publish-docs:
   variables:
     GIT_DEPTH:                     0
     GIT_STRATEGY:                  none
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+    - if: $CI_COMMIT_REF_NAME == "tags"
   script:
     - rm -rf /tmp/*
     - unset CARGO_TARGET_DIR
@@ -294,6 +299,7 @@ publish-docs:
     - git add --all --force
     - git status
     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+    - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
 
