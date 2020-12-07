@@ -95,6 +95,7 @@ mod dns {
     }
 
     /// Type alias for the contract's result type.
+    /// ```rust
     pub type Result<T> = core::result::Result<T, Error>;
 
     impl DomainNameService {
