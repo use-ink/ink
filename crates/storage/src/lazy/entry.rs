@@ -15,6 +15,7 @@
 #[cfg(doc)]
 use crate::lazy::{
     LazyArray,
+    LazyCell,
     LazyIndexMap,
 };
 use crate::traits::{

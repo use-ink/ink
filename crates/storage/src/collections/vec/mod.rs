@@ -36,6 +36,9 @@ use crate::{
     traits::PackedLayout,
 };
 
+#[cfg(doc)]
+use crate::traits::SpreadLayout;
+
 /// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
 ///
 /// # Note

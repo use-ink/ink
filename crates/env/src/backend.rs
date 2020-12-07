@@ -28,6 +28,9 @@ use crate::{
 };
 use ink_primitives::Key;
 
+#[cfg(doc)]
+use crate as ink_env;
+
 /// The flags to indicate further information about the end of a contract execution.
 pub struct ReturnFlags {
     value: u32,
@@ -165,7 +168,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::gas_price`]
+    /// For more details visit: [`ink_env::weight_to_fee`]
     fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.

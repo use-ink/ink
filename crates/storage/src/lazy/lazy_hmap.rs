@@ -54,6 +54,9 @@ use ink_prelude::{
 };
 use ink_primitives::Key;
 
+#[cfg(doc)]
+use crate::lazy::LazyIndexMap;
+
 /// The map for the contract storage entries.
 ///
 /// # Note

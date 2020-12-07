@@ -39,6 +39,9 @@ use crate::{
     traits::PackedLayout,
 };
 
+#[cfg(doc)]
+use crate::traits::SpreadLayout;
+
 /// The used index type.
 type Index = u32;
 

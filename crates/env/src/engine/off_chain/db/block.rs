@@ -34,7 +34,7 @@ pub struct Block {
     /// # Note
     ///
     /// - Can optionally be set for more control via
-    ///   [`crate::set_block_randomization_hash`].
+    ///   [`crate::test::set_block_entropy`].
     entropy: OffHash,
 }
 

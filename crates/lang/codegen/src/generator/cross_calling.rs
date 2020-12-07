@@ -28,6 +28,9 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+#[cfg(doc)]
+use ink_env;
+
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
 pub struct CrossCallingConflictCfg<'a> {
@@ -140,7 +143,7 @@ impl CrossCalling<'_> {
         }
     }
 
-    /// Builds up the [`ink_env::call::ArgumentList`] type structure for the given types.
+    /// Builds up the [`ink_env::call::utils::ArgumentList`] type structure for the given types.
     fn generate_arg_list<'a, Args>(args: Args) -> TokenStream2
     where
         Args: IntoIterator<Item = &'a syn::Type>,
