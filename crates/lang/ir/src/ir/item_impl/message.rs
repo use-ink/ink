@@ -181,10 +181,11 @@ impl Message {
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
             |kind| {
-                !matches!(kind,
+                !matches!(
+                    kind,
                     ir::AttributeArgKind::Message
-                    | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Selector(_)
+                        | ir::AttributeArgKind::Payable
+                        | ir::AttributeArgKind::Selector(_)
                 )
             },
         )
