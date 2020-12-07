@@ -760,6 +760,7 @@
 <span id="757">757</span>
 <span id="758">758</span>
 <span id="759">759</span>
+<span id="760">760</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -944,10 +945,11 @@
             <span class="ident">method_item</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>,
             <span class="op">|</span><span class="ident">kind</span><span class="op">|</span> {
-                <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">kind</span>,
+                <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(
+                    <span class="ident">kind</span>,
                     <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>
-                    <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Payable</span>
-                    <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Selector</span>(<span class="kw">_</span>)
+                        <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Payable</span>
+                        <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Selector</span>(<span class="kw">_</span>)
                 )
             },
         )

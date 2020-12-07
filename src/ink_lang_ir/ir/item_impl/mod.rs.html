@@ -368,6 +368,10 @@
 <span id="365">365</span>
 <span id="366">366</span>
 <span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2020 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -669,7 +673,11 @@
                     <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">impl_block_span</span>, <span class="string">&quot;at this invocation&quot;</span>,))
                 })<span class="question-mark">?</span>;
             <span class="ident">normalized</span>.<span class="ident">ensure_no_conflicts</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Implementation</span> <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Namespace</span>(<span class="kw">_</span>))
+                <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(
+                    <span class="ident">arg</span>.<span class="ident">kind</span>(),
+                    <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Implementation</span>
+                        <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Namespace</span>(<span class="kw">_</span>)
+                )
             })<span class="question-mark">?</span>;
             <span class="ident">namespace</span> <span class="op">=</span> <span class="ident">normalized</span>.<span class="ident">namespace</span>();
         }

@@ -1,5 +1,4 @@
 var N = null;var sourcesIndex = {};
-sourcesIndex["ink_allocator"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["ink_env"] = {"name":"","dirs":[{"name":"call","files":["call_builder.rs","common.rs","create_builder.rs","execution_input.rs","mod.rs","selector.rs"]},{"name":"engine","dirs":[{"name":"off_chain","dirs":[{"name":"db","files":["accounts.rs","block.rs","chain_spec.rs","console.rs","events.rs","exec_context.rs","mod.rs"]}],"files":["call_data.rs","chain_extension.rs","hashing.rs","impls.rs","mod.rs","test_api.rs","typed_encoded.rs","types.rs"]}],"files":["mod.rs"]}],"files":["api.rs","arithmetic.rs","backend.rs","error.rs","hash.rs","lib.rs","topics.rs","types.rs"]};
 sourcesIndex["ink_lang"] = {"name":"","files":["contract.rs","cross_calling.rs","dispatcher.rs","env_access.rs","error.rs","events.rs","lib.rs","traits.rs"]};
 sourcesIndex["ink_lang_codegen"] = {"name":"","dirs":[{"name":"generator","files":["contract.rs","cross_calling.rs","dispatch.rs","env.rs","events.rs","ink_test.rs","item_impls.rs","metadata.rs","mod.rs","storage.rs","trait_def.rs"]}],"files":["lib.rs","traits.rs"]};
