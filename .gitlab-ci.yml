@@ -275,7 +275,7 @@ examples-docs:
         # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
         # of this flag.
         - for example in examples/*/; do
-            cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps --all-features;
+            cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
           done
 
 #### stage:                        publish
