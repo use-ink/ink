@@ -59,7 +59,7 @@ mod dns {
     }
 
     /// Domain name service contract inspired by ChainX's [blog post]
-    /// (https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
+    /// (<https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d>).
     ///
     /// # Note
     ///
