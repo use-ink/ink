@@ -17,10 +17,13 @@ use super::{
     PeekMut,
     Reverse,
 };
-use crate::traits::{
-    KeyPtr,
-    PackedLayout,
-    SpreadLayout,
+use crate::{
+    test_utils::assert_used_cells,
+    traits::{
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
 };
 use ink_primitives::Key;
 
@@ -252,18 +255,8 @@ fn drop_works() {
             ));
             // heap is dropped which should clear the cells
         });
-
         assert!(setup_result.is_ok(), "setup should not panic");
-
-        let contract_id = ink_env::test::get_current_contract_account_id::<
-            ink_env::DefaultEnvironment,
-        >()
-        .expect("Cannot get contract id");
-        let used_cells = ink_env::test::count_used_storage_cells::<
-            ink_env::DefaultEnvironment,
-        >(&contract_id)
-        .expect("Used cells must be returned");
-        assert_eq!(used_cells, 0);
+        assert_used_cells(0);
 
         let _ =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));

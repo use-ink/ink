@@ -28,6 +28,18 @@ where
     .unwrap()
 }
 
+pub(crate) fn assert_used_cells(expected: usize) {
+    let contract_id =
+        ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()
+            .expect("Cannot get contract id");
+    let used_cells =
+        ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(
+            &contract_id,
+        )
+        .expect("Used cells must be returned");
+    assert_eq!(used_cells, expected);
+}
+
 /// Creates two tests:
 /// (1) Tests if an object which is `push_spread`-ed to storage results in exactly
 ///     the same object when it is `pull_spread`-ed again. Subsequently the object
