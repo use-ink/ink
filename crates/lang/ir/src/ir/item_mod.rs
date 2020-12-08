@@ -438,6 +438,7 @@ impl ItemMod {
 }
 
 /// Iterator yielding ink! item definitions of the ink! smart contract.
+#[derive(Clone)]
 pub struct IterInkItems<'a> {
     items_iter: core::slice::Iter<'a, ir::Item>,
 }
@@ -504,6 +505,7 @@ impl<'a> Iterator for IterEvents<'a> {
 
 /// Iterator yielding all ink! implementation block definitions within the ink!
 /// [`ItemMod`](`crate::ir::ItemMod`).
+#[derive(Clone)]
 pub struct IterItemImpls<'a> {
     items_iter: IterInkItems<'a>,
 }

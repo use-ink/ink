@@ -48,6 +48,7 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
+        let doc_item_impls = item_impls.clone();
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
@@ -57,6 +58,9 @@ impl GenerateCode for ItemImpls<'_> {
 
                 #( #item_impls )*
             };
+
+            #[cfg(doc)]
+            #( #doc_item_impls )*
         }
     }
 }
