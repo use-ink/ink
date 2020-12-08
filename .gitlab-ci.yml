@@ -293,6 +293,7 @@ publish-docs:
     # saving README and docs
     - cp -r ./crate-docs/ /tmp/doc/
     - cp README.md /tmp/doc/
+    - cp -r .images/ /tmp/doc/
     - git checkout gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
