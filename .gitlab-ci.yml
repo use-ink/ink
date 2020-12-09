@@ -299,6 +299,7 @@ publish-docs:
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
     - mv /tmp/doc/* .
+    - mv /tmp/doc/.images .
     # Upload files
     - git add --all --force
     - git status
