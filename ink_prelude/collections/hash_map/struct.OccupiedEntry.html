@@ -40,7 +40,7 @@ It is part of the <a href="../../../ink_prelude/collections/hash_map/enum.Entry.
 }</pre></div>
 </div><h4 id="method.get_mut" class="method"><code>pub fn <a href="#method.get_mut" class="fnname">get_mut</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>V</code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2448-2450" title="goto source code">[src]</a></h4><div class="docblock"><p>Gets a mutable reference to the value in the entry.</p>
 <p>If you need a reference to the <code>OccupiedEntry</code> which may outlive the
-destruction of the <code>Entry</code> value, see <a href="../../../ink_prelude/collections/hash_map/struct.OccupiedEntry.html#method.into_mut"><code>into_mut</code></a>.</p>
+destruction of the <code>Entry</code> value, see <a href="Self::into_mut"><code>into_mut</code></a>.</p>
 <h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -61,7 +61,7 @@ destruction of the <code>Entry</code> value, see <a href="../../../ink_prelude/c
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>[<span class="string">&quot;poneyland&quot;</span>], <span class="number">24</span>);</pre></div>
 </div><h4 id="method.into_mut" class="method"><code>pub fn <a href="#method.into_mut" class="fnname">into_mut</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a mut </a>V</code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2477-2479" title="goto source code">[src]</a></h4><div class="docblock"><p>Converts the <code>OccupiedEntry</code> into a mutable reference to the value in the entry
 with a lifetime bound to the map itself.</p>
-<p>If you need multiple references to the <code>OccupiedEntry</code>, see <a href="../../../ink_prelude/collections/hash_map/struct.OccupiedEntry.html#method.get_mut"><code>get_mut</code></a>.</p>
+<p>If you need multiple references to the <code>OccupiedEntry</code>, see <a href="Self::get_mut"><code>get_mut</code></a>.</p>
 <h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -104,7 +104,7 @@ with a lifetime bound to the map itself.</p>
 }
 
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;poneyland&quot;</span>), <span class="bool-val">false</span>);</pre></div>
-</div><h4 id="method.replace_entry" class="method"><code>pub fn <a href="#method.replace_entry" class="fnname">replace_entry</a>(self, value: V) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>K, V<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2550-2552" title="goto source code">[src]</a></h4><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>map_entry_replace</code>)</div></div><div class="docblock"><p>Replaces the entry, returning the old key and value. The new key in the hash map will be
+</div><h4 id="method.replace_entry" class="method"><code>pub fn <a href="#method.replace_entry" class="fnname">replace_entry</a>(self, value: V) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>K, V<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2550-2552" title="goto source code">[src]</a></h4><div class="stability"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>map_entry_replace</code>)</div></div><div class="docblock"><p>Replaces the entry, returning the old key and value. The new key in the hash map will be
 the key used to create this entry.</p>
 <h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -122,7 +122,7 @@ the key used to create this entry.</p>
     <span class="kw">let</span> (<span class="ident">old_key</span>, <span class="ident">old_value</span>): (<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">u32</span>) <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">replace_entry</span>(<span class="number">16</span>);
 }
 </pre></div>
-</div><h4 id="method.replace_key" class="method"><code>pub fn <a href="#method.replace_key" class="fnname">replace_key</a>(self) -&gt; K</code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2581-2583" title="goto source code">[src]</a></h4><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>map_entry_replace</code>)</div></div><div class="docblock"><p>Replaces the key in the hash map with the key used to create this entry.</p>
+</div><h4 id="method.replace_key" class="method"><code>pub fn <a href="#method.replace_key" class="fnname">replace_key</a>(self) -&gt; K</code><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/collections/hash/map.rs.html#2581-2583" title="goto source code">[src]</a></h4><div class="stability"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>map_entry_replace</code>)</div></div><div class="docblock"><p>Replaces the key in the hash map with the key used to create this entry.</p>
 <h1 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">map_entry_replace</span>)]</span>
