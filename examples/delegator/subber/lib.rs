@@ -18,7 +18,7 @@ pub use self::subber::Subber;
 use ink_lang as ink;
 
 #[ink::contract]
-mod subber {
+pub mod subber {
     use accumulator::Accumulator;
 
     /// Decreases the underlying accumulator's value.

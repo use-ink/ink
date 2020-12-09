@@ -67,7 +67,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod erc721 {
+pub mod erc721 {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::collections::{
         hashmap::Entry,

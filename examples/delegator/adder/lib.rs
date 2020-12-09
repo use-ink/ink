@@ -18,7 +18,7 @@ pub use self::adder::Adder;
 use ink_lang as ink;
 
 #[ink::contract]
-mod adder {
+pub mod adder {
     use accumulator::Accumulator;
 
     /// Increments the underlying accumulator's value.

@@ -17,7 +17,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod delegator {
+pub mod delegator {
     use accumulator::Accumulator;
     use adder::Adder;
     use ink_storage::{

@@ -17,7 +17,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod incrementer {
+pub mod incrementer {
     #[ink(storage)]
     pub struct Incrementer {
         value: i32,

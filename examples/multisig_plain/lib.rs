@@ -77,7 +77,7 @@ pub use self::multisig_plain::{
 use ink_lang as ink;
 
 #[ink::contract]
-mod multisig_plain {
+pub mod multisig_plain {
     use ink_env::call::{
         build_call,
         utils::ReturnType,

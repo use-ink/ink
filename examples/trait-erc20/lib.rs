@@ -17,7 +17,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod erc20 {
+pub mod erc20 {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang as ink;
 

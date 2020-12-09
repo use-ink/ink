@@ -108,7 +108,7 @@ Below you can see the code using the `ink_lang` version of ink!.
 use ink_lang as ink;
 
 #[ink::contract]
-mod flipper {
+pub mod flipper {
     /// The storage of the flipper contract.
     #[ink(storage)]
     pub struct Flipper {

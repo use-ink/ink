@@ -17,7 +17,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod dns {
+pub mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
         collections::hashmap::Entry,
