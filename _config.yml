@@ -1,4 +1,4 @@
 theme: jekyll-theme-midnight
 markdown: GFM
-includes:
-    - .images
+include:
+  - .images
