@@ -352,7 +352,7 @@ impl<S> ConstructorSpecBuilder<S> {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().map(str::trim).collect::<Vec<_>>();
         this
     }
 }
