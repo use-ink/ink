@@ -43,15 +43,16 @@ impl AsRef<ir::Contract> for ItemImpls<'_> {
 
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let item_impls = self
-            .contract
-            .module()
-            .impls()
-            .map(|item_impl| self.generate_item_impl(item_impl));
-        let doc_item_impls = item_impls.clone();
+        let iter_impls = self.contract.module().impls();
+        let item_impls = iter_impls
+            .clone()
+            .map(|item_impl| self.generate_item_impl(item_impl, false));
+        let doc_item_impls =
+            iter_impls.map(|item_impl| self.generate_item_impl(item_impl, true));
         let no_cross_calling_cfg =
             self.generate_code_using::<generator::CrossCallingConflictCfg>();
-        quote! {
+        let tokens = quote! {
+            #[cfg(not(doc))]
             #no_cross_calling_cfg
             const _: () = {
                 use ::ink_lang::{Env, EmitEvent, StaticEnv};
@@ -60,8 +61,15 @@ impl GenerateCode for ItemImpls<'_> {
             };
 
             #[cfg(doc)]
-            #( #doc_item_impls )*
-        }
+            const _: () = {
+                use ::ink_lang::{Env, EmitEvent, StaticEnv};
+            };
+
+            #(
+                #doc_item_impls
+            )*
+        };
+        tokens.into()
     }
 }
 
@@ -118,7 +126,7 @@ impl ItemImpls<'_> {
         )
     }
 
-    fn generate_trait_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+    fn generate_trait_item_impl(item_impl: &ir::ItemImpl, doc: bool) -> TokenStream2 {
         assert!(item_impl.trait_path().is_some());
         let span = item_impl.span();
         let attrs = item_impl.attrs();
@@ -155,10 +163,13 @@ impl ItemImpls<'_> {
             }),
         );
         let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        let maybe_doc = maybe_doc(doc);
         quote_spanned!(span =>
+            #maybe_doc
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
 
             #( #attrs )*
+            #maybe_doc
             impl #trait_path for #self_type {
                 type __ink_Checksum = [(); #checksum];
 
@@ -213,7 +224,7 @@ impl ItemImpls<'_> {
         )
     }
 
-    fn generate_inherent_item_impl(item_impl: &ir::ItemImpl) -> TokenStream2 {
+    fn generate_inherent_item_impl(item_impl: &ir::ItemImpl, doc: bool) -> TokenStream2 {
         assert!(item_impl.trait_path().is_none());
         let span = item_impl.span();
         let attrs = item_impl.attrs();
@@ -229,7 +240,14 @@ impl ItemImpls<'_> {
             .filter_map(ir::ImplItem::filter_map_other_item)
             .map(ToTokens::to_token_stream);
         let self_type = item_impl.self_type();
+        let maybe_doc = if doc {
+            quote! { #[cfg(doc)] }
+        } else {
+            quote! { #[cfg(not(doc))] }
+        };
+
         quote_spanned!(span =>
+            #maybe_doc
             #( #attrs )*
             impl #self_type {
                 #( #constructors )*
@@ -254,15 +272,24 @@ impl ItemImpls<'_> {
     }
 
     /// Generates code for the given ink! implementation block.
-    fn generate_item_impl(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
+    fn generate_item_impl(&self, item_impl: &ir::ItemImpl, doc: bool) -> TokenStream2 {
         let self_ty_guard = self.generate_item_impl_self_ty_guard(item_impl);
         let impl_block = match item_impl.trait_path() {
-            Some(_) => Self::generate_trait_item_impl(item_impl),
-            None => Self::generate_inherent_item_impl(item_impl),
+            Some(_) => Self::generate_trait_item_impl(item_impl, doc),
+            None => Self::generate_inherent_item_impl(item_impl, doc),
         };
+
         quote! {
             #self_ty_guard
             #impl_block
         }
+    }
+}
+
+fn maybe_doc(doc: bool) -> TokenStream2 {
+    if doc {
+        quote! { #[cfg(doc)] }
+    } else {
+        quote! { #[cfg(not(doc))] }
     }
 }
