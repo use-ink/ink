@@ -69,7 +69,7 @@ impl GenerateCode for ItemImpls<'_> {
                 #doc_item_impls
             )*
         };
-        tokens.into()
+        tokens
     }
 }
 
