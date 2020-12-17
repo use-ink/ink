@@ -33,9 +33,6 @@ use crate::{
 };
 use ink_primitives::Key;
 
-#[cfg(doc)]
-use crate::traits::SpreadLayout;
-
 /// An index into the stash.
 type Index = u32;
 
