@@ -37,7 +37,7 @@ blake2 = { version = "0.9", optional = true }
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
-rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
+rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
 scale-info = { version = "0.4", default-features = false, features = ["derive"], optional = true }
 
 [features]
