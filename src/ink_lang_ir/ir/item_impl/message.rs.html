@@ -1392,12 +1392,12 @@
             <span class="comment">// &amp;self</span>
             <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self</span>
             <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {

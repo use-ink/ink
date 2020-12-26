@@ -32,7 +32,7 @@ never allocate more than <code>isize::MAX</code> bytes.</p>
 <p>Recursive structures must be boxed, because if the definition of <code>Cons</code>
 looked like this:</p>
 
-<div class='information'><div class='tooltip compile_fail'>ⓘ<span class='tooltiptext'>This example deliberately fails to compile</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
+<div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
 <span class="ident">Cons</span>(<span class="ident">T</span>, <span class="ident">List</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),</pre></div>
 <p>It wouldn't work. This is because the size of a <code>List</code> depends on how many
 elements are in the list, and so we don't know how much memory to allocate

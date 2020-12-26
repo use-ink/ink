@@ -1834,14 +1834,14 @@
             <span class="ident">error</span>: <span class="string">&quot;async ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err</span><span class="macro">!</span>(
             <span class="ident">error</span>: <span class="string">&quot;async ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="ident">async</span> <span class="kw">fn</span> <span class="ident">const_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
             }
         );
     }
