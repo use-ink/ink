@@ -1,4 +1,4 @@
-// Copyright 2019-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod delegator {
     use accumulator::Accumulator;
     use adder::Adder;
-    use ink_core::storage::{
-        self,
-        Flush,
+    use ink_storage::{
+        traits::{
+            PackedLayout,
+            SpreadLayout,
+        },
+        Lazy,
     };
     use subber::Subber;
 
@@ -32,8 +35,21 @@ mod delegator {
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, Flush)]
-    #[cfg_attr(feature = "ink-generate-abi", derive(type_metadata::Metadata))]
+    #[derive(
+        Debug,
+        Copy,
+        Clone,
+        PartialEq,
+        Eq,
+        scale::Encode,
+        scale::Decode,
+        SpreadLayout,
+        PackedLayout,
+    )]
+    #[cfg_attr(
+        feature = "std",
+        derive(::scale_info::TypeInfo, ::ink_storage::traits::StorageLayout)
+    )]
     pub enum Which {
         Adder,
         Subber,
@@ -48,59 +64,60 @@ mod delegator {
     /// the signalled events and put their code hash into our
     /// delegator smart contract.
     #[ink(storage)]
-    struct Delegator {
+    pub struct Delegator {
         /// Says which of adder or subber is currently in use.
-        which: storage::Value<Which>,
+        which: Which,
         /// The accumulator smart contract.
-        accumulator: storage::Value<Accumulator>,
+        accumulator: Lazy<Accumulator>,
         /// The adder smart contract.
-        adder: storage::Value<Adder>,
+        adder: Lazy<Adder>,
         /// The subber smart contract.
-        subber: storage::Value<Subber>,
+        subber: Lazy<Subber>,
     }
 
     impl Delegator {
         /// Instantiate a delegator with the given sub-contract codes.
         #[ink(constructor)]
-        fn new(
-            &mut self,
+        pub fn new(
             init_value: i32,
             accumulator_code_hash: Hash,
             adder_code_hash: Hash,
             subber_code_hash: Hash,
-        ) {
-            self.which.set(Which::Adder);
-            let total_balance = self.env().balance();
+        ) -> Self {
+            let total_balance = Self::env().balance();
             let accumulator = Accumulator::new(init_value)
                 .endowment(total_balance / 4)
-                .using_code(accumulator_code_hash)
+                .code_hash(accumulator_code_hash)
                 .instantiate()
                 .expect("failed at instantiating the `Accumulator` contract");
             let adder = Adder::new(accumulator.clone())
                 .endowment(total_balance / 4)
-                .using_code(adder_code_hash)
+                .code_hash(adder_code_hash)
                 .instantiate()
                 .expect("failed at instantiating the `Adder` contract");
             let subber = Subber::new(accumulator.clone())
                 .endowment(total_balance / 4)
-                .using_code(subber_code_hash)
+                .code_hash(subber_code_hash)
                 .instantiate()
                 .expect("failed at instantiating the `Subber` contract");
-            self.accumulator.set(accumulator);
-            self.adder.set(adder);
-            self.subber.set(subber);
+            Self {
+                which: Which::Adder,
+                accumulator: Lazy::new(accumulator),
+                adder: Lazy::new(adder),
+                subber: Lazy::new(subber),
+            }
         }
 
         /// Returns the accumulator's value.
         #[ink(message)]
-        fn get(&self) -> i32 {
-            self.accumulator.get().get()
+        pub fn get(&self) -> i32 {
+            self.accumulator.get()
         }
 
         /// Delegates the call to either `Adder` or `Subber`.
         #[ink(message)]
-        fn change(&mut self, by: i32) {
-            match &*self.which {
+        pub fn change(&mut self, by: i32) {
+            match self.which {
                 Which::Adder => self.adder.inc(by),
                 Which::Subber => self.subber.dec(by),
             }
@@ -108,13 +125,13 @@ mod delegator {
 
         /// Switches the delegator.
         #[ink(message)]
-        fn switch(&mut self) {
-            match *self.which {
+        pub fn switch(&mut self) {
+            match self.which {
                 Which::Adder => {
-                    *self.which = Which::Subber;
+                    self.which = Which::Subber;
                 }
                 Which::Subber => {
-                    *self.which = Which::Adder;
+                    self.which = Which::Adder;
                 }
             }
         }

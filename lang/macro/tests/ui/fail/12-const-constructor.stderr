@@ -1,5 +1,0 @@
-error: `const fn` is not supported for ink! functions
-  --> $DIR/12-const-constructor.rs:10:9
-   |
-10 |         const fn invalid_return(&mut self) {}
-   |         ^^^^^

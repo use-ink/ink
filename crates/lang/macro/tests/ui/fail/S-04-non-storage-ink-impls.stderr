@@ -1,0 +1,35 @@
+error[E0271]: type mismatch resolving `<NonStorageStruct as non_storage_ink_impls::_::_::{closure#0}::TypeEq>::This == StorageStruct`
+  --> $DIR/S-04-non-storage-ink-impls.rs:28:10
+   |
+28 |     impl NonStorageStruct {
+   |          ^^^^^^^^^^^^^^^^
+   |          |
+   |          expected struct `StorageStruct`, found struct `NonStorageStruct`
+   |          required by a bound in this
+   |          required by this bound in `non_storage_ink_impls::_::_::{closure#0}::assert_type_eq_all`
+   |
+   = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `constructor2` found for struct `StorageStruct` in the current scope
+  --> $DIR/S-04-non-storage-ink-impls.rs:30:16
+   |
+9  |     pub struct StorageStruct {}
+   |     ------------------------ function or associated item `constructor2` not found for this
+...
+30 |         pub fn constructor2() -> Self {
+   |                ^^^^^^^^^^^^
+   |                |
+   |                function or associated item not found in `StorageStruct`
+   |                help: there is an associated function with a similar name: `constructor1`
+
+error[E0599]: no function or associated item named `message2` found for struct `StorageStruct` in the current scope
+  --> $DIR/S-04-non-storage-ink-impls.rs:35:16
+   |
+9  |     pub struct StorageStruct {}
+   |     ------------------------ function or associated item `message2` not found for this
+...
+35 |         pub fn message2(&self) {}
+   |                ^^^^^^^^
+   |                |
+   |                function or associated item not found in `StorageStruct`
+   |                help: there is an associated function with a similar name: `message1`

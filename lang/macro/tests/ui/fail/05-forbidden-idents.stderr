@@ -1,5 +1,0 @@
-error: identifiers starting with `__ink` are forbidden in ink!
-  --> $DIR/05-forbidden-idents.rs:13:12
-   |
-13 |         fn __ink_noop(&self) {}
-   |            ^^^^^^^^^^

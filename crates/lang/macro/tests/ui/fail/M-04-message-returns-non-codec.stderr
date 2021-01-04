@@ -1,0 +1,12 @@
+error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
+  --> $DIR/M-04-message-returns-non-codec.rs:18:49
+   |
+18 |         pub fn returns_non_codec_type(&self) -> NonCodec {
+   |                                                 ^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
+   |
+  ::: $WORKSPACE/crates/lang/src/traits.rs
+   |
+   |     type Output: scale::Encode + 'static;
+   |                  ------------- required by this bound in `ink_lang::FnOutput::Output`
+   |
+   = note: required because of the requirements on the impl of `Encode` for `NonCodec`

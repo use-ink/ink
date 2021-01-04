@@ -1,0 +1,5 @@
+error: unknown ink! attribute (path)
+  --> $DIR/M-10-method-unknown-ink-marker.rs:17:15
+   |
+17 |         #[ink(unknown_marker)]
+   |               ^^^^^^^^^^^^^^

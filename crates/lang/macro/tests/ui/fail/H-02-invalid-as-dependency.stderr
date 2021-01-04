@@ -1,0 +1,5 @@
+error: expected a bool literal for `compile_as_dependency` ink! config argument
+ --> $DIR/H-02-invalid-as-dependency.rs:3:17
+  |
+3 | #[ink::contract(compile_as_dependency = "yes")]
+  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
