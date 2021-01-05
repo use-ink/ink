@@ -53,6 +53,7 @@ pub trait FromStatusCode: Sized {
 ///
 /// Used to check at compile time if the return type of a chain extension method
 /// is a `Result` type using the type system instead of the syntactic structure.
+#[doc(hidden)]
 pub trait IsResultType: private::Sealed {
     /// The `T` type of the `Result<T, E>`.
     type Ok;
