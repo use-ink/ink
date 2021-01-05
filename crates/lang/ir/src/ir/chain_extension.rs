@@ -32,6 +32,7 @@ use syn::{
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtension {
     item: syn::ItemTrait,
+    error_code: syn::TraitItemType,
     methods: Vec<ChainExtensionMethod>,
 }
 
@@ -56,6 +57,15 @@ impl ChainExtension {
     /// Returns a slice over all the chain extension methods.
     pub fn iter_methods(&self) -> SliceIter<ChainExtensionMethod> {
         self.methods.iter()
+    }
+
+    /// Returns the type of the error code of the chain extension.
+    pub fn error_code(&self) -> &syn::Type {
+        self.error_code
+            .default
+            .as_ref()
+            .map(|(_token, ty)| ty)
+            .expect("unexpected missing default type for error code")
     }
 }
 
@@ -127,9 +137,10 @@ impl TryFrom<syn::ItemTrait> for ChainExtension {
     fn try_from(item_trait: syn::ItemTrait) -> core::result::Result<Self, Self::Error> {
         idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
-        let methods = Self::analyse_items(&item_trait)?;
+        let (error_code, methods) = Self::analyse_items(&item_trait)?;
         Ok(Self {
             item: item_trait,
+            error_code,
             methods,
         })
     }
@@ -190,6 +201,53 @@ impl ChainExtension {
         Ok(())
     }
 
+    /// Checks if the associated trait item type is a proper chain extension error code.
+    fn analyse_error_code(
+        item_type: &syn::TraitItemType,
+        previous: &mut Option<syn::TraitItemType>,
+    ) -> Result<()> {
+        if item_type.ident != "ErrorCode" {
+            return Err(format_err_spanned!(
+                item_type.ident,
+                "chain extensions expect an associated type with name `ErrorCode` but found {}",
+                item_type.ident,
+            ))
+        }
+        if !item_type.generics.params.is_empty() {
+            return Err(format_err_spanned!(
+                item_type.generics,
+                "generic chain extension `ErrorCode` types are not supported",
+            ))
+        }
+        if !item_type.bounds.is_empty() {
+            return Err(format_err_spanned!(
+                item_type.bounds,
+                "bounded chain extension `ErrorCode` types are not supported",
+            ))
+        }
+        if item_type.default.is_none() {
+            return Err(format_err_spanned!(
+                item_type,
+                "expected a default type for the ink! chain extension ErrorCode",
+            ))
+        }
+        match previous {
+            Some(previous_error_code) => {
+                return Err(format_err_spanned!(
+                    item_type,
+                    "encountered duplicate `ErrorCode` associated types for the chain extension",
+                )).map_err(|err| err.into_combine(format_err_spanned!(
+                    previous_error_code,
+                    "first `ErrorCode` associated type here",
+                )))
+            }
+            None => {
+                *previous = Some(item_type.clone());
+            }
+        }
+        Ok(())
+    }
+
     /// Returns `Ok` if all trait items respects the requirements for an ink! chain extension.
     ///
     /// # Errors
@@ -209,9 +267,12 @@ impl ChainExtension {
     ///
     /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
     /// as a result of this proc. macro invocation.
-    fn analyse_items(item_trait: &syn::ItemTrait) -> Result<Vec<ChainExtensionMethod>> {
+    fn analyse_items(
+        item_trait: &syn::ItemTrait,
+    ) -> Result<(syn::TraitItemType, Vec<ChainExtensionMethod>)> {
         let mut methods = Vec::new();
         let mut seen_ids = HashMap::new();
+        let mut error_code = None;
         for trait_item in &item_trait.items {
             match trait_item {
                 syn::TraitItem::Const(const_trait_item) => {
@@ -227,10 +288,7 @@ impl ChainExtension {
                     ))
                 }
                 syn::TraitItem::Type(type_trait_item) => {
-                    return Err(format_err_spanned!(
-                    type_trait_item,
-                    "associated types in ink! chain extensions are not supported, yet"
-                ))
+                    Self::analyse_error_code(type_trait_item, &mut error_code)?;
                 }
                 syn::TraitItem::Verbatim(verbatim) => {
                     return Err(format_err_spanned!(
@@ -261,7 +319,16 @@ impl ChainExtension {
                 }
             }
         }
-        Ok(methods)
+        let error_code = match error_code {
+            Some(error_code) => error_code,
+            None => {
+                return Err(format_err_spanned!(
+                    item_trait,
+                    "missing ErrorCode associated type from ink! chain extension",
+                ))
+            }
+        };
+        Ok((error_code, methods))
     }
 
     /// Analyses a chain extension method.
@@ -439,11 +506,46 @@ mod tests {
     }
 
     #[test]
-    fn chain_extension_containing_associated_type_is_denied() {
+    fn chain_extension_containing_invalid_associated_type_is_denied() {
         assert_ink_chain_extension_eq_err!(
-            error: "associated types in ink! chain extensions are not supported, yet",
+            error: "chain extensions expect an associated type with name `ErrorCode` but found Type",
             pub trait MyChainExtension {
                 type Type;
+            }
+        );
+    }
+
+    #[test]
+    fn chain_extension_with_invalid_error_code() {
+        assert_ink_chain_extension_eq_err!(
+            error: "chain extensions expect an associated type with name `ErrorCode` but found IncorrectName",
+            pub trait MyChainExtension {
+                type IncorrectName = ();
+            }
+        );
+        assert_ink_chain_extension_eq_err!(
+            error: "generic chain extension `ErrorCode` types are not supported",
+            pub trait MyChainExtension {
+                type ErrorCode<T> = ();
+            }
+        );
+        assert_ink_chain_extension_eq_err!(
+            error: "bounded chain extension `ErrorCode` types are not supported",
+            pub trait MyChainExtension {
+                type ErrorCode: Copy = ();
+            }
+        );
+        assert_ink_chain_extension_eq_err!(
+            error: "expected a default type for the ink! chain extension ErrorCode",
+            pub trait MyChainExtension {
+                type ErrorCode;
+            }
+        );
+        assert_ink_chain_extension_eq_err!(
+            error: "encountered duplicate `ErrorCode` associated types for the chain extension",
+            pub trait MyChainExtension {
+                type ErrorCode = ();
+                type ErrorCode = ();
             }
         );
     }
@@ -640,6 +742,8 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension method must not have a `self` receiver",
             pub trait MyChainExtension {
+                type ErrorCode = ();
+
                 #[ink(extension = 1)]
                 fn has_self_receiver(&self) -> Self;
             }
@@ -647,6 +751,8 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension method must not have a `self` receiver",
             pub trait MyChainExtension {
+                type ErrorCode = ();
+
                 #[ink(extension = 1)]
                 fn has_self_receiver(&mut self) -> Self;
             }
@@ -654,6 +760,8 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension method must not have a `self` receiver",
             pub trait MyChainExtension {
+                type ErrorCode = ();
+
                 #[ink(extension = 1)]
                 fn has_self_receiver(self) -> Self;
             }
@@ -661,6 +769,8 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension method must not have a `self` receiver",
             pub trait MyChainExtension {
+                type ErrorCode = ();
+
                 #[ink(extension = 1)]
                 fn has_self_receiver(self: &Self) -> Self;
             }
@@ -668,6 +778,8 @@ mod tests {
         assert_ink_chain_extension_eq_err!(
             error: "ink! chain extension method must not have a `self` receiver",
             pub trait MyChainExtension {
+                type ErrorCode = ();
+
                 #[ink(extension = 1)]
                 fn has_self_receiver(self: Self) -> Self;
             }
@@ -691,6 +803,8 @@ mod tests {
     fn chain_extension_is_ok() {
         let chain_extension = <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
                 pub trait MyChainExtension {
+                    type ErrorCode = ();
+
                     #[ink(extension = 1)]
                     fn extension_1();
                     #[ink(extension = 2)]
