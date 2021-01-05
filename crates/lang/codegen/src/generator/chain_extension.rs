@@ -39,11 +39,21 @@ impl ChainExtension<'_> {
         let inputs = &sig.inputs;
         let input_bindings = method.inputs().map(|pat_type| &pat_type.pat);
         let input_types = method.inputs().map(|pat_type| &pat_type.ty);
+        // Mostly tuple-based type representation of the inputs:
+        // Special case for when there is exactly one input type.
+        // - 0 inputs          -> ()
+        // - 1 input T         -> T
+        // - n inputs A, B. .. -> (A, B, ..)
         let compound_input_type = match inputs.len() {
             0 => quote_spanned!(span=> ()),
             1 => quote_spanned!(span=> #( #input_types )* ),
             _n => quote_spanned!(span=> ( #( #input_types ),* ) ),
         };
+        // Mostly tuple-based value representation of the inputs:
+        // Special case for when there is exactly one input value.
+        // - 0 inputs          -> ()
+        // - 1 input a         -> a
+        // - n inputs a, b. .. -> (a, b, ..)
         let compound_input_bindings = match inputs.len() {
             0 => quote_spanned!(span=> ()),
             1 => quote_spanned!(span=> #( #input_bindings )* ),
