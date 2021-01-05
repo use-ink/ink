@@ -20,10 +20,7 @@ use quote::{
     format_ident,
     quote_spanned,
 };
-use syn::{
-    spanned::Spanned,
-    FnArg,
-};
+use syn::spanned::Spanned;
 
 /// Generator to create an ink! chain extension.
 #[derive(From)]
@@ -40,22 +37,8 @@ impl ChainExtension<'_> {
         let raw_id = id.into_u32();
         let sig = method.sig();
         let inputs = &sig.inputs;
-        let input_bindings = inputs.iter().map(|fn_arg| {
-            match fn_arg {
-                FnArg::Typed(pat_type) => &*pat_type.pat,
-                FnArg::Receiver(receiver) => {
-                    panic!("encountered unexpected self receiver: {:?}", receiver)
-                }
-            }
-        });
-        let input_types = inputs.iter().map(|fn_arg| {
-            match fn_arg {
-                FnArg::Typed(pat_type) => &*pat_type.ty,
-                FnArg::Receiver(receiver) => {
-                    panic!("encountered unexpected self receiver: {:?}", receiver)
-                }
-            }
-        });
+        let input_bindings = method.inputs().map(|pat_type| &pat_type.pat);
+        let input_types = method.inputs().map(|pat_type| &pat_type.ty);
         let compound_input_type = match inputs.len() {
             0 => quote_spanned!(span=> ()),
             1 => quote_spanned!(span=> #( #input_types )* ),

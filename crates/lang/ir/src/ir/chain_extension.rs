@@ -129,6 +129,35 @@ impl ChainExtensionMethod {
     pub fn id(&self) -> ExtensionId {
         self.id
     }
+
+    /// Returns an iterator over the inputs of the chain extension method.
+    pub fn inputs(&self) -> ChainExtensionMethodInputs {
+        ChainExtensionMethodInputs {
+            iter: self.item.sig.inputs.iter(),
+        }
+    }
+}
+
+pub struct ChainExtensionMethodInputs<'a> {
+    iter: syn::punctuated::Iter<'a, syn::FnArg>,
+}
+
+impl<'a> Iterator for ChainExtensionMethodInputs<'a> {
+    type Item = &'a syn::PatType;
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let item = self.iter.next()?;
+        match item {
+            syn::FnArg::Receiver(receiver) => {
+                panic!("encountered unexpected receiver in chain extension method input: {:?}", receiver)
+            }
+            syn::FnArg::Typed(pat_type) => Some(pat_type),
+        }
+    }
 }
 
 /// The unique ID of an ink! chain extension method.
@@ -881,7 +910,8 @@ mod tests {
 
     #[test]
     fn chain_extension_with_params_is_ok() {
-        let chain_extension = <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        let chain_extension =
+            <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
                 pub trait MyChainExtension {
                     type ErrorCode = ();
 
@@ -903,7 +933,8 @@ mod tests {
                     #[ink(expect_ok)]
                     fn extension_f();
                 }
-            }).unwrap();
+            })
+            .unwrap();
         let expected_methods = 6;
         assert_eq!(chain_extension.methods.len(), expected_methods);
         for (actual, expected) in chain_extension
