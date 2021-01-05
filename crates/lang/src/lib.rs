@@ -24,7 +24,10 @@ mod events;
 mod traits;
 
 pub use self::{
-    chain_extension::ChainExtensionInstance,
+    chain_extension::{
+        ChainExtensionInstance,
+        FromStatusCode,
+    },
     contract::{
         DispatchMode,
         DispatchUsingMode,

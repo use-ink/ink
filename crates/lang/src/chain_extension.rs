@@ -26,3 +26,25 @@ pub trait ChainExtensionInstance {
     /// Creates a new instance of the chain extension to use methods with method chaining syntax.
     fn instantiate() -> Self::Instance;
 }
+
+/// Implemented by error codes in order to construct them from status codes.
+///
+/// A status code is returned by calling an ink! chain extension method.
+/// It is the `u32` return value.
+///
+/// The purpose of an `ErrorCode` type that implements this trait is to provide
+/// more context information about the status of an ink! chain extension method call.
+pub trait FromStatusCode: Sized {
+    /// Returns `Ok` if the status code for the called chain extension method is valid.
+    ///
+    /// Returning `Ok` will query the output buffer of the call if the chain extension
+    /// method definition has a return value.
+    ///
+    /// # Note
+    ///
+    /// The convention is to use `0` as the only `raw` value that yields `Ok` whereas
+    /// every other value represents one error code. By convention this mapping should
+    /// never panic and therefore every `raw` value must map to either `Ok` or to a proper
+    /// `ErrorCode` variant.
+    fn from_status_code(status_code: u32) -> Result<(), Self>;
+}
