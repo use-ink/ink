@@ -66,10 +66,33 @@ impl ChainExtension<'_> {
                 quote_spanned!(output.span()=> #ty)
             }
         };
+        let expect_output = method.expect_output();
+        let expect_ok = method.expect_ok();
+        let where_output_is_result = if !expect_ok {
+            // Enforce that the output type of the chain extension is a `Result`.
+            quote_spanned!(span=>
+                #output: ::ink_lang::chain_extension::IsResultType,
+            )
+        } else {
+            quote::quote! {}
+        };
+        let where_output_impls_from_error_code = if !expect_output && !expect_ok {
+            // Enforce that `E` of the `Result<T, E>` output of the chain extension
+            // implements conversion from `Self::ErrorCode`.
+            quote_spanned!(span=>
+                <#output as ::ink_lang::chain_extension::IsResultType>::Err: ::core::convert::From<Self::ErrorCode>,
+            )
+        } else {
+            quote::quote! {}
+        };
         quote_spanned!(span=>
             #( #attrs )*
-            pub fn #ident(self, #inputs) -> ::core::result::Result<#output_type, ::ink_env::Error> {
-                ::ink_env::call_chain_extension::< #compound_input_type, #output_type>(
+            pub fn #ident(self, #inputs) -> ::core::result::Result<#output_type, ::ink_env::Error>
+            where
+                #where_output_is_result
+                #where_output_impls_from_error_code
+            {
+                ::ink_env::call_chain_extension::<#compound_input_type, #output_type>(
                     #raw_id,
                     &#compound_input_bindings
                 )

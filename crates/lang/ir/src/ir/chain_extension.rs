@@ -136,6 +136,16 @@ impl ChainExtensionMethod {
             iter: self.item.sig.inputs.iter(),
         }
     }
+
+    /// Returns `true` if the chain extension method was flagged with `#[ink(expect_output)]`.
+    pub fn expect_output(&self) -> bool {
+        self.expect_output
+    }
+
+    /// Returns `true` if the chain extension method was flagged with `#[ink(expect_ok)]`.
+    pub fn expect_ok(&self) -> bool {
+        self.expect_ok
+    }
 }
 
 pub struct ChainExtensionMethodInputs<'a> {
