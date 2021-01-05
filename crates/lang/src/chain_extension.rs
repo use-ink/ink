@@ -48,3 +48,25 @@ pub trait FromStatusCode: Sized {
     /// `ErrorCode` variant.
     fn from_status_code(status_code: u32) -> Result<(), Self>;
 }
+
+/// Only implemented for `Result<T, E>`.
+///
+/// Used to check at compile time if the return type of a chain extension method
+/// is a `Result` type using the type system instead of the syntactic structure.
+pub trait IsResultType: private::Sealed {
+    /// The `T` type of the `Result<T, E>`.
+    type Ok;
+    /// The `E` type of the `Result<T, E>`.
+    type Err;
+}
+
+impl<T, E> private::Sealed for Result<T, E> {}
+impl<T, E> IsResultType for Result<T, E> {
+    type Ok = T;
+    type Err = E;
+}
+
+mod private {
+    /// Seals the `IsResultType` trait so that it cannot be implemented outside of this module.
+    pub trait Sealed {}
+}
