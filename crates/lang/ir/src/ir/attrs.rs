@@ -257,6 +257,18 @@ impl InkAttribute {
         self.args()
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
+
+    /// Returns `true` if the ink! attribute contains the `expect_output` argument.
+    pub fn is_expect_output(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::ExpectOutput))
+    }
+
+    /// Returns `true` if the ink! attribute contains the `expect_ok` argument.
+    pub fn is_expect_ok(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::ExpectOk))
+    }
 }
 
 /// An ink! specific attribute argument.
@@ -304,6 +316,10 @@ pub enum AttributeArgKind {
     Namespace,
     /// `#[ink(impl)]`
     Implementation,
+    /// `#[ink(expect_output)]`
+    ExpectOutput,
+    /// `#[ink(expect_ok)]`
+    ExpectOk,
 }
 
 /// An ink! specific attribute flag.
@@ -350,11 +366,6 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
     Selector(Selector),
-    /// `#[ink(extension = N: u32)]`
-    ///
-    /// Applies on ink! chain extension method to set their `func_id` parameter.
-    /// Every chain extension method must have exactly one ink! `extension` attribute.
-    Extension(ExtensionId),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -372,6 +383,21 @@ pub enum AttributeArg {
     /// etc. Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,
+    /// `#[ink(extension = N: u32)]`
+    ///
+    /// Applies on ink! chain extension method to set their `func_id` parameter.
+    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    Extension(ExtensionId),
+    /// `#[ink(expect_output)]`
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    ExpectOutput,
+    /// `#[ink(expect_ok)]`
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    ExpectOk,
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -394,6 +420,8 @@ impl core::fmt::Display for AttributeArgKind {
                 write!(f, "namespace = N:string")
             }
             Self::Implementation => write!(f, "impl"),
+            Self::ExpectOutput => write!(f, "expect_output"),
+            Self::ExpectOk => write!(f, "expect_ok"),
         }
     }
 }
@@ -413,6 +441,8 @@ impl AttributeArg {
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
+            Self::ExpectOutput => AttributeArgKind::ExpectOutput,
+            Self::ExpectOk => AttributeArgKind::ExpectOk,
         }
     }
 }
@@ -437,6 +467,8 @@ impl core::fmt::Display for AttributeArg {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
+            Self::ExpectOutput => write!(f, "expect_output"),
+            Self::ExpectOk => write!(f, "expect_ok"),
         }
     }
 }
@@ -773,6 +805,8 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
+                                "expect_output" => Ok(AttributeArg::ExpectOutput),
+                                "expect_ok" => Ok(AttributeArg::ExpectOk),
                                 "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?")),
                                 _ => Err(format_err_spanned!(
                                     meta, "unknown ink! attribute (path)"

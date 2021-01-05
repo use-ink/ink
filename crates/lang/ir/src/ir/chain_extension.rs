@@ -72,8 +72,32 @@ impl ChainExtension {
 /// An ink! chain extension method.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtensionMethod {
+    /// The underlying vaidated AST of the chain extension method.
     item: syn::TraitItemMethod,
+    /// The unique identifier of the chain extension method.
     id: ExtensionId,
+    /// If `true` the `u32` status code of the chain extension method call is going to be
+    /// ignored and assumed to be always successful. The output buffer in this case is going
+    /// to be queried and decoded into the chain extension method's output type.
+    ///
+    /// If `false` the returned `u32` status code `code` is queried and
+    /// `<Self::ErrorCode as ink_lang::FromStatusCode>::from_status_code(code)` is called.
+    /// The call to `from_status_code` returns `Result<(), Self::ErrorCode>`. If `Ok(())`
+    /// the output buffer is queried and decoded as described above.
+    /// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of `Result<T, E>`
+    /// if the chain extension method returns a `Result` type.
+    /// In case the chain extension method does _NOT_ return a `Result` type the call returns
+    /// `Result<T, Self::ErrorCode>` where `T` is the chain extension method's return type.
+    ///
+    /// The default for this flag is `false`.
+    expect_output: bool,
+    /// If `true` the proc. macro no longer tries to enforce that the returned type encoded
+    /// into the output buffer of the chain extension method call is of type `Result<T, E>`.
+    /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `expect_output`
+    /// flag does not exist.
+    ///
+    /// The default for this flag is `false`.
+    expect_ok: bool,
 }
 
 impl ChainExtensionMethod {
@@ -412,11 +436,18 @@ impl ChainExtension {
         item_method: &syn::TraitItemMethod,
         extension: ExtensionId,
     ) -> Result<ChainExtensionMethod> {
-        ir::sanitize_attributes(
+        let (ink_attrs, _) = ir::sanitize_attributes(
             item_method.span(),
             item_method.attrs.clone(),
             &ir::AttributeArgKind::Extension,
-            |c| !matches!(c, ir::AttributeArg::Extension(_)),
+            |c| {
+                !matches!(
+                    c,
+                    ir::AttributeArg::Extension(_)
+                        | ir::AttributeArg::ExpectOutput
+                        | ir::AttributeArg::ExpectOk
+                )
+            },
         )?;
         if let Some(receiver) = item_method.sig.receiver() {
             return Err(format_err_spanned!(
@@ -427,6 +458,8 @@ impl ChainExtension {
         let result = ChainExtensionMethod {
             id: extension,
             item: item_method.clone(),
+            expect_output: ink_attrs.is_expect_output(),
+            expect_ok: ink_attrs.is_expect_ok(),
         };
         Ok(result)
     }
@@ -837,6 +870,62 @@ mod tests {
                     "extension_3",
                     "extension_4",
                     "extension_5",
+                ]
+                .iter()
+                .map(ToString::to_string),
+            )
+        {
+            assert_eq!(actual, expected);
+        }
+    }
+
+    #[test]
+    fn chain_extension_with_params_is_ok() {
+        let chain_extension = <ChainExtension as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyChainExtension {
+                    type ErrorCode = ();
+
+                    #[ink(extension = 1, expect_output)]
+                    fn extension_a();
+                    #[ink(extension = 2, expect_ok)]
+                    fn extension_b();
+                    #[ink(extension = 3, expect_output, expect_ok)]
+                    fn extension_c();
+
+                    #[ink(extension = 4)]
+                    #[ink(expect_output)]
+                    fn extension_d();
+                    #[ink(extension = 5)]
+                    #[ink(expect_ok)]
+                    fn extension_e();
+                    #[ink(extension = 6)]
+                    #[ink(expect_output)]
+                    #[ink(expect_ok)]
+                    fn extension_f();
+                }
+            }).unwrap();
+        let expected_methods = 6;
+        assert_eq!(chain_extension.methods.len(), expected_methods);
+        for (actual, expected) in chain_extension
+            .methods
+            .iter()
+            .map(|method| method.id())
+            .zip(1..=expected_methods as u32)
+        {
+            assert_eq!(actual.index, expected);
+        }
+        for (actual, expected) in chain_extension
+            .methods
+            .iter()
+            .map(|method| method.ident().to_string())
+            .zip(
+                [
+                    "extension_a",
+                    "extension_b",
+                    "extension_c",
+                    "extension_d",
+                    "extension_e",
+                    "extension_f",
                 ]
                 .iter()
                 .map(ToString::to_string),
