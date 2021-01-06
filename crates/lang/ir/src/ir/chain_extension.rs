@@ -230,6 +230,7 @@ impl ChainExtension {
     /// - If the input trait is an automatically implemented trait (`auto trait`).
     /// - If the input trait is generic over some set of types.
     /// - If the input trait's visibility is not public (`pub`).
+    /// - If the input trait has supertraits.
     fn analyse_properties(item_trait: &syn::ItemTrait) -> Result<()> {
         if let Some(unsafety) = &item_trait.unsafety {
             return Err(format_err_spanned!(
@@ -311,7 +312,7 @@ impl ChainExtension {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respects the requirements for an ink! chain extension.
+    /// Returns `Ok` if all trait items respect the requirements for an ink! chain extension.
     ///
     /// # Errors
     ///
