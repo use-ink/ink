@@ -179,6 +179,13 @@ where
 #[repr(transparent)]
 pub struct ReturnCode(u32);
 
+impl ReturnCode {
+    /// Returns the raw underlying `u32` representation.
+    pub fn into_u32(self) -> u32 {
+        self.0
+    }
+}
+
 type Result = core::result::Result<(), Error>;
 
 mod sys {
