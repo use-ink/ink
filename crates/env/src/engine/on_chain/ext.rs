@@ -495,7 +495,7 @@ pub fn call_chain_extension(
     func_id: u32,
     input: &[u8],
     output: &mut &mut [u8],
-) -> Result {
+) -> u32 {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
@@ -509,7 +509,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ret_code.into_u32()
 }
 
 pub fn input(output: &mut &mut [u8]) {
