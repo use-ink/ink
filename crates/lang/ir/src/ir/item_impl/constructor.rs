@@ -154,9 +154,9 @@ impl Constructor {
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
             |kind| {
-                !matches!(kind,
-                    ir::AttributeArg::Constructor
-                    | ir::AttributeArg::Selector(_)
+                !matches!(
+                    kind,
+                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_)
                 )
             },
         )
