@@ -77,6 +77,7 @@ pub trait FromStatusCode: Sized {
 #[derive(Debug)]
 pub struct ChainExtensionMethod<I, O, ErrorCode> {
     func_id: u32,
+    #[allow(clippy::type_complexity)]
     state: PhantomData<fn() -> (I, O, ErrorCode)>,
 }
 
