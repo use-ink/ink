@@ -233,6 +233,22 @@ where
     /// - If the returned `Result` of the called chain extension method cannot be decoded into `O`.
     /// - In case chain extension method specific constraints have not been met.
     ///     - These constraints are determined and defined by the author of the chain extension method.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result<i32, String>` upon completion.
+    /// It will handle the shared error code from the chain extension.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```no_compile
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::<(bool, i32)>()
+    ///     .output_result::<i32, String>()
+    ///     .handle_error_code::<MyErrorCode>()
+    ///     .call(&(true, 42));
+    /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<T, E> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -262,6 +278,22 @@ where
     /// - If the returned return value of the called chain extension method cannot be decoded into `O`.
     /// - In case chain extension method specific constraints have not been met.
     ///     - These constraints are determined and defined by the author of the chain extension method.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result<i32, String>` upon completion.
+    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```no_compile
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::<(bool, i32)>()
+    ///     .output_result::<i32, String>()
+    ///     .ignore_error_code()
+    ///     .call(&(true, 42));
+    /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<T, E> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -294,6 +326,22 @@ where
     /// # Panics
     ///
     /// If the returned return value of the called chain extension method cannot be decoded into `O`.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
+    /// It will handle the shared error code from the chain extension.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```no_compile
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::<(bool, i32)>()
+    ///     .output::<i32>()
+    ///     .handle_error_code::<MyErrorCode>()
+    ///     .call(&(true, 42));
+    /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -324,6 +372,22 @@ where
     /// # Panics
     ///
     /// If the returned return value of the called chain extension method cannot be decoded into `O`.
+    ///
+    /// # Example
+    ///
+    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
+    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
+    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
+    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// parameter respectively.
+    ///
+    /// ```no_compile
+    /// let result = ChainExtensionMethod::build(5)
+    ///     .input::<(bool, i32)>()
+    ///     .output::<i32>()
+    ///     .ignore_error_code::<MyErrorCode>()
+    ///     .call(&(true, 42));
+    /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> O {
         <EnvInstance as OnInstance>::on_instance(|instance| {
