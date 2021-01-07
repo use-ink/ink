@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,8 +80,9 @@ where
     // we will still load it first in order to not clean-up too many unneeded
     // storage cells.
     let footprint = <T as SpreadLayout>::FOOTPRINT;
-    let threshold = 16; // Arbitrarily chosen. Might need adjustments later.
-    if footprint >= threshold || <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+    if footprint >= super::FOOTPRINT_CLEANUP_THRESHOLD
+        || <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP
+    {
         // We need to load the entity before we remove its associated contract storage
         // because it requires a deep clean-up which propagates clearing to its fields,
         // for example in the case of `T` being a `storage::Box`.

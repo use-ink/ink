@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,11 @@ impl KeyPtr {
     pub fn advance_by(&mut self, new_shift: u64) -> &Key {
         let old_shift = core::mem::replace(&mut self.last_shift, new_shift);
         self.key += old_shift;
+        &self.key
+    }
+
+    /// Returns the underlying offset key.
+    pub fn key(&self) -> &Key {
         &self.key
     }
 }

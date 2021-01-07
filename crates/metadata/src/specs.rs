@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -352,7 +352,7 @@ impl<S> ConstructorSpecBuilder<S> {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().map(str::trim).collect::<Vec<_>>();
         this
     }
 }
