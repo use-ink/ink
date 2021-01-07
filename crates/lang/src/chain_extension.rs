@@ -27,6 +27,15 @@ pub trait ChainExtensionInstance {
     fn instantiate() -> Self::Instance;
 }
 
+/// Implemented by chain extension types.
+///
+/// Every chain extension defines a set of chain extension methods
+/// that share a common error code type.
+pub trait ChainExtension {
+    /// The error code that determines whether a chain extension method call was successful.
+    type ErrorCode: FromStatusCode;
+}
+
 /// Implemented by error codes in order to construct them from status codes.
 ///
 /// A status code is returned by calling an ink! chain extension method.
