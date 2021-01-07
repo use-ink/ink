@@ -192,10 +192,10 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        func_id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
+        _func_id: u32,
+        _input: &I,
+        _status_to_result: F,
+        _decode_to_result: D,
     ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
