@@ -29,16 +29,19 @@ pub struct ChainExtension<'a> {
 }
 
 impl ChainExtension<'_> {
-    fn generate_for_instance_method(method: &ChainExtensionMethod) -> TokenStream2 {
+    fn generate_for_instance_method(
+        method: &ChainExtensionMethod,
+        error_code: &syn::Type,
+    ) -> TokenStream2 {
         let span = method.span();
         let attrs = method.attrs();
         let ident = method.ident();
-        let id = method.id();
-        let raw_id = id.into_u32();
+        let func_id = method.id().into_u32();
         let sig = method.sig();
         let inputs = &sig.inputs;
         let input_bindings = method.inputs().map(|pat_type| &pat_type.pat);
         let input_types = method.inputs().map(|pat_type| &pat_type.ty);
+
         // Mostly tuple-based type representation of the inputs:
         // Special case for when there is exactly one input type.
         // - 0 inputs          -> ()
@@ -49,6 +52,7 @@ impl ChainExtension<'_> {
             1 => quote_spanned!(span=> #( #input_types )* ),
             _n => quote_spanned!(span=> ( #( #input_types ),* ) ),
         };
+
         // Mostly tuple-based value representation of the inputs:
         // Special case for when there is exactly one input value.
         // - 0 inputs          -> ()
@@ -59,6 +63,7 @@ impl ChainExtension<'_> {
             1 => quote_spanned!(span=> #( #input_bindings )* ),
             _n => quote_spanned!(span=> ( #( #input_bindings ),* ) ),
         };
+
         let output = &sig.output;
         let output_type = match output {
             syn::ReturnType::Default => quote_spanned!(output.span()=> ()),
@@ -66,36 +71,71 @@ impl ChainExtension<'_> {
                 quote_spanned!(output.span()=> #ty)
             }
         };
+
         let expect_output = method.expect_output();
         let expect_ok = method.expect_ok();
-        let where_output_is_result = if !expect_ok {
-            // Enforce that the output type of the chain extension is a `Result`.
+
+        let handle_error_code = !expect_output;
+        let returns_result = !expect_ok;
+
+        let error_code_handling = if handle_error_code {
             quote_spanned!(span=>
-                #output: ::ink_lang::chain_extension::IsResultType,
+                .handle_error_code::<#error_code>()
             )
         } else {
-            quote::quote! {}
-        };
-        let where_output_impls_from_error_code = if !expect_output && !expect_ok {
-            // Enforce that `E` of the `Result<T, E>` output of the chain extension
-            // implements conversion from `Self::ErrorCode`.
             quote_spanned!(span=>
-                <#output as ::ink_lang::chain_extension::IsResultType>::Err: ::core::convert::From<Self::ErrorCode>,
+                .ignore_error_code()
+            )
+        };
+
+        let result_handling = if returns_result {
+            quote_spanned!(span=>
+                .output_result::<
+                    <#output_type as ::ink_lang::IsResultType>::Ok,
+                    <#output_type as ::ink_lang::IsResultType>::Err,
+                >()
             )
         } else {
-            quote::quote! {}
+            quote_spanned!(span=>
+                .output::<#output_type>()
+            )
         };
+
+        let returned_type = match (returns_result, handle_error_code) {
+            (false, true) => {
+                quote_spanned!(span=>
+                    ::core::result::Result<#output_type, #error_code>
+                )
+            }
+            _ => {
+                quote_spanned!(span=>
+                    #output_type
+                )
+            }
+        };
+
+        let where_output_is_result = Some(quote_spanned!(span=>
+            #output_type: ::ink_lang::IsResultType,
+        ))
+        .filter(|_| returns_result);
+
+        let where_output_impls_from_error_code = Some(quote_spanned!(span=>
+            <#output_type as ::ink_lang::IsResultType>::Err: ::core::convert::From<#error_code>,
+        )).filter(|_| returns_result && handle_error_code);
+
         quote_spanned!(span=>
             #( #attrs )*
-            pub fn #ident(self, #inputs) -> ::core::result::Result<#output_type, ::ink_env::Error>
+            #[inline]
+            pub fn #ident(self, #inputs) -> #returned_type
             where
                 #where_output_is_result
                 #where_output_impls_from_error_code
             {
-                ::ink_env::call_chain_extension::<#compound_input_type, #output_type>(
-                    #raw_id,
-                    &#compound_input_bindings
-                )
+                ::ink_env::chain_extension::ChainExtensionMethod::build(#func_id)
+                    .input::<#compound_input_type>()
+                    #result_handling
+                    #error_code_handling
+                    .call(&#compound_input_bindings)
             }
         )
     }
@@ -106,10 +146,11 @@ impl GenerateCode for ChainExtension<'_> {
         let span = self.extension.span();
         let attrs = self.extension.attrs();
         let ident = self.extension.ident();
+        let error_code = self.extension.error_code();
         let instance_methods = self
             .extension
             .iter_methods()
-            .map(Self::generate_for_instance_method);
+            .map(|method| Self::generate_for_instance_method(method, error_code));
         let instance_ident = format_ident!("__ink_{}Instance", ident);
         quote_spanned!(span =>
             #(#attrs)*
