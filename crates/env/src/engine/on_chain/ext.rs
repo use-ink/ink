@@ -491,11 +491,7 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     }
 }
 
-pub fn call_chain_extension(
-    func_id: u32,
-    input: &[u8],
-    output: &mut &mut [u8],
-) -> u32 {
+pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {

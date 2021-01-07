@@ -118,9 +118,7 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     ///
     /// This indicates that the chain extension method return value might represent a failure.
     #[inline(always)]
-    pub fn output_result<T, E>(
-        self,
-    ) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
+    pub fn output_result<T, E>(self) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
     where
         Result<T, E>: scale::Decode + From<scale::Error>,
     {
@@ -139,9 +137,7 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     /// this chain extension method the above constraint is enforced at
     /// compile time.
     #[inline(always)]
-    pub fn output<O>(
-        self,
-    ) -> ChainExtensionMethod<I, state::NoResult<O>, ErrorCode>
+    pub fn output<O>(self) -> ChainExtensionMethod<I, state::NoResult<O>, ErrorCode>
     where
         O: scale::Decode,
     {
@@ -163,9 +159,7 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     ///
     /// The output of the chain extension method call is always decoded and returned in this case.
     #[inline(always)]
-    pub fn ignore_error_code(
-        self,
-    ) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
+    pub fn ignore_error_code(self) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
         ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
