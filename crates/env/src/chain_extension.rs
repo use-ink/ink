@@ -17,8 +17,6 @@
 //! Users should not use these types and definitions directly but rather use the provided
 //! `#[ink::chain_extension]` procedural macro defined in the `ink_lang` crate.
 
-use core::marker::PhantomData;
-
 use crate::{
     backend::EnvBackend,
     engine::{
@@ -26,6 +24,7 @@ use crate::{
         OnInstance,
     },
 };
+use core::marker::PhantomData;
 
 /// Implemented by error codes in order to construct them from status codes.
 ///
@@ -76,12 +75,12 @@ pub trait FromStatusCode: Sized {
 ///     - **A:** The chain extension method returns a `Result<T, E>` type.
 ///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
 #[derive(Debug)]
-pub struct ChainExtensionMethodInstance<I, O, ErrorCode> {
+pub struct ChainExtensionMethod<I, O, ErrorCode> {
     func_id: u32,
     state: PhantomData<fn() -> (I, O, ErrorCode)>,
 }
 
-impl ChainExtensionMethodInstance<(), (), ()> {
+impl ChainExtensionMethod<(), (), ()> {
     /// Creates a new chain extension method instance.
     #[inline(always)]
     pub fn build(func_id: u32) -> Self {
@@ -92,7 +91,7 @@ impl ChainExtensionMethodInstance<(), (), ()> {
     }
 }
 
-impl<O, ErrorCode> ChainExtensionMethodInstance<(), O, ErrorCode> {
+impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
     /// Sets the input types of the chain extension method call to `I`.
     ///
     /// # Note
@@ -101,18 +100,18 @@ impl<O, ErrorCode> ChainExtensionMethodInstance<(), O, ErrorCode> {
     /// All tuple types that may act as input parameters for the chain extension method are valid.
     /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
     #[inline(always)]
-    pub fn input<I>(self) -> ChainExtensionMethodInstance<I, O, ErrorCode>
+    pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode>
     where
         I: scale::Encode,
     {
-        ChainExtensionMethodInstance {
+        ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
         }
     }
 }
 
-impl<I, ErrorCode> ChainExtensionMethodInstance<I, (), ErrorCode> {
+impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     /// Sets the output type of the chain extension method call to `Result<T, E>`.
     ///
     /// # Note
@@ -121,11 +120,11 @@ impl<I, ErrorCode> ChainExtensionMethodInstance<I, (), ErrorCode> {
     #[inline(always)]
     pub fn output_result<T, E>(
         self,
-    ) -> ChainExtensionMethodInstance<I, Result<T, E>, ErrorCode>
+    ) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
     where
         Result<T, E>: scale::Decode + From<scale::Error>,
     {
-        ChainExtensionMethodInstance {
+        ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
         }
@@ -142,18 +141,18 @@ impl<I, ErrorCode> ChainExtensionMethodInstance<I, (), ErrorCode> {
     #[inline(always)]
     pub fn output<O>(
         self,
-    ) -> ChainExtensionMethodInstance<I, state::NoResult<O>, ErrorCode>
+    ) -> ChainExtensionMethod<I, state::NoResult<O>, ErrorCode>
     where
         O: scale::Decode,
     {
-        ChainExtensionMethodInstance {
+        ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
         }
     }
 }
 
-impl<I, O> ChainExtensionMethodInstance<I, O, ()> {
+impl<I, O> ChainExtensionMethod<I, O, ()> {
     /// Makes the chain extension method call assume that the returned status code is always success.
     ///
     /// # Note
@@ -166,8 +165,8 @@ impl<I, O> ChainExtensionMethodInstance<I, O, ()> {
     #[inline(always)]
     pub fn ignore_error_code(
         self,
-    ) -> ChainExtensionMethodInstance<I, O, state::IgnoreErrorCode> {
-        ChainExtensionMethodInstance {
+    ) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
+        ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
         }
@@ -182,11 +181,11 @@ impl<I, O> ChainExtensionMethodInstance<I, O, ()> {
     #[inline(always)]
     pub fn handle_error_code<ErrorCode>(
         self,
-    ) -> ChainExtensionMethodInstance<I, O, state::HandleErrorCode<ErrorCode>>
+    ) -> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>>
     where
         ErrorCode: FromStatusCode,
     {
-        ChainExtensionMethodInstance {
+        ChainExtensionMethod {
             func_id: self.func_id,
             state: Default::default(),
         }
@@ -217,7 +216,7 @@ pub mod state {
 }
 
 impl<I, T, E, ErrorCode>
-    ChainExtensionMethodInstance<I, Result<T, E>, state::HandleErrorCode<ErrorCode>>
+    ChainExtensionMethod<I, Result<T, E>, state::HandleErrorCode<ErrorCode>>
 where
     I: scale::Encode,
     T: scale::Decode,
@@ -248,7 +247,7 @@ where
     }
 }
 
-impl<I, T, E> ChainExtensionMethodInstance<I, Result<T, E>, state::IgnoreErrorCode>
+impl<I, T, E> ChainExtensionMethod<I, Result<T, E>, state::IgnoreErrorCode>
 where
     I: scale::Encode,
     T: scale::Decode,
@@ -278,7 +277,7 @@ where
 }
 
 impl<I, O, ErrorCode>
-    ChainExtensionMethodInstance<I, state::NoResult<O>, state::HandleErrorCode<ErrorCode>>
+    ChainExtensionMethod<I, state::NoResult<O>, state::HandleErrorCode<ErrorCode>>
 where
     I: scale::Encode,
     O: scale::Decode,
@@ -313,7 +312,7 @@ where
     }
 }
 
-impl<I, O> ChainExtensionMethodInstance<I, state::NoResult<O>, state::IgnoreErrorCode>
+impl<I, O> ChainExtensionMethod<I, state::NoResult<O>, state::IgnoreErrorCode>
 where
     I: scale::Encode,
     O: scale::Decode,
