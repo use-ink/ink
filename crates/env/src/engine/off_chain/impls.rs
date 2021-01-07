@@ -190,12 +190,22 @@ impl EnvBackend for EnvInstance {
         self.hash_bytes::<H>(&encoded[..], output)
     }
 
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
-        O: scale::Decode,
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        self.chain_extension_handler.eval(func_id, input)
+        // self.chain_extension_handler.eval(func_id, input)
+        todo!()
     }
 }
 

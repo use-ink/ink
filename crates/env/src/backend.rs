@@ -128,7 +128,7 @@ pub trait EnvBackend {
         H: CryptoHash,
         T: scale::Encode;
 
-    /// Calls the chain extension with the given ID and inputs.
+    /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.
     ///
@@ -138,10 +138,19 @@ pub trait EnvBackend {
     /// - If the inputs had an unexpected encoding.
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
-        O: scale::Decode;
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
 }
 
 /// Environmental contract functionality.

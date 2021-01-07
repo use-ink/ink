@@ -272,16 +272,27 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
-        O: scale::Decode,
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
-        ext::call_chain_extension(func_id, enc_input, output)?;
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+        let status_code =
+            status_to_result(ext::call_chain_extension(func_id, enc_input, output))?;
+        let decoded = decode_to_result(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 
