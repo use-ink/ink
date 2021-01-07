@@ -26,7 +26,6 @@ mod traits;
 pub use self::{
     chain_extension::{
         ChainExtensionInstance,
-        FromStatusCode,
         IsResultType,
     },
     contract::{
