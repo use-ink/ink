@@ -12,13 +12,13 @@ pub trait RuntimeReadWrite {
 
     /// Reads from runtime storage.
     ///
-    /// Returns the number of bytes written and up to 16 bytes of the
-    /// read value. Unwritten bytes are set to 0.
+    /// Returns the number of bytes read and up to 32 bytes of the
+    /// read value. Unused bytes in the output are set to 0.
     ///
     /// # Errors
     ///
     /// If the runtime storage cell stores a value that requires more than
-    /// 16 bytes.
+    /// 32 bytes.
     #[ink(extension = 2)]
     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
 
@@ -44,7 +44,7 @@ pub trait RuntimeReadWrite {
     Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode, scale_info::TypeInfo,
 )]
 pub enum ReadWriteErrorCode {
-    KeyDoesNotExist,
+    InvalidKey,
     CannotWriteToKey,
     CannotReadFromKey,
 }
