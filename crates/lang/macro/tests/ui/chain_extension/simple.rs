@@ -123,7 +123,7 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env_types = crate::CustomEnvironment)]
 mod read_writer {
-    use super::ReadWriteErrorCode;
+    use super::{Access, ReadWriteErrorCode, ReadWriteError, UnlockAccessError};
 
     #[ink(storage)]
     pub struct ReadWriter {}
@@ -143,6 +143,13 @@ mod read_writer {
         }
 
         #[ink(message)]
+        pub fn read_small(&self, key: Vec<u8>) -> Result<(u32, [u8; 32]), ReadWriteError> {
+            self.env()
+                .extension()
+                .read_small(&key)
+        }
+
+        #[ink(message)]
         pub fn write(
             &self,
             key: Vec<u8>,
@@ -152,6 +159,20 @@ mod read_writer {
                 .extension()
                 .write(&key, &value)
                 .expect("encountered error while writing to runtime storage")
+        }
+
+        #[ink(message)]
+        pub fn access(&self, key: Vec<u8>) -> Option<Access> {
+            self.env()
+                .extension()
+                .access(&key)
+        }
+
+        #[ink(message)]
+        pub fn unlock_access(&self, key: Vec<u8>, access: Access) -> Result<(), UnlockAccessError> {
+            self.env()
+                .extension()
+                .unlock_access(&key, access)
         }
     }
 }
