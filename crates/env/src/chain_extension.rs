@@ -121,7 +121,8 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     #[inline(always)]
     pub fn output_result<T, E>(self) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
     where
-        Result<T, E>: scale::Decode + From<scale::Error>,
+        Result<T, E>: scale::Decode,
+        E: From<scale::Error>,
     {
         ChainExtensionMethod {
             func_id: self.func_id,
