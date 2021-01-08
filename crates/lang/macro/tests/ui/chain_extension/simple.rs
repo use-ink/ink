@@ -98,7 +98,7 @@ impl ink_env::chain_extension::FromStatusCode for ReadWriteErrorCode {
     fn from_status_code(status_code: u32) -> Result<(), Self> {
         match status_code {
             0 => Ok(()),
-            1 => Err(Self::KeyDoesNotExist),
+            1 => Err(Self::InvalidKey),
             2 => Err(Self::CannotWriteToKey),
             3 => Err(Self::CannotReadFromKey),
             _ => panic!("encountered unknown status code"),
