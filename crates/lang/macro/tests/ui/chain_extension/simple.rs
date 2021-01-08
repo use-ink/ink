@@ -8,7 +8,7 @@ pub trait RuntimeReadWrite {
 
     /// Reads from runtime storage.
     #[ink(extension = 1, expect_ok)]
-    fn read(key: &[u8]) -> Result<Vec<u8>, ReadWriteErrorCode>;
+    fn read(key: &[u8]) -> Vec<u8>;
 
     /// Reads from runtime storage.
     ///
@@ -24,7 +24,7 @@ pub trait RuntimeReadWrite {
 
     /// Writes into runtime storage.
     #[ink(extension = 3, expect_ok)]
-    fn write(key: &[u8], value: &[u8]) -> Result<(), ReadWriteErrorCode>;
+    fn write(key: &[u8], value: &[u8]);
 
     /// Returns the access allowed for the key for the caller.
     #[ink(extension = 4, expect_ok, expect_output)]
@@ -139,7 +139,6 @@ mod read_writer {
             self.env()
                 .extension()
                 .read(&key)
-                .expect("encountered error while reading from runtime storage")
         }
 
         #[ink(message)]
@@ -158,7 +157,6 @@ mod read_writer {
             self.env()
                 .extension()
                 .write(&key, &value)
-                .expect("encountered error while writing to runtime storage")
         }
 
         #[ink(message)]
