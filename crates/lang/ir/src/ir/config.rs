@@ -37,7 +37,7 @@ pub struct Config {
     /// This must be a type that implements `ink_env::Environment` and can
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
-    env_types: Option<Environment>,
+    env: Option<Environment>,
 }
 
 /// Return an error to notify about duplicate ink! config arguments.
@@ -64,7 +64,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut dynamic_storage_allocator: Option<(bool, ast::MetaNameValue)> = None;
         let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
-        let mut env_types: Option<(Environment, ast::MetaNameValue)> = None;
+        let mut env: Option<(Environment, ast::MetaNameValue)> = None;
         for arg in args.into_iter() {
             if arg.name.is_ident("dynamic_storage_allocator") {
                 if let Some((_, ast)) = dynamic_storage_allocator {
@@ -94,16 +94,16 @@ impl TryFrom<ast::AttributeArgs> for Config {
                         "expected a bool literal for `compile_as_dependency` ink! config argument",
                     ))
                 }
-            } else if arg.name.is_ident("env_types") {
-                if let Some((_, ast)) = env_types {
-                    return Err(duplicate_config_err(ast, arg, "env_types"))
+            } else if arg.name.is_ident("env") {
+                if let Some((_, ast)) = env {
+                    return Err(duplicate_config_err(ast, arg, "env"))
                 }
                 if let ast::PathOrLit::Path(path) = &arg.value {
-                    env_types = Some((Environment { path: path.clone() }, arg))
+                    env = Some((Environment { path: path.clone() }, arg))
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a path for `env_types` ink! config argument",
+                        "expected a path for `env` ink! config argument",
                     ))
                 }
             } else {
@@ -116,7 +116,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
         Ok(Config {
             dynamic_storage_allocator: dynamic_storage_allocator.map(|(value, _)| value),
             as_dependency: as_dependency.map(|(value, _)| value),
-            env_types: env_types.map(|(value, _)| value),
+            env: env.map(|(value, _)| value),
         })
     }
 }
@@ -125,10 +125,10 @@ impl Config {
     /// Returns the environmental types definition if specified.
     /// Otherwise returns the default environmental types definition provided
     /// by ink!.
-    pub fn env_types(&self) -> syn::Path {
-        self.env_types
+    pub fn env(&self) -> syn::Path {
+        self.env
             .as_ref()
-            .map(|env_types| &env_types.path)
+            .map(|env| &env.path)
             .cloned()
             .unwrap_or(Environment::default().path)
     }
@@ -197,7 +197,7 @@ mod tests {
             Ok(Config {
                 dynamic_storage_allocator: Some(true),
                 as_dependency: None,
-                env_types: None,
+                env: None,
             }),
         )
     }
@@ -219,7 +219,7 @@ mod tests {
             Ok(Config {
                 dynamic_storage_allocator: None,
                 as_dependency: Some(false),
-                env_types: None,
+                env: None,
             }),
         )
     }
@@ -235,15 +235,15 @@ mod tests {
     }
 
     #[test]
-    fn env_types_works() {
+    fn env_works() {
         assert_try_from(
             syn::parse_quote! {
-                env_types = ::my::env::Types
+                env = ::my::env::Types
             },
             Ok(Config {
                 dynamic_storage_allocator: None,
                 as_dependency: None,
-                env_types: Some(Environment {
+                env: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
             }),
@@ -251,10 +251,10 @@ mod tests {
     }
 
     #[test]
-    fn env_types_invalid_value_fails() {
+    fn env_invalid_value_fails() {
         assert_try_from(
-            syn::parse_quote! { env_types = "invalid" },
-            Err("expected a path for `env_types` ink! config argument"),
+            syn::parse_quote! { env = "invalid" },
+            Err("expected a path for `env` ink! config argument"),
         );
     }
 
@@ -270,10 +270,10 @@ mod tests {
     fn duplicate_args_fails() {
         assert_try_from(
             syn::parse_quote! {
-                env_types = ::my::env::Types,
-                env_types = ::my::other::env::Types,
+                env = ::my::env::Types,
+                env = ::my::other::env::Types,
             },
-            Err("encountered duplicate ink! `env_types` config argument"),
+            Err("encountered duplicate ink! `env` config argument"),
         );
     }
 }

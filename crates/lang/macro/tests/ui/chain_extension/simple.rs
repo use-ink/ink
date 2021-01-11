@@ -121,7 +121,7 @@ impl Environment for CustomEnvironment {
     type ChainExtension = RuntimeReadWrite;
 }
 
-#[ink::contract(env_types = crate::CustomEnvironment)]
+#[ink::contract(env = crate::CustomEnvironment)]
 mod read_writer {
     use super::{Access, ReadWriteErrorCode, ReadWriteError, UnlockAccessError};
 

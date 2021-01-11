@@ -159,7 +159,7 @@ use proc_macro::TokenStream;
 ///     implementation as demonstrated below:
 ///     ```
 ///     # use ink_lang as ink;
-///     #[ink::contract(env_types = MyEnvironment)]
+///     #[ink::contract(env = MyEnvironment)]
 ///     mod my_contract {
 ///         # pub struct MyEnvironment;
 ///         #
@@ -868,11 +868,11 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # Example: Usage
 ///
 /// An ink! smart contract can use the above defined chain extension through the `Environment`
-/// definition defined in the last example section using the `env_types` macro parameter as
+/// definition defined in the last example section using the `env` macro parameter as
 /// shown below:
 ///
 /// ```no_compile
-/// #[ink::contract(env_types = CustomEnvironment)]
+/// #[ink::contract(env = CustomEnvironment)]
 /// mod read_writer {
 ///     use super::{Access, ReadWriteErrorCode, ReadWriteError, UnlockAccessError};
 ///

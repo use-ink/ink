@@ -113,7 +113,7 @@ pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, R>
 where
     E: Environment,
 {
-    env_types: PhantomData<fn() -> E>,
+    env: PhantomData<fn() -> E>,
     code_hash: CodeHash,
     gas_limit: GasLimit,
     endowment: Endowment,
@@ -181,7 +181,7 @@ where
     R: FromAccountId<E>,
 {
     CreateBuilder {
-        env_types: Default::default(),
+        env: Default::default(),
         code_hash: Default::default(),
         gas_limit: Default::default(),
         endowment: Default::default(),
@@ -202,7 +202,7 @@ where
         code_hash: E::Hash,
     ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
             endowment: self.endowment,
@@ -224,7 +224,7 @@ where
         gas_limit: u64,
     ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
             endowment: self.endowment,
@@ -246,7 +246,7 @@ where
         endowment: E::Balance,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: Set(endowment),
@@ -276,7 +276,7 @@ where
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, R>
     {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: self.endowment,
