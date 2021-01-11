@@ -192,10 +192,10 @@ impl EnvBackend for EnvInstance {
 
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
-        _func_id: u32,
-        _input: &I,
-        _status_to_result: F,
-        _decode_to_result: D,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
     ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
@@ -204,8 +204,13 @@ impl EnvBackend for EnvInstance {
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        // self.chain_extension_handler.eval(func_id, input)
-        todo!()
+        let encoded_input = input.encode();
+        let (status_code, output) = self.chain_extension_handler
+            .eval(func_id, &encoded_input)
+            .expect("encountered unexpected missing chain extension method");
+        status_to_result(status_code)?;
+        let decoded = decode_to_result(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 
