@@ -1054,10 +1054,12 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Technical Limitations
 ///
-/// Due to technical limitations it is not possible to refer to the `ErrorCode` associated type
-/// using `Self::ErrorCode` anywhere within the chain extension and its defined methods.
-/// Instead chain extension authors should directly use the error code type when required.
-/// This limitation might be lifted in future versions of ink!.
+/// - Due to technical limitations it is not possible to refer to the `ErrorCode` associated type
+///   using `Self::ErrorCode` anywhere within the chain extension and its defined methods.
+///   Instead chain extension authors should directly use the error code type when required.
+///   This limitation might be lifted in future versions of ink!.
+/// - It is not possible to declare other chain extension traits as super traits or super
+///   chain extensions of another.
 #[proc_macro_attribute]
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()
