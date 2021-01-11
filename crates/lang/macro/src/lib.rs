@@ -764,7 +764,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// In the below example a chain extension is defined that allows its users to read and write
 /// from and to the runtime storage using access privileges:
 ///
-/// ```no_compile
+/// ```
 /// use ink_lang as ink;
 ///
 /// /// Custom chain extension to read to and write from the runtime.
@@ -826,6 +826,53 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     #[ink(extension = 5, expect_output)]
 ///     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum ReadWriteErrorCode {
+/// #     InvalidKey,
+/// #     CannotWriteToKey,
+/// #     CannotReadFromKey,
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum ReadWriteError {
+/// #     ErrorCode(ReadWriteErrorCode),
+/// #     BufferTooSmall { required_bytes: u32 },
+/// # }
+/// # impl From<ReadWriteErrorCode> for ReadWriteError {
+/// #     fn from(error_code: ReadWriteErrorCode) -> Self {
+/// #         Self::ErrorCode(error_code)
+/// #     }
+/// # }
+/// # impl From<scale::Error> for ReadWriteError {
+/// #     fn from(_: scale::Error) -> Self {
+/// #         panic!("encountered unexpected invalid SCALE encoding")
+/// #     }
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub struct UnlockAccessError {
+/// #     reason: String,
+/// # }
+/// # impl From<scale::Error> for UnlockAccessError {
+/// #     fn from(_: scale::Error) -> Self {
+/// #         panic!("encountered unexpected invalid SCALE encoding")
+/// #     }
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum Access {
+/// #     ReadWrite,
+/// #     ReadOnly,
+/// #     WriteOnly,
+/// # }
+/// # impl ink_env::chain_extension::FromStatusCode for ReadWriteErrorCode {
+/// #     fn from_status_code(status_code: u32) -> Result<(), Self> {
+/// #         match status_code {
+/// #             0 => Ok(()),
+/// #             1 => Err(Self::InvalidKey),
+/// #             2 => Err(Self::CannotWriteToKey),
+/// #             3 => Err(Self::CannotReadFromKey),
+/// #             _ => panic!("encountered unknown status code"),
+/// #         }
+/// #     }
+/// # }
 /// ```
 ///
 /// All the error types and other utility types used in the chain extension definition
@@ -869,13 +916,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// An ink! smart contract can use the above defined chain extension through the `Environment`
 /// definition defined in the last example section using the `env` macro parameter as
-/// shown below:
+/// shown below.
 ///
-/// ```no_compile
+/// Note that chain extension methods are accessible through `Self::extension()` or
+/// `self.extension()`. For example as in `Self::extension().read(..)` or `self.extension().read(..)`.
+///
+/// ```
+/// # use ink_lang as ink;
+/// #
 /// #[ink::contract(env = CustomEnvironment)]
 /// mod read_writer {
-///     use super::{Access, ReadWriteErrorCode, ReadWriteError, UnlockAccessError};
-///
+///     # use ink_lang as ink;
+///     #
 ///     #[ink(storage)]
 ///     pub struct ReadWriter {}
 ///
@@ -922,6 +974,81 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///                 .unlock_access(&key, access)
 ///         }
 ///     }
+/// # /// Custom chain extension to read to and write from the runtime.
+/// # #[ink::chain_extension]
+/// # pub trait RuntimeReadWrite {
+/// #     type ErrorCode = ReadWriteErrorCode;
+/// #     #[ink(extension = 1, expect_ok)]
+/// #     fn read(key: &[u8]) -> Vec<u8>;
+/// #     #[ink(extension = 2)]
+/// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
+/// #     #[ink(extension = 3, expect_ok)]
+/// #     fn write(key: &[u8], value: &[u8]);
+/// #     #[ink(extension = 4, expect_ok, expect_output)]
+/// #     fn access(key: &[u8]) -> Option<Access>;
+/// #     #[ink(extension = 5, expect_output)]
+/// #     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum ReadWriteErrorCode {
+/// #     InvalidKey,
+/// #     CannotWriteToKey,
+/// #     CannotReadFromKey,
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum ReadWriteError {
+/// #     ErrorCode(ReadWriteErrorCode),
+/// #     BufferTooSmall { required_bytes: u32 },
+/// # }
+/// # impl From<ReadWriteErrorCode> for ReadWriteError {
+/// #     fn from(error_code: ReadWriteErrorCode) -> Self {
+/// #         Self::ErrorCode(error_code)
+/// #     }
+/// # }
+/// # impl From<scale::Error> for ReadWriteError {
+/// #     fn from(_: scale::Error) -> Self {
+/// #         panic!("encountered unexpected invalid SCALE encoding")
+/// #     }
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub struct UnlockAccessError {
+/// #     reason: String,
+/// # }
+/// # impl From<scale::Error> for UnlockAccessError {
+/// #     fn from(_: scale::Error) -> Self {
+/// #         panic!("encountered unexpected invalid SCALE encoding")
+/// #     }
+/// # }
+/// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
+/// # pub enum Access {
+/// #     ReadWrite,
+/// #     ReadOnly,
+/// #     WriteOnly,
+/// # }
+/// # impl ink_env::chain_extension::FromStatusCode for ReadWriteErrorCode {
+/// #     fn from_status_code(status_code: u32) -> Result<(), Self> {
+/// #         match status_code {
+/// #             0 => Ok(()),
+/// #             1 => Err(Self::InvalidKey),
+/// #             2 => Err(Self::CannotWriteToKey),
+/// #             3 => Err(Self::CannotReadFromKey),
+/// #             _ => panic!("encountered unknown status code"),
+/// #         }
+/// #     }
+/// # }
+/// # pub enum CustomEnvironment {}
+/// # impl ink_env::Environment for CustomEnvironment {
+/// #     const MAX_EVENT_TOPICS: usize =
+/// #         <ink_env::DefaultEnvironment as ink_env::Environment>::MAX_EVENT_TOPICS;
+/// #
+/// #     type AccountId = <ink_env::DefaultEnvironment as ink_env::Environment>::AccountId;
+/// #     type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
+/// #     type Hash = <ink_env::DefaultEnvironment as ink_env::Environment>::Hash;
+/// #     type BlockNumber = <ink_env::DefaultEnvironment as ink_env::Environment>::BlockNumber;
+/// #     type Timestamp = <ink_env::DefaultEnvironment as ink_env::Environment>::Timestamp;
+/// #
+/// #     type ChainExtension = RuntimeReadWrite;
+/// # }
 /// }
 /// ```
 ///
