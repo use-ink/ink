@@ -205,7 +205,8 @@ impl EnvBackend for EnvInstance {
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
         let encoded_input = input.encode();
-        let (status_code, output) = self.chain_extension_handler
+        let (status_code, output) = self
+            .chain_extension_handler
             .eval(func_id, &encoded_input)
             .expect("encountered unexpected missing chain extension method");
         status_to_result(status_code)?;

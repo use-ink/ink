@@ -73,7 +73,8 @@ impl ChainExtensionHandler {
     /// Register a new chain extension.
     pub fn register(&mut self, extension: Box<dyn ChainExtension>) {
         let func_id = extension.func_id();
-        self.registered.insert(ExtensionId::from(func_id), extension);
+        self.registered
+            .insert(ExtensionId::from(func_id), extension);
     }
 
     /// Evaluates the chain extension with the given parameters.
