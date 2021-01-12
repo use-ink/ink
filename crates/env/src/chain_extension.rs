@@ -238,12 +238,27 @@ where
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
-    /// ```no_compile
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output_result::<i32, String>()
+    ///     .output_result::<i32, MyError>()
     ///     .handle_error_code::<MyErrorCode>()
     ///     .call(&(true, 42));
+    /// # #[derive(scale::Encode, scale::Decode)]
+    /// # pub struct MyError {}
+    /// # impl From<scale::Error> for MyError {
+    /// #     fn from(_error: scale::Error) -> Self { Self {} }
+    /// # }
+    /// # impl From<MyErrorCode> for MyError {
+    /// #     fn from(_error: MyErrorCode) -> Self { Self {} }
+    /// # }
+    /// # pub struct MyErrorCode {}
+    /// # impl FromStatusCode for MyErrorCode {
+    /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
+    /// # }
     /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<T, E> {
@@ -283,12 +298,20 @@ where
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
-    /// ```no_compile
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
-    ///     .output_result::<i32, String>()
+    ///     .output_result::<i32, MyError>()
     ///     .ignore_error_code()
     ///     .call(&(true, 42));
+    /// # #[derive(scale::Encode, scale::Decode)]
+    /// # pub struct MyError {}
+    /// # impl From<scale::Error> for MyError {
+    /// #     fn from(_error: scale::Error) -> Self { Self {} }
+    /// # }
     /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<T, E> {
@@ -331,12 +354,19 @@ where
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
-    /// ```no_compile
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::{ChainExtensionMethod, FromStatusCode};
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
     ///     .output::<i32>()
     ///     .handle_error_code::<MyErrorCode>()
     ///     .call(&(true, 42));
+    /// # pub struct MyErrorCode {}
+    /// # impl FromStatusCode for MyErrorCode {
+    /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
+    /// # }
     /// ```
     #[inline(always)]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
@@ -377,7 +407,10 @@ where
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
-    /// ```no_compile
+    /// ```should_panic
+    /// # // Panics because the off-chain environment has not
+    /// # // registered a chain extension method for the ID.
+    /// # use ink_env::chain_extension::ChainExtensionMethod;
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
     ///     .output::<i32>()
