@@ -573,6 +573,12 @@ where
 ///
 /// Returns the partitioned ink! and non-ink! attributes.
 ///
+/// # Parameters
+///
+/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
+/// returns `Err(None)` if the attribute conflicts but without providing further reasoning
+/// and `Err(Some(reason))` if the attribute conflict given additional context information.
+///
 /// # Errors
 ///
 /// - If there are invalid ink! attributes.
@@ -587,7 +593,7 @@ pub fn sanitize_attributes<I, C>(
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
-    C: FnMut(&AttributeArg) -> bool,
+    C: FnMut(&ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -600,7 +606,7 @@ where
             is_valid_first,
         ))
     })?;
-    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))?;
+    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg))?;
     Ok((normalized, other_attrs))
 }
 
@@ -684,20 +690,43 @@ impl InkAttribute {
     ///
     /// The given `is_conflicting` describes for every ink! attribute argument
     /// found in `self` if it is in conflict.
+    ///
+    /// # Parameters
+    ///
+    /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
+    /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
+    /// and `Err(Some(reason))` if the attribute conflict given additional context information.
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,
     ) -> Result<(), syn::Error>
     where
-        P: FnMut(&'a ir::AttributeFrag) -> bool,
+        P: FnMut(&'a ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
     {
+        let mut err: Option<syn::Error> = None;
         for arg in self.args() {
-            if is_conflicting(arg) {
-                return Err(format_err!(
+            if let Err(reason) = is_conflicting(arg) {
+                let conflict_err = format_err!(
                     arg.span(),
                     "encountered conflicting ink! attribute argument",
-                ))
+                );
+                match &mut err {
+                    Some(err) => {
+                        err.combine(conflict_err);
+                    }
+                    None => {
+                        err = Some(conflict_err);
+                    }
+                }
+                if let Some(reason) = reason {
+                    err.as_mut()
+                        .expect("must be `Some` at this point")
+                        .combine(reason);
+                }
             }
+        }
+        if let Some(err) = err {
+            return Err(err)
         }
         Ok(())
     }

@@ -486,13 +486,13 @@ impl ChainExtension {
             item_method.span(),
             item_method.attrs.clone(),
             &ir::AttributeArgKind::Extension,
-            |c| {
-                !matches!(
-                    c,
+            |arg| {
+                match arg.kind() {
                     ir::AttributeArg::Extension(_)
-                        | ir::AttributeArg::HandleStatus(_)
-                        | ir::AttributeArg::ReturnsResult(_)
-                )
+                    | ir::AttributeArg::HandleStatus(_)
+                    | ir::AttributeArg::ReturnsResult(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )?;
         if let Some(receiver) = item_method.sig.receiver() {

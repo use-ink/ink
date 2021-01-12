@@ -153,11 +153,19 @@ impl Constructor {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |kind| {
-                !matches!(
-                    kind,
-                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_)
-                )
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
+                        Ok(())
+                    }
+                    ir::AttributeArg::Payable => {
+                        Err(Some(format_err!(
+                            arg.span(),
+                            "constructors are implicitly payable"
+                        )))
+                    }
+                    _ => Err(None),
+                }
             },
         )
     }
