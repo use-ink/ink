@@ -381,7 +381,7 @@ where
     /// let result = ChainExtensionMethod::build(5)
     ///     .input::<(bool, i32)>()
     ///     .output::<i32>()
-    ///     .ignore_error_code::<MyErrorCode>()
+    ///     .ignore_error_code()
     ///     .call(&(true, 42));
     /// ```
     #[inline(always)]
