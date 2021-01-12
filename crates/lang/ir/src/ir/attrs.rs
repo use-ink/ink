@@ -809,6 +809,11 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
+                                "namespace" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(namespace)] that is missing its string parameter. \
+                                    Did you mean #[ink(namespace = name: str)] ?"
+                                )),
                                 "handle_status" => Ok(AttributeArg::HandleStatus),
                                 "returns_result" => Ok(AttributeArg::ReturnsResult),
                                 "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?")),
@@ -1051,6 +1056,18 @@ mod tests {
                 #[ink(namespace = 42)]
             },
             Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+        );
+    }
+
+    #[test]
+    fn namespace_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace)]
+            },
+            Err(
+                "encountered #[ink(namespace)] that is missing its string parameter. \
+                Did you mean #[ink(namespace = name: str)] ?"),
         );
     }
 
