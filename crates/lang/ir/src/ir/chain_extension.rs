@@ -266,6 +266,12 @@ impl ChainExtension {
     }
 
     /// Checks if the associated trait item type is a proper chain extension error code.
+    ///
+    /// # Errors
+    ///
+    /// - If the associated type is not called `ErrorCode`.
+    /// - If the associated type is generic, has where bounds or has a default type.
+    /// - If there are multiple associated `ErrorCode` types.
     fn analyse_error_code(
         item_type: &syn::TraitItemType,
         previous: &mut Option<syn::TraitItemType>,
