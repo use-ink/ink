@@ -192,17 +192,17 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
 pub mod state {
     use core::marker::PhantomData;
 
-    /// Type state telling that the chain extension method ignores the chain extension's error code.
+    /// Type state meaning that the chain extension method ignores the chain extension's error code.
     #[derive(Debug)]
     pub enum IgnoreErrorCode {}
 
-    /// Type state telling that the chain extension method uses the chain extension's error code.
+    /// Type state meaning that the chain extension method uses the chain extension's error code.
     #[derive(Debug)]
     pub struct HandleErrorCode<T> {
         error_code: PhantomData<fn() -> T>,
     }
 
-    /// Type state telling that the chain extension method deliberately does not return a `Result` type.
+    /// Type state meaning that the chain extension method deliberately does not return a `Result` type.
     ///
     /// Additionally this is enforced by the `#[ink::chain_extension]` proc. macro when used.
     #[derive(Debug)]
