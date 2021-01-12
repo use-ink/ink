@@ -702,7 +702,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// This means that a smart contract calling such a chain extension method first queries the returned
 /// status code of the chain extension method and only loads and decodes the output if the retuend
 /// status code indicates a successful call.
-/// This design was chosen as it is a more efficient for when no output besides the error
+/// This design was chosen as it is more efficient when no output besides the error
 /// code is required for a chain extension call. When designing a chain extension try to utilize the
 /// error code to return errors and only use the output buffer for information that does not fit in
 /// a single `u32` value.
