@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Types and abstractions for ink! definitions that require custom syntax.
-//!
-//! # Note
-//!
-//! In general we try not to require any sort of custom non-standard Rust
-//! syntax.
-//!
-//! At the time of this writing we currently only use this for the argument
-//! parsing of ink! config header `#[ink(env = my::env::Types, etc...)]` in order
-//! to be able to parse identifiers in `name = value` segments for the `value`
-//! part.
+use ink_lang_codegen::generate_code;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
-mod attr_args;
+pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(attr, input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
+}
 
-pub use self::attr_args::{
-    AttributeArgs,
-    MetaNameValue,
-    PathOrLit,
-};
+pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    let chain_extension = ink_lang_ir::ChainExtension::new(attr, input)?;
+    Ok(generate_code(&chain_extension))
+}

@@ -156,7 +156,7 @@ impl Constructor {
             |kind| {
                 !matches!(
                     kind,
-                    ir::AttributeArgKind::Constructor | ir::AttributeArgKind::Selector(_)
+                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_)
                 )
             },
         )

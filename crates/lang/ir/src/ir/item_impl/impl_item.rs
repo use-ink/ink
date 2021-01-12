@@ -69,12 +69,12 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                 let attr = ir::first_ink_attribute(&method_item.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
-                    ir::AttributeArgKind::Message => {
+                    ir::AttributeArg::Message => {
                         <Message as TryFrom<_>>::try_from(method_item)
                             .map(Into::into)
                             .map(Self::Message)
                     }
-                    ir::AttributeArgKind::Constructor => {
+                    ir::AttributeArg::Constructor => {
                         <Constructor as TryFrom<_>>::try_from(method_item)
                             .map(Into::into)
                             .map(Self::Constructor)

@@ -15,6 +15,7 @@
 #![allow(dead_code)]
 
 mod attrs;
+mod chain_extension;
 mod config;
 mod contract;
 mod idents_lint;
@@ -36,10 +37,16 @@ use self::attrs::{
     sanitize_attributes,
     AttributeArg,
     AttributeArgKind,
+    AttributeFrag,
     InkAttribute,
 };
 pub use self::{
     attrs::Namespace,
+    chain_extension::{
+        ChainExtension,
+        ChainExtensionMethod,
+        ExtensionId,
+    },
     config::Config,
     contract::Contract,
     ink_test::InkTest,

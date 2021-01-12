@@ -14,18 +14,17 @@
 
 //! Operations on the off-chain testing environment.
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use super::chain_extension::ChainExtension;
-pub use super::{
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
-};
 use super::{
+    chain_extension::ChainExtension,
     db::ExecContext,
     AccountError,
     EnvInstance,
     OnInstance,
+};
+pub use super::{
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
 };
 use crate::{
     Environment,
@@ -180,12 +179,9 @@ where
 }
 
 /// Registers a new chain extension.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn register_chain_extension<E, I, O>(extension: E)
+pub fn register_chain_extension<E>(extension: E)
 where
-    E: ChainExtension<Input = I, Output = O> + 'static,
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
+    E: ChainExtension + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance

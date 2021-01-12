@@ -60,4 +60,3 @@ std = [
     "sha3",
     "blake2",
 ]
-ink-unstable-chain-extensions = []

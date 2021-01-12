@@ -183,9 +183,9 @@ impl Message {
             |kind| {
                 !matches!(
                     kind,
-                    ir::AttributeArgKind::Message
-                        | ir::AttributeArgKind::Payable
-                        | ir::AttributeArgKind::Selector(_)
+                    ir::AttributeArg::Message
+                        | ir::AttributeArg::Payable
+                        | ir::AttributeArg::Selector(_)
                 )
             },
         )

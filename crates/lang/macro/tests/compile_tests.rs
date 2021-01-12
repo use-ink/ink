@@ -15,6 +15,7 @@
 #[test]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
+
     t.pass("tests/ui/pass/01-noop-contract.rs");
     t.pass("tests/ui/pass/02-flipper-contract.rs");
     t.pass("tests/ui/pass/03-incrementer-contract.rs");
@@ -53,4 +54,6 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/S-04-non-storage-ink-impls.rs");
     t.compile_fail("tests/ui/fail/S-05-storage-as-event.rs");
     t.compile_fail("tests/ui/fail/S-06-event-as-storage.rs");
+
+    t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }
