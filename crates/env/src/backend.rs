@@ -138,6 +138,16 @@ pub trait EnvBackend {
     /// - If the inputs had an unexpected encoding.
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
+    ///
+    /// # Dev. Note
+    ///
+    /// A valid implementation applies the `status_to_result` closure on
+    /// the status code returned by the actual call to the chain extension
+    /// method.
+    /// Only if the closure finds that the given status code indicates a
+    /// successful call the output buffer populated by the chain extension
+    /// method call is given into the `decode_to_result` closure in order to
+    /// drive decoding and error management process from the outside.
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,
