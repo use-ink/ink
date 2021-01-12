@@ -145,7 +145,7 @@ pub trait EnvBackend {
     /// the status code returned by the actual call to the chain extension
     /// method.
     /// Only if the closure finds that the given status code indicates a
-    /// successful call to the chain extension method is the resulting 
+    /// successful call to the chain extension method is the resulting
     /// output buffer passed to the `decode_to_result` closure, in order to
     /// drive the decoding and error management process from the outside.
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
