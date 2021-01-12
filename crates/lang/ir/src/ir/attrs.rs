@@ -258,16 +258,16 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `true` if the ink! attribute contains the `expect_output` argument.
-    pub fn is_expect_output(&self) -> bool {
+    /// Returns `true` if the ink! attribute contains the `handle_status` argument.
+    pub fn is_handle_status(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::ExpectOutput))
+            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus))
     }
 
-    /// Returns `true` if the ink! attribute contains the `expect_ok` argument.
-    pub fn is_expect_ok(&self) -> bool {
+    /// Returns `true` if the ink! attribute contains the `returns_result` argument.
+    pub fn is_returns_result(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::ExpectOk))
+            .any(|arg| matches!(arg.kind(), AttributeArg::ReturnsResult))
     }
 }
 
@@ -316,10 +316,10 @@ pub enum AttributeArgKind {
     Namespace,
     /// `#[ink(impl)]`
     Implementation,
-    /// `#[ink(expect_output)]`
-    ExpectOutput,
-    /// `#[ink(expect_ok)]`
-    ExpectOk,
+    /// `#[ink(handle_status)]`
+    HandleStatus,
+    /// `#[ink(returns_result)]`
+    ReturnsResult,
 }
 
 /// An ink! specific attribute flag.
@@ -390,14 +390,18 @@ pub enum AttributeArg {
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
     Extension(ExtensionId),
-    /// `#[ink(expect_output)]`
+    /// `#[ink(handle_status = value: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
-    ExpectOutput,
-    /// `#[ink(expect_ok)]`
+    ///
+    /// Default value: `true`
+    HandleStatus,
+    /// `#[ink(returns_result = value: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
-    ExpectOk,
+    ///
+    /// Default value: `true`
+    ReturnsResult,
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -420,8 +424,8 @@ impl core::fmt::Display for AttributeArgKind {
                 write!(f, "namespace = N:string")
             }
             Self::Implementation => write!(f, "impl"),
-            Self::ExpectOutput => write!(f, "expect_output"),
-            Self::ExpectOk => write!(f, "expect_ok"),
+            Self::HandleStatus => write!(f, "handle_status"),
+            Self::ReturnsResult => write!(f, "returns_result"),
         }
     }
 }
@@ -441,8 +445,8 @@ impl AttributeArg {
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
-            Self::ExpectOutput => AttributeArgKind::ExpectOutput,
-            Self::ExpectOk => AttributeArgKind::ExpectOk,
+            Self::HandleStatus => AttributeArgKind::HandleStatus,
+            Self::ReturnsResult => AttributeArgKind::ReturnsResult,
         }
     }
 }
@@ -467,8 +471,8 @@ impl core::fmt::Display for AttributeArg {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
-            Self::ExpectOutput => write!(f, "expect_output"),
-            Self::ExpectOk => write!(f, "expect_ok"),
+            Self::HandleStatus => write!(f, "handle_status"),
+            Self::ReturnsResult => write!(f, "returns_result"),
         }
     }
 }
@@ -805,8 +809,8 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
-                                "expect_output" => Ok(AttributeArg::ExpectOutput),
-                                "expect_ok" => Ok(AttributeArg::ExpectOk),
+                                "handle_status" => Ok(AttributeArg::HandleStatus),
+                                "returns_result" => Ok(AttributeArg::ReturnsResult),
                                 "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?")),
                                 _ => Err(format_err_spanned!(
                                     meta, "unknown ink! attribute (path)"

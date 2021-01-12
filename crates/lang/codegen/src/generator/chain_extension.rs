@@ -72,13 +72,10 @@ impl ChainExtension<'_> {
             }
         };
 
-        let expect_output = method.expect_output();
-        let expect_ok = method.expect_ok();
+        let handle_status = method.handle_status();
+        let returns_result = method.returns_result();
 
-        let handle_error_code = !expect_output;
-        let returns_result = !expect_ok;
-
-        let error_code_handling = if handle_error_code {
+        let error_code_handling = if handle_status {
             quote_spanned!(span=>
                 .handle_error_code::<#error_code>()
             )
@@ -101,7 +98,7 @@ impl ChainExtension<'_> {
             )
         };
 
-        let returned_type = match (returns_result, handle_error_code) {
+        let returned_type = match (returns_result, handle_status) {
             (false, true) => {
                 quote_spanned!(span=>
                     ::core::result::Result<#output_type, #error_code>
@@ -121,7 +118,7 @@ impl ChainExtension<'_> {
 
         let where_output_impls_from_error_code = Some(quote_spanned!(span=>
             <#output_type as ::ink_lang::IsResultType>::Err: ::core::convert::From<#error_code>,
-        )).filter(|_| returns_result && handle_error_code);
+        )).filter(|_| returns_result && handle_status);
 
         quote_spanned!(span=>
             #( #attrs )*

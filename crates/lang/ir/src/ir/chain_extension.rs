@@ -76,11 +76,11 @@ pub struct ChainExtensionMethod {
     item: syn::TraitItemMethod,
     /// The unique identifier of the chain extension method.
     id: ExtensionId,
-    /// If `true` the `u32` status code of the chain extension method call is going to be
+    /// If `false` the `u32` status code of the chain extension method call is going to be
     /// ignored and assumed to be always successful. The output buffer in this case is going
     /// to be queried and decoded into the chain extension method's output type.
     ///
-    /// If `false` the returned `u32` status code `code` is queried and
+    /// If `true` the returned `u32` status code `code` is queried and
     /// `<Self::ErrorCode as ink_lang::FromStatusCode>::from_status_code(code)` is called.
     /// The call to `from_status_code` returns `Result<(), Self::ErrorCode>`. If `Ok(())`
     /// the output buffer is queried and decoded as described above.
@@ -89,15 +89,15 @@ pub struct ChainExtensionMethod {
     /// In case the chain extension method does _NOT_ return a `Result` type the call returns
     /// `Result<T, Self::ErrorCode>` where `T` is the chain extension method's return type.
     ///
-    /// The default for this flag is `false`.
-    expect_output: bool,
-    /// If `true` the proc. macro no longer tries to enforce that the returned type encoded
+    /// The default for this flag is `true`.
+    handle_status: bool,
+    /// If `false` the proc. macro no longer tries to enforce that the returned type encoded
     /// into the output buffer of the chain extension method call is of type `Result<T, E>`.
-    /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `expect_output`
+    /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `handle_status`
     /// flag does not exist.
     ///
-    /// The default for this flag is `false`.
-    expect_ok: bool,
+    /// The default for this flag is `true`.
+    returns_result: bool,
 }
 
 impl ChainExtensionMethod {
@@ -137,14 +137,14 @@ impl ChainExtensionMethod {
         }
     }
 
-    /// Returns `true` if the chain extension method was flagged with `#[ink(expect_output)]`.
-    pub fn expect_output(&self) -> bool {
-        self.expect_output
+    /// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
+    pub fn handle_status(&self) -> bool {
+        self.handle_status
     }
 
-    /// Returns `true` if the chain extension method was flagged with `#[ink(expect_ok)]`.
-    pub fn expect_ok(&self) -> bool {
-        self.expect_ok
+    /// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.
+    pub fn returns_result(&self) -> bool {
+        self.returns_result
     }
 }
 
@@ -490,8 +490,8 @@ impl ChainExtension {
                 !matches!(
                     c,
                     ir::AttributeArg::Extension(_)
-                        | ir::AttributeArg::ExpectOutput
-                        | ir::AttributeArg::ExpectOk
+                        | ir::AttributeArg::HandleStatus
+                        | ir::AttributeArg::ReturnsResult
                 )
             },
         )?;
@@ -504,8 +504,8 @@ impl ChainExtension {
         let result = ChainExtensionMethod {
             id: extension,
             item: item_method.clone(),
-            expect_output: ink_attrs.is_expect_output(),
-            expect_ok: ink_attrs.is_expect_ok(),
+            handle_status: ink_attrs.is_handle_status(),
+            returns_result: ink_attrs.is_returns_result(),
         };
         Ok(result)
     }
@@ -932,22 +932,22 @@ mod tests {
                 pub trait MyChainExtension {
                     type ErrorCode = ();
 
-                    #[ink(extension = 1, expect_output)]
+                    #[ink(extension = 1, handle_status)]
                     fn extension_a();
-                    #[ink(extension = 2, expect_ok)]
+                    #[ink(extension = 2, returns_result)]
                     fn extension_b();
-                    #[ink(extension = 3, expect_output, expect_ok)]
+                    #[ink(extension = 3, handle_status, returns_result)]
                     fn extension_c();
 
                     #[ink(extension = 4)]
-                    #[ink(expect_output)]
+                    #[ink(handle_status)]
                     fn extension_d();
                     #[ink(extension = 5)]
-                    #[ink(expect_ok)]
+                    #[ink(returns_result)]
                     fn extension_e();
                     #[ink(extension = 6)]
-                    #[ink(expect_output)]
-                    #[ink(expect_ok)]
+                    #[ink(handle_status)]
+                    #[ink(returns_result)]
                     fn extension_f();
                 }
             })

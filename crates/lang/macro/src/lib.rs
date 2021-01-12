@@ -648,7 +648,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// Chain extension methods must not have a `self` receiver such as `&self` or `&mut self`
 /// and must have inputs and output that implement SCALE codec. Their return value follows
-/// specific rules that can be altered using the `expect_output` and `expect_ok` attributes
+/// specific rules that can be altered using the `handle_status` and `returns_result` attributes
 /// which are described in more detail below.
 ///
 /// # Usage
@@ -667,8 +667,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// | Attribute | Required | Description |
 /// |:----------|:--------:|:------------|
 /// | `ink(extension = N: u32)` | Yes | Determines the unique function ID of the chain extension method. |
-/// | `ink(expect_output)` | Optional | Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call. |
-/// | `ink(expect_ok)` | Optional | By default chain extension methods are assumed to return a `Result<T, E>` in the output buffer. Using `expect_ok` this check is disabled and the chain extension method may return any other type. |
+/// | `ink(handle_status)` | Optional | Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call. |
+/// | `ink(returns_result)` | Optional | By default chain extension methods are assumed to return a `Result<T, E>` in the output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return any other type. |
 ///
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
@@ -677,7 +677,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # #[ink::chain_extension]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5, expect_output, expect_ok)]
+/// #[ink(extension = 5, handle_status, returns_result)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
@@ -689,13 +689,13 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
 /// #[ink(extension = 5)]
-/// #[ink(expect_output)]
-/// #[ink(expect_ok)]
+/// #[ink(handle_status)]
+/// #[ink(returns_result)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
 ///
-/// ## Details: `expect_output`
+/// ## Details: `handle_status`
 ///
 /// By default all chain extension methods return a `Result<T, E>` where `E: From<Self::ErrorCode>`.
 /// The `Self::ErrorCode` represents the error code of the chain extension.
@@ -707,35 +707,35 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// error code to return errors and only use the output buffer for information that does not fit in
 /// a single `u32` value.
 ///
-/// A chain extension method that is flagged with `expect_output` assumes that the returned error code
+/// A chain extension method that is flagged with `handle_status` assumes that the returned error code
 /// will always indicate success. Therefore it will always load and decode the output buffer and loses
 /// the `E: From<Self::ErrorCode` constraint for the call.
 ///
-/// ## Details: `expect_ok`
+/// ## Details: `returns_result`
 ///
 /// By default chain extension methods are assumed to return a value of type `Result<T, E>` through the
-/// output buffer. Using `expect_ok` this check is disabled and the chain extension method may return
+/// output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return
 /// any other type.
 ///
-/// Note that if a chain extension method is attributed with `expect_ok` but not with `expect_output` it
-/// will still return a value of type `Result<T, Self::ErrorCode>`.
+/// Note that if a chain extension method is attributed with `returns_result = false`
+/// and with `handle_status = true` it will still return a value of type `Result<T, Self::ErrorCode>`.
 ///
-/// ## Usage: `expect_output` + `expect_ok`
+/// ## Usage: `handle_status` + `returns_result`
 ///
-/// Use both `expect_output` and `expect_ok` for the same chain extension method if a call to it
-/// may never fail and never returns a `Result` type.
+/// Use both `handle_status = false` and `returns_result = false` for the same chain extension method
+/// if a call to it may never fail and never returns a `Result` type.
 ///
 /// # Combinations
 ///
-/// Due to the possibility to flag a chain extension method with `expect_output` and `expect_ok`
+/// Due to the possibility to flag a chain extension method with `handle_status` and `returns_result`
 /// there are 4 different cases with slightly varying semantics:
 ///
-/// | `expect_output` | `expect_ok` | Effects |
-/// |:---------------:|:-----------:|:--------|
-/// | `false`         | `false`     | The chain extension method is required to return a value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |
-/// | `false`         | `true`      | The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result<T, Self::ErrorCode>` when the chain extension method was defined to return a value of type `T`. |
-/// | `true`          | `false`     | The chain extension method is required to return a value of type `Result<T, E>`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
-/// | `true`          | `true`      | The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
+/// | `handle_status` | `returns_result` | Effects |
+/// |:---------------:|:----------------:|:--------|
+/// |`true` |`true` | The chain extension method is required to return a value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |
+/// |`true` |`false`| The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result<T, Self::ErrorCode>` when the chain extension method was defined to return a value of type `T`. |
+/// |`false`|`true` | The chain extension method is required to return a value of type `Result<T, E>`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
+/// |`false`|`false`| The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
 ///
 /// # Error Code
 ///
@@ -777,7 +777,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<Vec<u8>, Self::ErrorCode>`.
-///     #[ink(extension = 1, expect_ok)]
+///     #[ink(extension = 1, returns_result)]
 ///     fn read(key: &[u8]) -> Vec<u8>;
 ///
 ///     /// Reads from runtime storage.
@@ -802,7 +802,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<(), Self::ErrorCode>`.
-///     #[ink(extension = 3, expect_ok)]
+///     #[ink(extension = 3, returns_result)]
 ///     fn write(key: &[u8], value: &[u8]);
 ///
 ///     /// Returns the access allowed for the key for the caller.
@@ -810,7 +810,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Assumes to never fail the call and therefore always returns `Option<Access>`.
-///     #[ink(extension = 4, expect_ok, expect_output)]
+///     #[ink(extension = 4, returns_result, handle_status)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
 ///     /// Unlocks previously aquired permission to access key.
@@ -823,7 +823,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
 ///     /// to implement `From<Self::ErrorCode>` as in the `read_small` method above.
-///     #[ink(extension = 5, expect_output)]
+///     #[ink(extension = 5, handle_status)]
 ///     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -978,15 +978,15 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # #[ink::chain_extension]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1, expect_ok)]
+/// #     #[ink(extension = 1, returns_result)]
 /// #     fn read(key: &[u8]) -> Vec<u8>;
 /// #     #[ink(extension = 2)]
 /// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
-/// #     #[ink(extension = 3, expect_ok)]
+/// #     #[ink(extension = 3, returns_result)]
 /// #     fn write(key: &[u8], value: &[u8]);
-/// #     #[ink(extension = 4, expect_ok, expect_output)]
+/// #     #[ink(extension = 4, returns_result, handle_status)]
 /// #     fn access(key: &[u8]) -> Option<Access>;
-/// #     #[ink(extension = 5, expect_output)]
+/// #     #[ink(extension = 5, handle_status)]
 /// #     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
