@@ -323,6 +323,21 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -353,6 +368,8 @@
     <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ChainExtensionInstance</span>;
 
 <span class="doccomment">/// The environment of the compiled ink! smart contract.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractEnv</span> {
@@ -412,6 +429,19 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">E</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;EnvAccess&quot;</span>).<span class="ident">finish</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">EnvAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">ChainExtension</span>: <span class="ident">ChainExtensionInstance</span>,
+{
+    <span class="doccomment">/// Allows to call one of the available defined chain extension methods.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extension</span>(
+        <span class="self">self</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">ChainExtensionInstance</span><span class="op">&gt;</span>::<span class="ident">Instance</span> {
+        <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">ChainExtensionInstance</span><span class="op">&gt;</span>::<span class="ident">instantiate</span>()
     }
 }
 

@@ -80,6 +80,13 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -98,6 +105,7 @@
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 
 <span class="kw">mod</span> <span class="ident">attrs</span>;
+<span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">config</span>;
 <span class="kw">mod</span> <span class="ident">contract</span>;
 <span class="kw">mod</span> <span class="ident">idents_lint</span>;
@@ -119,10 +127,16 @@
     <span class="ident">sanitize_attributes</span>,
     <span class="ident">AttributeArg</span>,
     <span class="ident">AttributeArgKind</span>,
+    <span class="ident">AttributeFrag</span>,
     <span class="ident">InkAttribute</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">attrs</span>::<span class="ident">Namespace</span>,
+    <span class="ident">chain_extension</span>::{
+        <span class="ident">ChainExtension</span>,
+        <span class="ident">ChainExtensionMethod</span>,
+        <span class="ident">ExtensionId</span>,
+    },
     <span class="ident">config</span>::<span class="ident">Config</span>,
     <span class="ident">contract</span>::<span class="ident">Contract</span>,
     <span class="ident">ink_test</span>::<span class="ident">InkTest</span>,

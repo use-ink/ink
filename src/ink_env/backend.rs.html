@@ -327,6 +327,24 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -458,7 +476,7 @@
         <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
         <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>;
 
-    <span class="doccomment">/// Calls the chain extension with the given ID and inputs.</span>
+    <span class="doccomment">/// Low-level interface to call a chain extension method.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the output of the chain extension of the specified type.</span>
     <span class="doccomment">///</span>
@@ -468,11 +486,29 @@
     <span class="doccomment">/// - If the inputs had an unexpected encoding.</span>
     <span class="doccomment">/// - If the output could not be properly decoded.</span>
     <span class="doccomment">/// - If some extension specific condition has not been met.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">func_id</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Dev. Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A valid implementation applies the `status_to_result` closure on</span>
+    <span class="doccomment">/// the status code returned by the actual call to the chain extension</span>
+    <span class="doccomment">/// method.</span>
+    <span class="doccomment">/// Only if the closure finds that the given status code indicates a</span>
+    <span class="doccomment">/// successful call to the chain extension method is the resulting</span>
+    <span class="doccomment">/// output buffer passed to the `decode_to_result` closure, in order to</span>
+    <span class="doccomment">/// drive the decoding and error management process from the outside.</span>
+    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="ident">F</span>, <span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">func_id</span>: <span class="ident">u32</span>,
+        <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>,
+        <span class="ident">status_to_result</span>: <span class="ident">F</span>,
+        <span class="ident">decode_to_result</span>: <span class="ident">D</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
+        <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
+        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">D</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Environmental contract functionality.</span>

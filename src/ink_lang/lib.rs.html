@@ -81,6 +81,12 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -98,6 +104,7 @@
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 
+<span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">contract</span>;
 <span class="kw">mod</span> <span class="ident">cross_calling</span>;
 <span class="kw">mod</span> <span class="ident">dispatcher</span>;
@@ -107,6 +114,10 @@
 <span class="kw">mod</span> <span class="ident">traits</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">chain_extension</span>::{
+        <span class="ident">ChainExtensionInstance</span>,
+        <span class="ident">IsResultType</span>,
+    },
     <span class="ident">contract</span>::{
         <span class="ident">DispatchMode</span>,
         <span class="ident">DispatchUsingMode</span>,
@@ -158,6 +169,7 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">static_assertions</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_lang_macro</span>::{
+    <span class="ident">chain_extension</span>,
     <span class="ident">contract</span>,
     <span class="ident">test</span>,
     <span class="ident">trait_definition</span>,

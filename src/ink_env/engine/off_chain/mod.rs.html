@@ -273,11 +273,6 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -294,7 +289,6 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">mod</span> <span class="ident">call_data</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">db</span>;
 <span class="kw">mod</span> <span class="ident">hashing</span>;
@@ -306,8 +300,6 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">chain_extension</span>::<span class="ident">ChainExtensionHandler</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">call_data</span>::<span class="ident">CallData</span>,
     <span class="ident">db</span>::{
@@ -318,6 +310,7 @@
     <span class="ident">typed_encoded</span>::<span class="ident">TypedEncodedError</span>,
 };
 <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">chain_extension</span>::<span class="ident">ChainExtensionHandler</span>,
     <span class="ident">db</span>::{
         <span class="ident">Account</span>,
         <span class="ident">AccountsDb</span>,
@@ -370,7 +363,6 @@
     <span class="doccomment">/// The console to print debug contents.</span>
     <span class="ident">console</span>: <span class="ident">Console</span>,
     <span class="doccomment">/// Handler for registered chain extensions.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
     <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>,
     <span class="doccomment">/// Emitted events recorder.</span>
     <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>,
@@ -387,7 +379,6 @@
             <span class="ident">chain_spec</span>: <span class="ident">ChainSpec</span>::<span class="ident">uninitialized</span>(),
             <span class="ident">blocks</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">console</span>: <span class="ident">Console</span>::<span class="ident">new</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
             <span class="ident">chain_extension_handler</span>: <span class="ident">ChainExtensionHandler</span>::<span class="ident">new</span>(),
             <span class="ident">emitted_events</span>: <span class="ident">EmittedEventsRecorder</span>::<span class="ident">new</span>(),
             <span class="ident">clear_storage_disabled</span>: <span class="bool-val">false</span>,
@@ -419,7 +410,6 @@
         <span class="self">self</span>.<span class="ident">chain_spec</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">clear</span>();
         <span class="self">self</span>.<span class="ident">console</span>.<span class="ident">reset</span>();
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
         <span class="self">self</span>.<span class="ident">chain_extension_handler</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">emitted_events</span>.<span class="ident">reset</span>();
         <span class="self">self</span>.<span class="ident">clear_storage_disabled</span> <span class="op">=</span> <span class="bool-val">false</span>;

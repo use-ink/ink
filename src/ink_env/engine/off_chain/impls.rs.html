@@ -446,6 +446,21 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -639,13 +654,28 @@
         <span class="self">self</span>.<span class="ident">hash_bytes</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..], <span class="ident">output</span>)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">func_id</span>: <span class="ident">u32</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">call_chain_extension</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="ident">F</span>, <span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">func_id</span>: <span class="ident">u32</span>,
+        <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>,
+        <span class="ident">status_to_result</span>: <span class="ident">F</span>,
+        <span class="ident">decode_to_result</span>: <span class="ident">D</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
+        <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorCode</span><span class="op">&gt;</span>,
+        <span class="ident">D</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">chain_extension_handler</span>.<span class="ident">eval</span>(<span class="ident">func_id</span>, <span class="ident">input</span>)
+        <span class="kw">let</span> <span class="ident">encoded_input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">encode</span>();
+        <span class="kw">let</span> (<span class="ident">status_code</span>, <span class="ident">output</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">chain_extension_handler</span>
+            .<span class="ident">eval</span>(<span class="ident">func_id</span>, <span class="kw-2">&amp;</span><span class="ident">encoded_input</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;encountered unexpected missing chain extension method&quot;</span>);
+        <span class="ident">status_to_result</span>(<span class="ident">status_code</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">decode_to_result</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..])<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
     }
 }
 

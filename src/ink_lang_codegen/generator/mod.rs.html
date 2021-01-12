@@ -41,6 +41,8 @@
 <span id="38">38</span>
 <span id="39">39</span>
 <span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -56,6 +58,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
+<span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">contract</span>;
 <span class="kw">mod</span> <span class="ident">cross_calling</span>;
 <span class="kw">mod</span> <span class="ident">dispatch</span>;
@@ -68,6 +71,7 @@
 <span class="kw">mod</span> <span class="ident">trait_def</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">chain_extension</span>::<span class="ident">ChainExtension</span>,
     <span class="ident">contract</span>::<span class="ident">Contract</span>,
     <span class="ident">cross_calling</span>::{
         <span class="ident">CrossCalling</span>,

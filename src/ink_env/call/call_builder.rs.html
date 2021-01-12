@@ -654,7 +654,7 @@
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="ident">CallBuilder</span> {
-        <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+        <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
         <span class="ident">callee</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
         <span class="ident">gas_limit</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
         <span class="ident">transferred_value</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
@@ -668,7 +668,7 @@
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="ident">env_types</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span><span class="op">&gt;</span>,
+    <span class="ident">env</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The current parameters that have been built up so far.</span>
     <span class="ident">callee</span>: <span class="ident">Callee</span>,
     <span class="ident">gas_limit</span>: <span class="ident">GasLimit</span>,
@@ -690,7 +690,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
     {
         <span class="ident">CallBuilder</span> {
-            <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">callee</span>: <span class="ident">Set</span>(<span class="ident">callee</span>),
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,
@@ -712,7 +712,7 @@
         <span class="ident">gas_limit</span>: <span class="ident">u64</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
         <span class="ident">CallBuilder</span> {
-            <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
             <span class="ident">gas_limit</span>: <span class="ident">Set</span>(<span class="ident">gas_limit</span>),
             <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,
@@ -734,7 +734,7 @@
         <span class="ident">transferred_value</span>: <span class="ident">E</span>::<span class="ident">Balance</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
         <span class="ident">CallBuilder</span> {
-            <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">transferred_value</span>: <span class="ident">Set</span>(<span class="ident">transferred_value</span>),
@@ -775,7 +775,7 @@
         <span class="ident">R</span>: <span class="ident">IndicateReturnType</span>,
     {
         <span class="ident">CallBuilder</span> {
-            <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,
@@ -810,7 +810,7 @@
         <span class="ident">RetType</span>,
     <span class="op">&gt;</span> {
         <span class="ident">CallBuilder</span> {
-            <span class="ident">env_types</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">transferred_value</span>: <span class="self">self</span>.<span class="ident">transferred_value</span>,

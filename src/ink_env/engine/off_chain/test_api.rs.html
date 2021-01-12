@@ -432,10 +432,6 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -453,18 +449,17 @@
 
 <span class="doccomment">//! Operations on the off-chain testing environment.</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">chain_extension</span>::<span class="ident">ChainExtension</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">db</span>::<span class="ident">ChainSpec</span>,
-    <span class="ident">CallData</span>,
-    <span class="ident">EmittedEvent</span>,
-};
 <span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">chain_extension</span>::<span class="ident">ChainExtension</span>,
     <span class="ident">db</span>::<span class="ident">ExecContext</span>,
     <span class="ident">AccountError</span>,
     <span class="ident">EnvInstance</span>,
     <span class="ident">OnInstance</span>,
+};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
+    <span class="ident">db</span>::<span class="ident">ChainSpec</span>,
+    <span class="ident">CallData</span>,
+    <span class="ident">EmittedEvent</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Environment</span>,
@@ -619,12 +614,9 @@
 }
 
 <span class="doccomment">/// Registers a new chain extension.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable-chain-extensions&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_chain_extension</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="ident">extension</span>: <span class="ident">E</span>)
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_chain_extension</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">extension</span>: <span class="ident">E</span>)
 <span class="kw">where</span>
-    <span class="ident">E</span>: <span class="ident">ChainExtension</span><span class="op">&lt;</span><span class="ident">Input</span> <span class="op">=</span> <span class="ident">I</span>, <span class="ident">Output</span> <span class="op">=</span> <span class="ident">O</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    <span class="ident">E</span>: <span class="ident">ChainExtension</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>

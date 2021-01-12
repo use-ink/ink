@@ -227,6 +227,18 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -322,7 +334,18 @@
         <span class="op">+</span> <span class="ident">PartialEq</span>
         <span class="op">+</span> <span class="ident">Eq</span>
         <span class="op">+</span> <span class="ident">AtLeast32BitUnsigned</span>;
+
+    <span class="doccomment">/// The chain extension for the environment.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a type that is defined through the `#[ink::chain_extension]` proc. macro.</span>
+    <span class="doccomment">/// For more information about usage and definition click [this][chain_extension] link.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html</span>
+    <span class="kw">type</span> <span class="ident">ChainExtension</span>;
 }
+
+<span class="doccomment">/// Placeholder for chains that have no defined chain extension.</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NoChainExtension</span> {}
 
 <span class="doccomment">/// The fundamental types of the default configuration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -337,6 +360,7 @@
     <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> <span class="ident">Hash</span>;
     <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">Timestamp</span>;
     <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">BlockNumber</span>;
+    <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> <span class="ident">NoChainExtension</span>;
 }
 
 <span class="doccomment">/// The default balance type.</span>

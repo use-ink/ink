@@ -1258,12 +1258,12 @@
                         .<span class="ident">kind</span>()
                         .<span class="ident">clone</span>();
                     <span class="kw">match</span> <span class="ident">first_attr</span> {
-                        <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">InkTraitItem</span>::<span class="ident">Constructor</span>(<span class="ident">InkTraitConstructor</span> {
                                 <span class="ident">item</span>: <span class="ident">method</span>,
                             }))
                         }
-                        <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">InkTraitItem</span>::<span class="ident">Message</span>(<span class="ident">InkTraitMessage</span> {
                                 <span class="ident">item</span>: <span class="ident">method</span>,
                             }))
@@ -1572,10 +1572,10 @@
         <span class="kw">match</span> <span class="ident">ir</span>::<span class="ident">first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">ink_attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>() {
-                    <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="self">Self</span>::<span class="ident">analyse_message</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="self">Self</span>::<span class="ident">analyse_constructor</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
                     <span class="ident">_unsupported</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1608,7 +1608,7 @@
             <span class="ident">constructor</span>.<span class="ident">span</span>(),
             <span class="ident">constructor</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span>,
-            <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">c</span>, <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span>),
+            <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">c</span>, <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Constructor</span>),
         )<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
@@ -1655,7 +1655,7 @@
             <span class="ident">message</span>.<span class="ident">span</span>(),
             <span class="ident">message</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>,
-            <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">c</span>, <span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>),
+            <span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">c</span>, <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Message</span>),
         )<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
             <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn</span>::<span class="ident">FnArg</span>::<span class="ident">Typed</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
