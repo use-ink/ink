@@ -700,7 +700,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// By default all chain extension methods return a `Result<T, E>` where `E: From<Self::ErrorCode>`.
 /// The `Self::ErrorCode` represents the error code of the chain extension.
 /// This means that a smart contract calling such a chain extension method first queries the returned
-/// status code of the chain extension method and only loads and decodes the output if the retuend
+/// status code of the chain extension method and only loads and decodes the output if the returned
 /// status code indicates a successful call.
 /// This design was chosen as it is more efficient when no output besides the error
 /// code is required for a chain extension call. When designing a chain extension try to utilize the
