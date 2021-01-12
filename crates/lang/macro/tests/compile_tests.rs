@@ -55,5 +55,5 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/S-05-storage-as-event.rs");
     t.compile_fail("tests/ui/fail/S-06-event-as-storage.rs");
 
-    t.pass("tests/ui/chain_extension/simple.rs");
+    t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }
