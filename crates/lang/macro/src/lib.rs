@@ -880,7 +880,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// as well as `scale-info`'s `TypeInfo` trait.
 ///
 /// A full example of the above chain extension definition can be seen
-/// [here](https://github.com/paritytech/ink/blob/robin-impl-chain-extension/crates/lang/macro/tests/ui/chain_extension/simple.rs).
+/// [here](https://github.com/paritytech/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs).
 ///
 /// # Example: Environment
 ///
