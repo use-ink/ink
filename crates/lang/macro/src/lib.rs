@@ -809,7 +809,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// # Note
 ///     ///
-///     /// Assumes to never fail the call and therefore always returns `Option<Access`.
+///     /// Assumes to never fail the call and therefore always returns `Option<Access>`.
 ///     #[ink(extension = 4, expect_ok, expect_output)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
