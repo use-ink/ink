@@ -72,7 +72,7 @@ impl ChainExtension {
 /// An ink! chain extension method.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainExtensionMethod {
-    /// The underlying vaidated AST of the chain extension method.
+    /// The underlying validated AST of the chain extension method.
     item: syn::TraitItemMethod,
     /// The unique identifier of the chain extension method.
     id: ExtensionId,
