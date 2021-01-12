@@ -258,16 +258,22 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `true` if the ink! attribute contains the `handle_status` argument.
+    /// Returns `false` if the ink! attribute contains the `handle_status = false` argument.
+    ///
+    /// Otherwise returns `true`.
     pub fn is_handle_status(&self) -> bool {
-        self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus))
+        !self
+            .args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
     }
 
-    /// Returns `true` if the ink! attribute contains the `returns_result` argument.
+    /// Returns `false` if the ink! attribute contains the `returns_result = false` argument.
+    ///
+    /// Otherwise returns `true`.
     pub fn is_returns_result(&self) -> bool {
-        self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::ReturnsResult))
+        !self
+            .args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::ReturnsResult(false)))
     }
 }
 
@@ -316,9 +322,9 @@ pub enum AttributeArgKind {
     Namespace,
     /// `#[ink(impl)]`
     Implementation,
-    /// `#[ink(handle_status)]`
+    /// `#[ink(handle_status = flag: bool)]`
     HandleStatus,
-    /// `#[ink(returns_result)]`
+    /// `#[ink(returns_result = flag: bool)]`
     ReturnsResult,
 }
 
@@ -390,18 +396,18 @@ pub enum AttributeArg {
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
     Extension(ExtensionId),
-    /// `#[ink(handle_status = value: bool)]`
+    /// `#[ink(handle_status = flag: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
     ///
     /// Default value: `true`
-    HandleStatus,
-    /// `#[ink(returns_result = value: bool)]`
+    HandleStatus(bool),
+    /// `#[ink(returns_result = flag: bool)]`
     ///
     /// Used by the `#[ink::chain_extension]` proc. macro.
     ///
     /// Default value: `true`
-    ReturnsResult,
+    ReturnsResult(bool),
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -445,8 +451,8 @@ impl AttributeArg {
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
-            Self::HandleStatus => AttributeArgKind::HandleStatus,
-            Self::ReturnsResult => AttributeArgKind::ReturnsResult,
+            Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
+            Self::ReturnsResult(_) => AttributeArgKind::ReturnsResult,
         }
     }
 }
@@ -471,8 +477,8 @@ impl core::fmt::Display for AttributeArg {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
-            Self::HandleStatus => write!(f, "handle_status"),
-            Self::ReturnsResult => write!(f, "returns_result"),
+            Self::HandleStatus(value) => write!(f, "handle_status = {:?}", value),
+            Self::ReturnsResult(value) => write!(f, "returns_result = {:?}", value),
         }
     }
 }
@@ -790,6 +796,26 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                             }
                             return Err(format_err!(name_value, "expecteded `u32` integer type for `N` in #[ink(extension = N)]"))
                         }
+                        if name_value.path.is_ident("handle_status") {
+                            if let syn::Lit::Bool(lit_bool) = &name_value.lit {
+                                let value = lit_bool.value;
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::HandleStatus(value),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]"))
+                        }
+                        if name_value.path.is_ident("returns_result") {
+                            if let syn::Lit::Bool(lit_bool) = &name_value.lit {
+                                let value = lit_bool.value;
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::ReturnsResult(value),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"))
+                        }
                         Err(format_err_spanned!(
                             meta,
                             "unknown ink! attribute argument (name = value)",
@@ -814,9 +840,21 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     "encountered #[ink(namespace)] that is missing its string parameter. \
                                     Did you mean #[ink(namespace = name: str)] ?"
                                 )),
-                                "handle_status" => Ok(AttributeArg::HandleStatus),
-                                "returns_result" => Ok(AttributeArg::ReturnsResult),
-                                "extension" => Err(format_err!(meta, "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?")),
+                                "extension" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(extension)] that is missing its N parameter. \
+                                    Did you mean #[ink(extension = N: u32)] ?"
+                                )),
+                                "handle_status" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                                    Did you mean #[ink(handle_status = flag: bool)] ?"
+                                )),
+                                "returns_result" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(returns_result)] that is missing its `flag: bool` parameter. \
+                                    Did you mean #[ink(returns_result = flag: bool)] ?"
+                                )),
                                 _ => Err(format_err_spanned!(
                                     meta, "unknown ink! attribute (path)"
                                 ))
@@ -1067,7 +1105,8 @@ mod tests {
             },
             Err(
                 "encountered #[ink(namespace)] that is missing its string parameter. \
-                Did you mean #[ink(namespace = name: str)] ?"),
+                Did you mean #[ink(namespace = name: str)] ?",
+            ),
         );
     }
 
@@ -1111,6 +1150,109 @@ mod tests {
                 #[ink(extension = #max_u32_plus_1)]
             },
             Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer"),
+        );
+    }
+
+    #[test]
+    fn extension_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension)]
+            },
+            Err(
+                "encountered #[ink(extension)] that is missing its N parameter. \
+                Did you mean #[ink(extension = N: u32)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn handle_status_works() {
+        fn expected_ok(value: bool) -> Result<test::Attribute, &'static str> {
+            Ok(test::Attribute::Ink(vec![AttributeArg::HandleStatus(
+                value,
+            )]))
+        }
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = true)]
+            },
+            expected_ok(true),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = false)]
+            },
+            expected_ok(false),
+        );
+    }
+
+    #[test]
+    fn handle_status_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status)]
+            },
+            Err(
+                "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                Did you mean #[ink(handle_status = flag: bool)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn handle_status_invalid_parameter_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = "string")]
+            },
+            Err(
+                "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]",
+            ),
+        );
+    }
+
+    #[test]
+    fn returns_result_works() {
+        fn expected_ok(value: bool) -> Result<test::Attribute, &'static str> {
+            Ok(test::Attribute::Ink(vec![AttributeArg::ReturnsResult(
+                value,
+            )]))
+        }
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = true)]
+            },
+            expected_ok(true),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = false)]
+            },
+            expected_ok(false),
+        );
+    }
+
+    #[test]
+    fn returns_result_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result)]
+            },
+            Err(
+                "encountered #[ink(returns_result)] that is missing its `flag: bool` parameter. \
+                Did you mean #[ink(returns_result = flag: bool)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn returns_result_invalid_parameter_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = "string")]
+            },
+            Err("expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"),
         );
     }
 

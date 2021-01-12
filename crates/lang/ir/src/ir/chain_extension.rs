@@ -490,8 +490,8 @@ impl ChainExtension {
                 !matches!(
                     c,
                     ir::AttributeArg::Extension(_)
-                        | ir::AttributeArg::HandleStatus
-                        | ir::AttributeArg::ReturnsResult
+                        | ir::AttributeArg::HandleStatus(_)
+                        | ir::AttributeArg::ReturnsResult(_)
                 )
             },
         )?;
@@ -932,22 +932,22 @@ mod tests {
                 pub trait MyChainExtension {
                     type ErrorCode = ();
 
-                    #[ink(extension = 1, handle_status)]
+                    #[ink(extension = 1, handle_status = false)]
                     fn extension_a();
-                    #[ink(extension = 2, returns_result)]
+                    #[ink(extension = 2, returns_result = false)]
                     fn extension_b();
-                    #[ink(extension = 3, handle_status, returns_result)]
+                    #[ink(extension = 3, handle_status = false, returns_result = false)]
                     fn extension_c();
 
                     #[ink(extension = 4)]
-                    #[ink(handle_status)]
+                    #[ink(handle_status = false)]
                     fn extension_d();
                     #[ink(extension = 5)]
-                    #[ink(returns_result)]
+                    #[ink(returns_result = false)]
                     fn extension_e();
                     #[ink(extension = 6)]
-                    #[ink(handle_status)]
-                    #[ink(returns_result)]
+                    #[ink(handle_status = false)]
+                    #[ink(returns_result = false)]
                     fn extension_f();
                 }
             })

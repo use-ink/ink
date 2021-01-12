@@ -664,11 +664,11 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// There are three different attributes with which the chain extension methods
 /// can be flagged:
 ///
-/// | Attribute | Required | Description |
-/// |:----------|:--------:|:------------|
-/// | `ink(extension = N: u32)` | Yes | Determines the unique function ID of the chain extension method. |
-/// | `ink(handle_status)` | Optional | Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call. |
-/// | `ink(returns_result)` | Optional | By default chain extension methods are assumed to return a `Result<T, E>` in the output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return any other type. |
+/// | Attribute | Required | Default Value | Description |
+/// |:----------|:--------:|:--------------|:-----------:|
+/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of the chain extension method. |
+/// | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call. |
+/// | `ink(returns_result = flag: bool)` | Optional | `true` | By default chain extension methods are assumed to return a `Result<T, E>` in the output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return any other type. |
 ///
 /// As with all ink! attributes multiple of them can either appear in a contiguous list:
 /// ```
@@ -677,7 +677,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # #[ink::chain_extension]
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
-/// #[ink(extension = 5, handle_status, returns_result)]
+/// #[ink(extension = 5, handle_status = false, returns_result = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
@@ -689,13 +689,15 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # pub trait MyChainExtension {
 /// #     type ErrorCode = i32;
 /// #[ink(extension = 5)]
-/// #[ink(handle_status)]
-/// #[ink(returns_result)]
+/// #[ink(handle_status = false)]
+/// #[ink(returns_result = false)]
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
 ///
 /// ## Details: `handle_status`
+///
+/// Default value: `true`
 ///
 /// By default all chain extension methods return a `Result<T, E>` where `E: From<Self::ErrorCode>`.
 /// The `Self::ErrorCode` represents the error code of the chain extension.
@@ -707,11 +709,13 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// error code to return errors and only use the output buffer for information that does not fit in
 /// a single `u32` value.
 ///
-/// A chain extension method that is flagged with `handle_status` assumes that the returned error code
+/// A chain extension method that is flagged with `handle_status = false` assumes that the returned error code
 /// will always indicate success. Therefore it will always load and decode the output buffer and loses
 /// the `E: From<Self::ErrorCode` constraint for the call.
 ///
 /// ## Details: `returns_result`
+///
+/// Default value: `true`
 ///
 /// By default chain extension methods are assumed to return a value of type `Result<T, E>` through the
 /// output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return
@@ -777,7 +781,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<Vec<u8>, Self::ErrorCode>`.
-///     #[ink(extension = 1, returns_result)]
+///     #[ink(extension = 1, returns_result = false)]
 ///     fn read(key: &[u8]) -> Vec<u8>;
 ///
 ///     /// Reads from runtime storage.
@@ -802,7 +806,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Actually returns a value of type `Result<(), Self::ErrorCode>`.
-///     #[ink(extension = 3, returns_result)]
+///     #[ink(extension = 3, returns_result = false)]
 ///     fn write(key: &[u8], value: &[u8]);
 ///
 ///     /// Returns the access allowed for the key for the caller.
@@ -810,7 +814,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     /// # Note
 ///     ///
 ///     /// Assumes to never fail the call and therefore always returns `Option<Access>`.
-///     #[ink(extension = 4, returns_result, handle_status)]
+///     #[ink(extension = 4, returns_result = false, handle_status = false)]
 ///     fn access(key: &[u8]) -> Option<Access>;
 ///
 ///     /// Unlocks previously aquired permission to access key.
@@ -823,7 +827,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ///
 ///     /// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`
 ///     /// to implement `From<Self::ErrorCode>` as in the `read_small` method above.
-///     #[ink(extension = 5, handle_status)]
+///     #[ink(extension = 5, handle_status = false)]
 ///     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
@@ -978,15 +982,15 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # #[ink::chain_extension]
 /// # pub trait RuntimeReadWrite {
 /// #     type ErrorCode = ReadWriteErrorCode;
-/// #     #[ink(extension = 1, returns_result)]
+/// #     #[ink(extension = 1, returns_result = false)]
 /// #     fn read(key: &[u8]) -> Vec<u8>;
 /// #     #[ink(extension = 2)]
 /// #     fn read_small(key: &[u8]) -> Result<(u32, [u8; 32]), ReadWriteError>;
-/// #     #[ink(extension = 3, returns_result)]
+/// #     #[ink(extension = 3, returns_result = false)]
 /// #     fn write(key: &[u8], value: &[u8]);
-/// #     #[ink(extension = 4, returns_result, handle_status)]
+/// #     #[ink(extension = 4, returns_result = false, handle_status = false)]
 /// #     fn access(key: &[u8]) -> Option<Access>;
-/// #     #[ink(extension = 5, handle_status)]
+/// #     #[ink(extension = 5, handle_status = false)]
 /// #     fn unlock_access(key: &[u8], access: Access) -> Result<(), UnlockAccessError>;
 /// # }
 /// # #[derive(scale::Encode, scale::Decode, scale_info::TypeInfo)]
