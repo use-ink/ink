@@ -225,15 +225,16 @@ where
     ///
     /// # Errors
     ///
-    /// - If the called chain extension method returned a non-successful error code.
-    /// - If the returned `Result` of the called chain extension method cannot be decoded into `O`.
-    /// - In case chain extension method specific constraints have not been met.
+    /// - If the called chain extension method returns a non-successful error code.
+    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the `Result` return value cannot be SCALE decoded properly.
+    /// - If custom constraints specified by the called chain extension method are violated.
     ///     - These constraints are determined and defined by the author of the chain extension method.
     ///
     /// # Example
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, String>` upon completion.
+    /// as input parameters and returns a `Result<i32, MyError>` upon completion.
     /// It will handle the shared error code from the chain extension.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -286,14 +287,15 @@ where
     ///
     /// # Errors
     ///
-    /// - If the returned return value of the called chain extension method cannot be decoded into `O`.
-    /// - In case chain extension method specific constraints have not been met.
+    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the `Result` return value cannot be SCALE decoded properly.
+    /// - If custom constraints specified by the called chain extension method are violated.
     ///     - These constraints are determined and defined by the author of the chain extension method.
     ///
     /// # Example
     ///
     /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, String>` upon completion.
+    /// as input parameters and returns a `Result<i32, MyError>` upon completion.
     /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
     /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
@@ -340,11 +342,13 @@ where
     ///
     /// # Errors
     ///
-    /// If the called chain extension method returned a non-successful error code.
+    /// - If the called chain extension method returns a non-successful error code.
+    /// - If custom constraints specified by the called chain extension method are violated.
+    ///     - These constraints are determined and defined by the author of the chain extension method.
     ///
     /// # Panics
     ///
-    /// If the returned return value of the called chain extension method cannot be decoded into `O`.
+    /// - If the return value cannot be SCALE decoded properly.
     ///
     /// # Example
     ///
@@ -397,7 +401,7 @@ where
     ///
     /// # Panics
     ///
-    /// If the returned return value of the called chain extension method cannot be decoded into `O`.
+    /// - If the return value cannot be SCALE decoded properly.
     ///
     /// # Example
     ///
