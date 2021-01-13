@@ -94,7 +94,7 @@ codecov:
     - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
-    - LLVM_PROFILE_FILE="build-%p-%m.profraw" cargo +nightly build --verbose
+    - cargo +nightly build --verbose
     - LLVM_PROFILE_FILE="test-%p-%m.profraw" cargo +nightly test --no-fail-fast --all-features --workspace || exit 0
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --branch
