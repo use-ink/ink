@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,10 @@ pub use self::{
         KeyPtr,
     },
     packed::PackedLayout,
-    spread::SpreadLayout,
+    spread::{
+        SpreadLayout,
+        FOOTPRINT_CLEANUP_THRESHOLD,
+    },
 };
 pub use ::ink_storage_derive::{
     PackedLayout,
@@ -102,7 +105,7 @@ where
     <T as SpreadLayout>::clear_spread(entity, &mut ptr);
 }
 
-/// Pushes the entitiy to the contract storage using spread layout.
+/// Pushes the entity to the contract storage using spread layout.
 ///
 /// The root key denotes the offset into the contract storage where the
 /// instance of type `T` is being pushed to.
@@ -143,7 +146,7 @@ where
     entity
 }
 
-/// Pushes the entitiy to the contract storage using packed layout.
+/// Pushes the entity to the contract storage using packed layout.
 ///
 /// The root key denotes the offset into the contract storage where the
 /// instance of type `T` is being pushed to.

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +66,8 @@ where
         <u8 as SpreadLayout>::push_spread(&(self.is_some() as u8), ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::push_spread(value, ptr);
+        } else {
+            ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
         }
     }
 
@@ -76,12 +78,17 @@ where
         <u8 as SpreadLayout>::clear_spread(&0, ptr);
         if let Some(value) = self {
             <T as SpreadLayout>::clear_spread(value, ptr)
+        } else {
+            ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
         }
     }
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         match <u8 as SpreadLayout>::pull_spread(ptr) {
-            0u8 => None,
+            0u8 => {
+                ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
+                None
+            }
             1u8 => Some(<T as SpreadLayout>::pull_spread(ptr)),
             _ => unreachable!("invalid Option discriminant"),
         }
@@ -233,70 +240,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::traits::{
-        clear_spread_root,
-        pull_packed_root,
-        pull_spread_root,
-        push_packed_root,
-        push_spread_root,
-    };
+    use crate::push_pull_works_for_primitive;
     use ink_env::AccountId;
     use ink_primitives::Key;
 
-    /// Runs `f` using the off-chain testing environment.
-    fn run_test<F>(f: F)
-    where
-        F: FnOnce(),
-    {
-        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
-            f();
-            Ok(())
-        })
-        .unwrap()
-    }
-
-    macro_rules! push_pull_works_for_primitive {
-        ( $name:ty, [$($value:expr),*] ) => {
-            paste::item! {
-                #[test]
-                #[allow(non_snake_case)]
-                fn [<$name _pull_push_works>] () {
-                    run_test(|| {
-                        $({
-                            let x: $name = $value;
-                            let key = Key::from([0x42; 32]);
-                            let key2 = Key::from([0x77; 32]);
-                            push_spread_root(&x, &key);
-                            let y: $name = pull_spread_root(&key);
-                            assert_eq!(x, y);
-                            push_packed_root(&x, &key2);
-                            let z: $name = pull_packed_root(&key);
-                            assert_eq!(x, z);
-                        })*
-                    })
-                }
-
-                #[test]
-                #[should_panic(expected = "storage entry was empty")]
-                #[allow(non_snake_case)]
-                fn [<$name _clean_works>]() {
-                    run_test(|| {
-                        $({
-                            let x: $name = $value;
-                            let key = Key::from([0x42; 32]);
-                            push_spread_root(&x, &key);
-                            // Works since we just populated the storage.
-                            let y: $name = pull_spread_root(&key);
-                            assert_eq!(x, y);
-                            clear_spread_root(&x, &key);
-                            // Panics since it loads eagerly from cleared storage.
-                            let _: $name = pull_spread_root(&key);
-                        })*
-                    })
-                }
-            }
-        };
-    }
     push_pull_works_for_primitive!(bool, [false, true]);
     push_pull_works_for_primitive!(
         String,
@@ -334,4 +281,16 @@ mod tests {
         u128,
         [0, Default::default(), 50, u128::MIN, u128::MAX]
     );
+
+    type OptionU8 = Option<u8>;
+    push_pull_works_for_primitive!(OptionU8, [Some(13u8), None]);
+
+    type ResultU8 = Result<u8, bool>;
+    push_pull_works_for_primitive!(ResultU8, [Ok(13u8), Err(false)]);
+
+    type BoxU8 = Box<u8>;
+    push_pull_works_for_primitive!(BoxU8, [Box::new(27u8)]);
+
+    type BoxOptionU8 = Box<Option<u8>>;
+    push_pull_works_for_primitive!(BoxOptionU8, [Box::new(Some(27)), Box::new(None)]);
 }

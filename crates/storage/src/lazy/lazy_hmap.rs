@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1272,7 +1272,7 @@ mod tests {
 
     #[test]
     fn spread_layout_works() -> ink_env::Result<()> {
-        ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut hmap = new_hmap();
             let nothing_changed = &[
                 (1, StorageEntry::new(Some(b'A'), EntryState::Mutated)),

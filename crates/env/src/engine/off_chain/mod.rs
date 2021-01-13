@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 // limitations under the License.
 
 mod call_data;
-#[cfg(feature = "ink-unstable-chain-extensions")]
 mod chain_extension;
 mod db;
 mod hashing;
@@ -25,8 +24,6 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use self::chain_extension::ChainExtensionHandler;
 pub use self::{
     call_data::CallData,
     db::{
@@ -37,6 +34,7 @@ pub use self::{
     typed_encoded::TypedEncodedError,
 };
 use self::{
+    chain_extension::ChainExtensionHandler,
     db::{
         Account,
         AccountsDb,
@@ -56,7 +54,7 @@ use self::{
     },
 };
 use super::OnInstance;
-use crate::EnvTypes;
+use crate::Environment;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -89,10 +87,11 @@ pub struct EnvInstance {
     /// The console to print debug contents.
     console: Console,
     /// Handler for registered chain extensions.
-    #[cfg(feature = "ink-unstable-chain-extensions")]
     chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
+    /// Set to true to disable clearing storage
+    clear_storage_disabled: bool,
 }
 
 impl EnvInstance {
@@ -104,9 +103,9 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
-            #[cfg(feature = "ink-unstable-chain-extensions")]
             chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
+            clear_storage_disabled: false,
         }
     }
 
@@ -118,8 +117,8 @@ impl EnvInstance {
     /// Either resets or initializes the off-chain environment to default values.
     pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
-        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+        T: Environment,
+        <T as Environment>::AccountId: From<[u8; 32]>,
     {
         if self.is_initialized() {
             self.reset()
@@ -135,9 +134,9 @@ impl EnvInstance {
         self.chain_spec.reset();
         self.blocks.clear();
         self.console.reset();
-        #[cfg(feature = "ink-unstable-chain-extensions")]
         self.chain_extension_handler.reset();
         self.emitted_events.reset();
+        self.clear_storage_disabled = false;
     }
 
     /// Initializes the whole off-chain environment.
@@ -155,8 +154,8 @@ impl EnvInstance {
     /// for most use cases.
     pub fn initialize_as_default<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
-        <T as EnvTypes>::AccountId: From<[u8; 32]>,
+        T: Environment,
+        <T as Environment>::AccountId: From<[u8; 32]>,
     {
         use core::ops::Div as _;
         use num_traits::{
@@ -167,12 +166,12 @@ impl EnvInstance {
         // Alice has half of the maximum possible amount.
         self.accounts.add_user_account::<T>(
             default_accounts.alice.clone(),
-            T::Balance::max_value().div(T::Balance::from(2)),
+            T::Balance::max_value().div(T::Balance::from(2u32)),
         );
         // Bob has half the balance that alice got.
         self.accounts.add_user_account::<T>(
             default_accounts.bob,
-            T::Balance::max_value().div(T::Balance::from(4)),
+            T::Balance::max_value().div(T::Balance::from(4u32)),
         );
         // All other default accounts have zero balance.
         self.accounts
@@ -185,8 +184,8 @@ impl EnvInstance {
             .add_user_account::<T>(default_accounts.frank, T::Balance::zero());
         // Initialize our first block.
         self.blocks.push(Block::new::<T>(
-            T::BlockNumber::from(0),
-            T::Timestamp::from(0),
+            T::BlockNumber::from(0u32),
+            T::Timestamp::from(0u32),
         ));
         // Initialize chain specification.
         self.chain_spec.initialize_as_default::<T>()?;
@@ -194,8 +193,8 @@ impl EnvInstance {
         let contract_account_id = T::AccountId::from([0x07; 32]);
         self.accounts.add_contract_account::<T>(
             contract_account_id.clone(),
-            T::Balance::from(0),
-            T::Balance::from(20),
+            T::Balance::from(0u32),
+            T::Balance::from(20u32),
         );
         // Initialize the execution context for the first contract execution.
         use crate::call::Selector;
@@ -206,8 +205,8 @@ impl EnvInstance {
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
-                .gas(T::Balance::from(500_000))
-                .transferred_value(T::Balance::from(500))
+                .gas(T::Balance::from(500_000u32))
+                .transferred_value(T::Balance::from(500u32))
                 .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),
         );
@@ -217,7 +216,7 @@ impl EnvInstance {
     /// Advances the chain by a single block.
     pub fn advance_block<T>(&mut self) -> crate::Result<()>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         let new_block_number = T::BlockNumber::from(self.blocks.len() as u32);
         let new_timestamp = self.current_block()?.timestamp::<T>()?

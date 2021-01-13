@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ impl GenerateCode for InkTest<'_> {
                     #( #attrs )*
                     #[test]
                     #vis fn #fn_name( #fn_args ) {
-                        ::ink_env::test::run_test::<::ink_env::DefaultEnvTypes, _>(|_| {
+                        ::ink_env::test::run_test::<::ink_env::DefaultEnvironment, _>(|_| {
                             {
                                 let _: () = {
                                     #fn_block
@@ -62,7 +62,7 @@ impl GenerateCode for InkTest<'_> {
                     #( #attrs )*
                     #[test]
                     #vis fn #fn_name( #fn_args ) #rarrow #ret_type {
-                        ::ink_env::test::run_test::<::ink_env::DefaultEnvTypes, _>(|_| {
+                        ::ink_env::test::run_test::<::ink_env::DefaultEnvironment, _>(|_| {
                             #fn_block
                         })
                     }

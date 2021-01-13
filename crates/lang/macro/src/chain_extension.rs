@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[alloc_error_handler]
-fn oom(_: core::alloc::Layout) -> ! {
-    core::intrinsics::abort()
+use ink_lang_codegen::generate_code;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
+
+pub fn generate(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match generate_or_err(attr, input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
+}
+
+pub fn generate_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    let chain_extension = ink_lang_ir::ChainExtension::new(attr, input)?;
+    Ok(generate_code(&chain_extension))
 }

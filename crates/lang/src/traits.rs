@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ use ink_env::{
         ExecutionInput,
         Selector,
     },
-    EnvTypes,
+    Environment,
 };
 use ink_storage::traits::SpreadLayout;
 
@@ -47,7 +47,7 @@ impl<T, E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<T>
         Set<ReturnType<T>>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
 }
 
@@ -61,7 +61,7 @@ impl<E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<()>
         Set<()>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
 }
 

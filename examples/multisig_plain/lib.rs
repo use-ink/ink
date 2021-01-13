@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -155,6 +155,14 @@ mod multisig_plain {
         pub gas_limit: u64,
     }
 
+    /// Errors that can occur upon calling this contract.
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if the call failed.
+        TransactionFailed,
+    }
+
     #[ink(storage)]
     pub struct MultisigPlain {
         /// Every entry in this map represents the confirmation of an owner for a
@@ -227,7 +235,7 @@ mod multisig_plain {
         /// the output in bytes. The Option is `None` when the transaction was executed through
         /// `invoke_transaction` rather than `evaluate_transaction`.
         #[ink(topic)]
-        result: Result<Option<Vec<u8>>, ()>,
+        result: Result<Option<Vec<u8>>, Error>,
     }
 
     /// Emitted when an owner is added to the wallet.
@@ -292,7 +300,7 @@ mod multisig_plain {
         /// Since this message must be send by the wallet itself it has to be build as a
         /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
         /// ```no_run
-        /// use ink_env::{DefaultEnvTypes as Env, AccountId, call::{CallParams, Selector}, test::CallData};
+        /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
         ///
         /// // address of an existing MultiSigPlain contract
@@ -479,7 +487,10 @@ mod multisig_plain {
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
         #[ink(message)]
-        pub fn invoke_transaction(&mut self, trans_id: TransactionId) -> Result<(), ()> {
+        pub fn invoke_transaction(
+            &mut self,
+            trans_id: TransactionId,
+        ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
@@ -491,7 +502,7 @@ mod multisig_plain {
                 )
                 .returns::<()>()
                 .fire()
-                .map_err(|_| ());
+                .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.map(|_| None),
@@ -502,13 +513,13 @@ mod multisig_plain {
         /// Evaluate a confirmed execution and return its output as bytes.
         ///
         /// Its return value indicates whether the called transaction was successful and contains
-        /// its output when sucesful.
+        /// its output when successful.
         /// This can be called by anyone.
         #[ink(message)]
         pub fn eval_transaction(
             &mut self,
             trans_id: TransactionId,
-        ) -> Result<Vec<u8>, ()> {
+        ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
@@ -520,7 +531,7 @@ mod multisig_plain {
                 )
                 .returns::<ReturnType<Vec<u8>>>()
                 .fire()
-                .map_err(|_| ());
+                .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
                 transaction: trans_id,
                 result: result.clone().map(Some),
@@ -659,7 +670,7 @@ mod multisig_plain {
             call,
             test,
         };
-        type Accounts = test::DefaultAccounts<EnvTypes>;
+        type Accounts = test::DefaultAccounts<Environment>;
         const WALLET: [u8; 32] = [7; 32];
 
         impl Transaction {
@@ -677,7 +688,7 @@ mod multisig_plain {
         }
 
         fn set_sender(sender: AccountId) {
-            test::push_execution_context::<EnvTypes>(
+            test::push_execution_context::<Environment>(
                 sender,
                 WALLET.into(),
                 1000000,

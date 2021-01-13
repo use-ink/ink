@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ use syn::{
 
 /// The attribute arguments for the configuration of an ink! smart contract.
 ///
-/// These are the segments `env_types = ::my::env_types::EnvTypes` and `compile_as_dependency = true`
-/// in `#[ink::contract(env_types = ::my::env_types::EnvTypes, compile_as_dependency = true`.
+/// These are the segments `env = ::my::env::Environment` and `compile_as_dependency = true`
+/// in `#[ink::contract(env = ::my::env::Environment, compile_as_dependency = true`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct AttributeArgs {
     args: Punctuated<MetaNameValue, Token![,]>,

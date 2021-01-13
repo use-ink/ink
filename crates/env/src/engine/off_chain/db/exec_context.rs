@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ use super::{
     OffAccountId,
     OffBalance,
 };
-use crate::EnvTypes;
+use crate::Environment;
 use ink_prelude::vec::Vec;
 
 pub type Bytes = Vec<u8>;
@@ -52,7 +52,7 @@ impl ExecContext {
     /// Constructs a new execution context.
     pub fn build<T>() -> ExecContextBuilder<T>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         ExecContextBuilder::new()
     }
@@ -60,7 +60,7 @@ impl ExecContext {
     /// Returns the caller.
     pub fn caller<T>(&self) -> Result<T::AccountId>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.caller.decode().map_err(Into::into)
     }
@@ -68,7 +68,7 @@ impl ExecContext {
     /// Returns the callee.
     pub fn callee<T>(&self) -> Result<T::AccountId>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.callee.decode().map_err(Into::into)
     }
@@ -76,7 +76,7 @@ impl ExecContext {
     /// Returns the transferred value.
     pub fn transferred_value<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.transferred_value.decode().map_err(Into::into)
     }
@@ -84,7 +84,7 @@ impl ExecContext {
     /// Returns the gas.
     pub fn gas<T>(&self) -> Result<T::Balance>
     where
-        T: EnvTypes,
+        T: Environment,
     {
         self.gas.decode().map_err(Into::into)
     }
@@ -113,7 +113,7 @@ impl ExecContext {
 /// Builder for execution contexts.
 pub struct ExecContextBuilder<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// The caller of the newly created execution context.
     caller: Option<T::AccountId>,
@@ -129,7 +129,7 @@ where
 
 impl<T> ExecContextBuilder<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// Constructs a new execution context builder.
     pub fn new() -> Self {

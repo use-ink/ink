@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,22 +39,29 @@ pub use self::specs::{
     MessageSpec,
     MessageSpecBuilder,
     ReturnTypeSpec,
+    Selector,
     TypeSpec,
 };
+
+use impl_serde::serialize as serde_hex;
 
 #[cfg(feature = "derive")]
 use scale_info::{
     form::CompactForm,
     IntoCompact as _,
     Registry,
+    RegistryReadOnly,
 };
-use serde::Serialize;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 /// An entire ink! project for metadata file generation purposes.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
     #[serde(flatten)]
-    registry: Registry,
+    registry: RegistryReadOnly,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
     layout: layout::Layout<CompactForm>,
@@ -72,7 +79,24 @@ impl InkProject {
         Self {
             layout: layout.into().into_compact(&mut registry),
             spec: spec.into().into_compact(&mut registry),
-            registry,
+            registry: registry.into(),
         }
+    }
+}
+
+impl InkProject {
+    /// Returns a read-only registry of types in the contract.
+    pub fn registry(&self) -> &RegistryReadOnly {
+        &self.registry
+    }
+
+    /// Returns the storage layout of the contract.
+    pub fn layout(&self) -> &layout::Layout<CompactForm> {
+        &self.layout
+    }
+
+    /// Returns the specification of the contract.
+    pub fn spec(&self) -> &ContractSpec<CompactForm> {
+        &self.spec
     }
 }

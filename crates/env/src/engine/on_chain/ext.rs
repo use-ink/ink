@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ define_error_codes! {
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
     /// Transfer failed because it would have brought the sender's total balance
-    /// bwlow the subsistence threshold.
+    /// below the subsistence threshold.
     BelowSubsistenceThreshold = 4,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.
@@ -179,6 +179,13 @@ where
 #[repr(transparent)]
 pub struct ReturnCode(u32);
 
+impl ReturnCode {
+    /// Returns the raw underlying `u32` representation.
+    pub fn into_u32(self) -> u32 {
+        self.0
+    }
+}
+
 type Result = core::result::Result<(), Error>;
 
 mod sys {
@@ -255,7 +262,6 @@ mod sys {
         );
         pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
-        #[cfg(feature = "ink-unstable-chain-extensions")]
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
@@ -485,12 +491,7 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     }
 }
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn call_chain_extension(
-    func_id: u32,
-    input: &[u8],
-    output: &mut &mut [u8],
-) -> Result {
+pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
@@ -504,7 +505,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ret_code.into_u32()
 }
 
 pub fn input(output: &mut &mut [u8]) {

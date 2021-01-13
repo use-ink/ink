@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
 // limitations under the License.
 
 use crate::backend::{
-    Env,
-    TypedEnv,
+    EnvBackend,
+    TypedEnvBackend,
 };
 use cfg_if::cfg_if;
 
-pub trait OnInstance: Env + TypedEnv {
+pub trait OnInstance: EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where
         F: FnOnce(&mut Self) -> R;

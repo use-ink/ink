@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ fn take_refill_rev_works() {
 
 #[test]
 fn spread_layout_push_pull_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let default = filled_bitstash();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&default, &mut KeyPtr::from(root_key));
@@ -140,7 +140,7 @@ fn spread_layout_push_pull_works() {
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let default = filled_bitstash();
         // First push the instance to the contract storage.
         // Then load a valid instance, check it and clear its associated storage.

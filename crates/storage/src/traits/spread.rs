@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,13 @@
 // limitations under the License.
 
 use super::KeyPtr;
+
+/// This constant is used by some types to make sure that cleaning up
+/// behind them won't become way too expensive. Since we are missing
+/// Substrate's storage bulk removal feature we cannot do better than
+/// this at the moment.
+/// The number is arbitrarily chosen. Might need adjustments later.
+pub const FOOTPRINT_CLEANUP_THRESHOLD: u64 = 32;
 
 /// Types that can be stored to and loaded from the contract storage.
 pub trait SpreadLayout {
@@ -74,7 +81,7 @@ pub trait SpreadLayout {
     /// - Tries to clean `Self` from contract storage as if `self` was stored
     ///   in it using spread layout.
     /// - The key pointer denotes the position where the instance is being cleared
-    /// from the contract storage.
+    ///   from the contract storage.
     ///
     /// # Note
     ///

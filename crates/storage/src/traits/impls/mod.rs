@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,6 +87,9 @@ mod arrays;
 mod collections;
 mod prims;
 mod tuples;
+
+#[cfg(all(test, feature = "ink-fuzz-tests"))]
+mod fuzz_tests;
 
 use super::{
     clear_packed_root,

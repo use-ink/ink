@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ use syn::spanned::Spanned as _;
 #[derive(Debug, PartialEq, Eq)]
 pub struct Event {
     item: syn::ItemStruct,
+    pub anonymous: bool,
 }
 
 impl quote::ToTokens for Event {
@@ -72,7 +73,7 @@ impl Event {
         // an ink! event or an invalid ink! attribute.
         let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        Ok(matches!(attr.first().kind(), ir::AttributeArgKind::Event))
+        Ok(matches!(attr.first().kind(), ir::AttributeArg::Event))
     }
 }
 
@@ -81,11 +82,16 @@ impl TryFrom<syn::ItemStruct> for Event {
 
     fn try_from(item_struct: syn::ItemStruct) -> Result<Self, Self::Error> {
         let struct_span = item_struct.span();
-        let (_ink_attrs, other_attrs) = ir::sanitize_attributes(
+        let (ink_attrs, other_attrs) = ir::sanitize_attributes(
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Event,
-            |kind| !matches!(kind, ir::AttributeArgKind::Event),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(
@@ -102,16 +108,16 @@ impl TryFrom<syn::ItemStruct> for Event {
             }
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
-                    err.into_combine(format_err!(field_span, "at this invokation",))
+                    err.into_combine(format_err!(field_span, "at this invocation",))
                 })?;
-            if !matches!(normalized.first().kind(), ir::AttributeArgKind::Topic) {
+            if !matches!(normalized.first().kind(), ir::AttributeArg::Topic) {
                 return Err(format_err!(
                     field_span,
                     "first optional ink! attribute of an event field must be #[ink(topic)]",
                 ))
             }
             for arg in normalized.args() {
-                if !matches!(arg.kind(), ir::AttributeArgKind::Topic) {
+                if !matches!(arg.kind(), ir::AttributeArg::Topic) {
                     return Err(format_err!(
                         arg.span(),
                         "encountered conflicting ink! attribute for event field",
@@ -124,6 +130,7 @@ impl TryFrom<syn::ItemStruct> for Event {
                 attrs: other_attrs,
                 ..item_struct
             },
+            anonymous: ink_attrs.is_anonymous(),
         })
     }
 }
@@ -207,9 +214,7 @@ impl<'a> Iterator for EventFieldsIter<'a> {
             Some(field) => {
                 let is_topic = ir::first_ink_attribute(&field.attrs)
                     .unwrap_or_default()
-                    .map(|attr| {
-                        matches!(attr.first().kind(), ir::AttributeArgKind::Topic)
-                    })
+                    .map(|attr| matches!(attr.first().kind(), ir::AttributeArg::Topic))
                     .unwrap_or_default();
                 Some(EventField { is_topic, field })
             }
@@ -443,5 +448,34 @@ mod tests {
             assert_eq!(field.ident(), Some(expected_field.ident()));
             assert_eq!(field.ty(), expected_field.ty());
         }
+    }
+
+    #[test]
+    fn anonymous_event_works() {
+        fn assert_anonymous_event(event: syn::ItemStruct) {
+            match Event::try_from(event) {
+                Ok(event) => {
+                    assert!(event.anonymous);
+                }
+                Err(_) => panic!("encountered unexpected invalid anonymous event"),
+            }
+        }
+        assert_anonymous_event(syn::parse_quote! {
+            #[ink(event)]
+            #[ink(anonymous)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                field_1: i32,
+                field_2: bool,
+            }
+        });
+        assert_anonymous_event(syn::parse_quote! {
+            #[ink(event, anonymous)]
+            pub struct MyEvent {
+                #[ink(topic)]
+                field_1: i32,
+                field_2: bool,
+            }
+        });
     }
 }

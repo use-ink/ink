@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ use crate::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
 #[derive(Debug, From, PartialEq, Eq)]
-pub enum EnvError {
+pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
     /// An error that can only occure in the off-chain environment.
@@ -32,7 +32,7 @@ pub enum EnvError {
     /// The queried contract storage entry is missing.
     KeyNotFound,
     /// Transfer failed because it would have brought the sender's total balance
-    /// bwlow the subsistence threshold.
+    /// below the subsistence threshold.
     BelowSubsistenceThreshold,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.
@@ -49,4 +49,4 @@ pub enum EnvError {
 }
 
 /// A result of environmental operations.
-pub type Result<T> = core::result::Result<T, EnvError>;
+pub type Result<T> = core::result::Result<T, Error>;

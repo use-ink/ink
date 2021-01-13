@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ fn bench_set_populated_cache(c: &mut Criterion) {
 fn push_storage_lazy(value: i32) -> Lazy<i32> {
     let root_key = Key::from([0x00; 32]);
     SpreadLayout::push_spread(&Lazy::new(value), &mut KeyPtr::from(root_key));
-    <Lazy<i32>>::lazy(root_key)
+    SpreadLayout::pull_spread(&mut KeyPtr::from(root_key))
 }
 
 mod empty_cache {
@@ -82,7 +82,7 @@ mod empty_cache {
 }
 
 fn bench_set_empty_cache(c: &mut Criterion) {
-    let _ = ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (empty cache)");
         group.bench_function(BenchmarkId::new("set", 0), |b| {
             b.iter(|| empty_cache::set())

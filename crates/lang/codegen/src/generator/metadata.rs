@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,9 +88,9 @@ impl Metadata<'_> {
     }
 
     /// Extracts the doc strings from the given slice of attributes.
-    fn extract_doc_comments<'a>(
-        attributes: &'a [syn::Attribute],
-    ) -> impl Iterator<Item = String> + 'a {
+    fn extract_doc_comments(
+        attributes: &[syn::Attribute],
+    ) -> impl Iterator<Item = String> + '_ {
         attributes
             .iter()
             .filter_map(|attribute| {
@@ -109,7 +109,7 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for all contract constructors.
-    fn generate_constructors<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_constructors(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract
             .module()
             .impls()
@@ -137,10 +137,10 @@ impl Metadata<'_> {
                 let constr = match trait_ident {
                     Some(trait_ident) => {
                         let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
                     }
                     None => {
-                        quote_spanned!(span => name(#ident_lit))
+                        quote_spanned!(span => from_name(#ident_lit))
                     }
                 };
                 quote_spanned!(span =>
@@ -200,7 +200,7 @@ impl Metadata<'_> {
         }
     }
 
-    fn generate_messages<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_messages(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract
             .module()
             .impls()
@@ -231,10 +231,10 @@ impl Metadata<'_> {
                 let constr = match trait_ident {
                     Some(trait_ident) => {
                         let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
                     }
                     None => {
-                        quote_spanned!(span => name(#ident_lit))
+                        quote_spanned!(span => from_name(#ident_lit))
                     }
                 };
                 quote_spanned!(span =>
@@ -272,7 +272,7 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for all user provided ink! event definitions.
-    fn generate_events<'a>(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_events(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract.module().events().map(|event| {
             let span = event.span();
             let ident = event.ident();
@@ -293,9 +293,7 @@ impl Metadata<'_> {
     }
 
     /// Generate ink! metadata for a single argument of an ink! event definition.
-    fn generate_event_args<'a>(
-        event: &'a ir::Event,
-    ) -> impl Iterator<Item = TokenStream2> + 'a {
+    fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
         event.fields().map(|event_field| {
             let span = event_field.span();
             let ident = event_field.ident();
@@ -317,7 +315,7 @@ impl Metadata<'_> {
     }
 
     /// Generates the documentation for the contract module.
-    fn generate_docs<'a>(&'a self) -> impl Iterator<Item = String> + 'a {
+    fn generate_docs(&self) -> impl Iterator<Item = String> + '_ {
         Self::extract_doc_comments(self.contract.module().attrs())
     }
 }

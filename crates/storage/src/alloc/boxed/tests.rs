@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ use ink_primitives::Key;
 
 fn run_test<F>(f: F)
 where
-    F: FnOnce(DefaultAccounts<ink_env::DefaultEnvTypes>),
+    F: FnOnce(DefaultAccounts<ink_env::DefaultEnvironment>),
 {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|default_accounts| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|default_accounts| {
         alloc::initialize(ContractPhase::Deploy);
         f(default_accounts);
         Ok(())

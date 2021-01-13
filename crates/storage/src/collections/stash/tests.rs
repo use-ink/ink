@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
 // limitations under the License.
 
 use super::Stash as StorageStash;
-use crate::traits::{
-    KeyPtr,
-    SpreadLayout,
+use crate::{
+    traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+    Lazy,
 };
 use ink_primitives::Key;
 
@@ -25,7 +28,7 @@ fn regression_stash_unreachable_minified() {
     // `approved_for_all_works` unit test. The fix was to adjust
     // `Stash::remove_vacant_entry` to update `header.last_vacant` if the
     // removed index was the last remaining vacant index in the stash.
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut stash: StorageStash<u32> = StorageStash::new();
         stash.put(1);
         stash.put(2);
@@ -137,7 +140,7 @@ fn remove_out_of_bounds_works() {
 
 #[test]
 fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // First populate some storage Stash and writes that to the contract storage using pull_spread
         // and some known Key.
         let stash = [b'A', b'B', b'C']
@@ -715,7 +718,7 @@ fn take_rev_order_works() {
 
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
@@ -731,7 +734,7 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[test]
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let stash1 = create_holey_stash();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&stash1, &mut KeyPtr::from(root_key));
@@ -742,6 +745,70 @@ fn spread_layout_clear_works() {
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
         SpreadLayout::clear_spread(&stash1, &mut KeyPtr::from(root_key));
+        let _ =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+fn storage_is_cleared_completely_after_pull_lazy() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let lazy_stash = Lazy::new(create_holey_stash());
+        SpreadLayout::push_spread(&lazy_stash, &mut KeyPtr::from(root_key));
+        let pulled_stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        // when
+        SpreadLayout::clear_spread(&pulled_stash, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let storage_used = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(storage_used, 0);
+
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+fn drop_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+
+        // if the setup panics it should not cause the test to pass
+        let setup_result = std::panic::catch_unwind(|| {
+            let stash = create_holey_stash();
+            SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+            let _ = <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            // stash is dropped which should clear the cells
+        });
+        assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
         let _ =
             <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())

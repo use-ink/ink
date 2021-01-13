@@ -1,7 +1,0 @@
-status = [
-    "ci/gitlab/gitlab.parity.io"
-]
-# The default is one hour (3600 sec).
-timeout_sec = 1800
-use_squash_merge = true
-required_approvals = 1

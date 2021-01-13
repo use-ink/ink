@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,15 +23,17 @@ use ink_env::{
         CryptoHash,
         HashOutput,
     },
-    EnvTypes,
+    Environment,
     Result,
 };
 use ink_primitives::Key;
 
+use crate::ChainExtensionInstance;
+
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
     /// The environment type.
-    type Env: ::ink_env::EnvTypes;
+    type Env: ::ink_env::Environment;
 }
 
 /// Simplifies interaction with the host environment via `self`.
@@ -91,7 +93,20 @@ impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
 
 impl<'a, T> EnvAccess<'a, T>
 where
-    T: EnvTypes,
+    T: Environment,
+    <T as Environment>::ChainExtension: ChainExtensionInstance,
+{
+    /// Allows to call one of the available defined chain extension methods.
+    pub fn extension(
+        self,
+    ) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
+        <<T as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
+    }
+}
+
+impl<'a, T> EnvAccess<'a, T>
+where
+    T: Environment,
 {
     /// Returns the address of the caller of the executed contract.
     ///
@@ -129,7 +144,7 @@ where
         ink_env::gas_left::<T>().expect("couldn't decode gas left")
     }
 
-    /// Returns the timstamp of the current block.
+    /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
@@ -174,7 +189,7 @@ where
         ink_env::block_number::<T>().expect("couldn't decode block number")
     }
 
-    /// Returns the minimum balance for the contracts chain.
+    /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,11 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
+use crate::traits::{
+    KeyPtr,
+    SpreadLayout,
+};
+use ink_primitives::Key;
 use itertools::Itertools;
 
 /// Conducts repeated insert and remove operations into the map by iterating
@@ -25,7 +30,7 @@ use itertools::Itertools;
 ///
 /// `inserts_each` was chosen as `u8` to keep the number of inserts per `x` in
 /// a reasonable range.
-fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
+fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) -> StorageHashMap<i32, i32> {
     let mut map = <StorageHashMap<i32, i32>>::new();
     let mut cnt_inserts = 0;
     let mut previous_even_x = None;
@@ -66,12 +71,13 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) {
             previous_even_x = None;
         }
     }
+    map
 }
 
 #[quickcheck]
-fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
-        insert_and_remove(xs, inserts_each);
+fn fuzz_inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let _ = insert_and_remove(xs, inserts_each);
         Ok(())
     })
     .unwrap()
@@ -80,8 +86,8 @@ fn inserts_and_removes(xs: Vec<i32>, inserts_each: u8) {
 /// Inserts all elements from `xs`. Then removes each `xth` element from the map
 /// and asserts that all non-`xth` elements are still in the map.
 #[quickcheck]
-fn removes(xs: Vec<i32>, xth: usize) {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
+fn fuzz_removes(xs: Vec<i32>, xth: usize) {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
         let xs: Vec<i32> = xs.into_iter().unique().collect();
         let xth = xth.max(1);
@@ -120,6 +126,46 @@ fn removes(xs: Vec<i32>, xth: usize) {
                 );
                 assert_eq!(map.get(&i), Some(&(i * 10)));
             }
+        }
+
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[quickcheck]
+fn fuzz_defrag(xs: Vec<i32>, inserts_each: u8) {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // Create a `HashMap<i32, i32>` and execute some pseudo-randomized
+        // insert/remove operations on it.
+        let mut map = insert_and_remove(xs, inserts_each);
+
+        // Build a collection of the keys/values in this hash map
+        let kv_pairs: Vec<(i32, i32)> = map
+            .keys
+            .iter()
+            .map(|key| {
+                (
+                    key.to_owned(),
+                    map.get(key).expect("value must exist").to_owned(),
+                )
+            })
+            .collect();
+        assert_eq!(map.len(), kv_pairs.len() as u32);
+
+        // Then defragment the hash map
+        map.defrag(None);
+
+        // Then we push the defragmented hash map to storage and pull it again
+        let root_key = Key::from([0x00; 32]);
+        SpreadLayout::push_spread(&map, &mut KeyPtr::from(root_key));
+        let map2: StorageHashMap<i32, i32> =
+            SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
+
+        // Assert that everything that should be is still in the hash map
+        assert_eq!(map2.len(), kv_pairs.len() as u32);
+        for (key, val) in kv_pairs {
+            assert_eq!(map2.get(&key), Some(&val));
         }
 
         Ok(())

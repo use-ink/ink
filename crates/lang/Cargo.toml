@@ -1,13 +1,13 @@
 [package]
 name = "ink_lang"
-version = "3.0.0"
-authors = ["Parity Technologies <admin@parity.io>"]
+version = "3.0.0-rc2"
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
-license = "APACHE-2.0"
+license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/paritytech/ink"
-documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+documentation = "https://docs.rs/ink_lang/"
 homepage = "https://www.parity.io/"
 description = "[ink!] Rust based eDSL for writing smart contracts for Substrate"
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
@@ -15,12 +15,12 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "3.0.0", path = "../env", default-features = false }
-ink_storage = { version = "3.0.0", path = "../storage", default-features = false }
-ink_primitives = { version = "3.0.0", path = "../primitives", default-features = false }
-ink_metadata = { version = "3.0.0", path = "../metadata", default-features = false, optional = true }
-ink_prelude = { version = "3.0.0", path = "../prelude/", default-features = false }
-ink_lang_macro = { version = "3.0.0", path = "macro", default-features = false }
+ink_env = { version = "3.0.0-rc2", path = "../env", default-features = false }
+ink_storage = { version = "3.0.0-rc2", path = "../storage", default-features = false }
+ink_primitives = { version = "3.0.0-rc2", path = "../primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc2", path = "../metadata", default-features = false, optional = true }
+ink_prelude = { version = "3.0.0-rc2", path = "../prelude/", default-features = false }
+ink_lang_macro = { version = "3.0.0-rc2", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }

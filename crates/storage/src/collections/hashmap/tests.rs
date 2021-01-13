@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
-use crate::traits::{
-    KeyPtr,
-    SpreadLayout,
+use crate::{
+    traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+    Lazy,
 };
 use ink_primitives::Key;
 
@@ -33,6 +36,13 @@ fn push_hmap(hmap: &StorageHashMap<u8, i32>) {
 /// Pulls a `HashMap` instance from the contract storage.
 fn pull_hmap() -> StorageHashMap<u8, i32> {
     <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(&mut key_ptr())
+}
+
+fn filled_hmap() -> StorageHashMap<u8, i32> {
+    [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
+        .iter()
+        .copied()
+        .collect::<StorageHashMap<u8, i32>>()
 }
 
 #[test]
@@ -102,10 +112,7 @@ fn get_works() {
     assert_eq!(hmap.get(&b'A'), None);
     assert_eq!(hmap.get(&b'E'), None);
     // Filled hash map: `get`
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     assert_eq!(hmap.get(&b'A'), Some(&1));
     assert_eq!(hmap.get(&b'B'), Some(&2));
     assert_eq!(hmap.get(&b'C'), Some(&3));
@@ -150,10 +157,7 @@ fn take_works() {
     assert_eq!(hmap.take(&b'A'), None);
     assert_eq!(hmap.take(&b'E'), None);
     // Filled hash map: `get`
-    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let mut hmap = filled_hmap();
     assert_eq!(hmap.len(), 4);
     assert_eq!(hmap.take(&b'A'), Some(1));
     assert_eq!(hmap.len(), 3);
@@ -171,10 +175,7 @@ fn take_works() {
 
 #[test]
 fn iter_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     // Test iterator over shared references:
     let mut iter = hmap.iter();
     assert_eq!(iter.count(), 4);
@@ -208,10 +209,7 @@ fn iter_next_works() {
 
 #[test]
 fn values_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     // Test iterator over shared references:
     let mut iter = hmap.values();
     assert_eq!(iter.count(), 4);
@@ -245,10 +243,7 @@ fn values_next_works() {
 
 #[test]
 fn keys_next_works() {
-    let hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let hmap = filled_hmap();
     let mut iter = hmap.keys();
     assert_eq!(iter.count(), 4);
     assert_eq!(iter.size_hint(), (4, Some(4)));
@@ -272,10 +267,7 @@ fn defrag_works() {
         .copied()
         .collect::<StorageHashMap<u8, i32>>();
     // Defrag without limits:
-    let mut hmap = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-        .iter()
-        .copied()
-        .collect::<StorageHashMap<u8, i32>>();
+    let mut hmap = filled_hmap();
     assert_eq!(hmap.defrag(None), 0);
     assert_eq!(hmap.take(&b'B'), Some(2));
     assert_eq!(hmap.take(&b'C'), Some(3));
@@ -298,13 +290,10 @@ fn defrag_works() {
 
 #[test]
 fn spread_layout_push_pull_works() -> ink_env::Result<()> {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
-        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-            .iter()
-            .copied()
-            .collect::<StorageHashMap<u8, i32>>();
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let hmap1 = filled_hmap();
         push_hmap(&hmap1);
-        // Load the pushed storage vector into another instance and check that
+        // Load the pushed storage hmap into another instance and check that
         // both instances are equal:
         let hmap2 = pull_hmap();
         assert_eq!(hmap1, hmap2);
@@ -315,11 +304,8 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 #[test]
 #[should_panic(expected = "storage entry was empty")]
 fn spread_layout_clear_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvTypes, _>(|_| {
-        let hmap1 = [(b'A', 1), (b'B', 2), (b'C', 3), (b'D', 4)]
-            .iter()
-            .copied()
-            .collect::<StorageHashMap<u8, i32>>();
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let hmap1 = filled_hmap();
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&hmap1, &mut KeyPtr::from(root_key));
         // It has already been asserted that a valid instance can be pulled
@@ -327,8 +313,73 @@ fn spread_layout_clear_works() {
         //
         // Now clear the associated storage from `hmap1` and check whether
         // loading another instance from this storage will panic since the
-        // vector's length property cannot read a value:
+        // hmap's length property cannot read a value:
         SpreadLayout::clear_spread(&hmap1, &mut KeyPtr::from(root_key));
+        let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+fn storage_is_cleared_completely_after_pull_lazy() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let lazy_hmap = Lazy::new(filled_hmap());
+        SpreadLayout::push_spread(&lazy_hmap, &mut KeyPtr::from(root_key));
+        let pulled_hmap = <Lazy<StorageHashMap<u8, i32>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        // when
+        SpreadLayout::clear_spread(&pulled_hmap, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+fn drop_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+
+        // if the setup panics it should not cause the test to pass
+        let setup_result = std::panic::catch_unwind(|| {
+            let hmap = filled_hmap();
+            SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
+            let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            // hmap is dropped which should clear the cells
+        });
+        assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
         let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
         );

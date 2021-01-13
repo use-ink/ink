@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 #![allow(clippy::new_ret_no_self)]
 
-use crate::utils::serialize_as_byte_str;
+use crate::serde_hex;
 #[cfg(not(feature = "std"))]
 use alloc::{
     format,
@@ -33,11 +33,18 @@ use scale_info::{
     Registry,
     TypeInfo,
 };
-use serde::Serialize;
+use serde::{
+    de::DeserializeOwned,
+    Deserialize,
+    Serialize,
+};
 
 /// Describes a contract.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct ContractSpec<F: Form = MetaForm> {
     /// The set of constructors of the contract.
     constructors: Vec<ConstructorSpec<F>>,
@@ -46,7 +53,7 @@ pub struct ContractSpec<F: Form = MetaForm> {
     /// The events of the contract.
     events: Vec<EventSpec<F>>,
     /// The contract documentation.
-    docs: Vec<&'static str>,
+    docs: Vec<F::String>,
 }
 
 impl IntoCompact for ContractSpec {
@@ -69,8 +76,33 @@ impl IntoCompact for ContractSpec {
                 .into_iter()
                 .map(|event| event.into_compact(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: registry.map_into_compact(self.docs),
         }
+    }
+}
+
+impl<F> ContractSpec<F>
+where
+    F: Form,
+{
+    /// Returns the set of constructors of the contract.
+    pub fn constructors(&self) -> &[ConstructorSpec<F>] {
+        &self.constructors
+    }
+
+    /// Returns the external messages of the contract.
+    pub fn messages(&self) -> &[MessageSpec<F>] {
+        &self.messages
+    }
+
+    /// Returns the events of the contract.
+    pub fn events(&self) -> &[EventSpec<F>] {
+        &self.events
+    }
+
+    /// Returns the contract documentation.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
     }
 }
 
@@ -182,20 +214,22 @@ impl ContractSpec {
 }
 
 /// Describes a constructor of a contract.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct ConstructorSpec<F: Form = MetaForm> {
     /// The name of the message.
     ///
     /// In case of a trait provided constructor the trait name is prefixed.
-    name: Vec<&'static str>,
+    pub name: Vec<F::String>,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    selector: [u8; 4],
+    pub selector: Selector,
     /// The parameters of the deploy handler.
-    args: Vec<MessageParamSpec<F>>,
+    pub args: Vec<MessageParamSpec<F>>,
     /// The deploy handler documentation.
-    docs: Vec<&'static str>,
+    pub docs: Vec<F::String>,
 }
 
 impl IntoCompact for ConstructorSpec {
@@ -203,15 +237,42 @@ impl IntoCompact for ConstructorSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            name: self.name,
+            name: registry.map_into_compact(self.name),
             selector: self.selector,
             args: self
                 .args
                 .into_iter()
                 .map(|arg| arg.into_compact(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: registry.map_into_compact(self.docs),
         }
+    }
+}
+
+impl<F> ConstructorSpec<F>
+where
+    F: Form,
+{
+    /// Returns the name of the message.
+    ///
+    /// In case of a trait provided constructor the trait name is prefixed.
+    pub fn name(&self) -> &[F::String] {
+        &self.name
+    }
+
+    /// Returns the selector hash of the message.
+    pub fn selector(&self) -> &Selector {
+        &self.selector
+    }
+
+    /// Returns the parameters of the deploy handler.
+    pub fn args(&self) -> &[MessageParamSpec<F>] {
+        &self.args
+    }
+
+    /// Returns the deploy handler documentation.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
     }
 }
 
@@ -235,7 +296,7 @@ impl ConstructorSpec {
         ConstructorSpecBuilder {
             spec: Self {
                 name: segments,
-                selector: [0u8; 4],
+                selector: Selector::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -244,12 +305,14 @@ impl ConstructorSpec {
     }
 
     /// Creates a new constructor spec builder.
-    pub fn name(name: &'static str) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    pub fn from_name(
+        name: &'static str,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         Self::from_name_segments(vec![name])
     }
 
     /// Creates a new constructor spec builder for a trait provided constructor.
-    pub fn trait_and_name(
+    pub fn from_trait_and_name(
         trait_name: &'static str,
         constructor_name: &'static str,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
@@ -262,7 +325,7 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
     pub fn selector(self, selector: [u8; 4]) -> ConstructorSpecBuilder<state::Selector> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
-                selector,
+                selector: selector.into(),
                 ..self.spec
             },
             marker: PhantomData,
@@ -289,7 +352,7 @@ impl<S> ConstructorSpecBuilder<S> {
     {
         let mut this = self;
         debug_assert!(this.spec.docs.is_empty());
-        this.spec.docs = docs.into_iter().collect::<Vec<_>>();
+        this.spec.docs = docs.into_iter().map(str::trim).collect::<Vec<_>>();
         this
     }
 }
@@ -302,18 +365,20 @@ impl ConstructorSpecBuilder<state::Selector> {
 }
 
 /// Describes a contract message.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
     /// The name of the message and some optional prefixes.
     ///
     /// In case of trait provided messages and constructors the prefix
     /// by convention in ink! is the name of the trait.
-    name: Vec<&'static str>,
+    name: Vec<F::String>,
     /// The selector hash of the message.
-    #[serde(serialize_with = "serialize_as_byte_str")]
-    selector: [u8; 4],
+    selector: Selector,
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
     /// If the message is payable by the caller.
@@ -323,7 +388,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     /// The return type of the message.
     return_type: ReturnTypeSpec<F>,
     /// The message documentation.
-    docs: Vec<&'static str>,
+    docs: Vec<F::String>,
 }
 
 /// Type state for builders to tell that some mandatory state has not yet been set
@@ -357,7 +422,7 @@ impl MessageSpec {
         MessageSpecBuilder {
             spec: Self {
                 name: segments,
-                selector: [0u8; 4],
+                selector: Selector::default(),
                 mutates: false,
                 payable: false,
                 args: Vec::new(),
@@ -369,7 +434,7 @@ impl MessageSpec {
     }
 
     /// Creates a new message spec builder.
-    pub fn name(
+    pub fn from_name(
         name: &'static str,
     ) -> MessageSpecBuilder<
         Missing<state::Selector>,
@@ -381,7 +446,7 @@ impl MessageSpec {
     }
 
     /// Creates a new message spec builder for a trait provided message.
-    pub fn trait_and_name(
+    pub fn from_trait_and_name(
         trait_name: &'static str,
         message_name: &'static str,
     ) -> MessageSpecBuilder<
@@ -391,6 +456,49 @@ impl MessageSpec {
         Missing<state::Returns>,
     > {
         Self::from_name_segments(vec![trait_name, message_name])
+    }
+}
+
+impl<F> MessageSpec<F>
+where
+    F: Form,
+{
+    /// Returns the name of the message and some optional prefixes.
+    ///
+    /// In case of trait provided messages and constructors the prefix
+    /// by convention in ink! is the name of the trait.
+    pub fn name(&self) -> &[F::String] {
+        &self.name
+    }
+
+    /// Returns the selector hash of the message.
+    pub fn selector(&self) -> &Selector {
+        &self.selector
+    }
+
+    /// Returns true if the message is allowed to mutate the contract state.
+    pub fn mutates(&self) -> bool {
+        self.mutates
+    }
+
+    /// Returns true if the message is payable by the caller.
+    pub fn payable(&self) -> bool {
+        self.payable
+    }
+
+    /// Returns the parameters of the message.
+    pub fn args(&self) -> &[MessageParamSpec<F>] {
+        &self.args
+    }
+
+    /// Returns the return type of the message.
+    pub fn return_type(&self) -> &ReturnTypeSpec<F> {
+        &self.return_type
+    }
+
+    /// Returns the message documentation.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
     }
 }
 
@@ -415,7 +523,7 @@ impl<M, P, R> MessageSpecBuilder<Missing<state::Selector>, M, P, R> {
     ) -> MessageSpecBuilder<state::Selector, M, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
-                selector,
+                selector: selector.into(),
                 ..self.spec
             },
             marker: PhantomData,
@@ -506,7 +614,7 @@ impl IntoCompact for MessageSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            name: self.name,
+            name: registry.map_into_compact(self.name),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
@@ -516,21 +624,24 @@ impl IntoCompact for MessageSpec {
                 .map(|arg| arg.into_compact(registry))
                 .collect::<Vec<_>>(),
             return_type: self.return_type.into_compact(registry),
-            docs: self.docs,
+            docs: registry.map_into_compact(self.docs),
         }
     }
 }
 
 /// Describes an event definition.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct EventSpec<F: Form = MetaForm> {
     /// The name of the event.
-    name: &'static str,
+    name: F::String,
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
-    docs: Vec<&'static str>,
+    docs: Vec<F::String>,
 }
 
 /// An event specification builder.
@@ -572,13 +683,13 @@ impl IntoCompact for EventSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            name: self.name,
+            name: self.name.into_compact(registry),
             args: self
                 .args
                 .into_iter()
                 .map(|arg| arg.into_compact(registry))
                 .collect::<Vec<_>>(),
-            docs: self.docs,
+            docs: registry.map_into_compact(self.docs),
         }
     }
 }
@@ -593,6 +704,57 @@ impl EventSpec {
                 docs: Vec::new(),
             },
         }
+    }
+}
+
+impl<F> EventSpec<F>
+where
+    F: Form,
+{
+    /// Returns the name of the event.
+    pub fn name(&self) -> &F::String {
+        &self.name
+    }
+
+    /// The event arguments.
+    pub fn args(&self) -> &[EventParamSpec<F>] {
+        &self.args
+    }
+
+    /// The event documentation.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
+    }
+}
+
+/// The 4 byte selector to identify constructors and messages
+#[derive(Debug, Default, PartialEq, Eq, derive_more::From)]
+pub struct Selector([u8; 4]);
+
+impl serde::Serialize for Selector {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serde_hex::serialize(&self.0, serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for Selector {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let mut arr = [0; 4];
+        serde_hex::deserialize_check_len(d, serde_hex::ExpectedLen::Exact(&mut arr[..]))?;
+        Ok(arr.into())
+    }
+}
+
+impl Selector {
+    /// Returns the underlying selector bytes.
+    pub fn to_bytes(&self) -> &[u8] {
+        &self.0
     }
 }
 
@@ -613,7 +775,7 @@ impl EventSpec {
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
 /// types, we currently cannot communicate this without display names.
-pub type DisplayName = scale_info::Path;
+pub type DisplayName<F> = scale_info::Path<F>;
 
 /// A type specification.
 ///
@@ -632,14 +794,18 @@ pub type DisplayName = scale_info::Path;
 /// `pred`'s display name is `Predicate` and the display name of
 /// the return type is simply `bool`. Note that `Predicate` could
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeSpec<F: Form = MetaForm> {
     /// The actual type.
-    id: F::TypeId,
+    #[serde(rename = "type")]
+    ty: F::Type,
     /// The compile-time known displayed representation of the type.
-    display_name: DisplayName,
+    display_name: DisplayName<F>,
 }
 
 impl IntoCompact for TypeSpec {
@@ -647,8 +813,8 @@ impl IntoCompact for TypeSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         TypeSpec {
-            id: registry.register_type(&self.id),
-            display_name: self.display_name,
+            ty: registry.register_type(&self.ty),
+            display_name: self.display_name.into_compact(registry),
         }
     }
 }
@@ -690,7 +856,7 @@ impl TypeSpec {
         S: IntoIterator<Item = &'static str>,
     {
         Self {
-            id: meta_type::<T>(),
+            ty: meta_type::<T>(),
             display_name: DisplayName::from_segments(segments)
                 .expect("display name is invalid"),
         }
@@ -702,25 +868,43 @@ impl TypeSpec {
         T: TypeInfo + 'static,
     {
         Self {
-            id: meta_type::<T>(),
+            ty: meta_type::<T>(),
             display_name: DisplayName::default(),
         }
     }
 }
 
+impl<F> TypeSpec<F>
+where
+    F: Form,
+{
+    /// Returns the actual type.
+    pub fn ty(&self) -> &F::Type {
+        &self.ty
+    }
+
+    /// Returns the compile-time known displayed representation of the type.
+    pub fn display_name(&self) -> &DisplayName<F> {
+        &self.display_name
+    }
+}
+
 /// Describes a pair of parameter name and type.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct EventParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    name: F::String,
     /// If the event parameter is indexed.
     indexed: bool,
     /// The type of the parameter.
     #[serde(rename = "type")]
     ty: TypeSpec<F>,
     /// The documentation associated with the arguments.
-    docs: Vec<&'static str>,
+    docs: Vec<F::String>,
 }
 
 impl IntoCompact for EventParamSpec {
@@ -728,10 +912,10 @@ impl IntoCompact for EventParamSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            name: self.name,
+            name: self.name.into_compact(registry),
             indexed: self.indexed,
             ty: self.ty.into_compact(registry),
-            docs: self.docs,
+            docs: registry.map_into_compact(self.docs),
         }
     }
 }
@@ -750,6 +934,31 @@ impl EventParamSpec {
                 docs: vec![],
             },
         }
+    }
+}
+
+impl<F> EventParamSpec<F>
+where
+    F: Form,
+{
+    /// Returns the name of the parameter.
+    pub fn name(&self) -> &F::String {
+        &self.name
+    }
+
+    /// Returns true if the event parameter is indexed.
+    pub fn indexed(&self) -> bool {
+        self.indexed
+    }
+
+    /// Returns the type of the parameter.
+    pub fn ty(&self) -> &TypeSpec<F> {
+        &self.ty
+    }
+
+    /// Returns the documentation associated with the arguments.
+    pub fn docs(&self) -> &[F::String] {
+        &self.docs
     }
 }
 
@@ -795,9 +1004,12 @@ impl EventParamSpecBuilder {
 }
 
 /// Describes the return type of a contract message.
-#[derive(Debug, PartialEq, Eq, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
     #[serde(rename = "type")]
     opt_type: Option<TypeSpec<F>>,
@@ -835,12 +1047,25 @@ impl ReturnTypeSpec {
     }
 }
 
+impl<F> ReturnTypeSpec<F>
+where
+    F: Form,
+{
+    /// Returns the optional return type
+    pub fn opt_type(&self) -> Option<&TypeSpec<F>> {
+        self.opt_type.as_ref()
+    }
+}
+
 /// Describes a pair of parameter name and type.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F::Type: Serialize, F::String: Serialize",
+    deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
+))]
 pub struct MessageParamSpec<F: Form = MetaForm> {
     /// The name of the parameter.
-    name: &'static str,
+    name: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
     ty: TypeSpec<F>,
@@ -851,7 +1076,7 @@ impl IntoCompact for MessageParamSpec {
 
     fn into_compact(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            name: self.name,
+            name: self.name.into_compact(registry),
             ty: self.ty.into_compact(registry),
         }
     }
@@ -867,6 +1092,21 @@ impl MessageParamSpec {
                 ty: TypeSpec::new::<()>(),
             },
         }
+    }
+}
+
+impl<F> MessageParamSpec<F>
+where
+    F: Form,
+{
+    /// Returns the name of the parameter.
+    pub fn name(&self) -> &F::String {
+        &self.name
+    }
+
+    /// Returns the type of the parameter.
+    pub fn ty(&self) -> &TypeSpec<F> {
+        &self.ty
     }
 }
 

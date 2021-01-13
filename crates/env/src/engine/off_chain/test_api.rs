@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
 
 //! Operations on the off-chain testing environment.
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use super::chain_extension::ChainExtension;
-pub use super::{
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
-};
 use super::{
+    chain_extension::ChainExtension,
     db::ExecContext,
     AccountError,
     EnvInstance,
     OnInstance,
 };
+pub use super::{
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
+};
 use crate::{
-    EnvTypes,
+    Environment,
     Result,
 };
 use ink_prelude::string::String;
@@ -48,7 +47,7 @@ pub fn push_execution_context<T>(
     endowment: T::Balance,
     call_data: CallData,
 ) where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.exec_context.push(
@@ -92,7 +91,7 @@ pub fn set_account_balance<T>(
     new_balance: T::Balance,
 ) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -118,7 +117,7 @@ where
 /// - If the underlying `account` type does not match.
 pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -142,7 +141,7 @@ pub fn set_contract_rent_allowance<T>(
     new_rent_allowance: T::Balance,
 ) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -167,7 +166,7 @@ where
 /// - If the returned rent allowance cannot be properly decoded.
 pub fn get_contract_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -180,12 +179,9 @@ where
 }
 
 /// Registers a new chain extension.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn register_chain_extension<E, I, O>(extension: E)
+pub fn register_chain_extension<E>(extension: E)
 where
-    E: ChainExtension<Input = I, Output = O> + 'static,
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
+    E: ChainExtension + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -201,7 +197,7 @@ where
 /// This allows to control what [`crate::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.current_block_mut()?.set_entropy::<T>(entropy)
@@ -255,15 +251,27 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 /// Advances the chain by a single block.
 pub fn advance_block<T>() -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
+}
+
+/// Set to true to disable clearing storage
+///
+/// # Note
+///
+/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// because lazy storage structures automatically clear their associated cells when they are dropped.
+pub fn set_clear_storage_disabled(disable: bool) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.clear_storage_disabled = disable
+    })
 }
 
 /// The default accounts.
 pub struct DefaultAccounts<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// The predefined `ALICE` account holding substantial amounts of value.
     pub alice: T::AccountId,
@@ -283,8 +291,8 @@ where
 /// Alice, Bob, Charlie, Django, Eve and Frank.
 pub fn default_accounts<T>() -> Result<DefaultAccounts<T>>
 where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     Ok(DefaultAccounts {
         alice: T::AccountId::from([0x01; 32]),
@@ -304,8 +312,8 @@ where
 /// uses cases.
 pub fn initialize_or_reset_as_default<T>() -> Result<()>
 where
-    T: EnvTypes,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.initialize_or_reset_as_default::<T>()
@@ -316,9 +324,9 @@ where
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as EnvTypes>::AccountId: From<[u8; 32]>,
+    <T as Environment>::AccountId: From<[u8; 32]>,
 {
     initialize_or_reset_as_default::<T>()?;
     let default_accounts = default_accounts::<T>()?;
@@ -328,7 +336,7 @@ where
 /// Returns the total number of reads and writes of the contract's storage.
 pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -338,4 +346,86 @@ where
             .map_err(Into::into)
             .and_then(|account| account.get_storage_rw().map_err(Into::into))
     })
+}
+
+/// Returns the amount of storage cells used by the account `account_id`.
+///
+/// Returns `None` if the `account_id` is non-existent.
+pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .accounts
+            .get_account::<T>(account_id)
+            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
+            .map_err(Into::into)
+            .and_then(|account| account.count_used_storage_cells().map_err(Into::into))
+    })
+}
+
+/// Returns the account id of the currently executing contract.
+pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let exec_context = instance.exec_context()?;
+        let callee = exec_context.callee.decode()?;
+        Ok(callee)
+    })
+}
+
+/// The result of a successful contract termination.
+#[derive(scale::Encode, scale::Decode)]
+pub struct ContractTerminationResult<E>
+where
+    E: Environment,
+{
+    /// The beneficiary account who received the remaining value in the contract.
+    pub beneficiary: <E as Environment>::AccountId,
+    /// The value which was transferred to the `beneficiary`.
+    pub transferred: <E as Environment>::Balance,
+}
+
+#[cfg(feature = "std")]
+use std::panic::UnwindSafe;
+
+/// Tests if a contract terminates successfully after `self.env().terminate()`
+/// has been called.
+///
+/// # Usage
+///
+/// ```no_compile
+/// let should_terminate = move || your_contract.fn_which_should_terminate();
+/// ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+///     should_terminate,
+///     expected_beneficiary,
+///     expected_value_transferred_to_beneficiary
+/// );
+/// ```
+///
+/// See `examples/contract-terminate` for a complete usage example.
+#[cfg(feature = "std")]
+pub fn assert_contract_termination<T, F>(
+    should_terminate: F,
+    expected_beneficiary: T::AccountId,
+    expected_balance: T::Balance,
+) where
+    T: Environment,
+    F: FnMut() + UnwindSafe,
+    <T as Environment>::AccountId: core::fmt::Debug,
+    <T as Environment>::Balance: core::fmt::Debug,
+{
+    let value_any = ::std::panic::catch_unwind(should_terminate)
+        .expect_err("contract did not terminate");
+    let encoded_input: &Vec<u8> = value_any
+        .downcast_ref::<Vec<u8>>()
+        .expect("panic object can not be cast");
+    let res: ContractTerminationResult<T> =
+        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+
+    assert_eq!(res.beneficiary, expected_beneficiary);
+    assert_eq!(res.transferred, expected_balance);
 }

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -100,3 +100,39 @@ impl_layout_for_tuple!(A, B, C, D, E, F, G);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I);
 impl_layout_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+
+#[cfg(test)]
+mod tests {
+    use crate::push_pull_works_for_primitive;
+
+    type TupleSix = (i32, u32, String, u8, bool, Box<Option<i32>>);
+    push_pull_works_for_primitive!(
+        TupleSix,
+        [
+            (
+                -1,
+                1,
+                String::from("foobar"),
+                13,
+                true,
+                Box::new(Some(i32::MIN))
+            ),
+            (
+                i32::MIN,
+                u32::MAX,
+                String::from("❤ ♡ ❤ ♡ ❤"),
+                Default::default(),
+                false,
+                Box::new(Some(i32::MAX))
+            ),
+            (
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default()
+            )
+        ]
+    );
+}

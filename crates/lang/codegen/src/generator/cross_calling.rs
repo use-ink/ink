@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -123,14 +123,14 @@ impl CrossCalling<'_> {
         quote! {
             #cfg
             const _: () = {
-                impl ::ink_env::call::FromAccountId<EnvTypes> for #ident {
+                impl ::ink_env::call::FromAccountId<Environment> for #ident {
                     #[inline]
                     fn from_account_id(account_id: AccountId) -> Self {
                         Self { account_id }
                     }
                 }
 
-                impl ::ink_lang::ToAccountId<EnvTypes> for #ident {
+                impl ::ink_lang::ToAccountId<Environment> for #ident {
                     #[inline]
                     fn to_account_id(&self) -> AccountId {
                         self.account_id
@@ -247,7 +247,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span=>
             #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_env::call::CallBuilder<
-                EnvTypes,
+                Environment,
                 ::ink_env::call::utils::Set<AccountId>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
@@ -260,7 +260,7 @@ impl CrossCalling<'_> {
             #pub_tok fn #ident(
                 #receiver #(, #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_call::<EnvTypes>()
+                ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
@@ -428,14 +428,14 @@ impl CrossCalling<'_> {
                 self,
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_env::call::CallBuilder<
-                EnvTypes,
+                Environment,
                 ::ink_env::call::utils::Set<AccountId>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
                 ::ink_env::call::utils::Set<#output_sig>,
             > {
-                ::ink_env::call::build_call::<EnvTypes>()
+                ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
@@ -616,7 +616,7 @@ impl CrossCalling<'_> {
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_env::call::CreateBuilder<
-                EnvTypes,
+                Environment,
                 ::ink_env::call::utils::Unset<Hash>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
@@ -629,7 +629,7 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_create::<EnvTypes, Self>()
+                ::ink_env::call::build_create::<Environment, Self>()
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
@@ -719,14 +719,14 @@ impl CrossCalling<'_> {
             pub fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_env::call::CreateBuilder<
-                EnvTypes,
+                Environment,
                 ::ink_env::call::utils::Unset<Hash>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
                 Self,
             > {
-                ::ink_env::call::build_create::<EnvTypes, Self>()
+                ::ink_env::call::build_create::<Environment, Self>()
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])

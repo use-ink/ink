@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ use self::{
         StorageEntry,
     },
 };
+#[doc(inline)]
 pub use self::{
     lazy_array::{
         LazyArray,
@@ -119,7 +120,7 @@ where
 
     /// Creates a true lazy storage value for the given key.
     #[must_use]
-    pub fn lazy(key: Key) -> Self {
+    pub(crate) fn lazy(key: Key) -> Self {
         Self {
             cell: LazyCell::lazy(key),
         }

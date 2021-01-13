@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ fn clike_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatch_key": "0x\
+                "dispatchKey": "0x\
                     0000000000000000\
                     0000000000000000\
                     0000000000000000\
@@ -242,7 +242,7 @@ fn mixed_enum_work() {
     let expected = serde_json::json! {
         {
             "enum": {
-                "dispatch_key": "0x\
+                "dispatchKey": "0x\
                     0000000000000000\
                     0000000000000000\
                     0000000000000000\

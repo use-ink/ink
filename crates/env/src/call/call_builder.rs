@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ use crate::{
         },
         ExecutionInput,
     },
-    EnvError,
-    EnvTypes,
+    Environment,
+    Error,
 };
 use core::marker::PhantomData;
 
@@ -32,7 +32,7 @@ use core::marker::PhantomData;
 #[derive(Debug)]
 pub struct CallParams<E, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// The account ID of the to-be-called smart contract.
     callee: E::AccountId,
@@ -54,7 +54,7 @@ where
 )]
 impl<E, Args, R> CallParams<E, Args, R>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
@@ -83,7 +83,7 @@ where
 
 impl<E, Args> CallParams<E, Args, ()>
 where
-    E: EnvTypes,
+    E: Environment,
     Args: scale::Encode,
 {
     /// Invokes the contract with the given built-up call parameters.
@@ -92,14 +92,14 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::EnvError> {
+    pub fn invoke(&self) -> Result<(), crate::Error> {
         crate::invoke_contract(self)
     }
 }
 
 impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
 where
-    E: EnvTypes,
+    E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
@@ -111,7 +111,7 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::EnvError> {
+    pub fn eval(&self) -> Result<R, crate::Error> {
         crate::eval_contract(self)
     }
 }
@@ -139,12 +139,12 @@ where
 ///
 /// ```should_panic
 /// # use ::ink_env::{
-/// #     EnvTypes,
-/// #     DefaultEnvTypes,
+/// #     Environment,
+/// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput}
 /// # };
-/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
-/// build_call::<DefaultEnvTypes>()
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// build_call::<DefaultEnvironment>()
 ///     .callee(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
@@ -174,12 +174,12 @@ where
 ///
 /// ```should_panic
 /// # use ::ink_env::{
-/// #     EnvTypes,
-/// #     DefaultEnvTypes,
+/// #     Environment,
+/// #     DefaultEnvironment,
 /// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},
 /// # };
-/// # type AccountId = <DefaultEnvTypes as EnvTypes>::AccountId;
-/// let my_return_value: i32 = build_call::<DefaultEnvTypes>()
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+/// let my_return_value: i32 = build_call::<DefaultEnvironment>()
 ///     .callee(AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
 ///     .transferred_value(10)
@@ -203,10 +203,10 @@ pub fn build_call<E>() -> CallBuilder<
     Unset<ReturnType<()>>,
 >
 where
-    E: EnvTypes,
+    E: Environment,
 {
     CallBuilder {
-        env_types: Default::default(),
+        env: Default::default(),
         callee: Default::default(),
         gas_limit: Default::default(),
         transferred_value: Default::default(),
@@ -218,9 +218,9 @@ where
 /// Builds up a cross contract call.
 pub struct CallBuilder<E, Callee, GasLimit, TransferredValue, Args, RetType>
 where
-    E: EnvTypes,
+    E: Environment,
 {
-    env_types: PhantomData<fn() -> E>,
+    env: PhantomData<fn() -> E>,
     /// The current parameters that have been built up so far.
     callee: Callee,
     gas_limit: GasLimit,
@@ -232,7 +232,7 @@ where
 impl<E, GasLimit, TransferredValue, Args, RetType>
     CallBuilder<E, Unset<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the called smart contract instance account ID to the given value.
     #[inline]
@@ -242,7 +242,7 @@ where
     ) -> CallBuilder<E, Set<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
     {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: Set(callee),
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
@@ -255,7 +255,7 @@ where
 impl<E, Callee, TransferredValue, Args, RetType>
     CallBuilder<E, Callee, Unset<u64>, TransferredValue, Args, RetType>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the maximumly allowed gas costs for the call.
     #[inline]
@@ -264,7 +264,7 @@ where
         gas_limit: u64,
     ) -> CallBuilder<E, Callee, Set<u64>, TransferredValue, Args, RetType> {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: Set(gas_limit),
             transferred_value: self.transferred_value,
@@ -277,7 +277,7 @@ where
 impl<E, Callee, GasLimit, Args, RetType>
     CallBuilder<E, Callee, GasLimit, Unset<E::Balance>, Args, RetType>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
@@ -286,7 +286,7 @@ where
         transferred_value: E::Balance,
     ) -> CallBuilder<E, Callee, GasLimit, Set<E::Balance>, Args, RetType> {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: Set(transferred_value),
@@ -310,7 +310,7 @@ impl<T> IndicateReturnType for ReturnType<T> {}
 impl<E, Callee, GasLimit, TransferredValue, Args>
     CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Unset<ReturnType<()>>>
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the type of the returned value upon the execution of the call.
     ///
@@ -327,7 +327,7 @@ where
         R: IndicateReturnType,
     {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
@@ -347,7 +347,7 @@ impl<E, Callee, GasLimit, TransferredValue, RetType>
         RetType,
     >
 where
-    E: EnvTypes,
+    E: Environment,
 {
     /// Sets the execution input to the given value.
     pub fn exec_input<Args>(
@@ -362,7 +362,7 @@ where
         RetType,
     > {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
@@ -382,7 +382,7 @@ impl<E, GasLimit, TransferredValue, Args, RetType>
         Set<RetType>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
     GasLimit: Unwrap<Output = u64>,
     TransferredValue: Unwrap<Output = E::Balance>,
 {
@@ -393,7 +393,7 @@ where
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             transferred_value: self
                 .transferred_value
-                .unwrap_or_else(|| E::Balance::from(0)),
+                .unwrap_or_else(|| E::Balance::from(0u32)),
             return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
@@ -410,13 +410,13 @@ impl<E, GasLimit, TransferredValue, Args>
         Set<()>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), EnvError> {
+    pub fn fire(self) -> Result<(), Error> {
         self.params().invoke()
     }
 }
@@ -431,14 +431,14 @@ impl<E, GasLimit, TransferredValue, Args, R>
         Set<ReturnType<R>>,
     >
 where
-    E: EnvTypes,
+    E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
     R: scale::Decode,
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, EnvError> {
+    pub fn fire(self) -> Result<R, Error> {
         self.params().eval()
     }
 }

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -289,7 +289,7 @@ pub trait Callable {
 ///
 /// These recommendation mainly apply to trait implementation blocks:
 ///
-/// - The recommandation by the ink! team is to use the full-path approach
+/// - The recommendation by the ink! team is to use the full-path approach
 /// wherever possible; OR import the trait and use only its identifier with
 /// an additional namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.

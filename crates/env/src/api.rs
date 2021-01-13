@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 use crate::{
     backend::{
-        Env,
+        EnvBackend,
         ReturnFlags,
-        TypedEnv,
+        TypedEnvBackend,
     },
     call::{
         utils::ReturnType,
@@ -33,9 +33,9 @@ use crate::{
         CryptoHash,
         HashOutput,
     },
-    EnvTypes,
+    topics::Topics,
+    Environment,
     Result,
-    Topics,
 };
 use ink_primitives::Key;
 
@@ -46,9 +46,11 @@ use ink_primitives::Key;
 /// If the returned caller cannot be properly decoded.
 pub fn caller<T>() -> Result<T::AccountId>
 where
-    T: EnvTypes,
+    T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::caller::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller::<T>(instance)
+    })
 }
 
 /// Returns the transferred balance for the contract execution.
@@ -58,10 +60,10 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn transferred_balance<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::transferred_balance::<T>(instance)
+        TypedEnvBackend::transferred_balance::<T>(instance)
     })
 }
 
@@ -72,10 +74,10 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn weight_to_fee<T>(gas: u64) -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::weight_to_fee::<T>(instance, gas)
+        TypedEnvBackend::weight_to_fee::<T>(instance, gas)
     })
 }
 
@@ -86,9 +88,11 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn gas_left<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::gas_left::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::gas_left::<T>(instance)
+    })
 }
 
 /// Returns the current block timestamp.
@@ -98,10 +102,10 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn block_timestamp<T>() -> Result<T::Timestamp>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::block_timestamp::<T>(instance)
+        TypedEnvBackend::block_timestamp::<T>(instance)
     })
 }
 
@@ -116,10 +120,10 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn account_id<T>() -> Result<T::AccountId>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::account_id::<T>(instance)
+        TypedEnvBackend::account_id::<T>(instance)
     })
 }
 
@@ -130,9 +134,11 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn balance<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| TypedEnv::balance::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::balance::<T>(instance)
+    })
 }
 
 /// Returns the current rent allowance for the executed contract.
@@ -142,10 +148,10 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn rent_allowance<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::rent_allowance::<T>(instance)
+        TypedEnvBackend::rent_allowance::<T>(instance)
     })
 }
 
@@ -156,24 +162,24 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn block_number<T>() -> Result<T::BlockNumber>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::block_number::<T>(instance)
+        TypedEnvBackend::block_number::<T>(instance)
     })
 }
 
-/// Returns the minimum balance for the contracts chain.
+/// Returns the minimum balance that is required for creating an account.
 ///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
 pub fn minimum_balance<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::minimum_balance::<T>(instance)
+        TypedEnvBackend::minimum_balance::<T>(instance)
     })
 }
 
@@ -184,31 +190,31 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn tombstone_deposit<T>() -> Result<T::Balance>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::tombstone_deposit::<T>(instance)
+        TypedEnvBackend::tombstone_deposit::<T>(instance)
     })
 }
 
 /// Emits an event with the given event data.
 pub fn emit_event<T, Event>(event: Event)
 where
-    T: EnvTypes,
-    Event: Topics<T> + scale::Encode,
+    T: Environment,
+    Event: Topics + scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::emit_event::<T, Event>(instance, event)
+        TypedEnvBackend::emit_event::<T, Event>(instance, event)
     })
 }
 
 /// Sets the rent allowance of the executed contract to the new value.
 pub fn set_rent_allowance<T>(new_value: T::Balance)
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::set_rent_allowance::<T>(instance, new_value)
+        TypedEnvBackend::set_rent_allowance::<T>(instance, new_value)
     })
 }
 
@@ -222,7 +228,7 @@ where
     V: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::set_contract_storage::<V>(instance, key, value)
+        EnvBackend::set_contract_storage::<V>(instance, key, value)
     })
 }
 
@@ -236,14 +242,14 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::get_contract_storage::<R>(instance, key)
+        EnvBackend::get_contract_storage::<R>(instance, key)
     })
 }
 
 /// Clears the contract's storage key entry.
 pub fn clear_contract_storage(key: &Key) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::clear_contract_storage(instance, key)
+        EnvBackend::clear_contract_storage(instance, key)
     })
 }
 
@@ -266,11 +272,11 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If the called contract ran out of gas upon execution.
 pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
 where
-    T: EnvTypes,
+    T: Environment,
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::invoke_contract::<T, Args>(instance, params)
+        TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
     })
 }
 
@@ -292,12 +298,12 @@ where
 /// - If the returned value failed to decode properly.
 pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
 where
-    T: EnvTypes,
+    T: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::eval_contract::<T, Args, R>(instance, params)
+        TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
     })
 }
 
@@ -320,11 +326,11 @@ pub fn instantiate_contract<T, Args, C>(
     params: &CreateParams<T, Args, C>,
 ) -> Result<T::AccountId>
 where
-    T: EnvTypes,
+    T: Environment,
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::instantiate_contract::<T, Args, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<T, Args, C>(instance, params)
     })
 }
 
@@ -376,10 +382,10 @@ pub fn restore_contract<T>(
     rent_allowance: T::Balance,
     filtered_keys: &[Key],
 ) where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::restore_contract::<T>(
+        TypedEnvBackend::restore_contract::<T>(
             instance,
             account_id,
             code_hash,
@@ -401,10 +407,10 @@ pub fn restore_contract<T>(
 /// which is considered fatal and results in a trap + rollback.
 pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::terminate_contract::<T>(instance, beneficiary)
+        TypedEnvBackend::terminate_contract::<T>(instance, beneficiary)
     })
 }
 
@@ -416,36 +422,17 @@ where
 /// contract call or invoke a runtime function that performs the
 /// transaction.
 ///
-/// # Panics
-///
-/// If the contract doesn't have sufficient funds.
-pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
-where
-    T: EnvTypes,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::transfer::<T>(instance, destination, value)
-    })
-}
-
-/// Calls the chain extension with the given ID and inputs.
-///
-/// Returns the given output type.
-///
 /// # Errors
 ///
-/// - If the given function ID does not exist in the runtime.
-/// - If the given inputs cannot be properly decoded by the runtime.
-/// - If the given output type cannot be properly decoded by the contract.
-/// - If some chain extension specific conditions are not met.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
+/// - If the contract doesn't have sufficient funds.
+/// - If the transfer would have brought the sender's total balance below the
+///   subsistence threshold.
+pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::call_chain_extension(instance, func_id, input)
+        TypedEnvBackend::transfer::<T>(instance, destination, value)
     })
 }
 
@@ -476,7 +463,9 @@ pub fn decode_input<T>() -> Result<T>
 where
     T: scale::Decode,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| Env::decode_input::<T>(instance))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::decode_input::<T>(instance)
+    })
 }
 
 /// Returns the value back to the caller of the executed contract.
@@ -489,7 +478,7 @@ where
     R: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        Env::return_value::<R>(instance, return_flags, return_value)
+        EnvBackend::return_value::<R>(instance, return_flags, return_value)
     })
 }
 
@@ -505,16 +494,18 @@ where
 /// If the returned value cannot be properly decoded.
 pub fn random<T>(subject: &[u8]) -> Result<T::Hash>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnv::random::<T>(instance, subject)
+        TypedEnvBackend::random::<T>(instance, subject)
     })
 }
 
 /// Prints the given contents to the environmental log.
 pub fn debug_println(content: &str) {
-    <EnvInstance as OnInstance>::on_instance(|instance| Env::println(instance, content))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::println(instance, content)
+    })
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.

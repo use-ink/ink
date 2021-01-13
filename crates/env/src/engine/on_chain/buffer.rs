@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,9 @@ impl core::ops::IndexMut<core::ops::RangeFull> for StaticBuffer {
     }
 }
 
+/// Utility to allow for non-heap allocating encoding into a static buffer.
+///
+/// Required by `ScopedBuffer` internals.
 struct EncodeScope<'a> {
     buffer: &'a mut [u8],
     len: usize,
@@ -106,19 +109,31 @@ impl<'a> scale::Output for EncodeScope<'a> {
 /// into smaller sub buffers for processing different parts of computations.
 #[derive(Debug)]
 pub struct ScopedBuffer<'a> {
+    offset: usize,
     buffer: &'a mut [u8],
 }
 
 impl<'a> From<&'a mut [u8]> for ScopedBuffer<'a> {
     fn from(buffer: &'a mut [u8]) -> Self {
-        Self { buffer }
+        Self { offset: 0, buffer }
     }
 }
 
 impl<'a> ScopedBuffer<'a> {
+    /// Splits the scoped buffer into yet another piece to operate on it temporarily.
+    ///
+    /// The splitted buffer will have an offset of 0 but be offset by `self`'s offset.
+    pub fn split(&mut self) -> ScopedBuffer {
+        ScopedBuffer {
+            offset: 0,
+            buffer: &mut self.buffer[self.offset..],
+        }
+    }
+
     /// Returns the first `len` bytes of the buffer as mutable slice.
     pub fn take(&mut self, len: usize) -> &'a mut [u8] {
-        assert!(len <= self.buffer.len());
+        debug_assert_eq!(self.offset, 0);
+        debug_assert!(len <= self.buffer.len());
         let len_before = self.buffer.len();
         let buffer = core::mem::take(&mut self.buffer);
         let (lhs, rhs) = buffer.split_at_mut(len);
@@ -131,6 +146,7 @@ impl<'a> ScopedBuffer<'a> {
 
     /// Returns a buffer scope filled with `bytes` with the proper length.
     pub fn take_bytes(&mut self, bytes: &[u8]) -> &'a mut [u8] {
+        debug_assert_eq!(self.offset, 0);
         let buffer = self.take(bytes.len());
         buffer.copy_from_slice(bytes);
         buffer
@@ -142,6 +158,7 @@ impl<'a> ScopedBuffer<'a> {
     where
         T: scale::Encode,
     {
+        debug_assert_eq!(self.offset, 0);
         let buffer = core::mem::take(&mut self.buffer);
         let mut encode_scope = EncodeScope::from(buffer);
         scale::Encode::encode_to(&value, &mut encode_scope);
@@ -150,9 +167,37 @@ impl<'a> ScopedBuffer<'a> {
         self.take(encode_len)
     }
 
+    /// Appends the encoding of `value` to the scoped buffer.
+    ///
+    /// Does not return the buffer immediately so that other values can be appended
+    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// that includes all appended encodings as a single buffer.
+    pub fn append_encoded<T>(&mut self, value: &T)
+    where
+        T: scale::Encode,
+    {
+        let offset = self.offset;
+        let buffer = core::mem::take(&mut self.buffer);
+        let mut encode_scope = EncodeScope::from(&mut buffer[offset..]);
+        scale::Encode::encode_to(&value, &mut encode_scope);
+        let encode_len = encode_scope.len();
+        self.offset += encode_len;
+        let _ = core::mem::replace(&mut self.buffer, buffer);
+    }
+
+    /// Returns the buffer containing all encodings appended via [`append_encoded`]
+    /// in a single byte buffer.
+    pub fn take_appended(&mut self) -> &'a mut [u8] {
+        debug_assert_ne!(self.offset, 0);
+        let offset = self.offset;
+        self.offset = 0;
+        self.take(offset)
+    }
+
     /// Returns all of the remaining bytes of the buffer as mutable slice.
     pub fn take_rest(self) -> &'a mut [u8] {
-        assert!(!self.buffer.is_empty());
+        debug_assert_eq!(self.offset, 0);
+        debug_assert!(!self.buffer.is_empty());
         self.buffer
     }
 }
