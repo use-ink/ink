@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -206,7 +206,7 @@ where
     E: Environment,
 {
     CallBuilder {
-        env_types: Default::default(),
+        env: Default::default(),
         callee: Default::default(),
         gas_limit: Default::default(),
         transferred_value: Default::default(),
@@ -220,7 +220,7 @@ pub struct CallBuilder<E, Callee, GasLimit, TransferredValue, Args, RetType>
 where
     E: Environment,
 {
-    env_types: PhantomData<fn() -> E>,
+    env: PhantomData<fn() -> E>,
     /// The current parameters that have been built up so far.
     callee: Callee,
     gas_limit: GasLimit,
@@ -242,7 +242,7 @@ where
     ) -> CallBuilder<E, Set<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
     {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: Set(callee),
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
@@ -264,7 +264,7 @@ where
         gas_limit: u64,
     ) -> CallBuilder<E, Callee, Set<u64>, TransferredValue, Args, RetType> {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: Set(gas_limit),
             transferred_value: self.transferred_value,
@@ -286,7 +286,7 @@ where
         transferred_value: E::Balance,
     ) -> CallBuilder<E, Callee, GasLimit, Set<E::Balance>, Args, RetType> {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: Set(transferred_value),
@@ -327,7 +327,7 @@ where
         R: IndicateReturnType,
     {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
@@ -362,7 +362,7 @@ where
         RetType,
     > {
         CallBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,

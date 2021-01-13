@@ -16,7 +16,6 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
-  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
   PURELY_STD_CRATES:               "lang/codegen metadata"
@@ -162,7 +161,6 @@ codecov:
     - rustup show
     - bash --version
     - unset "CARGO_TARGET_DIR"
-    - unset "CARGO_HOME"
     # debug
     # it might become llvm-tools soon
     - rustup component add llvm-tools-preview
@@ -172,13 +170,15 @@ codecov:
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
-    - grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing -o ./lcov-w-branch.info
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --branch
+        --ignore-not-existing --output-path ./lcov-w-branch.info
     # - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
     # lines coverage
-    - grcov . --binary-path ./target/debug/ -s . -t lcov --ignore-not-existing -o ./lcov-lines.info
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov
+        --ignore-not-existing --output-path ./lcov-lines.info
     - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
 
 clippy-std:

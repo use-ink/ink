@@ -35,8 +35,8 @@ generic-array = "0.14.1"
 criterion = { version = "0.3", optional = true }
 
 [dev-dependencies]
-quickcheck = "0.9"
-quickcheck_macros = "0.9"
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
 itertools = "0.10"
 paste = "1.0"
 

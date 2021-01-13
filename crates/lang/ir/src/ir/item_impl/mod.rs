@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -197,8 +197,9 @@ impl ItemImpl {
                     let attr = ir::first_ink_attribute(&method_item.attrs)?
                         .expect("missing expected ink! attribute for struct");
                     match attr.first().kind() {
-                        ir::AttributeArgKind::Constructor
-                        | ir::AttributeArgKind::Message => return Ok(true),
+                        ir::AttributeArg::Constructor | ir::AttributeArg::Message => {
+                            return Ok(true)
+                        }
                         _ => continue 'repeat,
                     }
                 }
@@ -298,11 +299,12 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                     err.into_combine(format_err!(impl_block_span, "at this invocation",))
                 })?;
             normalized.ensure_no_conflicts(|arg| {
-                !matches!(
-                    arg.kind(),
-                    ir::AttributeArgKind::Implementation
-                        | ir::AttributeArgKind::Namespace(_)
-                )
+                match arg.kind() {
+                    ir::AttributeArg::Implementation | ir::AttributeArg::Namespace(_) => {
+                        Ok(())
+                    }
+                    _ => Err(None),
+                }
             })?;
             namespace = normalized.namespace();
         }
