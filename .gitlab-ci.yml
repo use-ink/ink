@@ -167,7 +167,7 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-run --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
     - grcov ./target --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
         --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
