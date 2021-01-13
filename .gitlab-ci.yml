@@ -89,7 +89,8 @@ codecov:
     - unset "CARGO_TARGET_DIR"
     # debug
     # it might become llvm-tools soon
-    - rustup component add llvm-tools-preview
+    # installed in staging container
+    # - rustup component add llvm-tools-preview
     - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
