@@ -169,17 +169,19 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo test --verbose --all-features --no-run --workspace
     # coverage with branches
-    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
-    - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
+    - grcov ./target --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
     # lines coverage
-    - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
-    - rust-covfix -o lcov-lines.info lcov-lines.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
+    - grcov ./target --source-dir . --output-type lcov --llvm --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+    - bash <(curl -s https://codecov.io/bash) -f lcov-lines-fixed.info
 
 clippy-std:
   stage:                           workspace
