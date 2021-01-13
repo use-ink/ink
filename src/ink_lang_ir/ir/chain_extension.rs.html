@@ -1475,13 +1475,13 @@
             <span class="ident">item_method</span>.<span class="ident">span</span>(),
             <span class="ident">item_method</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Extension</span>,
-            <span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-                <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(
-                    <span class="ident">c</span>,
+            <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
+                <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
                     <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Extension</span>(<span class="kw">_</span>)
-                        <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">HandleStatus</span>(<span class="kw">_</span>)
-                        <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">ReturnsResult</span>(<span class="kw">_</span>)
-                )
+                    <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">HandleStatus</span>(<span class="kw">_</span>)
+                    <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">ReturnsResult</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+                }
             },
         )<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">receiver</span>) <span class="op">=</span> <span class="ident">item_method</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
