@@ -498,7 +498,12 @@ impl InkTrait {
             constructor.span(),
             constructor.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |c| !matches!(c, ir::AttributeArg::Constructor),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         if let Some(receiver) = constructor.sig.receiver() {
             return Err(format_err_spanned!(
@@ -545,7 +550,12 @@ impl InkTrait {
             message.span(),
             message.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |c| !matches!(c, ir::AttributeArg::Message),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Message => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {

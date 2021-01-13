@@ -86,7 +86,12 @@ impl TryFrom<syn::ItemStruct> for Event {
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Event,
-            |kind| !matches!(kind, ir::AttributeArg::Event | ir::AttributeArg::Anonymous),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Event | ir::AttributeArg::Anonymous => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(

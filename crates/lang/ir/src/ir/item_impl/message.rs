@@ -180,13 +180,13 @@ impl Message {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |kind| {
-                !matches!(
-                    kind,
+            |arg| {
+                match arg.kind() {
                     ir::AttributeArg::Message
-                        | ir::AttributeArg::Payable
-                        | ir::AttributeArg::Selector(_)
-                )
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }
