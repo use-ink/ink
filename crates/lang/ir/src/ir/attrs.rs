@@ -695,7 +695,7 @@ impl InkAttribute {
     ///
     /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
     /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-    /// and `Err(Some(reason))` if the attribute conflict given additional context information.
+    /// and `Err(Some(reason))` if the attribute conflicts given additional context information.
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,
