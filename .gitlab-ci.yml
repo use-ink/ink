@@ -100,6 +100,7 @@ codecov:
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --branch
         --ignore-not-existing --ignore "/*" --output-path lcov-w-branch.info
     # - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
