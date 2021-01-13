@@ -75,7 +75,7 @@ codecov:
   #     artifacts:                   false
   variables:
     # For codecov it's sufficient to run the fuzz tests only once.
-    QUICKCHECK_TESTS:              1
+    QUICKCHECK_TESTS:              0
     # Here we use the source-based coverage which has proven to be 
     # he most precise as it's done by the Rust compiler. Official doc:
     # https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/source-based-code-coverage.html
@@ -95,7 +95,7 @@ codecov:
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - LLVM_PROFILE_FILE="build-%p-%m.profraw" cargo +nightly build --verbose
-    - LLVM_PROFILE_FILE="test-%p-%m.profraw" cargo +nightly test --no-run --all-features --workspace
+    - LLVM_PROFILE_FILE="test-%p-%m.profraw" cargo +nightly test --all-features --workspace
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --branch
         --ignore-not-existing --ignore "/*" --output-path lcov-w-branch.info
