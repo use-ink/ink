@@ -94,16 +94,12 @@ codecov:
     - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
-    - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo +nightly build --verbose
+    - LLVM_PROFILE_FILE="test-%p-%m.profraw" cargo +nightly test --all-features --workspace
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --branch
-        --ignore-not-existing --output-path ./lcov-w-branch.info
+        --ignore-not-existing --ignore "/*" --output-path lcov-w-branch.info
     # - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
     - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
-    # lines coverage
-    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov
-        --ignore-not-existing --output-path ./lcov-lines.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
