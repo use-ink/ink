@@ -82,3 +82,6 @@ miri:
     MIRIFLAGS:                     "-Zmiri-disable-isolation"
   script:
     - cargo miri test
+    - for crate in ${"env storage primitives}; do
+        cargo miri test --verbose --manifest-path crates/${crate}/Cargo.toml;
+      done
