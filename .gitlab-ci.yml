@@ -66,13 +66,13 @@ workflow:
 
 #### stage:                        check
 
-# check-std:
-#   stage:                           check
-#   <<:                              *docker-env
-#   script:
-#     - for crate in ${ALL_CRATES}; do
-#         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
-#       done
+check-std:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
+      done
 
 check-wasm:
   stage:                           check
@@ -83,7 +83,7 @@ check-wasm:
       done
 
 
-# #### stage:                        workspace
+#### stage:                        workspace
 
 build-std:
   stage:                           workspace
@@ -201,11 +201,11 @@ clippy-wasm:
         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
-miri-test:
+fmt:
   stage:                           workspace
   <<:                              *docker-env
   script:
-    - cargo miri test --manifest-path crates/core/Cargo.toml
+    - cargo fmt --verbose --all -- --check
 
     # For the UI tests we need to disable the license check
     - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
@@ -224,13 +224,13 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
 
-# examples-fmt:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-#       done
+examples-fmt:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+      done
 
 examples-clippy-std:
   stage:                           examples
@@ -243,13 +243,13 @@ examples-clippy-std:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
 
-# examples-clippy-wasm:
-#   stage:                           examples
-#   <<:                              *docker-env
-#   script:
-#     - for example in examples/*/; do
-#         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-#       done
+examples-clippy-wasm:
+  stage:                           examples
+  <<:                              *docker-env
+  script:
+    - for example in examples/*/; do
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
 
 examples-contract-build:
   stage:                           examples
