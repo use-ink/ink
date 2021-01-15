@@ -73,3 +73,12 @@ check-std:
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
+
+miri:
+  stage:                           check
+  <<:                              *docker-env
+  variables:
+    RUST_BACKTRACE:                1
+    MIRIFLAGS:                     "-Zmiri-disable-isolation"
+  script:
+    - cargo miri test
