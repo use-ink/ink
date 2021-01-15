@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,20 +25,20 @@ pub struct Env<'a> {
 
 impl GenerateCode for Env<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let env_types = self.contract.config().env_types();
+        let env = self.contract.config().env();
         let storage_ident = self.contract.module().storage().ident();
         quote! {
             impl ::ink_lang::ContractEnv for #storage_ident {
-                type Env = #env_types;
+                type Env = #env;
             }
 
-            type EnvTypes = <#storage_ident as ::ink_lang::ContractEnv>::Env;
+            type Environment = <#storage_ident as ::ink_lang::ContractEnv>::Env;
 
-            type AccountId = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::AccountId;
-            type Balance = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Balance;
-            type Hash = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Hash;
-            type Timestamp = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::Timestamp;
-            type BlockNumber = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_core::env::EnvTypes>::BlockNumber;
+            type AccountId = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::AccountId;
+            type Balance = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Balance;
+            type Hash = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Hash;
+            type Timestamp = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::Timestamp;
+            type BlockNumber = <<#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment>::BlockNumber;
         }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #[test]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
+
     t.pass("tests/ui/pass/01-noop-contract.rs");
     t.pass("tests/ui/pass/02-flipper-contract.rs");
     t.pass("tests/ui/pass/03-incrementer-contract.rs");
@@ -35,6 +36,8 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/C-11-unsafe-constructor.rs");
     t.compile_fail("tests/ui/fail/C-12-const-constructor.rs");
     t.compile_fail("tests/ui/fail/C-13-abi-constructor.rs");
+    t.compile_fail("tests/ui/fail/C-14-payable-constructor.rs");
+    t.compile_fail("tests/ui/fail/C-15-payable-trait-constructor.rs");
 
     t.compile_fail("tests/ui/fail/H-01-invalid-dyn-alloc.rs");
     t.compile_fail("tests/ui/fail/H-02-invalid-as-dependency.rs");
@@ -44,6 +47,7 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/M-02-message-missing-self-arg.rs");
     t.compile_fail("tests/ui/fail/M-03-message-returns-self.rs");
     t.compile_fail("tests/ui/fail/M-04-message-returns-non-codec.rs");
+    t.compile_fail("tests/ui/fail/M-05-message-invalid-selector.rs");
     t.compile_fail("tests/ui/fail/M-10-method-unknown-ink-marker.rs");
 
     t.compile_fail("tests/ui/fail/S-01-missing-storage-struct.rs");
@@ -52,4 +56,6 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/S-04-non-storage-ink-impls.rs");
     t.compile_fail("tests/ui/fail/S-05-storage-as-event.rs");
     t.compile_fail("tests/ui/fail/S-06-event-as-storage.rs");
+
+    t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }

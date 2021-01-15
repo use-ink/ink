@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_core::env::EnvTypes;
+use ink_env::Environment;
 
 /// The type that can never be returned because it is not possible to craft an instance of it.
+#[doc(hidden)]
 pub enum NeverReturns {}
 
 /// Implemented by contracts that are compiled as dependencies.
 ///
 /// This allows to forward `&self` calls to a call forwarder
 /// that encodes and dispatches the calls to the chain.
+#[doc(hidden)]
 pub trait ForwardCall {
     /// The call forwarder that handles `&self` messages.
     type Forwarder;
@@ -33,6 +35,7 @@ pub trait ForwardCall {
 ///
 /// This allows to forward `&mut self` calls to a call forwarder
 /// that encodes and dispatches the calls to the chain.
+#[doc(hidden)]
 pub trait ForwardCallMut {
     /// The call forwarder that handles `&mut self` messages.
     type Forwarder;
@@ -46,8 +49,8 @@ pub trait ForwardCallMut {
 /// Allows them to return their underlying account identifier.
 pub trait ToAccountId<T>
 where
-    T: EnvTypes,
+    T: Environment,
 {
     /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as EnvTypes>::AccountId;
+    fn to_account_id(&self) -> <T as Environment>::AccountId;
 }

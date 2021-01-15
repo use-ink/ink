@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -98,14 +98,14 @@ impl CrossCalling<'_> {
                 Debug,
                 ::scale::Encode,
                 ::scale::Decode,
-                ::ink_core::storage::traits::SpreadLayout,
-                ::ink_core::storage::traits::PackedLayout,
+                ::ink_storage::traits::SpreadLayout,
+                ::ink_storage::traits::PackedLayout,
             )]
             #[cfg_attr(
                 feature = "std",
                 derive(
                     ::scale_info::TypeInfo,
-                    ::ink_core::storage::traits::StorageLayout,
+                    ::ink_storage::traits::StorageLayout,
                 )
             )]
             pub struct #ident {
@@ -123,14 +123,14 @@ impl CrossCalling<'_> {
         quote! {
             #cfg
             const _: () = {
-                impl ::ink_core::env::call::FromAccountId<EnvTypes> for #ident {
+                impl ::ink_env::call::FromAccountId<Environment> for #ident {
                     #[inline]
                     fn from_account_id(account_id: AccountId) -> Self {
                         Self { account_id }
                     }
                 }
 
-                impl ::ink_lang::ToAccountId<EnvTypes> for #ident {
+                impl ::ink_lang::ToAccountId<Environment> for #ident {
                     #[inline]
                     fn to_account_id(&self) -> AccountId {
                         self.account_id
@@ -140,16 +140,16 @@ impl CrossCalling<'_> {
         }
     }
 
-    /// Builds up the [`ink_core::env::call::ArgumentList`] type structure for the given types.
+    /// Builds up the [`ink_env::call::ArgumentList`] type structure for the given types.
     fn generate_arg_list<'a, Args>(args: Args) -> TokenStream2
     where
         Args: IntoIterator<Item = &'a syn::Type>,
         <Args as IntoIterator>::IntoIter: DoubleEndedIterator,
     {
         args.into_iter().fold(
-            quote! { ::ink_core::env::call::utils::EmptyArgumentList },
+            quote! { ::ink_env::call::utils::EmptyArgumentList },
             |rest, arg| quote! {
-                ::ink_core::env::call::utils::ArgumentList<::ink_core::env::call::utils::Argument<#arg>, #rest>
+                ::ink_env::call::utils::ArgumentList<::ink_env::call::utils::Argument<#arg>, #rest>
             }
         )
     }
@@ -234,7 +234,7 @@ impl CrossCalling<'_> {
         let output = message.output();
         let output_sig = output.map_or_else(
             || quote! { () },
-            |output| quote! { ::ink_core::env::call::utils::ReturnType<#output> },
+            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
         let pub_tok = match message.item_impl().trait_path() {
             Some(_) => None,
@@ -246,13 +246,13 @@ impl CrossCalling<'_> {
         };
         quote_spanned!(span=>
             #[allow(clippy::type_complexity)]
-            type #output_ident = ::ink_core::env::call::CallBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Set<AccountId>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
-                ::ink_core::env::call::utils::Set<#output_sig>,
+            type #output_ident = ::ink_env::call::CallBuilder<
+                Environment,
+                ::ink_env::call::utils::Set<AccountId>,
+                ::ink_env::call::utils::Unset<u64>,
+                ::ink_env::call::utils::Unset<Balance>,
+                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Set<#output_sig>,
             >;
 
             #( #attrs )*
@@ -260,11 +260,11 @@ impl CrossCalling<'_> {
             #pub_tok fn #ident(
                 #receiver #(, #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink_core::env::call::build_call::<EnvTypes>()
+                ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        ::ink_env::call::ExecutionInput::new(
+                            ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)
@@ -414,7 +414,7 @@ impl CrossCalling<'_> {
         let output = message.output();
         let output_sig = output.map_or_else(
             || quote! { () },
-            |output| quote! { ::ink_core::env::call::utils::ReturnType<#output> },
+            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
         let pub_tok = match message.item_impl().trait_path() {
             Some(_) => None,
@@ -427,19 +427,19 @@ impl CrossCalling<'_> {
             #pub_tok fn #ident(
                 self,
                 #( #input_bindings : #input_types ),*
-            ) -> ::ink_core::env::call::CallBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Set<AccountId>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
-                ::ink_core::env::call::utils::Set<#output_sig>,
+            ) -> ::ink_env::call::CallBuilder<
+                Environment,
+                ::ink_env::call::utils::Set<AccountId>,
+                ::ink_env::call::utils::Unset<u64>,
+                ::ink_env::call::utils::Unset<Balance>,
+                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Set<#output_sig>,
             > {
-                ::ink_core::env::call::build_call::<EnvTypes>()
+                ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        ::ink_env::call::ExecutionInput::new(
+                            ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)
@@ -615,12 +615,12 @@ impl CrossCalling<'_> {
         let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
-            type #output_ident = ::ink_core::env::call::CreateBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Unset<Hash>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+            type #output_ident = ::ink_env::call::CreateBuilder<
+                Environment,
+                ::ink_env::call::utils::Unset<Hash>,
+                ::ink_env::call::utils::Unset<u64>,
+                ::ink_env::call::utils::Unset<Balance>,
+                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
                 Self,
             >;
 
@@ -629,10 +629,10 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                ::ink_env::call::build_create::<Environment, Self>()
                     .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        ::ink_env::call::ExecutionInput::new(
+                            ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)
@@ -718,18 +718,18 @@ impl CrossCalling<'_> {
             #[allow(clippy::type_complexity)]
             pub fn #ident(
                 #( #input_bindings : #input_types ),*
-            ) -> ::ink_core::env::call::CreateBuilder<
-                EnvTypes,
-                ::ink_core::env::call::utils::Unset<Hash>,
-                ::ink_core::env::call::utils::Unset<u64>,
-                ::ink_core::env::call::utils::Unset<Balance>,
-                ::ink_core::env::call::utils::Set<::ink_core::env::call::ExecutionInput<#arg_list>>,
+            ) -> ::ink_env::call::CreateBuilder<
+                Environment,
+                ::ink_env::call::utils::Unset<Hash>,
+                ::ink_env::call::utils::Unset<u64>,
+                ::ink_env::call::utils::Unset<Balance>,
+                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
                 Self,
             > {
-                ::ink_core::env::call::build_create::<EnvTypes, Self>()
+                ::ink_env::call::build_create::<Environment, Self>()
                     .exec_input(
-                        ::ink_core::env::call::ExecutionInput::new(
-                            ::ink_core::env::call::Selector::new([ #( #composed_selector ),* ])
+                        ::ink_env::call::ExecutionInput::new(
+                            ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
                         )
                         #(
                             .push_arg(#input_bindings)

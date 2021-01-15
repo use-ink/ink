@@ -2,8 +2,10 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    use ink_core::storage::collections::HashMap as StorageHashMap;
-    use ink_core::storage::Lazy;
+    use ink_storage::{
+        collections::HashMap as StorageHashMap,
+        Lazy,
+    };
 
     #[ink(storage)]
     pub struct Erc20 {

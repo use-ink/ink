@@ -17,19 +17,21 @@
 
 declare -A results
 
-all_crates=("core" "alloc" "utils" "model" "lang" "lang" "lang/macro" "cli")
-wasm_crates=("core" "alloc" "utils" "model" "lang" "lang" "lang/macro")
+purely_std_crates=("lang/codegen" "metadata")
+also_wasm_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir")
+all_crates=("${also_wasm_crates[@]}" "${purely_std_crates[@]}")
 
 results["check_all_features"]=true
 for crate in "${all_crates[@]}"; do
-    cargo check --verbose --all-features --manifest-path $crate/Cargo.toml
+    cargo check --verbose --all-features --manifest-path crates/$crate/Cargo.toml
     let "results['check_all_features'] |= $?"
-    cargo check --verbose --no-default-features --manifest-path $crate/Cargo.toml
-    let "results['check_no_defaults'] |= $?"
+
+    cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml
+    let "results['build_std'] |= $?"
 done
 
-for crate in "${wasm_crates[@]}"; do
-    cargo build --verbose --manifest-path $crate/Cargo.toml --no-default-features --release --target=wasm32-unknown-unknown
+for crate in "${also_wasm_crates[@]}"; do
+    cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml
     let "results['build_wasm'] |= $?"
 done
 
@@ -39,10 +41,7 @@ results["fmt"]=$?
 cargo clippy --verbose --all --all-features -- -D warnings
 results["clippy_all_features"]=$?
 
-cargo clippy --verbose --all --no-default-features -- -D warnings
-results["clippy_no_defaults"]=$?
-
-cargo test --verbose --all --all-features --release
+cargo test --verbose --all-features --no-fail-fast --workspace --release
 results["test_all_features"]=$?
 
 all_checks_passed=0

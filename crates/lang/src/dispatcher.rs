@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,32 +24,33 @@ use core::{
     any::TypeId,
     mem::ManuallyDrop,
 };
-use ink_core::{
-    env::{
-        EnvTypes,
-        ReturnFlags,
-    },
-    storage::{
-        alloc,
-        alloc::ContractPhase,
-        traits::{
-            pull_spread_root,
-            push_spread_root,
-        },
-    },
+use ink_env::{
+    Environment,
+    ReturnFlags,
 };
 use ink_primitives::Key;
+use ink_storage::{
+    alloc,
+    alloc::ContractPhase,
+    traits::{
+        pull_spread_root,
+        push_spread_root,
+    },
+};
 
 /// Results of message handling operations.
+#[doc(hidden)]
 pub type Result<T> = core::result::Result<T, DispatchError>;
 
 /// Connector trait: Connects enum dispatcher for messages with the contract.
+#[doc(hidden)]
 pub trait MessageDispatcher {
     /// The contract's message dispatcher type.
     type Type;
 }
 
 /// Connector trait: Connects enum dispatcher for constructors with the contract.
+#[doc(hidden)]
 pub trait ConstructorDispatcher {
     /// The contract's constructors dispatcher type.
     type Type;
@@ -60,6 +61,7 @@ pub trait ConstructorDispatcher {
 /// The generated message and constructor dispatch enums implement this trait
 /// in order to forward their already decoded state to the selected messages
 /// or constructors.
+#[doc(hidden)]
 pub trait Execute {
     /// Starts the smart contract execution.
     fn execute(self) -> Result<()>;
@@ -67,6 +69,7 @@ pub trait Execute {
 
 /// Yields `true` if the message accepts payments.
 #[derive(Copy, Clone)]
+#[doc(hidden)]
 pub struct AcceptsPayments(pub bool);
 
 impl From<AcceptsPayments> for bool {
@@ -78,6 +81,7 @@ impl From<AcceptsPayments> for bool {
 
 /// Yields `true` if the dynamic storage allocator is enabled for the given call.
 #[derive(Copy, Clone)]
+#[doc(hidden)]
 pub struct EnablesDynamicStorageAllocator(pub bool);
 
 impl From<EnablesDynamicStorageAllocator> for bool {
@@ -94,13 +98,14 @@ impl From<EnablesDynamicStorageAllocator> for bool {
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_message<E, M, F>(
     accepts_payments: AcceptsPayments,
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
     f: F,
 ) -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
     M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
@@ -120,10 +125,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::return_value::<<M as FnOutput>::Output>(
-            ReturnFlags::default(),
-            &result,
-        )
+        ink_env::return_value::<<M as FnOutput>::Output>(ReturnFlags::default(), &result)
     }
     Ok(())
 }
@@ -134,13 +136,14 @@ where
 ///
 /// If the caller did send some amount of transferred value to the callee.
 #[inline]
+#[doc(hidden)]
 pub fn deny_payment<E>() -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
 {
-    let transferred = ink_core::env::transferred_balance::<E>()
+    let transferred = ink_env::transferred_balance::<E>()
         .expect("encountered error while querying transferred balance");
-    if transferred != <E as EnvTypes>::Balance::from(0) {
+    if transferred != <E as Environment>::Balance::from(0u32) {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())
@@ -153,13 +156,14 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_message_mut<E, M, F>(
     accepts_payments: AcceptsPayments,
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
     f: F,
 ) -> Result<()>
 where
-    E: EnvTypes,
+    E: Environment,
     M: MessageMut,
     F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
 {
@@ -181,10 +185,7 @@ where
         alloc::finalize();
     }
     if TypeId::of::<<M as FnOutput>::Output>() != TypeId::of::<()>() {
-        ink_core::env::return_value::<<M as FnOutput>::Output>(
-            ReturnFlags::default(),
-            &result,
-        )
+        ink_env::return_value::<<M as FnOutput>::Output>(ReturnFlags::default(), &result)
     }
     Ok(())
 }
@@ -196,6 +197,7 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
 #[inline]
+#[doc(hidden)]
 pub fn execute_constructor<C, F>(
     enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
     f: F,

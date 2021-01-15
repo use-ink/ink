@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod chain_extension;
 mod contract;
 mod cross_calling;
 mod dispatcher;
@@ -23,6 +24,10 @@ mod events;
 mod traits;
 
 pub use self::{
+    chain_extension::{
+        ChainExtensionInstance,
+        IsResultType,
+    },
     contract::{
         DispatchMode,
         DispatchUsingMode,
@@ -58,8 +63,6 @@ pub use self::{
     events::{
         BaseEvent,
         EmitEvent,
-        False,
-        True,
     },
     traits::{
         CheckedInkTrait,
@@ -71,10 +74,12 @@ pub use self::{
         ImpliesReturn,
         MessageMut,
         MessageRef,
+        True,
     },
 };
 pub use ::static_assertions;
 pub use ink_lang_macro::{
+    chain_extension,
     contract,
     test,
     trait_definition,

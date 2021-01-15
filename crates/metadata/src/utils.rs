@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::fmt::Write;
+use crate::serde_hex;
 
 /// Serializes the given bytes as byte string.
 pub fn serialize_as_byte_str<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
@@ -23,10 +23,36 @@ where
         // Return empty string without prepended `0x`.
         return serializer.serialize_str("")
     }
-    let mut hex = String::with_capacity(bytes.len() * 2 + 2);
-    write!(hex, "0x").expect("failed writing to string");
-    for byte in bytes {
-        write!(hex, "{:02x}", byte).expect("failed writing to string");
+    serde_hex::serialize(bytes, serializer)
+}
+
+/// Deserializes the given hex string with optional `0x` prefix.
+pub fn deserialize_from_byte_str<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    struct Visitor;
+
+    impl<'b> serde::de::Visitor<'b> for Visitor {
+        type Value = Vec<u8>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            write!(formatter, "hex string with optional 0x prefix")
+        }
+
+        fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Self::Value, E> {
+            let result = if v.starts_with("0x") {
+                serde_hex::from_hex(v)
+            } else {
+                serde_hex::from_hex(&format!("0x{}", v))
+            };
+            result.map_err(E::custom)
+        }
+
+        fn visit_string<E: serde::de::Error>(self, v: String) -> Result<Self::Value, E> {
+            self.visit_str(&v)
+        }
     }
-    serializer.serialize_str(&hex)
+
+    deserializer.deserialize_str(Visitor)
 }

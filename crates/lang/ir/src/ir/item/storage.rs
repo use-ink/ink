@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ impl Storage {
         // an ink! event or an invalid ink! attribute.
         let attr = ir::first_ink_attribute(&item_struct.attrs)?
             .expect("missing expected ink! attribute for struct");
-        Ok(matches!(attr.first().kind(), ir::AttributeArgKind::Storage))
+        Ok(matches!(attr.first().kind(), ir::AttributeArg::Storage))
     }
 }
 
@@ -86,7 +86,12 @@ impl TryFrom<syn::ItemStruct> for Storage {
             struct_span,
             item_struct.attrs,
             &ir::AttributeArgKind::Storage,
-            |kind| !matches!(kind, ir::AttributeArgKind::Storage),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Storage => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         if !item_struct.generics.params.is_empty() {
             return Err(format_err_spanned!(

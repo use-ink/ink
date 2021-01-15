@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -133,13 +133,13 @@ impl Dispatch<'_> {
                     match mode {
                         ::ink_lang::DispatchMode::Instantiate => {
                             <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
-                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
+                                ::ink_env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
                                     .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
                             )
                         }
                         ::ink_lang::DispatchMode::Call => {
                             <<#storage_ident as ::ink_lang::MessageDispatcher>::Type as ::ink_lang::Execute>::execute(
-                                ::ink_core::env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
+                                ::ink_env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
                                     .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
                             )
                         }
@@ -227,7 +227,7 @@ impl Dispatch<'_> {
         );
         let fn_selector_impl = quote_spanned!(callable_span =>
             impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
-                const SELECTOR: ::ink_core::env::call::Selector = ::ink_core::env::call::Selector::new([
+                const SELECTOR: ::ink_env::call::Selector = ::ink_env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }

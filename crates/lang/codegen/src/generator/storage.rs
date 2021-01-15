@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,9 +106,9 @@ impl Storage<'_> {
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",
-                derive(::ink_core::storage::traits::StorageLayout)
+                derive(::ink_storage::traits::StorageLayout)
             )]
-            #[derive(::ink_core::storage::traits::SpreadLayout)]
+            #[derive(::ink_storage::traits::SpreadLayout)]
             #[cfg_attr(test, derive(Debug))]
             pub struct #ident {
                 #( #fields ),*
