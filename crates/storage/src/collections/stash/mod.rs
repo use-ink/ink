@@ -490,6 +490,8 @@ where
     where
         F: FnMut(T) -> bool,
     {
+        let clear = self.entries.key().is_some();
+
         let mut new_len = self.len();
         let mut new_len_entries = self.len_entries();
         let mut last_vacant = 0;
@@ -510,6 +512,11 @@ where
                     must_be_empty = false;
                     break
                 }
+            }
+
+            // only clear if needed. if we are in a lazy state we don't need to.
+            if clear {
+                self.entries.clear_packed_at(index);
             }
         }
 
