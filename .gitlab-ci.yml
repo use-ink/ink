@@ -66,13 +66,13 @@ workflow:
 
 #### stage:                        check
 
-check-std:
-  stage:                           check
-  <<:                              *docker-env
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
-      done
+# check-std:
+#   stage:                           check
+#   <<:                              *docker-env
+#   script:
+#     - for crate in ${ALL_CRATES}; do
+#         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
+#       done
 
 miri:
   stage:                           check
@@ -81,7 +81,6 @@ miri:
     RUST_BACKTRACE:                1
     MIRIFLAGS:                     "-Zmiri-disable-isolation"
   script:
-    - cargo miri test
-    - for crate in ${"env storage primitives}; do
+    - for crate in "env storage primitives"; do
         cargo miri test --verbose --manifest-path crates/${crate}/Cargo.toml;
       done
