@@ -80,7 +80,8 @@ miri:
   variables:
     RUST_BACKTRACE:                1
     MIRIFLAGS:                     "-Zmiri-disable-isolation"
+    MIRI_CRATES:                   "env storage primitives"
   script:
-    - for crate in "env storage primitives"; do
+    - for crate in ${MIRI_CRATES}; do
         cargo miri test --verbose --manifest-path crates/${crate}/Cargo.toml;
       done
