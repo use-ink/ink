@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -190,13 +190,28 @@ impl EnvBackend for EnvInstance {
         self.hash_bytes::<H>(&encoded[..], output)
     }
 
-    #[cfg(feature = "ink-unstable-chain-extensions")]
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static,
+        I: scale::Encode,
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        self.chain_extension_handler.eval(func_id, input)
+        let encoded_input = input.encode();
+        let (status_code, output) = self
+            .chain_extension_handler
+            .eval(func_id, &encoded_input)
+            .expect("encountered unexpected missing chain extension method");
+        status_to_result(status_code)?;
+        let decoded = decode_to_result(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 

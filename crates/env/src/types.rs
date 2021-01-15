@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,7 +92,18 @@ pub trait Environment {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned;
+
+    /// The chain extension for the environment.
+    ///
+    /// This is a type that is defined through the `#[ink::chain_extension]` proc. macro.
+    /// For more information about usage and definition click [this][chain_extension] link.
+    ///
+    /// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html
+    type ChainExtension;
 }
+
+/// Placeholder for chains that have no defined chain extension.
+pub enum NoChainExtension {}
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,6 +118,7 @@ impl Environment for DefaultEnvironment {
     type Hash = Hash;
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
+    type ChainExtension = NoChainExtension;
 }
 
 /// The default balance type.

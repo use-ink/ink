@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 // limitations under the License.
 
 mod call_data;
-#[cfg(feature = "ink-unstable-chain-extensions")]
 mod chain_extension;
 mod db;
 mod hashing;
@@ -25,8 +24,6 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use self::chain_extension::ChainExtensionHandler;
 pub use self::{
     call_data::CallData,
     db::{
@@ -37,6 +34,7 @@ pub use self::{
     typed_encoded::TypedEncodedError,
 };
 use self::{
+    chain_extension::ChainExtensionHandler,
     db::{
         Account,
         AccountsDb,
@@ -89,7 +87,6 @@ pub struct EnvInstance {
     /// The console to print debug contents.
     console: Console,
     /// Handler for registered chain extensions.
-    #[cfg(feature = "ink-unstable-chain-extensions")]
     chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
     emitted_events: EmittedEventsRecorder,
@@ -106,7 +103,6 @@ impl EnvInstance {
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
             console: Console::new(),
-            #[cfg(feature = "ink-unstable-chain-extensions")]
             chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
             clear_storage_disabled: false,
@@ -138,7 +134,6 @@ impl EnvInstance {
         self.chain_spec.reset();
         self.blocks.clear();
         self.console.reset();
-        #[cfg(feature = "ink-unstable-chain-extensions")]
         self.chain_extension_handler.reset();
         self.emitted_events.reset();
         self.clear_storage_disabled = false;
