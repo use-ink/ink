@@ -53,6 +53,7 @@ where
         let values = &mut self.values;
         self.keys.drain_with(|key| {
             values.clear_packed_at(&key);
+            true
         });
     }
 }
