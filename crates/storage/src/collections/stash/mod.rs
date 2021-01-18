@@ -486,13 +486,6 @@ where
     }
 
     /// Drains this stash, calls `f` with each drained `T`.
-    ///
-    /// # Note
-    ///
-    /// The return value of `f` is a bool which controls how many
-    /// elements should be drained. If `f` returns `true` draining
-    /// will continue until no more entries are left in the stash,
-    /// otherwise draining will stop right after `f` has been invoked.
     pub fn drain_with<F>(&mut self, mut f: F)
     where
         F: FnMut(T) -> bool,
