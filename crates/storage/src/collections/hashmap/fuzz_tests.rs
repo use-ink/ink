@@ -28,7 +28,10 @@ use quickcheck::{
     Arbitrary,
     Gen,
 };
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    iter::FromIterator,
+};
 
 /// Conducts repeated insert and remove operations into the map by iterating
 /// over `xs`. For each odd `x` in `xs` a defined number of insert operations
@@ -190,11 +193,7 @@ impl<
 {
     fn arbitrary<G: Gen>(g: &mut G) -> StorageHashMap<K, V> {
         let hmap = HashMap::<K, V>::arbitrary(g);
-        let mut shmap = StorageHashMap::<K, V>::new();
-        hmap.iter().for_each(|(k, v)| {
-            let _ = shmap.insert(k.clone(), v.clone());
-        });
-        shmap
+        StorageHashMap::<K, V>::from_iter(hmap.into_iter())
     }
 }
 
