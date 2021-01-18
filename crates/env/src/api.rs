@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -434,27 +434,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::transfer::<T>(instance, destination, value)
-    })
-}
-
-/// Calls the chain extension with the given ID and inputs.
-///
-/// Returns the given output type.
-///
-/// # Errors
-///
-/// - If the given function ID does not exist in the runtime.
-/// - If the given inputs cannot be properly decoded by the runtime.
-/// - If the given output type cannot be properly decoded by the contract.
-/// - If some chain extension specific conditions are not met.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
-where
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::call_chain_extension(instance, func_id, input)
     })
 }
 

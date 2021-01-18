@@ -6,7 +6,7 @@ set -u
 # create such directory and
 # copy recursively all the files from the newest dir which has $CI_JOB_NAME, if it exists
 
-# caches are in /ci-cache/${CI_PROJECT_NAME}/${2}/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}
+# cache lives in /ci-cache/${CI_PROJECT_NAME}/${2}/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}
 
 function prepopulate {
   if [[ ! -d $1 ]]; then
@@ -24,8 +24,5 @@ function prepopulate {
   fi
 }
 
-# CARGO_HOME cache was moved to the same "project/cache_type/branch_name/job_name" level as
-# CARGO_TARGET_DIR because of frequent weird data-race issues. This just means that the same cache that 
-# would have been used for the entire pipeline will be duplicated for the each job.
-prepopulate "$CARGO_HOME" cargo
+# CARGO_HOME cache is still broken so would be handled some other way.
 prepopulate "$CARGO_TARGET_DIR" targets

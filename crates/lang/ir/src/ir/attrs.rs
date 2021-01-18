@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
 use crate::{
     error::ExtError as _,
     ir,
-    ir::Selector,
+    ir::{
+        ExtensionId,
+        Selector,
+    },
 };
 use core::{
     convert::TryFrom,
@@ -26,6 +29,7 @@ use proc_macro2::{
     Span,
 };
 use regex::Regex;
+use std::collections::HashMap;
 use syn::spanned::Spanned;
 
 /// Either an ink! specific attribute, or another uninterpreted attribute.
@@ -104,7 +108,7 @@ impl Attrs for syn::Item {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
     /// The internal non-empty sequence of arguments of the ink! attribute.
-    args: Vec<AttributeArg>,
+    args: Vec<AttributeFrag>,
 }
 
 impl Spanned for InkAttribute {
@@ -125,7 +129,7 @@ impl InkAttribute {
     ///
     /// If the first ink! attribute argument is not of expected kind.
     pub fn ensure_first(&self, expected: &AttributeArgKind) -> Result<(), syn::Error> {
-        if &self.first().kind != expected {
+        if &self.first().arg.kind() != expected {
             return Err(format_err!(
                 self.span(),
                 "unexpected first ink! attribute argument",
@@ -142,11 +146,12 @@ impl InkAttribute {
     /// If the given iterator yields duplicate ink! attribute arguments.
     fn ensure_no_duplicate_args<'a, A>(args: A) -> Result<(), syn::Error>
     where
-        A: IntoIterator<Item = &'a ir::AttributeArg>,
+        A: IntoIterator<Item = &'a ir::AttributeFrag>,
     {
         use crate::error::ExtError as _;
         use std::collections::HashSet;
-        let mut seen: HashSet<&AttributeArg> = HashSet::new();
+        let mut seen: HashSet<&AttributeFrag> = HashSet::new();
+        let mut seen2: HashMap<AttributeArgKind, Span> = HashMap::new();
         for arg in args.into_iter() {
             if let Some(seen) = seen.get(arg) {
                 return Err(format_err!(
@@ -158,7 +163,18 @@ impl InkAttribute {
                     "first equal ink! attribute argument here"
                 )))
             }
+            if let Some(seen) = seen2.get(&arg.kind().kind()) {
+                return Err(format_err!(
+                    arg.span(),
+                    "encountered ink! attribute arguments with equal kinds"
+                )
+                .into_combine(format_err!(
+                    *seen,
+                    "first equal ink! attribute argument with equal kind here"
+                )))
+            }
             seen.insert(arg);
+            seen2.insert(arg.kind().kind(), arg.span());
         }
         Ok(())
     }
@@ -195,7 +211,7 @@ impl InkAttribute {
     }
 
     /// Returns the first ink! attribute argument.
-    pub fn first(&self) -> &AttributeArg {
+    pub fn first(&self) -> &AttributeFrag {
         self.args
             .first()
             .expect("encountered invalid empty ink! attribute list")
@@ -206,14 +222,14 @@ impl InkAttribute {
     /// # Note
     ///
     /// This yields at least one ink! attribute flag.
-    pub fn args(&self) -> ::core::slice::Iter<AttributeArg> {
+    pub fn args(&self) -> ::core::slice::Iter<AttributeFrag> {
         self.args.iter()
     }
 
     /// Returns the namespace of the ink! attribute if any.
     pub fn namespace(&self) -> Option<ir::Namespace> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArgKind::Namespace(namespace) = arg.kind() {
+            if let ir::AttributeArg::Namespace(namespace) = arg.kind() {
                 return Some(namespace.clone())
             }
             None
@@ -223,7 +239,7 @@ impl InkAttribute {
     /// Returns the selector of the ink! attribute if any.
     pub fn selector(&self) -> Option<ir::Selector> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArgKind::Selector(selector) = arg.kind() {
+            if let ir::AttributeArg::Selector(selector) = arg.kind() {
                 return Some(*selector)
             }
             None
@@ -233,39 +249,88 @@ impl InkAttribute {
     /// Returns `true` if the ink! attribute contains the `payable` argument.
     pub fn is_payable(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArgKind::Payable))
+            .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
     }
 
     /// Returns `true` if the ink! attribute contains the `anonymous` argument.
     pub fn is_anonymous(&self) -> bool {
         self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArgKind::Anonymous))
+            .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
+    }
+
+    /// Returns `false` if the ink! attribute contains the `handle_status = false` argument.
+    ///
+    /// Otherwise returns `true`.
+    pub fn is_handle_status(&self) -> bool {
+        !self
+            .args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
+    }
+
+    /// Returns `false` if the ink! attribute contains the `returns_result = false` argument.
+    ///
+    /// Otherwise returns `true`.
+    pub fn is_returns_result(&self) -> bool {
+        !self
+            .args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::ReturnsResult(false)))
     }
 }
 
 /// An ink! specific attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AttributeArg {
+pub struct AttributeFrag {
     pub ast: syn::Meta,
-    pub kind: AttributeArgKind,
+    pub arg: AttributeArg,
 }
 
-impl AttributeArg {
+impl AttributeFrag {
     /// Returns a shared reference to the attribute argument kind.
-    pub fn kind(&self) -> &AttributeArgKind {
-        &self.kind
+    pub fn kind(&self) -> &AttributeArg {
+        &self.arg
     }
 }
 
-impl Spanned for AttributeArg {
+impl Spanned for AttributeFrag {
     fn span(&self) -> Span {
         self.ast.span()
     }
 }
 
-/// An ink! specific attribute flag.
+/// The kind of an ink! attribute argument.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum AttributeArgKind {
+    /// `#[ink(storage)]`
+    Storage,
+    /// `#[ink(event)]`
+    Event,
+    /// `#[ink(anonymous)]`
+    Anonymous,
+    /// `#[ink(topic)]`
+    Topic,
+    /// `#[ink(message)]`
+    Message,
+    /// `#[ink(constructor)]`
+    Constructor,
+    /// `#[ink(payable)]`
+    Payable,
+    /// `#[ink(selector = "0xDEADBEEF")]`
+    Selector,
+    /// `#[ink(extension = N: u32)]`
+    Extension,
+    /// `#[ink(namespace = "my_namespace")]`
+    Namespace,
+    /// `#[ink(impl)]`
+    Implementation,
+    /// `#[ink(handle_status = flag: bool)]`
+    HandleStatus,
+    /// `#[ink(returns_result = flag: bool)]`
+    ReturnsResult,
+}
+
+/// An ink! specific attribute flag.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum AttributeArg {
     /// `#[ink(storage)]`
     ///
     /// Applied on `struct` types in order to flag them for being the
@@ -324,6 +389,25 @@ pub enum AttributeArgKind {
     /// etc. Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,
+    /// `#[ink(extension = N: u32)]`
+    ///
+    /// Applies on ink! chain extension method to set their `func_id` parameter.
+    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    Extension(ExtensionId),
+    /// `#[ink(handle_status = flag: bool)]`
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    ///
+    /// Default value: `true`
+    HandleStatus(bool),
+    /// `#[ink(returns_result = flag: bool)]`
+    ///
+    /// Used by the `#[ink::chain_extension]` proc. macro.
+    ///
+    /// Default value: `true`
+    ReturnsResult(bool),
 }
 
 impl core::fmt::Display for AttributeArgKind {
@@ -336,11 +420,65 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector(selector) => write!(f, "selector = {:?}", selector.as_bytes()),
+            Self::Selector => {
+                write!(f, "selector = S:[u8; 4]")
+            }
+            Self::Extension => {
+                write!(f, "extension = N:u32)")
+            }
+            Self::Namespace => {
+                write!(f, "namespace = N:string")
+            }
+            Self::Implementation => write!(f, "impl"),
+            Self::HandleStatus => write!(f, "handle_status"),
+            Self::ReturnsResult => write!(f, "returns_result"),
+        }
+    }
+}
+
+impl AttributeArg {
+    /// Returns the kind of the ink! attribute argument.
+    pub fn kind(&self) -> AttributeArgKind {
+        match self {
+            Self::Storage => AttributeArgKind::Storage,
+            Self::Event => AttributeArgKind::Event,
+            Self::Anonymous => AttributeArgKind::Anonymous,
+            Self::Topic => AttributeArgKind::Topic,
+            Self::Message => AttributeArgKind::Message,
+            Self::Constructor => AttributeArgKind::Constructor,
+            Self::Payable => AttributeArgKind::Payable,
+            Self::Selector(_) => AttributeArgKind::Selector,
+            Self::Extension(_) => AttributeArgKind::Extension,
+            Self::Namespace(_) => AttributeArgKind::Namespace,
+            Self::Implementation => AttributeArgKind::Implementation,
+            Self::HandleStatus(_) => AttributeArgKind::HandleStatus,
+            Self::ReturnsResult(_) => AttributeArgKind::ReturnsResult,
+        }
+    }
+}
+
+impl core::fmt::Display for AttributeArg {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+        match self {
+            Self::Storage => write!(f, "storage"),
+            Self::Event => write!(f, "event"),
+            Self::Anonymous => write!(f, "anonymous"),
+            Self::Topic => write!(f, "topic"),
+            Self::Message => write!(f, "message"),
+            Self::Constructor => write!(f, "constructor"),
+            Self::Payable => write!(f, "payable"),
+            Self::Selector(selector) => {
+                write!(f, "selector = {:?}", selector.as_bytes())
+            }
+            Self::Extension(extension) => {
+                write!(f, "extension = {:?}", extension.into_u32())
+            }
             Self::Namespace(namespace) => {
                 write!(f, "namespace = {:?}", namespace.as_bytes())
             }
             Self::Implementation => write!(f, "impl"),
+            Self::HandleStatus(value) => write!(f, "handle_status = {:?}", value),
+            Self::ReturnsResult(value) => write!(f, "returns_result = {:?}", value),
         }
     }
 }
@@ -435,6 +573,12 @@ where
 ///
 /// Returns the partitioned ink! and non-ink! attributes.
 ///
+/// # Parameters
+///
+/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
+/// returns `Err(None)` if the attribute conflicts but without providing further reasoning
+/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+///
 /// # Errors
 ///
 /// - If there are invalid ink! attributes.
@@ -449,7 +593,7 @@ pub fn sanitize_attributes<I, C>(
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
-    C: FnMut(&AttributeArgKind) -> bool,
+    C: FnMut(&ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
 {
     let (ink_attrs, other_attrs) = ir::partition_attributes(attrs)?;
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -462,7 +606,7 @@ where
             is_valid_first,
         ))
     })?;
-    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg.kind()))?;
+    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg))?;
     Ok((normalized, other_attrs))
 }
 
@@ -525,7 +669,7 @@ impl TryFrom<syn::Attribute> for InkAttribute {
                 let args = meta_list
                     .nested
                     .into_iter()
-                    .map(<AttributeArg as TryFrom<_>>::try_from)
+                    .map(<AttributeFrag as TryFrom<_>>::try_from)
                     .collect::<Result<Vec<_>, syn::Error>>()?;
                 Self::ensure_no_duplicate_args(&args)?;
                 if args.is_empty() {
@@ -546,20 +690,43 @@ impl InkAttribute {
     ///
     /// The given `is_conflicting` describes for every ink! attribute argument
     /// found in `self` if it is in conflict.
+    ///
+    /// # Parameters
+    ///
+    /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
+    /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
+    /// and `Err(Some(reason))` if the attribute conflicts given additional context information.
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,
     ) -> Result<(), syn::Error>
     where
-        P: FnMut(&'a ir::AttributeArg) -> bool,
+        P: FnMut(&'a ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
     {
+        let mut err: Option<syn::Error> = None;
         for arg in self.args() {
-            if is_conflicting(arg) {
-                return Err(format_err!(
+            if let Err(reason) = is_conflicting(arg) {
+                let conflict_err = format_err!(
                     arg.span(),
                     "encountered conflicting ink! attribute argument",
-                ))
+                );
+                match &mut err {
+                    Some(err) => {
+                        err.combine(conflict_err);
+                    }
+                    None => {
+                        err = Some(conflict_err);
+                    }
+                }
+                if let Some(reason) = reason {
+                    err.as_mut()
+                        .expect("must be `Some` at this point")
+                        .combine(reason);
+                }
             }
+        }
+        if let Some(err) = err {
+            return Err(err)
         }
         Ok(())
     }
@@ -578,7 +745,7 @@ fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
     )
 }
 
-impl TryFrom<syn::NestedMeta> for AttributeArg {
+impl TryFrom<syn::NestedMeta> for AttributeFrag {
     type Error = syn::Error;
 
     fn try_from(nested_meta: syn::NestedMeta) -> Result<Self, Self::Error> {
@@ -588,13 +755,28 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let regex = Regex::new(
-                                    r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})"
-                                ).map_err(|_| invalid_selector_err_regex(&meta))?;
+                                let regex = Regex::new(r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})")
+                                    .map_err(|_| {
+                                    invalid_selector_err_regex(&meta)
+                                })?;
                                 let str = lit_str.value();
-                                let cap = regex
-                                    .captures(&str)
-                                    .ok_or_else(|| invalid_selector_err_regex(&meta))?;
+                                let cap =
+                                    regex.captures(&str).ok_or_else(|| {
+                                        invalid_selector_err_regex(&meta)
+                                    })?;
+                                if !regex.is_match(&str) {
+                                    return Err(invalid_selector_err_regex(
+                                        &meta,
+                                    ))
+                                }
+                                let len_digits = (str.as_bytes().len() - 2) / 2;
+                                if len_digits != 4 {
+                                    return Err(format_err!(
+                                            name_value,
+                                            "expected 4-digit hexcode for `selector` argument, found {} digits",
+                                            len_digits,
+                                        ))
+                                }
                                 let selector_bytes = [
                                     u8::from_str_radix(&cap[1], 16)
                                         .map_err(|_| err_non_hex(&meta, 0))?,
@@ -605,24 +787,63 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                                     u8::from_str_radix(&cap[4], 16)
                                         .map_err(|_| err_non_hex(&meta, 3))?,
                                 ];
-                                return Ok(AttributeArg {
+                                return Ok(AttributeFrag {
                                     ast: meta,
-                                    kind: AttributeArgKind::Selector(Selector::new(
+                                    arg: AttributeArg::Selector(Selector::new(
                                         selector_bytes,
                                     )),
                                 })
                             }
+                            return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let bytes = lit_str.value().into_bytes();
-                                return Ok(AttributeArg {
+                                return Ok(AttributeFrag {
                                     ast: meta,
-                                    kind: AttributeArgKind::Namespace(Namespace::from(
-                                        bytes,
-                                    )),
+                                    arg: AttributeArg::Namespace(
+                                        Namespace::from(bytes),
+                                    ),
                                 })
                             }
+                            return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
+                        }
+                        if name_value.path.is_ident("extension") {
+                            if let syn::Lit::Int(lit_int) = &name_value.lit {
+                                let id = lit_int.base10_parse::<u32>().map_err(|parse_err| {
+                                    format_err!(
+                                        name_value,
+                                        "could not parse `N` in `#[ink(extension = N)]` into a `u32` integer",
+                                    ).into_combine(parse_err)
+                                })?;
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::Extension(
+                                        ExtensionId::from_u32(id),
+                                    ),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `u32` integer type for `N` in #[ink(extension = N)]"))
+                        }
+                        if name_value.path.is_ident("handle_status") {
+                            if let syn::Lit::Bool(lit_bool) = &name_value.lit {
+                                let value = lit_bool.value;
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::HandleStatus(value),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]"))
+                        }
+                        if name_value.path.is_ident("returns_result") {
+                            if let syn::Lit::Bool(lit_bool) = &name_value.lit {
+                                let value = lit_bool.value;
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::ReturnsResult(value),
+                                })
+                            }
+                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"))
                         }
                         Err(format_err_spanned!(
                             meta,
@@ -630,24 +851,44 @@ impl TryFrom<syn::NestedMeta> for AttributeArg {
                         ))
                     }
                     syn::Meta::Path(path) => {
-                        let kind: Option<AttributeArgKind> =
-                            path.get_ident().map(Ident::to_string).and_then(|ident| {
-                                match ident.as_str() {
-                                    "storage" => Some(AttributeArgKind::Storage),
-                                    "message" => Some(AttributeArgKind::Message),
-                                    "constructor" => Some(AttributeArgKind::Constructor),
-                                    "event" => Some(AttributeArgKind::Event),
-                                    "anonymous" => Some(AttributeArgKind::Anonymous),
-                                    "topic" => Some(AttributeArgKind::Topic),
-                                    "payable" => Some(AttributeArgKind::Payable),
-                                    "impl" => Some(AttributeArgKind::Implementation),
-                                    _ => None,
-                                }
-                            });
-                        if let Some(kind) = kind {
-                            return Ok(AttributeArg { ast: meta, kind })
-                        }
-                        Err(format_err_spanned!(meta, "unknown ink! attribute (path)"))
+                        path
+                            .get_ident()
+                            .map(Ident::to_string)
+                            .ok_or_else(|| format_err_spanned!(meta, "unknown ink! attribute (path)"))
+                            .and_then(|ident| match ident.as_str() {
+                                "storage" => Ok(AttributeArg::Storage),
+                                "message" => Ok(AttributeArg::Message),
+                                "constructor" => Ok(AttributeArg::Constructor),
+                                "event" => Ok(AttributeArg::Event),
+                                "anonymous" => Ok(AttributeArg::Anonymous),
+                                "topic" => Ok(AttributeArg::Topic),
+                                "payable" => Ok(AttributeArg::Payable),
+                                "impl" => Ok(AttributeArg::Implementation),
+                                "namespace" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(namespace)] that is missing its string parameter. \
+                                    Did you mean #[ink(namespace = name: str)] ?"
+                                )),
+                                "extension" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(extension)] that is missing its N parameter. \
+                                    Did you mean #[ink(extension = N: u32)] ?"
+                                )),
+                                "handle_status" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                                    Did you mean #[ink(handle_status = flag: bool)] ?"
+                                )),
+                                "returns_result" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(returns_result)] that is missing its `flag: bool` parameter. \
+                                    Did you mean #[ink(returns_result = flag: bool)] ?"
+                                )),
+                                _ => Err(format_err_spanned!(
+                                    meta, "unknown ink! attribute (path)"
+                                ))
+                            })
+                            .map(|kind| AttributeFrag { ast: meta, arg: kind, })
                     }
                     syn::Meta::List(_) => {
                         Err(format_err_spanned!(
@@ -695,16 +936,13 @@ mod tests {
     /// Can be used to assert against the success and failure path.
     fn assert_first_ink_attribute(
         input: &[syn::Attribute],
-        expected: Result<Option<Vec<ir::AttributeArgKind>>, &'static str>,
+        expected: Result<Option<Vec<ir::AttributeArg>>, &'static str>,
     ) {
         assert_eq!(
             first_ink_attribute(input)
                 .map(|maybe_attr: Option<ir::InkAttribute>| {
                     maybe_attr.map(|attr: ir::InkAttribute| {
-                        attr.args
-                            .into_iter()
-                            .map(|arg| arg.kind)
-                            .collect::<Vec<_>>()
+                        attr.args.into_iter().map(|arg| arg.arg).collect::<Vec<_>>()
                     })
                 })
                 .map_err(|err| err.to_string()),
@@ -717,7 +955,7 @@ mod tests {
         assert_first_ink_attribute(&[], Ok(None));
         assert_first_ink_attribute(
             &[syn::parse_quote! { #[ink(storage)] }],
-            Ok(Some(vec![AttributeArgKind::Storage])),
+            Ok(Some(vec![AttributeArg::Storage])),
         );
         assert_first_ink_attribute(
             &[syn::parse_quote! { #[ink(invalid)] }],
@@ -731,7 +969,7 @@ mod tests {
         /// Mock for `ir::Attribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub enum Attribute {
-            Ink(Vec<ir::AttributeArgKind>),
+            Ink(Vec<ir::AttributeArg>),
             Other(syn::Attribute),
         }
 
@@ -743,7 +981,7 @@ mod tests {
                             ink_attr
                                 .args
                                 .into_iter()
-                                .map(|arg| arg.kind)
+                                .map(|arg| arg.arg)
                                 .collect::<Vec<_>>(),
                         )
                     }
@@ -761,7 +999,7 @@ mod tests {
         /// Mock for `ir::InkAttribute` to improve testability.
         #[derive(Debug, PartialEq, Eq)]
         pub struct InkAttribute {
-            args: Vec<ir::AttributeArgKind>,
+            args: Vec<ir::AttributeArg>,
         }
 
         impl From<ir::InkAttribute> for InkAttribute {
@@ -770,7 +1008,7 @@ mod tests {
                     args: ink_attr
                         .args
                         .into_iter()
-                        .map(|arg| arg.kind)
+                        .map(|arg| arg.arg)
                         .collect::<Vec<_>>(),
                 }
             }
@@ -778,7 +1016,7 @@ mod tests {
 
         impl<I> From<I> for InkAttribute
         where
-            I: IntoIterator<Item = ir::AttributeArgKind>,
+            I: IntoIterator<Item = ir::AttributeArg>,
         {
             fn from(args: I) -> Self {
                 Self {
@@ -808,7 +1046,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(storage)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Storage])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::Storage])),
         );
     }
 
@@ -820,7 +1058,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(impl)]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Implementation])),
+            Ok(test::Attribute::Ink(vec![AttributeArg::Implementation])),
         );
     }
 
@@ -830,9 +1068,39 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = "0xDEADBEEF")]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Selector(
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
                 Selector::new([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
+        );
+    }
+
+    #[test]
+    fn selector_non_hexcode() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = "0xhelloworld")]
+            },
+            Err("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"),
+        );
+    }
+
+    #[test]
+    fn selector_too_long() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = "0xDEADBEEFC0FEBABE")]
+            },
+            Err("expected 4-digit hexcode for `selector` argument, found 8 digits"),
+        );
+    }
+
+    #[test]
+    fn selector_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = 42)]
+            },
+            Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
     }
 
@@ -842,9 +1110,178 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = "my_namespace")]
             },
-            Ok(test::Attribute::Ink(vec![AttributeArgKind::Namespace(
+            Ok(test::Attribute::Ink(vec![AttributeArg::Namespace(
                 Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
+        );
+    }
+
+    #[test]
+    fn namespace_invalid_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace = 42)]
+            },
+            Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+        );
+    }
+
+    #[test]
+    fn namespace_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace)]
+            },
+            Err(
+                "encountered #[ink(namespace)] that is missing its string parameter. \
+                Did you mean #[ink(namespace = name: str)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn extension_works() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Extension(
+                ExtensionId::from_u32(42),
+            )])),
+        );
+    }
+
+    #[test]
+    fn extension_invalid_value_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = "string")]
+            },
+            Err("expecteded `u32` integer type for `N` in #[ink(extension = N)]"),
+        );
+    }
+
+    #[test]
+    fn extension_negative_integer() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = -1)]
+            },
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer"),
+        );
+    }
+
+    #[test]
+    fn extension_too_big_integer() {
+        let max_u32_plus_1 = (u32::MAX as u64) + 1;
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension = #max_u32_plus_1)]
+            },
+            Err("could not parse `N` in `#[ink(extension = N)]` into a `u32` integer"),
+        );
+    }
+
+    #[test]
+    fn extension_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(extension)]
+            },
+            Err(
+                "encountered #[ink(extension)] that is missing its N parameter. \
+                Did you mean #[ink(extension = N: u32)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn handle_status_works() {
+        fn expected_ok(value: bool) -> Result<test::Attribute, &'static str> {
+            Ok(test::Attribute::Ink(vec![AttributeArg::HandleStatus(
+                value,
+            )]))
+        }
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = true)]
+            },
+            expected_ok(true),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = false)]
+            },
+            expected_ok(false),
+        );
+    }
+
+    #[test]
+    fn handle_status_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status)]
+            },
+            Err(
+                "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
+                Did you mean #[ink(handle_status = flag: bool)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn handle_status_invalid_parameter_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(handle_status = "string")]
+            },
+            Err(
+                "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]",
+            ),
+        );
+    }
+
+    #[test]
+    fn returns_result_works() {
+        fn expected_ok(value: bool) -> Result<test::Attribute, &'static str> {
+            Ok(test::Attribute::Ink(vec![AttributeArg::ReturnsResult(
+                value,
+            )]))
+        }
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = true)]
+            },
+            expected_ok(true),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = false)]
+            },
+            expected_ok(false),
+        );
+    }
+
+    #[test]
+    fn returns_result_missing_parameter() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result)]
+            },
+            Err(
+                "encountered #[ink(returns_result)] that is missing its `flag: bool` parameter. \
+                Did you mean #[ink(returns_result = flag: bool)] ?",
+            ),
+        );
+    }
+
+    #[test]
+    fn returns_result_invalid_parameter_type() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(returns_result = "string")]
+            },
+            Err("expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"),
         );
     }
 
@@ -855,8 +1292,8 @@ mod tests {
                 #[ink(message, namespace = "my_namespace")]
             },
             Ok(test::Attribute::Ink(vec![
-                AttributeArgKind::Message,
-                AttributeArgKind::Namespace(Namespace::from(
+                AttributeArg::Message,
+                AttributeArg::Namespace(Namespace::from(
                     "my_namespace".to_string().into_bytes(),
                 )),
             ])),
@@ -878,13 +1315,13 @@ mod tests {
                 )]
             },
             Ok(test::Attribute::Ink(vec![
-                AttributeArgKind::Storage,
-                AttributeArgKind::Message,
-                AttributeArgKind::Constructor,
-                AttributeArgKind::Event,
-                AttributeArgKind::Topic,
-                AttributeArgKind::Payable,
-                AttributeArgKind::Implementation,
+                AttributeArg::Storage,
+                AttributeArg::Message,
+                AttributeArg::Constructor,
+                AttributeArg::Event,
+                AttributeArg::Topic,
+                AttributeArg::Payable,
+                AttributeArg::Implementation,
             ])),
         );
     }
@@ -954,7 +1391,7 @@ mod tests {
                 syn::parse_quote! { #[non_ink_attribute] },
             ],
             Ok((
-                vec![test::InkAttribute::from(vec![AttributeArgKind::Message])],
+                vec![test::InkAttribute::from(vec![AttributeArg::Message])],
                 vec![syn::parse_quote! { #[non_ink_attribute] }],
             )),
         )

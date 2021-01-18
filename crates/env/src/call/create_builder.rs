@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
 where
     E: Environment,
 {
-    env_types: PhantomData<fn() -> E>,
+    env: PhantomData<fn() -> E>,
     code_hash: CodeHash,
     gas_limit: GasLimit,
     endowment: Endowment,
@@ -196,7 +196,7 @@ where
     R: FromAccountId<E>,
 {
     CreateBuilder {
-        env_types: Default::default(),
+        env: Default::default(),
         code_hash: Default::default(),
         gas_limit: Default::default(),
         endowment: Default::default(),
@@ -218,7 +218,7 @@ where
         code_hash: E::Hash,
     ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
             endowment: self.endowment,
@@ -241,7 +241,7 @@ where
         gas_limit: u64,
     ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
             endowment: self.endowment,
@@ -264,7 +264,7 @@ where
         endowment: E::Balance,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, R> {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: Set(endowment),
@@ -296,7 +296,7 @@ where
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, Salt, R>
     {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: self.endowment,

@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -319,7 +319,7 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
             let entry = owned_tokens_count.entry(*to);
-            increase_counter_of(entry)?;
+            increase_counter_of(entry);
             vacant_token_owner.insert(*to);
             Ok(())
         }
@@ -431,9 +431,8 @@ mod erc721 {
     }
 
     /// Increase token counter from the `of` AccountId.
-    fn increase_counter_of(entry: Entry<AccountId, u32>) -> Result<(), Error> {
+    fn increase_counter_of(entry: Entry<AccountId, u32>) {
         entry.and_modify(|v| *v += 1).or_insert(1);
-        Ok(())
     }
 
     /// Unit tests
