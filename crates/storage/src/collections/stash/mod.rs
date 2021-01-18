@@ -165,7 +165,7 @@ where
     }
 
     /// Returns the number of entries currently managed by the storage stash.
-    fn len_entries(&self) -> u32 {
+    pub(crate) fn len_entries(&self) -> u32 {
         self.header.len_entries
     }
 
@@ -258,6 +258,18 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
+    /// Clear the first `len` entries from this stashes cache.
+    pub(crate) fn clear_entries(&mut self, len: u32) {
+        if self.entries.key().is_none() {
+            // We won't clear any storage if we are in lazy state since there
+            // probably has not been any state written to storage, yet.
+            return
+        }
+        for index in 0..len {
+            self.entries.clear_packed_at(index);
+        }
+    }
+
     /// Clears the underlying storage cells of the storage stash.
     ///
     /// # Note
@@ -486,22 +498,24 @@ where
     }
 
     /// Drains this stash, calls `f` with each drained `T`.
+    ///
+    /// # Developer Note
+    ///
+    /// We had planned for `F: FnMut(T) -> bool`, with the `bool`
+    /// denoting if draining should continue. However, this would
+    /// mean that the simplifications we can make now (like not
+    /// having to re-link `VacantEntry`'s) are no longer possible,
+    /// since somebody could e.g. just drain a couple elements
+    /// and then refill the stash with others.
     pub fn drain_with<F>(&mut self, mut f: F)
     where
         F: FnMut(T),
     {
-        let clear = self.entries.key().is_some();
-
         for index in 0..self.len_entries() {
             let taken_entry = self.entries.put_get(index, None).expect("entry");
             if let Entry::Occupied(value) = taken_entry {
                 // Call `f` for every moved out `T`.
                 f(value);
-            }
-
-            // only clear if needed. if we are in a lazy state we don't need to.
-            if clear {
-                self.entries.clear_packed_at(index);
             }
         }
 
