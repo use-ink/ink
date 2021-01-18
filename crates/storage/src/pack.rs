@@ -517,8 +517,8 @@ use quickcheck::{
 };
 
 #[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
-impl<T: Arbitrary + Send + Clone + 'static> Arbitrary for Pack<T> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Pack<T> {
+impl<T: Arbitrary + PackedLayout + Send + Clone + 'static> Arbitrary for Pack<T> {
+    fn arbitrary(g: &mut Gen) -> Pack<T> {
         let a = <T as Arbitrary>::arbitrary(g);
         Pack::new(a)
     }

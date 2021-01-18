@@ -33,7 +33,7 @@ impl<T: Arbitrary + PackedLayout + Send + Clone + 'static> Arbitrary for Storage
 where
     T: Clone,
 {
-    fn arbitrary<G: Gen>(g: &mut G) -> StorageVec<T> {
+    fn arbitrary(g: &mut Gen) -> StorageVec<T> {
         let vec = Vec::<T>::arbitrary(g);
         let mut svec = StorageVec::<T>::new();
         vec.iter().for_each(|v| svec.push(v.clone()));

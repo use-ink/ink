@@ -191,7 +191,7 @@ impl<
         V: Arbitrary + PackedLayout + Send + Clone + 'static,
     > Arbitrary for StorageHashMap<K, V>
 {
-    fn arbitrary<G: Gen>(g: &mut G) -> StorageHashMap<K, V> {
+    fn arbitrary(g: &mut Gen) -> StorageHashMap<K, V> {
         let hmap = HashMap::<K, V>::arbitrary(g);
         StorageHashMap::<K, V>::from_iter(hmap.into_iter())
     }
@@ -214,7 +214,7 @@ where
 impl<'a, K, V> FuzzCollection for &'a mut StorageHashMap<K, V>
 where
     V: Clone + PackedLayout + 'a,
-    K: PackedLayout + Ord + Clone + Copy + 'a,
+    K: PackedLayout + Ord + Clone + 'a,
 {
     type Collection = StorageHashMap<K, V>;
     type Item = (&'a K, &'a mut V);
@@ -222,14 +222,14 @@ where
     /// Makes `self` equal to `instance2` by executing a series of operations
     /// on `self`.
     fn equalize(&mut self, instance2: &Self::Collection) {
-        let hmap_keys = self.keys().copied().collect::<Vec<K>>();
+        let hmap_keys = self.keys().cloned().collect::<Vec<K>>();
         for k in hmap_keys {
             if instance2.get(&k).is_none() {
                 let _ = self.take(&k);
             }
         }
 
-        let template_keys = instance2.keys().copied().collect::<Vec<K>>();
+        let template_keys = instance2.keys().cloned().collect::<Vec<K>>();
         for k in template_keys {
             if let Some(template_val) = instance2.get(&k) {
                 let _ = self.insert(k, template_val.clone());
