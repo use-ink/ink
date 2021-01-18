@@ -53,7 +53,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) -> StorageHashMap<i32, i32>
         if x % 2 == 0 {
             // On even numbers we insert
             for key in x..x + inserts_each {
-                let val = key * 10;
+                let val = key.saturating_mul(10);
                 if map.insert(key, val).is_none() {
                     assert_eq!(map.get(&key), Some(&val));
                     cnt_inserts += 1;
@@ -74,7 +74,7 @@ fn insert_and_remove(xs: Vec<i32>, inserts_each: u8) -> StorageHashMap<i32, i32>
             // items.
             let x = previous_even_x.unwrap();
             for key in x..x + inserts_each {
-                let val = key * 10;
+                let val = key.saturating_mul(10);
                 assert_eq!(map.get(&key), Some(&val));
                 assert_eq!(map.take(&key), Some(val));
                 assert_eq!(map.get(&key), None);
@@ -113,7 +113,7 @@ fn fuzz_removes(xs: Vec<i32>, xth: usize) {
             let i = xs.get(x).expect(
                 "x is always in bounds since we iterate over the vec length; qed",
             );
-            assert_eq!(map.insert(*i, i * 10), None);
+            assert_eq!(map.insert(*i, i.saturating_mul(10)), None);
             len += 1;
             assert_eq!(map.len(), len);
         }
@@ -124,7 +124,7 @@ fn fuzz_removes(xs: Vec<i32>, xth: usize) {
                 let i = xs.get(x).expect(
                     "x is always in bounds since we iterate over the vec length; qed",
                 );
-                assert_eq!(map.take(&i), Some(i * 10));
+                assert_eq!(map.take(&i), Some(i.saturating_mul(10)));
                 len -= 1;
             }
             assert_eq!(map.len(), len);
@@ -137,7 +137,7 @@ fn fuzz_removes(xs: Vec<i32>, xth: usize) {
                 let i = xs.get(x).expect(
                     "x is always in bounds since we iterate over the vec length; qed",
                 );
-                assert_eq!(map.get(&i), Some(&(i * 10)));
+                assert_eq!(map.get(&i), Some(&(i.saturating_mul(10))));
             }
         }
 
