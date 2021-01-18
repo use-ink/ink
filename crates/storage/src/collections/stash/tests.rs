@@ -812,7 +812,7 @@ fn drain_with_works() {
         );
 
         // when
-        pulled_stash.drain_with(|_| true);
+        pulled_stash.drain_with(|_| {});
         SpreadLayout::push_spread(&pulled_stash, &mut KeyPtr::from(root_key));
 
         // then
@@ -834,7 +834,7 @@ fn drain_with_refill_works() {
         let mut stash = <Lazy<StorageStash<u8>> as SpreadLayout>::pull_spread(
             &mut KeyPtr::from(root_key),
         );
-        stash.drain_with(|_| true);
+        stash.drain_with(|_| {});
 
         // when
         assert_eq!(0, stash.put(b'X'));
@@ -847,57 +847,6 @@ fn drain_with_refill_works() {
         // then
         // the header + the one newly set cell should exist
         assert_used_cells(2);
-
-        Ok(())
-    })
-    .unwrap()
-}
-
-#[test]
-fn drain_only_one_entry_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        // given
-        let mut stash = create_holey_stash();
-        assert_eq!(stash.len(), 3);
-        assert_eq!(stash.len_entries(), 6);
-        assert_eq!(stash.last_vacant_index(), Some(0));
-
-        // when
-        // drain one entry and don't continue draining
-        stash.drain_with(|_| false);
-
-        // then
-        assert_eq!(stash.len(), 2);
-        assert_eq!(stash.len_entries(), 4); // one vacant and one occupied entry were removed
-        assert_eq!(stash.last_vacant_index(), Some(1));
-
-        Ok(())
-    })
-    .unwrap()
-}
-
-#[test]
-fn drain_only_two_entries_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        // given
-        let mut stash = create_holey_stash();
-        assert_eq!(stash.len(), 3);
-        assert_eq!(stash.len_entries(), 6);
-        assert_eq!(stash.last_vacant_index(), Some(0));
-
-        // when
-        // drain two entries and don't continue draining
-        let mut continue_draining = true;
-        stash.drain_with(|_| {
-            let ret = continue_draining;
-            continue_draining = false;
-            ret
-        });
-
-        // then
-        assert_eq!(stash.len(), 1);
-        assert_eq!(stash.len_entries(), 2); // two vacant and two occupied entries were removed
-        assert_eq!(stash.last_vacant_index(), Some(3));
 
         Ok(())
     })

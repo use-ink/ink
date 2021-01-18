@@ -488,30 +488,15 @@ where
     /// Drains this stash, calls `f` with each drained `T`.
     pub fn drain_with<F>(&mut self, mut f: F)
     where
-        F: FnMut(T) -> bool,
+        F: FnMut(T),
     {
         let clear = self.entries.key().is_some();
 
-        let mut new_len = self.len();
-        let mut new_len_entries = self.len_entries();
-        let mut last_vacant = 0;
-        let mut must_be_empty = true;
-
         for index in 0..self.len_entries() {
-            let taken_entry = self
-                .entries
-                .put_get(index, None)
-                .expect("entry must exist at index");
-            new_len_entries -= 1;
+            let taken_entry = self.entries.put_get(index, None).expect("entry");
             if let Entry::Occupied(value) = taken_entry {
                 // Call `f` for every moved out `T`.
-                let ret = f(value);
-                new_len -= 1;
-                last_vacant = index;
-                if !ret {
-                    must_be_empty = false;
-                    break
-                }
+                f(value);
             }
 
             // only clear if needed. if we are in a lazy state we don't need to.
@@ -520,14 +505,12 @@ where
             }
         }
 
-        self.header.len = new_len;
-        self.header.len_entries = new_len_entries;
-        self.header.last_vacant = last_vacant;
+        self.header.len = 0;
+        self.header.len_entries = 0;
+        self.header.last_vacant = 0;
 
-        if must_be_empty {
-            self.header.last_vacant = 0;
-            debug_assert!(self.is_empty(), "stash must be empty");
-        }
+        // At the end the stash must be empty and in a valid state.
+        debug_assert!(self.is_empty());
     }
 
     /// Removes the element stored at the given index if any.
