@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -254,6 +254,16 @@ fn drop_works() {
         });
 
         assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("Used cells must be returned");
+        assert_eq!(used_cells, 0);
 
         let _ =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));

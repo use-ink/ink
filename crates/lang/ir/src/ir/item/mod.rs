@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,12 +68,12 @@ impl TryFrom<syn::Item> for Item {
                 let attr = ir::first_ink_attribute(&item_struct.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
-                    ir::AttributeArgKind::Storage => {
+                    ir::AttributeArg::Storage => {
                         <ir::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    ir::AttributeArgKind::Event => {
+                    ir::AttributeArg::Event => {
                         <ir::Event as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)

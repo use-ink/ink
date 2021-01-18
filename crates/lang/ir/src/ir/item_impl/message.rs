@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -180,12 +180,13 @@ impl Message {
             method_item.span(),
             method_item.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |kind| {
-                !matches!(kind,
-                    ir::AttributeArgKind::Message
-                    | ir::AttributeArgKind::Payable
-                    | ir::AttributeArgKind::Selector(_)
-                )
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Message
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
             },
         )
     }

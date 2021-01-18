@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -777,6 +777,40 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         .expect("used cells must be returned");
         assert_eq!(storage_used, 0);
 
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+fn drop_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+
+        // if the setup panics it should not cause the test to pass
+        let setup_result = std::panic::catch_unwind(|| {
+            let stash = create_holey_stash();
+            SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
+            let _ = <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            // stash is dropped which should clear the cells
+        });
+        assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::get_current_contract_account_id::<
+            ink_env::DefaultEnvironment,
+        >()
+        .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
+        let _ =
+            <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         Ok(())
     })
     .unwrap()

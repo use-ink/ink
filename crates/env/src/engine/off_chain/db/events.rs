@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,10 @@ where
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
         let off_hash = OffHash::new(&result);
+        debug_assert!(
+            !self.topics.contains(&off_hash),
+            "duplicate topic hash discovered!"
+        );
         self.topics.push(off_hash);
     }
 
