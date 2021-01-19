@@ -396,7 +396,7 @@ impl TypedEnvBackend for EnvInstance {
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.
         let out_address = &mut scoped.take(1024);
-        let salt = scoped.take_bytes(params.salt().as_ref());
+        let salt = scoped.take_bytes(params.salt_bytes().as_ref());
         let out_return_value = &mut scoped.take_rest();
         // We currently do nothing with the `out_return_value` buffer.
         // This should change in the future but for that we need to add support

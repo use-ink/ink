@@ -65,7 +65,7 @@ where
     /// The input data for the instantiation.
     exec_input: ExecutionInput<Args>,
     /// The salt for determining the hash for the contract account ID.
-    salt: Salt,
+    salt_bytes: Salt,
     /// The type of the instantiated contract.
     return_type: ReturnType<R>,
 }
@@ -107,8 +107,8 @@ where
 
     /// The salt for determining the hash for the contract account ID.
     #[inline]
-    pub(crate) fn salt(&self) -> &Salt {
-        &self.salt
+    pub(crate) fn salt_bytes(&self) -> &Salt {
+        &self.salt_bytes
     }
 }
 
@@ -179,7 +179,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
-///     .salt(&[0xDE, 0xAD, 0xBE, 0xEF])
+///     .salt_bytes(&[0xDE, 0xAD, 0xBE, 0xEF])
 ///     .params()
 ///     .instantiate()
 ///     .unwrap();
@@ -329,7 +329,7 @@ where
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
-    pub fn salt<Salt>(
+    pub fn salt_bytes<Salt>(
         self,
         salt: Salt,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
@@ -370,7 +370,7 @@ where
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
-            salt: self.salt.value(),
+            salt_bytes: self.salt.value(),
             return_type: self.return_type,
         }
     }

@@ -90,19 +90,19 @@ mod delegator {
             let accumulator = Accumulator::new(init_value)
                 .endowment(total_balance / 4)
                 .code_hash(accumulator_code_hash)
-                .salt(salt)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Accumulator` contract");
             let adder = Adder::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(adder_code_hash)
-                .salt(salt)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Adder` contract");
             let subber = Subber::new(accumulator.clone())
                 .endowment(total_balance / 4)
                 .code_hash(subber_code_hash)
-                .salt(salt)
+                .salt_bytes(salt)
                 .instantiate()
                 .expect("failed at instantiating the `Subber` contract");
             Self {
