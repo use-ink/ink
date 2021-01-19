@@ -28,6 +28,14 @@ use crate::{
 };
 use core::marker::PhantomData;
 
+pub mod state {
+    //! Type states that tell what state of a instantiation argument has not
+    //! yet been set properly for a valid construction.
+
+    /// Type state for the salt used for contract instantiation.
+    pub struct Salt;
+}
+
 /// Contracts that can be constructed from an `AccountId`.
 ///
 /// # Note
@@ -181,13 +189,13 @@ where
 ///           support in the off-chain testing environment. However, this code
 ///           should work fine in on-chain environments.
 #[allow(clippy::type_complexity)]
-pub fn build_create<E, Salt, R>() -> CreateBuilder<
+pub fn build_create<E, R>() -> CreateBuilder<
     E,
     Unset<E::Hash>,
     Unset<u64>,
     Unset<E::Balance>,
     Unset<ExecutionInput<EmptyArgumentList>>,
-    Unset<Salt>,
+    Unset<state::Salt>,
     R,
 >
 where
@@ -313,7 +321,7 @@ impl<E, CodeHash, GasLimit, Endowment, Args, R>
         GasLimit,
         Endowment,
         Args,
-        Unset<()>,
+        Unset<state::Salt>,
         R,
     >
 where
