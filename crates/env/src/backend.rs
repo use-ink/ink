@@ -293,13 +293,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    fn instantiate_contract<T, Args, C>(
+    fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
-        Args: scale::Encode;
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>;
 
     /// Restores a smart contract tombstone.
     ///

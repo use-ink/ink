@@ -621,6 +621,7 @@ impl CrossCalling<'_> {
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
                 Self,
             >;
 
@@ -629,7 +630,7 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_create::<Environment, Self>()
+                ::ink_env::call::build_create::<Environment, Salt, Self>()
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
@@ -724,6 +725,7 @@ impl CrossCalling<'_> {
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
                 Self,
             > {
                 ::ink_env::call::build_create::<Environment, Self>()

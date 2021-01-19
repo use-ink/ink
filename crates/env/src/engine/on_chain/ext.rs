@@ -210,6 +210,8 @@ mod sys {
             address_len_ptr: Ptr32Mut<u32>,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
+            salt_ptr: Ptr32<[u8]>,
+            salt_len: u32,
         ) -> ReturnCode;
 
         pub fn seal_call(
@@ -350,6 +352,7 @@ pub fn instantiate(
     input: &[u8],
     out_address: &mut &mut [u8],
     out_return_value: &mut &mut [u8],
+    salt: &[u8],
 ) -> Result {
     let mut address_len = out_address.len() as u32;
     let mut return_value_len = out_return_value.len() as u32;
@@ -367,6 +370,8 @@ pub fn instantiate(
                 Ptr32Mut::from_ref(&mut address_len),
                 Ptr32Mut::from_slice(out_return_value),
                 Ptr32Mut::from_ref(&mut return_value_len),
+                Ptr32::from_slice(salt),
+                salt.len() as u32,
             )
         }
     };
