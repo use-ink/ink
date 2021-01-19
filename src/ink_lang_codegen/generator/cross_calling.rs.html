@@ -820,6 +820,8 @@
 <span id="817">817</span>
 <span id="818">818</span>
 <span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1444,6 +1446,7 @@
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">Salt</span><span class="op">&gt;</span>,
                 <span class="self">Self</span>,
             <span class="op">&gt;</span>;
 
@@ -1452,7 +1455,7 @@
             <span class="kw">fn</span> #<span class="ident">ident</span>(
                 #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="ident">Salt</span>, <span class="self">Self</span><span class="op">&gt;</span>()
                     .<span class="ident">exec_input</span>(
                         ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span>::<span class="ident">new</span>(
                             ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">Selector</span>::<span class="ident">new</span>([ #( #<span class="ident">composed_selector</span> ),<span class="op">*</span> ])
@@ -1547,6 +1550,7 @@
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">Balance</span><span class="op">&gt;</span>,
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Set</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+                ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">utils</span>::<span class="ident">Unset</span><span class="op">&lt;</span>::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">state</span>::<span class="ident">Salt</span><span class="op">&gt;</span>,
                 <span class="self">Self</span>,
             <span class="op">&gt;</span> {
                 ::<span class="ident">ink_env</span>::<span class="ident">call</span>::<span class="ident">build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
