@@ -315,15 +315,7 @@ where
 }
 
 impl<E, CodeHash, GasLimit, Endowment, Args, R>
-    CreateBuilder<
-        E,
-        CodeHash,
-        GasLimit,
-        Endowment,
-        Args,
-        Unset<state::Salt>,
-        R,
-    >
+    CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Unset<state::Salt>, R>
 where
     E: Environment,
 {
@@ -334,7 +326,7 @@ where
         salt: Salt,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
     where
-        Salt: AsRef<[u8]>
+        Salt: AsRef<[u8]>,
     {
         CreateBuilder {
             env: Default::default(),
