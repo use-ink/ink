@@ -192,7 +192,6 @@ pub fn build_create<E, Salt, R>() -> CreateBuilder<
 >
 where
     E: Environment,
-    Salt: AsRef<[u8]>,
     R: FromAccountId<E>,
 {
     CreateBuilder {
@@ -307,29 +306,30 @@ where
     }
 }
 
-impl<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
+impl<E, CodeHash, GasLimit, Endowment, Args, R>
     CreateBuilder<
         E,
         CodeHash,
         GasLimit,
         Endowment,
         Args,
-        Unset<Salt>,
+        Unset<()>,
         R,
     >
 where
     E: Environment,
-    Salt: AsRef<[u8]>,
 {
     /// Sets the value transferred upon the execution of the call.
     #[inline]
-    pub fn salt(
+    pub fn salt<Salt>(
         self,
         salt: Salt,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Set<Salt>, R>
+    where
+        Salt: AsRef<[u8]>
     {
         CreateBuilder {
-            env_types: Default::default(),
+            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: self.endowment,
