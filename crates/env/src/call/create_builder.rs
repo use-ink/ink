@@ -175,7 +175,7 @@ where
 /// # impl FromAccountId<DefaultEnvironment> for MyContract {
 /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
 /// # }
-/// let my_contract: MyContract = build_create::<DefaultEnvironment, Salt, MyContract>()
+/// let my_contract: MyContract = build_create::<DefaultEnvironment, MyContract>()
 ///     .code_hash(Hash::from([0x42; 32]))
 ///     .gas_limit(4000)
 ///     .endowment(25)
