@@ -621,7 +621,7 @@ impl CrossCalling<'_> {
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
-                ::ink_env::call::utils::Unset<[u8; 4]>,
+                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
                 Self,
             >;
 
