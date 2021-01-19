@@ -33,7 +33,7 @@ pub mod state {
     //! yet been set properly for a valid construction.
 
     /// Type state for the salt used for contract instantiation.
-    pub struct Salt;
+    pub enum Salt {};
 }
 
 /// Contracts that can be constructed from an `AccountId`.
