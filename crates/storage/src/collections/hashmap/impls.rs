@@ -50,12 +50,10 @@ where
             // probably has not been any state written to storage, yet.
             return
         }
-        let len_entries_before_drain = self.keys.len_entries();
         let values = &mut self.values;
         self.keys.drain_with(|key| {
             values.clear_packed_at(&key);
         });
-        self.keys.clear_entries(len_entries_before_drain);
     }
 }
 

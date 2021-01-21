@@ -72,6 +72,9 @@ struct Header {
     len: u32,
     /// The number of entries currently managed by the stash.
     len_entries: u32,
+    /// The number of entries managed by the stash before draining the stash.
+    /// See [`Stash::drain_with`] for more information.
+    len_entries_before_drained: u32,
 }
 
 /// A vacant entry with previous and next vacant indices.
@@ -139,6 +142,7 @@ where
                 last_vacant: 0,
                 len: 0,
                 len_entries: 0,
+                len_entries_before_drained: 0,
             }),
             entries: LazyIndexMap::new(),
         }
@@ -258,18 +262,6 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
-    /// Clear the first `len` entries from this stashes cache.
-    pub(crate) fn clear_entries(&mut self, len: u32) {
-        if self.entries.key().is_none() {
-            // We won't clear any storage if we are in lazy state since there
-            // probably has not been any state written to storage, yet.
-            return
-        }
-        for index in 0..len {
-            self.entries.clear_packed_at(index);
-        }
-    }
-
     /// Clears the underlying storage cells of the storage stash.
     ///
     /// # Note
@@ -285,7 +277,9 @@ where
             // probably has not been any state written to storage, yet.
             return
         }
-        for index in 0..self.len_entries() {
+        let clear_len =
+            core::cmp::max(self.len_entries(), self.header.len_entries_before_drained);
+        for index in 0..clear_len {
             // It might seem wasteful to clear all entries instead of just
             // the occupied ones. However this spares us from having one extra
             // read for every element in the storage stash to filter out vacant
@@ -511,7 +505,22 @@ where
     where
         F: FnMut(T),
     {
-        for index in 0..self.len_entries() {
+        let len_entries = self.len_entries();
+        // The number of entries managed by the stash is the amount of `Entry::Vacant`
+        // and `Entry::Occupied` entries. When draining the stash we put `None` in place
+        // of those `Entry`'s, so that they are removed from storage when the cache is
+        // synchronized with the storage.
+        // It is necessary to keep the number of managed entries before we drained, since
+        // afterwards the number of managed entries will be 0 (since no more `Entry::Vacant`/
+        // `Entry::Occupied` entries are managed by the stash after draining). We need the
+        // number before draining though in order to remove the drained entries from storage
+        // on `Stash::drop`.
+        self.header.len_entries_before_drained = len_entries;
+
+        for index in 0..len_entries {
+            // We put `None` in the entries instead. This has the effect that the entry at
+            // this index will be cleared from storage when the cache synchronizes its content
+            // to storage.
             let taken_entry = self.entries.put_get(index, None).expect("entry");
             if let Entry::Occupied(value) = taken_entry {
                 // Call `f` for every moved out `T`.
