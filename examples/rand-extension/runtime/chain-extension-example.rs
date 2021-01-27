@@ -36,7 +36,7 @@ impl ChainExtension for FetchRandomExtension {
                 return Err(DispatchError::Other("Unimplemented func_id"));
             }
         }
-        Ok(RetVal::Converging(func_id))
+        Ok(RetVal::Converging(0))
     }
 
     fn enabled() -> bool {
