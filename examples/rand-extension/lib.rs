@@ -11,16 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #![cfg_attr(not(feature = "std"), no_std)]
+
+use ink_env::Environment;
+use ink_lang as ink;
 
 /// This is an example of how ink! contract should
 /// call substrate runtime `RandomnessCollectiveFlip::random_seed`.
 
-use ink_lang as ink;
-use ink_env::Environment;
-
-// Define the operations to interact with the substrate runtime
+/// Define the operations to interact with the substrate runtime
 #[ink::chain_extension]
 pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
@@ -30,7 +29,6 @@ pub trait FetchRandom {
     #[ink(extension = 1101, returns_result = false)]
     fn fetch_random() -> [u8; 32];
 }
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -47,7 +45,6 @@ impl ink_env::chain_extension::FromStatusCode for RandomReadErr {
         }
     }
 }
-
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -81,7 +78,7 @@ mod rand_extension {
     #[ink(event)]
     pub struct RandomUpdated {
         #[ink(topic)]
-        new: [u8; 32]
+        new: [u8; 32],
     }
 
     impl RandExtension {
@@ -103,15 +100,11 @@ mod rand_extension {
         #[ink(message)]
         pub fn update(&mut self) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed
-            let new_random = self.env()
-                .extension().
-                fetch_random()?;
+            let new_random = self.env().extension().fetch_random()?;
             self.value = new_random;
             // emit the RandomUpdated event when the random seed
             // is successfully fetched.
-            self.env().emit_event(RandomUpdated {
-                new: new_random
-            });
+            self.env().emit_event(RandomUpdated { new: new_random });
             Ok(())
         }
 
