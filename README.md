@@ -85,7 +85,7 @@ The folder contains a scaffold `Cargo.toml` and a `lib.rs`, which both contain t
 
 The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we explain in the next section.
 
-In order to build the contract just execute these commmands in the `flipper` folder:
+In order to build the contract just execute these commands in the `flipper` folder:
 ```
 cargo contract build
 ```
