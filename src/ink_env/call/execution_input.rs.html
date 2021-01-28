@@ -405,7 +405,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arg</span>, <span class="ident">output</span>)
     }
 }
@@ -417,7 +417,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {}
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {}
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span>
@@ -431,7 +431,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
         <span class="comment">// We reverse the order of encoding because we build up the list of</span>
         <span class="comment">// arguments in reverse order, too. This way we encode the arguments</span>
         <span class="comment">// in the same order in which they have been pushed to the argument list</span>
@@ -451,7 +451,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
         <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>, <span class="ident">output</span>);
         <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>, <span class="ident">output</span>);
     }

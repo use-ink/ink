@@ -140,6 +140,8 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -192,8 +194,10 @@
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">StorageBox</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
+        <span class="ident">T</span>: <span class="ident">SpreadLayout</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
+        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
         <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">scale_info</span>::<span class="ident">Type</span> {
             <span class="ident">scale_info</span>::<span class="ident">Type</span>::<span class="ident">builder</span>()
                 .<span class="ident">path</span>(
@@ -209,7 +213,7 @@
                 <span class="comment">// .type_params(vec![scale_info::MetaType::new::&lt;T&gt;()])</span>
                 .<span class="ident">composite</span>(
                     <span class="ident">scale_info</span>::<span class="ident">build</span>::<span class="ident">Fields</span>::<span class="ident">named</span>()
-                        .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocation</span><span class="op">&gt;</span>(<span class="string">&quot;allocation&quot;</span>),
+                        .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocation</span><span class="op">&gt;</span>(<span class="string">&quot;allocation&quot;</span>, <span class="string">&quot;DynamicAllocation&quot;</span>),
                 )
         }
     }
@@ -242,7 +246,7 @@
         <span class="op">&lt;</span><span class="ident">DynamicAllocation</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">allocation</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
         <span class="op">&lt;</span><span class="ident">DynamicAllocation</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">allocation</span>, <span class="ident">dest</span>)
     }
 

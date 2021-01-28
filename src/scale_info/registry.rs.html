@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.4.1/src/registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>registry.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.5.0/src/registry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>registry.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
@@ -198,8 +198,100 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="comment">// Copyright 2019-2020 Parity Technologies (UK) Ltd.</span>
+<span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
 <span class="comment">// you may not use this file except in compliance with the License.</span>
@@ -213,188 +305,280 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="doccomment">//! The registry has the purpose to compactify types found in type definitions.</span>
+<span class="doccomment">//! The registry stores type definitions in a space-efficient manner.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! This is done by deduplicating common types in order to reuse</span>
-<span class="doccomment">//! their definitions which can grow arbitrarily large. A type is uniquely</span>
+<span class="doccomment">//! This is done by deduplicating common types in order to reuse their</span>
+<span class="doccomment">//! definitions which otherwise can grow arbitrarily large. A type is uniquely</span>
 <span class="doccomment">//! identified by its type identifier that is therefore used to refer to types</span>
 <span class="doccomment">//! and their definitions.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Types with the same name are uniquely identifiable by introducing</span>
-<span class="doccomment">//! namespaces. For this the normal Rust namespace of a type is used where it</span>
-<span class="doccomment">//! has been defined. Rust prelude types live within the so-called root</span>
-<span class="doccomment">//! namespace that is just empty.</span>
+<span class="doccomment">//! namespaces. The normal Rust namespace of a type is used, except for the Rust</span>
+<span class="doccomment">//! prelude types that live in the so-called root namespace which is empty.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tm_std</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-	<span class="ident">form</span>::{<span class="ident">CompactForm</span>, <span class="ident">Form</span>},
-	<span class="ident">interner</span>::{<span class="ident">Interner</span>, <span class="ident">UntrackedSymbol</span>},
-	<span class="ident">meta_type</span>::<span class="ident">MetaType</span>,
-	<span class="ident">Type</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::{
+    <span class="ident">any</span>::<span class="ident">TypeId</span>,
+    <span class="ident">collections</span>::<span class="ident">BTreeMap</span>,
+    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">num</span>::<span class="ident">NonZeroU32</span>,
+    <span class="ident">vec</span>::<span class="ident">Vec</span>,
 };
-<span class="kw">use</span> <span class="ident">scale</span>::{<span class="ident">Decode</span>, <span class="ident">Encode</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="doccomment">/// Compacts the implementor using a registry.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoCompact</span> {
-	<span class="doccomment">/// The compact version of `Self`.</span>
-	<span class="kw">type</span> <span class="ident">Output</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">form</span>::{
+        <span class="ident">Form</span>,
+        <span class="ident">FormString</span>,
+        <span class="ident">PortableForm</span>,
+    },
+    <span class="ident">interner</span>::{
+        <span class="ident">Interner</span>,
+        <span class="ident">UntrackedSymbol</span>,
+    },
+    <span class="ident">meta_type</span>::<span class="ident">MetaType</span>,
+    <span class="ident">Type</span>,
+};
+<span class="kw">use</span> <span class="ident">scale</span>::{
+    <span class="ident">Decode</span>,
+    <span class="ident">Encode</span>,
+};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">serde</span>::{
+    <span class="ident">de</span>::<span class="ident">DeserializeOwned</span>,
+    <span class="ident">Deserialize</span>,
+    <span class="ident">Serialize</span>,
+};
 
-	<span class="doccomment">/// Compacts `self` by using the registry for caching and compaction.</span>
-	<span class="kw">fn</span> <span class="ident">into_compact</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+<span class="doccomment">/// Convert the type definition into the portable form using a registry.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IntoPortable</span> {
+    <span class="doccomment">/// The portable version of `Self`.</span>
+    <span class="kw">type</span> <span class="ident">Output</span>;
+
+    <span class="doccomment">/// Convert `self` to the portable form by using the registry for caching.</span>
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
 }
 
-<span class="kw">impl</span> <span class="ident">IntoCompact</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-	<span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">CompactForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span>::<span class="ident">String</span>;
+<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PortableForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span>::<span class="ident">String</span>;
 
-	<span class="kw">fn</span> <span class="ident">into_compact</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
-		<span class="self">self</span>.<span class="ident">to_string</span>()
-	}
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+        <span class="self">self</span>
+    }
 }
 
-<span class="doccomment">/// The registry for compaction of type identifiers and definitions.</span>
+<span class="doccomment">/// The registry for space-efficient storage of type identifiers and</span>
+<span class="doccomment">/// definitions.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The registry consists of a cache for already compactified type identifiers and definitions.</span>
+<span class="doccomment">/// The registry consists of a cache for type identifiers and definitions.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Whenever using the registry to compact a type all of its sub-types</span>
-<span class="doccomment">/// are going to be registered recursively as well. A type is a sub-type</span>
-<span class="doccomment">/// of another type if it is used by its identifier or structure.</span>
+<span class="doccomment">/// When adding a type to  the registry, all of its sub-types are registered</span>
+<span class="doccomment">/// recursively as well. A type is considered a sub-type of another type if it</span>
+<span class="doccomment">/// is used by its identifier or structure.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A type can be a sub-type of itself. In this case the registry has a builtin</span>
-<span class="doccomment">/// mechanism to stop recursion before going into an infinite loop.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>)]</span>
+<span class="doccomment">/// mechanism to stop recursion and avoid going into an infinite loop.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Registry</span> {
-	<span class="doccomment">/// The cache for already registered types.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is just an accessor to the actual database</span>
-	<span class="doccomment">/// for all types found in the `types` field.</span>
-	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip</span>)]</span>
-	<span class="ident">type_table</span>: <span class="ident">Interner</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>,
-	<span class="doccomment">/// The database where registered types actually reside.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is going to be serialized upon serlialization.</span>
-	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_registry_types&quot;</span>)]</span>
-	<span class="ident">types</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>, <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">CompactForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-}
-
-<span class="doccomment">/// Serializes the types of the registry by removing their unique IDs</span>
-<span class="doccomment">/// and instead serialize them in order of their removed unique ID.</span>
-<span class="kw">fn</span> <span class="ident">serialize_registry_types</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
-	<span class="ident">types</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>, <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">CompactForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-	<span class="ident">serializer</span>: <span class="ident">S</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S</span>::<span class="prelude-val">Ok</span>, <span class="ident">S</span>::<span class="ident">Error</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-	<span class="ident">S</span>: <span class="ident">serde</span>::<span class="ident">Serializer</span>,
-{
-	<span class="kw">let</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">types</span>.<span class="ident">values</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-	<span class="ident">types</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
+    <span class="doccomment">/// The cache for already registered types.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is just an accessor to the actual database</span>
+    <span class="doccomment">/// for all types found in the `types` field.</span>
+    <span class="ident">type_table</span>: <span class="ident">Interner</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The database where registered types reside.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The contents herein is used for serlialization.</span>
+    <span class="ident">types</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>, <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Registry</span> {
-	<span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span>::<span class="ident">new</span>()
-	}
-}
-
-<span class="kw">impl</span> <span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">Registry</span> {
-	<span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-		<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>() <span class="op">+</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">CompactForm</span><span class="op">&gt;</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">len</span>()
-	}
-
-	<span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">W</span>) {
-		<span class="kw">if</span> <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">u32</span>::<span class="ident">max_value</span>() <span class="kw">as</span> <span class="ident">usize</span> {
-			<span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Attempted to encode too many elements.&quot;</span>);
-		}
-		<span class="ident">scale</span>::<span class="ident">Compact</span>(<span class="self">self</span>.<span class="ident">types</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">encode_to</span>(<span class="ident">dest</span>);
-
-		<span class="kw">for</span> <span class="ident">ty</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">values</span>() {
-			<span class="ident">ty</span>.<span class="ident">encode_to</span>(<span class="ident">dest</span>);
-		}
-	}
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">new</span>()
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Registry</span> {
-	<span class="doccomment">/// Creates a new empty registry.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="self">Self</span> {
-			<span class="ident">type_table</span>: <span class="ident">Interner</span>::<span class="ident">new</span>(),
-			<span class="ident">types</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
-		}
-	}
+    <span class="doccomment">/// Creates a new empty registry.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">type_table</span>: <span class="ident">Interner</span>::<span class="ident">new</span>(),
+            <span class="ident">types</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+        }
+    }
 
-	<span class="doccomment">/// Registers the given type ID into the registry.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Returns `false` as the first return value if the type ID has already</span>
-	<span class="doccomment">/// been registered into this registry.</span>
-	<span class="doccomment">/// Returns the associated type ID symbol as second return value.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Note</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// This is an internal API and should not be called directly from the</span>
-	<span class="doccomment">/// outside.</span>
-	<span class="kw">fn</span> <span class="ident">intern_type_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_id</span>: <span class="ident">TypeId</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">bool</span>, <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>) {
-		<span class="kw">let</span> (<span class="ident">inserted</span>, <span class="ident">symbol</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_table</span>.<span class="ident">intern_or_get</span>(<span class="ident">type_id</span>);
-		(<span class="ident">inserted</span>, <span class="ident">symbol</span>.<span class="ident">into_untracked</span>())
-	}
+    <span class="doccomment">/// Registers the given type ID into the registry.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `false` as the first return value if the type ID has already</span>
+    <span class="doccomment">/// been registered into this registry.</span>
+    <span class="doccomment">/// Returns the associated type ID symbol as second return value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is an internal API and should not be called directly from the</span>
+    <span class="doccomment">/// outside.</span>
+    <span class="kw">fn</span> <span class="ident">intern_type_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_id</span>: <span class="ident">TypeId</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">bool</span>, <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> (<span class="ident">inserted</span>, <span class="ident">symbol</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_table</span>.<span class="ident">intern_or_get</span>(<span class="ident">type_id</span>);
+        (<span class="ident">inserted</span>, <span class="ident">symbol</span>.<span class="ident">into_untracked</span>())
+    }
 
-	<span class="doccomment">/// Registers the given type into the registry and returns</span>
-	<span class="doccomment">/// its associated type ID symbol.</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// # Note</span>
-	<span class="doccomment">///</span>
-	<span class="doccomment">/// Due to safety requirements the returns type ID symbol cannot</span>
-	<span class="doccomment">/// be used later to resolve back to the associated type definition.</span>
-	<span class="doccomment">/// However, since this facility is going to be used for serialization</span>
-	<span class="doccomment">/// purposes this functionality isn&#39;t needed anyway.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">MetaType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> (<span class="ident">inserted</span>, <span class="ident">symbol</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">intern_type_id</span>(<span class="ident">ty</span>.<span class="ident">type_id</span>());
-		<span class="kw">if</span> <span class="ident">inserted</span> {
-			<span class="kw">let</span> <span class="ident">compact_id</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">type_info</span>().<span class="ident">into_compact</span>(<span class="self">self</span>);
-			<span class="self">self</span>.<span class="ident">types</span>.<span class="ident">insert</span>(<span class="ident">symbol</span>, <span class="ident">compact_id</span>);
-		}
-		<span class="ident">symbol</span>
-	}
+    <span class="doccomment">/// Registers the given type into the registry and returns</span>
+    <span class="doccomment">/// its associated type ID symbol.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Due to safety requirements the returns type ID symbol cannot</span>
+    <span class="doccomment">/// be used later to resolve back to the associated type definition.</span>
+    <span class="doccomment">/// However, since this facility is going to be used for serialization</span>
+    <span class="doccomment">/// purposes this functionality isn&#39;t needed anyway.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">MetaType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">inserted</span>, <span class="ident">symbol</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">intern_type_id</span>(<span class="ident">ty</span>.<span class="ident">type_id</span>());
+        <span class="kw">if</span> <span class="ident">inserted</span> {
+            <span class="kw">let</span> <span class="ident">portable_id</span> <span class="op">=</span> <span class="ident">ty</span>.<span class="ident">type_info</span>().<span class="ident">into_portable</span>(<span class="self">self</span>);
+            <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">insert</span>(<span class="ident">symbol</span>, <span class="ident">portable_id</span>);
+        }
+        <span class="ident">symbol</span>
+    }
 
-	<span class="doccomment">/// Calls `register_type` for each `MetaType` in the given `iter`</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_types</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span><span class="op">&gt;</span>
-	<span class="kw">where</span>
-		<span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaType</span><span class="op">&gt;</span>,
-	{
-		<span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-	}
+    <span class="doccomment">/// Calls `register_type` for each `MetaType` in the given `iter`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">register_types</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaType</span><span class="op">&gt;</span>,
+    {
+        <span class="ident">iter</span>.<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>))
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+    }
 
-	<span class="doccomment">/// Converts an iterator into a Vec of the equivalent compact</span>
-	<span class="doccomment">/// representations</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_compact</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Output</span><span class="op">&gt;</span>
-	<span class="kw">where</span>
-		<span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
-		<span class="ident">T</span>: <span class="ident">IntoCompact</span>,
-	{
-		<span class="ident">iter</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">into_compact</span>(<span class="self">self</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-	}
+    <span class="doccomment">/// Converts an iterator into a Vec of the equivalent portable</span>
+    <span class="doccomment">/// representations.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_portable</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Output</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">IntoPortable</span>,
+    {
+        <span class="ident">iter</span>.<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">into_portable</span>(<span class="self">self</span>))
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+    }
 }
 
-<span class="doccomment">/// A read-only registry, to be used for decoding/deserializing</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Decode</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RegistryReadOnly</span> {
-	<span class="ident">types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">CompactForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A read-only registry containing types in their portable form for serialization.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Encode</span>, <span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+    <span class="ident">serde</span>(<span class="ident">bound</span>(<span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;S: Serialize&quot;</span>, <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;S: DeserializeOwned&quot;</span>))
+)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PortableRegistry</span><span class="op">&lt;</span><span class="ident">S</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">FormString</span>,
+{
+    <span class="ident">types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Registry</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RegistryReadOnly</span> {
-	<span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">registry</span>: <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-		<span class="ident">RegistryReadOnly</span> {
-			<span class="ident">types</span>: <span class="ident">registry</span>.<span class="ident">types</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-		}
-	}
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Registry</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PortableRegistry</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">registry</span>: <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">PortableRegistry</span> {
+            <span class="ident">types</span>: <span class="ident">registry</span>.<span class="ident">types</span>.<span class="ident">values</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        }
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">RegistryReadOnly</span> {
-	<span class="doccomment">/// Returns the type definition for the given identifier, `None` if no type found for that ID.</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NonZeroU32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">CompactForm</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-		<span class="self">self</span>.<span class="ident">types</span>.<span class="ident">get</span>((<span class="ident">id</span>.<span class="ident">get</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>)
-	}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">PortableRegistry</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">S</span>: <span class="ident">FormString</span>,
+{
+    <span class="doccomment">/// Returns the type definition for the given identifier, `None` if no type found for that ID.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resolve</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NonZeroU32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">get</span>((<span class="ident">id</span>.<span class="ident">get</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator for all types paired with their associated NonZeroU32 identifier.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enumerate</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">NonZeroU32</span>, <span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">ty</span>)<span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">NonZeroU32</span>::<span class="ident">new</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">expect</span>(<span class="string">&quot;i + 1 &gt; 0; qed&quot;</span>);
+            (<span class="ident">id</span>, <span class="ident">ty</span>)
+        })
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+        <span class="ident">build</span>::<span class="ident">Fields</span>,
+        <span class="ident">meta_type</span>,
+        <span class="ident">Path</span>,
+        <span class="ident">TypeDef</span>,
+        <span class="ident">TypeInfo</span>,
+    };
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">readonly_enumerate</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>());
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>());
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>());
+
+        <span class="kw">let</span> <span class="ident">readonly</span>: <span class="ident">PortableRegistry</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">into</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">4</span>, <span class="ident">readonly</span>.<span class="ident">enumerate</span>().<span class="ident">count</span>());
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">readonly</span>.<span class="ident">enumerate</span>() {
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">NonZeroU32</span>::<span class="ident">new</span>(<span class="ident">expected</span>).<span class="ident">unwrap</span>(), <span class="ident">i</span>);
+            <span class="ident">expected</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">recursive_struct_with_references</span>() {
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+            <span class="ident">boxed</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+            <span class="ident">reference</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+            <span class="ident">mutable_reference</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        }
+
+        <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+            <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+            <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+                <span class="ident">Type</span>::<span class="ident">builder</span>()
+                    .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;RecursiveRefs&quot;</span>, <span class="macro">module_path</span><span class="macro">!</span>()))
+                    .<span class="ident">composite</span>(
+                        <span class="ident">Fields</span>::<span class="ident">named</span>()
+                            .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RecursiveRefs</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+                                <span class="string">&quot;boxed&quot;</span>,
+                                <span class="string">&quot;Box &lt; RecursiveRefs &gt;&quot;</span>,
+                            )
+                            .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+                                <span class="string">&quot;reference&quot;</span>,
+                                <span class="string">&quot;&amp;RecursiveRefs&quot;</span>,
+                            )
+                            .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="kw-2">mut</span> <span class="ident">RecursiveRefs</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+                                <span class="string">&quot;mutable_reference&quot;</span>,
+                                <span class="string">&quot;&amp;mut RecursiveRefs&quot;</span>,
+                            ),
+                    )
+                    .<span class="ident">into</span>()
+            }
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">type_id</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">meta_type</span>::<span class="op">&lt;</span><span class="ident">RecursiveRefs</span><span class="op">&gt;</span>());
+
+        <span class="kw">let</span> <span class="ident">recursive</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">types</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">type_id</span>).<span class="ident">unwrap</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TypeDef</span>::<span class="ident">Composite</span>(<span class="ident">composite</span>) <span class="op">=</span> <span class="ident">recursive</span>.<span class="ident">type_def</span>() {
+            <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">composite</span>.<span class="ident">fields</span>() {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">field</span>.<span class="ident">ty</span>(), <span class="ident">type_id</span>)
+            }
+        } <span class="kw">else</span> {
+            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Should be a composite type definition&quot;</span>)
+        }
+    }
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "scale_info";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

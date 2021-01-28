@@ -396,6 +396,8 @@
 <span id="393">393</span>
 <span id="394">394</span>
 <span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -548,7 +550,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Output</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) {
         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
             <span class="ident">dest</span>.<span class="ident">write</span>(<span class="self">self</span>.<span class="ident">try_as_bytes</span>().<span class="ident">expect</span>(<span class="string">&quot;little endian is asserted&quot;</span>))
         } <span class="kw">else</span> {
@@ -635,10 +637,12 @@
     };
 
     <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Key</span> {
+        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
         <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
             <span class="ident">Type</span>::<span class="ident">builder</span>()
                 .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;Key&quot;</span>, <span class="string">&quot;ink_primitives&quot;</span>))
-                .<span class="ident">composite</span>(<span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>())
+                .<span class="ident">composite</span>(<span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>(<span class="string">&quot;[u8; 32]&quot;</span>))
         }
     }
 };
