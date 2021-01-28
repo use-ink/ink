@@ -149,7 +149,7 @@ impl scale::Encode for Key {
     }
 
     #[inline]
-    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         if cfg!(target_endian = "little") {
             dest.write(self.try_as_bytes().expect("little endian is asserted"))
         } else {

@@ -101,7 +101,7 @@ where
         <DynamicAllocation as scale::Encode>::size_hint(&self.allocation)
     }
 
-    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <DynamicAllocation as scale::Encode>::encode_to(&self.allocation, dest)
     }
 
