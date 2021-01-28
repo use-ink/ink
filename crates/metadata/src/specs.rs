@@ -24,9 +24,9 @@ use alloc::{
 use core::marker::PhantomData;
 use scale_info::{
     form::{
-        PortableForm,
         Form,
         MetaForm,
+        PortableForm,
     },
     meta_type,
     IntoPortable,

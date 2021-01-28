@@ -27,9 +27,9 @@ use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
     form::{
-        PortableForm,
         Form,
         MetaForm,
+        PortableForm,
     },
     meta_type,
     IntoPortable,
@@ -165,14 +165,18 @@ impl IntoPortable for Layout {
             Layout::Cell(encoded_cell) => {
                 Layout::Cell(encoded_cell.into_portable(registry))
             }
-            Layout::Hash(hash_layout) => Layout::Hash(hash_layout.into_portable(registry)),
+            Layout::Hash(hash_layout) => {
+                Layout::Hash(hash_layout.into_portable(registry))
+            }
             Layout::Array(array_layout) => {
                 Layout::Array(array_layout.into_portable(registry))
             }
             Layout::Struct(struct_layout) => {
                 Layout::Struct(struct_layout.into_portable(registry))
             }
-            Layout::Enum(enum_layout) => Layout::Enum(enum_layout.into_portable(registry)),
+            Layout::Enum(enum_layout) => {
+                Layout::Enum(enum_layout.into_portable(registry))
+            }
         }
     }
 }

@@ -48,12 +48,12 @@ use impl_serde::serialize as serde_hex;
 #[cfg(feature = "derive")]
 use scale_info::{
     form::{
+        FormString,
         PortableForm,
-        FormString
     },
     IntoPortable as _,
-    Registry,
     PortableRegistry,
+    Registry,
 };
 use serde::{
     de::DeserializeOwned,
@@ -91,7 +91,7 @@ impl InkProject {
 
 impl<S> InkProject<S>
 where
-    S: FormString
+    S: FormString,
 {
     /// Returns a read-only registry of types in the contract.
     pub fn registry(&self) -> &PortableRegistry<S> {
