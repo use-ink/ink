@@ -149,7 +149,7 @@ impl scale::Encode for Key {
     }
 
     #[inline]
-    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         if cfg!(target_endian = "little") {
             dest.write(self.try_as_bytes().expect("little endian is asserted"))
         } else {
@@ -236,10 +236,12 @@ const _: () = {
     };
 
     impl TypeInfo for Key {
+        type Identity = Self;
+
         fn type_info() -> Type {
             Type::builder()
                 .path(Path::new("Key", "ink_primitives"))
-                .composite(Fields::unnamed().field_of::<[u8; 32]>())
+                .composite(Fields::unnamed().field_of::<[u8; 32]>("[u8; 32]"))
         }
     }
 };

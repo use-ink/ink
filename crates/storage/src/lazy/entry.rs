@@ -131,7 +131,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <Option<T> as scale::Encode>::encode_to(&self.value, dest)
     }
 
