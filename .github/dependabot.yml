@@ -4,3 +4,47 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/contract-terminate"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/contract-transfer"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/delegator"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/dns"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/erc20"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/erc721"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/flipper"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/incrementer"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/multisig_plain"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/trait-erc20"
+    schedule:
+        interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/examples/trait-flipper"
+    schedule:
+        interval: "daily"
