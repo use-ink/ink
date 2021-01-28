@@ -49,8 +49,10 @@ const _: () = {
 
     impl<T> scale_info::TypeInfo for StorageBox<T>
     where
-        T: SpreadLayout,
+        T: SpreadLayout + 'static,
     {
+        type Identity = Self;
+
         fn type_info() -> scale_info::Type {
             scale_info::Type::builder()
                 .path(
@@ -66,7 +68,7 @@ const _: () = {
                 // .type_params(vec![scale_info::MetaType::new::<T>()])
                 .composite(
                     scale_info::build::Fields::named()
-                        .field_of::<DynamicAllocation>("allocation"),
+                        .field_of::<DynamicAllocation>("allocation", "DynamicAllocation"),
                 )
         }
     }

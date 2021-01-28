@@ -236,10 +236,12 @@ const _: () = {
     };
 
     impl TypeInfo for Key {
+        type Identity = Self;
+
         fn type_info() -> Type {
             Type::builder()
                 .path(Path::new("Key", "ink_primitives"))
-                .composite(Fields::unnamed().field_of::<[u8; 32]>())
+                .composite(Fields::unnamed().field_of::<[u8; 32]>("[u64; 4]"))
         }
     }
 };
