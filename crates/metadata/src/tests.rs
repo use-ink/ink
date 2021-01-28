@@ -15,7 +15,7 @@
 use super::*;
 use pretty_assertions::assert_eq;
 use scale_info::{
-    IntoCompact,
+    IntoPortable,
     Registry,
 };
 use serde_json::json;
@@ -28,11 +28,11 @@ fn spec_constructor_selector_must_serialize_to_hex() {
         .selector(123_456_789u32.to_be_bytes())
         .done();
     let mut registry = Registry::new();
-    let compact_spec = cs.into_compact(&mut registry);
+    let portable_spec = cs.into_portable(&mut registry);
 
     // when
-    let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<CompactForm> =
+    let json = serde_json::to_value(&portable_spec).unwrap();
+    let deserialized: ConstructorSpec<PortableForm<String>> =
         serde_json::from_value(json.clone()).unwrap();
 
     // then
@@ -45,7 +45,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
             "docs": []
         })
     );
-    assert_eq!(deserialized, compact_spec);
+    assert_eq!(deserialized.selector, portable_spec.selector);
 }
 
 #[test]
@@ -99,7 +99,7 @@ fn spec_contract_json() {
     let mut registry = Registry::new();
 
     // when
-    let json = serde_json::to_value(&contract.into_compact(&mut registry)).unwrap();
+    let json = serde_json::to_value(&contract.into_portable(&mut registry)).unwrap();
 
     // then
     assert_eq!(
@@ -179,11 +179,11 @@ fn trim_docs() {
         .docs(vec![" foobar      "])
         .done();
     let mut registry = Registry::new();
-    let compact_spec = cs.into_compact(&mut registry);
+    let compact_spec = cs.into_portable(&mut registry);
 
     // when
     let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<CompactForm> =
+    let deserialized: ConstructorSpec<PortableForm<String>> =
         serde_json::from_value(json.clone()).unwrap();
 
     // then
@@ -196,5 +196,5 @@ fn trim_docs() {
             "docs": ["foobar"]
         })
     );
-    assert_eq!(deserialized, compact_spec);
+    assert_eq!(deserialized.docs, compact_spec.docs);
 }
