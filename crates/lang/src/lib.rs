@@ -75,6 +75,8 @@ pub use self::{
         MessageMut,
         MessageRef,
         True,
+        TraitDefinitionRegistry,
+        NoDynamicCallForwarder,
     },
 };
 pub use ::static_assertions;
