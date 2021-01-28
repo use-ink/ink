@@ -111,7 +111,7 @@ mod multisig_plain {
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
-        fn encode_to<T: Output>(&self, dest: &mut T) {
+        fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
             dest.write(self.0);
         }
     }
