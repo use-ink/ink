@@ -148,11 +148,11 @@ pub trait True {}
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
 #[doc(hidden)]
-pub enum TraitDefinitionRegistry {}
+pub enum ConcreteImplementers {}
 
 /// The default type that ink! trait definition implementations use for the
 /// `__ink_DynamicCallForwarder` associated type.
 ///
 /// Read more about its use [here][TraitDefinitionRegistry].
 #[doc(hidden)]
-pub enum NoDynamicCallForwarder {}
+pub enum NoConcreteImplementer {}
