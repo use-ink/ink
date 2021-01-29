@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::marker::PhantomData;
 use ink_env::{
     call::{
         utils::{
@@ -148,7 +149,11 @@ pub trait True {}
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
 #[doc(hidden)]
-pub enum ConcreteImplementers {}
+pub struct ConcreteImplementers<E> {
+    marker: PhantomData<fn() -> E>,
+}
+
+unsafe impl<E, const N: usize> CheckedInkTrait<[(); N]> for ConcreteImplementers<E> {}
 
 /// The default type that ink! trait definition implementations use for the
 /// `__ink_DynamicCallForwarder` associated type.
