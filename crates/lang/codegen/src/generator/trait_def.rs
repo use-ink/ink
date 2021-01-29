@@ -101,6 +101,13 @@ impl GenerateCode for TraitDefinition<'_> {
                 #[allow(non_camel_case_types)]
                 type __ink_Checksum: #helper_ident;
 
+                /// Used to map from trait to a concrete `AccountId` thin-wrapper
+                /// implementing the exact same trait. This defaults to
+                /// `ink_lang::NoConcreteImplementer` for user provided implementations.
+                #[doc(hidden)]
+                #[allow(non_camel_case_types)]
+                type __ink_ConcreteImplementer;
+
                 #(#constructors)*
                 #(#messages)*
             }

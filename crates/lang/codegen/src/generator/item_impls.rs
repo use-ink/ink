@@ -157,6 +157,7 @@ impl ItemImpls<'_> {
             #( #attrs )*
             impl #trait_path for #self_type {
                 type __ink_Checksum = [(); #checksum];
+                type __ink_ConcreteImplementer = ::ink_lang::NoConcreteImplementer;
 
                 #( #constructors )*
                 #( #messages )*
