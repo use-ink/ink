@@ -39,9 +39,6 @@ use crate::{
     traits::PackedLayout,
 };
 
-#[cfg(doc)]
-use crate::traits::SpreadLayout;
-
 /// The used index type.
 type Index = u32;
 
@@ -92,7 +89,7 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    /// for the [`crate::traits::SpreadLayout::clear_spread`] trait implementation.
     fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
