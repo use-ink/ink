@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <T as scale::Encode>::encode_to(&self.inner, dest)
     }
 

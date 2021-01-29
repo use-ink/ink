@@ -16,7 +16,6 @@ variables:
   GIT_STRATEGY:                    fetch
   GIT_DEPTH:                       100
   CARGO_INCREMENTAL:               0
-  CARGO_HOME:                      "/ci-cache/${CI_PROJECT_NAME}/cargo/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CARGO_TARGET_DIR:                "/ci-cache/${CI_PROJECT_NAME}/targets/${CI_COMMIT_REF_NAME}/${CI_JOB_NAME}"
   CI_IMAGE:                        "paritytech/ink-ci-linux:production"
   PURELY_STD_CRATES:               "lang/codegen metadata"
@@ -164,22 +163,23 @@ codecov:
     - rustup show
     - bash --version
     - unset "CARGO_TARGET_DIR"
-    - unset "CARGO_HOME"
     - cargo clean
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
-    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
-    - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
+    - grcov . --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
     # lines coverage
-    - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
-    - rust-covfix -o lcov-lines.info lcov-lines.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
+    - grcov . --source-dir . --output-type lcov --llvm --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+    - bash <(curl -s https://codecov.io/bash) -f lcov-lines-fixed.info
 
 clippy-std:
   stage:                           workspace
@@ -307,11 +307,14 @@ publish-docs:
     # saving README and docs
     - cp -r ./crate-docs/ /tmp/doc/
     - cp README.md /tmp/doc/
+    - cp -r .images/ /tmp/doc/
     - git checkout gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
+    - rm -rf ./.images
     - mv /tmp/doc/* .
+    - mv /tmp/doc/.images .
     # Upload files
     - git add --all --force
     - git status

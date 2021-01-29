@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ impl DynamicAllocation {
             #[rustfmt::skip]
             fn encode_to<O>(&self, output: &mut O)
             where
-                O: scale::Output,
+                O: scale::Output + ?Sized,
             {
                 <[u8; 21] as scale::Encode>::encode_to(&[
                     b'D', b'Y', b'N', b'A', b'M', b'I', b'C', b'A', b'L', b'L', b'Y',

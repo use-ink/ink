@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -600,7 +600,7 @@ mod erc20 {
         }
 
         #[inline]
-        fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+        fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
             self.prefix.encode_to(dest);
             self.value.encode_to(dest);
         }

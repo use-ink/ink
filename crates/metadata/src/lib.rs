@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,25 +47,30 @@ use impl_serde::serialize as serde_hex;
 
 #[cfg(feature = "derive")]
 use scale_info::{
-    form::CompactForm,
-    IntoCompact as _,
+    form::{
+        FormString,
+        PortableForm,
+    },
+    IntoPortable as _,
+    PortableRegistry,
     Registry,
-    RegistryReadOnly,
 };
 use serde::{
+    de::DeserializeOwned,
     Deserialize,
     Serialize,
 };
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct InkProject {
+#[serde(bound(deserialize = "S: DeserializeOwned"))]
+pub struct InkProject<S: FormString = &'static str> {
     #[serde(flatten)]
-    registry: RegistryReadOnly,
+    registry: PortableRegistry<S>,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    layout: layout::Layout<CompactForm>,
-    spec: ContractSpec<CompactForm>,
+    layout: layout::Layout<PortableForm<S>>,
+    spec: ContractSpec<PortableForm<S>>,
 }
 
 impl InkProject {
@@ -77,26 +82,29 @@ impl InkProject {
         let mut registry = Registry::new();
 
         Self {
-            layout: layout.into().into_compact(&mut registry),
-            spec: spec.into().into_compact(&mut registry),
+            layout: layout.into().into_portable(&mut registry),
+            spec: spec.into().into_portable(&mut registry),
             registry: registry.into(),
         }
     }
 }
 
-impl InkProject {
+impl<S> InkProject<S>
+where
+    S: FormString,
+{
     /// Returns a read-only registry of types in the contract.
-    pub fn registry(&self) -> &RegistryReadOnly {
+    pub fn registry(&self) -> &PortableRegistry<S> {
         &self.registry
     }
 
     /// Returns the storage layout of the contract.
-    pub fn layout(&self) -> &layout::Layout<CompactForm> {
+    pub fn layout(&self) -> &layout::Layout<PortableForm<S>> {
         &self.layout
     }
 
     /// Returns the specification of the contract.
-    pub fn spec(&self) -> &ContractSpec<CompactForm> {
+    pub fn spec(&self) -> &ContractSpec<PortableForm<S>> {
         &self.spec
     }
 }
