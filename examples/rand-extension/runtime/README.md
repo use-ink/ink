@@ -1,3 +1,4 @@
 # Chain-side Extension
 
-use this as an implement of trait `ChainExtension` in substrate and use it as the associated type ChainExtension of trait `pallet_contracts::Config`
+Use this as an implementation of the trait `ChainExtension` in Substrate
+and use it as the associated type `ChainExtension` of the trait `pallet_contracts::Config`.
