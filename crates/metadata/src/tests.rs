@@ -32,7 +32,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
 
     // when
     let json = serde_json::to_value(&portable_spec).unwrap();
-    let deserialized: ConstructorSpec<PortableForm<String>> =
+    let deserialized: ConstructorSpec<PortableForm> =
         serde_json::from_value(json.clone()).unwrap();
 
     // then
@@ -183,7 +183,7 @@ fn trim_docs() {
 
     // when
     let json = serde_json::to_value(&compact_spec).unwrap();
-    let deserialized: ConstructorSpec<PortableForm<String>> =
+    let deserialized: ConstructorSpec<PortableForm> =
         serde_json::from_value(json.clone()).unwrap();
 
     // then
