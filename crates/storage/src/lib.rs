@@ -20,7 +20,6 @@
 //! FFI to interface with SRML contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
-#![feature(min_const_generics)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
     missing_docs,
