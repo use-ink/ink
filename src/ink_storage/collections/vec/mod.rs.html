@@ -342,6 +342,7 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -454,7 +455,8 @@
     <span class="doccomment">/// the contents of its associated storage region.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This API is used for the `Drop` implementation of [`Vec`] as well as</span>
-    <span class="doccomment">/// for the [`SpreadLayout::clear_spread`] trait implementation.</span>
+    <span class="doccomment">/// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]</span>
+    <span class="doccomment">/// trait implementation.</span>
     <span class="kw">fn</span> <span class="ident">clear_cells</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">key</span>().<span class="ident">is_none</span>() {
             <span class="comment">// We won&#39;t clear any storage if we are in lazy state since there</span>

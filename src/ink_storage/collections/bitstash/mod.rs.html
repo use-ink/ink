@@ -186,6 +186,8 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -260,7 +262,9 @@
     <span class="doccomment">/// in the `free` list.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the bit position of the first bit in the 256-bit chunk and not</span>
-    <span class="doccomment">/// the chunk position since that&#39;s what [`Bitvec::get_chunk`] expects.</span>
+    <span class="doccomment">/// the chunk position since that&#39;s what</span>
+    <span class="doccomment">/// [`Bitvec::get_chunk`][`crate::collections::Bitvec::get_chunk`]</span>
+    <span class="doccomment">/// expects.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Also directly increases the count of the first found free bit chunk.</span>
     <span class="kw">fn</span> <span class="ident">position_first_zero</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {

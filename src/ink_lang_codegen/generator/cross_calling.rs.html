@@ -965,7 +965,7 @@
         }
     }
 
-    <span class="doccomment">/// Builds up the [`ink_env::call::ArgumentList`] type structure for the given types.</span>
+    <span class="doccomment">/// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.</span>
     <span class="kw">fn</span> <span class="ident">generate_arg_list</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">Args</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>
     <span class="kw">where</span>
         <span class="ident">Args</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn</span>::<span class="ident">Type</span><span class="op">&gt;</span>,

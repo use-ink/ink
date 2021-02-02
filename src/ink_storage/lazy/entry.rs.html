@@ -310,8 +310,6 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -327,11 +325,6 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">doc</span>)]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">lazy</span>::{
-    <span class="ident">LazyArray</span>,
-    <span class="ident">LazyIndexMap</span>,
-};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
     <span class="ident">clear_packed_root</span>,
     <span class="ident">clear_spread_root_opt</span>,
@@ -502,7 +495,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyCell`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">pull_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)
     }
@@ -512,7 +505,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyCell`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_spread_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
         <span class="kw">if</span> <span class="ident">old_state</span>.<span class="ident">is_mutated</span>() {
@@ -525,7 +518,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyCell`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_spread_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="ident">clear_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>, <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">value</span>().<span class="ident">into</span>());
     }
@@ -540,7 +533,8 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`] or</span>
+    <span class="doccomment">/// [`LazyArray`][`crate::lazy::LazyArray`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">pull_packed_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)
     }
@@ -550,7 +544,8 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]</span>
+    <span class="doccomment">/// or [`LazyArray`][`crate::lazy::LazyArray`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_packed_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
         <span class="kw">if</span> <span class="ident">old_state</span>.<span class="ident">is_mutated</span>() {
@@ -563,7 +558,8 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
-    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].</span>
+    <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]</span>
+    <span class="doccomment">/// or [`LazyArray`][`crate::lazy::LazyArray`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_packed_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="ident">clear_packed_root</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">value</span>(), <span class="kw-2">&amp;</span><span class="ident">root_key</span>);
     }

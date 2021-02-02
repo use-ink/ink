@@ -1345,6 +1345,7 @@
 <span id="1342">1342</span>
 <span id="1343">1343</span>
 <span id="1344">1344</span>
+<span id="1345">1345</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1709,7 +1710,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This constructor is private and should never need to be called from</span>
     <span class="doccomment">/// outside this module. It is used to construct a lazy index map from a</span>
-    <span class="doccomment">/// key that is only useful upon a contract call. Use [`LazyIndexMap::new`]</span>
+    <span class="doccomment">/// key that is only useful upon a contract call. Use</span>
+    <span class="doccomment">/// [`LazyIndexMap::new`][`crate::lazy::LazyIndexMap::new`]</span>
     <span class="doccomment">/// for construction during contract initialization.</span>
     <span class="kw">fn</span> <span class="ident">lazy</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
