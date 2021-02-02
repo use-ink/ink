@@ -34,7 +34,7 @@ pub struct Block {
     /// # Note
     ///
     /// - Can optionally be set for more control via
-    ///   [`crate::test::set_block_entropy`].
+    ///   [`test::set_block_entropy`][`crate::test::set_block_entropy`].
     entropy: OffHash,
 }
 
@@ -75,7 +75,7 @@ impl Block {
     ///
     /// # Note
     ///
-    /// This is mainly used to control what [`crate::random`] returns
+    /// This is mainly used to control what [`random`][`crate::random`] returns
     /// in the off-chain environment.
     pub fn set_entropy<T>(&mut self, new_entropy: T::Hash) -> Result<()>
     where
@@ -89,7 +89,7 @@ impl Block {
     /// # Note
     ///
     /// - This is the off-chain environment implementation of
-    /// [`crate::random`]. It provides the same behaviour in that it
+    /// [`random`][`crate::random`]. It provides the same behaviour in that it
     /// will likely yield the same hash for the same subjects within the same
     /// block (or execution context).
     ///

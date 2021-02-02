@@ -194,7 +194,7 @@ where
 ///
 /// # Note
 ///
-/// This allows to control what [`crate::random`] returns.
+/// This allows to control what [`random`][`crate::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
     T: Environment,
