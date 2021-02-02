@@ -324,8 +324,8 @@ fuzz-tests:
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
             then
                 echo "testing crate " ${crate};
-                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
-                all_tests_passed=$(( all_tests_passed | $? ));
+                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+                all_tests_passed=$(( all_tests_passed | $exit_code ));
                 echo "all_tests_passed " ${all_tests_passed};
             fi
           done
