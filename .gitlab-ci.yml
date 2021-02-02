@@ -264,6 +264,20 @@ examples-contract-build:
         popd;
       done
 
+examples-docs:
+    stage:                           examples
+    <<:                              *docker-env
+    variables:
+        RUSTDOCFLAGS: -Dwarnings
+    script:
+        # `--document-private-items` needs to be in here because currently our contract macro
+        # puts the contract functions in a private module.
+        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+        # of this flag.
+        - for example in examples/*/; do
+            cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
+          done
+
 #### stage:                        publish
 
 publish-docs:

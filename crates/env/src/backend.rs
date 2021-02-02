@@ -169,84 +169,84 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::caller`]
+    /// For more details visit: [`caller`][`crate::caller`]
     fn caller<T: Environment>(&mut self) -> Result<T::AccountId>;
 
     /// Returns the transferred balance for the contract execution.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::transferred_balance`]
+    /// For more details visit: [`transferred_balance`][`crate::transferred_balance`]
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::gas_price`]
+    /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
     fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance>;
 
     /// Returns the amount of gas left for the contract execution.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::gas_left`]
+    /// For more details visit: [`gas_left`][`crate::gas_left`]
     fn gas_left<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::block_timestamp`]
+    /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp>;
 
     /// Returns the address of the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::account_id`]
+    /// For more details visit: [`account_id`][`crate::account_id`]
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId>;
 
     /// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::balance`]
+    /// For more details visit: [`balance`][`crate::balance`]
     fn balance<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Returns the current rent allowance for the executed contract.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::rent_allowance`]
+    /// For more details visit: [`rent_allowance`][`crate::rent_allowance`]
     fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Returns the current block number.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::block_number`]
+    /// For more details visit: [`block_number`][`crate::block_number`]
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber>;
 
     /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::minimum_balance`]
+    /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
     fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Returns the tombstone deposit of the contract chain.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::tombstone_deposit`]
+    /// For more details visit: [`tombstone_deposit`][`crate::tombstone_deposit`]
     fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance>;
 
     /// Emits an event with the given event data.
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::emit_event`]
+    /// For more details visit: [`emit_event`][`crate::emit_event`]
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: Environment,
@@ -256,7 +256,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::set_rent_allowance`]
+    /// For more details visit: [`set_rent_allowance`][`crate::set_rent_allowance`]
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
     where
         T: Environment;
@@ -265,7 +265,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::invoke_contract`]
+    /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     fn invoke_contract<T, Args>(
         &mut self,
         call_data: &CallParams<T, Args, ()>,
@@ -278,7 +278,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::eval_contract`]
+    /// For more details visit: [`eval_contract`][`crate::eval_contract`]
     fn eval_contract<T, Args, R>(
         &mut self,
         call_data: &CallParams<T, Args, ReturnType<R>>,
@@ -292,7 +292,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::instantiate_contract`]
+    /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
     fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
         params: &CreateParams<T, Args, Salt, C>,
@@ -306,7 +306,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::restore_contract`]
+    /// For more details visit: [`restore_contract`][`crate::restore_contract`]
     fn restore_contract<T>(
         &mut self,
         account_id: T::AccountId,
@@ -320,7 +320,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::terminate_contract`]
+    /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: Environment;
@@ -329,7 +329,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::transfer`]
+    /// For more details visit: [`transfer`][`crate::transfer`]
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: Environment;
@@ -338,7 +338,7 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::random`]
+    /// For more details visit: [`random`][`crate::random`]
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: Environment;

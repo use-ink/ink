@@ -14,7 +14,7 @@
 
 //! A small storage vector that allows to store a limited amount of elements.
 //!
-//! Prefer using [`SmallVec`] over [`crate::Vec`] if you know up front
+//! Prefer using [`SmallVec`] over [`Vec`][`crate::Vec`] if you know up front
 //! the maximum amount of unique elements that have to be stored in the vector
 //! at the same time, given the number is fairly low: e.g. not exceeding several
 //! hundreds of elements.
@@ -89,7 +89,8 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
+    /// trait implementation.
     fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
