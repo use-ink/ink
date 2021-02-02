@@ -72,7 +72,7 @@ impl BitStash {
     ///
     /// Returns the bit position of the first bit in the 256-bit chunk and not
     /// the chunk position since that's what
-    /// [`collections::Bitvec::get_chunk`][`crate::collections::Bitvec::get_chunk`]
+    /// [`Bitvec::get_chunk`][`crate::collections::Bitvec::get_chunk`]
     /// expects.
     ///
     /// Also directly increases the count of the first found free bit chunk.

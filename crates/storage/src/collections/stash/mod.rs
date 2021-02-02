@@ -266,7 +266,7 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`traits::SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
     /// trait implementation.
     fn clear_cells(&self) {
         if self.entries.key().is_none() {

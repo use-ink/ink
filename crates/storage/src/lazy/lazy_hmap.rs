@@ -362,7 +362,7 @@ where
     /// This constructor is private and should never need to be called from
     /// outside this module. It is used to construct a lazy index map from a
     /// key that is only useful upon a contract call. Use
-    /// [`lazy::LazyIndexMap::new`][`crate::lazy::LazyIndexMap::new`]
+    /// [`LazyIndexMap::new`][`crate::lazy::LazyIndexMap::new`]
     /// for construction during contract initialization.
     fn lazy(key: Key) -> Self {
         Self {
