@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
     form::{
-        CompactForm,
         Form,
         MetaForm,
+        PortableForm,
     },
     meta_type,
-    IntoCompact,
+    IntoPortable,
     Registry,
     TypeInfo,
 };
@@ -146,10 +146,10 @@ impl CellLayout {
     }
 }
 
-impl IntoCompact for CellLayout {
-    type Output = CellLayout<CompactForm>;
+impl IntoPortable for CellLayout {
+    type Output = CellLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         CellLayout {
             key: self.key,
             ty: registry.register_type(&self.ty),
@@ -157,22 +157,26 @@ impl IntoCompact for CellLayout {
     }
 }
 
-impl IntoCompact for Layout {
-    type Output = Layout<CompactForm>;
+impl IntoPortable for Layout {
+    type Output = Layout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         match self {
             Layout::Cell(encoded_cell) => {
-                Layout::Cell(encoded_cell.into_compact(registry))
+                Layout::Cell(encoded_cell.into_portable(registry))
             }
-            Layout::Hash(hash_layout) => Layout::Hash(hash_layout.into_compact(registry)),
+            Layout::Hash(hash_layout) => {
+                Layout::Hash(hash_layout.into_portable(registry))
+            }
             Layout::Array(array_layout) => {
-                Layout::Array(array_layout.into_compact(registry))
+                Layout::Array(array_layout.into_portable(registry))
             }
             Layout::Struct(struct_layout) => {
-                Layout::Struct(struct_layout.into_compact(registry))
+                Layout::Struct(struct_layout.into_portable(registry))
             }
-            Layout::Enum(enum_layout) => Layout::Enum(enum_layout.into_compact(registry)),
+            Layout::Enum(enum_layout) => {
+                Layout::Enum(enum_layout.into_portable(registry))
+            }
         }
     }
 }
@@ -209,14 +213,14 @@ pub struct HashLayout<F: Form = MetaForm> {
     layout: Box<Layout<F>>,
 }
 
-impl IntoCompact for HashLayout {
-    type Output = HashLayout<CompactForm>;
+impl IntoPortable for HashLayout {
+    type Output = HashLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         HashLayout {
             offset: self.offset,
             strategy: self.strategy,
-            layout: Box::new(self.layout.into_compact(registry)),
+            layout: Box::new(self.layout.into_portable(registry)),
         }
     }
 }
@@ -380,15 +384,15 @@ where
     }
 }
 
-impl IntoCompact for ArrayLayout {
-    type Output = ArrayLayout<CompactForm>;
+impl IntoPortable for ArrayLayout {
+    type Output = ArrayLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ArrayLayout {
             offset: self.offset,
             len: self.len,
             cells_per_elem: self.cells_per_elem,
-            layout: Box::new(self.layout.into_compact(registry)),
+            layout: Box::new(self.layout.into_portable(registry)),
         }
     }
 }
@@ -426,15 +430,15 @@ where
     }
 }
 
-impl IntoCompact for StructLayout {
-    type Output = StructLayout<CompactForm>;
+impl IntoPortable for StructLayout {
+    type Output = StructLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         StructLayout {
             fields: self
                 .fields
                 .into_iter()
-                .map(|field| field.into_compact(registry))
+                .map(|field| field.into_portable(registry))
                 .collect::<Vec<_>>(),
         }
     }
@@ -492,13 +496,13 @@ where
     }
 }
 
-impl IntoCompact for FieldLayout {
-    type Output = FieldLayout<CompactForm>;
+impl IntoPortable for FieldLayout {
+    type Output = FieldLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         FieldLayout {
-            name: self.name.map(|name| name.into_compact(registry)),
-            layout: self.layout.into_compact(registry),
+            name: self.name.map(|name| name.into_portable(registry)),
+            layout: self.layout.into_portable(registry),
         }
     }
 }
@@ -563,17 +567,17 @@ where
     }
 }
 
-impl IntoCompact for EnumLayout {
-    type Output = EnumLayout<CompactForm>;
+impl IntoPortable for EnumLayout {
+    type Output = EnumLayout<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EnumLayout {
             dispatch_key: self.dispatch_key,
             variants: self
                 .variants
                 .into_iter()
                 .map(|(discriminant, layout)| {
-                    (discriminant, layout.into_compact(registry))
+                    (discriminant, layout.into_portable(registry))
                 })
                 .collect(),
         }

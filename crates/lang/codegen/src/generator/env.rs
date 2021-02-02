@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ pub struct Env<'a> {
 
 impl GenerateCode for Env<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let env_types = self.contract.config().env_types();
+        let env = self.contract.config().env();
         let storage_ident = self.contract.module().storage().ident();
         quote! {
             impl ::ink_lang::ContractEnv for #storage_ident {
-                type Env = #env_types;
+                type Env = #env;
             }
 
             type Environment = <#storage_ident as ::ink_lang::ContractEnv>::Env;

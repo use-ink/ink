@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -260,10 +260,22 @@ mod erc20 {
                 result
             }
             let expected_topics = vec![
-                encoded_into_hash(b"Erc20::Transfer"),
-                encoded_into_hash(&expected_from),
-                encoded_into_hash(&expected_to),
-                encoded_into_hash(&expected_value),
+                encoded_into_hash(&PrefixedValue {
+                    value: b"Erc20::Transfer",
+                    prefix: b"",
+                }),
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"Erc20::Transfer::from",
+                    value: &expected_from,
+                }),
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"Erc20::Transfer::to",
+                    value: &expected_to,
+                }),
+                encoded_into_hash(&PrefixedValue {
+                    prefix: b"Erc20::Transfer::value",
+                    value: &expected_value,
+                }),
             ];
             for (n, (actual_topic, expected_topic)) in
                 event.topics.iter().zip(expected_topics).enumerate()
@@ -517,6 +529,28 @@ mod erc20 {
             let emitted_events_after =
                 ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_eq!(emitted_events_before.len(), emitted_events_after.len());
+        }
+    }
+
+    /// For calculating the event topic hash.
+    struct PrefixedValue<'a, 'b, T> {
+        pub prefix: &'a [u8],
+        pub value: &'b T,
+    }
+
+    impl<X> scale::Encode for PrefixedValue<'_, '_, X>
+    where
+        X: scale::Encode,
+    {
+        #[inline]
+        fn size_hint(&self) -> usize {
+            self.prefix.size_hint() + self.value.size_hint()
+        }
+
+        #[inline]
+        fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
+            self.prefix.encode_to(dest);
+            self.value.encode_to(dest);
         }
     }
 }

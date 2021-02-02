@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,8 +49,10 @@ const _: () = {
 
     impl<T> scale_info::TypeInfo for StorageBox<T>
     where
-        T: SpreadLayout,
+        T: SpreadLayout + 'static,
     {
+        type Identity = Self;
+
         fn type_info() -> scale_info::Type {
             scale_info::Type::builder()
                 .path(
@@ -66,7 +68,7 @@ const _: () = {
                 // .type_params(vec![scale_info::MetaType::new::<T>()])
                 .composite(
                     scale_info::build::Fields::named()
-                        .field_of::<DynamicAllocation>("allocation"),
+                        .field_of::<DynamicAllocation>("allocation", "DynamicAllocation"),
                 )
         }
     }
@@ -99,7 +101,7 @@ where
         <DynamicAllocation as scale::Encode>::size_hint(&self.allocation)
     }
 
-    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <DynamicAllocation as scale::Encode>::encode_to(&self.allocation, dest)
     }
 

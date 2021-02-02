@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ mod multisig_plain {
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
-        fn encode_to<T: Output>(&self, dest: &mut T) {
+        fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
             dest.write(self.0);
         }
     }

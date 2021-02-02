@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ pub trait EnvBackend {
         H: CryptoHash,
         T: scale::Encode;
 
-    /// Calls the chain extension with the given ID and inputs.
+    /// Low-level interface to call a chain extension method.
     ///
     /// Returns the output of the chain extension of the specified type.
     ///
@@ -138,11 +138,29 @@ pub trait EnvBackend {
     /// - If the inputs had an unexpected encoding.
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
-    #[cfg(feature = "ink-unstable-chain-extensions")]
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    ///
+    /// # Dev. Note
+    ///
+    /// A valid implementation applies the `status_to_result` closure on
+    /// the status code returned by the actual call to the chain extension
+    /// method.
+    /// Only if the closure finds that the given status code indicates a
+    /// successful call to the chain extension method is the resulting
+    /// output buffer passed to the `decode_to_result` closure, in order to
+    /// drive the decoding and error management process from the outside.
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static;
+        I: scale::Encode,
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>;
 }
 
 /// Environmental contract functionality.
@@ -275,13 +293,14 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    fn instantiate_contract<T, Args, C>(
+    fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
-        Args: scale::Encode;
+        Args: scale::Encode,
+        Salt: AsRef<[u8]>;
 
     /// Restores a smart contract tombstone.
     ///

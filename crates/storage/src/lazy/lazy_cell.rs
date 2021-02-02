@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,21 +77,22 @@ where
 }
 
 #[test]
-fn debug_impl_works() {
-    let c1 = <LazyCell<i32>>::new(None);
-    assert_eq!(
-        format!("{:?}", &c1),
-        "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
-    );
-    let c2 = <LazyCell<i32>>::new(Some(42));
-    assert_eq!(
-        format!("{:?}", &c2),
-        "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
-    );
-    let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
-    assert_eq!(
-        format!("{:?}", &c3),
-        "LazyCell { \
+fn debug_impl_works() -> ink_env::Result<()> {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let c1 = <LazyCell<i32>>::new(None);
+        assert_eq!(
+            format!("{:?}", &c1),
+            "LazyCell { key: None, cache: Some(Entry { value: None, state: Mutated }) }",
+        );
+        let c2 = <LazyCell<i32>>::new(Some(42));
+        assert_eq!(
+            format!("{:?}", &c2),
+            "LazyCell { key: None, cache: Some(Entry { value: Some(42), state: Mutated }) }",
+        );
+        let c3 = <LazyCell<i32>>::lazy(Key::from([0x00; 32]));
+        assert_eq!(
+            format!("{:?}", &c3),
+            "LazyCell { \
             key: Some(Key(0x_\
                 0000000000000000_\
                 0000000000000000_\
@@ -100,7 +101,9 @@ fn debug_impl_works() {
             ), \
             cache: None \
         }",
-    );
+        );
+        Ok(())
+    })
 }
 
 impl<T> Drop for LazyCell<T>
@@ -108,9 +111,32 @@ where
     T: SpreadLayout,
 {
     fn drop(&mut self) {
-        if let Some(key) = self.key() {
-            if let Some(entry) = self.entry() {
-                clear_spread_root_opt::<T, _>(key, || entry.value().into())
+        if let Some(root_key) = self.key() {
+            match self.entry() {
+                Some(entry) => {
+                    // The inner cell needs to be cleared, no matter if it has
+                    // been loaded or not. Otherwise there might be leftovers.
+                    // Load from storage and then clear:
+                    clear_spread_root_opt::<T, _>(root_key, || entry.value().into())
+                }
+                None => {
+                    // The value is not yet in the cache. we need it in there
+                    // though in order to properly clean up.
+                    if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+                        // The inner cell needs to be cleared, no matter if it has
+                        // been loaded or not. Otherwise there might be leftovers.
+                        // Load from storage and then clear:
+                        clear_spread_root_opt::<T, _>(root_key, || self.get())
+                    } else {
+                        // Clear without loading from storage:
+                        let footprint = <T as SpreadLayout>::FOOTPRINT;
+                        assert_footprint_threshold(footprint);
+                        let mut key_ptr = KeyPtr::from(*root_key);
+                        for _ in 0..footprint {
+                            ink_env::clear_contract_storage(key_ptr.advance_by(1));
+                        }
+                    }
+                }
             }
         }
     }
@@ -161,13 +187,7 @@ where
             false => {
                 // Clear without loading from storage:
                 let footprint = <T as SpreadLayout>::FOOTPRINT;
-                let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
-                assert!(
-                    footprint <= footprint_threshold,
-                    "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
-                    footprint,
-                    footprint_threshold,
-                );
+                assert_footprint_threshold(footprint);
                 let mut key_ptr = KeyPtr::from(*root_key);
                 for _ in 0..footprint {
                     ink_env::clear_contract_storage(key_ptr.advance_by(1));
@@ -361,6 +381,17 @@ where
     }
 }
 
+/// Asserts that the given `footprint` is below `FOOTPRINT_CLEANUP_THRESHOLD`.
+fn assert_footprint_threshold(footprint: u64) {
+    let footprint_threshold = crate::traits::FOOTPRINT_CLEANUP_THRESHOLD;
+    assert!(
+        footprint <= footprint_threshold,
+        "cannot clean-up a storage entity with a footprint of {}. maximum threshold for clean-up is {}.",
+        footprint,
+        footprint_threshold,
+    );
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
@@ -408,10 +439,13 @@ mod tests {
     }
 
     #[test]
-    fn lazy_works() {
-        let root_key = Key::from([0x42; 32]);
-        let cell = <LazyCell<u8>>::lazy(root_key);
-        assert_eq!(cell.key(), Some(&root_key));
+    fn lazy_works() -> ink_env::Result<()> {
+        run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let root_key = Key::from([0x42; 32]);
+            let cell = <LazyCell<u8>>::lazy(root_key);
+            assert_eq!(cell.key(), Some(&root_key));
+            Ok(())
+        })
     }
 
     #[test]
@@ -693,7 +727,7 @@ mod tests {
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
-            .expect("Cannot yet contract id");
+            .expect("Cannot get contract id");
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
@@ -702,6 +736,75 @@ mod tests {
             let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
                 root_key,
             ));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<u32> = Lazy::new(13u32);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy =
+                    <Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    fn lazy_drop_works_with_greater_footprint() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy = <Lazy<[u32; 5]> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::get_current_contract_account_id::<
+                ink_env::DefaultEnvironment,
+            >()
+            .expect("Cannot get contract id");
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
             Ok(())
         })
         .unwrap()

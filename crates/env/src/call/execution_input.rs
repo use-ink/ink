@@ -1,4 +1,4 @@
-// Copyright 2018-2020 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, output: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         <T as scale::Encode>::encode_to(&self.arg, output)
     }
 }
@@ -164,7 +164,7 @@ impl scale::Encode for EmptyArgumentList {
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, _output: &mut O) {}
+    fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
 }
 
 impl<'a, Head, Rest> scale::Encode for ArgumentList<Argument<Head>, Rest>
@@ -178,7 +178,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, output: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         // We reverse the order of encoding because we build up the list of
         // arguments in reverse order, too. This way we encode the arguments
         // in the same order in which they have been pushed to the argument list
@@ -198,7 +198,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, output: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         scale::Encode::encode_to(&self.selector, output);
         scale::Encode::encode_to(&self.args, output);
     }

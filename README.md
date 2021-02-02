@@ -32,10 +32,15 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract) •
-[`cargo-contract`](https://github.com/paritytech/cargo-contract) cli tool for ink! contracts •
-[Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) for contract deployment/interaction •
-Talk to us on [Element][k2] or [Discord][l2]
+[ink! Documentation Portal](https://paritytech.github.io/ink-docs)
+
+<br/>
 </div>
+
+More relevant links:
+* Talk to us on [Element][k2] or [Discord][l2]
+* [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ cli tool for ink! contracts
+* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ webpage for contract deployment and interaction
 
 ## Table of Contents
 
@@ -59,7 +64,8 @@ We have [a demonstration testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2F
 You can request some tokens to play with from our [Faucet](https://riot.im/app/#/room/#canvas_faucet:matrix.parity.io) and deploy your contracts via the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload).
 
 The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can also be used to deploy your contract to e.g. a Substrate chain which you run locally and execute calls there.
-If you want a quickstart you can use our [canvas-node](https://github.com/paritytech/canvas-node#note) project ‒ a simple Substrate blockchain which is configured to include the `contracts` pallet (see [How it Works](#how-it-works) for more).
+If you want a quickstart you can use our [canvas-node](https://github.com/paritytech/canvas-node#note) project.
+It's a simple Substrate blockchain which is configured to include the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 ## Usage
 
@@ -84,12 +90,13 @@ The folder contains a scaffold `Cargo.toml` and a `lib.rs`, which both contain t
 
 The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we explain in the next section.
 
-In order to build the contract just execute these commmands in the `flipper` folder:
+In order to build the contract just execute these commands in the `flipper` folder:
 ```
-cargo contract build && cargo contract generate-metadata
+cargo contract build
 ```
 
-As a result you'll get a file `target/flipper.wasm` and `target/metadata.json`. Those need to be used when deploying the contract.
+As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
+The `.contract` file combines the Wasm and metadata into one file and needs to be used when deploying the contract.
 
 
 ## Hello, World! ‒ The Flipper
@@ -152,7 +159,7 @@ mod flipper {
 }
 ```
 
-Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build && cargo contract generate-metadata` to build your first ink! smart contract example.
+Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build` to build your first ink! smart contract example.
 
 ## Examples
 
@@ -168,7 +175,7 @@ Some of the most interesting ones:
 
 To build a single example navigate to the root of the example and run:
 ```
-cargo contract build && cargo contract generate-metadata
+cargo contract build
 ```
 
 You should now have an optimized `<contract-name>.wasm` file and a `metadata.json` file in the `target` folder of the contract.
@@ -178,11 +185,12 @@ For further information, please have a look at the [Play with It](#play-with-it)
 
 ## How it Works
 
-* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains the `contracts` pallet,
-which implements an API for typical functions smart contracts need (storage, querying information about account, …).
+* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains
+a module  which implements an API for typical functions smart contracts need (storage, querying information about accounts, …).
+This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
-Hence ink! smart contracts are compiled to Wasm.
+Hence ink! contracts are compiled to Wasm.
 * When executing `cargo contract build` an additional file `metadata.json` is created.
 It contains information about e.g. what methods the contract provides for others to call.
 
@@ -217,6 +225,10 @@ See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/mas
 The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs#L278-L280) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
 
 ## Developer Documentation
+
+We have [a very comprehensive documentation portal](https://paritytech.github.io/ink-docs),
+but if you are looking for the crate level documentation itself, then these are
+the relevant links:
 
 | Crate | Docs | Description |
 |:--|:--|:--|
