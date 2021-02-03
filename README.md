@@ -32,10 +32,15 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract) •
-[`cargo-contract`](https://github.com/paritytech/cargo-contract) cli tool for ink! contracts •
-[Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) for contract deployment/interaction •
-Talk to us on [Element][k2] or [Discord][l2]
+[ink! Documentation Portal](https://paritytech.github.io/ink-docs)
+
+<br/>
 </div>
+
+More relevant links:
+* Talk to us on [Element][k2] or [Discord][l2]
+* [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ cli tool for ink! contracts
+* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ webpage for contract deployment and interaction
 
 ## Table of Contents
 
@@ -85,7 +90,7 @@ The folder contains a scaffold `Cargo.toml` and a `lib.rs`, which both contain t
 
 The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we explain in the next section.
 
-In order to build the contract just execute these commmands in the `flipper` folder:
+In order to build the contract just execute these commands in the `flipper` folder:
 ```
 cargo contract build
 ```
@@ -220,6 +225,10 @@ See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/mas
 The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs#L278-L280) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
 
 ## Developer Documentation
+
+We have [a very comprehensive documentation portal](https://paritytech.github.io/ink-docs),
+but if you are looking for the crate level documentation itself, then these are
+the relevant links:
 
 | Crate | Docs | Description |
 |:--|:--|:--|

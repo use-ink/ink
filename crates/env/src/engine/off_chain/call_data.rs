@@ -74,7 +74,7 @@ impl scale::Encode for CallData {
         self.bytes.len()
     }
 
-    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         dest.write(self.bytes.as_slice());
     }
 }

@@ -169,15 +169,17 @@ codecov:
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
     # coverage with branches
-    - grcov ./target -s . -t lcov --llvm --branch --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-w-branch.info
-    - rust-covfix -o lcov-w-branch.info lcov-w-branch.info
+    - grcov . --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
     # lines coverage
-    - grcov ./target -s . -t lcov --llvm --ignore-not-existing --ignore "/*" --ignore "tests/*" -o lcov-lines.info
-    - rust-covfix -o lcov-lines.info lcov-lines.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines.info
+    - grcov . --source-dir . --output-type lcov --llvm --ignore-not-existing
+        --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+    - bash <(curl -s https://codecov.io/bash) -f lcov-lines-fixed.info
 
 clippy-std:
   stage:                           workspace
@@ -262,6 +264,20 @@ examples-contract-build:
         popd;
       done
 
+examples-docs:
+    stage:                           examples
+    <<:                              *docker-env
+    variables:
+        RUSTDOCFLAGS: -Dwarnings
+    script:
+        # `--document-private-items` needs to be in here because currently our contract macro
+        # puts the contract functions in a private module.
+        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+        # of this flag.
+        - for example in examples/*/; do
+            cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
+          done
+
 #### stage:                        publish
 
 publish-docs:
@@ -324,8 +340,8 @@ fuzz-tests:
         - for crate in ${ALL_CRATES}; do
             if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
             then
-                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_;
-                all_tests_passed=$(( all_tests_passed | $? ));
+                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+                all_tests_passed=$(( all_tests_passed | exit_code ));
             fi
           done
         - if [ $all_tests_passed -eq 0 ]; then exit 0; fi

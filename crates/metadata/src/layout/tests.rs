@@ -44,7 +44,7 @@ fn named_fields_struct_layout(key_ptr: &mut KeyPtr) -> Layout {
 fn named_fields_work() {
     let layout = named_fields_struct_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
-    let compacted = layout.into_compact(&mut registry);
+    let compacted = layout.into_portable(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
@@ -101,7 +101,7 @@ fn tuple_struct_layout(key_ptr: &mut KeyPtr) -> Layout {
 fn tuple_struct_work() {
     let layout = tuple_struct_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
-    let compacted = layout.into_compact(&mut registry);
+    let compacted = layout.into_portable(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
@@ -156,7 +156,7 @@ fn clike_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
 fn clike_enum_work() {
     let layout = clike_enum_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
-    let compacted = layout.into_compact(&mut registry);
+    let compacted = layout.into_portable(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
@@ -237,7 +237,7 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
 fn mixed_enum_work() {
     let layout = mixed_enum_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
-    let compacted = layout.into_compact(&mut registry);
+    let compacted = layout.into_portable(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
@@ -336,7 +336,7 @@ fn unbounded_hashing_layout(key_ptr: &mut KeyPtr) -> Layout {
 fn unbounded_layout_works() {
     let layout = unbounded_hashing_layout(&mut KeyPtr::from(Key::from([0x00; 32])));
     let mut registry = Registry::new();
-    let compacted = layout.into_compact(&mut registry);
+    let compacted = layout.into_portable(&mut registry);
     let json = serde_json::to_value(&compacted).unwrap();
     let expected = serde_json::json! {
         {
