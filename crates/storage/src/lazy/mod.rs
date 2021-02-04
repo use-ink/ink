@@ -28,6 +28,7 @@ pub mod lazy_hmap;
 
 mod cache_cell;
 mod entry;
+#[cfg(feature = "ink-unstable")]
 mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
