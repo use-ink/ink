@@ -27,17 +27,18 @@ use quickcheck::{
     Arbitrary,
     Gen,
 };
-use std::vec::Vec;
+use std::{
+    iter::FromIterator,
+    vec::Vec,
+};
 
-impl<T: Arbitrary + PackedLayout + Send + Clone + 'static> Arbitrary for StorageVec<T>
+impl<T> Arbitrary for StorageVec<T>
 where
-    T: Clone,
+    T: Arbitrary + PackedLayout + Send + Clone + 'static,
 {
     fn arbitrary(g: &mut Gen) -> StorageVec<T> {
         let vec = Vec::<T>::arbitrary(g);
-        let mut svec = StorageVec::<T>::new();
-        vec.iter().for_each(|v| svec.push(v.clone()));
-        svec
+        StorageVec::<T>::from_iter(vec)
     }
 }
 

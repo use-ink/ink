@@ -186,14 +186,14 @@ fn fuzz_defrag(xs: Vec<i32>, inserts_each: u8) {
     .unwrap()
 }
 
-impl<
-        K: Arbitrary + Ord + PackedLayout + Send + Clone + std::hash::Hash + 'static,
-        V: Arbitrary + PackedLayout + Send + Clone + 'static,
-    > Arbitrary for StorageHashMap<K, V>
+impl<K, V> Arbitrary for StorageHashMap<K, V>
+where
+    K: Arbitrary + Ord + PackedLayout + Send + Clone + std::hash::Hash + 'static,
+    V: Arbitrary + PackedLayout + Send + Clone + 'static,
 {
     fn arbitrary(g: &mut Gen) -> StorageHashMap<K, V> {
         let hmap = HashMap::<K, V>::arbitrary(g);
-        StorageHashMap::<K, V>::from_iter(hmap.into_iter())
+        StorageHashMap::<K, V>::from_iter(hmap)
     }
 }
 
@@ -224,12 +224,12 @@ where
     fn equalize(&mut self, instance2: &Self::Collection) {
         let hmap_keys = self.keys().cloned().collect::<Vec<K>>();
         for k in hmap_keys {
-            if instance2.get(&k).is_none() {
+            if !instance2.contains_key(&k) {
                 let _ = self.take(&k);
             }
         }
 
-        let template_keys = instance2.keys().cloned().collect::<Vec<K>>();
+        let template_keys = instance2.keys().cloned();
         for k in template_keys {
             if let Some(template_val) = instance2.get(&k) {
                 let _ = self.insert(k, template_val.clone());
