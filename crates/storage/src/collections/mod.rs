@@ -22,6 +22,7 @@ pub mod binary_heap;
 pub mod bitstash;
 pub mod bitvec;
 pub mod hashmap;
+#[cfg(feature = "ink-unstable")]
 pub mod smallvec;
 pub mod stash;
 pub mod vec;
@@ -32,10 +33,13 @@ pub use self::{
     bitstash::BitStash,
     bitvec::Bitvec,
     hashmap::HashMap,
-    smallvec::SmallVec,
     stash::Stash,
     vec::Vec,
 };
+
+#[cfg(feature = "ink-unstable")]
+#[doc(inline)]
+pub use self::smallvec::SmallVec;
 
 /// Extends the lifetime 'a to the outliving lifetime 'b for the given reference.
 ///

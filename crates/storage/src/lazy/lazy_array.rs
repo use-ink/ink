@@ -31,36 +31,10 @@ use core::{
     mem,
     ptr::NonNull,
 };
-use generic_array::{
-    typenum::{
-        UInt,
-        UTerm,
-        Unsigned,
-        B0,
-        B1,
-    },
-    ArrayLength,
-    GenericArray,
-};
 use ink_primitives::Key;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
-
-/// Utility trait for helping with lazy array construction.
-pub trait LazyArrayLength<T>:
-    ArrayLength<CacheCell<Option<StorageEntry<T>>>> + Unsigned
-{
-}
-impl<T> LazyArrayLength<T> for UTerm {}
-impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
-    for UInt<N, B0>
-{
-}
-impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
-    for UInt<N, B1>
-{
-}
 
 /// A lazy storage array that spans over N storage cells.
 ///
@@ -75,10 +49,7 @@ impl<T, N: ArrayLength<CacheCell<Option<StorageEntry<T>>>>> LazyArrayLength<T>
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
 /// chunk of storage cells.
-pub struct LazyArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+pub struct LazyArray<T, const N: usize> {
     /// The offset key for the N cells.
     ///
     /// If the lazy chunk has been initialized during contract initialization
@@ -104,13 +75,12 @@ const _: () = {
     };
     use scale_info::TypeInfo;
 
-    impl<T, N> StorageLayout for LazyArray<T, N>
+    impl<T, const N: usize> StorageLayout for LazyArray<T, N>
     where
         T: TypeInfo + 'static,
-        N: LazyArrayLength<T>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            let capacity = <N as Unsigned>::U32;
+            let capacity = N as u32;
             Layout::Array(ArrayLayout::new(
                 LayoutKey::from(key_ptr.advance_by(capacity as u64)),
                 capacity,
@@ -123,15 +93,13 @@ const _: () = {
     }
 };
 
-struct DebugEntryArray<'a, T, N>(&'a EntryArray<T, N>)
+struct DebugEntryArray<'a, T, const N: usize>(&'a EntryArray<T, N>)
 where
-    T: Debug,
-    N: LazyArrayLength<T>;
+    T: Debug;
 
-impl<'a, T, N> Debug for DebugEntryArray<'a, T, N>
+impl<'a, T, const N: usize> Debug for DebugEntryArray<'a, T, N>
 where
     T: Debug,
-    N: LazyArrayLength<T>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map()
@@ -145,10 +113,9 @@ where
     }
 }
 
-impl<T, N> Debug for LazyArray<T, N>
+impl<T, const N: usize> Debug for LazyArray<T, N>
 where
     T: Debug,
-    N: LazyArrayLength<T>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LazyArray")
@@ -160,8 +127,7 @@ where
 
 #[test]
 fn debug_impl_works() {
-    use generic_array::typenum::U4;
-    let mut larray = <LazyArray<i32, U4>>::new();
+    let mut larray = <LazyArray<i32, 4>>::new();
     // Empty imap.
     assert_eq!(
         format!("{:?}", &larray),
@@ -194,21 +160,15 @@ fn debug_impl_works() {
 }
 
 /// Returns the capacity for an array with the given array length.
-fn array_capacity<T, N>() -> u32
-where
-    N: LazyArrayLength<T>,
-{
-    <N as Unsigned>::U32
+fn array_capacity<T, const N: usize>() -> u32 {
+    N as u32
 }
 
 /// The underlying array cache for the [`LazyArray`].
 #[derive(Debug)]
-pub struct EntryArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+pub struct EntryArray<T, const N: usize> {
     /// The cache entries of the entry array.
-    entries: GenericArray<CacheCell<Option<StorageEntry<T>>>, N>,
+    entries: [CacheCell<Option<StorageEntry<T>>>; N],
 }
 
 #[derive(Debug)]
@@ -217,10 +177,7 @@ pub struct EntriesIter<'a, T> {
 }
 
 impl<'a, T> EntriesIter<'a, T> {
-    pub fn new<N>(entry_array: &'a EntryArray<T, N>) -> Self
-    where
-        N: LazyArrayLength<T>,
-    {
+    pub fn new<const N: usize>(entry_array: &'a EntryArray<T, N>) -> Self {
         Self {
             iter: entry_array.entries.iter(),
         }
@@ -254,31 +211,22 @@ impl<'a, T> DoubleEndedIterator for EntriesIter<'a, T> {
 
 impl<'a, T> ExactSizeIterator for EntriesIter<'a, T> {}
 
-impl<T, N> EntryArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> EntryArray<T, N> {
     /// Creates a new entry array cache.
     pub fn new() -> Self {
         Self {
-            entries: Default::default(),
+            entries: array_init::array_init(|_| Default::default()),
         }
     }
 }
 
-impl<T, N> Default for EntryArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> Default for EntryArray<T, N> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, N> EntryArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> EntryArray<T, N> {
     /// Returns the constant capacity of the lazy array.
     #[inline]
     pub fn capacity() -> u32 {
@@ -289,7 +237,7 @@ where
     /// returns the old value if any.
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
-            unsafe { self.entries.as_slice()[at as usize].get_ptr().as_mut() },
+            unsafe { self.entries[at as usize].get_ptr().as_mut() },
             Some(StorageEntry::new(new_value, EntryState::Mutated)),
         )
         .map(StorageEntry::into_value)
@@ -325,10 +273,9 @@ where
     }
 }
 
-impl<T, N> LazyArray<T, N>
+impl<T, const N: usize> LazyArray<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Clears the underlying storage of the entry at the given index.
     ///
@@ -356,19 +303,13 @@ where
     }
 }
 
-impl<T, N> Default for LazyArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> Default for LazyArray<T, N> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, N> LazyArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> LazyArray<T, N> {
     /// Creates a new empty lazy array.
     ///
     /// # Note
@@ -428,12 +369,11 @@ where
     }
 }
 
-impl<T, N> SpreadLayout for LazyArray<T, N>
+impl<T, const N: usize> SpreadLayout for LazyArray<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
-    const FOOTPRINT: u64 = <N as Unsigned>::U64;
+    const FOOTPRINT: u64 = N as u64;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
@@ -458,10 +398,7 @@ where
     }
 }
 
-impl<T, N> LazyArray<T, N>
-where
-    N: LazyArrayLength<T>,
-{
+impl<T, const N: usize> LazyArray<T, N> {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
         if at >= self.capacity() {
@@ -471,10 +408,9 @@ where
     }
 }
 
-impl<T, N> LazyArray<T, N>
+impl<T, const N: usize> LazyArray<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Loads the entry at the given index.
     ///
@@ -604,22 +540,18 @@ mod tests {
         },
         Index,
         LazyArray,
-        LazyArrayLength,
     };
     use crate::traits::{
         KeyPtr,
         SpreadLayout,
     };
-    use generic_array::typenum::U4;
     use ink_primitives::Key;
 
     /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
-    fn assert_cached_entries<N>(
+    fn assert_cached_entries<const N: usize>(
         larray: &LazyArray<u8, N>,
         expected: &[(Index, StorageEntry<u8>)],
-    ) where
-        N: LazyArrayLength<u8>,
-    {
+    ) {
         let mut len = 0;
         for (given, expected) in larray
             .cached_entries()
@@ -641,7 +573,7 @@ mod tests {
 
     #[test]
     fn new_works() {
-        let larray = <LazyArray<u8, U4>>::new();
+        let larray = <LazyArray<u8, 4>>::new();
         // Key must be none.
         assert_eq!(larray.key(), None);
         assert_eq!(larray.key_at(0), None);
@@ -649,7 +581,7 @@ mod tests {
         // Cached elements must be empty.
         assert_cached_entries(&larray, &[]);
         // Same as default:
-        let default_larray = <LazyArray<u8, U4>>::default();
+        let default_larray = <LazyArray<u8, 4>>::default();
         assert_eq!(default_larray.key(), larray.key());
         assert_eq!(default_larray.key_at(0), larray.key_at(0));
         assert_eq!(larray.capacity(), 4);
@@ -659,7 +591,7 @@ mod tests {
     #[test]
     fn lazy_works() {
         let key = Key::from([0x42; 32]);
-        let larray = <LazyArray<u8, U4>>::lazy(key);
+        let larray = <LazyArray<u8, 4>>::lazy(key);
         // Key must be Some.
         assert_eq!(larray.key(), Some(&key));
         assert_eq!(larray.key_at(0), Some(key));
@@ -671,7 +603,7 @@ mod tests {
 
     #[test]
     fn get_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         let nothing_changed = &[
             (0, StorageEntry::new(None, EntryState::Preserved)),
             (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
@@ -701,13 +633,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "index is out of bounds")]
     fn get_out_of_bounds_works() {
-        let larray = <LazyArray<u8, U4>>::new();
+        let larray = <LazyArray<u8, 4>>::new();
         let _ = larray.get(4);
     }
 
     #[test]
     fn put_get_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         // Assert that the array cache is empty at first.
         assert_cached_entries(&larray, &[]);
         // Put none values.
@@ -750,13 +682,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "index is out of bounds")]
     fn put_get_out_of_bounds_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         let _ = larray.put_get(4, Some(b'A'));
     }
 
     #[test]
     fn put_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         // Put some values.
         larray.put(0, None);
         larray.put(1, Some(b'B'));
@@ -792,13 +724,13 @@ mod tests {
     #[test]
     #[should_panic(expected = "index out of bounds: the len is 4 but the index is 4")]
     fn put_out_of_bounds_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         larray.put(4, Some(b'A'));
     }
 
     #[test]
     fn swap_works() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         let nothing_changed = &[
             (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
             (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
@@ -847,21 +779,21 @@ mod tests {
     #[test]
     #[should_panic(expected = "b is out of bounds")]
     fn swap_rhs_out_of_bounds() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         larray.swap(0, 4);
     }
 
     #[test]
     #[should_panic(expected = "a is out of bounds")]
     fn swap_both_out_of_bounds() {
-        let mut larray = <LazyArray<u8, U4>>::new();
+        let mut larray = <LazyArray<u8, 4>>::new();
         larray.swap(4, 4);
     }
 
     #[test]
     fn spread_layout_works() -> ink_env::Result<()> {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut larray = <LazyArray<u8, U4>>::new();
+            let mut larray = <LazyArray<u8, 4>>::new();
             let nothing_changed = &[
                 (0, StorageEntry::new(Some(b'A'), EntryState::Mutated)),
                 (1, StorageEntry::new(Some(b'B'), EntryState::Mutated)),
@@ -879,7 +811,7 @@ mod tests {
             // Then: Compare both instances to be equal.
             let root_key = Key::from([0x42; 32]);
             SpreadLayout::push_spread(&larray, &mut KeyPtr::from(root_key));
-            let larray2 = <LazyArray<u8, U4> as SpreadLayout>::pull_spread(
+            let larray2 = <LazyArray<u8, 4> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),
             );
             assert_cached_entries(&larray2, &[]);
@@ -908,7 +840,7 @@ mod tests {
             larray2.clear_packed_at(1);
             larray2.clear_packed_at(2); // Not really needed here.
             larray2.clear_packed_at(3); // Not really needed here.
-            let larray3 = <LazyArray<u8, U4> as SpreadLayout>::pull_spread(
+            let larray3 = <LazyArray<u8, 4> as SpreadLayout>::pull_spread(
                 &mut KeyPtr::from(root_key),
             );
             assert_cached_entries(&larray3, &[]);
