@@ -789,7 +789,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 ];
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(Selector::new(
+                                    arg: AttributeArg::Selector(Selector::from_bytes(
                                         selector_bytes,
                                     )),
                                 })
@@ -1069,7 +1069,7 @@ mod tests {
                 #[ink(selector = "0xDEADBEEF")]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::new([0xDE, 0xAD, 0xBE, 0xEF]),
+                Selector::from_bytes([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
     }

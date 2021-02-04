@@ -343,8 +343,7 @@ where
             }
         }
     };
-    let hash = <blake2::Blake2b as blake2::Digest>::digest(&joined);
-    ir::Selector::new([hash[0], hash[1], hash[2], hash[3]])
+    ir::Selector::new(&joined)
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
@@ -521,10 +520,9 @@ mod tests {
     impl ExpectedSelector {
         pub fn expected_selector(self) -> ir::Selector {
             match self {
-                Self::Raw(raw_selector) => ir::Selector::new(raw_selector),
+                Self::Raw(raw_selector) => ir::Selector::from_bytes(raw_selector),
                 Self::Blake2(blake2_input) => {
-                    let hash = <blake2::Blake2b as blake2::Digest>::digest(&blake2_input);
-                    ir::Selector::new([hash[0], hash[1], hash[2], hash[3]])
+                    ir::Selector::new(&blake2_input)
                 }
             }
         }
