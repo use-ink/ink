@@ -32,6 +32,9 @@ mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
 
+#[cfg(feature = "ink-unstable")]
+#[doc(inline)]
+pub use self::lazy_array::LazyArray;
 use self::{
     cache_cell::CacheCell,
     entry::{
@@ -41,11 +44,11 @@ use self::{
 };
 #[doc(inline)]
 pub use self::{
-    lazy_array::LazyArray,
     lazy_cell::LazyCell,
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,
 };
+
 use crate::traits::{
     KeyPtr,
     SpreadLayout,

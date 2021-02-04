@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#[cfg(feature = "ink-unstable")]
+#[doc(inline)]
+use crate::lazy::LazyArray;
 #[cfg(doc)]
-use crate::lazy::{
-    LazyArray,
-    LazyIndexMap,
-};
+use crate::lazy::LazyIndexMap;
+
 use crate::traits::{
     clear_packed_root,
     clear_spread_root_opt,
