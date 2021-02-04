@@ -2203,7 +2203,7 @@
                                 ];
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(<span class="ident">Selector</span>::<span class="ident">new</span>(
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(<span class="ident">Selector</span>::<span class="ident">from_bytes</span>(
                                         <span class="ident">selector_bytes</span>,
                                     )),
                                 })
@@ -2483,7 +2483,7 @@
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xDEADBEEF&quot;</span>)]</span>
             },
             <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(
-                <span class="ident">Selector</span>::<span class="ident">new</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
+                <span class="ident">Selector</span>::<span class="ident">from_bytes</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
             )])),
         );
     }

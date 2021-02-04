@@ -512,6 +512,20 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1022,6 +1036,20 @@
             <span class="kw">let</span> <span class="ident">p3</span> <span class="op">=</span> <span class="ident">SpreadLayout</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key2</span>));
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p2</span>, <span class="ident">p3</span>);
         })
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-fuzz-tests&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident">quickcheck</span>::{
+    <span class="ident">Arbitrary</span>,
+    <span class="ident">Gen</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-fuzz-tests&quot;</span>))]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Arbitrary</span> <span class="op">+</span> <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Arbitrary</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">arbitrary</span>(<span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Gen</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Arbitrary</span><span class="op">&gt;</span>::<span class="ident">arbitrary</span>(<span class="ident">g</span>);
+        <span class="ident">Pack</span>::<span class="ident">new</span>(<span class="ident">a</span>)
     }
 }
 </pre></div>
