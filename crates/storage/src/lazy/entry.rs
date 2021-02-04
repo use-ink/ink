@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(feature = "ink-unstable")]
-#[doc(inline)]
-use crate::lazy::LazyArray;
-#[cfg(doc)]
-use crate::lazy::LazyIndexMap;
-
 use crate::traits::{
     clear_packed_root,
     clear_spread_root_opt,
@@ -188,7 +182,7 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyCell`].
+    /// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].
     pub fn pull_spread_root(root_key: &Key) -> Self {
         Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
     }
@@ -198,7 +192,7 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyCell`].
+    /// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].
     pub fn push_spread_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
@@ -211,7 +205,7 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyCell`].
+    /// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].
     pub fn clear_spread_root(&self, root_key: &Key) {
         clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
     }
@@ -226,7 +220,8 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`] or
+    /// [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn pull_packed_root(root_key: &Key) -> Self {
         Self::new(pull_packed_root_opt::<T>(root_key), EntryState::Preserved)
     }
@@ -236,7 +231,8 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
+    /// or [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn push_packed_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
@@ -249,7 +245,8 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`] or [`LazyArray`].
+    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
+    /// or [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn clear_packed_root(&self, root_key: &Key) {
         clear_packed_root::<Option<T>>(self.value(), &root_key);
     }
