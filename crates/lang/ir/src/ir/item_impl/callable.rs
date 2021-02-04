@@ -521,9 +521,7 @@ mod tests {
         pub fn expected_selector(self) -> ir::Selector {
             match self {
                 Self::Raw(raw_selector) => ir::Selector::from_bytes(raw_selector),
-                Self::Blake2(blake2_input) => {
-                    ir::Selector::new(&blake2_input)
-                }
+                Self::Blake2(blake2_input) => ir::Selector::new(&blake2_input),
             }
         }
     }

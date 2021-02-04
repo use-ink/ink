@@ -14,8 +14,8 @@
 
 #![allow(dead_code)]
 
-mod blake2;
 mod attrs;
+mod blake2;
 mod chain_extension;
 mod config;
 mod contract;
