@@ -13,12 +13,25 @@
 // limitations under the License.
 
 use super::HashMap as StorageHashMap;
-use crate::traits::{
-    KeyPtr,
-    SpreadLayout,
+use crate::{
+    test_utils::FuzzCollection,
+    traits::{
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
+    Pack,
 };
 use ink_primitives::Key;
 use itertools::Itertools;
+use quickcheck::{
+    Arbitrary,
+    Gen,
+};
+use std::{
+    collections::HashMap,
+    iter::FromIterator,
+};
 
 /// Conducts repeated insert and remove operations into the map by iterating
 /// over `xs`. For each odd `x` in `xs` a defined number of insert operations
@@ -172,3 +185,80 @@ fn fuzz_defrag(xs: Vec<i32>, inserts_each: u8) {
     })
     .unwrap()
 }
+
+impl<K, V> Arbitrary for StorageHashMap<K, V>
+where
+    K: Arbitrary + Ord + PackedLayout + Send + Clone + std::hash::Hash + 'static,
+    V: Arbitrary + PackedLayout + Send + Clone + 'static,
+{
+    fn arbitrary(g: &mut Gen) -> StorageHashMap<K, V> {
+        let hmap = HashMap::<K, V>::arbitrary(g);
+        StorageHashMap::<K, V>::from_iter(hmap)
+    }
+}
+
+impl<K, V> Clone for StorageHashMap<K, V>
+where
+    K: Ord + PackedLayout + Clone + std::hash::Hash,
+    V: PackedLayout + Clone,
+{
+    fn clone(&self) -> Self {
+        let mut shmap = StorageHashMap::<K, V>::new();
+        self.iter().for_each(|(k, v)| {
+            let _ = shmap.insert(k.clone(), v.clone());
+        });
+        shmap
+    }
+}
+
+impl<'a, K, V> FuzzCollection for &'a mut StorageHashMap<K, V>
+where
+    V: Clone + PackedLayout + 'a,
+    K: PackedLayout + Ord + Clone + 'a,
+{
+    type Collection = StorageHashMap<K, V>;
+    type Item = (&'a K, &'a mut V);
+
+    /// Makes `self` equal to `instance2` by executing a series of operations
+    /// on `self`.
+    fn equalize(&mut self, instance2: &Self::Collection) {
+        let hmap_keys = self.keys().cloned().collect::<Vec<K>>();
+        for k in hmap_keys {
+            if !instance2.contains_key(&k) {
+                let _ = self.take(&k);
+            }
+        }
+
+        let template_keys = instance2.keys().cloned();
+        for k in template_keys {
+            if let Some(template_val) = instance2.get(&k) {
+                let _ = self.insert(k, template_val.clone());
+            }
+        }
+    }
+
+    /// `item` is an item from the hash map. We check if `item.key` is
+    /// in `self` and if existent assign its value to `item.value`
+    /// of `self` and assign it to `val`.
+    ///
+    /// Hence this method only might modify values of `item`, leaving
+    /// others intact.
+    fn assign(&mut self, item: Self::Item) {
+        let (key, value) = item;
+        if let Some(existent_value) = self.get(key) {
+            *value = existent_value.clone();
+        }
+    }
+}
+
+crate::fuzz_storage!("hashmap_1", StorageHashMap<u32, u32>);
+crate::fuzz_storage!("hashmap_2", StorageHashMap<u32, Option<Pack<Option<u32>>>>);
+crate::fuzz_storage!(
+    "hashmap_3",
+    StorageHashMap<Option<Option<u32>>, Option<Pack<Option<u32>>>>
+);
+crate::fuzz_storage!(
+    "hashmap_4",
+    StorageHashMap<Pack<(u32, i128)>, (bool, (u32, u128))>
+);
+crate::fuzz_storage!("hashmap_5", StorageHashMap<u32, (i128, u32, bool, Option<(u32, i128)>, u32)>);
