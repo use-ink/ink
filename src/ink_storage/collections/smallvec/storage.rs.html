@@ -74,13 +74,6 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -97,22 +90,17 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">SmallVec</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">lazy</span>::<span class="ident">LazyArrayLength</span>,
-    <span class="ident">traits</span>::{
-        <span class="ident">KeyPtr</span>,
-        <span class="ident">PackedLayout</span>,
-        <span class="ident">SpreadLayout</span>,
-    },
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+    <span class="ident">KeyPtr</span>,
+    <span class="ident">PackedLayout</span>,
+    <span class="ident">SpreadLayout</span>,
 };
-<span class="kw">use</span> <span class="ident">generic_array</span>::<span class="ident">typenum</span>::<span class="ident">Unsigned</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">lazy</span>::<span class="ident">LazyArray</span>,
-        <span class="ident">traits</span>::<span class="ident">StorageLayout</span>,
-    };
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable&quot;</span>)]</span>
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">lazy</span>::<span class="ident">LazyArray</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
     <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout</span>::{
         <span class="ident">FieldLayout</span>,
         <span class="ident">Layout</span>,
@@ -120,10 +108,9 @@
     };
     <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">SmallVec</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">SmallVec</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
             <span class="ident">Layout</span>::<span class="ident">Struct</span>(<span class="ident">StructLayout</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -137,12 +124,11 @@
     }
 };
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">SmallVec</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">SmallVec</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
-    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="op">&lt;</span><span class="ident">N</span> <span class="kw">as</span> <span class="ident">Unsigned</span><span class="op">&gt;</span>::<span class="ident">U64</span>;
+    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u64</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {

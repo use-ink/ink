@@ -864,74 +864,6 @@
 <span id="861">861</span>
 <span id="862">862</span>
 <span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -966,36 +898,10 @@
     <span class="ident">mem</span>,
     <span class="ident">ptr</span>::<span class="ident">NonNull</span>,
 };
-<span class="kw">use</span> <span class="ident">generic_array</span>::{
-    <span class="ident">typenum</span>::{
-        <span class="ident">UInt</span>,
-        <span class="ident">UTerm</span>,
-        <span class="ident">Unsigned</span>,
-        <span class="ident">B0</span>,
-        <span class="ident">B1</span>,
-    },
-    <span class="ident">ArrayLength</span>,
-    <span class="ident">GenericArray</span>,
-};
 <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 
 <span class="doccomment">/// The index type used in the lazy storage chunk.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Index</span> <span class="op">=</span> <span class="ident">u32</span>;
-
-<span class="doccomment">/// Utility trait for helping with lazy array construction.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>:
-    <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Unsigned</span>
-{
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UTerm</span> {}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">B0</span><span class="op">&gt;</span>
-{
-}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">UInt</span><span class="op">&lt;</span><span class="ident">N</span>, <span class="ident">B1</span><span class="op">&gt;</span>
-{
-}
 
 <span class="doccomment">/// A lazy storage array that spans over N storage cells.</span>
 <span class="doccomment">///</span>
@@ -1010,10 +916,7 @@
 <span class="doccomment">/// This is mainly used as low-level storage primitives by other high-level</span>
 <span class="doccomment">/// storage primitives in order to manage the contract storage for a whole</span>
 <span class="doccomment">/// chunk of storage cells.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The offset key for the N cells.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the lazy chunk has been initialized during contract initialization</span>
@@ -1039,13 +942,12 @@
     };
     <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-        <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
-            <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">N</span> <span class="kw">as</span> <span class="ident">Unsigned</span><span class="op">&gt;</span>::<span class="ident">U32</span>;
+            <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u32</span>;
             <span class="ident">Layout</span>::<span class="ident">Array</span>(<span class="ident">ArrayLayout</span>::<span class="ident">new</span>(
                 <span class="ident">LayoutKey</span>::<span class="ident">from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="ident">capacity</span> <span class="kw">as</span> <span class="ident">u64</span>)),
                 <span class="ident">capacity</span>,
@@ -1058,15 +960,13 @@
     }
 };
 
-<span class="kw">struct</span> <span class="ident">DebugEntryArray</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>)
+<span class="kw">struct</span> <span class="ident">DebugEntryArray</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>)
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Debug</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="ident">T</span>: <span class="ident">Debug</span>;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DebugEntryArray</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">DebugEntryArray</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Debug</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_map</span>()
@@ -1080,10 +980,9 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Debug</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;LazyArray&quot;</span>)
@@ -1095,8 +994,7 @@
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">debug_impl_works</span>() {
-    <span class="kw">use</span> <span class="ident">generic_array</span>::<span class="ident">typenum</span>::<span class="ident">U4</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
     <span class="comment">// Empty imap.</span>
     <span class="macro">assert_eq</span><span class="macro">!</span>(
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">larray</span>),
@@ -1129,21 +1027,15 @@
 }
 
 <span class="doccomment">/// Returns the capacity for an array with the given array length.</span>
-<span class="kw">fn</span> <span class="ident">array_capacity</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
-    <span class="op">&lt;</span><span class="ident">N</span> <span class="kw">as</span> <span class="ident">Unsigned</span><span class="op">&gt;</span>::<span class="ident">U32</span>
+<span class="kw">fn</span> <span class="ident">array_capacity</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u32</span>
 }
 
 <span class="doccomment">/// The underlying array cache for the [`LazyArray`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The cache entries of the entry array.</span>
-    <span class="ident">entries</span>: <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">N</span><span class="op">&gt;</span>,
+    <span class="ident">entries</span>: [<span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>; <span class="ident">N</span>],
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
@@ -1152,10 +1044,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(<span class="ident">entry_array</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">entry_array</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">entry_array</span>.<span class="ident">entries</span>.<span class="ident">iter</span>(),
         }
@@ -1189,31 +1078,22 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new entry array cache.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">entries</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">entries</span>: <span class="ident">array_init</span>::<span class="ident">array_init</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Default</span>::<span class="ident">default</span>()),
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">new</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns the constant capacity of the lazy array.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
@@ -1224,7 +1104,7 @@
     <span class="doccomment">/// returns the old value if any.</span>
     <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>, <span class="ident">new_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">mem</span>::<span class="ident">replace</span>(
-            <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">as_slice</span>()[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">get_ptr</span>().<span class="ident">as_mut</span>() },
+            <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">get_ptr</span>().<span class="ident">as_mut</span>() },
             <span class="prelude-val">Some</span>(<span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="ident">new_value</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
         )
         .<span class="ident">map</span>(<span class="ident">StorageEntry</span>::<span class="ident">into_value</span>)
@@ -1260,10 +1140,9 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Clears the underlying storage of the entry at the given index.</span>
     <span class="doccomment">///</span>
@@ -1291,19 +1170,13 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">new</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new empty lazy array.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
@@ -1363,12 +1236,11 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
-    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">N</span> <span class="kw">as</span> <span class="ident">Unsigned</span><span class="op">&gt;</span>::<span class="ident">U64</span>;
+    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u64</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
@@ -1393,10 +1265,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns the offset key for the given index if not out of bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">capacity</span>() {
@@ -1406,10 +1275,9 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
-    <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Loads the entry at the given index.</span>
     <span class="doccomment">///</span>
@@ -1539,22 +1407,18 @@
         },
         <span class="ident">Index</span>,
         <span class="ident">LazyArray</span>,
-        <span class="ident">LazyArrayLength</span>,
     };
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
         <span class="ident">KeyPtr</span>,
         <span class="ident">SpreadLayout</span>,
     };
-    <span class="kw">use</span> <span class="ident">generic_array</span>::<span class="ident">typenum</span>::<span class="ident">U4</span>;
     <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
 
     <span class="doccomment">/// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.</span>
-    <span class="kw">fn</span> <span class="ident">assert_cached_entries</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">assert_cached_entries</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(
         <span class="ident">larray</span>: <span class="kw-2">&amp;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">N</span><span class="op">&gt;</span>,
         <span class="ident">expected</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Index</span>, <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>)],
-    ) <span class="kw">where</span>
-        <span class="ident">N</span>: <span class="ident">LazyArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    {
+    ) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="ident">given</span>, <span class="ident">expected</span>) <span class="kw">in</span> <span class="ident">larray</span>
             .<span class="ident">cached_entries</span>()
@@ -1576,7 +1440,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">new_works</span>() {
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="comment">// Key must be none.</span>
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
@@ -1584,7 +1448,7 @@
         <span class="comment">// Cached elements must be empty.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span>[]);
         <span class="comment">// Same as default:</span>
-        <span class="kw">let</span> <span class="ident">default_larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="ident">default_larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">default</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_larray</span>.<span class="ident">key</span>(), <span class="ident">larray</span>.<span class="ident">key</span>());
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>));
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
@@ -1594,7 +1458,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">lazy_works</span>() {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">lazy</span>(<span class="ident">key</span>);
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">lazy</span>(<span class="ident">key</span>);
         <span class="comment">// Key must be Some.</span>
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">key</span>));
@@ -1606,7 +1470,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">get_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
             (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
             (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
@@ -1636,13 +1500,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">get_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">put_get_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="comment">// Assert that the array cache is empty at first.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span>[]);
         <span class="comment">// Put none values.</span>
@@ -1685,13 +1549,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">put_get_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">put_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="comment">// Put some values.</span>
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">0</span>, <span class="prelude-val">None</span>);
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>));
@@ -1727,13 +1591,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index out of bounds: the len is 4 but the index is 4&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">put_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">swap_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
             (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
             (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
@@ -1782,21 +1646,21 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;b is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">swap_rhs_out_of_bounds</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="ident">larray</span>.<span class="ident">swap</span>(<span class="number">0</span>, <span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;a is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">swap_both_out_of_bounds</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
         <span class="ident">larray</span>.<span class="ident">swap</span>(<span class="number">4</span>, <span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">spread_layout_works</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_env</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
             <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
                 (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
                 (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
@@ -1814,7 +1678,7 @@
             <span class="comment">// Then: Compare both instances to be equal.</span>
             <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
             <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="kw">let</span> <span class="ident">larray2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
+            <span class="kw">let</span> <span class="ident">larray2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>),
             );
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray2</span>, <span class="kw-2">&amp;</span>[]);
@@ -1843,7 +1707,7 @@
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">1</span>);
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">2</span>); <span class="comment">// Not really needed here.</span>
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">3</span>); <span class="comment">// Not really needed here.</span>
-            <span class="kw">let</span> <span class="ident">larray3</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
+            <span class="kw">let</span> <span class="ident">larray3</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>),
             );
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray3</span>, <span class="kw-2">&amp;</span>[]);

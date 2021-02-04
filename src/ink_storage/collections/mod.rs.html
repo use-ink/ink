@@ -56,6 +56,10 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -81,6 +85,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bitstash</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">bitvec</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">hashmap</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">smallvec</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">stash</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">vec</span>;
@@ -91,10 +96,13 @@
     <span class="ident">bitstash</span>::<span class="ident">BitStash</span>,
     <span class="ident">bitvec</span>::<span class="ident">Bitvec</span>,
     <span class="ident">hashmap</span>::<span class="ident">HashMap</span>,
-    <span class="ident">smallvec</span>::<span class="ident">SmallVec</span>,
     <span class="ident">stash</span>::<span class="ident">Stash</span>,
     <span class="ident">vec</span>::<span class="ident">Vec</span>,
 };
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">smallvec</span>::<span class="ident">SmallVec</span>;
 
 <span class="doccomment">/// Extends the lifetime &#39;a to the outliving lifetime &#39;b for the given reference.</span>
 <span class="doccomment">///</span>
