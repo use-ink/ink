@@ -14,7 +14,7 @@ ink_lang = { version = "3.0.0-rc2", path = "../../../crates/lang", default-featu
 accumulator = { version = "3.0.0-rc2", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
 
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj-decode-feature", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "0.5", default-features = false, features = ["derive"], optional = true }
 
 
 [lib]

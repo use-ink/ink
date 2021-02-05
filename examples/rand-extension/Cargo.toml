@@ -12,7 +12,7 @@ ink_storage = { path = "../../crates/storage", default-features = false }
 ink_lang = { path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
-scale-info = { git = "https://github.com/paritytech/scale-info", branch = "aj-decode-feature", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "0.5", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "rand_extension"
