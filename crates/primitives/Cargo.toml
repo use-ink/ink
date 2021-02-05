@@ -18,7 +18,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 ink_prelude = { version = "3.0.0-rc2", path = "../prelude/", default-features = false }
 tiny-keccak = { version = "2.0", features = ["keccak"] }
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
-scale-info = { version = "0.5", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
 
 [dev-dependencies]
