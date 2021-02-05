@@ -47,30 +47,25 @@ use impl_serde::serialize as serde_hex;
 
 #[cfg(feature = "derive")]
 use scale_info::{
-    form::{
-        FormString,
-        PortableForm,
-    },
+    form::PortableForm,
     IntoPortable as _,
     PortableRegistry,
     Registry,
 };
 use serde::{
-    de::DeserializeOwned,
     Deserialize,
     Serialize,
 };
 
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(bound(deserialize = "S: DeserializeOwned"))]
-pub struct InkProject<S: FormString = &'static str> {
+pub struct InkProject {
     #[serde(flatten)]
-    registry: PortableRegistry<S>,
+    registry: PortableRegistry,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    layout: layout::Layout<PortableForm<S>>,
-    spec: ContractSpec<PortableForm<S>>,
+    layout: layout::Layout<PortableForm>,
+    spec: ContractSpec<PortableForm>,
 }
 
 impl InkProject {
@@ -89,22 +84,19 @@ impl InkProject {
     }
 }
 
-impl<S> InkProject<S>
-where
-    S: FormString,
-{
+impl InkProject {
     /// Returns a read-only registry of types in the contract.
-    pub fn registry(&self) -> &PortableRegistry<S> {
+    pub fn registry(&self) -> &PortableRegistry {
         &self.registry
     }
 
     /// Returns the storage layout of the contract.
-    pub fn layout(&self) -> &layout::Layout<PortableForm<S>> {
+    pub fn layout(&self) -> &layout::Layout<PortableForm> {
         &self.layout
     }
 
     /// Returns the specification of the contract.
-    pub fn spec(&self) -> &ContractSpec<PortableForm<S>> {
+    pub fn spec(&self) -> &ContractSpec<PortableForm> {
         &self.spec
     }
 }
