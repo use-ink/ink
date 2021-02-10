@@ -33,9 +33,9 @@ use syn::spanned::Spanned as _;
 /// when ink! trait implementations are involved with long-hand calling notation.
 ///
 /// The error code requires three parameters:
-/// 1. The name of the called message.
-/// 2. The selector of the called message.
-/// 3. The trait that defines the called message.
+/// 1. The trait that defines the called message.
+/// 2. The name of the called message.
+/// 3. The selector of the called message.
 const CALL_MUT_MESSAGE_INVALID_CTX_ERRC: u32 = 0x1;
 
 /// The below error code represents calling a constructor in a context that
@@ -45,9 +45,9 @@ const CALL_MUT_MESSAGE_INVALID_CTX_ERRC: u32 = 0x1;
 /// already exist at the point when the call to it is made.
 ///
 /// The error code requires three parameters:
-/// 1. The name of the called message.
-/// 2. The selector of the called message.
-/// 3. The trait that defines the called message.
+/// 1. The trait that defines the called message.
+/// 2. The name of the called message.
+/// 3. The selector of the called message.
 const CALL_CONSTRUCTOR_INVALID_CTX_ERRC: u32 = 0x2;
 
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
@@ -194,14 +194,14 @@ impl CrossCalling<'_> {
             .expect("trait identifier must exist")
             .to_string();
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_{}_{}_0x{:02X}{:02X}{:02X}{:02X}_{}",
+            "__ink_enforce_error_{}_{}_{}_0x{:02X}{:02X}{:02X}{:02X}",
             CALL_MUT_MESSAGE_INVALID_CTX_ERRC,
+            trait_ident,
             ident.to_string(),
             composed_selector[0],
             composed_selector[1],
             composed_selector[2],
             composed_selector[3],
-            trait_ident,
         );
         let attrs = message.attrs();
         let input_bindings = message
@@ -342,14 +342,14 @@ impl CrossCalling<'_> {
             .expect("trait identifier must exist")
             .to_string();
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_{}_{}_0x{:02X}{:02X}{:02X}{:02X}_{}",
+            "__ink_enforce_error_{}_{}_{}_0x{:02X}{:02X}{:02X}{:02X}",
             CALL_CONSTRUCTOR_INVALID_CTX_ERRC,
+            trait_ident,
             ident.to_string(),
             composed_selector[0],
             composed_selector[1],
             composed_selector[2],
             composed_selector[3],
-            trait_ident,
         );
         let input_bindings = constructor
             .inputs()
