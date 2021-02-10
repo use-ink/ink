@@ -29,6 +29,7 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+/// Errors which may occur when forwarding a call is not allowed.
 #[derive(scale::Encode, scale::Decode)]
 pub enum EnforcedErrors {
     /// The below error represents calling a `&mut self` message in a context that
