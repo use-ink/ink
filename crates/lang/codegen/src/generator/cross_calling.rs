@@ -31,7 +31,7 @@ use syn::spanned::Spanned as _;
 
 #[derive(scale::Encode, scale::Decode)]
 pub enum EnforcedErrors {
-    /// The below error code represents calling a `&mut self` message in a context that
+    /// The below error represents calling a `&mut self` message in a context that
     /// only allows for `&self` messages. This may happen under certain circumstances
     /// when ink! trait implementations are involved with long-hand calling notation.
     #[codec(index = 1)]
@@ -45,14 +45,14 @@ pub enum EnforcedErrors {
         /// Is `true` if the `self` receiver of the ink! message is `&mut self`.
         message_mut: bool,
     },
-    /// The below error code represents calling a constructor in a context that
-    /// does not allow calling it. This may happen when the constructor defined
-    /// in a trait is cross-called in another contract.
+    /// The below error represents calling a constructor in a context that does
+    /// not allow calling it. This may happen when the constructor defined in a
+    /// trait is cross-called in another contract.
     /// This is not allowed since the contract to which a call is forwarded must
     /// already exist at the point when the call to it is made.
     #[codec(index = 2)]
     CannotCallTraitConstructor {
-        /// The trait that defines the called message.
+        /// The trait that defines the called constructor.
         trait_ident: String,
         /// The name of the called constructor.
         constructor_ident: String,
