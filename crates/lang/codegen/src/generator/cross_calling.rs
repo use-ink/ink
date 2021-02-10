@@ -30,6 +30,12 @@ use quote::{
 use syn::spanned::Spanned as _;
 
 /// Errors which may occur when forwarding a call is not allowed.
+///
+/// We insert markers for these errors in the generated contract code.
+/// This is necessary since we can't check these errors at compile time
+/// of the contract.
+/// `cargo-contract` checks the contract code for these error markers
+/// when building a contract and fails if it finds markers.
 #[derive(scale::Encode, scale::Decode)]
 pub enum EnforcedErrors {
     /// The below error represents calling a `&mut self` message in a context that
