@@ -28,6 +28,28 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
+/// The below error code represents calling a `&mut self` message in a context that
+/// only allows for `&self` messages. This may happen under certain circumstances
+/// when ink! trait implementations are involved with long-hand calling notation.
+///
+/// The error code requires three parameters:
+/// 1. The name of the called message.
+/// 2. The selector of the called message.
+/// 3. The trait that defines the called message.
+const CALL_MUT_MESSAGE_INVALID_CTX_ERRC: u32 = 0x1;
+
+/// The below error code represents calling a constructor in a context that
+/// does not allow calling it. This may happen when the constructor defined
+/// in a trait is cross-called in another contract.
+/// This is not allowed since the contract to which a call is forwarded must
+/// already exist at the point when the call to it is made.
+///
+/// The error code requires three parameters:
+/// 1. The name of the called message.
+/// 2. The selector of the called message.
+/// 3. The trait that defines the called message.
+const CALL_CONSTRUCTOR_INVALID_CTX_ERRC: u32 = 0x2;
+
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
 pub struct CrossCallingConflictCfg<'a> {
@@ -166,12 +188,20 @@ impl CrossCalling<'_> {
         let ident = message.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let trait_ident = message
+            .item_impl()
+            .trait_ident()
+            .expect("trait identifier must exist")
+            .to_string();
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_for_message_0x{:02X}{:02X}{:02X}{:02X}",
+            "__ink_enforce_error_{}_{}_0x{:02X}{:02X}{:02X}{:02X}_{}",
+            CALL_MUT_MESSAGE_INVALID_CTX_ERRC,
+            ident.to_string(),
             composed_selector[0],
             composed_selector[1],
             composed_selector[2],
-            composed_selector[3]
+            composed_selector[3],
+            trait_ident,
         );
         let attrs = message.attrs();
         let input_bindings = message
@@ -306,12 +336,20 @@ impl CrossCalling<'_> {
         let ident = constructor.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let trait_ident = constructor
+            .item_impl()
+            .trait_ident()
+            .expect("trait identifier must exist")
+            .to_string();
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_for_constructor_0x{:02X}{:02X}{:02X}{:02X}",
+            "__ink_enforce_error_{}_{}_0x{:02X}{:02X}{:02X}{:02X}_{}",
+            CALL_CONSTRUCTOR_INVALID_CTX_ERRC,
+            ident.to_string(),
             composed_selector[0],
             composed_selector[1],
             composed_selector[2],
-            composed_selector[3]
+            composed_selector[3],
+            trait_ident,
         );
         let input_bindings = constructor
             .inputs()
