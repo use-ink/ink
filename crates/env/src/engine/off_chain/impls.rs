@@ -278,7 +278,10 @@ impl EnvInstance {
             beneficiary,
             transferred: all,
         };
-        panic!("0x{}", serde_hex::to_hex(&scale::Encode::encode(&res), false));
+        panic!(
+            "0x{}",
+            serde_hex::to_hex(&scale::Encode::encode(&res), false)
+        );
     }
 }
 
