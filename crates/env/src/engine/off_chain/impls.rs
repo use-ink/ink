@@ -40,7 +40,6 @@ use crate::{
     TypedEnvBackend,
 };
 use core::convert::TryInto;
-use impl_serde::serialize as serde_hex;
 use ink_primitives::Key;
 use num_traits::Bounded;
 
@@ -278,10 +277,7 @@ impl EnvInstance {
             beneficiary,
             transferred: all,
         };
-        panic!(
-            "0x{}",
-            serde_hex::to_hex(&scale::Encode::encode(&res), false)
-        );
+        panic!(scale::Encode::encode(&res));
     }
 }
 
