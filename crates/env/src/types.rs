@@ -128,7 +128,7 @@ pub type Balance = u128;
 pub type Timestamp = u64;
 
 /// The default block number type.
-pub type BlockNumber = u64;
+pub type BlockNumber = u32;
 
 /// The default environment `AccountId` type.
 ///

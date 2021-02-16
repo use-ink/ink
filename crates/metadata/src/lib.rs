@@ -47,10 +47,10 @@ use impl_serde::serialize as serde_hex;
 
 #[cfg(feature = "derive")]
 use scale_info::{
-    form::CompactForm,
-    IntoCompact as _,
+    form::PortableForm,
+    IntoPortable as _,
+    PortableRegistry,
     Registry,
-    RegistryReadOnly,
 };
 use serde::{
     Deserialize,
@@ -61,11 +61,11 @@ use serde::{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
     #[serde(flatten)]
-    registry: RegistryReadOnly,
+    registry: PortableRegistry,
     #[serde(rename = "storage")]
     /// The layout of the storage data structure
-    layout: layout::Layout<CompactForm>,
-    spec: ContractSpec<CompactForm>,
+    layout: layout::Layout<PortableForm>,
+    spec: ContractSpec<PortableForm>,
 }
 
 impl InkProject {
@@ -77,8 +77,8 @@ impl InkProject {
         let mut registry = Registry::new();
 
         Self {
-            layout: layout.into().into_compact(&mut registry),
-            spec: spec.into().into_compact(&mut registry),
+            layout: layout.into().into_portable(&mut registry),
+            spec: spec.into().into_portable(&mut registry),
             registry: registry.into(),
         }
     }
@@ -86,17 +86,17 @@ impl InkProject {
 
 impl InkProject {
     /// Returns a read-only registry of types in the contract.
-    pub fn registry(&self) -> &RegistryReadOnly {
+    pub fn registry(&self) -> &PortableRegistry {
         &self.registry
     }
 
     /// Returns the storage layout of the contract.
-    pub fn layout(&self) -> &layout::Layout<CompactForm> {
+    pub fn layout(&self) -> &layout::Layout<PortableForm> {
         &self.layout
     }
 
     /// Returns the specification of the contract.
-    pub fn spec(&self) -> &ContractSpec<CompactForm> {
+    pub fn spec(&self) -> &ContractSpec<PortableForm> {
         &self.spec
     }
 }

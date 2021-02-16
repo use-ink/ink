@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::blake2::blake2b_256;
+
 /// A function selector.
 ///
 /// # Note
@@ -23,9 +25,16 @@ pub struct Selector {
 }
 
 impl Selector {
-    /// Creates a new selector from the given bytes.
-    pub fn new(bytes: [u8; 4]) -> Self {
+    /// Creates a new selector from the given raw bytes.
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
         Self { bytes }
+    }
+
+    /// Computes the BLAKE-2 256-bit based selector from the given input bytes.
+    pub fn new(input: &[u8]) -> Self {
+        let mut output = [0; 32];
+        blake2b_256(input, &mut output);
+        Self::from_bytes([output[0], output[1], output[2], output[3]])
     }
 
     /// Returns the underlying four bytes.
@@ -41,6 +50,6 @@ impl Selector {
 
 impl From<[u8; 4]> for Selector {
     fn from(bytes: [u8; 4]) -> Self {
-        Self::new(bytes)
+        Self::from_bytes(bytes)
     }
 }

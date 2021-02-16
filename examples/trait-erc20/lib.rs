@@ -600,7 +600,7 @@ mod erc20 {
         }
 
         #[inline]
-        fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+        fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
             self.prefix.encode_to(dest);
             self.value.encode_to(dest);
         }

@@ -21,12 +21,11 @@ ink_primitives = { version = "3.0.0-rc2", path = "../primitives/", default-featu
 ink_storage_derive = { version = "3.0.0-rc2", path = "derive", default-features = false }
 ink_prelude = { version = "3.0.0-rc2", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-scale-info = { version = "0.4", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
-array-init = "1.0"
-generic-array = "0.14.1"
+array-init = { version = "1.0", default-features = false, features = ["const-generics"] }
 
 # Workaround: we actually just need criterion as a dev-dependency, but
 # there is an issue with a doubly included std lib when executing
@@ -54,6 +53,7 @@ std = [
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]
+ink-unstable = ["std"]
 
 [[bench]]
 name = "bench_lazy"

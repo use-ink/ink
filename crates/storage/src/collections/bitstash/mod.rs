@@ -71,7 +71,9 @@ impl BitStash {
     /// in the `free` list.
     ///
     /// Returns the bit position of the first bit in the 256-bit chunk and not
-    /// the chunk position since that's what [`Bitvec::get_chunk`] expects.
+    /// the chunk position since that's what
+    /// [`Bitvec::get_chunk`][`crate::collections::Bitvec::get_chunk`]
+    /// expects.
     ///
     /// Also directly increases the count of the first found free bit chunk.
     fn position_first_zero(&mut self) -> Option<u64> {

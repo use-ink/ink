@@ -24,12 +24,12 @@ use alloc::{
 use core::marker::PhantomData;
 use scale_info::{
     form::{
-        CompactForm,
         Form,
         MetaForm,
+        PortableForm,
     },
     meta_type,
-    IntoCompact,
+    IntoPortable,
     Registry,
     TypeInfo,
 };
@@ -56,27 +56,27 @@ pub struct ContractSpec<F: Form = MetaForm> {
     docs: Vec<F::String>,
 }
 
-impl IntoCompact for ContractSpec {
-    type Output = ContractSpec<CompactForm>;
+impl IntoPortable for ContractSpec {
+    type Output = ContractSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ContractSpec {
             constructors: self
                 .constructors
                 .into_iter()
-                .map(|constructor| constructor.into_compact(registry))
+                .map(|constructor| constructor.into_portable(registry))
                 .collect::<Vec<_>>(),
             messages: self
                 .messages
                 .into_iter()
-                .map(|msg| msg.into_compact(registry))
+                .map(|msg| msg.into_portable(registry))
                 .collect::<Vec<_>>(),
             events: self
                 .events
                 .into_iter()
-                .map(|event| event.into_compact(registry))
+                .map(|event| event.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: registry.map_into_compact(self.docs),
+            docs: registry.map_into_portable(self.docs),
         }
     }
 }
@@ -232,19 +232,19 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub docs: Vec<F::String>,
 }
 
-impl IntoCompact for ConstructorSpec {
-    type Output = ConstructorSpec<CompactForm>;
+impl IntoPortable for ConstructorSpec {
+    type Output = ConstructorSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            name: registry.map_into_compact(self.name),
+            name: registry.map_into_portable(self.name),
             selector: self.selector,
             args: self
                 .args
                 .into_iter()
-                .map(|arg| arg.into_compact(registry))
+                .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: registry.map_into_compact(self.docs),
+            docs: registry.map_into_portable(self.docs),
         }
     }
 }
@@ -609,22 +609,22 @@ impl
     }
 }
 
-impl IntoCompact for MessageSpec {
-    type Output = MessageSpec<CompactForm>;
+impl IntoPortable for MessageSpec {
+    type Output = MessageSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            name: registry.map_into_compact(self.name),
+            name: registry.map_into_portable(self.name),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
             args: self
                 .args
                 .into_iter()
-                .map(|arg| arg.into_compact(registry))
+                .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            return_type: self.return_type.into_compact(registry),
-            docs: registry.map_into_compact(self.docs),
+            return_type: self.return_type.into_portable(registry),
+            docs: registry.map_into_portable(self.docs),
         }
     }
 }
@@ -678,18 +678,18 @@ impl EventSpecBuilder {
     }
 }
 
-impl IntoCompact for EventSpec {
-    type Output = EventSpec<CompactForm>;
+impl IntoPortable for EventSpec {
+    type Output = EventSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            name: self.name.into_compact(registry),
+            name: self.name.into_portable(registry),
             args: self
                 .args
                 .into_iter()
-                .map(|arg| arg.into_compact(registry))
+                .map(|arg| arg.into_portable(registry))
                 .collect::<Vec<_>>(),
-            docs: registry.map_into_compact(self.docs),
+            docs: registry.map_into_portable(self.docs),
         }
     }
 }
@@ -808,13 +808,13 @@ pub struct TypeSpec<F: Form = MetaForm> {
     display_name: DisplayName<F>,
 }
 
-impl IntoCompact for TypeSpec {
-    type Output = TypeSpec<CompactForm>;
+impl IntoPortable for TypeSpec {
+    type Output = TypeSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         TypeSpec {
             ty: registry.register_type(&self.ty),
-            display_name: self.display_name.into_compact(registry),
+            display_name: self.display_name.into_portable(registry),
         }
     }
 }
@@ -907,15 +907,15 @@ pub struct EventParamSpec<F: Form = MetaForm> {
     docs: Vec<F::String>,
 }
 
-impl IntoCompact for EventParamSpec {
-    type Output = EventParamSpec<CompactForm>;
+impl IntoPortable for EventParamSpec {
+    type Output = EventParamSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            name: self.name.into_compact(registry),
+            name: self.name.into_portable(registry),
             indexed: self.indexed,
-            ty: self.ty.into_compact(registry),
-            docs: registry.map_into_compact(self.docs),
+            ty: self.ty.into_portable(registry),
+            docs: registry.map_into_portable(self.docs),
         }
     }
 }
@@ -1015,14 +1015,14 @@ pub struct ReturnTypeSpec<F: Form = MetaForm> {
     opt_type: Option<TypeSpec<F>>,
 }
 
-impl IntoCompact for ReturnTypeSpec {
-    type Output = ReturnTypeSpec<CompactForm>;
+impl IntoPortable for ReturnTypeSpec {
+    type Output = ReturnTypeSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ReturnTypeSpec {
             opt_type: self
                 .opt_type
-                .map(|opt_type| opt_type.into_compact(registry)),
+                .map(|opt_type| opt_type.into_portable(registry)),
         }
     }
 }
@@ -1071,13 +1071,13 @@ pub struct MessageParamSpec<F: Form = MetaForm> {
     ty: TypeSpec<F>,
 }
 
-impl IntoCompact for MessageParamSpec {
-    type Output = MessageParamSpec<CompactForm>;
+impl IntoPortable for MessageParamSpec {
+    type Output = MessageParamSpec<PortableForm>;
 
-    fn into_compact(self, registry: &mut Registry) -> Self::Output {
+    fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            name: self.name.into_compact(registry),
-            ty: self.ty.into_compact(registry),
+            name: self.name.into_portable(registry),
+            ty: self.ty.into_portable(registry),
         }
     }
 }

@@ -249,14 +249,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, C>(
+    pub fn instantiate_contract<Args, Salt, C>(
         self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         Args: scale::Encode,
+        Salt: AsRef<[u8]>,
     {
-        ink_env::instantiate_contract::<T, Args, C>(params)
+        ink_env::instantiate_contract::<T, Args, Salt, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.

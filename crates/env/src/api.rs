@@ -322,15 +322,16 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<T, Args, C>(
-    params: &CreateParams<T, Args, C>,
+pub fn instantiate_contract<T, Args, Salt, C>(
+    params: &CreateParams<T, Args, Salt, C>,
 ) -> Result<T::AccountId>
 where
     T: Environment,
     Args: scale::Encode,
+    Salt: AsRef<[u8]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<T, Args, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<T, Args, Salt, C>(instance, params)
     })
 }
 
