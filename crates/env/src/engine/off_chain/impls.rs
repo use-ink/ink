@@ -277,7 +277,7 @@ impl EnvInstance {
             beneficiary,
             transferred: all,
         };
-        std::panic::panic_any(scale::Encode::encode(&res))
+        panic!("{:?}", scale::Encode::encode(&res));
     }
 }
 
