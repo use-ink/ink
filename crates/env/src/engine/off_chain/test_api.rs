@@ -31,8 +31,6 @@ use crate::{
     Result,
 };
 use ink_prelude::string::String;
-
-#[cfg(not(feature = "std"))]
 use std::str::FromStr;
 
 /// Pushes a contract execution context.
