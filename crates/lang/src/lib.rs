@@ -66,6 +66,7 @@ pub use self::{
     },
     traits::{
         CheckedInkTrait,
+        ConcreteImplementers,
         Constructor,
         FnInput,
         FnOutput,
@@ -74,9 +75,8 @@ pub use self::{
         ImpliesReturn,
         MessageMut,
         MessageRef,
-        True,
-        ConcreteImplementers,
         NoConcreteImplementer,
+        True,
     },
 };
 pub use ::static_assertions;
