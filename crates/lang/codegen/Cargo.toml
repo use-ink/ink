@@ -31,6 +31,9 @@ heck = "0.3.1"
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
 impl-serde = "0.3.1"
 
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
+funty = "=1.1.0"
+
 [features]
 default = ["std"]
 std = [

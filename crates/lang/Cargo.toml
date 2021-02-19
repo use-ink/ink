@@ -26,6 +26,9 @@ scale = { package = "parity-scale-codec", version = "2.0", default-features = fa
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 static_assertions = "1.1"
 
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
+funty = "=1.1.0"
+
 [features]
 default = ["std"]
 std = [
