@@ -411,7 +411,7 @@ impl Dispatch<'_> {
     /// ## Example
     ///
     /// Given prefix of `"Message"` and selector with bytes `0xDEADBEEF` we
-    /// generate the following idenfitier: `__ink_Message_0xdeadbeef`
+    /// generate the following identifier: `__ink_Message_0xdeadbeef`
     ///
     /// This way it is clear that this is an ink! generated identifier and even
     /// encodes the unique selector bytes to make the identifier unique.
