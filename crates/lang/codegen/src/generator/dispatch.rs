@@ -411,7 +411,7 @@ impl Dispatch<'_> {
     /// ## Example
     ///
     /// Given prefix of `"Message"` and selector with bytes `0xDEADBEEF` we
-    /// generate the following idenfitier: `__ink_Message_0xDEADBEEF`
+    /// generate the following idenfitier: `__ink_Message_0xdeadbeef`
     ///
     /// This way it is clear that this is an ink! generated identifier and even
     /// encodes the unique selector bytes to make the identifier unique.
@@ -428,7 +428,7 @@ impl Dispatch<'_> {
             ir::CallableKind::Constructor => "Constructor",
         };
         quote::format_ident!(
-            "__ink_{}_0x{:02X}{:02X}{:02X}{:02X}",
+            "__ink_{}_0x{:02x}{:02x}{:02x}{:02x}",
             prefix,
             selector_bytes[0],
             selector_bytes[1],
