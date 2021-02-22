@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["scale_info"] = [{"text":"impl <a class=\"trait\" href=\"scale_info/prelude/hash/trait.Hash.html\" title=\"trait scale_info::prelude::hash::Hash\">Hash</a> for <a class=\"struct\" href=\"scale_info/struct.MetaType.html\" title=\"struct scale_info::MetaType\">MetaType</a>","synthetic":false,"types":["scale_info::meta_type::MetaType"]}];
+implementors["scale_info"] = [{"text":"impl Hash for MetaType","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

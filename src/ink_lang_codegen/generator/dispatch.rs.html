@@ -1116,7 +1116,7 @@
     <span class="doccomment">/// ## Example</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Given prefix of `&quot;Message&quot;` and selector with bytes `0xDEADBEEF` we</span>
-    <span class="doccomment">/// generate the following idenfitier: `__ink_Message_0xDEADBEEF`</span>
+    <span class="doccomment">/// generate the following identifier: `__ink_Message_0xdeadbeef`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This way it is clear that this is an ink! generated identifier and even</span>
     <span class="doccomment">/// encodes the unique selector bytes to make the identifier unique.</span>
@@ -1133,7 +1133,7 @@
             <span class="ident">ir</span>::<span class="ident">CallableKind</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Constructor&quot;</span>,
         };
         <span class="ident">quote</span>::<span class="macro">format_ident</span><span class="macro">!</span>(
-            <span class="string">&quot;__ink_{}_0x{:02X}{:02X}{:02X}{:02X}&quot;</span>,
+            <span class="string">&quot;__ink_{}_0x{:02x}{:02x}{:02x}{:02x}&quot;</span>,
             <span class="ident">prefix</span>,
             <span class="ident">selector_bytes</span>[<span class="number">0</span>],
             <span class="ident">selector_bytes</span>[<span class="number">1</span>],
@@ -1405,5 +1405,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_lang_codegen"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "ink_lang_codegen";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
