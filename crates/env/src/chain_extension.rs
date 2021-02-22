@@ -269,7 +269,7 @@ where
                 self.func_id,
                 input,
                 ErrorCode::from_status_code,
-                |output| scale::Decode::decode(&mut &output[..]).map_err(Into::into),
+                |mut output| scale::Decode::decode(&mut output).map_err(Into::into),
             )
         })
     }
@@ -323,7 +323,7 @@ where
                 self.func_id,
                 input,
                 |_status_code| Ok(()),
-                |output| scale::Decode::decode(&mut &output[..]).map_err(Into::into),
+                |mut output| scale::Decode::decode(&mut output).map_err(Into::into),
             )
         })
     }
@@ -380,8 +380,8 @@ where
                 self.func_id,
                 input,
                 ErrorCode::from_status_code,
-                |output| {
-                    let decoded = <O as scale::Decode>::decode(&mut &output[..])
+                |mut output| {
+                    let decoded = <O as scale::Decode>::decode(&mut output)
                         .expect("encountered error while decoding chain extension method call return value");
                     Ok(decoded)
                 },
@@ -429,8 +429,8 @@ where
                 self.func_id,
                 input,
                 |_status_code| Ok(()),
-                |output| {
-                    let decoded = <O as scale::Decode>::decode(&mut &output[..])
+                |mut output| {
+                    let decoded = <O as scale::Decode>::decode(&mut output)
                         .expect("encountered error while decoding chain extension method call return value");
                     Ok(decoded)
                 },

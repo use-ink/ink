@@ -2,7 +2,7 @@
 
 set -eu
 
-pushd accumulator && cargo +nightly contract build --generate code-only && popd &&
-pushd adder && cargo +nightly contract build --generate code-only && popd &&
-pushd subber && cargo +nightly contract build --generate code-only && popd &&
+cargo +nightly contract build --manifest-path accumulator/Cargo.toml
+cargo +nightly contract build --manifest-path adder/Cargo.toml
+cargo +nightly contract build --manifest-path subber/Cargo.toml
 cargo +nightly contract build
