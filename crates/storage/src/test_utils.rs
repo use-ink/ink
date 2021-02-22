@@ -200,6 +200,7 @@ macro_rules! fuzz_storage {
 }
 
 /// Asserts that the storage is empty, without any leftovers.
+#[cfg(test)]
 pub fn assert_storage_clean() {
     let contract_id =
         ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()
