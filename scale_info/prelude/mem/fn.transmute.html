@@ -6,7 +6,7 @@
 may be an <a href="../../nomicon/what-unsafe-does.html">invalid value</a>.</p>
 <p><code>transmute</code> is semantically equivalent to a bitwise move of one type
 into another. It copies the bits from the source value into the
-destination value, then forgets the original. It’s equivalent to C’s
+destination value, then forgets the original. It's equivalent to C's
 <code>memcpy</code> under the hood, just like <code>transmute_copy</code>.</p>
 <p><code>transmute</code> is <strong>incredibly</strong> unsafe. There are a vast number of ways to
 cause <a href="../../reference/behavior-considered-undefined.html">undefined behavior</a> with this function. <code>transmute</code> should be
@@ -41,7 +41,7 @@ advanced, very unsafe Rust!</p>
     <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">R</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">R</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">r</span>)
 }</pre></div>
 <h1 id="alternatives" class="section-header"><a href="#alternatives">Alternatives</a></h1>
-<p>Don’t despair: many uses of <code>transmute</code> can be achieved through other means.
+<p>Don't despair: many uses of <code>transmute</code> can be achieved through other means.
 Below are common applications of <code>transmute</code> which can be replaced with safer
 constructs.</p>
 <p>Turning raw bytes(<code>&amp;[u8]</code>) to <code>u32</code>, <code>f64</code>, etc.:</p>
