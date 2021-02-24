@@ -6,8 +6,8 @@
 }</pre></div><div class="docblock"><p>Implemented by contracts in order to override <code>env().emit_event(..)</code>
 syntax for emitting of ink! contract events.</p>
 <h1 id="dev-note" class="section-header"><a href="#dev-note">Dev Note</a></h1>
-<p>Normally we'd try to define traits like these in the compagnion
-<code>ink_lang</code> crate, however, due to Rust's orphan rules we must
+<p>Normally we’d try to define traits like these in the compagnion
+<code>ink_lang</code> crate, however, due to Rust’s orphan rules we must
 define this trait here.</p>
 </div><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><h3 id="tymethod.emit_event" class="method"><code>fn <a href="#tymethod.emit_event" class="fnname">emit_event</a>&lt;E&gt;(self, event: E) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;E: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;&lt;C as <a class="trait" href="../ink_lang/trait.BaseEvent.html" title="trait ink_lang::BaseEvent">BaseEvent</a>&gt;::<a class="type" href="../ink_lang/trait.BaseEvent.html#associatedtype.Type" title="type ink_lang::BaseEvent::Type">Type</a>&gt;,&nbsp;</span></code><a class="srclink" href="../src/ink_lang/events.rs.html#28-30" title="goto source code">[src]</a></h3><div class="docblock"><p>Emits an event that can be trivially converted into the base event.</p>
 </div></div><span class="loading-content">Loading content...</span><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><span class="loading-content">Loading content...</span><script type="text/javascript" src="../implementors/ink_lang/trait.EmitEvent.js" async></script></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_lang"></div>

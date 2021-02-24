@@ -11,7 +11,7 @@ information about the alias name.</p>
 <pre><code class="language-no_compile">fn is_sorted(input: &amp;[i32], pred: Predicate) -&gt; bool;
 </code></pre>
 <p>In this above example <code>input</code> would have no displayable name,
-<code>pred</code>'s display name is <code>Predicate</code> and the display name of
+<code>pred</code>’s display name is <code>Predicate</code> and the display name of
 the return type is simply <code>bool</code>. Note that <code>Predicate</code> could
 simply be a type alias to <code>fn(i32, i32) -&gt; Ordering</code>.</p>
 </div><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><h3 id="impl" class="impl"><code class="in-band">impl <a class="struct" href="../ink_metadata/struct.TypeSpec.html" title="struct ink_metadata::TypeSpec">TypeSpec</a></code><a href="#impl" class="anchor"></a><a class="srclink" href="../src/ink_metadata/specs.rs.html#822-875" title="goto source code">[src]</a></h3><div class="impl-items"><h4 id="method.with_name_str" class="method"><code>pub fn <a href="#method.with_name_str" class="fnname">with_name_str</a>&lt;T&gt;(display_name: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../scale_info/trait.TypeInfo.html" title="trait scale_info::TypeInfo">TypeInfo</a> + 'static,&nbsp;</span></code><a class="srclink" href="../src/ink_metadata/specs.rs.html#834-839" title="goto source code">[src]</a></h4><div class="docblock"><p>Creates a new type specification with a display name.</p>

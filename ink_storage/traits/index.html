@@ -5,7 +5,7 @@
 <p>Generally a type is said to be a storage entity if it implements the
 <code>SpreadLayout</code> trait. This defines certain constants and routines in order
 to tell a smart contract how to load and store instances of this type
-from and to the contract's storage.</p>
+from and to the contract’s storage.</p>
 <p>The <code>PackedLayout</code> trait can then be implemented on top of the <code>SpreadLayout</code>
 for types that further allow to be stored in the contract storage in a more
 compressed format to a single storage cell.</p>
@@ -13,8 +13,8 @@ compressed format to a single storage cell.</p>
 <table><tr class="module-item"><td><a class="struct" href="struct.KeyPtr.html" title="ink_storage::traits::KeyPtr struct">KeyPtr</a></td><td class="docblock-short"><p>A key pointer.</p>
 </td></tr></table><h2 id="constants" class="section-header"><a href="#constants">Constants</a></h2>
 <table><tr class="module-item"><td><a class="constant" href="constant.FOOTPRINT_CLEANUP_THRESHOLD.html" title="ink_storage::traits::FOOTPRINT_CLEANUP_THRESHOLD constant">FOOTPRINT_CLEANUP_THRESHOLD</a></td><td class="docblock-short"><p>This constant is used by some types to make sure that cleaning up
-behind them won't become way too expensive. Since we are missing
-Substrate's storage bulk removal feature we cannot do better than
+behind them won’t become way too expensive. Since we are missing
+Substrate’s storage bulk removal feature we cannot do better than
 this at the moment.
 The number is arbitrarily chosen. Might need adjustments later.</p>
 </td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
