@@ -12,7 +12,11 @@ It consists in total of 4 different smart contract:
 In order to test this bundle of smart contracts you need to do the following:
 
 1. Compile all contracts using the `./build-all.sh` script.
-   You will receive the respective `.contract` bundles for all the smart contracts in the `target/ink/` folder.
+   You will receive the respective `.contract` bundles for all the smart contracts in the `target/ink/` folder:
+   * `target/ink/delegator.contract`
+   * `target/ink/adder/adder.contract`
+   * `target/ink/subber/subber.contract`
+   * `target/ink/accumulator/accumulator.contract`
 1. Upload the `.contract` bundle of Accumulator, Adder, Subber and the Delegator to the chain.
    While doing so note down their respective code hashes. You will see the contract hash on the success page
    (or success event) after having uploaded the contract to the chain.
