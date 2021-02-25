@@ -14,19 +14,19 @@ Only <code>Result&lt;T, E&gt;</code> or <code>NoResult&lt;O&gt;</code> generic t
 The <code>Result&lt;T, E&gt;</code> type says that the chain extension method returns a <code>Result</code> type
 whereas the <code>NoResult&lt;O&gt;</code> type says that the chain extension method returns a non-<code>Result</code> value
 of type <code>O</code>.</li>
-<li><code>ErrorCode</code> represents how the chain extension method handles the chain extension's error code.
+<li><code>ErrorCode</code> represents how the chain extension method handles the chain extension’s error code.
 Only <code>HandleErrorCode&lt;E&gt;</code> and <code>IgnoreErrorCode</code> types are allowed that each say to either properly
-handle or ignore the chain extension's error code respectively.</li>
+handle or ignore the chain extension’s error code respectively.</li>
 </ul>
 <p>The type states for type parameter <code>O</code> and <code>ErrorCode</code> represent 4 different states:</p>
 <ol>
-<li>The chain extension method makes use of the chain extension's error code: <code>HandleErrorCode(E)</code>
+<li>The chain extension method makes use of the chain extension’s error code: <code>HandleErrorCode(E)</code>
 <ul>
 <li><strong>A:</strong> The chain extension method returns a <code>Result&lt;T, E&gt;</code> type.</li>
 <li><strong>B:</strong> The chain extension method returns a type <code>T</code> that is not a <code>Result</code> type: <code>NoResult&lt;T&gt;</code></li>
 </ul>
 </li>
-<li>The chain extension ignores the chain extension's error code: <code>IgnoreErrorCode</code>
+<li>The chain extension ignores the chain extension’s error code: <code>IgnoreErrorCode</code>
 <ul>
 <li><strong>A:</strong> The chain extension method returns a <code>Result&lt;T, E&gt;</code> type.</li>
 <li><strong>B:</strong> The chain extension method returns a type <code>T</code> that is not a <code>Result</code> type: <code>NoResult&lt;T&gt;</code></li>

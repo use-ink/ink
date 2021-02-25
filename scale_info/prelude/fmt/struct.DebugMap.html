@@ -42,8 +42,8 @@
 );</pre></div>
 </div><h4 id="method.key" class="method"><code>pub fn <a href="#method.key" class="fnname">key</a>(&amp;mut self, key: &amp;dyn <a class="trait" href="../../../scale_info/prelude/fmt/trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>) -&gt; &amp;mut <a class="struct" href="../../../scale_info/prelude/fmt/struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt;</code><span class="since" title="Stable since Rust version 1.42.0">1.42.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#791" title="goto source code">[src]</a></h4><div class="docblock"><p>Adds the key part of a new entry to the map output.</p>
 <p>This method, together with <code>value</code>, is an alternative to <code>entry</code> that
-can be used when the complete entry isn't known upfront. Prefer the <code>entry</code>
-method when it's possible to use.</p>
+can be used when the complete entry isn’t known upfront. Prefer the <code>entry</code>
+method when it’s possible to use.</p>
 <h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
 <p><code>key</code> must be called before <code>value</code> and each call to <code>key</code> must be followed
 by a corresponding call to <code>value</code>. Otherwise this method will panic.</p>
@@ -67,8 +67,8 @@ by a corresponding call to <code>value</code>. Otherwise this method will panic.
 );</pre></div>
 </div><h4 id="method.value" class="method"><code>pub fn <a href="#method.value" class="fnname">value</a>(&amp;mut self, value: &amp;dyn <a class="trait" href="../../../scale_info/prelude/fmt/trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>) -&gt; &amp;mut <a class="struct" href="../../../scale_info/prelude/fmt/struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt;</code><span class="since" title="Stable since Rust version 1.42.0">1.42.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#855" title="goto source code">[src]</a></h4><div class="docblock"><p>Adds the value part of a new entry to the map output.</p>
 <p>This method, together with <code>key</code>, is an alternative to <code>entry</code> that
-can be used when the complete entry isn't known upfront. Prefer the <code>entry</code>
-method when it's possible to use.</p>
+can be used when the complete entry isn’t known upfront. Prefer the <code>entry</code>
+method when it’s possible to use.</p>
 <h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
 <p><code>key</code> must be called before <code>value</code> and each call to <code>key</code> must be followed
 by a corresponding call to <code>value</code>. Otherwise this method will panic.</p>
