@@ -1,0 +1,35 @@
+[package]
+name = "ink_env_types"
+version = "3.0.0-rc2"
+authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
+edition = "2018"
+
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://docs.rs/ink_env/"
+homepage = "https://www.parity.io/"
+description = "[ink!] Low-level interface for interacting with the smart contract Wasm executor."
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_primitives = { version = "3.0.0-rc2", path = "../primitives/", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
+derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
+num-traits = { version = "0.2", default-features = false, features = ["i128"] }
+
+# Only used in the off-chain environment.
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+
+[features]
+default = ["std"]
+std = [
+    "ink_primitives/std",
+    "scale/std",
+    "scale-info",
+    "scale-info/std",
+    "num-traits/std",
+]
