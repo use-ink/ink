@@ -39,7 +39,6 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
-    Error,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -94,7 +93,8 @@ impl CryptoHash for Keccak256 {
     }
 }
 
-impl From<ext::Error> for Error {
+#[cfg(not(feature = "ink-experimental-engine"))]
+impl From<ext::Error> for crate::Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
             ext::Error::UnknownError => Self::UnknownError,
@@ -248,7 +248,12 @@ impl EnvBackend for EnvInstance {
     {
         let mut scope = self.scoped_buffer();
         let enc_return_value = scope.take_encoded(return_value);
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         ext::return_value(flags, enc_return_value);
+
+        #[cfg(feature = "ink-experimental-engine")]
+        ext::return_value(flags.into_u32(), enc_return_value);
     }
 
     fn println(&mut self, content: &str) {

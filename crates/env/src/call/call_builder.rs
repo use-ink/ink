@@ -24,7 +24,7 @@ use crate::{
         ExecutionInput,
     },
     Environment,
-    Error,
+    Result,
 };
 use core::marker::PhantomData;
 
@@ -50,7 +50,10 @@ where
     // We do not currently support cross-contract calling in the off-chain
     // environment so we do not have to provide these getters in case of
     // off-chain environment compilation.
-    all(not(feature = "std"), target_arch = "wasm32")
+    any(
+        all(not(feature = "std"), target_arch = "wasm32"),
+        feature = "ink-experimental-engine"
+    )
 )]
 impl<E, Args, R> CallParams<E, Args, R>
 where
@@ -92,7 +95,7 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::Error> {
+    pub fn invoke(&self) -> Result<()> {
         crate::invoke_contract(self)
     }
 }
@@ -111,7 +114,7 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::Error> {
+    pub fn eval(&self) -> Result<R> {
         crate::eval_contract(self)
     }
 }
@@ -416,7 +419,7 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
+    pub fn fire(self) -> Result<()> {
         self.params().invoke()
     }
 }
@@ -438,7 +441,7 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R, Error> {
+    pub fn fire(self) -> Result<R> {
         self.params().eval()
     }
 }

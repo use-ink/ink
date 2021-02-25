@@ -57,6 +57,7 @@ std = [
 ]
 ink-fuzz-tests = ["std"]
 ink-unstable = ["std"]
+ink-experimental-engine = ["ink_env/ink-experimental-engine"]
 
 [[bench]]
 name = "bench_lazy"

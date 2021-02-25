@@ -24,7 +24,7 @@ use crate::{
         ExecutionInput,
     },
     Environment,
-    Error,
+    Result,
 };
 use core::marker::PhantomData;
 
@@ -74,7 +74,7 @@ cfg_if::cfg_if! {
     // We do not currently support cross-contract instantiation in the off-chain
     // environment so we do not have to provide these getters in case of
     // off-chain environment compilation.
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+    if #[cfg(any(all(not(feature = "std"), target_arch = "wasm32"), feature = "ink-experimental-engine"))] {
         impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
         where
             E: Environment,
@@ -127,7 +127,7 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
-    pub fn instantiate(&self) -> Result<R, crate::Error> {
+    pub fn instantiate(&self) -> Result<R> {
         crate::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
@@ -393,7 +393,7 @@ where
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]
-    pub fn instantiate(self) -> Result<R, Error> {
+    pub fn instantiate(self) -> Result<R> {
         self.params().instantiate()
     }
 }

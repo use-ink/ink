@@ -174,7 +174,11 @@ impl DynamicAllocatorState {
 }
 
 cfg_if! {
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+    if #[cfg(
+        any(
+            all(not(feature = "std"), target_arch = "wasm32"),
+            features = "ink-experimental-engine"
+        ))] {
         // Procedures for the Wasm compilation:
 
         /// The global instance for the dynamic storage allocator.

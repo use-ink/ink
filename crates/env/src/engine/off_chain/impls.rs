@@ -301,7 +301,7 @@ impl TypedEnvBackend for EnvInstance {
 
     /// Emulates gas price calculation
     fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
-        use crate::arithmetic::Saturating as _;
+        use ink_env_types::arithmetic::Saturating as _;
 
         let gas_price = self
             .chain_spec

@@ -54,7 +54,10 @@ use self::{
     },
 };
 use super::OnInstance;
-use crate::Environment;
+use crate::{
+    Environment,
+    Error,
+};
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -68,6 +71,12 @@ pub enum OffChainError {
     UninitializedExecutionContext,
     #[from(ignore)]
     UnregisteredChainExtension,
+}
+
+impl From<OffChainError> for Error {
+    fn from(err: OffChainError) -> Self {
+        Error::OffChain(err)
+    }
 }
 
 pub type Result<T> = core::result::Result<T, OffChainError>;

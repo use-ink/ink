@@ -60,7 +60,6 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 extern crate ink_allocator;
 
 mod api;
-mod arithmetic;
 mod backend;
 pub mod call;
 pub mod chain_extension;
@@ -69,14 +68,27 @@ mod error;
 pub mod hash;
 #[doc(hidden)]
 pub mod topics;
-mod types;
+
+pub use ink_env_types::{
+    AccountId,
+    Clear,
+    DefaultEnvironment,
+    Environment,
+    Hash,
+    NoChainExtension,
+};
 
 #[cfg(test)]
 mod tests;
 
 #[cfg(any(feature = "std", test, doc))]
+#[cfg(not(feature = "ink-experimental-engine"))]
 #[doc(inline)]
 pub use self::engine::off_chain::test_api as test;
+
+#[cfg(feature = "ink-experimental-engine")]
+#[doc(inline)]
+pub use ink_engine::test_api as test;
 
 use self::backend::{
     EnvBackend,
@@ -90,12 +102,4 @@ pub use self::{
         Result,
     },
     topics::Topics,
-    types::{
-        AccountId,
-        Clear,
-        DefaultEnvironment,
-        Environment,
-        Hash,
-        NoChainExtension,
-    },
 };

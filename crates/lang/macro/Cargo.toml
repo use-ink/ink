@@ -46,3 +46,4 @@ std = [
     "ink_lang_ir/std",
     "ink_primitives/std",
 ]
+ink-experimental-engine = []

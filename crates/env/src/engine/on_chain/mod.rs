@@ -13,7 +13,13 @@
 // limitations under the License.
 
 mod buffer;
+
+#[cfg(not(feature = "ink-experimental-engine"))]
 mod ext;
+
+#[cfg(feature = "ink-experimental-engine")]
+use ink_engine::ext;
+
 mod impls;
 
 use self::{
@@ -39,6 +45,7 @@ pub struct EnvInstance {
     buffer: StaticBuffer,
 }
 
+#[cfg(not(feature = "ink-experimental-engine"))]
 impl OnInstance for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
     where
@@ -48,5 +55,23 @@ impl OnInstance for EnvInstance {
             buffer: StaticBuffer::new(),
         };
         f(unsafe { &mut INSTANCE })
+    }
+}
+
+#[cfg(feature = "ink-experimental-engine")]
+impl OnInstance for EnvInstance {
+    fn on_instance<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self) -> R,
+    {
+        use core::cell::RefCell;
+        thread_local!(
+            static INSTANCE: RefCell<EnvInstance> = RefCell::new(
+                EnvInstance {
+                    buffer: StaticBuffer::new()
+                }
+            )
+        );
+        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
     }
 }

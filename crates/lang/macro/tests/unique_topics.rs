@@ -74,7 +74,15 @@ mod my_contract {
             let mut encoded_topics: std::vec::Vec<&[u8]> = emitted_events[0]
                 .topics
                 .iter()
-                .map(|topic| topic.encoded_bytes().expect("encoded bytes must exist"))
+                .map(|topic| {
+                    #[cfg(feature = "ink-experimental-engine")]
+                    let topic = topic.as_slice();
+
+                    #[cfg(not(feature = "ink-experimental-engine"))]
+                    let topic = topic.encoded_bytes().expect("encoded bytes must exist");
+
+                    topic
+                })
                 .collect();
             assert!(!has_duplicates(&mut encoded_topics));
         }
