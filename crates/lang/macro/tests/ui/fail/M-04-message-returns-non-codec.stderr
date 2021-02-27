@@ -7,6 +7,6 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
   ::: $WORKSPACE/crates/lang/src/traits.rs
    |
    |     type Output: scale::Encode + 'static;
-   |                  ------------- required by this bound in `ink_lang::FnOutput::Output`
+   |                  ------------- required by this bound in `FnOutput`
    |
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
