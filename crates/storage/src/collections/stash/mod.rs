@@ -468,7 +468,7 @@ where
             return None
         }
         // At this point we know that the entry is occupied with a value.
-        let new_vacant_entry = Entry::Vacant(VacantEntry { prev, next });
+        let new_vacant_entry = Entry::Vacant(VacantEntry { next, prev });
         let taken_entry = core::mem::replace(entry_mut, new_vacant_entry);
         self.update_neighboring_vacant_entry_links(prev, next, at);
         // Take the value out of the taken occupied entry and return it.
@@ -514,7 +514,7 @@ where
         // Precompute prev and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
-        let new_vacant_entry = Entry::Vacant(VacantEntry { prev, next });
+        let new_vacant_entry = Entry::Vacant(VacantEntry { next, prev });
         self.entries.put(at, Some(new_vacant_entry));
         self.update_neighboring_vacant_entry_links(prev, next, at);
         use core::cmp::min;
