@@ -27,7 +27,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 static_assertions = "1.1"
 
 # Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
+funty = "=1.2.0"
 
 [features]
 default = ["std"]

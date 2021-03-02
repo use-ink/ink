@@ -41,7 +41,7 @@ rand = { version = "0.8", default-features = false, features = ["alloc"], option
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
 # Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
+funty = "=1.2.0"
 
 [features]
 default = ["std"]
