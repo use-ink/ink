@@ -1,6 +1,6 @@
 [package]
 name = "ink_lang_codegen"
-version = "3.0.0-rc2"
+version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -18,7 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 name = "ink_lang_codegen"
 
 [dependencies]
-ir = { version = "3.0.0-rc2", package = "ink_lang_ir", path = "../ir", default-features = false }
+ir = { version = "3.0.0-rc3", package = "ink_lang_ir", path = "../ir", default-features = false }
 quote = "1"
 syn = { version = "1.0", features = ["parsing", "full", "extra-traits"] }
 proc-macro2 = "1.0"
