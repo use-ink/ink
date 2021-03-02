@@ -43,12 +43,15 @@ use core::convert::TryInto;
 use ink_primitives::Key;
 use num_traits::Bounded;
 
+const UNITIALIZED_EXEC_CONTEXT: &str = "unitialized execution context: \
+a possible source of error could be that you are using `#[test]` instead of `#[ink::test]`.";
+
 impl EnvInstance {
     /// Returns the callee account.
     fn callee_account(&self) -> &Account {
         let callee = self
             .exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .callee
             .clone();
         self.accounts
@@ -60,7 +63,7 @@ impl EnvInstance {
     fn callee_account_mut(&mut self) -> &mut Account {
         let callee = self
             .exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .callee
             .clone();
         self.accounts
@@ -163,9 +166,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let ctx = self
-            .exec_context_mut()
-            .expect("uninitialized execution context");
+        let ctx = self.exec_context_mut().expect(UNITIALIZED_EXEC_CONTEXT);
         ctx.output = Some(return_value.encode());
         std::process::exit(flags.into_u32() as i32)
     }
@@ -284,7 +285,7 @@ impl EnvInstance {
 impl TypedEnvBackend for EnvInstance {
     fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .caller::<T>()
             .map_err(|_| scale::Error::from("could not decode caller"))
             .map_err(Into::into)
@@ -292,7 +293,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .transferred_value::<T>()
             .map_err(|_| scale::Error::from("could not decode transferred balance"))
             .map_err(Into::into)
@@ -313,7 +314,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .gas::<T>()
             .map_err(|_| scale::Error::from("could not decode gas left"))
             .map_err(Into::into)
@@ -321,7 +322,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
         self.current_block()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .timestamp::<T>()
             .map_err(|_| scale::Error::from("could not decode block time"))
             .map_err(Into::into)
@@ -329,7 +330,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .callee::<T>()
             .map_err(|_| scale::Error::from("could not decode callee"))
             .map_err(Into::into)
@@ -351,7 +352,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
         self.current_block()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .number::<T>()
             .map_err(|_| scale::Error::from("could not decode block number"))
             .map_err(Into::into)
@@ -453,7 +454,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         self.current_block()
-            .expect("uninitialized execution context")
+            .expect(UNITIALIZED_EXEC_CONTEXT)
             .random::<T>(subject)
             .map_err(Into::into)
     }
