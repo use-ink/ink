@@ -1,6 +1,6 @@
 [package]
 name = "ink_primitives"
-version = "3.0.0-rc2"
+version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -15,7 +15,7 @@ categories = ["no-std", "embedded"]
 include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
-ink_prelude = { version = "3.0.0-rc2", path = "../prelude/", default-features = false }
+ink_prelude = { version = "3.0.0-rc3", path = "../prelude/", default-features = false }
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
