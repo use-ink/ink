@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::attrs::InkAttribute;
 use crate::{
     ir,
     ir::idents_lint,
@@ -210,9 +211,43 @@ pub struct InkTraitConstructor<'a> {
 }
 
 impl<'a> InkTraitConstructor<'a> {
+    /// Panic message in case a user encounters invalid attributes.
+    const INVALID_ATTRIBUTES_ERRSTR: &'static str =
+        "encountered invalid attributes for ink! trait constructor";
+
+    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait constructor.
+    fn extract_attributes(
+        span: Span,
+        attrs: &[syn::Attribute],
+    ) -> Result<(InkAttribute, Vec<syn::Attribute>)> {
+        let (ink_attrs, non_ink_attrs) = ir::sanitize_attributes(
+            span,
+            attrs.iter().cloned(),
+            &ir::AttributeArgKind::Constructor,
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
+                        Ok(())
+                    }
+                    _ => Err(None),
+                }
+            },
+        )?;
+        Ok((ink_attrs, non_ink_attrs))
+    }
+
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
-        extract_rust_attributes(&self.item.attrs)
+        let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
+            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
+        rust_attrs
+    }
+
+    /// Returns all ink! attributes.
+    fn ink_attrs(&self) -> InkAttribute {
+        let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
+            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
+        ink_attrs
     }
 
     /// Returns the original signature of the ink! constructor.
@@ -233,9 +268,41 @@ pub struct InkTraitMessage<'a> {
 }
 
 impl<'a> InkTraitMessage<'a> {
+    /// Panic message in case a user encounters invalid attributes.
+    const INVALID_ATTRIBUTES_ERRSTR: &'static str =
+        "encountered invalid attributes for ink! trait message";
+
+    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait message.
+    fn extract_attributes(
+        span: Span,
+        attrs: &[syn::Attribute],
+    ) -> Result<(InkAttribute, Vec<syn::Attribute>)> {
+        let (ink_attrs, non_ink_attrs) = ir::sanitize_attributes(
+            span,
+            attrs.iter().cloned(),
+            &ir::AttributeArgKind::Message,
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Message | ir::AttributeArg::Selector(_) => Ok(()),
+                    _ => Err(None),
+                }
+            },
+        )?;
+        Ok((ink_attrs, non_ink_attrs))
+    }
+
     /// Returns all non-ink! attributes.
     pub fn attrs(&self) -> Vec<syn::Attribute> {
-        extract_rust_attributes(&self.item.attrs)
+        let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
+            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
+        rust_attrs
+    }
+
+    /// Returns all ink! attributes.
+    fn ink_attrs(&self) -> InkAttribute {
+        let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
+            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
+        ink_attrs
     }
 
     /// Returns the original signature of the ink! message.
@@ -494,18 +561,7 @@ impl InkTrait {
     /// - If the constructor has a `self` receiver as first argument.
     /// - If the constructor has no `Self` return type.
     fn analyse_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
-        ir::sanitize_attributes(
-            constructor.span(),
-            constructor.attrs.clone(),
-            &ir::AttributeArgKind::Constructor,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Constructor |
-                    ir::AttributeArg::Selector(_) => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
+        InkTraitConstructor::extract_attributes(constructor.span(), &constructor.attrs)?;
         if let Some(receiver) = constructor.sig.receiver() {
             return Err(format_err_spanned!(
                 receiver,
@@ -547,18 +603,7 @@ impl InkTrait {
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
     fn analyse_message(message: &syn::TraitItemMethod) -> Result<()> {
-        ir::sanitize_attributes(
-            message.span(),
-            message.attrs.clone(),
-            &ir::AttributeArgKind::Message,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Message |
-                    ir::AttributeArg::Selector(_) => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
+        InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
                 return Err(format_err_spanned!(
