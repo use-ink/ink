@@ -15,7 +15,7 @@
 //! Custom derive for `ink_storage` traits.
 //!
 //! This crate provides helpers to define your very own custom storage data
-//! structures that work along the ink_storage data structures by implementing
+//! structures that work along the `ink_storage` data structures by implementing
 //! `SpreadLayout` and `PackedLayout` traits.
 //!
 //! See [Spread vs. Packed](https://paritytech.github.io/ink-docs/datastructures/spread-packed-layout)
