@@ -100,6 +100,7 @@ synstructure::decl_derive!(
     /// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use scale::{Encode, Decode};
     /// use ink_primitives::Key;
