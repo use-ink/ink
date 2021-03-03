@@ -1,3 +1,53 @@
+# Version 3.0-rc3 (2021-03-02)
+
+This is the 3rd release candidate for ink! 3.0.
+
+The list below shows the additions, changes and fixes that are visible to users of ink!.
+
+## Compatibility
+
+ink! 3.0-rc3 is compatible with
+
+- The `cargo-contract` CLI tool version `0.9.1` or newer.
+    - Install newest version using `cargo install --force cargo-contract`.
+- Substrate version `3.0` including the `contracts-pallet` version `3.0`.
+
+## Added
+
+- Implemented chain extensions feature for ink!.
+- ink!'s official documentation portal: https://paritytech.github.io/ink-docs/
+- It is now possible to pass a `salt` argument to contract instantiations.
+- Implemented fuzz testing for the ink! codebase.
+
+## Changed
+
+- Migrate `ink_storage::SmallVec` and `ink_storage::lazy::SmallLazyArray` to use `min_const_generics`.
+    - The `min_const_generics` feature is going to be stabilized in Rust 1.51. For now it was put behind 
+      the `ink-unstable` crate feature of the `ink_storage` crate.
+- Improve error reporting for conflicting ink! attributes.
+- Improve error reporting for invalid constructor or message selector. (https://github.com/paritytech/ink/pull/561)
+- Remove `iter_mut` for `ink_storage::BinaryHeap` data structure.
+- Add documented demonstration how to properly mock `transferred_balance` calls: https://github.com/paritytech/ink/pull/555
+- Add contract example which uses `ext_transfer` and `ext_terminate`: https://github.com/paritytech/ink/pull/554
+- Improve documentation of `transfer` and `minimum_balance` APIs: https://github.com/paritytech/ink/pull/540
+
+## Fixed
+
+- The Delegator example contract now compiles properly using the `build-all.sh` bash script.
+- Update crate dependencies:
+    - `scale-info 0.6`
+    - `parity-scale-codec 2.0`
+    - `rand 0.8`
+    - `itertools 0.10`
+- Remove unused `tiny-keccak` dependency from `ink_primitives`.
+- Changed the default `BlockNumber` type to `u32`. This is a fix since it now properly mirrors Substrate's default `BlockNumber` type.
+- Ensure topics are unique: https://github.com/paritytech/ink/pull/594
+- Several fixes for `ink_storage` data structures, including:
+    - `Drop` implementation for `Pack` now works properly. (https://github.com/paritytech/ink/pull/600)
+    - `Drop` implementation for `Lazy` now always properly clean up storage. (https://github.com/paritytech/ink/pull/597)
+    - Nested `Lazy` now properly clears storage data. (https://github.com/paritytech/ink/pull/583)
+    - `Option` fields now properly clean up nested storage data. (https://github.com/paritytech/ink/pull/570)
+
 # Version 3.0-rc2 (2020-10-22)
 
 This is the 2nd release candidate for ink! 3.0.

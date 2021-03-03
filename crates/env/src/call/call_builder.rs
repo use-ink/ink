@@ -257,7 +257,7 @@ impl<E, Callee, TransferredValue, Args, RetType>
 where
     E: Environment,
 {
-    /// Sets the maximumly allowed gas costs for the call.
+    /// Sets the maximum allowed gas costs for the call.
     #[inline]
     pub fn gas_limit(
         self,
