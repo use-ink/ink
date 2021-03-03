@@ -14,7 +14,6 @@
 
 use super::{
     accounts::AccountError,
-    typed_encoded::TypedEncodedError,
     types::OffAccountId,
     Environment,
 };
@@ -24,7 +23,6 @@ use derive_more::From;
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum OffChainError {
     Account(AccountError),
-    TypedEncoded(TypedEncodedError),
     #[from(ignore)]
     UninitializedBlocks,
     #[from(ignore)]
@@ -51,6 +49,14 @@ impl ExecContext {
     where
         T: Environment,
     {
-        self.callee.decode().map_err(Into::into)
+        // TODO type hell
+        let callee: Vec<u8> = self.callee.clone();
+        let res: std::result::Result<T::AccountId, scale::Error> =
+            scale::Decode::decode(&mut &callee[..]);
+        let res: std::result::Result<T::AccountId, AccountError> =
+            res.map_err(AccountError::from);
+        let res: std::result::Result<T::AccountId, OffChainError> =
+            res.map_err(Into::into);
+        res
     }
 }

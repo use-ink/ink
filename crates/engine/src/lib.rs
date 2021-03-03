@@ -19,7 +19,6 @@ mod exec_context;
 pub mod ext;
 mod hashing;
 pub mod test_api;
-mod typed_encoded;
 mod types;
 
 pub use test_api::{

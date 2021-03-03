@@ -47,10 +47,10 @@ thread_local!(
         EnvInstance {
             storage: HashMap::new(),
             emitted_events: Vec::new(),
-            caller: Vec::new(),
             exec_context: None,
             count_reads: 0,
             count_writes: 0,
+            caller: vec![0x01; 32],
         }
     )
 );
@@ -287,9 +287,14 @@ impl_seal_wrapper_for! {
 pub fn caller(output: &mut &mut [u8]) {
     ENV_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
-        let caller = instance.caller.clone();
+        let caller = instance
+            .exec_context
+            .as_ref()
+            .expect("uninitialized context")
+            .caller
+            .clone();
         output[..caller.len()].copy_from_slice(&caller[..]);
-        extract_from_slice(output, 32);
+        extract_from_slice(output, caller.len());
     });
 }
 

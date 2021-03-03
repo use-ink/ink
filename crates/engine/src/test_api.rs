@@ -21,7 +21,6 @@ use crate::{
     },
     ext,
     ext::ENV_INSTANCE,
-    typed_encoded::TypedEncoded,
     Environment,
 };
 
@@ -169,8 +168,8 @@ where
         let instance = &mut instance.borrow_mut();
         let alice: T::AccountId = default_accounts::<T>().expect("default").alice;
         instance.exec_context = Some(ExecContext {
-            callee: TypedEncoded::new(&alice),
-            caller: TypedEncoded::new(&alice),
+            callee: scale::Encode::encode(&alice),
+            caller: scale::Encode::encode(&alice),
         });
         instance.emitted_events = Vec::new();
         instance.count_reads = 0;
@@ -196,8 +195,8 @@ where
         instance
             .exec_context
             .as_mut()
-            .expect("unitialized context")
-            .caller = TypedEncoded::new(&caller);
+            .expect("uninitialized context")
+            .caller = scale::Encode::encode(&caller);
     })
 }
 /// Returns the total number of reads and writes of the contract's storage.
@@ -251,10 +250,22 @@ where
     T: Environment,
 {
     ENV_INSTANCE.with(|instance| {
+        // TODO type hell
         let instance = &mut instance.borrow();
         let cont = instance.exec_context.as_ref().expect("no exec context");
-        let callee = cont.callee.decode()?;
-        Ok(callee)
+        let res: std::result::Result<T::AccountId, scale::Error> =
+            scale::Decode::decode(&mut &cont.callee[..]);
+        let res: std::result::Result<T::AccountId, super::accounts::AccountError> =
+            res.map_err(super::accounts::AccountError::from);
+        let callee: std::result::Result<T::AccountId, OffChainError> =
+            res.map_err(Into::into);
+        let callee: std::result::Result<
+            T::AccountId,
+            ink_env_types::Error<OffChainError>,
+        > = callee.map_err(|offchainerr| {
+            ink_env_types::Error::<OffChainError>::OffChain(offchainerr)
+        });
+        callee
     })
 }
 

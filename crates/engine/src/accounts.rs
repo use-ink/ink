@@ -16,7 +16,6 @@ use crate::test_api::Error;
 
 use super::{
     exec_context::OffChainError,
-    typed_encoded::TypedEncodedError,
     types::OffAccountId,
 };
 
@@ -25,7 +24,8 @@ use derive_more::From;
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum AccountError {
-    TypedEncoded(TypedEncodedError),
+    // TODO Decoding(scale::Error),
+    DecodingFailed,
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
@@ -39,7 +39,7 @@ impl From<AccountError> for Error {
 }
 
 impl From<scale::Error> for AccountError {
-    fn from(err: scale::Error) -> Self {
-        AccountError::TypedEncoded(err.into())
+    fn from(_err: scale::Error) -> Self {
+        AccountError::DecodingFailed
     }
 }
