@@ -76,7 +76,10 @@ pub use self::{
         IterEvents,
         IterItemImpls,
     },
-    selector::Selector,
+    selector::{
+        Selector,
+        TraitPrefix,
+    },
     trait_def::{
         InkTrait,
         InkTraitConstructor,
