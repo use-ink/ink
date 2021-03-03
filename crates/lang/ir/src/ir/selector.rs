@@ -118,9 +118,7 @@ impl Selector {
                 let trait_ident = trait_prefix.trait_ident().to_string().into_bytes();
                 [namespace, &trait_ident, &fn_ident].join(separator)
             }
-            None => {
-                fn_ident.to_vec()
-            }
+            None => fn_ident.to_vec(),
         };
         Self::new(&input_bytes)
     }
