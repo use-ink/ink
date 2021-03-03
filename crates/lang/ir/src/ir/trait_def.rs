@@ -500,7 +500,8 @@ impl InkTrait {
             &ir::AttributeArgKind::Constructor,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Constructor => Ok(()),
+                    ir::AttributeArg::Constructor |
+                    ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -552,7 +553,8 @@ impl InkTrait {
             &ir::AttributeArgKind::Message,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Message => Ok(()),
+                    ir::AttributeArg::Message |
+                    ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -980,6 +982,23 @@ mod tests {
                     #[ink(message)]
                     fn my_message(&self);
                     #[ink(message)]
+                    fn my_message_mut(&mut self);
+                }
+            })
+            .is_ok()
+        )
+    }
+
+    #[test]
+    fn trait_def_with_selectors_ok() {
+        assert!(
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyTrait {
+                    #[ink(constructor, selector = "0xC0DECAFE")]
+                    fn my_constructor() -> Self;
+                    #[ink(message, selector = "0xDEADBEEF")]
+                    fn my_message(&self);
+                    #[ink(message, selector = "0xC0FEFEED")]
                     fn my_message_mut(&mut self);
                 }
             })
