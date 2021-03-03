@@ -58,7 +58,8 @@ mod storage_layout;
 mod tests;
 
 use self::{
-    packed_layout::packed_layout_derive, spread_layout::spread_layout_derive,
+    packed_layout::packed_layout_derive,
+    spread_layout::spread_layout_derive,
     storage_layout::storage_layout_derive,
 };
 synstructure::decl_derive!(
