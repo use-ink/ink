@@ -688,10 +688,10 @@ mod erc20 {
                     .expect("Cannot get accounts");
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
-            // Get contract address.
-            let _callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
-            // TODO set callee
+
+            // Set the contract as callee and Bob as caller.
+            // let contract = ink_env::test::address::<ink_env::DefaultEnvironment>();
+            // ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob fails to transfers 10 tokens to Eve.
@@ -735,10 +735,9 @@ mod erc20 {
             // The approve event takes place.
             assert_eq!(ink_env::test::recorded_events().count(), 2);
 
-            // Get contract address.
-            let _callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
-            // TODO set callee
+            // Set the contract as callee and Bob as caller.
+            // let contract = ink_env::test::address::<ink_env::DefaultEnvironment>();
+            // ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob transfers tokens from Alice to Eve.
