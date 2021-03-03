@@ -66,6 +66,7 @@ synstructure::decl_derive!(
     /// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use ink_primitives::Key;
     /// use ink_storage::traits::{
