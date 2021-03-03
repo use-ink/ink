@@ -136,6 +136,7 @@ synstructure::decl_derive!(
     /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
     ///
     /// # Examples
+    ///
     /// ```
     /// use ink_metadata::layout::Layout::Struct;
     /// use ink_primitives::Key;
