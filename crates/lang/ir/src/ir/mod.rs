@@ -36,6 +36,7 @@ use self::attrs::{
     first_ink_attribute,
     partition_attributes,
     sanitize_attributes,
+    sanitize_optional_attributes,
     AttributeArg,
     AttributeArgKind,
     AttributeFrag,
