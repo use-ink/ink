@@ -1217,6 +1217,34 @@ mod tests {
     }
 
     #[test]
+    fn trait_def_with_everything_combined_ok() {
+        assert!(
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                #[ink(namespace = "my_namespace")]
+                pub trait MyTrait {
+                    #[ink(constructor)]
+                    fn my_constructor_1() -> Self;
+                    #[ink(constructor, selector = "0xC0DECAFE")]
+                    fn my_constructor_2() -> Self;
+                    #[ink(message)]
+                    fn my_message_1(&self);
+                    #[ink(message, payable)]
+                    fn my_message_2(&self);
+                    #[ink(message, payable, selector = "0xDEADBEEF")]
+                    fn my_message_3(&self);
+                    #[ink(message)]
+                    fn my_message_mut_1(&mut self);
+                    #[ink(message, payable)]
+                    fn my_message_mut_2(&mut self);
+                    #[ink(message, payable, selector = "0xC0DEBEEF")]
+                    fn my_message_mut_3(&mut self);
+                }
+            })
+            .is_ok()
+        )
+    }
+
+    #[test]
     fn trait_def_with_overlapping_selectors() {
         assert_ink_trait_eq_err!(
             error: "encountered duplicate selector ([c0, de, ca, fe]) \
