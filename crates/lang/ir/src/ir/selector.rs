@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Namespace;
+
 use super::blake2::blake2b_256;
 
 /// A function selector.
@@ -25,33 +27,30 @@ pub struct Selector {
 }
 
 /// The trait prefix to compute a composed selector for trait implementation blocks.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct TraitPrefix<'a> {
     /// The namespace of the ink! trait definition.
     ///
     /// By default this is equal to the `module_path!` at the ink! trait definition site.
     /// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`
     /// ink! attribute.
-    namespace: Vec<u8>,
+    namespace: &'a Namespace,
     /// The Rust identifier of the ink! trait definition.
     trait_ident: &'a syn::Ident,
 }
 
 impl<'a> TraitPrefix<'a> {
     /// Creates a new trait prefix.
-    pub fn new<N>(trait_ident: &'a syn::Ident, namespace: N) -> Self
-    where
-        N: IntoIterator<Item = u8>,
-    {
+    pub fn new(trait_ident: &'a syn::Ident, namespace: &'a Namespace) -> Self {
         Self {
             trait_ident,
-            namespace: namespace.into_iter().collect::<Vec<_>>(),
+            namespace,
         }
     }
 
     /// Returns a shared slice over the bytes of the namespace.
     pub fn namespace_bytes(&self) -> &[u8] {
-        self.namespace.as_slice()
+        self.namespace.as_bytes()
     }
 
     /// Returns a shared reference to the Rust identifier of the trait.
