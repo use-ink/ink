@@ -16,7 +16,10 @@ use crate::ir;
 
 use super::super::InkAttribute;
 use proc_macro2::Span;
-use syn::{Result, spanned::Spanned as _};
+use syn::{
+    spanned::Spanned as _,
+    Result,
+};
 
 /// An ink! item within an ink! trait definition.
 #[derive(Debug, Clone)]

@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod trait_item;
 mod iter;
+mod trait_item;
 
 #[cfg(test)]
 mod tests;
 
-pub use self::iter::IterInkTraitItems;
-pub use self::trait_item::{
-    InkTraitItem,
-    InkTraitMessage,
-    InkTraitConstructor,
+pub use self::{
+    iter::IterInkTraitItems,
+    trait_item::{
+        InkTraitConstructor,
+        InkTraitItem,
+        InkTraitMessage,
+    },
 };
 use super::attrs::InkAttribute;
 use crate::{

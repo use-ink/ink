@@ -516,20 +516,19 @@ fn trait_def_with_overlapping_selectors() {
 
 #[test]
 fn iter_constructors_works() {
-    let ink_trait =
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
-            pub trait MyTrait {
-                #[ink(constructor)]
-                fn constructor_1() -> Self;
-                #[ink(constructor)]
-                fn constructor_2() -> Self;
-                #[ink(message)]
-                fn message_1(&self);
-                #[ink(message)]
-                fn message_2(&mut self);
-             }
-        })
-        .unwrap();
+    let ink_trait = <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        pub trait MyTrait {
+            #[ink(constructor)]
+            fn constructor_1() -> Self;
+            #[ink(constructor)]
+            fn constructor_2() -> Self;
+            #[ink(message)]
+            fn message_1(&self);
+            #[ink(message)]
+            fn message_2(&mut self);
+         }
+    })
+    .unwrap();
     let actual = ink_trait
         .iter_items()
         .flat_map(|item| {
@@ -543,20 +542,19 @@ fn iter_constructors_works() {
 
 #[test]
 fn iter_messages_works() {
-    let ink_trait =
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
-            pub trait MyTrait {
-                #[ink(constructor)]
-                fn constructor_1() -> Self;
-                #[ink(constructor)]
-                fn constructor_2() -> Self;
-                #[ink(message)]
-                fn message_1(&self);
-                #[ink(message)]
-                fn message_2(&mut self);
-            }
-        })
-        .unwrap();
+    let ink_trait = <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        pub trait MyTrait {
+            #[ink(constructor)]
+            fn constructor_1() -> Self;
+            #[ink(constructor)]
+            fn constructor_2() -> Self;
+            #[ink(message)]
+            fn message_1(&self);
+            #[ink(message)]
+            fn message_2(&mut self);
+        }
+    })
+    .unwrap();
     let actual = ink_trait
         .iter_items()
         .flat_map(|item| {
