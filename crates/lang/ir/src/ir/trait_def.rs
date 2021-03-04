@@ -304,7 +304,9 @@ impl<'a> InkTraitMessage<'a> {
             &ir::AttributeArgKind::Message,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Message | ir::AttributeArg::Selector(_) => Ok(()),
+                    ir::AttributeArg::Message
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
             },
