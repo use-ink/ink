@@ -1184,6 +1184,21 @@ mod tests {
     }
 
     #[test]
+    fn trait_def_with_payable_ok() {
+        assert!(
+            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+                pub trait MyTrait {
+                    #[ink(message, payable)]
+                    fn my_message(&self);
+                    #[ink(message, payable)]
+                    fn my_message_mut(&mut self);
+                }
+            })
+            .is_ok()
+        )
+    }
+
+    #[test]
     fn trait_def_with_overlapping_selectors() {
         assert_ink_trait_eq_err!(
             error: "encountered duplicate selector ([c0, de, ca, fe]) \
