@@ -110,12 +110,12 @@ impl Selector {
     where
         T: Into<Option<TraitPrefix<'a>>>,
     {
-        let separator = &b"::"[..];
         let fn_ident = fn_ident.to_string().into_bytes();
         let input_bytes: Vec<u8> = match trait_prefix.into() {
             Some(trait_prefix) => {
                 let namespace = trait_prefix.namespace_bytes();
                 let trait_ident = trait_prefix.trait_ident().to_string().into_bytes();
+                let separator = &b"::"[..];
                 [namespace, &trait_ident, &fn_ident].join(separator)
             }
             None => fn_ident.to_vec(),
