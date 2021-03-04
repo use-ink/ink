@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod trait_item;
+
 #[cfg(test)]
 mod tests;
 
+pub use self::trait_item::{
+    InkTraitItem,
+    InkTraitMessage,
+    InkTraitConstructor,
+};
 use super::attrs::InkAttribute;
 use crate::{
     ir,
@@ -176,14 +183,10 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
                         .clone();
                     match first_attr {
                         ir::AttributeArg::Constructor => {
-                            return Some(InkTraitItem::Constructor(InkTraitConstructor {
-                                item: method,
-                            }))
+                            return Some(InkTraitItem::Constructor(InkTraitConstructor::new(method)))
                         }
                         ir::AttributeArg::Message => {
-                            return Some(InkTraitItem::Message(InkTraitMessage {
-                                item: method,
-                            }))
+                            return Some(InkTraitItem::Message(InkTraitMessage::new(method)))
                         }
                         _ => continue 'outer,
                     }
@@ -191,207 +194,6 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
                 Some(_) => continue 'outer,
             }
         }
-    }
-}
-
-/// An ink! item within an ink! trait definition.
-#[derive(Debug, Clone)]
-pub enum InkTraitItem<'a> {
-    Constructor(InkTraitConstructor<'a>),
-    Message(InkTraitMessage<'a>),
-}
-
-impl<'a> InkTraitItem<'a> {
-    /// Returns the Rust identifier of the ink! trait item.
-    pub fn ident(&self) -> &syn::Ident {
-        match self {
-            Self::Constructor(constructor) => constructor.ident(),
-            Self::Message(message) => message.ident(),
-        }
-    }
-
-    /// Returns the ink! attributes of the ink! trait item.
-    pub fn ink_attrs(&self) -> InkAttribute {
-        match self {
-            Self::Constructor(constructor) => constructor.ink_attrs(),
-            Self::Message(message) => message.ink_attrs(),
-        }
-    }
-
-    /// Returns `Some` if the ink! trait item is a constructor.
-    pub fn filter_map_constructor(self) -> Option<InkTraitConstructor<'a>> {
-        match self {
-            Self::Constructor(ink_trait_constructor) => Some(ink_trait_constructor),
-            _ => None,
-        }
-    }
-
-    /// Returns `Some` if the ink! trait item is a message.
-    pub fn filter_map_message(self) -> Option<InkTraitMessage<'a>> {
-        match self {
-            Self::Message(ink_trait_message) => Some(ink_trait_message),
-            _ => None,
-        }
-    }
-}
-
-/// Returns all non-ink! attributes.
-///
-/// # Panics
-///
-/// If there are malformed ink! attributes in the input.
-fn extract_rust_attributes(attributes: &[syn::Attribute]) -> Vec<syn::Attribute> {
-    let (_ink_attrs, rust_attrs) = ir::partition_attributes(attributes.to_vec())
-        .expect("encountered unexpected invalid ink! attributes");
-    rust_attrs
-}
-
-/// A checked ink! constructor of an ink! trait definition.
-#[derive(Debug, Clone)]
-pub struct InkTraitConstructor<'a> {
-    item: &'a syn::TraitItemMethod,
-}
-
-impl<'a> InkTraitConstructor<'a> {
-    /// Panic message in case a user encounters invalid attributes.
-    const INVALID_ATTRIBUTES_ERRSTR: &'static str =
-        "encountered invalid attributes for ink! trait constructor";
-
-    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait constructor.
-    fn extract_attributes(
-        span: Span,
-        attrs: &[syn::Attribute],
-    ) -> Result<(InkAttribute, Vec<syn::Attribute>)> {
-        let (ink_attrs, non_ink_attrs) = ir::sanitize_attributes(
-            span,
-            attrs.iter().cloned(),
-            &ir::AttributeArgKind::Constructor,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
-                        Ok(())
-                    }
-                    _ => Err(None),
-                }
-            },
-        )?;
-        Ok((ink_attrs, non_ink_attrs))
-    }
-
-    /// Returns all non-ink! attributes.
-    pub fn attrs(&self) -> Vec<syn::Attribute> {
-        let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        rust_attrs
-    }
-
-    /// Returns all ink! attributes.
-    pub fn ink_attrs(&self) -> InkAttribute {
-        let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        ink_attrs
-    }
-
-    /// Returns the original signature of the ink! constructor.
-    pub fn sig(&self) -> &syn::Signature {
-        &self.item.sig
-    }
-
-    /// Returns the Rust identifier of the ink! constructor.
-    pub fn ident(&self) -> &syn::Ident {
-        &self.item.sig.ident
-    }
-
-    /// Returns the span of the ink! constructor.
-    pub fn span(&self) -> Span {
-        self.item.span()
-    }
-}
-
-/// A checked ink! message of an ink! trait definition.
-#[derive(Debug, Clone)]
-pub struct InkTraitMessage<'a> {
-    item: &'a syn::TraitItemMethod,
-}
-
-impl<'a> InkTraitMessage<'a> {
-    /// Panic message in case a user encounters invalid attributes.
-    const INVALID_ATTRIBUTES_ERRSTR: &'static str =
-        "encountered invalid attributes for ink! trait message";
-
-    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait message.
-    fn extract_attributes(
-        span: Span,
-        attrs: &[syn::Attribute],
-    ) -> Result<(InkAttribute, Vec<syn::Attribute>)> {
-        let (ink_attrs, non_ink_attrs) = ir::sanitize_attributes(
-            span,
-            attrs.iter().cloned(),
-            &ir::AttributeArgKind::Message,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Message
-                    | ir::AttributeArg::Payable
-                    | ir::AttributeArg::Selector(_) => Ok(()),
-                    _ => Err(None),
-                }
-            },
-        )?;
-        Ok((ink_attrs, non_ink_attrs))
-    }
-
-    /// Returns all non-ink! attributes.
-    pub fn attrs(&self) -> Vec<syn::Attribute> {
-        let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        rust_attrs
-    }
-
-    /// Returns all ink! attributes.
-    pub fn ink_attrs(&self) -> InkAttribute {
-        let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        ink_attrs
-    }
-
-    /// Returns the original signature of the ink! message.
-    pub fn sig(&self) -> &syn::Signature {
-        &self.item.sig
-    }
-
-    /// Returns the Rust identifier of the ink! message.
-    pub fn ident(&self) -> &syn::Ident {
-        &self.item.sig.ident
-    }
-
-    /// Returns the span of the ink! message.
-    pub fn span(&self) -> Span {
-        self.item.span()
-    }
-
-    /// Returns `true` if the ink! message may mutate the contract storage.
-    pub fn mutates(&self) -> bool {
-        self.sig()
-            .receiver()
-            .map(|fn_arg| {
-                match fn_arg {
-                    syn::FnArg::Receiver(receiver) if receiver.mutability.is_some() => {
-                        true
-                    }
-                    syn::FnArg::Typed(pat_type) => {
-                        match &*pat_type.ty {
-                            syn::Type::Reference(reference)
-                                if reference.mutability.is_some() =>
-                            {
-                                true
-                            }
-                            _ => false,
-                        }
-                    }
-                    _ => false,
-                }
-            })
-            .expect("encountered missing receiver for ink! message")
     }
 }
 
