@@ -52,7 +52,7 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
             &item_trait,
             &mut message_selectors,
             &mut constructor_selectors,
-        );
+        )?;
         Ok(Self {
             item: item_trait,
             message_selectors,
@@ -682,11 +682,19 @@ impl InkTrait {
     ///
     /// In this step we assume that all sanitation checks have taken place prior so
     /// instead of returning errors we simply panic upon failures.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if there are overlapping selectors for ink! constructors
+    /// or ink! messages. Note that overlaps between ink! constructor and message
+    /// selectors are allowed.
     fn extract_selectors(
         item_trait: &syn::ItemTrait,
         message_selectors: &mut HashMap<syn::Ident, Selector>,
         constructor_selectors: &mut HashMap<syn::Ident, Selector>,
-    ) {
+    ) -> Result<()> {
+        let mut seen_constructor_selectors = <HashMap<Selector, syn::Ident>>::new();
+        let mut seen_message_selectors = <HashMap<Selector, syn::Ident>>::new();
         let (ink_attrs, _) = ir::sanitize_optional_attributes(
             item_trait.span(),
             item_trait.attrs.iter().cloned(),
@@ -712,19 +720,39 @@ impl InkTrait {
                 Some(manual_selector) => manual_selector,
                 None => Selector::compose(trait_prefix, ident),
             };
-            let prev = match callable {
+            let (duplicate_selector, duplicate_ident) = match callable {
                 InkTraitItem::Constructor(_) => {
-                    constructor_selectors.insert(ident.clone(), selector)
+                    let duplicate_selector =
+                        seen_constructor_selectors.insert(selector, ident.clone());
+                    let duplicate_ident =
+                        constructor_selectors.insert(ident.clone(), selector);
+                    (duplicate_selector, duplicate_ident)
                 }
                 InkTraitItem::Message(_) => {
-                    message_selectors.insert(ident.clone(), selector)
+                    let duplicate_selector =
+                        seen_message_selectors.insert(selector, ident.clone());
+                    let duplicate_ident =
+                        message_selectors.insert(ident.clone(), selector);
+                    (duplicate_selector, duplicate_ident)
                 }
             };
+            if let Some(duplicate_selector) = duplicate_selector {
+                use crate::error::ExtError as _;
+                return Err(format_err_spanned!(
+                    ident,
+                    "encountered duplicate selector ({:x?}) in the same ink! trait definition",
+                    selector.as_bytes(),
+                ).into_combine(format_err_spanned!(
+                    duplicate_selector,
+                    "first ink! trait constructor or message with same selector found here",
+                )))
+            }
             assert!(
-                prev.is_none(),
-                "encountered unexpected overlapping ink! trait constructor or message"
+                duplicate_ident.is_none(),
+                "encountered unexpected overlapping ink! trait constructor or message identifier",
             );
         }
+        Ok(())
     }
 }
 
@@ -1153,6 +1181,22 @@ mod tests {
             })
             .is_ok()
         )
+    }
+
+    #[test]
+    fn trait_def_with_overlapping_selectors() {
+        assert_ink_trait_eq_err!(
+            error: "encountered duplicate selector ([c0, de, ca, fe]) \
+                    in the same ink! trait definition",
+            pub trait MyTrait {
+                #[ink(constructor, selector = "0xC0DECAFE")]
+                fn my_constructor() -> Self;
+                #[ink(message, selector = "0xC0DECAFE")]
+                fn my_message(&self);
+                #[ink(message, selector = "0xC0DECAFE")]
+                fn my_message_mut(&mut self);
+            }
+        );
     }
 
     #[test]
