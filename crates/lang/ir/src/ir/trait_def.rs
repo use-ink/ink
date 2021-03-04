@@ -184,6 +184,14 @@ impl<'a> InkTraitItem<'a> {
         }
     }
 
+    /// Returns the ink! attributes of the ink! trait item.
+    pub fn ink_attrs(&self) -> InkAttribute {
+        match self {
+            Self::Constructor(constructor) => constructor.ink_attrs(),
+            Self::Message(message) => message.ink_attrs(),
+        }
+    }
+
     /// Returns `Some` if the ink! trait item is a constructor.
     pub fn filter_map_constructor(self) -> Option<InkTraitConstructor<'a>> {
         match self {
@@ -252,7 +260,7 @@ impl<'a> InkTraitConstructor<'a> {
     }
 
     /// Returns all ink! attributes.
-    fn ink_attrs(&self) -> InkAttribute {
+    pub fn ink_attrs(&self) -> InkAttribute {
         let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
             .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
         ink_attrs
@@ -312,7 +320,7 @@ impl<'a> InkTraitMessage<'a> {
     }
 
     /// Returns all ink! attributes.
-    fn ink_attrs(&self) -> InkAttribute {
+    pub fn ink_attrs(&self) -> InkAttribute {
         let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
             .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
         ink_attrs
