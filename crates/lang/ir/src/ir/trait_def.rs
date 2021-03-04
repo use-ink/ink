@@ -176,6 +176,14 @@ pub enum InkTraitItem<'a> {
 }
 
 impl<'a> InkTraitItem<'a> {
+    /// Returns the Rust identifier of the ink! trait item.
+    pub fn ident(&self) -> &syn::Ident {
+        match self {
+            Self::Constructor(constructor) => constructor.ident(),
+            Self::Message(message) => message.ident(),
+        }
+    }
+
     /// Returns `Some` if the ink! trait item is a constructor.
     pub fn filter_map_constructor(self) -> Option<InkTraitConstructor<'a>> {
         match self {
@@ -255,6 +263,11 @@ impl<'a> InkTraitConstructor<'a> {
         &self.item.sig
     }
 
+    /// Returns the Rust identifier of the ink! constructor.
+    pub fn ident(&self) -> &syn::Ident {
+        &self.item.sig.ident
+    }
+
     /// Returns the span of the ink! constructor.
     pub fn span(&self) -> Span {
         self.item.span()
@@ -308,6 +321,11 @@ impl<'a> InkTraitMessage<'a> {
     /// Returns the original signature of the ink! message.
     pub fn sig(&self) -> &syn::Signature {
         &self.item.sig
+    }
+
+    /// Returns the Rust identifier of the ink! message.
+    pub fn ident(&self) -> &syn::Ident {
+        &self.item.sig.ident
     }
 
     /// Returns the span of the ink! message.
