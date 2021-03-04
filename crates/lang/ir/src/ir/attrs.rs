@@ -484,7 +484,7 @@ impl core::fmt::Display for AttributeArg {
 }
 
 /// An ink! namespace applicable to a trait implementation block.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Namespace {
     /// The underlying bytes.
     bytes: Vec<u8>,
