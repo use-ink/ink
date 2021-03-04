@@ -13,10 +13,12 @@
 // limitations under the License.
 
 mod trait_item;
+mod iter;
 
 #[cfg(test)]
 mod tests;
 
+pub use self::iter::IterInkTraitItems;
 pub use self::trait_item::{
     InkTraitItem,
     InkTraitMessage,
@@ -142,58 +144,6 @@ impl InkTrait {
                     (name, len_inputs, mutability)
                 }),
         )
-    }
-}
-
-/// Iterator over all the ink! trait items of an ink! trait definition.
-pub struct IterInkTraitItems<'a> {
-    iter: core::slice::Iter<'a, syn::TraitItem>,
-}
-
-impl<'a> IterInkTraitItems<'a> {
-    /// Creates a new iterator yielding ink! trait items.
-    fn new(item_trait: &'a InkTrait) -> Self {
-        Self {
-            iter: item_trait.item.items.iter(),
-        }
-    }
-
-    /// Creates a new iterator yielding ink! trait items over the raw Rust trait definition.
-    fn from_raw(item_trait: &'a syn::ItemTrait) -> Self {
-        Self {
-            iter: item_trait.items.iter(),
-        }
-    }
-}
-
-impl<'a> Iterator for IterInkTraitItems<'a> {
-    type Item = InkTraitItem<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        'outer: loop {
-            match self.iter.next() {
-                None => return None,
-                Some(syn::TraitItem::Method(method)) => {
-                    let first_attr = ir::first_ink_attribute(&method.attrs)
-                        .ok()
-                        .flatten()
-                        .expect("unexpected missing ink! attribute for trait method")
-                        .first()
-                        .kind()
-                        .clone();
-                    match first_attr {
-                        ir::AttributeArg::Constructor => {
-                            return Some(InkTraitItem::Constructor(InkTraitConstructor::new(method)))
-                        }
-                        ir::AttributeArg::Message => {
-                            return Some(InkTraitItem::Message(InkTraitMessage::new(method)))
-                        }
-                        _ => continue 'outer,
-                    }
-                }
-                Some(_) => continue 'outer,
-            }
-        }
     }
 }
 
