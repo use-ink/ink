@@ -585,13 +585,14 @@ where
 /// - If there are duplicate ink! attributes.
 /// - If the first ink! attribute is not matching the expected.
 /// - If there are conflicting ink! attributes.
-pub fn sanitize_attributes<I, C>(
+pub fn sanitize_attributes<'a, F, I, C>(
     parent_span: Span,
     attrs: I,
-    is_valid_first: &ir::AttributeArgKind,
+    is_valid_first: F,
     mut is_conflicting_attr: C,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
+    F: Into<Option<&'a ir::AttributeArgKind>>,
     I: IntoIterator<Item = syn::Attribute>,
     C: FnMut(&ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
 {
@@ -599,13 +600,15 @@ where
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err!(parent_span, "at this invocation",))
     })?;
-    normalized.ensure_first(is_valid_first).map_err(|err| {
-        err.into_combine(format_err!(
-            parent_span,
-            "expected {} as first ink! attribute argument",
-            is_valid_first,
-        ))
-    })?;
+    if let Some(is_valid_first) = is_valid_first.into() {
+        normalized.ensure_first(is_valid_first).map_err(|err| {
+            err.into_combine(format_err!(
+                parent_span,
+                "expected {} as first ink! attribute argument",
+                is_valid_first,
+            ))
+        })?;
+    }
     normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg))?;
     Ok((normalized, other_attrs))
 }
