@@ -16,13 +16,16 @@ use super::attrs::InkAttribute;
 use crate::{
     ir,
     ir::idents_lint,
+    Selector,
 };
 use core::convert::TryFrom;
+use ir::TraitPrefix;
 use proc_macro2::{
     Ident,
     Span,
     TokenStream as TokenStream2,
 };
+use std::collections::HashMap;
 use syn::{
     spanned::Spanned as _,
     Result,
@@ -32,6 +35,8 @@ use syn::{
 #[derive(Debug, PartialEq, Eq)]
 pub struct InkTrait {
     item: syn::ItemTrait,
+    message_selectors: HashMap<syn::Ident, Selector>,
+    constructor_selectors: HashMap<syn::Ident, Selector>,
 }
 
 impl TryFrom<syn::ItemTrait> for InkTrait {
@@ -41,7 +46,18 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
         idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
         Self::analyse_items(&item_trait)?;
-        Ok(Self { item: item_trait })
+        let mut message_selectors = <HashMap<syn::Ident, Selector>>::new();
+        let mut constructor_selectors = <HashMap<syn::Ident, Selector>>::new();
+        Self::extract_selectors(
+            &item_trait,
+            &mut message_selectors,
+            &mut constructor_selectors,
+        );
+        Ok(Self {
+            item: item_trait,
+            message_selectors,
+            constructor_selectors,
+        })
     }
 }
 
@@ -129,6 +145,13 @@ impl<'a> IterInkTraitItems<'a> {
     fn new(item_trait: &'a InkTrait) -> Self {
         Self {
             iter: item_trait.item.items.iter(),
+        }
+    }
+
+    /// Creates a new iterator yielding ink! trait items over the raw Rust trait definition.
+    fn from_raw(item_trait: &'a syn::ItemTrait) -> Self {
+        Self {
+            iter: item_trait.items.iter(),
         }
     }
 }
@@ -650,6 +673,59 @@ impl InkTrait {
         }
         Ok(())
     }
+
+    /// Extract selectors for ink! trait constructors and messages.
+    ///
+    /// The composed or manually specified selectors are stored into the provided
+    /// hashtables for later look-up when querying ink! constructors or messages.
+    /// This way we are more flexible with regard to the underlying structures of the IR.
+    ///
+    /// In this step we assume that all sanitation checks have taken place prior so
+    /// instead of returning errors we simply panic upon failures.
+    fn extract_selectors(
+        item_trait: &syn::ItemTrait,
+        message_selectors: &mut HashMap<syn::Ident, Selector>,
+        constructor_selectors: &mut HashMap<syn::Ident, Selector>,
+    ) {
+        let (ink_attrs, _) = ir::sanitize_optional_attributes(
+            item_trait.span(),
+            item_trait.attrs.iter().cloned(),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Namespace(_) => Ok(()),
+                    _ => Err(None),
+                }
+            },
+        )
+        .expect("encountered unexpected invalid attributes on ink! trait definition");
+        let namespace = ink_attrs
+            .as_ref()
+            .map(InkAttribute::namespace)
+            .flatten()
+            .unwrap_or_else(Default::default);
+        let ident = &item_trait.ident;
+        let trait_prefix = TraitPrefix::new(ident, &namespace);
+        for callable in IterInkTraitItems::from_raw(item_trait) {
+            let ident = callable.ident();
+            let ink_attrs = callable.ink_attrs();
+            let selector = match ink_attrs.selector() {
+                Some(manual_selector) => manual_selector,
+                None => Selector::compose(trait_prefix, ident),
+            };
+            let prev = match callable {
+                InkTraitItem::Constructor(_) => {
+                    constructor_selectors.insert(ident.clone(), selector)
+                }
+                InkTraitItem::Message(_) => {
+                    message_selectors.insert(ident.clone(), selector)
+                }
+            };
+            assert!(
+                prev.is_none(),
+                "encountered unexpected overlapping ink! trait constructor or message"
+            );
+        }
+    }
 }
 
 #[cfg(test)]
@@ -1039,7 +1115,7 @@ mod tests {
             error: "encountered conflicting ink! attribute argument",
             pub trait MyTrait {
                 #[ink(message)]
-                #[ink(payable)]
+                #[ink(anonymous)]
                 fn does_not_return_self(&self);
             }
         );
