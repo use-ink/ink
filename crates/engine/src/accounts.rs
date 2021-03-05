@@ -12,34 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::test_api::Error;
-
-use super::{
-    exec_context::OffChainError,
-    types::OffAccountId,
-};
+use super::types::AccountId;
 
 use derive_more::From;
 
 /// Errors encountered upon interacting with the accounts database.
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum AccountError {
-    // TODO Decoding(scale::Error),
-    DecodingFailed,
+    Decoding(scale::Error),
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
-    NoAccountForId(OffAccountId),
-}
-
-impl From<AccountError> for Error {
-    fn from(account_error: AccountError) -> Self {
-        Error::OffChain(OffChainError::Account(account_error))
-    }
-}
-
-impl From<scale::Error> for AccountError {
-    fn from(_err: scale::Error) -> Self {
-        AccountError::DecodingFailed
-    }
+    NoAccountForId(AccountId),
 }

@@ -12,32 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Errors that can be encountered upon interaction with the off-chain environment.
-#[cfg(feature = "ink-experimental-engine")]
-pub type Error = ink_engine::Error;
-
-/// Result of interacting with the off-chain environment.
-#[cfg(feature = "ink-experimental-engine")]
-pub type Result<R> = ink_engine::Result<R>;
-
-/// Errors that can be encountered upon interaction with the off-chain environment.
-#[cfg(all(
-    any(feature = "std", test, doc),
-    not(feature = "ink-experimental-engine")
-))]
-pub type Error = ink_env_types::Error<crate::engine::off_chain::OffChainError>;
-
-/// Result of interacting with the off-chain environment.
-#[cfg(all(
-    any(feature = "std", test, doc),
-    not(feature = "ink-experimental-engine")
-))]
-pub type Result<R> = ink_env_types::Result<R, crate::engine::off_chain::OffChainError>;
+#[cfg(any(feature = "std", test, doc))]
+use crate::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
-#[cfg(not(any(feature = "std", test, doc, feature = "ink-experimental-engine")))]
-pub type Error = ink_env_types::Error;
+//#[derive(Debug, From, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
+pub enum Error {
+    /// Error upon decoding an encoded value.
+    Decode(scale::Error),
+    /// An error that can only occure in the off-chain environment.
+    #[cfg(any(feature = "std", test, doc))]
+    OffChain(OffChainError),
+    /// The call to another contract has trapped.
+    CalleeTrapped,
+    /// The call to another contract has been reverted.
+    CalleeReverted,
+    /// The queried contract storage entry is missing.
+    KeyNotFound,
+    /// Transfer failed because it would have brought the sender's total balance
+    /// below the subsistence threshold.
+    BelowSubsistenceThreshold,
+    /// Transfer failed for other not further specified reason. Most probably
+    /// reserved or locked balance of the sender that was preventing the transfer.
+    TransferFailed,
+    /// The newly created contract is below the subsistence threshold after executing
+    /// its constructor so no usable contract instance will be created.
+    NewContractNotFunded,
+    /// No code could be found at the supplied code hash.
+    CodeNotFound,
+    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    NotCallable,
+    /// An unknown error has occured.
+    UnknownError,
+}
 
-/// Result of interacting with the environment.
-#[cfg(not(any(feature = "std", test, doc, feature = "ink-experimental-engine")))]
-pub type Result<R> = ink_env_types::Result<R>;
+/// A result of environmental operations.
+pub type Result<T> = core::result::Result<T, Error>;
+
+impl From<scale::Error> for Error {
+    fn from(err: scale::Error) -> Self {
+        Error::Decode(err)
+    }
+}

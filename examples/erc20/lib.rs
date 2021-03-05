@@ -310,8 +310,7 @@ mod erc20 {
                 100,
             );
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
             // Alice owns all the tokens on deployment
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             // Bob does not owns tokens
@@ -638,8 +637,7 @@ mod erc20 {
                 100,
             );
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
             // Alice owns all the tokens on deployment
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             // Bob does not owns tokens
@@ -652,8 +650,7 @@ mod erc20 {
             let mut erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Alice transfers 10 tokens to Bob.
@@ -684,8 +681,7 @@ mod erc20 {
             // Constructor works.
             let mut erc20 = Erc20::new(100);
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
 
@@ -721,8 +717,7 @@ mod erc20 {
             let mut erc20 = Erc20::new(100);
             // Transfer event triggered during initial construction.
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
             // Bob fails to transfer tokens owned by Alice.
             assert_eq!(
@@ -770,8 +765,7 @@ mod erc20 {
         fn allowance_must_not_change_on_failed_transfer() {
             let mut erc20 = Erc20::new(100);
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                    .expect("Cannot get accounts");
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
             // Alice approves Bob for token transfers on her behalf.
             let alice_balance = erc20.balance_of(accounts.alice);

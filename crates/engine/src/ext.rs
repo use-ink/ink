@@ -12,47 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! TODO
+//! Provides the same interface as Substrate's FRAME `contract` module.
 //!
-//! Refer to substrate SRML contract module for more documentation.
+//! See that module for more documentation.
 
-use super::{
+use crate::{
     exec_context::ExecContext,
-    test_api::EmittedEvent,
+    storage::Storage,
+    test_api::{
+        EmittedEvent,
+        REC_INSTANCE,
+    },
 };
 
 use core::cell::RefCell;
-use ink_primitives::Key;
-use std::collections::HashMap;
 
 type Result = core::result::Result<(), Error>;
 
 pub struct EnvInstance {
     /// The environment storage.
-    pub storage: HashMap<Vec<u8>, Vec<u8>>,
-    /// Emitted events recorder.
-    pub emitted_events: Vec<EmittedEvent>,
-    /// Current execution context and context.
+    pub storage: Storage<Vec<u8>, Vec<u8>>,
+    /// Current execution context.
     pub exec_context: Option<ExecContext>,
-    /// The caller.
-    pub caller: Vec<u8>,
-    /// The total number of reads to the storage.
-    pub count_reads: usize,
-    /// The total number of writes to the storage.
-    pub count_writes: usize,
 }
 
 thread_local!(
-    pub static ENV_INSTANCE: RefCell<EnvInstance> = RefCell::new(
-        EnvInstance {
-            storage: HashMap::new(),
-            emitted_events: Vec::new(),
-            exec_context: None,
-            count_reads: 0,
-            count_writes: 0,
-            caller: vec![0x01; 32],
-        }
-    )
+    pub static ENV_INSTANCE: RefCell<EnvInstance> = RefCell::new(EnvInstance {
+        storage: Storage::new(),
+        exec_context: Some(ExecContext {
+            caller: vec![0x01; 32].into(),
+            callee: vec![0x01; 32].into(),
+        }),
+    });
 );
 
 macro_rules! define_error_codes {
@@ -162,16 +153,21 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
         scale::Decode::decode(&mut &topics[0..1]).expect("decoding topics count failed");
     let topics_count = topics_count.0 as usize;
 
-    // the rest of the slice contains the topics
-    let topics = &topics[1..];
-    let bytes_per_topic = topics.len() / topics_count;
-    let topics_vec: Vec<Vec<u8>> = topics
-        .chunks(bytes_per_topic)
-        .map(|chunk| chunk.to_vec())
-        .collect();
-    assert_eq!(topics_count, topics_vec.len());
+    let topics_vec = if topics_count > 0 {
+        // the rest of the slice contains the topics
+        let topics = &topics[1..];
+        let bytes_per_topic = topics.len() / topics_count;
+        let topics_vec: Vec<Vec<u8>> = topics
+            .chunks(bytes_per_topic)
+            .map(|chunk| chunk.to_vec())
+            .collect();
+        assert_eq!(topics_count, topics_vec.len());
+        topics_vec
+    } else {
+        Vec::new()
+    };
 
-    ENV_INSTANCE.with(|instance| {
+    REC_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
         instance.emitted_events.push(EmittedEvent {
             topics: topics_vec,
@@ -181,9 +177,13 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
 }
 
 pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
-    ENV_INSTANCE.with(|instance| {
+    REC_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
         instance.count_writes += 1;
+    });
+
+    ENV_INSTANCE.with(|instance| {
+        let instance = &mut instance.borrow_mut();
         instance
             .storage
             .insert(key.to_vec(), encoded_value.to_vec());
@@ -191,17 +191,25 @@ pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
 }
 
 pub fn clear_storage(key: &[u8]) {
-    ENV_INSTANCE.with(|instance| {
+    REC_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
         instance.count_writes += 1;
+    });
+
+    ENV_INSTANCE.with(|instance| {
+        let instance = &mut instance.borrow_mut();
         instance.storage.remove(key);
     })
 }
 
 pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
-    ENV_INSTANCE.with(|instance| {
+    REC_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
         instance.count_reads += 1;
+    });
+
+    ENV_INSTANCE.with(|instance| {
+        let instance = &mut instance.borrow_mut();
         match instance.storage.get(key.to_vec().as_slice()) {
             Some(val) => {
                 output[0..val.len()].copy_from_slice(val);
@@ -227,8 +235,9 @@ pub fn restore_to(
     _account_id: &[u8],
     _code_hash: &[u8],
     _rent_allowance: &[u8],
-    _filtered_keys: &[Key],
+    filtered_keys: &[Vec<u8>],
 ) {
+    let _filtered_keys: Vec<crate::Key> = filtered_keys.iter().map(Into::into).collect();
     unimplemented!("off-chain environment does not yet support `restore_to`");
 }
 
@@ -287,12 +296,13 @@ impl_seal_wrapper_for! {
 pub fn caller(output: &mut &mut [u8]) {
     ENV_INSTANCE.with(|instance| {
         let instance = &mut instance.borrow_mut();
-        let caller = instance
+        let caller: Vec<u8> = instance
             .exec_context
             .as_ref()
             .expect("uninitialized context")
             .caller
-            .clone();
+            .clone()
+            .into();
         output[..caller.len()].copy_from_slice(&caller[..]);
         extract_from_slice(output, caller.len());
     });

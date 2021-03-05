@@ -13,50 +13,25 @@
 // limitations under the License.
 
 use super::{
-    accounts::AccountError,
-    types::OffAccountId,
-    Environment,
+    types::AccountId,
+    OffChainError,
 };
 
-use derive_more::From;
+pub type Result<T> = core::result::Result<T, OffChainError>;
 
-#[derive(Debug, From, PartialEq, Eq)]
-pub enum OffChainError {
-    Account(AccountError),
-    #[from(ignore)]
-    UninitializedBlocks,
-    #[from(ignore)]
-    UninitializedExecutionContext,
-    #[from(ignore)]
-    UnregisteredChainExtension,
-}
-
-type Result<T> = core::result::Result<T, OffChainError>;
-
-/// The context of a contract execution.
 pub struct ExecContext {
     /// The caller of the contract execution.
     ///
     /// Might be user or another contract.
-    pub caller: OffAccountId,
+    pub caller: AccountId,
     /// The callee of the contract execution.
-    pub callee: OffAccountId,
+    pub callee: AccountId,
 }
 
 impl ExecContext {
     /// Returns the callee.
-    pub fn callee<T>(&self) -> Result<T::AccountId>
-    where
-        T: Environment,
-    {
-        // TODO type hell
-        let callee: Vec<u8> = self.callee.clone();
-        let res: std::result::Result<T::AccountId, scale::Error> =
-            scale::Decode::decode(&mut &callee[..]);
-        let res: std::result::Result<T::AccountId, AccountError> =
-            res.map_err(AccountError::from);
-        let res: std::result::Result<T::AccountId, OffChainError> =
-            res.map_err(Into::into);
-        res
+    pub fn callee(&self) -> Result<Vec<u8>> {
+        let callee: Vec<u8> = self.callee.clone().into();
+        Ok(callee)
     }
 }

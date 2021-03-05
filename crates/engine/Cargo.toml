@@ -7,7 +7,7 @@ edition = "2018"
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/paritytech/ink"
-documentation = "https://docs.rs/ink_env/"
+documentation = "https://docs.rs/ink_engine/"
 homepage = "https://www.parity.io/"
 description = "[ink!] Experimental off-chain environment for testing."
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
@@ -15,9 +15,6 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env_types = { version = "3.0.0-rc3", path = "../env_types/", default-features = false }
-ink_primitives = { version = "3.0.0-rc3", path = "../primitives/", default-features = false }
-
 scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
@@ -33,8 +30,6 @@ scale-info = { version = "0.6", default-features = false, features = ["derive"],
 [features]
 default = ["std"]
 std = [
-    "ink_env_types/std",
-    "ink_primitives/std",
     "scale/std",
     "scale-info",
     "scale-info/std",

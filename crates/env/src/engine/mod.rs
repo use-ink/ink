@@ -25,9 +25,13 @@ pub trait OnInstance: EnvBackend + TypedEnvBackend {
 }
 
 cfg_if! {
-    if #[cfg(any(all(not(feature = "std"), target_arch = "wasm32"), feature = "ink-experimental-engine"))] {
+    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
         mod on_chain;
         pub use self::on_chain::EnvInstance;
+    } else if #[cfg(feature = "ink-experimental-engine")] {
+        pub mod experimental_off_chain;
+        pub use experimental_off_chain as off_chain;
+        pub use self::experimental_off_chain::EnvInstance;
     } else if #[cfg(feature = "std")] {
         pub mod off_chain;
         pub use self::off_chain::EnvInstance;

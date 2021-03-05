@@ -12,31 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod accounts;
-pub mod ext;
+mod impls;
 pub mod test_api;
-
-mod exec_context;
-mod hashing;
-mod storage;
 mod types;
 
-pub use accounts::AccountError;
-pub use test_api::EmittedEvent;
-pub use types::{
-    AccountId,
-    Key,
-};
+use super::OnInstance;
+use crate::Error;
 
 use derive_more::From;
 
+/// The experimental off-chain environment.
+pub struct EnvInstance {}
+
+impl OnInstance for EnvInstance {
+    fn on_instance<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self) -> R,
+    {
+        use core::cell::RefCell;
+        thread_local!(
+            pub static INSTANCE: RefCell<EnvInstance> = RefCell::new(
+                EnvInstance {
+                }
+            )
+        );
+        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+    }
+}
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum OffChainError {
-    Account(accounts::AccountError),
+    Account(AccountError),
     #[from(ignore)]
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
     #[from(ignore)]
     UnregisteredChainExtension,
+}
+
+/// Errors encountered upon interacting with the accounts database.
+#[derive(Debug, From, PartialEq, Eq)]
+pub enum AccountError {
+    Decoding(scale::Error),
+    #[from(ignore)]
+    UnexpectedUserAccount,
+    #[from(ignore)]
+    NoAccountForId(Vec<u32>),
 }

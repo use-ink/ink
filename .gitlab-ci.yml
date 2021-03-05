@@ -74,6 +74,14 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
+    # Just needed as long as we have the `ink-experimental-engine` feature.
+    # We do not invoke `--all-features` here -- this would imply the feature
+    # `ink-experimental-engine`. So in order to still run the tests without the
+    # experimental engine feature we need this command.
+    - for crate in ${ALL_CRATES}; do
+        cargo check --verbose --features std --manifest-path crates/${crate}/Cargo.toml;
+       done
+
 check-wasm:
   stage:                           check
   <<:                              *docker-env
@@ -122,25 +130,11 @@ test:
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
 
-# Just needed as long as we have the `ink-experimental-engine` feature.
-# This stage is the same as the above `test`, with the exception that
-# we do not invoke `--all-features` here -- this would imply the feature
-# `ink-experimental-engine`. So in order to still run the tests without the
-# experimental engine feature we have this test.
-test-default-features:
-    stage:                           workspace
-    <<:                              *docker-env
-    needs:
-        - job:                         check-std
-          artifacts:                   false
-    variables:
-        # Since we run the tests with `--all-features` this implies the feature
-        # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-        # There's no way to disable a single feature while enabling all features
-        # at the same time, hence we use this workaround.
-        QUICKCHECK_TESTS:            0
-    script:
-        - cargo test --verbose --no-fail-fast --workspace
+      # Just needed as long as we have the `ink-experimental-engine` feature.
+      # We do not invoke `--all-features` here -- this would imply the feature
+      # `ink-experimental-engine`. So in order to still run the tests without the
+      # experimental engine feature we need this command.
+    - cargo test --verbose --features std --no-fail-fast --workspace
 
 docs:
   stage:                           workspace
@@ -210,6 +204,12 @@ clippy-std:
   script:
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+
+        # Just needed as long as we have the `ink-experimental-engine` feature.
+        # We do not invoke `--all-features` here -- this would imply the feature
+        # `ink-experimental-engine`. So in order to still run the tests without the
+        # experimental engine feature we need this command.
+        cargo clippy --verbose --features std  --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -247,13 +247,15 @@ examples-test:
       done
 
 examples-test-experimental-engine:
-    stage:                           examples
-    <<:                              *docker-env
-    needs:
-        - job:                         clippy-std
-          artifacts:                   false
-    script:
-        cargo test --features ink-experimental-engine --verbose --manifest-path erc20/Cargo.toml;
+  stage:                           examples
+  <<:                              *docker-env
+  needs:
+    - job:                         clippy-std
+      artifacts:                   false
+  script:
+    # we test only the examples for which the tests have already been migrated to
+    # use the experimental engine.
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path erc20/Cargo.toml
 
 examples-fmt:
   stage:                           examples

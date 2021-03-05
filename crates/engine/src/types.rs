@@ -12,5 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+
 /// Off-chain environment account ID type.
-pub type OffAccountId = Vec<u8>;
+#[derive(Debug, From, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct AccountId(Vec<u8>);
+
+impl From<AccountId> for Vec<u8> {
+    fn from(account_id: AccountId) -> Self {
+        account_id.0
+    }
+}
+
+impl From<&[u8]> for AccountId {
+    fn from(slice: &[u8]) -> Self {
+        AccountId(slice.to_vec())
+    }
+}
+
+/// Key into contract storage.
+///
+/// Used to identify contract storage cells for read and write operations.
+#[derive(Default, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct Key(Vec<u8>);
+
+impl From<&Vec<u8>> for Key {
+    fn from(vec: &Vec<u8>) -> Self {
+        vec.clone().into()
+    }
+}
