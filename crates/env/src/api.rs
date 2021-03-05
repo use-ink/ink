@@ -371,7 +371,7 @@ where
 ///
 /// # Note
 ///
-/// - The `filtered_keys` can be used to ignore certain storage regions
+/// - `filtered_keys` can be used to ignore certain storage regions
 ///   in the restorer contract to not influence the hash calculations.
 /// - Does *not* perform restoration right away but defers it to the end of
 ///   the contract execution.
@@ -426,7 +426,7 @@ where
 /// # Errors
 ///
 /// - If the contract doesn't have sufficient funds.
-/// - If the transfer would have brought the sender's total balance below the
+/// - If the transfer had brought the sender's total balance below the
 ///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
@@ -449,8 +449,8 @@ where
 /// # Usage
 ///
 /// Normally contracts define their own `enum` dispatch types respective
-/// to their exported contructors and messages that implement `scale::Decode`
-/// according to the contructors or messages selectors and their arguments.
+/// to their exported constructors and messages that implement `scale::Decode`
+/// according to the constructors or messages selectors and their arguments.
 /// These `enum` dispatch types are then given to this procedure as the `T`.
 ///
 /// When using ink! users do not have to construct those enum dispatch types

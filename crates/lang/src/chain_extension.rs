@@ -38,7 +38,7 @@ pub trait ChainExtension {
 
 /// Only implemented for `Result<T, E>`.
 ///
-/// Used to check at compile time if the return type of a chain extension method
+/// Used to check at compile time if the chain extension method return type
 /// is a `Result` type using the type system instead of the syntactic structure.
 #[doc(hidden)]
 pub trait IsResultType: private::Sealed {
@@ -55,6 +55,6 @@ impl<T, E> IsResultType for Result<T, E> {
 }
 
 mod private {
-    /// Seals the `IsResultType` trait so that it cannot be implemented outside of this module.
+    /// Seals the `IsResultType` trait so that it cannot be implemented outside this module.
     pub trait Sealed {}
 }

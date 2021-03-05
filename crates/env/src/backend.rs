@@ -86,8 +86,8 @@ pub trait EnvBackend {
     /// # Usage
     ///
     /// Normally contracts define their own `enum` dispatch types respective
-    /// to their exported contructors and messages that implement `scale::Decode`
-    /// according to the contructors or messages selectors and their arguments.
+    /// to their exported constructors and messages that implement `scale::Decode`
+    /// according to the constructors or messages selectors and their arguments.
     /// These `enum` dispatch types are then given to this procedure as the `T`.
     ///
     /// When using ink! users do not have to construct those enum dispatch types

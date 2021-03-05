@@ -348,7 +348,7 @@ where
         // what normally a hash map implementation does because we do not resolve
         // or prevent collisions in this hash map implementation at any level.
         // Having a collision is virtually impossible since we
-        // are using a keyspace of 2^256 bit.
+        // are using a keyspace of `2^256` bit.
         self.values.get(key).is_some()
     }
 
@@ -492,7 +492,7 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
     pub fn key(&self) -> &K {
         &self.values_entry.key()
     }
@@ -502,7 +502,7 @@ where
         self.values_entry.into_key()
     }
 
-    /// Sets the value of the entry with the `VacantEntry`'s key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`s key, and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         // At this point we know that `key` does not yet exist in the map.
         let key_index = self.keys.put(self.key().to_owned());
@@ -556,7 +556,7 @@ where
         self.remove_entry().1
     }
 
-    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         &mut self.values_entry.into_mut().value

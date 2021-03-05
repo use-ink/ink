@@ -41,8 +41,8 @@ pub use reverse::Reverse;
 ///
 /// The heap is a *max-heap* by default, i.e. the first element is the largest.
 /// Either [`Reverse`] or a custom `Ord` implementation can be used to
-/// make `BinaryHeap` a *min-heap*. This makes `heap.pop()` return the smallest
-/// value instead of the largest one.
+/// make `BinaryHeap` a *min-heap*. This then makes `heap.pop()` return the
+/// smallest value instead of the largest one.
 #[derive(Default, PartialEq, Eq, Debug)]
 pub struct BinaryHeap<T>
 where
@@ -63,7 +63,7 @@ where
         }
     }
 
-    /// Returns the number of elements in the heap, also referred to as its 'length'.
+    /// Returns the number of elements in the heap, also referred to as its "length".
     pub fn len(&self) -> u32 {
         self.elements.len()
     }
@@ -211,8 +211,8 @@ where
     /// If `true`, on `drop()` will sift the peeked value down the tree if after mutation it is no
     /// longer the largest value, in order to keep the heap in a consistent state.
     ///
-    /// If the peeked value is consumed via `PeekMut::pop()` then this is set to false to prevent
-    /// a redundant reorg which would already have happened via `BinaryHeap::pop()`.
+    /// If the peeked value is consumed via `PeekMut::pop()` then this is set to false in order
+    /// to  prevent a redundant reorg which would already have happened via `BinaryHeap::pop()`.
     sift: bool,
 }
 

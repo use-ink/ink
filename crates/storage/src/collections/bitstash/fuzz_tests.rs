@@ -20,7 +20,7 @@ use super::BitStash;
 ///
 /// For each odd `x` in `xs` a number of put operations are executed.
 /// For each even `x` it is asserted that the previously inserted elements
-/// are in the stash and they are taken out subsequently.
+/// are in the stash, and they are taken out subsequently.
 ///
 /// The reasoning behind this even/odd sequence is to introduce some
 /// randomness into when elements are inserted/removed.

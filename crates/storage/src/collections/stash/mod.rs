@@ -291,7 +291,7 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
-    /// Rebinds the `prev` and `next` bindings of the neighbours of the vacant entry.
+    /// Rebinds the `prev` and `next` bindings of the neighbors of the vacant entry.
     ///
     /// # Note
     ///
@@ -383,7 +383,7 @@ where
         }
     }
 
-    /// Updates links from and to neighbouring vacant entries.
+    /// Updates links from and to neighboring vacant entries.
     fn update_neighboring_vacant_entry_links(
         &mut self,
         prev: Index,
@@ -527,7 +527,7 @@ where
     ///
     /// Returns the number of storage cells freed this way.
     ///
-    /// This might invalidate indices stored outside of the stash.
+    /// This might invalidate indices stored outside the stash.
     ///
     /// # Callback
     ///
@@ -567,7 +567,7 @@ where
                 .expect("index is out of bounds")
             {
                 Entry::Vacant(vacant_entry) => {
-                    // Remove the vacant entry and rebind its neighbours.
+                    // Remove the vacant entry and rebind its neighbors.
                     self.remove_vacant_entry(index, vacant_entry);
                 }
                 Entry::Occupied(value) => {

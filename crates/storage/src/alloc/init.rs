@@ -34,12 +34,12 @@ const DYNAMIC_ALLOCATOR_KEY_OFFSET: [u8; 32] = [0xFE; 32];
 pub enum ContractPhase {
     /// Initializes the global dynamic storage allocator from scratch.
     ///
-    /// Upon initialization it will be created from scratch as if the
+    /// Upon initialization, it will be created from scratch as if the
     /// contract has been deployed for the first time.
     Deploy,
     /// Initializes the global dynamic storage allocator from storage.
     ///
-    /// Upon initialization the dynamic storage allocator will be pulled
+    /// Upon initialization, the dynamic storage allocator will be pulled
     /// from the contract storage with the assumption that a former
     /// contract deployment has already taken place in the past.
     Call,
@@ -51,12 +51,12 @@ pub enum ContractPhase {
 enum DynamicAllocatorState {
     /// The global instance has not yet been initialized.
     ///
-    /// Upon initialization it will be created from scratch as if the
+    /// Upon initialization, it will be created from scratch as if the
     /// contract has been deployed for the first time.
     UninitDeploy,
     /// The global instance has not yet been initialized.
     ///
-    /// Upon initialization it will be pulled from the contract storage
+    /// Upon initialization, it will be pulled from the contract storage
     /// with the assumption that a former contract deployment has already
     /// taken place in the past.
     UninitCall,

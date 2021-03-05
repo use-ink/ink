@@ -14,7 +14,7 @@
 
 //! Crate providing `WEE_ALLOC` support for all Wasm compilations of ink! smart contract.
 //!
-//! The Wee allocator is an allocator specifically designed to have a low footprint albeith
+//! The Wee allocator is an allocator specifically designed to have a low footprint albeit
 //! being less efficient for allocation and deallocation operations.
 
 #![cfg_attr(not(feature = "std"), no_std)]

@@ -32,7 +32,7 @@ use ink_primitives::Key;
 ///
 /// Users can use this in order to make certain `SpreadLayout` storage entities
 /// used in contexts that require a `PackedLayout` storage entity by simply
-/// packing the storage entity witihn a `storage::Box`.
+/// packing the storage entity within a `storage::Box`.
 ///
 /// Dynamic allocations caused by the creation of `storage::Box` instances do
 /// have some limited overhead:

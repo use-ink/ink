@@ -22,19 +22,19 @@
 //!
 //! # Simplification
 //!
-//! The contracts pallet is using 256 bit keys for identifying storage cells.
-//! This implies a storage space of 2^256 cells which is big enough to say that
+//! The contracts pallet is using 256-bit keys for identifying storage cells.
+//! This implies a storage space of `2^256` cells which is big enough to say that
 //! there are probably never going to happen collisions anywhere at any time
 //! if keys are chosen randomly. Using the built-in crypto hashers on unique
 //! input we can be sure that there are never going to be collisions in this
-//! space of 2^256 cells.
+//! space of `2^256` cells.
 //!
 //! This way we can reduce the problem of finding another region in our storage
 //! that fits certain requirements (e.g. a minimum size) to the problem of
 //! finding another uniform slot. Since we are on 32-bit WebAssembly we have
-//! memory limitations that make it impractical to have more than 2^32 dynamic
-//! allocated entities and so we can create another limitation for having a
-//! total of 2^32 dynamic allocations at any point in time.
+//! memory limitations that make it impractical to have more than `2^32` dynamic
+//! allocated entities, so we can create another limitation for having a total of
+//! `2^32` dynamic allocations at any point in time.
 //! This enables us to have 32-bit keys instead of 256-bit keys.
 //!
 //! We can convert such 32-bit keys (represented by e.g. a `u32`) into 256-bit
@@ -47,7 +47,7 @@
 //!
 //! # Internals
 //!
-//! As described in [# Simplification] there are 2^32 possible uniform dynamic
+//! As described in [# Simplification] there are `2^32` possible uniform dynamic
 //! allocations available. For each such slot the dynamic allocator stores via
 //! a single bit in a bitvector if that slot is free or occupied.
 //! This bitvector is called the `free` list.
@@ -108,7 +108,7 @@ pub fn free(allocation: DynamicAllocation) {
 ///   in contract instantiations and calls.
 /// - This has to be issued before the first interaction with the global allocator.
 /// - The actual instantiation will happen only upon the first interaction with
-///   the global allocator, e.g. using its `alloc` or `free` calls. Until then
+///   the global allocator, e.g. using the `alloc` or `free` calls. Until then,
 ///   it remains uninitialized.
 ///
 /// If this function is not called before the first global allocator interaction

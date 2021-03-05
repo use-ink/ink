@@ -14,7 +14,7 @@
 
 //! Provides type definitions and traits for the built-in cryptographic hashes.
 
-/// The output type of a built-in cryptographic hash function.
+/// The output type of built-in cryptographic hash functions.
 pub trait HashOutput: private::Sealed {
     /// The output type of the crypto hash.
     ///

@@ -24,7 +24,7 @@ use super::{
 pub struct BitRefMut<'a> {
     /// The queried pack of 256 bits.
     bits: &'a mut Bits256,
-    /// The bit position witihn the queried bit pack.
+    /// The bit position within the queried bit pack.
     at: u8,
 }
 
@@ -37,7 +37,7 @@ impl<'a> PartialEq for BitRefMut<'a> {
 impl<'a> Eq for BitRefMut<'a> {}
 
 impl<'a> BitRefMut<'a> {
-    /// Creates a new bit access for the indexed bit within the 256-bit pack.
+    /// Creates access to the indexed bit within the 256-bit pack.
     pub(super) fn new(bits: &'a mut Bits256, at: Index256) -> Self {
         Self { bits, at }
     }
