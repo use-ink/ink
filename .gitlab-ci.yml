@@ -82,6 +82,7 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
+
 #### stage:                        workspace
 
 build-std:
