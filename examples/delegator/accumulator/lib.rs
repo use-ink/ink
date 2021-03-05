@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,38 +14,34 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::accumulator::Accumulator;
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
-mod accumulator {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage;
-    
+#[ink::contract]
+pub mod accumulator {
     /// Holds a simple i32 value that can be incremented and decremented.
     #[ink(storage)]
-    struct Accumulator {
-        value: storage::Value<i32>,
+    pub struct Accumulator {
+        value: i32,
     }
 
     impl Accumulator {
         /// Initializes the value to the initial value.
         #[ink(constructor)]
-        fn new(&mut self, init_value: i32) {
-            self.value.set(init_value)
+        pub fn new(init_value: i32) -> Self {
+            Self { value: init_value }
         }
 
         /// Mutates the internal value.
         #[ink(message)]
-        fn inc(&mut self, by: i32) {
+        pub fn inc(&mut self, by: i32) {
             self.value += by;
         }
 
         /// Returns the current state.
         #[ink(message)]
-        fn get(&self) -> i32 {
-            *self.value
+        pub fn get(&self) -> i32 {
+            self.value
         }
     }
 }
-
-pub use crate::accumulator::Accumulator;

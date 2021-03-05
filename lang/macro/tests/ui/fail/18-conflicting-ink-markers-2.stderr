@@ -1,5 +1,0 @@
-error: invalid ink! attribute found for `#[ink(event)]` struct
- --> $DIR/18-conflicting-ink-markers-2.rs:9:10
-  |
-9 |     #[ink(storage)] // We cannot have #[ink(storage)] if we already have #[ink(event)]
-  |          ^^^^^^^^^

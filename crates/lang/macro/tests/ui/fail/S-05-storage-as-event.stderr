@@ -1,0 +1,5 @@
+error: encountered conflicting ink! attribute argument
+ --> $DIR/S-05-storage-as-event.rs:6:11
+  |
+6 |     #[ink(event)] // We cannot have #[ink(event)] if we already have #[ink(storage)]
+  |           ^^^^^

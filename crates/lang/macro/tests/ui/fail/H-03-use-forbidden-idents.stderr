@@ -1,0 +1,11 @@
+error: encountered invalid identifier starting with __ink_
+  --> $DIR/H-03-use-forbidden-idents.rs:16:16
+   |
+16 |         pub fn __ink_message(&self) {
+   |                ^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> $DIR/H-03-use-forbidden-idents.rs:18:17
+   |
+18 |             let __ink_first = ();
+   |                 ^^^^^^^^^^^

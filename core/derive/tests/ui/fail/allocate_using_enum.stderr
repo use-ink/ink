@@ -1,7 +1,0 @@
-error: proc-macro derive panicked
- --> $DIR/allocate_using_enum.rs:3:10
-  |
-3 | #[derive(AllocateUsing, Debug, PartialEq, Eq)]
-  |          ^^^^^^^^^^^^^
-  |
-  = help: message: cannot derive AllocateUsing for enums

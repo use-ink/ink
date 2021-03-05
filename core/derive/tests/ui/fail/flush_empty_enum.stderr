@@ -1,7 +1,0 @@
-error: proc-macro derive panicked
- --> $DIR/flush_empty_enum.rs:3:10
-  |
-3 | #[derive(Flush, Debug, PartialEq, Eq)]
-  |          ^^^^^
-  |
-  = help: message: deriving Flush for empty enum is invalid

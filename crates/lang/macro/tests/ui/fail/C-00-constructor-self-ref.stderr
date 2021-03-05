@@ -1,0 +1,5 @@
+error: ink! constructors must have no `self` receiver
+  --> $DIR/C-00-constructor-self-ref.rs:10:33
+   |
+10 |         pub fn invalid_self_ref(&self) -> Self {
+   |                                 ^^^^^

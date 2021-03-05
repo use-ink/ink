@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Parity Technologies (UK) Ltd.
+// Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,34 +14,31 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+pub use self::adder::Adder;
 use ink_lang as ink;
 
-#[ink::contract(version = "0.1.0")]
+#[ink::contract]
 mod adder {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_core::storage;
     use accumulator::Accumulator;
 
     /// Increments the underlying accumulator's value.
     #[ink(storage)]
-    struct Adder {
+    pub struct Adder {
         /// The accumulator to store the value.
-        accumulator: storage::Value<accumulator::Accumulator>,
+        accumulator: accumulator::Accumulator,
     }
 
     impl Adder {
         /// Creates a new adder from the given accumulator.
         #[ink(constructor)]
-        fn new(&mut self, accumulator: Accumulator) {
-            self.accumulator.set(accumulator)
+        pub fn new(accumulator: Accumulator) -> Self {
+            Self { accumulator }
         }
 
         /// Increases the accumulator's value by some amount.
         #[ink(message)]
-        fn inc(&mut self, by: i32) {
+        pub fn inc(&mut self, by: i32) {
             self.accumulator.inc(by)
         }
     }
 }
-
-pub use crate::adder::Adder;

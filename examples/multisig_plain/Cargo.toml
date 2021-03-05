@@ -1,62 +1,40 @@
 [package]
 name = "multisig_plain"
-version = "0.1.0"
+version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_abi = { path = "../../abi", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { path = "../../primitives", default-features = false }
-ink_core = { path = "../../core", default-features = false }
-ink_lang = { path = "../../lang", default-features = false }
-ink_prelude = { path = "../../prelude", default-features = false }
+ink_primitives = { version = "3.0.0-rc3", path = "../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc3", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc3", path = "../../crates/env", default-features = false }
+ink_storage = { version = "3.0.0-rc3", path = "../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.0-rc3", path = "../../crates/lang", default-features = false }
+ink_prelude = { version = "3.0.0-rc3", path = "../../crates/prelude", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "1.2", default-features = false, features = ["derive"] }
-type-metadata = { git = "https://github.com/type-metadata/type-metadata.git", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
+funty = "=1.1.0"
 
 [lib]
 name = "multisig_plain"
 path = "lib.rs"
-crate-type = [
-	# Used for normal contract Wasm blobs.
-	"cdylib",
-	# Used for ABI generation.
-	"rlib",
-]
+crate-type = ["cdylib"]
 
 [features]
-default = ["test-env"]
+default = ["std"]
 std = [
-    "ink_abi/std",
-    "ink_core/std",
+    "ink_metadata",
+    "ink_metadata/std",
+    "ink_env/std",
+    "ink_storage/std",
+    "ink_lang/std",
     "ink_primitives/std",
     "ink_prelude/std",
     "scale/std",
-    "type-metadata/std",
-]
-test-env = [
-    "std",
-    "ink_lang/test-env",
-]
-ink-generate-abi = [
-    "std",
-    "ink_abi",
-    "type-metadata",
-    "ink_core/ink-generate-abi",
-    "ink_lang/ink-generate-abi",
+    "scale-info",
+    "scale-info/std",
 ]
 ink-as-dependency = []
-
-[profile.release]
-panic = "abort"
-lto = true
-opt-level = "z"
-overflow-checks = true
-
-[workspace]
-members = [
-	".ink/abi_gen"
-]
-exclude = [
-	".ink"
-]

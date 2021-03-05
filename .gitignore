@@ -3,6 +3,7 @@
 /core/target/
 /model/target/
 /lang/target/
+/primitives/target/
 /examples/**/target/
 /design/
 

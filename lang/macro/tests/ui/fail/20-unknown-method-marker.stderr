@@ -1,5 +1,0 @@
-error: unknown ink! marker
-  --> $DIR/20-unknown-method-marker.rs:15:14
-   |
-15 |         #[ink(unknown_marker)]
-   |              ^^^^^^^^^^^^^^^^
