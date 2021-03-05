@@ -61,7 +61,7 @@ workflow:
       - unknown_failure
       - api_failure
   tags:
-    - ci3
+    - linux-docker
 
 
 #### stage:                        check
@@ -81,6 +81,7 @@ check-wasm:
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
+
 
 #### stage:                        workspace
 
