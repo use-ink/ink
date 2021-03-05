@@ -179,6 +179,13 @@ where
 #[repr(transparent)]
 pub struct ReturnCode(u32);
 
+impl ReturnCode {
+    /// Returns the raw underlying `u32` representation.
+    pub fn into_u32(self) -> u32 {
+        self.0
+    }
+}
+
 type Result = core::result::Result<(), Error>;
 
 mod sys {
@@ -203,6 +210,8 @@ mod sys {
             address_len_ptr: Ptr32Mut<u32>,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
+            salt_ptr: Ptr32<[u8]>,
+            salt_len: u32,
         ) -> ReturnCode;
 
         pub fn seal_call(
@@ -255,7 +264,6 @@ mod sys {
         );
         pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
-        #[cfg(feature = "ink-unstable-chain-extensions")]
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
@@ -344,6 +352,7 @@ pub fn instantiate(
     input: &[u8],
     out_address: &mut &mut [u8],
     out_return_value: &mut &mut [u8],
+    salt: &[u8],
 ) -> Result {
     let mut address_len = out_address.len() as u32;
     let mut return_value_len = out_return_value.len() as u32;
@@ -361,6 +370,8 @@ pub fn instantiate(
                 Ptr32Mut::from_ref(&mut address_len),
                 Ptr32Mut::from_slice(out_return_value),
                 Ptr32Mut::from_ref(&mut return_value_len),
+                Ptr32::from_slice(salt),
+                salt.len() as u32,
             )
         }
     };
@@ -485,12 +496,7 @@ pub fn terminate(beneficiary: &[u8]) -> ! {
     }
 }
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn call_chain_extension(
-    func_id: u32,
-    input: &[u8],
-    output: &mut &mut [u8],
-) -> Result {
+pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
     let mut output_len = output.len() as u32;
     let ret_code = {
         unsafe {
@@ -504,7 +510,7 @@ pub fn call_chain_extension(
         }
     };
     extract_from_slice(output, output_len as usize);
-    ret_code.into()
+    ret_code.into_u32()
 }
 
 pub fn input(output: &mut &mut [u8]) {

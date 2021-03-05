@@ -80,7 +80,7 @@ where
 {
     /// Initializes the topics builder and informs it about how many topics it must expect to serialize.
     ///
-    /// The number of expected topics is given implicitely by the `E` type parameter.
+    /// The number of expected topics is given implicitly by the `E` type parameter.
     pub fn build<Event: Topics>(
         mut self,
     ) -> TopicsBuilder<<Event as Topics>::RemainingTopics, E, B> {
@@ -229,7 +229,7 @@ where
     }
 
     #[inline]
-    fn encode_to<T: scale::Output>(&self, dest: &mut T) {
+    fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         self.prefix.encode_to(dest);
         self.value.encode_to(dest);
     }

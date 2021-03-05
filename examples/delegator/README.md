@@ -11,16 +11,15 @@ It consists in total of 4 different smart contract:
 
 In order to test this bundle of smart contracts you need to do the following:
 
-1. Compile all dependencies of the Delegator smart contract using the `./build-all.sh` script.
-   As usual you will receive their respective Wasm blobs in their respective `target` folders.
-   For the delegator (the root of the example) you will additionally get the smart contract as
-   `delegator.contract` in the `target` folder. This file contains the contracts ABI (i.e.
-   metadata) bundled together with its Wasm blob.
-   Note: You won't need a `.contract` file for the other smart contracts `adder`, `subber` and
-         `accumulator`, since we won't operate on them using the Polkadot UI.
-1. Put the Wasm blobs of Accumulator, Adder, Subber and the Delegator on the chain via `put_code` command.
-   While doing so note down their respective code hashes that you can inspect by extracting this information
-   out from the signalling events upon putting the code on the chain.
+1. Compile all contracts using the `./build-all.sh` script.
+   You will receive the respective `.contract` bundles for all the smart contracts in the `target/ink/` folder:
+   * `target/ink/delegator.contract`
+   * `target/ink/adder/adder.contract`
+   * `target/ink/subber/subber.contract`
+   * `target/ink/accumulator/accumulator.contract`
+1. Upload the `.contract` bundle of Accumulator, Adder, Subber and the Delegator to the chain.
+   While doing so note down their respective code hashes. You will see the contract hash on the success page
+   (or success event) after having uploaded the contract to the chain.
 1. Instantiate the Delegator smart contract given all of the code hashes and a starting value.
    The Delegator smart contract will take over the work of instantiating the other smart contracts for you.
 1. Now you are able to run the operations provided by the Delegator smart contract.

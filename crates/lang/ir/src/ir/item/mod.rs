@@ -68,12 +68,12 @@ impl TryFrom<syn::Item> for Item {
                 let attr = ir::first_ink_attribute(&item_struct.attrs)?
                     .expect("missing expected ink! attribute for struct");
                 match attr.first().kind() {
-                    ir::AttributeArgKind::Storage => {
+                    ir::AttributeArg::Storage => {
                         <ir::Storage as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)
                     }
-                    ir::AttributeArgKind::Event => {
+                    ir::AttributeArg::Event => {
                         <ir::Event as TryFrom<_>>::try_from(item_struct)
                             .map(Into::into)
                             .map(Self::Ink)

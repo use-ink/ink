@@ -28,6 +28,8 @@ use ink_env::{
 };
 use ink_primitives::Key;
 
+use crate::ChainExtensionInstance;
+
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
     /// The environment type.
@@ -86,6 +88,19 @@ impl<'a, T> Default for EnvAccess<'a, T> {
 impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.debug_struct("EnvAccess").finish()
+    }
+}
+
+impl<'a, T> EnvAccess<'a, T>
+where
+    T: Environment,
+    <T as Environment>::ChainExtension: ChainExtensionInstance,
+{
+    /// Allows to call one of the available defined chain extension methods.
+    pub fn extension(
+        self,
+    ) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
+        <<T as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }
 
@@ -234,14 +249,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::instantiate_contract`]
-    pub fn instantiate_contract<Args, C>(
+    pub fn instantiate_contract<Args, Salt, C>(
         self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         Args: scale::Encode,
+        Salt: AsRef<[u8]>,
     {
-        ink_env::instantiate_contract::<T, Args, C>(params)
+        ink_env::instantiate_contract::<T, Args, Salt, C>(params)
     }
 
     /// Restores a smart contract in tombstone state.

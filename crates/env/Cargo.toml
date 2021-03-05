@@ -1,6 +1,6 @@
 [package]
 name = "ink_env"
-version = "3.0.0-rc2"
+version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -15,12 +15,12 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_metadata = { version = "3.0.0-rc2", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_allocator = { version = "3.0.0-rc2", path = "../allocator/", default-features = false }
-ink_primitives = { version = "3.0.0-rc2", path = "../primitives/", default-features = false }
-ink_prelude = { version = "3.0.0-rc2", path = "../prelude/", default-features = false }
+ink_metadata = { version = "3.0.0-rc3", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_allocator = { version = "3.0.0-rc3", path = "../allocator/", default-features = false }
+ink_primitives = { version = "3.0.0-rc3", path = "../primitives/", default-features = false }
+ink_prelude = { version = "3.0.0-rc3", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "1.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 cfg-if = "1.0"
@@ -37,8 +37,11 @@ blake2 = { version = "0.9", optional = true }
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside of the off-chain environment!
-rand = { version = "0.7", default-features = false, features = ["alloc"], optional = true }
-scale-info = { version = "0.4", default-features = false, features = ["derive"], optional = true }
+rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
+scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+
+# Should be removed once bitvecto-rs/bitvec#105 is resolved
+funty = "=1.1.0"
 
 [features]
 default = ["std"]
@@ -53,10 +56,10 @@ std = [
     "scale-info/std",
     "rand",
     "rand/std",
+    "rand/std_rng",
     "num-traits/std",
     # Enables hashing crates for off-chain environment.
     "sha2",
     "sha3",
     "blake2",
 ]
-ink-unstable-chain-extensions = []

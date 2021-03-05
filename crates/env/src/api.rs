@@ -322,15 +322,16 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<T, Args, C>(
-    params: &CreateParams<T, Args, C>,
+pub fn instantiate_contract<T, Args, Salt, C>(
+    params: &CreateParams<T, Args, Salt, C>,
 ) -> Result<T::AccountId>
 where
     T: Environment,
     Args: scale::Encode,
+    Salt: AsRef<[u8]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<T, Args, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<T, Args, Salt, C>(instance, params)
     })
 }
 
@@ -433,27 +434,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::transfer::<T>(instance, destination, value)
-    })
-}
-
-/// Calls the chain extension with the given ID and inputs.
-///
-/// Returns the given output type.
-///
-/// # Errors
-///
-/// - If the given function ID does not exist in the runtime.
-/// - If the given inputs cannot be properly decoded by the runtime.
-/// - If the given output type cannot be properly decoded by the contract.
-/// - If some chain extension specific conditions are not met.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn call_chain_extension<I, O>(func_id: u32, input: &I) -> Result<O>
-where
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::call_chain_extension(instance, func_id, input)
     })
 }
 

@@ -14,6 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod chain_extension;
 mod contract;
 mod cross_calling;
 mod dispatcher;
@@ -23,6 +24,10 @@ mod events;
 mod traits;
 
 pub use self::{
+    chain_extension::{
+        ChainExtensionInstance,
+        IsResultType,
+    },
     contract::{
         DispatchMode,
         DispatchUsingMode,
@@ -74,6 +79,7 @@ pub use self::{
 };
 pub use ::static_assertions;
 pub use ink_lang_macro::{
+    chain_extension,
     contract,
     test,
     trait_definition,

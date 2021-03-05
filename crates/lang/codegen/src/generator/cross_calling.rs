@@ -15,6 +15,7 @@
 use crate::GenerateCode;
 use derive_more::From;
 use heck::CamelCase as _;
+use impl_serde::serialize as serde_hex;
 use ir::Callable;
 use itertools::Itertools as _;
 use proc_macro2::{
@@ -27,6 +28,45 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
+
+/// Errors which may occur when forwarding a call is not allowed.
+///
+/// We insert markers for these errors in the generated contract code.
+/// This is necessary since we can't check these errors at compile time
+/// of the contract.
+/// `cargo-contract` checks the contract code for these error markers
+/// when building a contract and fails if it finds markers.
+#[derive(scale::Encode, scale::Decode)]
+pub enum EnforcedErrors {
+    /// The below error represents calling a `&mut self` message in a context that
+    /// only allows for `&self` messages. This may happen under certain circumstances
+    /// when ink! trait implementations are involved with long-hand calling notation.
+    #[codec(index = 1)]
+    CannotCallTraitMessage {
+        /// The trait that defines the called message.
+        trait_ident: String,
+        /// The name of the called message.
+        message_ident: String,
+        /// The selector of the called message.
+        message_selector: [u8; 4],
+        /// Is `true` if the `self` receiver of the ink! message is `&mut self`.
+        message_mut: bool,
+    },
+    /// The below error represents calling a constructor in a context that does
+    /// not allow calling it. This may happen when the constructor defined in a
+    /// trait is cross-called in another contract.
+    /// This is not allowed since the contract to which a call is forwarded must
+    /// already exist at the point when the call to it is made.
+    #[codec(index = 2)]
+    CannotCallTraitConstructor {
+        /// The trait that defines the called constructor.
+        trait_ident: String,
+        /// The name of the called constructor.
+        constructor_ident: String,
+        /// The selector of the called constructor.
+        constructor_selector: [u8; 4],
+    },
+}
 
 /// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
@@ -140,7 +180,7 @@ impl CrossCalling<'_> {
         }
     }
 
-    /// Builds up the [`ink_env::call::ArgumentList`] type structure for the given types.
+    /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
     fn generate_arg_list<'a, Args>(args: Args) -> TokenStream2
     where
         Args: IntoIterator<Item = &'a syn::Type>,
@@ -166,12 +206,20 @@ impl CrossCalling<'_> {
         let ident = message.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let trait_ident = message
+            .item_impl()
+            .trait_ident()
+            .expect("trait identifier must exist")
+            .to_string();
+        let linker_error = EnforcedErrors::CannotCallTraitMessage {
+            trait_ident,
+            message_ident: ident.to_string(),
+            message_selector: composed_selector,
+            message_mut: message.receiver().is_ref_mut(),
+        };
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_for_message_0x{:02X}{:02X}{:02X}{:02X}",
-            composed_selector[0],
-            composed_selector[1],
-            composed_selector[2],
-            composed_selector[3]
+            "__ink_enforce_error_{}",
+            serde_hex::to_hex(&scale::Encode::encode(&linker_error), false)
         );
         let attrs = message.attrs();
         let input_bindings = message
@@ -306,12 +354,19 @@ impl CrossCalling<'_> {
         let ident = constructor.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let trait_ident = constructor
+            .item_impl()
+            .trait_ident()
+            .expect("trait identifier must exist")
+            .to_string();
+        let linker_error = EnforcedErrors::CannotCallTraitConstructor {
+            trait_ident,
+            constructor_ident: ident.to_string(),
+            constructor_selector: composed_selector,
+        };
         let linker_error_ident = format_ident!(
-            "__ink_enforce_error_for_constructor_0x{:02X}{:02X}{:02X}{:02X}",
-            composed_selector[0],
-            composed_selector[1],
-            composed_selector[2],
-            composed_selector[3]
+            "__ink_enforce_error_{}",
+            serde_hex::to_hex(&scale::Encode::encode(&linker_error), false)
         );
         let input_bindings = constructor
             .inputs()
@@ -621,6 +676,7 @@ impl CrossCalling<'_> {
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
                 Self,
             >;
 
@@ -629,7 +685,7 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_create::<Environment, Self>()
+                ::ink_env::call::build_create::<Environment, Salt, Self>()
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
@@ -724,6 +780,7 @@ impl CrossCalling<'_> {
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
+                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
                 Self,
             > {
                 ::ink_env::call::build_create::<Environment, Self>()

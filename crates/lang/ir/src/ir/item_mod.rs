@@ -781,7 +781,7 @@ mod tests {
                     }
                 }
             },
-            "encountered ink! messages with overlapping selectors (= [EA, 48, 09, 33])\n\
+            "encountered ink! messages with overlapping selectors (= [04, C4, 94, 46])\n\
                 hint: use #[ink(selector = \"0x...\")] on the callable or \
                 #[ink(namespace = \"...\")] on the implementation block to \
                 disambiguate overlapping selectors.",

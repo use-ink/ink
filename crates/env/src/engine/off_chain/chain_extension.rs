@@ -14,23 +14,32 @@
 
 use super::OffChainError;
 use crate::Result;
-use std::collections::HashMap;
+use derive_more::From;
+use std::collections::{
+    hash_map::Entry,
+    HashMap,
+};
 
-type FuncId = u32;
+/// Chain extension registry.
+///
+/// Allows to register chain extension methods and call them.
+pub struct ChainExtensionHandler {
+    /// The currently registered runtime call handler.
+    registered: HashMap<ExtensionId, Box<dyn ChainExtension>>,
+    /// The output buffer used and reused for chain extension method call results.
+    output: Vec<u8>,
+}
+
+/// The unique ID of the registered chain extension method.
+#[derive(
+    Debug, From, scale::Encode, scale::Decode, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
+pub struct ExtensionId(u32);
 
 /// Types implementing this trait can be used as chain extensions.
 ///
 /// This trait is only useful for testing contract via the off-chain environment.
 pub trait ChainExtension {
-    /// The expected input type.
-    ///
-    /// # Note
-    ///
-    /// This can be a tuple to expect multiple input types.
-    type Input: scale::Codec;
-    /// The expected output type.
-    type Output: scale::Codec;
-
     /// The static function ID of the chain extension.
     ///
     /// # Note
@@ -39,22 +48,9 @@ pub trait ChainExtension {
     fn func_id(&self) -> u32;
 
     /// Calls the chain extension with the given input.
-    fn call(&mut self, input: &Self::Input) -> Result<Self::Output>;
-}
-
-/// A raw chain extension function.
-///
-/// This is mostly a wrapper closure around the real chain extension function
-/// that handles marshalling of types between their encoded and decoded
-/// representations.
-type ChainExtensionFn = Box<dyn FnMut(Vec<u8>) -> Result<Vec<u8>>>;
-
-/// Runtime call handler.
-///
-/// More generically a mapping from bytes to bytes.
-pub struct ChainExtensionHandler {
-    /// The currently registered runtime call handler.
-    registered: HashMap<FuncId, ChainExtensionFn>,
+    ///
+    /// Returns an error code and may fill the `output` buffer with a SCALE encoded result.
+    fn call(&mut self, input: &[u8], output: &mut Vec<u8>) -> u32;
 }
 
 impl ChainExtensionHandler {
@@ -64,47 +60,33 @@ impl ChainExtensionHandler {
     pub fn new() -> Self {
         Self {
             registered: HashMap::new(),
+            output: Vec::new(),
         }
     }
 
     /// Resets the chain extension handler to uninitialized state.
     pub fn reset(&mut self) {
-        self.registered.clear()
+        self.registered.clear();
+        self.output.clear();
     }
 
     /// Register a new chain extension.
-    pub fn register<I, O>(
-        &mut self,
-        mut extension: Box<dyn ChainExtension<Input = I, Output = O>>,
-    ) where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static,
-    {
+    pub fn register(&mut self, extension: Box<dyn ChainExtension>) {
         let func_id = extension.func_id();
-        self.registered.insert(
-            func_id,
-            Box::new(move |encoded_input: Vec<u8>| {
-                let decoded_input = scale::Decode::decode(&mut &encoded_input[..])?;
-                let decoded_output = extension.call(&decoded_input)?;
-                Ok(scale::Encode::encode(&decoded_output))
-            }),
-        );
+        self.registered
+            .insert(ExtensionId::from(func_id), extension);
     }
 
     /// Evaluates the chain extension with the given parameters.
     ///
     /// Upon success returns the values returned by the evaluated chain extension.
-    pub fn eval<I, O>(&mut self, func_id: FuncId, input: &I) -> Result<O>
-    where
-        I: scale::Codec + 'static,
-        O: scale::Codec + 'static,
-    {
-        use std::collections::hash_map::Entry;
-        match self.registered.entry(func_id) {
-            Entry::Occupied(mut occupied) => {
-                let encoded_input = scale::Encode::encode(input);
-                let encoded_output = occupied.get_mut()(encoded_input)?;
-                scale::Decode::decode(&mut &encoded_output[..]).map_err(Into::into)
+    pub fn eval(&mut self, func_id: u32, input: &[u8]) -> Result<(u32, &[u8])> {
+        self.output.clear();
+        let extension_id = ExtensionId::from(func_id);
+        match self.registered.entry(extension_id) {
+            Entry::Occupied(occupied) => {
+                let status_code = occupied.into_mut().call(input, &mut self.output);
+                Ok((status_code, &mut self.output))
             }
             Entry::Vacant(_vacant) => {
                 Err(OffChainError::UnregisteredChainExtension.into())

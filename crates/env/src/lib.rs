@@ -63,6 +63,7 @@ mod api;
 mod arithmetic;
 mod backend;
 pub mod call;
+pub mod chain_extension;
 mod engine;
 mod error;
 pub mod hash;
@@ -95,5 +96,6 @@ pub use self::{
         DefaultEnvironment,
         Environment,
         Hash,
+        NoChainExtension,
     },
 };

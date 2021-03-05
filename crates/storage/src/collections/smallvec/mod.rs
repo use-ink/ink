@@ -14,7 +14,7 @@
 
 //! A small storage vector that allows to store a limited amount of elements.
 //!
-//! Prefer using [`SmallVec`] over [`crate::Vec`] if you know up front
+//! Prefer using [`SmallVec`] over [`Vec`][`crate::Vec`] if you know up front
 //! the maximum amount of unique elements that have to be stored in the vector
 //! at the same time, given the number is fairly low: e.g. not exceeding several
 //! hundreds of elements.
@@ -34,7 +34,6 @@ use crate::{
     lazy::{
         Lazy,
         LazyArray,
-        LazyArrayLength,
     },
     traits::PackedLayout,
 };
@@ -55,10 +54,9 @@ type Index = u32;
 ///   `Vec` due to the internal differences.
 /// - Allows to store up to N elements.
 #[derive(Debug)]
-pub struct SmallVec<T, N>
+pub struct SmallVec<T, const N: usize>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// The current length of the small vector.
     len: Lazy<u32>,
@@ -66,20 +64,18 @@ where
     elems: LazyArray<T, N>,
 }
 
-impl<T, N> Default for SmallVec<T, N>
+impl<T, const N: usize> Default for SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T, N> SmallVec<T, N>
+impl<T, const N: usize> SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Clears the underlying storage cells of the storage vector.
     ///
@@ -89,7 +85,8 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`] trait implementation.
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
+    /// trait implementation.
     fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
@@ -102,10 +99,9 @@ where
     }
 }
 
-impl<T, N> SmallVec<T, N>
+impl<T, const N: usize> SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Creates a new empty vector.
     pub fn new() -> Self {
@@ -134,10 +130,9 @@ where
     }
 }
 
-impl<T, N> SmallVec<T, N>
+impl<T, const N: usize> SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Returns an iterator yielding shared references to all elements.
     ///
@@ -195,10 +190,9 @@ where
     }
 }
 
-impl<T, N> SmallVec<T, N>
+impl<T, const N: usize> SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Appends an element to the back of the vector.
     pub fn push(&mut self, value: T) {
@@ -212,10 +206,9 @@ where
     }
 }
 
-impl<T, N> SmallVec<T, N>
+impl<T, const N: usize> SmallVec<T, N>
 where
     T: PackedLayout,
-    N: LazyArrayLength<T>,
 {
     /// Pops the last element from the vector and returns it.
     //

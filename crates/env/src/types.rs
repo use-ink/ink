@@ -92,7 +92,18 @@ pub trait Environment {
         + PartialEq
         + Eq
         + AtLeast32BitUnsigned;
+
+    /// The chain extension for the environment.
+    ///
+    /// This is a type that is defined through the `#[ink::chain_extension]` proc. macro.
+    /// For more information about usage and definition click [this][chain_extension] link.
+    ///
+    /// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html
+    type ChainExtension;
 }
+
+/// Placeholder for chains that have no defined chain extension.
+pub enum NoChainExtension {}
 
 /// The fundamental types of the default configuration.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,6 +118,7 @@ impl Environment for DefaultEnvironment {
     type Hash = Hash;
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
+    type ChainExtension = NoChainExtension;
 }
 
 /// The default balance type.
@@ -116,7 +128,7 @@ pub type Balance = u128;
 pub type Timestamp = u64;
 
 /// The default block number type.
-pub type BlockNumber = u64;
+pub type BlockNumber = u32;
 
 /// The default environment `AccountId` type.
 ///

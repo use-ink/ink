@@ -81,7 +81,7 @@ where
     }
 
     #[inline]
-    fn encode_to<O: scale::Output>(&self, dest: &mut O) {
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <T as scale::Encode>::encode_to(&self.inner, dest)
     }
 
@@ -507,5 +507,19 @@ mod tests {
             let p3 = SpreadLayout::pull_spread(&mut KeyPtr::from(root_key2));
             assert_eq!(p2, p3);
         })
+    }
+}
+
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
+use quickcheck::{
+    Arbitrary,
+    Gen,
+};
+
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
+impl<T: Arbitrary + PackedLayout + Send + Clone + 'static> Arbitrary for Pack<T> {
+    fn arbitrary(g: &mut Gen) -> Pack<T> {
+        let a = <T as Arbitrary>::arbitrary(g);
+        Pack::new(a)
     }
 }

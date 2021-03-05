@@ -272,17 +272,26 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
-    #[cfg(feature = "ink-unstable-chain-extensions")]
-    fn call_chain_extension<I, O>(&mut self, func_id: u32, input: &I) -> Result<O>
+    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
+        &mut self,
+        func_id: u32,
+        input: &I,
+        status_to_result: F,
+        decode_to_result: D,
+    ) -> ::core::result::Result<T, E>
     where
         I: scale::Encode,
-        O: scale::Decode,
+        T: scale::Decode,
+        E: From<ErrorCode>,
+        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
+        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
         let mut scope = self.scoped_buffer();
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
-        ext::call_chain_extension(func_id, enc_input, output)?;
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+        status_to_result(ext::call_chain_extension(func_id, enc_input, output))?;
+        let decoded = decode_to_result(&mut &output[..])?;
+        Ok(decoded)
     }
 }
 
@@ -369,13 +378,14 @@ impl TypedEnvBackend for EnvInstance {
         self.invoke_contract_impl(call_params)
     }
 
-    fn instantiate_contract<T, Args, C>(
+    fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
         Args: scale::Encode,
+        Salt: AsRef<[u8]>,
     {
         let mut scoped = self.scoped_buffer();
         let gas_limit = params.gas_limit();
@@ -386,6 +396,7 @@ impl TypedEnvBackend for EnvInstance {
         // 1024 bytes. Beyond that limit ink! contracts will trap for now.
         // In the default configuration encoded `AccountId` require 32 bytes.
         let out_address = &mut scoped.take(1024);
+        let salt = params.salt_bytes().as_ref();
         let out_return_value = &mut scoped.take_rest();
         // We currently do nothing with the `out_return_value` buffer.
         // This should change in the future but for that we need to add support
@@ -398,6 +409,7 @@ impl TypedEnvBackend for EnvInstance {
             enc_input,
             out_address,
             out_return_value,
+            salt,
         )?;
         let account_id = scale::Decode::decode(&mut &out_address[..])?;
         Ok(account_id)

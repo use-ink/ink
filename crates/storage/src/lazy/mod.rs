@@ -17,7 +17,7 @@
 //!
 //! Users should generally avoid using these collections directly in their
 //! contracts and should instead adhere to the high-level collections found
-//! in [`crate::collections`].
+//! in [`collections`][`crate::collections`].
 //! The low-level collections are mainly used as building blocks for internals
 //! of other higher-level storage collections.
 //!
@@ -28,10 +28,14 @@ pub mod lazy_hmap;
 
 mod cache_cell;
 mod entry;
+#[cfg(feature = "ink-unstable")]
 mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
 
+#[cfg(feature = "ink-unstable")]
+#[doc(inline)]
+pub use self::lazy_array::LazyArray;
 use self::{
     cache_cell::CacheCell,
     entry::{
@@ -41,10 +45,6 @@ use self::{
 };
 #[doc(inline)]
 pub use self::{
-    lazy_array::{
-        LazyArray,
-        LazyArrayLength,
-    },
     lazy_cell::LazyCell,
     lazy_hmap::LazyHashMap,
     lazy_imap::LazyIndexMap,

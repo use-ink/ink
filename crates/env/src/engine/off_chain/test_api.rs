@@ -14,24 +14,24 @@
 
 //! Operations on the off-chain testing environment.
 
-#[cfg(feature = "ink-unstable-chain-extensions")]
-use super::chain_extension::ChainExtension;
-pub use super::{
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
-};
 use super::{
+    chain_extension::ChainExtension,
     db::ExecContext,
     AccountError,
     EnvInstance,
     OnInstance,
+};
+pub use super::{
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
 };
 use crate::{
     Environment,
     Result,
 };
 use ink_prelude::string::String;
+use std::str::FromStr;
 
 /// Pushes a contract execution context.
 ///
@@ -180,12 +180,9 @@ where
 }
 
 /// Registers a new chain extension.
-#[cfg(feature = "ink-unstable-chain-extensions")]
-pub fn register_chain_extension<E, I, O>(extension: E)
+pub fn register_chain_extension<E>(extension: E)
 where
-    E: ChainExtension<Input = I, Output = O> + 'static,
-    I: scale::Codec + 'static,
-    O: scale::Codec + 'static,
+    E: ChainExtension + 'static,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
@@ -198,7 +195,7 @@ where
 ///
 /// # Note
 ///
-/// This allows to control what [`crate::random`] returns.
+/// This allows to control what [`random`][`crate::random`] returns.
 pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
 where
     T: Environment,
@@ -424,11 +421,18 @@ pub fn assert_contract_termination<T, F>(
 {
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");
-    let encoded_input: &Vec<u8> = value_any
-        .downcast_ref::<Vec<u8>>()
+    let encoded_input = value_any
+        .downcast_ref::<String>()
         .expect("panic object can not be cast");
+    let deserialized_vec = encoded_input
+        .replace("[", "")
+        .replace("]", "")
+        .split(", ")
+        .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
+        .collect::<Vec<u8>>();
     let res: ContractTerminationResult<T> =
-        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+        scale::Decode::decode(&mut &deserialized_vec[..])
+            .expect("input can not be decoded");
 
     assert_eq!(res.beneficiary, expected_beneficiary);
     assert_eq!(res.transferred, expected_balance);

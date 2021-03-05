@@ -148,12 +148,12 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
                         .kind()
                         .clone();
                     match first_attr {
-                        ir::AttributeArgKind::Constructor => {
+                        ir::AttributeArg::Constructor => {
                             return Some(InkTraitItem::Constructor(InkTraitConstructor {
                                 item: method,
                             }))
                         }
-                        ir::AttributeArgKind::Message => {
+                        ir::AttributeArg::Message => {
                             return Some(InkTraitItem::Message(InkTraitMessage {
                                 item: method,
                             }))
@@ -462,10 +462,10 @@ impl InkTrait {
         match ir::first_ink_attribute(&method.attrs) {
             Ok(Some(ink_attr)) => {
                 match ink_attr.first().kind() {
-                    ir::AttributeArgKind::Message => {
+                    ir::AttributeArg::Message => {
                         Self::analyse_message(method)?;
                     }
-                    ir::AttributeArgKind::Constructor => {
+                    ir::AttributeArg::Constructor => {
                         Self::analyse_constructor(method)?;
                     }
                     _unsupported => {
@@ -498,7 +498,12 @@ impl InkTrait {
             constructor.span(),
             constructor.attrs.clone(),
             &ir::AttributeArgKind::Constructor,
-            |c| !matches!(c, ir::AttributeArgKind::Constructor),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Constructor => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         if let Some(receiver) = constructor.sig.receiver() {
             return Err(format_err_spanned!(
@@ -545,7 +550,12 @@ impl InkTrait {
             message.span(),
             message.attrs.clone(),
             &ir::AttributeArgKind::Message,
-            |c| !matches!(c, ir::AttributeArgKind::Message),
+            |arg| {
+                match arg.kind() {
+                    ir::AttributeArg::Message => Ok(()),
+                    _ => Err(None),
+                }
+            },
         )?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
