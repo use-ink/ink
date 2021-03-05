@@ -1,7 +1,7 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><meta name="keywords" content="rust, rustlang, rust-lang, contract"><title>ink_lang_macro::contract - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><meta name="keywords" content="rust, rustlang, rust-lang, contract"><title>ink_lang_macro::contract - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc attr"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">ink_lang_macro</a></p><div id="sidebar-vars" data-name="contract" data-ty="attr" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="">contract</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#514-516" title="goto source code">[src]</a></span></h1><pre class="rust attr">#[contract]</pre><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc attr"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">ink_lang_macro</a></p><div id="sidebar-vars" data-name="contract" data-ty="attr" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="">contract</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#514-516" title="goto source code">[src]</a></span></h1><pre class="rust attr">#[contract]</pre><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
 our extensive <a href="https://substrate.dev/substrate-contracts-workshop/#/">ink! workshop</a>.</p>
 <p><strong>Note:</strong> In all below examples we will be using <code>ink_lang</code> crate aliased as just <code>ink</code>.
@@ -25,7 +25,7 @@ header arguments:</p>
 <ul>
 <li>
 <p><code>dynamic_storage_allocator: bool</code></p>
-<p>Tells the ink! code generator to allow usage of ink!'s built-in dynamic
+<p>Tells the ink! code generator to allow usage of ink!’s built-in dynamic
 storage allocator.</p>
 <ul>
 <li><code>true</code>: Use the dynamic storage allocator provided by ink!.</li>
@@ -38,7 +38,7 @@ entities.</p>
 dynamic storage allocator since enabling it comes at a cost of increased Wasm
 file size. Although it will enable interesting use cases. Use it with care!</p>
 <p>An example for this is the following type that could potentially be used
-within a contract's storage struct definition:</p>
+within a contract’s storage struct definition:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// A storage vector of storage vectors.</span>
@@ -62,7 +62,7 @@ want to inspect code generation of ink! smart contracts.
 The author is not aware of any particular practical use case for users that
 makes use of this flag but contract writers are encouraged to disprove this.</p>
 <p>Note that it is recommended to make use of the built-in crate feature
-<code>ink-as-dependency</code> to flag smart contract dependencies listed in a contract's
+<code>ink-as-dependency</code> to flag smart contract dependencies listed in a contract’s
 <code>Cargo.toml</code> as actual dependencies to ink!.</p>
 <p><strong>Usage Example:</strong></p>
 
@@ -155,7 +155,7 @@ define its API surface with which users are allowed to interact.</p>
 <p><strong>Note:</strong></p>
 <ul>
 <li>An ink! message with a <code>&amp;self</code> receiver may only read state whereas an ink! message
-with a <code>&amp;mut self</code> receiver may mutate the contract's storage.</li>
+with a <code>&amp;mut self</code> receiver may mutate the contract’s storage.</li>
 </ul>
 <p><strong>Example:</strong></p>
 <p>Given the <code>Flipper</code> contract definition above we add some <code>#[ink(message)]</code> definitions
@@ -200,7 +200,7 @@ as such.</p>
 <p><strong>Controlling the messages selector:</strong></p>
 <p>Every ink! message and ink! constructor has a unique selector with which the
 message or constructor can be uniquely identified within the ink! smart contract.
-These selectors are mainly used to drive the contract's dispatch upon calling it.</p>
+These selectors are mainly used to drive the contract’s dispatch upon calling it.</p>
 <p>An ink! smart contract author can control the selector of an ink! message or ink!
 constructor using the <code>selector</code> flag. An example is shown below:</p>
 
@@ -223,7 +223,7 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
 <h2 id="interacting-with-the-contract-executor" class="section-header"><a href="#interacting-with-the-contract-executor">Interacting with the Contract Executor</a></h2>
 <p>The <code>ink_env</code> crate provides facitilies to interact with the contract executor that
 connects ink! smart contracts with the outer world.</p>
-<p>For example it is possible to query the current call's caller via:</p>
+<p>For example it is possible to query the current call’s caller via:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span><span class="op">&gt;</span>();</pre></div>
@@ -256,7 +256,7 @@ via its environment accessor. An example below:</p>
 }</pre></div>
 <h2 id="events" class="section-header"><a href="#events">Events</a></h2>
 <p>An ink! smart contract may define events that it can emit during contract execution.
-Emitting events can be used by third party tools to query information about a contract's
+Emitting events can be used by third party tools to query information about a contract’s
 execution and state.</p>
 <p>The following example ink! contract shows how an event <code>Transferred</code> is defined and
 emitted in the <code>#[ink(constructor)]</code>.</p>
@@ -299,7 +299,7 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
 <h2 id="example-flipper" class="section-header"><a href="#example-flipper">Example: Flipper</a></h2>
 <p>The below code shows the complete implementation of the so-called Flipper
 ink! smart contract.
-For us it acts as the &quot;Hello, World!&quot; of the ink! smart contracts because
+For us it acts as the “Hello, World!” of the ink! smart contracts because
 it is minimal while still providing some more or less useful functionality.</p>
 <p>It controls a single <code>bool</code> value that can be either <code>false</code> or <code>true</code>
 and allows the user to flip this value using the <code>Flipper::flip</code> message
@@ -335,5 +335,5 @@ or retrieve the current value using <code>Flipper::get</code>.</p>
         }
     }
 }</pre></div>
-</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_lang_macro"></div>
-    <script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_lang_macro" data-search-js="../search-index.js"></div>
+    <script src="../main.js"></script></body></html>
