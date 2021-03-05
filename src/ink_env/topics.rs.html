@@ -320,7 +320,7 @@
 {
     <span class="doccomment">/// Initializes the topics builder and informs it about how many topics it must expect to serialize.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// The number of expected topics is given implicitely by the `E` type parameter.</span>
+    <span class="doccomment">/// The number of expected topics is given implicitly by the `E` type parameter.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Event</span>: <span class="ident">Topics</span><span class="op">&gt;</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TopicsBuilder</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Event</span> <span class="kw">as</span> <span class="ident">Topics</span><span class="op">&gt;</span>::<span class="ident">RemainingTopics</span>, <span class="ident">E</span>, <span class="ident">B</span><span class="op">&gt;</span> {
