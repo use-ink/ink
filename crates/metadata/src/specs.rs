@@ -278,7 +278,7 @@ where
 
 /// A builder for constructors.
 ///
-/// # Dev
+/// # Developer Note
 ///
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
@@ -504,7 +504,7 @@ where
 
 /// A builder for messages.
 ///
-/// # Dev
+/// # Developer Note
 ///
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better

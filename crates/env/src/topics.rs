@@ -206,7 +206,7 @@ pub trait Topics {
 /// for a field and its value. The `prefix` is concatenated
 /// with the `value`. This result is then hashed.
 /// The `prefix` is typically set to the path a field has in
-/// an event struct + the identifier of the event struct.
+/// an event struct plus the identifier of the event struct.
 ///
 /// For example, in the case of our ERC-20 example contract the
 /// prefix `Erc20::Transfer::from` is concatenated with the

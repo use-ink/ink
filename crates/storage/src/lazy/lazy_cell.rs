@@ -51,8 +51,8 @@ where
     key: Option<Key>,
     /// The low-level cache for the lazily loaded storage value.
     ///
-    /// # Safety (Dev)
-    ///
+    /// # Developer Note: Safety
+    //
     /// We use `UnsafeCell` instead of `RefCell` because
     /// the intended use-case is to hand out references (`&` and `&mut`)
     /// to the callers of `Lazy`. This cannot be done without `unsafe`

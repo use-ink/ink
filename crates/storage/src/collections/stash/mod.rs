@@ -377,7 +377,7 @@ where
                 (root_vacant.prev, index)
             }
         } else {
-            // Default prev and next to the given at index.
+            // Default previous and next to the given at index.
             // So the resulting vacant index is pointing to itself.
             (at, at)
         }
@@ -459,7 +459,7 @@ where
             // Early return since `at` index is out of bounds.
             return None
         }
-        // Precompute prev and next vacant entries as we might need them later.
+        // Precompute previous and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
         let entry_mut = self.entries.get_mut(at).expect("index is out of bounds");
@@ -511,7 +511,7 @@ where
             // Early return since `at` index is out of bounds.
             return None
         }
-        // Precompute prev and next vacant entries as we might need them later.
+        // Precompute previous and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
         let new_vacant_entry = Entry::Vacant(VacantEntry { next, prev });

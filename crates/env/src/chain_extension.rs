@@ -219,9 +219,9 @@ where
     E: scale::Decode + From<ErrorCode> + From<scale::Error>,
     ErrorCode: FromStatusCode,
 {
-    /// Calls the chain extension method for case 1A described [here].
+    /// Calls the chain extension method for case 1.A described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -281,9 +281,9 @@ where
     T: scale::Decode,
     E: scale::Decode + From<scale::Error>,
 {
-    /// Calls the chain extension method for case 2A described [here].
+    /// Calls the chain extension method for case 2.A described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -336,9 +336,9 @@ where
     O: scale::Decode,
     ErrorCode: FromStatusCode,
 {
-    /// Calls the chain extension method for case 1B described [here].
+    /// Calls the chain extension method for case 1.B described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -395,9 +395,9 @@ where
     I: scale::Encode,
     O: scale::Decode,
 {
-    /// Calls the chain extension method for case 2B described [here].
+    /// Calls the chain extension method for case 2.B described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Panics
     ///

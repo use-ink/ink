@@ -405,7 +405,7 @@ pub fn restore_contract<T>(
 ///
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
-/// which is considered fatal and results in a trap + rollback.
+/// which is considered fatal and results in a trap and rollback.
 pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
 where
     T: Environment,

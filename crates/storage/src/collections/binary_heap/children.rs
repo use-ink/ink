@@ -50,8 +50,8 @@ pub(super) enum ChildPosition {
 /// contain one element (the root element).
 pub(super) const CHILDREN_PER_NODE: u32 = 2;
 
-/// Returns the index of the `Children` object in which the `n`-th element of
-/// the heap is stored.
+/// Returns the index of the `Children` object in which the element at
+/// index `n` of the heap is stored.
 pub(super) fn get_children_storage_index(n: u32) -> u32 {
     if n == 0 {
         return 0
@@ -63,7 +63,7 @@ pub(super) fn get_children_storage_index(n: u32) -> u32 {
     (n + padding) / CHILDREN_PER_NODE
 }
 
-/// Returns the `ChildPosition` of the `n`-th heap element.
+/// Returns the `ChildPosition` of the heap element at index `n`.
 ///
 /// For example, the element `3` is found at the child position `0`
 /// (within the `Children` object at storage index `2`).

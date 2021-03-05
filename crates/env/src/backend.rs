@@ -139,7 +139,7 @@ pub trait EnvBackend {
     /// - If the output could not be properly decoded.
     /// - If some extension specific condition has not been met.
     ///
-    /// # Dev. Note
+    /// # Developer Note
     ///
     /// A valid implementation applies the `status_to_result` closure on
     /// the status code returned by the actual call to the chain extension
