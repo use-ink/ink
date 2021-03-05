@@ -141,6 +141,12 @@ docs:
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
 
+spellcheck:
+    stage:                           workspace
+    <<:                              *docker-env
+    script:
+        - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml
+
 codecov:
   stage:                           workspace
   <<:                              *docker-env
