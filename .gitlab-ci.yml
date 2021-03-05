@@ -61,7 +61,7 @@ workflow:
       - unknown_failure
       - api_failure
   tags:
-    - ci3
+    - linux-docker
 
 
 #### stage:                        check
