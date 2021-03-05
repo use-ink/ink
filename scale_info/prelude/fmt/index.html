@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Utilities for formatting and printing `String`s."><meta name="keywords" content="rust, rustlang, rust-lang, fmt"><title>scale_info::prelude::fmt - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Utilities for formatting and printing `String`s."><meta name="keywords" content="rust, rustlang, rust-lang, fmt"><title>scale_info::prelude::fmt - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module fmt</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"><a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a></p><div id="sidebar-vars" data-name="fmt" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a>::<wbr><a class="mod" href="">fmt</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/lib.rs.html#178" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Utilities for formatting and printing <code>String</code>s.</p>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module fmt</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"><a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a></p><div id="sidebar-vars" data-name="fmt" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a>::<wbr><a class="mod" href="">fmt</a></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/lib.rs.html#173" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Utilities for formatting and printing <code>String</code>s.</p>
 <p>This module contains the runtime support for the <a href="../../../scale_info/prelude/macro.format.html"><code>format!</code></a> syntax extension.
 This macro is implemented in the compiler to emit calls to this module in
 order to format arguments at runtime into strings.</p>
 <h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
-<p>The <a href="../../../scale_info/prelude/macro.format.html"><code>format!</code></a> macro is intended to be familiar to those coming from C’s
-<code>printf</code>/<code>fprintf</code> functions or Python’s <code>str.format</code> function.</p>
+<p>The <a href="../../../scale_info/prelude/macro.format.html"><code>format!</code></a> macro is intended to be familiar to those coming from C's
+<code>printf</code>/<code>fprintf</code> functions or Python's <code>str.format</code> function.</p>
 <p>Some examples of the <a href="../../../scale_info/prelude/macro.format.html"><code>format!</code></a> extension are:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -26,14 +26,14 @@ provided is suitable to pass to this format string.</p>
 <p>To convert a single value to a string, use the <a href="../../../scale_info/prelude/string/trait.ToString.html"><code>to_string</code></a> method. This
 will use the <a href="../../../scale_info/prelude/fmt/trait.Display.html" title="Display"><code>Display</code></a> formatting trait.</p>
 <h2 id="positional-parameters" class="section-header"><a href="#positional-parameters">Positional parameters</a></h2>
-<p>Each formatting argument is allowed to specify which value argument it’s
-referencing, and if omitted it is assumed to be “the next argument”. For
+<p>Each formatting argument is allowed to specify which value argument it's
+referencing, and if omitted it is assumed to be &quot;the next argument&quot;. For
 example, the format string <code>{} {} {}</code> would take three parameters, and they
-would be formatted in the same order as they’re given. The format string
+would be formatted in the same order as they're given. The format string
 <code>{2} {1} {0}</code>, however, would format arguments in reverse order.</p>
 <p>Things can get a little tricky once you start intermingling the two types of
-positional specifiers. The “next argument” specifier can be thought of as an
-iterator over the argument. Each time a “next argument” specifier is seen,
+positional specifiers. The &quot;next argument&quot; specifier can be thought of as an
+iterator over the argument. Each time a &quot;next argument&quot; specifier is seen,
 the iterator advances. This leads to behavior like this:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -65,7 +65,7 @@ valid to provide named parameters that are unused by the format string.</p>
 <h1 id="formatting-parameters" class="section-header"><a href="#formatting-parameters">Formatting Parameters</a></h1>
 <p>Each argument being formatted can be transformed by a number of formatting
 parameters (corresponding to <code>format_spec</code> in <a href="#syntax">the syntax</a>). These
-parameters affect the string representation of what’s being formatted.</p>
+parameters affect the string representation of what's being formatted.</p>
 <h2 id="width" class="section-header"><a href="#width">Width</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// All of these print &quot;Hello x    !&quot;</span>
@@ -73,15 +73,15 @@ parameters affect the string representation of what’s being formatted.</p>
 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Hello {:1$}!&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="number">5</span>);
 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Hello {1:0$}!&quot;</span>, <span class="number">5</span>, <span class="string">&quot;x&quot;</span>);
 <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Hello {:width$}!&quot;</span>, <span class="string">&quot;x&quot;</span>, <span class="ident">width</span> <span class="op">=</span> <span class="number">5</span>);</pre></div>
-<p>This is a parameter for the “minimum width” that the format should take up.
-If the value’s string does not fill up this many characters, then the
+<p>This is a parameter for the &quot;minimum width&quot; that the format should take up.
+If the value's string does not fill up this many characters, then the
 padding specified by fill/alignment will be used to take up the required
 space (see below).</p>
 <p>The value for the width can also be provided as a <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html" title="usize"><code>usize</code></a> in the list of
 parameters by adding a postfix <code>$</code>, indicating that the second argument is
 a <a href="https://doc.rust-lang.org/nightly/std/primitive.usize.html" title="usize"><code>usize</code></a> specifying the width.</p>
-<p>Referring to an argument with the dollar syntax does not affect the “next
-argument” counter, so it’s usually a good idea to refer to arguments by
+<p>Referring to an argument with the dollar syntax does not affect the &quot;next
+argument&quot; counter, so it's usually a good idea to refer to arguments by
 position, or use named arguments.</p>
 <h2 id="fillalignment" class="section-header"><a href="#fillalignment">Fill/Alignment</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -126,7 +126,7 @@ default, and the negative sign is only printed by default for the
 <code>Signed</code> trait. This flag indicates that the correct sign (<code>+</code> or <code>-</code>)
 should always be printed.</li>
 <li><code>-</code> - Currently not used</li>
-<li><code>#</code> - This flag indicates that the “alternate” form of printing should
+<li><code>#</code> - This flag indicates that the &quot;alternate&quot; form of printing should
 be used. The alternate forms are:
 <ul>
 <li><code>#?</code> - pretty-print the <a href="../../../scale_info/prelude/fmt/trait.Debug.html" title="Debug"><code>Debug</code></a> formatting</li>
@@ -147,7 +147,7 @@ rule applies: padding zeros are inserted after the prefix but before
 the digits. The prefix is included in the total width.</li>
 </ul>
 <h2 id="precision" class="section-header"><a href="#precision">Precision</a></h2>
-<p>For non-numeric types, this can be considered a “maximum width”. If the resulting string is
+<p>For non-numeric types, this can be considered a &quot;maximum width&quot;. If the resulting string is
 longer than this width, then it is truncated down to this many characters and that truncated
 value is emitted with proper <code>fill</code>, <code>alignment</code> and <code>width</code> if those parameters are set.</p>
 <p>For integral types, this is ignored.</p>
@@ -207,8 +207,8 @@ Hello, `     123` has 3 right-aligned characters
 </code></pre>
 <h2 id="localization" class="section-header"><a href="#localization">Localization</a></h2>
 <p>In some programming languages, the behavior of string formatting functions
-depends on the operating system’s locale setting. The format functions
-provided by Rust’s standard library do not have any concept of locale and
+depends on the operating system's locale setting. The format functions
+provided by Rust's standard library do not have any concept of locale and
 will produce the same results on all systems regardless of user
 configuration.</p>
 <p>For example, the following code will always print <code>1.5</code> even if the system
@@ -449,5 +449,5 @@ formatted string.</p>
 that can be precompiled with the <code>format_args!</code> macro.</p>
 </td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
 <table><tr class="module-item"><td><a class="type" href="type.Result.html" title="scale_info::prelude::fmt::Result type">Result</a></td><td class="docblock-short"><p>The type returned by formatter methods.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-js="../../../search-index.js"></div>
-    <script src="../../../main.js"></script></body></html>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info"></div>
+    <script src="../../../main.js"></script><script defer src="../../../search-index.js"></script></body></html>
