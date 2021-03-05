@@ -103,12 +103,12 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map()
-            .entries(self.0.iter().enumerate().filter_map(|(key, entry)| {
-                match entry {
-                    Some(entry) => Some((key, entry)),
-                    None => None,
-                }
-            }))
+            .entries(
+                self.0
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(key, entry)| entry.as_ref().map(|entry| (key, entry))),
+            )
             .finish()
     }
 }
