@@ -197,8 +197,8 @@ mod dns {
             ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 caller,
                 AccountId::from(DEFAULT_CALLEE_HASH),
-                DEFAULT_ENDOWMENT,
                 DEFAULT_GAS_LIMIT,
+                DEFAULT_ENDOWMENT,
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])),
             )
         }
