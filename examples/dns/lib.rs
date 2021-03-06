@@ -20,7 +20,9 @@ use ink_lang as ink;
 mod dns {
     #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
-        collections::hashmap::Entry, collections::HashMap as StorageHashMap, lazy::Lazy,
+        collections::hashmap::Entry,
+        collections::HashMap as StorageHashMap,
+        lazy::Lazy,
     };
 
     /// Emitted whenever a new name is being registered.
@@ -123,7 +125,7 @@ mod dns {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
-                return Err(Error::CallerIsNotOwner);
+                return Err(Error::CallerIsNotOwner)
             }
             let old_address = self.name_to_address.insert(name, new_address);
             self.env().emit_event(SetAddress {
@@ -141,7 +143,7 @@ mod dns {
             let caller = self.env().caller();
             let owner = self.get_owner_or_default(name);
             if caller != owner {
-                return Err(Error::CallerIsNotOwner);
+                return Err(Error::CallerIsNotOwner)
             }
             let old_owner = self.name_to_owner.insert(name, to);
             self.env().emit_event(Transfer {
