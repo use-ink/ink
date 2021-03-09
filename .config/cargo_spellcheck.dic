@@ -32,7 +32,6 @@ getter
 bitvector
 dereferencing
 recurse
-accessors
 kb
 scalability
 scalable
@@ -51,3 +50,4 @@ allocator/S
 defragment/SD
 layout/JG
 endian/P
+accessor/S
