@@ -40,6 +40,7 @@ scalability
 scalable
 adjunctive
 invariants
+deserializes
 
 hasher/S
 hashmap/S
