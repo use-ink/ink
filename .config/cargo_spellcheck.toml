@@ -6,7 +6,6 @@ extra_dictionaries = ["cargo_spellcheck.dic"]
 [Hunspell.quirks]
 transform_regex = [
 	"^\\s+- $", # for lists in doc comments we ignore the leading '-'
-    #"|",        # for markdown tables we ignore the column separator '|'
 ]
 allow_concatenation = true
 allow_dashes = true
