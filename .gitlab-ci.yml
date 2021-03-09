@@ -247,16 +247,22 @@ examples-clippy-std:
     - job:                         clippy-std
       artifacts:                   false
   script:
+    # Revert as soon as the clippy nightly ice fix lands
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        if [ "$example" != "examples/rand-extension/" ]; then
+            cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        fi
       done
 
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   script:
+    # Revert as soon as the clippy nightly ice fix lands
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        if [ "$example" != "examples/rand-extension/" ]; then
+            cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        fi
       done
 
 examples-contract-build:
