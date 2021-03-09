@@ -28,7 +28,7 @@ pub trait CryptoHash: HashOutput + private::Sealed {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type);
 }
 
-/// The SHA2 crypto hash with 256-bit output.
+/// The SHA-2 crypto hash with 256-bit output.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Sha2x256 {}
 
@@ -36,11 +36,11 @@ pub enum Sha2x256 {}
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Keccak256 {}
 
-/// The BLAKE2 crypto hash with 256-bit output.
+/// The BLAKE-2 crypto hash with 256-bit output.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Blake2x256 {}
 
-/// The BLAKE2 crypto hash with 128-bit output.
+/// The BLAKE-2 crypto hash with 128-bit output.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Blake2x128 {}
 

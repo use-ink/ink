@@ -18,7 +18,7 @@
 ///
 /// # Note
 ///
-/// This trait is automatically implemented when using `#[ink::chain_extension]` proc. macro.
+/// This trait is automatically implemented when using `#[ink::chain_extension]` procedural macro.
 pub trait ChainExtensionInstance {
     /// The type of the chain extension instance.
     type Instance;

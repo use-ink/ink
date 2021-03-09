@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Computes the BLAKE2b 256-bit hash for the given input and stores it in output.
+/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
 pub fn blake2b_256(input: &[u8], output: &mut [u8]) {
     use ::blake2::digest::{
         Update as _,

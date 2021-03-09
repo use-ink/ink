@@ -204,7 +204,7 @@ pub mod state {
 
     /// Type state meaning that the chain extension method deliberately does not return a `Result` type.
     ///
-    /// Additionally this is enforced by the `#[ink::chain_extension]` proc. macro when used.
+    /// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.
     #[derive(Debug)]
     pub struct NoResult<T> {
         no_result: PhantomData<fn() -> T>,

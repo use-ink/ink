@@ -1022,7 +1022,7 @@ mod tests {
     fn key_at_works() {
         let key = Key::from([0x42; 32]);
 
-        // BLAKE2 256-bit hasher:
+        // BLAKE-2 256-bit hasher:
         let hmap1 = <LazyHashMap<i32, u8, Blake2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap1.key(), Some(&key));
@@ -1050,7 +1050,7 @@ mod tests {
                 \xFB\x85\x36\x3B\x82\x94\x85\x3F"
             ))
         );
-        // SHA2 256-bit hasher:
+        // SHA-2 256-bit hasher:
         let hmap2 = <LazyHashMap<i32, u8, Sha2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap2.key(), Some(&key));

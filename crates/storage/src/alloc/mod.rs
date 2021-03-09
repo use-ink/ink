@@ -39,7 +39,7 @@
 //!
 //! We can convert such 32-bit keys (represented by e.g. a `u32`) into 256-bit
 //! keys by using one of the built-in crypto hashes that has a 256-bit output,
-//! e.g. KECCAK, SHA2 or BLAKE2. For technical reasons we should prepend the
+//! e.g. KECCAK, SHA-2 or BLAKE-2. For technical reasons we should prepend the
 //! bytes of the 32-bit key by some unique byte sequence, e.g.:
 //! ```no_compile
 //! let key256 = blake2x256(b"DYNAMICALLY ALLOCATED", bytes(key32));

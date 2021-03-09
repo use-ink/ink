@@ -5,7 +5,7 @@ Wasm
 validator
 ERC
 fuzzer
-SHA2
+SHA
 BLAKE2
 KECCAK
 ABI
@@ -29,7 +29,6 @@ codegen
 endian
 deallocation
 deallocate
-allocator
 getter
 bitvector
 dereferencing
@@ -38,7 +37,9 @@ layouting
 accessors
 kb
 scalability
+scalable
 adjunctive
+invariants
 
 hasher/S
 hashmap/S
@@ -46,5 +47,5 @@ vector/S
 vec/S
 enum/S
 struct/S
-invariant/S
 instantiation/S
+allocator/S
