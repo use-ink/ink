@@ -32,7 +32,7 @@ pub trait SpreadLayout {
     ///
     /// An instance of type `i32` requires one storage cell, so its footprint is
     /// 1. An instance of type `(i32, i32)` requires 2 storage cells since a
-    /// tuple or any other combined data structure always associates disjunct
+    /// tuple or any other combined data structure always associates disjunctive
     /// cells for its sub types. The same applies to arrays, e.g. `[i32; 5]`
     /// has a footprint of 5.
     const FOOTPRINT: u64;

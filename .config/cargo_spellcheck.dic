@@ -23,17 +23,22 @@ callee
 pre
 defrag
 defragments
+defragmentation
 growable
 codegen
 endian
 deallocation
 deallocate
+allocator
+getter
 bitvector
 dereferencing
 recurse
 layouting
 accessors
 kb
+scalability
+adjunctive
 
 hasher/S
 hashmap/S
@@ -41,3 +46,5 @@ vector/S
 vec/S
 enum/S
 struct/S
+invariant/S
+instantiation/S
