@@ -243,7 +243,7 @@ examples-clippy-std:
   script:
     # Revert as soon as the clippy nightly ice fix lands
     - for example in examples/*/; do
-        if [ "$example" != "rand-extension" ]; then
+        if [ "$example" != "examples/rand-extension/" ]; then
             cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
         fi
       done
@@ -254,7 +254,7 @@ examples-clippy-wasm:
   script:
     # Revert as soon as the clippy nightly ice fix lands
     - for example in examples/*/; do
-        if [ "$example" != "rand-extension" ]; then
+        if [ "$example" != "examples/rand-extension/" ]; then
             cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
         fi
       done
