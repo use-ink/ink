@@ -4,8 +4,5 @@ search_dirs = ["."]
 extra_dictionaries = ["cargo_spellcheck.dic"]
 
 [Hunspell.quirks]
-transform_regex = [
-	"^\\s+- $", # for lists in doc comments we ignore the leading '-'
-]
 allow_concatenation = true
 allow_dashes = true
