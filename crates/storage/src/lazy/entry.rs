@@ -188,8 +188,8 @@ where
         Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
     }
 
-    /// Pushes the underlying associated storage to as many different storage cells as possible.
-    //  This is in detail determined by the `SpreadLayout` storage layout.
+    /// Pushes the underlying associated data to the contract storage using
+    /// the `SpreadLayout` storage layout.
     ///
     /// # Note
     ///
