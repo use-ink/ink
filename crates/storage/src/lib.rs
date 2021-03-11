@@ -17,7 +17,7 @@
 //! Mainly provides entities to work on a contract's storage
 //! as well as high-level collections on top of those.
 //! Also provides environmental utilities, such as storage allocators,
-//! FFI to interface with SRML contracts and a primitive blockchain
+//! FFI to interface with FRAME contracts and a primitive blockchain
 //! emulator for simple off-chain testing.
 
 #![cfg_attr(not(feature = "std"), no_std)]
