@@ -117,7 +117,7 @@ where
         self.elems.capacity()
     }
 
-    /// Returns the number of elements in the vector, also referred to as its "length".
+    /// Returns the number of elements in the vector, also referred to as its length.
     #[inline]
     pub fn len(&self) -> u32 {
         *self.len

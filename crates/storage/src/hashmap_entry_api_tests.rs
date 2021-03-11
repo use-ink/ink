@@ -26,7 +26,7 @@ macro_rules! gen_tests_for_backend {
             [(b'A', 13), (b'B', 23)]
         }
 
-        /// Returns a pre-filled hashmap with `[('A', 13), ['B', 23])`.
+        /// Returns a prefilled hashmap with `[('A', 13), ['B', 23])`.
         fn prefilled_hmap() -> $backend {
             test_values().iter().copied().collect::<$backend>()
         }
