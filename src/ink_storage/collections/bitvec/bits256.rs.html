@@ -509,7 +509,7 @@
         <span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>
     }
 
-    <span class="doccomment">/// Returns a bit access for the given index with extended but valid lifetimes.</span>
+    <span class="doccomment">/// Returns access for the given bit index with extended but valid lifetimes.</span>
     <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> { <span class="ident">BitRefMut</span>::<span class="ident">new</span>(<span class="ident">extend_lifetime</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">bits</span>), <span class="ident">index</span>) }
     }

@@ -313,8 +313,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// The heap is a *max-heap* by default, i.e. the first element is the largest.</span>
 <span class="doccomment">/// Either [`Reverse`] or a custom `Ord` implementation can be used to</span>
-<span class="doccomment">/// make `BinaryHeap` a *min-heap*. This makes `heap.pop()` return the smallest</span>
-<span class="doccomment">/// value instead of the largest one.</span>
+<span class="doccomment">/// make `BinaryHeap` a *min-heap*. This then makes `heap.pop()` return the</span>
+<span class="doccomment">/// smallest value instead of the largest one.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -335,7 +335,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the number of elements in the heap, also referred to as its &#39;length&#39;.</span>
+    <span class="doccomment">/// Returns the number of elements in the heap, also referred to as its length.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">elements</span>.<span class="ident">len</span>()
     }
@@ -483,8 +483,8 @@
     <span class="doccomment">/// If `true`, on `drop()` will sift the peeked value down the tree if after mutation it is no</span>
     <span class="doccomment">/// longer the largest value, in order to keep the heap in a consistent state.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If the peeked value is consumed via `PeekMut::pop()` then this is set to false to prevent</span>
-    <span class="doccomment">/// a redundant reorg which would already have happened via `BinaryHeap::pop()`.</span>
+    <span class="doccomment">/// If the peeked value is consumed via `PeekMut::pop()` then this is set to false in order</span>
+    <span class="doccomment">/// to  prevent a redundant reorg which would already have happened via `BinaryHeap::pop()`.</span>
     <span class="ident">sift</span>: <span class="ident">bool</span>,
 }
 

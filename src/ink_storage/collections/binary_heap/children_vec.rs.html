@@ -391,7 +391,7 @@
 
 <span class="doccomment">//! Provides an interface around the vector used to store elements of the</span>
 <span class="doccomment">//! [`BinaryHeap`](`super::BinaryHeap`) in storage. This is necessary since</span>
-<span class="doccomment">//! we don&#39;t just store each element in it&#39;s own storage cell, but rather</span>
+<span class="doccomment">//! we don&#39;t just store each element in its own storage cell, but rather</span>
 <span class="doccomment">//! optimize storage access by putting children together in one storage cell.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::{
@@ -412,7 +412,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// Elements of the heap are stored in a vector of `Children` objects, whereby</span>
 <span class="doccomment">/// each `Children` object contains two elements. When operating on indices of</span>
-<span class="doccomment">/// the `BinaryHeap` this interface transposes heap indices to the child inside</span>
+<span class="doccomment">/// the `BinaryHeap`, this interface transposes heap indices to the child inside</span>
 <span class="doccomment">/// the `Children` object, in which the element is stored.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChildrenVec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
@@ -450,7 +450,7 @@
     <span class="doccomment">/// This property exists only in `ChildInfoMut`, but not in `ChildInfo`.</span>
     <span class="doccomment">/// The reason is that in the case of pop-ping a child from a `Children`</span>
     <span class="doccomment">/// object we need to check if the child count of that object is `0` after</span>
-    <span class="doccomment">/// the pop operation. In that case no children are left in the object</span>
+    <span class="doccomment">/// the pop operation. In that case no children are left in the object,</span>
     <span class="doccomment">/// and it can be removed altogether from the heap.</span>
     <span class="kw">pub</span> <span class="ident">child_count</span>: <span class="ident">usize</span>,
 }
@@ -475,7 +475,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the number of elements in the heap, also referred to as its &#39;length&#39;.</span>
+    <span class="doccomment">/// Returns the number of elements in the heap, also referred to as its length.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>

@@ -867,7 +867,7 @@
     <span class="ident">key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The low-level cache for the lazily loaded storage value.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Safety (Dev)</span>
+    <span class="doccomment">/// # Developer Note: Safety</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// We use `UnsafeCell` instead of `RefCell` because</span>
     <span class="doccomment">/// the intended use-case is to hand out references (`&amp;` and `&amp;mut`)</span>

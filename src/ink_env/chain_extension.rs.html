@@ -495,8 +495,8 @@
 <span class="doccomment">/// A concrete instance of a chain extension method.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is a utility type used to drive the execution of a chain extension method call.</span>
-<span class="doccomment">/// It has several different specializations of its `call` method for different ways to</span>
-<span class="doccomment">/// manage error handling when calling a predefined chain extension method.</span>
+<span class="doccomment">/// It has several specializations of its `call` method for different ways to manage</span>
+<span class="doccomment">/// error handling when calling a predefined chain extension method.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - `I` represents the input type of the chain extension method.</span>
 <span class="doccomment">///   All tuple types that may act as input parameters for the chain extension method are valid.</span>
@@ -612,12 +612,12 @@
         }
     }
 
-    <span class="doccomment">/// Makes the chain exntesion method call handle the returned status code.</span>
+    <span class="doccomment">/// Makes the chain extension method call handle the returned status code.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will handle the returned status code and only loads and decodes the value</span>
-    <span class="doccomment">/// returned in the output of the chain extension method call in case of success.</span>
+    <span class="doccomment">/// returned as the output of the chain extension method call in case of success.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_error_code</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
@@ -648,7 +648,7 @@
 
     <span class="doccomment">/// Type state meaning that the chain extension method deliberately does not return a `Result` type.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Additionally this is enforced by the `#[ink::chain_extension]` proc. macro when used.</span>
+    <span class="doccomment">/// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NoResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">no_result</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>,
@@ -663,9 +663,9 @@
     <span class="ident">E</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
     <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 1A described [here].</span>
+    <span class="doccomment">/// Calls the chain extension method for case 1.A described [here].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethodInstance`]</span>
+    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
@@ -725,9 +725,9 @@
     <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
     <span class="ident">E</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 2A described [here].</span>
+    <span class="doccomment">/// Calls the chain extension method for case 2.A described [here].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethodInstance`]</span>
+    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
@@ -780,9 +780,9 @@
     <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
     <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 1B described [here].</span>
+    <span class="doccomment">/// Calls the chain extension method for case 1.B described [here].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethodInstance`]</span>
+    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
@@ -839,9 +839,9 @@
     <span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
     <span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
 {
-    <span class="doccomment">/// Calls the chain extension method for case 2B described [here].</span>
+    <span class="doccomment">/// Calls the chain extension method for case 2.B described [here].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [here]: [`ChainExtensionMethodInstance`]</span>
+    <span class="doccomment">/// [here]: [`ChainExtensionMethod`]</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>

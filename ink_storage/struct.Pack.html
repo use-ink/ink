@@ -4,19 +4,19 @@
                 <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Struct <a href="index.html">ink_storage</a>::<wbr><a class="struct" href="">Pack</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_storage/pack.rs.html#59-72" title="goto source code">[src]</a></span></h1><div class="docblock type-decl hidden-by-usual-hider"><pre class="rust struct">pub struct Pack&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../ink_storage/traits/trait.PackedLayout.html" title="trait ink_storage::traits::PackedLayout">PackedLayout</a>,&nbsp;</span> { /* fields omitted */ }</pre></div><div class="docblock"><p>Packs the inner <code>T</code> so that it only occupies a single contract storage cell.</p>
 <h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>This is an important modular building stone in order to manage contract
-storage occupation. By default types try to distribute themselves onto
+storage occupation. By default, types try to distribute themselves onto
 their respective contract storage area. However, upon packing them into
 <code>Pack&lt;T&gt;</code> they will be compressed to only ever make use of a single
 contract storage cell. Sometimes this can be advantageous for performance
 reasons.</p>
 <h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
 <ul>
-<li>A <code>Pack&lt;i32&gt;</code> is equivalent to <code>i32</code> in its storage occupation.</li>
-<li>A <code>Pack&lt;(i32, i32)&gt;</code> will occupy a single cell compared to <code>(i32, i32)</code>
-which occupies a cell per <code>i32</code>.</li>
+<li>A <code>Pack&lt;i32&gt;</code> instance is equivalent to <code>i32</code> in its storage occupation.</li>
+<li>A <code>Pack&lt;(i32, i32)&gt;</code> instance will occupy a single cell compared to
+<code>(i32, i32)</code> which occupies a cell per <code>i32</code>.</li>
 <li>A <code>Lazy&lt;Pack&lt;[u8; 8]&gt;&gt;</code> lazily loads a <code>Pack&lt;[u8; 8]&gt;</code> which occupies
-a single cell whereas a <code>[u8; 8]</code> would occupy 8 cells in total - one for
-each <code>u8</code>.</li>
+a single cell whereas a <code>[u8; 8]</code> array would occupy 8 cells in total,
+one for each <code>u8</code>.</li>
 <li>Rust collections will never use more than a single cell. So
 <code>Pack&lt;LinkedList&lt;T&gt;&gt;</code> and <code>LinkedList&lt;T&gt;</code> will occupy the same amount of
 cells, namely 1.</li>

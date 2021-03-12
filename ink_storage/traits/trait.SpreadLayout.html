@@ -13,10 +13,10 @@
 <p>This is the number of adjunctive cells the type requires in order to
 be stored in the contract storage with spread layout.</p>
 <h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
-<p>An instance of type <code>i32</code> requires one storage cell so its footprint is</p>
+<p>An instance of type <code>i32</code> requires one storage cell, so its footprint is</p>
 <ol>
 <li>An instance of type <code>(i32, i32)</code> requires 2 storage cells since a
-tuple or any other combined data structure always associates disjunct
+tuple or any other combined data structure always associates disjunctive
 cells for its sub types. The same applies to arrays, e.g. <code>[i32; 5]</code>
 has a footprint of 5.</li>
 </ol>

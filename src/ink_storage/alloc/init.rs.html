@@ -292,12 +292,12 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ContractPhase</span> {
     <span class="doccomment">/// Initializes the global dynamic storage allocator from scratch.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Upon initialization it will be created from scratch as if the</span>
+    <span class="doccomment">/// Upon initialization, it will be created from scratch as if the</span>
     <span class="doccomment">/// contract has been deployed for the first time.</span>
     <span class="ident">Deploy</span>,
     <span class="doccomment">/// Initializes the global dynamic storage allocator from storage.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Upon initialization the dynamic storage allocator will be pulled</span>
+    <span class="doccomment">/// Upon initialization, the dynamic storage allocator will be pulled</span>
     <span class="doccomment">/// from the contract storage with the assumption that a former</span>
     <span class="doccomment">/// contract deployment has already taken place in the past.</span>
     <span class="ident">Call</span>,
@@ -309,12 +309,12 @@
 <span class="kw">enum</span> <span class="ident">DynamicAllocatorState</span> {
     <span class="doccomment">/// The global instance has not yet been initialized.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Upon initialization it will be created from scratch as if the</span>
+    <span class="doccomment">/// Upon initialization, it will be created from scratch as if the</span>
     <span class="doccomment">/// contract has been deployed for the first time.</span>
     <span class="ident">UninitDeploy</span>,
     <span class="doccomment">/// The global instance has not yet been initialized.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Upon initialization it will be pulled from the contract storage</span>
+    <span class="doccomment">/// Upon initialization, it will be pulled from the contract storage</span>
     <span class="doccomment">/// with the assumption that a former contract deployment has already</span>
     <span class="doccomment">/// taken place in the past.</span>
     <span class="ident">UninitCall</span>,

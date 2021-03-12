@@ -821,7 +821,7 @@
 <span class="doccomment">/// storage primitives in order to manage the contract storage for a whole</span>
 <span class="doccomment">/// chunk of storage cells.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// A chunk of storage cells is a contiguous range of 2^32 storage cells.</span>
+<span class="doccomment">/// A chunk of storage cells is a contiguous range of `2^32` storage cells.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LazyIndexMap</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The offset key for the chunk of cells.</span>
     <span class="doccomment">///</span>
@@ -1050,7 +1050,7 @@
     <span class="doccomment">/// Care should be taken when using this API.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The general use of this API is to streamline `Drop` implementations of</span>
-    <span class="doccomment">/// high-level abstractions that build upon this low-level data strcuture.</span>
+    <span class="doccomment">/// high-level abstractions that build upon this low-level data structure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_packed_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">Index</span>) {
         <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key_at</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot clear in lazy state&quot;</span>);
         <span class="kw">if</span> <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">REQUIRES_DEEP_CLEAN_UP</span> {
@@ -1095,8 +1095,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is an `unsafe` operation because it has a `&amp;self` receiver but returns</span>
     <span class="doccomment">/// a `*mut Entry&lt;T&gt;` pointer that allows for exclusive access. This is safe</span>
-    <span class="doccomment">/// within internal use only and should never be given outside of the lazy</span>
-    <span class="doccomment">/// entity for public `&amp;self` methods.</span>
+    <span class="doccomment">/// within internal use only and should never be given outside the lazy entity</span>
+    <span class="doccomment">/// for public `&amp;self` methods.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">lazily_load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="comment">// SAFETY: We have put the whole `cached_entries` mapping into an</span>
         <span class="comment">//         `UnsafeCell` because of this caching functionality. The</span>

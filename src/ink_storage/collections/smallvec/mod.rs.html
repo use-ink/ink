@@ -370,7 +370,7 @@
 <span class="doccomment">/// - The `storage::SmallVec` has a very similar API compared to a `storage::Vec`.</span>
 <span class="doccomment">///   The major difference between both data structures is that the `SmallVec`</span>
 <span class="doccomment">///   can only contain up to a fixed amount of elements given by `N` whereas the</span>
-<span class="doccomment">///   `Vec` can contain up to 2^32 elements which is the maximum for 32-bit Wasm</span>
+<span class="doccomment">///   `Vec` can contain up to `2^32` elements which is the maximum for 32-bit Wasm</span>
 <span class="doccomment">///   targets.</span>
 <span class="doccomment">/// - The performance characteristics may be different from Rust&#39;s</span>
 <span class="doccomment">///   `Vec` due to the internal differences.</span>
@@ -439,7 +439,7 @@
         <span class="self">self</span>.<span class="ident">elems</span>.<span class="ident">capacity</span>()
     }
 
-    <span class="doccomment">/// Returns the number of elements in the vector, also referred to as its &#39;length&#39;.</span>
+    <span class="doccomment">/// Returns the number of elements in the vector, also referred to as its length.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>
@@ -478,7 +478,7 @@
         <span class="ident">IterMut</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Returns the index if it is witihn bounds or `None` otherwise.</span>
+    <span class="doccomment">/// Returns the index if it is within bounds or `None` otherwise.</span>
     <span class="kw">fn</span> <span class="ident">within_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Index</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">index</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>)

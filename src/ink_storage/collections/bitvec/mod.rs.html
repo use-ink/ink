@@ -364,10 +364,10 @@
 <span class="doccomment">/// The index of a bit pack within the bit vector.</span>
 <span class="kw">type</span> <span class="ident">Index</span> <span class="op">=</span> <span class="ident">u32</span>;
 
-<span class="doccomment">/// A bit position within a 256-bit package.</span>
+<span class="doccomment">/// The position of a bit within a 256-bit package.</span>
 <span class="kw">type</span> <span class="ident">Index256</span> <span class="op">=</span> <span class="ident">u8</span>;
 
-<span class="doccomment">/// A bit position within a `u64`.</span>
+<span class="doccomment">/// The position of a bit within a `u64`.</span>
 <span class="kw">type</span> <span class="ident">Index64</span> <span class="op">=</span> <span class="ident">u8</span>;
 
 <span class="doccomment">/// A pack of 64 bits.</span>
@@ -438,7 +438,7 @@
         <span class="ident">Bits256IterMut</span>::<span class="ident">new</span>(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Splits the given index into a 256-bit pack index and bit position index.</span>
+    <span class="doccomment">/// Splits the given index into a 256-bit pack index and a position index of the bit.</span>
     <span class="kw">fn</span> <span class="ident">split_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Index</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>

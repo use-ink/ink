@@ -16,7 +16,7 @@ chunk of storage cells.</p>
 memory-side cache which invalidates future accesses the cleared entry.
 Care should be taken when using this API.</p>
 <p>The general use of this API is to streamline <code>Drop</code> implementations of
-high-level abstractions that build upon this low-level data strcuture.</p>
+high-level abstractions that build upon this low-level data structure.</p>
 </div></div><h3 id="impl-1" class="impl"><code class="in-band">impl&lt;T, const N:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>&gt; <a class="struct" href="../../ink_storage/lazy/struct.LazyArray.html" title="struct ink_storage::lazy::LazyArray">LazyArray</a>&lt;T, N&gt;</code><a href="#impl-1" class="anchor"></a><a class="srclink" href="../../src/ink_storage/lazy/lazy_array.rs.html#312-370" title="goto source code">[src]</a></h3><div class="impl-items"><h4 id="method.new" class="method"><code>pub fn <a href="#method.new" class="fnname">new</a>() -&gt; Self</code><a class="srclink" href="../../src/ink_storage/lazy/lazy_array.rs.html#319-324" title="goto source code">[src]</a></h4><div class="docblock"><p>Creates a new empty lazy array.</p>
 <h1 id="note-1" class="section-header"><a href="#note-1">Note</a></h1>
 <p>A lazy array created this way cannot be used to load from the contract storage.

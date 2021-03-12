@@ -310,6 +310,8 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -490,7 +492,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="doccomment">/// Pulls the entity from the underlying associated storage as spreaded representation.</span>
+    <span class="doccomment">/// Pulls the entity from the underlying associated storage as a `SpreadLayout`</span>
+    <span class="doccomment">/// storage layout representation.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
@@ -500,7 +503,8 @@
         <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">pull_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)
     }
 
-    <span class="doccomment">/// Pushes the underlying associated storage as spreaded representation.</span>
+    <span class="doccomment">/// Pushes the underlying associated data to the contract storage using</span>
+    <span class="doccomment">/// the `SpreadLayout` storage layout.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
@@ -513,7 +517,7 @@
         }
     }
 
-    <span class="doccomment">/// Clears the underlying associated storage as spreaded representation.</span>
+    <span class="doccomment">/// Clears the underlying associated storage as `SpreadLayout` storage layout representation.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>

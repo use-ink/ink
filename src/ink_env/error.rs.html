@@ -78,7 +78,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
     <span class="doccomment">/// Error upon decoding an encoded value.</span>
     <span class="ident">Decode</span>(<span class="ident">scale</span>::<span class="ident">Error</span>),
-    <span class="doccomment">/// An error that can only occure in the off-chain environment.</span>
+    <span class="doccomment">/// An error that can only occur in the off-chain environment.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
     <span class="ident">OffChain</span>(<span class="ident">OffChainError</span>),
     <span class="doccomment">/// The call to another contract has trapped.</span>
@@ -100,7 +100,7 @@
     <span class="ident">CodeNotFound</span>,
     <span class="doccomment">/// The account that was called is either no contract (e.g. user account) or is a tombstone.</span>
     <span class="ident">NotCallable</span>,
-    <span class="doccomment">/// An unknown error has occured.</span>
+    <span class="doccomment">/// An unknown error has occurred.</span>
     <span class="ident">UnknownError</span>,
 }
 

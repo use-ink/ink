@@ -263,7 +263,7 @@
 <span class="doccomment">/// contain one element (the root element).</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const</span> <span class="ident">CHILDREN_PER_NODE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">2</span>;
 
-<span class="doccomment">/// Returns the index of the `Children` object in which the `n`-th element of</span>
+<span class="doccomment">/// Returns the index of the `Children` object in which the nth element of</span>
 <span class="doccomment">/// the heap is stored.</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_children_storage_index</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
     <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
@@ -276,7 +276,7 @@
     (<span class="ident">n</span> <span class="op">+</span> <span class="ident">padding</span>) <span class="op">/</span> <span class="ident">CHILDREN_PER_NODE</span>
 }
 
-<span class="doccomment">/// Returns the `ChildPosition` of the `n`-th heap element.</span>
+<span class="doccomment">/// Returns the `ChildPosition` of the nth heap element.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// For example, the element `3` is found at the child position `0`</span>
 <span class="doccomment">/// (within the `Children` object at storage index `2`).</span>

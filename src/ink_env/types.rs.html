@@ -269,7 +269,7 @@
 <span class="doccomment">//! types is accessible in the contract, not constrained by the required trait</span>
 <span class="doccomment">//! bounds.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Outside of the contract and its tests (e.g. in the offchain environment), where</span>
+<span class="doccomment">//! Outside the contract and its tests (e.g. in the off-chain environment), where</span>
 <span class="doccomment">//! there is no knowledge of the concrete types, the functionality is restricted to</span>
 <span class="doccomment">//! the trait bounds on the `Environment` trait types.</span>
 
@@ -293,7 +293,7 @@
     <span class="doccomment">/// The value must match the maximum number of supported event topics of the used runtime.</span>
     <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span>;
 
-    <span class="doccomment">/// The type of an address.</span>
+    <span class="doccomment">/// The address type.</span>
     <span class="kw">type</span> <span class="ident">AccountId</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Codec</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Ord</span>;
 
     <span class="doccomment">/// The type of balances.</span>
@@ -337,7 +337,7 @@
 
     <span class="doccomment">/// The chain extension for the environment.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a type that is defined through the `#[ink::chain_extension]` proc. macro.</span>
+    <span class="doccomment">/// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.</span>
     <span class="doccomment">/// For more information about usage and definition click [this][chain_extension] link.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html</span>

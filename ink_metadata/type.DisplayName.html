@@ -10,7 +10,7 @@ fn bar(foo: Foo);
 <p>Will only communicate that <code>foo</code> is of type <code>i32</code> which is correct,
 however, it will miss the potentially important information that it
 is being used through a type alias named <code>Foo</code>.</p>
-<p>In ink! we current experience this problem with environmental types
+<p>In ink! we currently experience this problem with environmental types
 such as the <code>Balance</code> type that is just a type alias to <code>u128</code> in the
 default setup. Even though it would be useful for third party tools
 such as the Polkadot UI to know that we are handling with <code>Balance</code>

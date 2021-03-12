@@ -1080,7 +1080,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default for this flag is `true`.</span>
     <span class="ident">handle_status</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If `false` the proc. macro no longer tries to enforce that the returned type encoded</span>
+    <span class="doccomment">/// If `false` the procedural macro no longer tries to enforce that the returned type encoded</span>
     <span class="doccomment">/// into the output buffer of the chain extension method call is of type `Result&lt;T, E&gt;`.</span>
     <span class="doccomment">/// Also `E` is no longer required to implement `From&lt;Self::ErrorCode&gt;` in case `handle_status`</span>
     <span class="doccomment">/// flag does not exist.</span>
@@ -1325,7 +1325,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The input Rust trait item is going to be replaced with a concrete chain extension type definition</span>
-    <span class="doccomment">/// as a result of this proc. macro invocation.</span>
+    <span class="doccomment">/// as a result of this procedural macro invocation.</span>
     <span class="kw">fn</span> <span class="ident">analyse_items</span>(
         <span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">ItemTrait</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">syn</span>::<span class="ident">TraitItemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {

@@ -5,8 +5,8 @@
     fn <a href="#tymethod.emit_event" class="fnname">emit_event</a>&lt;E&gt;(self, event: E)<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;&lt;C as <a class="trait" href="../ink_lang/trait.BaseEvent.html" title="trait ink_lang::BaseEvent">BaseEvent</a>&gt;::<a class="type" href="../ink_lang/trait.BaseEvent.html#associatedtype.Type" title="type ink_lang::BaseEvent::Type">Type</a>&gt;</span>;
 }</pre></div><div class="docblock"><p>Implemented by contracts in order to override <code>env().emit_event(..)</code>
 syntax for emitting of ink! contract events.</p>
-<h1 id="dev-note" class="section-header"><a href="#dev-note">Dev Note</a></h1>
-<p>Normally we’d try to define traits like these in the compagnion
+<h1 id="developer-note" class="section-header"><a href="#developer-note">Developer Note</a></h1>
+<p>Normally we’d try to define traits like these in the companion
 <code>ink_lang</code> crate, however, due to Rust’s orphan rules we must
 define this trait here.</p>
 </div><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><h3 id="tymethod.emit_event" class="method"><code>fn <a href="#tymethod.emit_event" class="fnname">emit_event</a>&lt;E&gt;(self, event: E) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;E: <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;&lt;C as <a class="trait" href="../ink_lang/trait.BaseEvent.html" title="trait ink_lang::BaseEvent">BaseEvent</a>&gt;::<a class="type" href="../ink_lang/trait.BaseEvent.html#associatedtype.Type" title="type ink_lang::BaseEvent::Type">Type</a>&gt;,&nbsp;</span></code><a class="srclink" href="../src/ink_lang/events.rs.html#28-30" title="goto source code">[src]</a></h3><div class="docblock"><p>Emits an event that can be trivially converted into the base event.</p>

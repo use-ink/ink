@@ -272,7 +272,7 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Use this utility function to use a packed pull operation for the type</span>
-<span class="doccomment">/// instead of a spreaded pull operation.</span>
+<span class="doccomment">/// instead of a spread storage layout pull operation.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">forward_pull_packed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
 <span class="kw">where</span>
@@ -289,7 +289,7 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Use this utility function to use a packed push operation for the type</span>
-<span class="doccomment">/// instead of a spreaded push operation.</span>
+<span class="doccomment">/// instead of a spread storage layout push operation.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">forward_push_packed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>)
 <span class="kw">where</span>
@@ -306,7 +306,7 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Use this utility function to use a packed clear operation for the type</span>
-<span class="doccomment">/// instead of a spreaded clear operation.</span>
+<span class="doccomment">/// instead of a spread storage layout clear operation.</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">forward_clear_packed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>)
 <span class="kw">where</span>

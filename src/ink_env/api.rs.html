@@ -920,7 +920,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - The `filtered_keys` can be used to ignore certain storage regions</span>
+<span class="doccomment">/// - `filtered_keys` can be used to ignore certain storage regions</span>
 <span class="doccomment">///   in the restorer contract to not influence the hash calculations.</span>
 <span class="doccomment">/// - Does *not* perform restoration right away but defers it to the end of</span>
 <span class="doccomment">///   the contract execution.</span>
@@ -954,7 +954,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// This function never returns. Either the termination was successful and the</span>
 <span class="doccomment">/// execution of the destroyed contract is halted. Or it failed during the termination</span>
-<span class="doccomment">/// which is considered fatal and results in a trap + rollback.</span>
+<span class="doccomment">/// which is considered fatal and results in a trap and rollback.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">beneficiary</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
@@ -975,7 +975,7 @@
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If the contract doesn&#39;t have sufficient funds.</span>
-<span class="doccomment">/// - If the transfer would have brought the sender&#39;s total balance below the</span>
+<span class="doccomment">/// - If the transfer had brought the sender&#39;s total balance below the</span>
 <span class="doccomment">///   subsistence threshold.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">destination</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>, <span class="ident">value</span>: <span class="ident">T</span>::<span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -998,8 +998,8 @@
 <span class="doccomment">/// # Usage</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Normally contracts define their own `enum` dispatch types respective</span>
-<span class="doccomment">/// to their exported contructors and messages that implement `scale::Decode`</span>
-<span class="doccomment">/// according to the contructors or messages selectors and their arguments.</span>
+<span class="doccomment">/// to their exported constructors and messages that implement `scale::Decode`</span>
+<span class="doccomment">/// according to the constructors or messages selectors and their arguments.</span>
 <span class="doccomment">/// These `enum` dispatch types are then given to this procedure as the `T`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// When using ink! users do not have to construct those enum dispatch types</span>

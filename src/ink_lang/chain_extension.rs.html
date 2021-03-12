@@ -82,7 +82,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This trait is automatically implemented when using `#[ink::chain_extension]` proc. macro.</span>
+<span class="doccomment">/// This trait is automatically implemented when using `#[ink::chain_extension]` procedural macro.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ChainExtensionInstance</span> {
     <span class="doccomment">/// The type of the chain extension instance.</span>
     <span class="kw">type</span> <span class="ident">Instance</span>;
@@ -102,7 +102,7 @@
 
 <span class="doccomment">/// Only implemented for `Result&lt;T, E&gt;`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Used to check at compile time if the return type of a chain extension method</span>
+<span class="doccomment">/// Used to check at compile time if the chain extension method return type</span>
 <span class="doccomment">/// is a `Result` type using the type system instead of the syntactic structure.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsResultType</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
@@ -119,7 +119,7 @@
 }
 
 <span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="doccomment">/// Seals the `IsResultType` trait so that it cannot be implemented outside of this module.</span>
+    <span class="doccomment">/// Seals the `IsResultType` trait so that it cannot be implemented outside this module.</span>
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
 }
 </pre></div>

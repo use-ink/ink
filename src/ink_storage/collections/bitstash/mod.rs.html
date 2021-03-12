@@ -241,7 +241,7 @@
     <span class="doccomment">/// represent 256 different states but since we consider 0 we need an extra</span>
     <span class="doccomment">/// 9th bit. This 9th bit tells for every 256-bit chunk if it is full.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// In theory it is possible to search up to 8192 storage cells for free</span>
+    <span class="doccomment">/// In theory, it is possible to search up to 8192 storage cells for free</span>
     <span class="doccomment">/// slots with a single contract storage look-up. By iterating over the 32</span>
     <span class="doccomment">/// `CountFree` instances of a single instance.</span>
     <span class="ident">counts</span>: <span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">CountFree</span><span class="op">&gt;</span>,

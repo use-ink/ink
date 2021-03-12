@@ -364,7 +364,7 @@
 <span class="doccomment">//! A storage vector used to store elements in a contiguous sequenced order.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This is by default the go-to collection for most smart contracts if there</span>
-<span class="doccomment">//! are not special requirements to the storage data structure.</span>
+<span class="doccomment">//! are no special requirements to the storage data structure.</span>
 
 <span class="kw">mod</span> <span class="ident">impls</span>;
 <span class="kw">mod</span> <span class="ident">iter</span>;
@@ -388,7 +388,7 @@
     <span class="ident">traits</span>::<span class="ident">PackedLayout</span>,
 };
 
-<span class="doccomment">/// A contiguous growable array type, written `Vec&lt;T&gt;` but pronounced &#39;vector&#39;.</span>
+<span class="doccomment">/// A contiguous growable array type, written `Vec&lt;T&gt;` but pronounced &quot;vector&quot;.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
@@ -438,7 +438,7 @@
         }
     }
 
-    <span class="doccomment">/// Returns the number of elements in the vector, also referred to as its &#39;length&#39;.</span>
+    <span class="doccomment">/// Returns the number of elements in the vector, also referred to as its length.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>
     }

@@ -919,7 +919,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArrayLayout</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The offset key of the array layout.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the same key as the 0-th element of the array layout.</span>
+    <span class="doccomment">/// This is the same key as the element at index 0 of the array layout.</span>
     <span class="ident">offset</span>: <span class="ident">LayoutKey</span>,
     <span class="doccomment">/// The number of elements in the array layout.</span>
     <span class="ident">len</span>: <span class="ident">u32</span>,
@@ -952,7 +952,7 @@
 {
     <span class="doccomment">/// Returns the offset key of the array layout.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is the same key as the 0-th element of the array layout.</span>
+    <span class="doccomment">/// This is the same key as the element at index 0 of the array layout.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">LayoutKey</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">offset</span>
     }

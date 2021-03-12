@@ -125,8 +125,8 @@
 <span class="doccomment">/// A cache for a `T` that allow to mutate the inner `T` through `&amp;self`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Internally this is a thin wrapper around an `UnsafeCell&lt;T&gt;`.</span>
-<span class="doccomment">/// The main difference to `UnsafeCell` is that this type provides an out of the</span>
-<span class="doccomment">/// box API to safely access the inner `T` as well for single threaded contexts.</span>
+<span class="doccomment">/// The main difference to `UnsafeCell` is that this type provides an out-of-the-box</span>
+<span class="doccomment">/// API to safely access the inner `T` as well for single threaded contexts.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CacheCell</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The inner value that is allowed to be mutated in shared contexts.</span>
     <span class="ident">inner</span>: <span class="ident">UnsafeCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,

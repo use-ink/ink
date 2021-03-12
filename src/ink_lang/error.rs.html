@@ -127,7 +127,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DispatchError</span> {
-    <span class="doccomment">/// Converts `self` into an associated `u32` that SRML contracts can handle.</span>
+    <span class="doccomment">/// Converts `self` into an associated `u32` that FRAME contracts can handle.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="ident">DispatchRetCode</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">to_u32</span>()
@@ -150,7 +150,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is useful to communicate back to SRML contracts.</span>
+    <span class="doccomment">/// This is useful to communicate back to FRAME contracts.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="number">0</span>

@@ -89,7 +89,7 @@
 
 <span class="doccomment">//! Provides type definitions and traits for the built-in cryptographic hashes.</span>
 
-<span class="doccomment">/// The output type of a built-in cryptographic hash function.</span>
+<span class="doccomment">/// The output type of built-in cryptographic hash functions.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HashOutput</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
     <span class="doccomment">/// The output type of the crypto hash.</span>
     <span class="doccomment">///</span>
@@ -103,7 +103,7 @@
     <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span>);
 }
 
-<span class="doccomment">/// The SHA2 crypto hash with 256-bit output.</span>
+<span class="doccomment">/// The SHA-2 crypto hash with 256-bit output.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Sha2x256</span> {}
 
@@ -111,11 +111,11 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Keccak256</span> {}
 
-<span class="doccomment">/// The BLAKE2 crypto hash with 256-bit output.</span>
+<span class="doccomment">/// The BLAKE-2 crypto hash with 256-bit output.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Blake2x256</span> {}
 
-<span class="doccomment">/// The BLAKE2 crypto hash with 128-bit output.</span>
+<span class="doccomment">/// The BLAKE-2 crypto hash with 128-bit output.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Blake2x128</span> {}
 

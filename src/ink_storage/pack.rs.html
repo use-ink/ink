@@ -558,7 +558,7 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is an important modular building stone in order to manage contract</span>
-<span class="doccomment">/// storage occupation. By default types try to distribute themselves onto</span>
+<span class="doccomment">/// storage occupation. By default, types try to distribute themselves onto</span>
 <span class="doccomment">/// their respective contract storage area. However, upon packing them into</span>
 <span class="doccomment">/// `Pack&lt;T&gt;` they will be compressed to only ever make use of a single</span>
 <span class="doccomment">/// contract storage cell. Sometimes this can be advantageous for performance</span>
@@ -566,12 +566,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Usage</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - A `Pack&lt;i32&gt;` is equivalent to `i32` in its storage occupation.</span>
-<span class="doccomment">/// - A `Pack&lt;(i32, i32)&gt;` will occupy a single cell compared to `(i32, i32)`</span>
-<span class="doccomment">///   which occupies a cell per `i32`.</span>
+<span class="doccomment">/// - A `Pack&lt;i32&gt;` instance is equivalent to `i32` in its storage occupation.</span>
+<span class="doccomment">/// - A `Pack&lt;(i32, i32)&gt;` instance will occupy a single cell compared to</span>
+<span class="doccomment">///   `(i32, i32)` which occupies a cell per `i32`.</span>
 <span class="doccomment">/// - A `Lazy&lt;Pack&lt;[u8; 8]&gt;&gt;` lazily loads a `Pack&lt;[u8; 8]&gt;` which occupies</span>
-<span class="doccomment">///   a single cell whereas a `[u8; 8]` would occupy 8 cells in total - one for</span>
-<span class="doccomment">///   each `u8`.</span>
+<span class="doccomment">///   a single cell whereas a `[u8; 8]` array would occupy 8 cells in total,</span>
+<span class="doccomment">///   one for each `u8`.</span>
 <span class="doccomment">/// - Rust collections will never use more than a single cell. So</span>
 <span class="doccomment">///   `Pack&lt;LinkedList&lt;T&gt;&gt;` and `LinkedList&lt;T&gt;` will occupy the same amount of</span>
 <span class="doccomment">///   cells, namely 1.</span>

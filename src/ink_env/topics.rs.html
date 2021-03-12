@@ -365,7 +365,7 @@
 {
     <span class="doccomment">/// Finalizes the topics builder.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// No more event topics can be serialized afterwards but the environment will be</span>
+    <span class="doccomment">/// No more event topics can be serialized afterwards, but the environment will be</span>
     <span class="doccomment">/// able to extract the information collected by the topics builder in order to</span>
     <span class="doccomment">/// emit the serialized event.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finish</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="ident">B</span> <span class="kw">as</span> <span class="ident">TopicsBuilderBackend</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">Output</span>
@@ -444,11 +444,11 @@
 
 <span class="doccomment">/// For each topic a hash is generated. This hash must be unique</span>
 <span class="doccomment">/// for a field and its value. The `prefix` is concatenated</span>
-<span class="doccomment">/// with the `value` and this result is then hashed.</span>
+<span class="doccomment">/// with the `value`. This result is then hashed.</span>
 <span class="doccomment">/// The `prefix` is typically set to the path a field has in</span>
-<span class="doccomment">/// an event struct + the identifier of the event struct.</span>
+<span class="doccomment">/// an event struct plus the identifier of the event struct.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// For example, in the case of our Erc20 example contract the</span>
+<span class="doccomment">/// For example, in the case of our ERC-20 example contract the</span>
 <span class="doccomment">/// prefix `Erc20::Transfer::from` is concatenated with the</span>
 <span class="doccomment">/// field value of `from` and then hashed.</span>
 <span class="doccomment">/// In this example `Erc20` would be the contract identified,</span>

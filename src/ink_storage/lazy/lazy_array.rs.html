@@ -1153,7 +1153,7 @@
     <span class="doccomment">/// Care should be taken when using this API.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The general use of this API is to streamline `Drop` implementations of</span>
-    <span class="doccomment">/// high-level abstractions that build upon this low-level data strcuture.</span>
+    <span class="doccomment">/// high-level abstractions that build upon this low-level data structure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_packed_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">Index</span>) {
         <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key_at</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot clear in lazy state&quot;</span>);
         <span class="kw">if</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">REQUIRES_DEEP_CLEAN_UP</span> {

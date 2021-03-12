@@ -82,7 +82,7 @@
 
 <span class="doccomment">//! Implementations of supported cryptographic hash functions.</span>
 
-<span class="doccomment">/// Helper routine implementing variable size BLAKE2b hash computation.</span>
+<span class="doccomment">/// Helper routine implementing variable size BLAKE-2b hash computation.</span>
 <span class="kw">fn</span> <span class="ident">blake2b_var</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
     <span class="kw">use</span> ::<span class="ident">blake2</span>::<span class="ident">digest</span>::{
         <span class="ident">Update</span> <span class="kw">as</span> <span class="kw">_</span>,
@@ -93,12 +93,12 @@
     <span class="ident">blake2</span>.<span class="ident">finalize_variable</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">copy_from_slice</span>(<span class="ident">result</span>));
 }
 
-<span class="doccomment">/// Conduct the BLAKE2 256-bit hash and place the result into `output`.</span>
+<span class="doccomment">/// Conduct the BLAKE-2 256-bit hash and place the result into `output`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
     <span class="ident">blake2b_var</span>(<span class="number">32</span>, <span class="ident">input</span>, <span class="ident">output</span>)
 }
 
-<span class="doccomment">/// Conduct the BLAKE2 128-bit hash and place the result into `output`.</span>
+<span class="doccomment">/// Conduct the BLAKE-2 128-bit hash and place the result into `output`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_128</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">16</span>]) {
     <span class="ident">blake2b_var</span>(<span class="number">16</span>, <span class="ident">input</span>, <span class="ident">output</span>)
 }
@@ -117,7 +117,7 @@
     <span class="ident">hasher</span>.<span class="ident">finalize_into</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>[..]));
 }
 
-<span class="doccomment">/// Conduct the SHA2 256-bit hash and place the result into `output`.</span>
+<span class="doccomment">/// Conduct the SHA-2 256-bit hash and place the result into `output`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha2_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
     <span class="kw">use</span> ::<span class="ident">sha2</span>::{
         <span class="ident">digest</span>::{
