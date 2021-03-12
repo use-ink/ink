@@ -14,7 +14,7 @@
 
 //! Provides an interface around the vector used to store elements of the
 //! [`BinaryHeap`](`super::BinaryHeap`) in storage. This is necessary since
-//! we don't just store each element in it's own storage cell, but rather
+//! we don't just store each element in its own storage cell, but rather
 //! optimize storage access by putting children together in one storage cell.
 
 use super::{
@@ -35,7 +35,7 @@ use crate::{
 ///
 /// Elements of the heap are stored in a vector of `Children` objects, whereby
 /// each `Children` object contains two elements. When operating on indices of
-/// the `BinaryHeap` this interface transposes heap indices to the child inside
+/// the `BinaryHeap`, this interface transposes heap indices to the child inside
 /// the `Children` object, in which the element is stored.
 #[derive(Default, PartialEq, Eq, Debug)]
 pub struct ChildrenVec<T>
@@ -73,7 +73,7 @@ pub(super) struct ChildInfoMut<'a, T> {
     /// This property exists only in `ChildInfoMut`, but not in `ChildInfo`.
     /// The reason is that in the case of pop-ping a child from a `Children`
     /// object we need to check if the child count of that object is `0` after
-    /// the pop operation. In that case no children are left in the object
+    /// the pop operation. In that case no children are left in the object,
     /// and it can be removed altogether from the heap.
     pub child_count: usize,
 }
@@ -98,7 +98,7 @@ where
         }
     }
 
-    /// Returns the number of elements in the heap, also referred to as its 'length'.
+    /// Returns the number of elements in the heap, also referred to as its length.
     #[inline]
     pub fn len(&self) -> u32 {
         *self.len

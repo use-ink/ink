@@ -112,7 +112,7 @@ const fn max(a: u64, b: u64) -> u64 {
 /// # Note
 ///
 /// Use this utility function to use a packed pull operation for the type
-/// instead of a spreaded pull operation.
+/// instead of a spread storage layout pull operation.
 #[inline]
 pub fn forward_pull_packed<T>(ptr: &mut KeyPtr) -> T
 where
@@ -129,7 +129,7 @@ where
 /// # Note
 ///
 /// Use this utility function to use a packed push operation for the type
-/// instead of a spreaded push operation.
+/// instead of a spread storage layout push operation.
 #[inline]
 pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
@@ -146,7 +146,7 @@ where
 /// # Note
 ///
 /// Use this utility function to use a packed clear operation for the type
-/// instead of a spreaded clear operation.
+/// instead of a spread storage layout clear operation.
 #[inline]
 pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where

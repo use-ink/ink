@@ -14,7 +14,7 @@
 
 //! Implement specialized routines for managing Option<T> storage entities.
 //!
-//! These are mere optimizations compared to the non specialized root functions.
+//! These are mere optimizations compared to the non-specialized root functions.
 //! The specializations make use of the storage entry state (occupied or vacant)
 //! in order to store the option's state thus using less storage in total.
 

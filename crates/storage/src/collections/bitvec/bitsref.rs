@@ -21,7 +21,7 @@ use super::{
     Bits256BitsIterMut,
 };
 
-/// A reference to a subslice within a 256-bit chunk.
+/// A reference to a sub-slice within a 256-bit chunk.
 ///
 /// This is a reference wrapper around either a shared 256-bit chunk
 /// or an exclusive 256-bit chunk. Also it prevents accesses to out of bounds

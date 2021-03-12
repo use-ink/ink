@@ -445,10 +445,11 @@ fn simple_defrag_works() {
 
 /// Returns a storage stash that looks internally like this:
 ///
-///    i | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-/// next |   |   |   |   |   |   |   |   |
-/// prev |   |   |   |   |   |   |   |   |
-///  val |   |   |   |   | E |   |   | H |
+///   i        | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+///  ----------|---|---|---|---|---|---|---|---
+///   next     |   |   |   |   |   |   |   |
+///   previous |   |   |   |   |   |   |   |
+///   val      |   |   |   |   | E |   |   | H
 fn complex_defrag_setup() -> StorageStash<u8> {
     let mut stash = [b'A', b'B', b'C', b'D', b'E', b'F', b'G', b'H']
         .iter()

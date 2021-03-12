@@ -330,7 +330,7 @@ pub enum CryptoHasher {
 pub struct ArrayLayout<F: Form = MetaForm> {
     /// The offset key of the array layout.
     ///
-    /// This is the same key as the 0-th element of the array layout.
+    /// This is the same key as the element at index 0 of the array layout.
     offset: LayoutKey,
     /// The number of elements in the array layout.
     len: u32,
@@ -363,7 +363,7 @@ where
 {
     /// Returns the offset key of the array layout.
     ///
-    /// This is the same key as the 0-th element of the array layout.
+    /// This is the same key as the element at index 0 of the array layout.
     pub fn offset(&self) -> &LayoutKey {
         &self.offset
     }

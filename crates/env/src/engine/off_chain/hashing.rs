@@ -14,7 +14,7 @@
 
 //! Implementations of supported cryptographic hash functions.
 
-/// Helper routine implementing variable size BLAKE2b hash computation.
+/// Helper routine implementing variable size BLAKE-2b hash computation.
 fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
     use ::blake2::digest::{
         Update as _,
@@ -25,12 +25,12 @@ fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
     blake2.finalize_variable(|result| output.copy_from_slice(result));
 }
 
-/// Conduct the BLAKE2 256-bit hash and place the result into `output`.
+/// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
     blake2b_var(32, input, output)
 }
 
-/// Conduct the BLAKE2 128-bit hash and place the result into `output`.
+/// Conduct the BLAKE-2 128-bit hash and place the result into `output`.
 pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
     blake2b_var(16, input, output)
 }
@@ -49,7 +49,7 @@ pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
 }
 
-/// Conduct the SHA2 256-bit hash and place the result into `output`.
+/// Conduct the SHA-2 256-bit hash and place the result into `output`.
 pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
     use ::sha2::{
         digest::{

@@ -157,7 +157,7 @@ macro_rules! fuzz_storage {
             }
 
             /// Does some basic storage interaction tests whilst mutating
-            /// *all* of the data structure's entries.
+            /// *all* the data structure's entries.
             #[allow(trivial_casts)]
             #[quickcheck]
             fn [< fuzz_ $id _mutate_all >] (

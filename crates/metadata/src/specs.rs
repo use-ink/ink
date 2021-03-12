@@ -226,9 +226,9 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub name: Vec<F::String>,
     /// The selector hash of the message.
     pub selector: Selector,
-    /// The parameters of the deploy handler.
+    /// The parameters of the deployment handler.
     pub args: Vec<MessageParamSpec<F>>,
-    /// The deploy handler documentation.
+    /// The deployment handler documentation.
     pub docs: Vec<F::String>,
 }
 
@@ -265,12 +265,12 @@ where
         &self.selector
     }
 
-    /// Returns the parameters of the deploy handler.
+    /// Returns the parameters of the deployment handler.
     pub fn args(&self) -> &[MessageParamSpec<F>] {
         &self.args
     }
 
-    /// Returns the deploy handler documentation.
+    /// Returns the deployment handler documentation.
     pub fn docs(&self) -> &[F::String] {
         &self.docs
     }
@@ -278,11 +278,11 @@ where
 
 /// A builder for constructors.
 ///
-/// # Dev
+/// # Developer Note
 ///
-/// Some of the fields are guarded by a type-state pattern to
-/// fail at compile-time instead of at run-time. This is useful
-/// to better debug code-gen macros.
+/// Some fields are guarded by a type-state pattern to fail at
+/// compile-time instead of at run-time. This is useful to better
+/// debug code-gen macros.
 pub struct ConstructorSpecBuilder<Selector> {
     spec: ConstructorSpec,
     marker: PhantomData<fn() -> Selector>,
@@ -405,7 +405,7 @@ mod state {
     pub struct Mutates;
     /// Type state for telling if the message is payable.
     pub struct IsPayable;
-    /// Type state for the return type of a message.
+    /// Type state for the message return type.
     pub struct Returns;
 }
 
@@ -504,11 +504,11 @@ where
 
 /// A builder for messages.
 ///
-/// # Dev
+/// # Developer Note
 ///
-/// Some of the fields are guarded by a type-state pattern to
-/// fail at compile-time instead of at run-time. This is useful
-/// to better debug code-gen macros.
+/// Some fields are guarded by a type-state pattern to fail at
+/// compile-time instead of at run-time. This is useful to better
+/// debug code-gen macros.
 #[allow(clippy::type_complexity)]
 pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
     spec: MessageSpec,
@@ -770,7 +770,7 @@ impl Selector {
 /// however, it will miss the potentially important information that it
 /// is being used through a type alias named `Foo`.
 ///
-/// In ink! we current experience this problem with environmental types
+/// In ink! we currently experience this problem with environmental types
 /// such as the `Balance` type that is just a type alias to `u128` in the
 /// default setup. Even though it would be useful for third party tools
 /// such as the Polkadot UI to know that we are handling with `Balance`
@@ -791,7 +791,7 @@ pub type DisplayName<F> = scale_info::Path<F>;
 /// fn is_sorted(input: &[i32], pred: Predicate) -> bool;
 /// ```
 /// In this above example `input` would have no displayable name,
-/// `pred`'s display name is `Predicate` and the display name of
+/// `pred`s display name is `Predicate` and the display name of
 /// the return type is simply `bool`. Note that `Predicate` could
 /// simply be a type alias to `fn(i32, i32) -> Ordering`.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1003,7 +1003,7 @@ impl EventParamSpecBuilder {
     }
 }
 
-/// Describes the return type of a contract message.
+/// Describes the contract message return type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(transparent)]
 #[serde(bound(
