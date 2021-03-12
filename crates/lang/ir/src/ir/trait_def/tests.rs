@@ -531,6 +531,7 @@ fn iter_constructors_works() {
     .unwrap();
     let actual = ink_trait
         .iter_items()
+        .map(|(item, _)| item)
         .flat_map(|item| {
             item.filter_map_constructor()
                 .map(|constructor| constructor.sig().ident.to_string())
@@ -557,6 +558,7 @@ fn iter_messages_works() {
     .unwrap();
     let actual = ink_trait
         .iter_items()
+        .map(|(item, _)| item)
         .flat_map(|item| {
             item.filter_map_message()
                 .map(|message| message.sig().ident.to_string())

@@ -174,21 +174,25 @@ impl GenerateCode for TraitDefinition<'_> {
         let constructors = self
             .trait_def
             .iter_items()
+            .map(|(item, _)| item)
             .flat_map(ir::InkTraitItem::filter_map_constructor)
             .map(Self::generate_for_constructor);
         let messages = self
             .trait_def
             .iter_items()
+            .map(|(item, _)| item)
             .flat_map(ir::InkTraitItem::filter_map_message)
             .map(Self::generate_for_message);
         let constructors_never_call = self
             .trait_def
             .iter_items()
+            .map(|(item, _)| item)
             .flat_map(ir::InkTraitItem::filter_map_constructor)
             .map(Self::generate_for_constructor_never_call);
         let messages_never_call = self
             .trait_def
             .iter_items()
+            .map(|(item, _)| item)
             .flat_map(ir::InkTraitItem::filter_map_message)
             .map(Self::generate_for_message_never_call);
         quote_spanned!(span =>

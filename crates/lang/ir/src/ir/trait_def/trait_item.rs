@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ir;
-
 use super::super::InkAttribute;
+use crate::ir;
 use proc_macro2::Span;
 use syn::{
     spanned::Spanned as _,

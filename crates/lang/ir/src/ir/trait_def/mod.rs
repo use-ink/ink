@@ -18,6 +18,7 @@ mod trait_item;
 #[cfg(test)]
 mod tests;
 
+use self::iter::IterInkTraitItemsRaw;
 pub use self::{
     iter::IterInkTraitItems,
     trait_item::{
@@ -131,6 +132,7 @@ impl InkTrait {
         Self::compute_verify_hash(
             trait_name,
             self.iter_items()
+                .map(|(item, _)| item)
                 .flat_map(InkTraitItem::filter_map_constructor)
                 .map(|constructor| {
                     let name = constructor.sig().ident.clone();
@@ -138,6 +140,7 @@ impl InkTrait {
                     (name, len_inputs)
                 }),
             self.iter_items()
+                .map(|(item, _)| item)
                 .flat_map(InkTraitItem::filter_map_message)
                 .map(|message| {
                     let name = message.sig().ident.clone();
@@ -470,7 +473,7 @@ impl InkTrait {
             .unwrap_or_else(Default::default);
         let ident = &item_trait.ident;
         let trait_prefix = TraitPrefix::new(ident, &namespace);
-        for callable in IterInkTraitItems::from_raw(item_trait) {
+        for callable in IterInkTraitItemsRaw::from_raw(item_trait) {
             let ident = callable.ident();
             let ink_attrs = callable.ink_attrs();
             let selector = match ink_attrs.selector() {

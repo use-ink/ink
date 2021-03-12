@@ -18,21 +18,16 @@ use crate::{
     InkTraitConstructor,
     InkTraitItem,
     InkTraitMessage,
+    Selector,
 };
+use std::collections::HashMap;
 
 /// Iterator over all the ink! trait items of an ink! trait definition.
-pub struct IterInkTraitItems<'a> {
+pub struct IterInkTraitItemsRaw<'a> {
     iter: core::slice::Iter<'a, syn::TraitItem>,
 }
 
-impl<'a> IterInkTraitItems<'a> {
-    /// Creates a new iterator yielding ink! trait items.
-    pub(super) fn new(item_trait: &'a InkTrait) -> Self {
-        Self {
-            iter: item_trait.item.items.iter(),
-        }
-    }
-
+impl<'a> IterInkTraitItemsRaw<'a> {
     /// Creates a new iterator yielding ink! trait items over the raw Rust trait definition.
     pub(super) fn from_raw(item_trait: &'a syn::ItemTrait) -> Self {
         Self {
@@ -41,7 +36,7 @@ impl<'a> IterInkTraitItems<'a> {
     }
 }
 
-impl<'a> Iterator for IterInkTraitItems<'a> {
+impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
     type Item = InkTraitItem<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -71,6 +66,43 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
                     }
                 }
                 Some(_) => continue 'outer,
+            }
+        }
+    }
+}
+
+/// Iterator over all the ink! trait items of an ink! trait definition.
+pub struct IterInkTraitItems<'a> {
+    iter: IterInkTraitItemsRaw<'a>,
+    message_selectors: &'a HashMap<syn::Ident, Selector>,
+    constructor_selectors: &'a HashMap<syn::Ident, Selector>,
+}
+
+impl<'a> IterInkTraitItems<'a> {
+    /// Creates a new iterator yielding ink! trait items.
+    pub(super) fn new(item_trait: &'a InkTrait) -> Self {
+        Self {
+            iter: IterInkTraitItemsRaw::from_raw(&item_trait.item),
+            message_selectors: &item_trait.message_selectors,
+            constructor_selectors: &item_trait.constructor_selectors,
+        }
+    }
+}
+
+impl<'a> Iterator for IterInkTraitItems<'a> {
+    type Item = (InkTraitItem<'a>, Selector);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iter.next() {
+            None => None,
+            Some(item @ InkTraitItem::Constructor(_)) => {
+                let selector = self.constructor_selectors[item.ident()];
+                Some((item, selector))
+            }
+            Some(item @ InkTraitItem::Message(_)) => {
+                let selector = self.message_selectors[item.ident()];
+                Some((item, selector))
+
             }
         }
     }
