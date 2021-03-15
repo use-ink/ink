@@ -63,3 +63,6 @@ std = [
     "sha3",
     "blake2",
 ]
+
+# Use the new `seal_random` API. Only activate if this is supported by the target chain.
+seal-random-v1 = []

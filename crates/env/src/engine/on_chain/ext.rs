@@ -308,6 +308,7 @@ mod sys {
 
         pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
+        #[cfg(not(feature = "seal-random-v1"))]
         pub fn seal_random(
             subject_ptr: Ptr32<[u8]>,
             subject_len: u32,
@@ -335,6 +336,18 @@ mod sys {
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
+        );
+    }
+
+    #[link(wasm_import_module = "seal1")]
+    extern "C" {
+        /// The v1 version returns a block number in addition to the seed.
+        #[cfg(feature = "seal-random-v1")]
+        pub fn seal_random(
+            subject_ptr: Ptr32<[u8]>,
+            subject_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         );
     }
 }

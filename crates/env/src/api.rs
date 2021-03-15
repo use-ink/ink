@@ -493,7 +493,37 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
+#[cfg(not(feature = "seal-random-v1"))]
 pub fn random<T>(subject: &[u8]) -> Result<T::Hash>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::random::<T>(instance, subject)
+    })
+}
+
+/// Returns a random hash seed and the block number since which it was determinable
+/// by chain observers.
+///
+/// # Note
+///
+/// - The subject buffer can be used to further randomize the hash.
+/// - Within the same execution returns the same random hash for the same subject.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+///
+/// # Important
+///
+/// The returned seed should only be used to distinguish commitments made before
+/// the returned block number. If the block number is too early (i.e. commitments were
+/// made afterwards), then ensure no further commitments may be made and repeatedly
+/// call this on later blocks until the block number returned is later than the latest
+/// commitment.
+#[cfg(feature = "seal-random-v1")]
+pub fn random<T>(subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
 where
     T: Environment,
 {

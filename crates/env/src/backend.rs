@@ -339,7 +339,18 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`random`][`crate::random`]
+    #[cfg(not(feature = "seal-random-v1"))]
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
+    where
+        T: Environment;
+
+    /// Returns a random hash seed.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`random`][`crate::random`]
+    #[cfg(feature = "seal-random-v1")]
+    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment;
 }

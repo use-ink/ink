@@ -460,7 +460,20 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
+    #[cfg(not(feature = "seal-random-v1"))]
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
+    where
+        T: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_subject = scope.take_bytes(subject);
+        let output = &mut scope.take_rest();
+        ext::random(enc_subject, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+    }
+
+    #[cfg(feature = "seal-random-v1")]
+    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment,
     {

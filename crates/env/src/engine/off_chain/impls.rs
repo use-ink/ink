@@ -449,6 +449,7 @@ impl TypedEnvBackend for EnvInstance {
         self.transfer_impl::<T>(&destination, value)
     }
 
+    #[cfg(not(feature = "seal-random-v1"))]
     fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
     where
         T: Environment,
@@ -457,5 +458,14 @@ impl TypedEnvBackend for EnvInstance {
             .expect(UNITIALIZED_EXEC_CONTEXT)
             .random::<T>(subject)
             .map_err(Into::into)
+    }
+
+    #[cfg(feature = "seal-random-v1")]
+    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
+    where
+        T: Environment,
+    {
+        let block = self.current_block().expect(UNITIALIZED_EXEC_CONTEXT);
+        Ok((block.random::<T>(subject)?, block.number::<T>()?))
     }
 }
