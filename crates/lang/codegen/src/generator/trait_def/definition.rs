@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Generates the ink! trait definition item.
+
 use super::TraitDefinition;
 use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;

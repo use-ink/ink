@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Generates the definition and implementations for the ink! trait definition resolver.
+//!
+//! This is used in order code in order to resolve an ink! trait definition to a proper
+//! Rust type that can be used in the Rust type system and used as instance. This is
+//! for example required in order to cross-call a trait based contract implementation or
+//! to allow for contract references in arguments that implement a trait by definition
+//! of the API.
+
 use super::TraitDefinition;
 use heck::CamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
