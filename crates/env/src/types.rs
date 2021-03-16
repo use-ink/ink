@@ -27,7 +27,7 @@
 //! types is accessible in the contract, not constrained by the required trait
 //! bounds.
 //!
-//! Outside of the contract and its tests (e.g. in the offchain environment), where
+//! Outside the contract and its tests (e.g. in the off-chain environment), where
 //! there is no knowledge of the concrete types, the functionality is restricted to
 //! the trait bounds on the `Environment` trait types.
 
@@ -51,7 +51,7 @@ pub trait Environment {
     /// The value must match the maximum number of supported event topics of the used runtime.
     const MAX_EVENT_TOPICS: usize;
 
-    /// The type of an address.
+    /// The address type.
     type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
 
     /// The type of balances.
@@ -95,7 +95,7 @@ pub trait Environment {
 
     /// The chain extension for the environment.
     ///
-    /// This is a type that is defined through the `#[ink::chain_extension]` proc. macro.
+    /// This is a type that is defined through the `#[ink::chain_extension]` procedural macro.
     /// For more information about usage and definition click [this][chain_extension] link.
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html

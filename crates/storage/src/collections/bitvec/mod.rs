@@ -53,10 +53,10 @@ use crate::{
 /// The index of a bit pack within the bit vector.
 type Index = u32;
 
-/// A bit position within a 256-bit package.
+/// The position of a bit within a 256-bit package.
 type Index256 = u8;
 
-/// A bit position within a `u64`.
+/// The position of a bit within a `u64`.
 type Index64 = u8;
 
 /// A pack of 64 bits.
@@ -127,7 +127,7 @@ impl Bitvec {
         Bits256IterMut::new(self)
     }
 
-    /// Splits the given index into a 256-bit pack index and bit position index.
+    /// Splits the given index into a 256-bit pack index and a position index of the bit.
     fn split_index(&self, at: Index) -> Option<(Index, Index256)> {
         if at >= self.len() {
             return None

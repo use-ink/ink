@@ -286,7 +286,7 @@ where
     /// Care should be taken when using this API.
     ///
     /// The general use of this API is to streamline `Drop` implementations of
-    /// high-level abstractions that build upon this low-level data strcuture.
+    /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at(&self, index: Index) {
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {

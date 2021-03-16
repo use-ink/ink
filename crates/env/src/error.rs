@@ -21,7 +21,7 @@ use crate::engine::off_chain::OffChainError;
 pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
-    /// An error that can only occure in the off-chain environment.
+    /// An error that can only occur in the off-chain environment.
     #[cfg(any(feature = "std", test, doc))]
     OffChain(OffChainError),
     /// The call to another contract has trapped.
@@ -43,7 +43,7 @@ pub enum Error {
     CodeNotFound,
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable,
-    /// An unknown error has occured.
+    /// An unknown error has occurred.
     UnknownError,
 }
 

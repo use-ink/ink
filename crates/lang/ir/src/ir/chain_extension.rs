@@ -91,7 +91,7 @@ pub struct ChainExtensionMethod {
     ///
     /// The default for this flag is `true`.
     handle_status: bool,
-    /// If `false` the proc. macro no longer tries to enforce that the returned type encoded
+    /// If `false` the procedural macro no longer tries to enforce that the returned type encoded
     /// into the output buffer of the chain extension method call is of type `Result<T, E>`.
     /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `handle_status`
     /// flag does not exist.
@@ -336,7 +336,7 @@ impl ChainExtension {
     /// # Note
     ///
     /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
-    /// as a result of this proc. macro invocation.
+    /// as a result of this procedural macro invocation.
     fn analyse_items(
         item_trait: &syn::ItemTrait,
     ) -> Result<(syn::TraitItemType, Vec<ChainExtensionMethod>)> {

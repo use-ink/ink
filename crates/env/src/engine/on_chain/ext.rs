@@ -14,7 +14,7 @@
 
 //! External C API to communicate with substrate contracts runtime module.
 //!
-//! Refer to substrate SRML contract module for more documentation.
+//! Refer to substrate FRAME contract module for more documentation.
 
 use crate::ReturnFlags;
 use core::marker::PhantomData;

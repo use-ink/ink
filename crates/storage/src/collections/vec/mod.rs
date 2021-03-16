@@ -15,7 +15,7 @@
 //! A storage vector used to store elements in a contiguous sequenced order.
 //!
 //! This is by default the go-to collection for most smart contracts if there
-//! are not special requirements to the storage data structure.
+//! are no special requirements to the storage data structure.
 
 mod impls;
 mod iter;
@@ -39,7 +39,7 @@ use crate::{
     traits::PackedLayout,
 };
 
-/// A contiguous growable array type, written `Vec<T>` but pronounced 'vector'.
+/// A contiguous growable array type, written `Vec<T>` but pronounced "vector".
 ///
 /// # Note
 ///
@@ -89,7 +89,7 @@ where
         }
     }
 
-    /// Returns the number of elements in the vector, also referred to as its 'length'.
+    /// Returns the number of elements in the vector, also referred to as its length.
     pub fn len(&self) -> u32 {
         *self.len
     }

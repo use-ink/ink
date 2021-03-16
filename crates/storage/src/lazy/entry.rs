@@ -177,7 +177,8 @@ impl<T> StorageEntry<T>
 where
     T: SpreadLayout,
 {
-    /// Pulls the entity from the underlying associated storage as spreaded representation.
+    /// Pulls the entity from the underlying associated storage as a `SpreadLayout`
+    /// storage layout representation.
     ///
     /// # Note
     ///
@@ -187,7 +188,8 @@ where
         Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
     }
 
-    /// Pushes the underlying associated storage as spreaded representation.
+    /// Pushes the underlying associated data to the contract storage using
+    /// the `SpreadLayout` storage layout.
     ///
     /// # Note
     ///
@@ -200,7 +202,7 @@ where
         }
     }
 
-    /// Clears the underlying associated storage as spreaded representation.
+    /// Clears the underlying associated storage as `SpreadLayout` storage layout representation.
     ///
     /// # Note
     ///

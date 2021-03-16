@@ -653,7 +653,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Usage
 ///
-/// Usually the chain extension definition using this proc. macro is provided
+/// Usually the chain extension definition using this procedural macro is provided
 /// by the author of the chain extension in a separate crate.
 /// ink! smart contracts using this chain extension simply depend on this crate
 /// and use its associated environment definition in order to make use of

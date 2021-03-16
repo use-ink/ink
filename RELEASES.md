@@ -22,7 +22,7 @@ ink! 3.0-rc3 is compatible with
 ## Changed
 
 - Migrate `ink_storage::SmallVec` and `ink_storage::lazy::SmallLazyArray` to use `min_const_generics`.
-    - The `min_const_generics` feature is going to be stabilized in Rust 1.51. For now it was put behind 
+    - The `min_const_generics` feature is going to be stabilized in Rust 1.51. For now it was put behind
       the `ink-unstable` crate feature of the `ink_storage` crate.
 - Improve error reporting for conflicting ink! attributes.
 - Improve error reporting for invalid constructor or message selector. (https://github.com/paritytech/ink/pull/561)
@@ -436,7 +436,7 @@ pub fn transfer(&mut self, from: AccountId, to: AccountId, value: Balance) -> Re
 ## Trait Support
 
 One of the most anticipated features of ink! 3.0 is its Rust trait support.
-Through the new `#[ink::trait_definition]` proc. macro it is now possible to define your very own trait definitions that are then implementable by ink! smart contracts.
+Through the new `#[ink::trait_definition]` procedural macro it is now possible to define your very own trait definitions that are then implementable by ink! smart contracts.
 
 This allows to define shared smart contract interfaces to different concrete implementations.
 Note that this ink! trait definition can be defined anywhere, even in another crate!

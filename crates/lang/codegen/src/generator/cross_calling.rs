@@ -155,7 +155,7 @@ impl CrossCalling<'_> {
     }
 
     /// Generates code for the trait implementations required to make the
-    /// generated ink! storage struct for cross-calling work out of the box
+    /// generated ink! storage struct for cross-calling work out-of-the-box
     /// for the cross-calling infrastructure.
     fn generate_standard_impls(&self) -> TokenStream2 {
         let cfg = self.generate_cfg();

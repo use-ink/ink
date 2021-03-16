@@ -1,0 +1,8 @@
+[Hunspell]
+lang = "en_US"
+search_dirs = ["."]
+extra_dictionaries = ["cargo_spellcheck.dic"]
+
+[Hunspell.quirks]
+allow_concatenation = true
+allow_dashes = true

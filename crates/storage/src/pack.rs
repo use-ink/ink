@@ -29,7 +29,7 @@ use ink_primitives::Key;
 /// # Note
 ///
 /// This is an important modular building stone in order to manage contract
-/// storage occupation. By default types try to distribute themselves onto
+/// storage occupation. By default, types try to distribute themselves onto
 /// their respective contract storage area. However, upon packing them into
 /// `Pack<T>` they will be compressed to only ever make use of a single
 /// contract storage cell. Sometimes this can be advantageous for performance
@@ -37,12 +37,12 @@ use ink_primitives::Key;
 ///
 /// # Usage
 ///
-/// - A `Pack<i32>` is equivalent to `i32` in its storage occupation.
-/// - A `Pack<(i32, i32)>` will occupy a single cell compared to `(i32, i32)`
-///   which occupies a cell per `i32`.
+/// - A `Pack<i32>` instance is equivalent to `i32` in its storage occupation.
+/// - A `Pack<(i32, i32)>` instance will occupy a single cell compared to
+///   `(i32, i32)` which occupies a cell per `i32`.
 /// - A `Lazy<Pack<[u8; 8]>>` lazily loads a `Pack<[u8; 8]>` which occupies
-///   a single cell whereas a `[u8; 8]` would occupy 8 cells in total - one for
-///   each `u8`.
+///   a single cell whereas a `[u8; 8]` array would occupy 8 cells in total,
+///   one for each `u8`.
 /// - Rust collections will never use more than a single cell. So
 ///   `Pack<LinkedList<T>>` and `LinkedList<T>` will occupy the same amount of
 ///   cells, namely 1.
