@@ -145,7 +145,7 @@ spellcheck:
     stage:                           workspace
     <<:                              *docker-env
     script:
-        - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
+        - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -vv
 
 codecov:
   stage:                           workspace
