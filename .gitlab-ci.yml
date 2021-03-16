@@ -208,13 +208,12 @@ clippy-std:
     - job:                         check-std
       artifacts:                   false
   script:
+    # Just needed as long as we have the `ink-experimental-engine` feature:
+    # `--all-features` here implies the feature `ink-experimental-engine`.
+    # So in order to still run the tests without the experimental engine
+    # feature we need to explicitly run with `std`.
     - for crate in ${ALL_CRATES}; do
         cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
-
-        # Just needed as long as we have the `ink-experimental-engine` feature.
-        # We do not invoke `--all-features` here -- this would imply the feature
-        # `ink-experimental-engine`. So in order to still run the tests without the
-        # experimental engine feature we need this command.
         cargo clippy --verbose --features std  --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
