@@ -14,8 +14,8 @@
 
 mod concretizer;
 mod definition;
-mod short_call;
 mod long_call;
+mod short_call;
 
 use crate::GenerateCode;
 use derive_more::From;
@@ -33,10 +33,12 @@ impl GenerateCode for TraitDefinition<'_> {
         let span = self.trait_def.span();
         let trait_definition = self.generate_trait_definition();
         let trait_concretizer = self.generate_trait_concretizer();
+        let trait_concretizer_impls = self.generate_trait_impl_block();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
                 #trait_concretizer
+                #trait_concretizer_impls
             };
         )
     }
