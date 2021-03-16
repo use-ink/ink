@@ -22,6 +22,7 @@ use self::iter::IterInkTraitItemsRaw;
 pub use self::{
     iter::IterInkTraitItems,
     trait_item::{
+        InputsIter,
         InkTraitConstructor,
         InkTraitItem,
         InkTraitMessage,

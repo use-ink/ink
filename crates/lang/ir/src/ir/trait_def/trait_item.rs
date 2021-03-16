@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use super::super::InkAttribute;
-use crate::ir;
+use crate::{Receiver, ir};
 use proc_macro2::Span;
 use syn::{
     spanned::Spanned as _,
@@ -117,6 +117,11 @@ impl<'a> InkTraitConstructor<'a> {
         &self.item.sig
     }
 
+    /// Returns an iterator over the inputs of the ink! trait message.
+    pub fn inputs(&self) -> InputsIter {
+        InputsIter::from(self)
+    }
+
     /// Returns the Rust identifier of the ink! constructor.
     pub fn ident(&self) -> &syn::Ident {
         &self.item.sig.ident
@@ -184,6 +189,36 @@ impl<'a> InkTraitMessage<'a> {
         &self.item.sig
     }
 
+    /// Returns the `self` receiver of the ink! trait message.
+    ///
+    /// Returns `Ref` for `&self` messages and `RefMut` for `&mut self` messages.
+    pub fn receiver(&self) -> Receiver {
+        match self.item.sig.inputs.iter().next() {
+            Some(syn::FnArg::Receiver(receiver)) => {
+                debug_assert!(receiver.reference.is_some());
+                if receiver.mutability.is_some() {
+                    Receiver::RefMut
+                } else {
+                    Receiver::Ref
+                }
+            }
+            _ => unreachable!("encountered invalid receiver argument for ink! message"),
+        }
+    }
+
+    /// Returns an iterator over the inputs of the ink! trait message.
+    pub fn inputs(&self) -> InputsIter {
+        InputsIter::from(self)
+    }
+
+    /// Returns the return type of the ink! message if any.
+    pub fn output(&self) -> Option<&syn::Type> {
+        match &self.item.sig.output {
+            syn::ReturnType::Default => None,
+            syn::ReturnType::Type(_, return_type) => Some(return_type),
+        }
+    }
+
     /// Returns the Rust identifier of the ink! message.
     pub fn ident(&self) -> &syn::Ident {
         &self.item.sig.ident
@@ -217,5 +252,42 @@ impl<'a> InkTraitMessage<'a> {
                 }
             })
             .expect("encountered missing receiver for ink! message")
+    }
+}
+
+/// Iterator over the input parameters of an ink! message or constructor.
+///
+/// Does not yield the self receiver of ink! messages.
+pub struct InputsIter<'a> {
+    iter: syn::punctuated::Iter<'a, syn::FnArg>,
+}
+
+impl<'a> From<&'a InkTraitMessage<'a>> for InputsIter<'a> {
+    fn from(message: &'a InkTraitMessage) -> Self {
+        Self {
+            iter: message.item.sig.inputs.iter(),
+        }
+    }
+}
+
+impl<'a> From<&'a InkTraitConstructor<'a>> for InputsIter<'a> {
+    fn from(constructor: &'a InkTraitConstructor) -> Self {
+        Self {
+            iter: constructor.item.sig.inputs.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for InputsIter<'a> {
+    type Item = &'a syn::PatType;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        'repeat: loop {
+            match self.iter.next() {
+                None => return None,
+                Some(syn::FnArg::Typed(pat_typed)) => return Some(pat_typed),
+                Some(syn::FnArg::Receiver(_)) => continue 'repeat,
+            }
+        }
     }
 }
