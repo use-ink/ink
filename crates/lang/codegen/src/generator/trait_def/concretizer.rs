@@ -57,64 +57,62 @@ impl<'a> TraitDefinition<'a> {
             .flat_map(ir::InkTraitItem::filter_map_message)
             .map(Self::generate_for_message_never_call);
         quote_spanned!(span =>
-            const _: () = {
-                /// A universal concrete implementer of the ink! trait definition.
+            /// A universal concrete implementer of the ink! trait definition.
+            #[doc(hidden)]
+            #[allow(non_camel_case_types)]
+            pub struct #concrete_implementer_ident<E>
+            where
+                E: ::ink_env::Environment,
+            {
+                account_id: <E as ::ink_env::Environment>::AccountId,
+            }
+
+            impl<E> ::ink_env::call::FromAccountId<E> for #concrete_implementer_ident<E>
+            where
+                E: ::ink_env::Environment,
+            {
+                #[inline]
+                fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
+                    Self { account_id }
+                }
+            }
+
+            impl<E> ::ink_lang::ToAccountId<E> for #concrete_implementer_ident<E>
+            where
+                E: ::ink_env::Environment,
+                <E as ::ink_env::Environment>::AccountId: Clone,
+            {
+                #[inline]
+                fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
+                    self.account_id.clone()
+                }
+            }
+
+            impl<E> ::core::clone::Clone for #concrete_implementer_ident<E>
+            where
+                E: ::ink_env::Environment,
+                <E as ::ink_env::Environment>::AccountId: Clone,
+            {
+                fn clone(&self) -> Self {
+                    Self { account_id: self.account_id.clone() }
+                }
+            }
+
+            impl<E> #ident for ::ink_lang::ConcreteImplementers<E>
+            where
+                E: ::ink_env::Environment,
+            {
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                pub struct #concrete_implementer_ident<E>
-                where
-                    E: ::ink_env::Environment,
-                {
-                    account_id: <E as ::ink_env::Environment>::AccountId,
-                }
+                type __ink_Checksum = [(); #verify_hash_id];
 
-                impl<E> ::ink_env::call::FromAccountId<E> for #concrete_implementer_ident<E>
-                where
-                    E: ::ink_env::Environment,
-                {
-                    #[inline]
-                    fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
-                        Self { account_id }
-                    }
-                }
+                #[doc(hidden)]
+                #[allow(non_camel_case_types)]
+                type __ink_ConcreteImplementer = #concrete_implementer_ident<E>;
 
-                impl<E> ::ink_lang::ToAccountId<E> for #concrete_implementer_ident<E>
-                where
-                    E: ::ink_env::Environment,
-                    <E as ::ink_env::Environment>::AccountId: Clone,
-                {
-                    #[inline]
-                    fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
-                        self.account_id.clone()
-                    }
-                }
-
-                impl<E> ::core::clone::Clone for #concrete_implementer_ident<E>
-                where
-                    E: ::ink_env::Environment,
-                    <E as ::ink_env::Environment>::AccountId: Clone,
-                {
-                    fn clone(&self) -> Self {
-                        Self { account_id: self.account_id.clone() }
-                    }
-                }
-
-                impl<E> #ident for ::ink_lang::ConcreteImplementers<E>
-                where
-                    E: ::ink_env::Environment,
-                {
-                    #[doc(hidden)]
-                    #[allow(non_camel_case_types)]
-                    type __ink_Checksum = [(); #verify_hash_id];
-
-                    #[doc(hidden)]
-                    #[allow(non_camel_case_types)]
-                    type __ink_ConcreteImplementer = #concrete_implementer_ident<E>;
-
-                    #(#constructors_never_call)*
-                    #(#messages_never_call)*
-                }
-            };
+                #(#constructors_never_call)*
+                #(#messages_never_call)*
+            }
         )
     }
 
