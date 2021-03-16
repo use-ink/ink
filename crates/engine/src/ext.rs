@@ -14,37 +14,53 @@
 
 //! Provides the same interface as Substrate's FRAME `contract` module.
 //!
-//! See that module for more documentation.
+//! See [the documentation for the `contract` module](https://docs.rs/crate/pallet-contracts)
+//! for more information.
 
 use crate::{
     exec_context::ExecContext,
     storage::Storage,
     test_api::{
         EmittedEvent,
-        REC_INSTANCE,
+        RecInstance,
     },
+    types::{
+        AccountId,
+        Balance,
+        Key,
+    },
+    OnInstance,
 };
 
 use core::cell::RefCell;
+use std::collections::HashMap;
 
 type Result = core::result::Result<(), Error>;
 
 pub struct EnvInstance {
     /// The environment storage.
-    pub storage: Storage<Vec<u8>, Vec<u8>>,
+    pub storage: Storage<Key, Vec<u8>>,
+    /// Holds the balance of each account.
+    pub balances: HashMap<AccountId, Balance>,
     /// Current execution context.
-    pub exec_context: Option<ExecContext>,
+    pub exec_context: ExecContext,
 }
 
-thread_local!(
-    pub static ENV_INSTANCE: RefCell<EnvInstance> = RefCell::new(EnvInstance {
-        storage: Storage::new(),
-        exec_context: Some(ExecContext {
-            caller: vec![0x01; 32].into(),
-            callee: vec![0x01; 32].into(),
-        }),
-    });
-);
+impl OnInstance for EnvInstance {
+    fn on_instance<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self) -> R,
+    {
+        thread_local!(
+            static ENV_INSTANCE: RefCell<EnvInstance> = RefCell::new(EnvInstance {
+                storage: Storage::new(),
+                balances: HashMap::new(),
+                exec_context: ExecContext::default(),
+            });
+        );
+        ENV_INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+    }
+}
 
 macro_rules! define_error_codes {
     (
@@ -54,6 +70,7 @@ macro_rules! define_error_codes {
         )*
     ) => {
         /// Every error that can be returned to a contract when it calls any of the host functions.
+        #[derive(Debug)]
         #[repr(u32)]
         pub enum Error {
             $(
@@ -143,8 +160,23 @@ pub fn call(
     unimplemented!("off-chain environment does not yet support `call`");
 }
 
-pub fn transfer(_account_id: &[u8], _value: &[u8]) -> Result {
-    unimplemented!("off-chain environment does not yet support `transfer`");
+/// Transfers value from the contract to the destination account ID.
+pub fn transfer(account_id: &[u8], mut value: &[u8]) -> Result {
+    // extremely simplified implementation! assertions and checks will follow.
+    let increment =
+        <u128 as scale::Decode>::decode(&mut value).map_err(|_| Error::TransferFailed)?;
+
+    let dest = account_id.to_vec();
+    let dest_old_balance =
+        super::test_api::get_balance(dest.clone()).map_err(|_| Error::TransferFailed)?;
+
+    let contract = super::test_api::get_callee();
+    let contract_old_balance = super::test_api::get_balance(contract.clone())
+        .map_err(|_| Error::TransferFailed)?;
+
+    super::test_api::set_balance(contract, contract_old_balance - increment);
+    super::test_api::set_balance(dest, dest_old_balance + increment);
+    Ok(())
 }
 
 pub fn deposit_event(topics: &[u8], data: &[u8]) {
@@ -167,50 +199,71 @@ pub fn deposit_event(topics: &[u8], data: &[u8]) {
         Vec::new()
     };
 
-    REC_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
+    <RecInstance as OnInstance>::on_instance(|instance| {
         instance.emitted_events.push(EmittedEvent {
             topics: topics_vec,
             data: data.to_vec(),
         });
-    })
+    });
 }
 
 pub fn set_storage(key: &[u8], encoded_value: &[u8]) {
-    REC_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        instance.count_writes += 1;
+    <RecInstance as OnInstance>::on_instance(|instance| {
+        let account_id: AccountId = super::test_api::get_callee().into();
+        instance
+            .count_writes
+            .entry(account_id.clone())
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
+        instance
+            .cells_per_account
+            .entry(account_id)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
     });
 
-    ENV_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        instance
-            .storage
-            .insert(key.to_vec(), encoded_value.to_vec());
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        // we ignore if storage is already set for this key
+        let _ = instance.storage.insert(key.into(), encoded_value.to_vec());
     })
 }
 
 pub fn clear_storage(key: &[u8]) {
-    REC_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        instance.count_writes += 1;
+    <RecInstance as OnInstance>::on_instance(|instance| {
+        let account_id: AccountId = super::test_api::get_callee().into();
+        instance
+            .count_writes
+            .entry(account_id.clone())
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
+        instance
+            .cells_per_account
+            .entry(account_id)
+            .and_modify(|v| {
+                if *v > 0 {
+                    *v -= 1;
+                }
+            })
+            .or_default();
     });
 
-    ENV_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        instance.storage.remove(key);
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.storage.remove(&key.into());
     })
 }
 
 pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
-    REC_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        instance.count_reads += 1;
+    <RecInstance as OnInstance>::on_instance(|instance| {
+        let account_id = super::test_api::get_callee();
+        instance
+            .count_reads
+            .entry(account_id.into())
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
     });
 
-    ENV_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        match instance.storage.get(key.to_vec().as_slice()) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        match instance.storage.get(&key.into()) {
             Some(val) => {
                 output[0..val.len()].copy_from_slice(val);
                 Ok(())
@@ -241,8 +294,26 @@ pub fn restore_to(
     unimplemented!("off-chain environment does not yet support `restore_to`");
 }
 
-pub fn terminate(_beneficiary: &[u8]) -> ! {
-    unimplemented!("off-chain environment does not yet support `terminate`");
+/// Remove the calling account and transfer remaining balance.
+///
+/// This function never returns. Either the termination was successful and the
+/// execution of the destroyed contract is halted. Or it failed during the
+/// termination which is considered fatal.
+pub fn terminate(beneficiary: &[u8]) -> ! {
+    // Send the remaining balance to the beneficiary
+    let contract = super::test_api::get_callee();
+    let all = super::test_api::get_balance(contract).expect("could not get balance");
+    let value = &scale::Encode::encode(&all)[..];
+    transfer(beneficiary, value).expect("transfer did not work");
+
+    // What is currently missing is to set a tombstone with a code hash here
+    // and remove the contract storage subsequently.
+
+    // Encode the result of the termination and panic with it.
+    // This enables testing for the proper result and makes sure this
+    // method returns `Never`.
+    let res = (all, beneficiary.to_vec());
+    panic!("{:?}", scale::Encode::encode(&res));
 }
 
 pub fn call_chain_extension(
@@ -253,63 +324,47 @@ pub fn call_chain_extension(
     unimplemented!("off-chain environment does not yet support `call_chain_extension`");
 }
 
-pub fn input(_output: &mut &mut [u8]) {
-    // TODO
-    unimplemented!("off-chain environment does not yet support `input`");
-}
-
-/// The flags to indicate further information about the end of a contract execution.
-pub struct ReturnFlags {
-    _value: u32,
-}
-
-// impl is missing for `ReturnFlags`
-pub fn return_value(flags: u32, _return_value: &[u8]) -> ! {
-    // TODO
-    let _flags = ReturnFlags { _value: flags };
-    unimplemented!("off-chain environment does not yet support `return_value`");
-}
-
-macro_rules! impl_seal_wrapper_for {
-    ( $( ($name:ident => $seal_name:ident), )* ) => {
-        $(
-            pub fn $name(_output: &mut &mut [u8]) {
-                unimplemented!(
-                    "off-chain environment does not yet support `{}`", stringify!($name)
-                );
-            }
-        )*
-    }
-}
-
-impl_seal_wrapper_for! {
-    (block_number => seal_block_number),
-    (balance => seal_balance), // TODO
-    (gas_left => seal_gas_left),
-    (value_transferred => seal_value_transferred), // TODO
-    (now => seal_now),
-    (rent_allowance => seal_rent_allowance),
-    (minimum_balance => seal_minimum_balance),
-    (tombstone_deposit => seal_tombstone_deposit),
-}
-
+/// Returns the address of the caller.
 pub fn caller(output: &mut &mut [u8]) {
-    ENV_INSTANCE.with(|instance| {
-        let instance = &mut instance.borrow_mut();
-        let caller: Vec<u8> = instance
-            .exec_context
-            .as_ref()
-            .expect("uninitialized context")
-            .caller
-            .clone()
-            .into();
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let caller: Vec<u8> = instance.exec_context.caller.clone().into();
         output[..caller.len()].copy_from_slice(&caller[..]);
         extract_from_slice(output, caller.len());
     });
 }
 
-pub fn address(_output: &mut &mut [u8]) {
-    // TODO
+/// Returns the balance of the executed contract.
+pub fn balance(output: &mut &mut [u8]) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let contract = &instance.exec_context.callee;
+        let balance: Vec<u8> = scale::Encode::encode(
+            instance
+                .balances
+                .get(contract)
+                .expect("currently executing contract must exist"),
+        );
+        output[..balance.len()].copy_from_slice(&balance[..]);
+        extract_from_slice(output, balance.len());
+    });
+}
+
+/// Returns the transferred value for the called contract.
+pub fn value_transferred(output: &mut &mut [u8]) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let value_transferred: Vec<u8> =
+            scale::Encode::encode(&instance.exec_context.value_transferred);
+        output[..value_transferred.len()].copy_from_slice(&value_transferred[..]);
+        extract_from_slice(output, value_transferred.len());
+    });
+}
+
+/// Returns the address of the executed contract.
+pub fn address(output: &mut &mut [u8]) {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let callee: Vec<u8> = instance.exec_context.callee.clone().into();
+        output[..callee.len()].copy_from_slice(&callee[..]);
+        extract_from_slice(output, callee.len());
+    });
 }
 
 pub fn weight_to_fee(_gas: u64, _output: &mut &mut [u8]) {
@@ -325,6 +380,9 @@ pub fn random(_subject: &[u8], _output: &mut &mut [u8]) {
 }
 
 pub fn println(content: &str) {
+    <RecInstance as OnInstance>::on_instance(|instance| {
+        instance.emitted_printlns.push(String::from(content));
+    });
     println!("{}", content);
 }
 
@@ -342,4 +400,25 @@ pub fn hash_sha2_256(input: &[u8], output: &mut [u8; 32]) {
 
 pub fn hash_keccak_256(input: &[u8], output: &mut [u8; 32]) {
     super::hashing::keccak_256(input, output);
+}
+
+macro_rules! impl_seal_wrapper_for {
+    ( $( ($name:ident => $seal_name:ident), )* ) => {
+        $(
+            pub fn $name(_output: &mut &mut [u8]) {
+                unimplemented!(
+                    "off-chain environment does not yet support `{}`", stringify!($name)
+                );
+            }
+        )*
+    }
+}
+
+impl_seal_wrapper_for! {
+    (block_number => seal_block_number),
+    (gas_left => seal_gas_left),
+    (now => seal_now),
+    (rent_allowance => seal_rent_allowance),
+    (minimum_balance => seal_minimum_balance),
+    (tombstone_deposit => seal_tombstone_deposit),
 }

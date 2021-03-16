@@ -54,8 +54,8 @@ where
     /// was previously in storage.
     pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
     where
-        K: std::borrow::Borrow<Q>,
-        Q: core::hash::Hash + Eq,
+        K: Borrow<Q>,
+        Q: Hash + Eq,
     {
         self.hmap.remove(key)
     }
@@ -63,5 +63,10 @@ where
     /// Sets the value of the entry, and returns the entry's old value.
     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
         self.hmap.insert(key, value)
+    }
+
+    /// Clears the storage, removing all key-value pairs.
+    pub fn clear(&mut self) {
+        self.hmap.clear();
     }
 }

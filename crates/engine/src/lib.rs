@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod accounts;
 pub mod ext;
 pub mod test_api;
 
@@ -21,22 +20,27 @@ mod hashing;
 mod storage;
 mod types;
 
-pub use accounts::AccountError;
 pub use test_api::EmittedEvent;
-pub use types::{
-    AccountId,
-    Key,
-};
+pub use types::AccountError;
+
+use types::Key;
 
 use derive_more::From;
 
+/// Errors which can happen when interacting with this crate.
 #[derive(Debug, From, PartialEq, Eq)]
-pub enum OffChainError {
-    Account(accounts::AccountError),
+pub enum Error {
+    Account(AccountError),
     #[from(ignore)]
     UninitializedBlocks,
     #[from(ignore)]
     UninitializedExecutionContext,
     #[from(ignore)]
     UnregisteredChainExtension,
+}
+
+pub trait OnInstance {
+    fn on_instance<F, R>(f: F) -> R
+    where
+        F: FnOnce(&mut Self) -> R;
 }

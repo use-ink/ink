@@ -412,10 +412,13 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
 
         // then
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let contract_id = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()
-        .expect("contract id must exist");
+        .expect("Cannot get contract id");
+        #[cfg(feature = "ink-experimental-engine")]
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)
@@ -444,10 +447,13 @@ fn drop_works() {
         });
         assert!(setup_result.is_ok(), "setup should not panic");
 
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let contract_id = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()
         .expect("Cannot get contract id");
+        #[cfg(feature = "ink-experimental-engine")]
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)

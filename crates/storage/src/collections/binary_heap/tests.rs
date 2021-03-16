@@ -255,10 +255,13 @@ fn drop_works() {
 
         assert!(setup_result.is_ok(), "setup should not panic");
 
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let contract_id = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
         >()
         .expect("Cannot get contract id");
+        #[cfg(feature = "ink-experimental-engine")]
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)
@@ -299,13 +302,24 @@ where
         let heap1 = heap_of_size(heap_size);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let contract_account = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
-        >()?;
+        >()
+        .expect("Cannot get contract id");
+        #[cfg(feature = "ink-experimental-engine")]
+        let contract_account = ink_env::test::callee::<ink_env::DefaultEnvironment>();
 
         let mut lazy_heap =
             <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
 
+        #[cfg(feature = "ink-experimental-engine")]
+        let (base_reads, base_writes) = ink_env::test::get_contract_storage_rw::<
+            ink_env::DefaultEnvironment,
+        >(&contract_account);
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let (base_reads, base_writes) = ink_env::test::get_contract_storage_rw::<
             ink_env::DefaultEnvironment,
         >(&contract_account)?;
@@ -322,9 +336,16 @@ where
         // write back to storage so we can see how many writes required
         SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
 
+        #[cfg(feature = "ink-experimental-engine")]
+        let (reads, writes) = ink_env::test::get_contract_storage_rw::<
+            ink_env::DefaultEnvironment,
+        >(&contract_account);
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         let (reads, writes) = ink_env::test::get_contract_storage_rw::<
             ink_env::DefaultEnvironment,
         >(&contract_account)?;
+
         let net_reads = reads - base_reads;
         let net_writes = writes - base_writes;
 

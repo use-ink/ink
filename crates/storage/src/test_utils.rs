@@ -146,9 +146,10 @@ macro_rules! fuzz_storage {
                     let pulled2: $collection_type = crate::traits::pull_spread_root(&mut root_key.clone());
                     assert_eq!(pulled, pulled2);
 
-                    // we clear the object from storage and assert that everything was
+                    // we clear the objects from storage and assert that everything was
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
+                    SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
                     crate::test_utils::assert_storage_clean();
 
                     Ok(())
@@ -185,9 +186,10 @@ macro_rules! fuzz_storage {
                     assert_eq!(pulled, pulled2);
                     assert_eq!(pulled2, instance2);
 
-                    // we clear the object from storage and assert that everything was
+                    // we clear the objects from storage and assert that everything was
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
+                    SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
                     crate::test_utils::assert_storage_clean();
 
                     Ok(())
@@ -200,11 +202,27 @@ macro_rules! fuzz_storage {
 }
 
 /// Asserts that the storage is empty, without any leftovers.
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
+#[cfg(all(
+    test,
+    feature = "ink-fuzz-tests",
+    not(feature = "ink-experimental-engine")
+))]
 pub fn assert_storage_clean() {
     let contract_id =
         ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()
             .expect("contract id must exist");
+    let used_cells =
+        ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(
+            &contract_id,
+        )
+        .expect("used cells must be returned");
+    assert_eq!(used_cells, 0);
+}
+
+/// Asserts that the storage is empty, without any leftovers.
+#[cfg(all(test, feature = "ink-fuzz-tests", feature = "ink-experimental-engine"))]
+pub fn assert_storage_clean() {
+    let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
     let used_cells =
         ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(
             &contract_id,

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Contains the necessary conversions from `ink_engine` types to types
+//! of this crate.
+
 use super::{
     test_api::EmittedEvent,
     AccountError,
@@ -19,7 +22,6 @@ use super::{
     OffChainError,
 };
 
-// Conversion from `ink_engine` type to crate type
 impl From<ink_engine::EmittedEvent> for EmittedEvent {
     fn from(evt: ink_engine::EmittedEvent) -> Self {
         EmittedEvent {
@@ -29,17 +31,15 @@ impl From<ink_engine::EmittedEvent> for EmittedEvent {
     }
 }
 
-impl From<ink_engine::OffChainError> for Error {
-    fn from(err: ink_engine::OffChainError) -> Self {
+impl From<ink_engine::Error> for Error {
+    fn from(err: ink_engine::Error) -> Self {
         let e = match err {
-            ink_engine::OffChainError::Account(acc) => OffChainError::Account(acc.into()),
-            ink_engine::OffChainError::UninitializedBlocks => {
-                OffChainError::UninitializedBlocks
-            }
-            ink_engine::OffChainError::UninitializedExecutionContext => {
+            ink_engine::Error::Account(acc) => OffChainError::Account(acc.into()),
+            ink_engine::Error::UninitializedBlocks => OffChainError::UninitializedBlocks,
+            ink_engine::Error::UninitializedExecutionContext => {
                 OffChainError::UninitializedExecutionContext
             }
-            ink_engine::OffChainError::UnregisteredChainExtension => {
+            ink_engine::Error::UnregisteredChainExtension => {
                 OffChainError::UnregisteredChainExtension
             }
         };
@@ -55,10 +55,7 @@ impl From<ink_engine::AccountError> for AccountError {
                 AccountError::UnexpectedUserAccount
             }
             ink_engine::AccountError::NoAccountForId(acc) => {
-                let acc: Vec<u8> = acc.into();
-                AccountError::NoAccountForId(
-                    scale::Decode::decode(&mut &acc[..]).expect("decoding failed"),
-                )
+                AccountError::NoAccountForId(acc)
             }
         }
     }

@@ -13,12 +13,16 @@
 // limitations under the License.
 
 use super::{
-    types::AccountId,
-    OffChainError,
+    types::{
+        AccountId,
+        Balance,
+    },
+    Error,
 };
 
-pub type Result<T> = core::result::Result<T, OffChainError>;
+type Result<T> = core::result::Result<T, Error>;
 
+/// The context of a contract execution.
 pub struct ExecContext {
     /// The caller of the contract execution.
     ///
@@ -26,6 +30,8 @@ pub struct ExecContext {
     pub caller: AccountId,
     /// The callee of the contract execution.
     pub callee: AccountId,
+    /// The value transferred to the contract as part of the call.
+    pub value_transferred: Balance,
 }
 
 impl ExecContext {
@@ -33,5 +39,22 @@ impl ExecContext {
     pub fn callee(&self) -> Result<Vec<u8>> {
         let callee: Vec<u8> = self.callee.clone().into();
         Ok(callee)
+    }
+
+    /// Resets the execution context
+    pub fn reset(&mut self) {
+        self.caller = Default::default();
+        self.callee = Default::default();
+        self.value_transferred = Default::default();
+    }
+}
+
+impl Default for ExecContext {
+    fn default() -> Self {
+        Self {
+            caller: Default::default(),
+            callee: Default::default(),
+            value_transferred: 0,
+        }
     }
 }

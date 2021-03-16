@@ -14,8 +14,17 @@
 
 use derive_more::From;
 
-/// Off-chain environment account ID type.
-#[derive(Debug, From, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+/// This is just a temporary solution for the MVP!
+/// As a temporary solution we choose the same type as the default
+/// `env` `Balance` type.
+///
+/// In the long-term this type should be `Vec<u8>` as well, as to not
+/// be dependent on the specific off-chain environment type, so that
+/// the `engine` crate can be used with an arbitrary `Environment` configuration.
+pub type Balance = u128;
+
+/// The Account Id type used by this crate.
+#[derive(Debug, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct AccountId(Vec<u8>);
 
@@ -31,7 +40,13 @@ impl From<&[u8]> for AccountId {
     }
 }
 
-/// Key into contract storage.
+impl Default for AccountId {
+    fn default() -> Self {
+        Self(vec![0x01; 32])
+    }
+}
+
+/// Key into the contract storage.
 ///
 /// Used to identify contract storage cells for read and write operations.
 #[derive(Default, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -42,4 +57,20 @@ impl From<&Vec<u8>> for Key {
     fn from(vec: &Vec<u8>) -> Self {
         vec.clone().into()
     }
+}
+
+impl From<&[u8]> for Key {
+    fn from(slice: &[u8]) -> Self {
+        slice.to_vec().into()
+    }
+}
+
+/// Errors encountered upon interacting with accounts.
+#[derive(Clone, Debug, From, PartialEq, Eq)]
+pub enum AccountError {
+    Decoding(scale::Error),
+    #[from(ignore)]
+    UnexpectedUserAccount,
+    #[from(ignore)]
+    NoAccountForId(Vec<u8>),
 }

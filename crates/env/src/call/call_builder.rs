@@ -24,7 +24,7 @@ use crate::{
         ExecutionInput,
     },
     Environment,
-    Result,
+    Error,
 };
 use core::marker::PhantomData;
 
@@ -95,7 +95,7 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<()> {
+    pub fn invoke(&self) -> Result<(), crate::Error> {
         crate::invoke_contract(self)
     }
 }
@@ -114,7 +114,7 @@ where
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
     /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R> {
+    pub fn eval(&self) -> Result<R, crate::Error> {
         crate::eval_contract(self)
     }
 }
@@ -419,7 +419,7 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<()> {
+    pub fn fire(self) -> Result<(), Error> {
         self.params().invoke()
     }
 }
@@ -441,7 +441,7 @@ where
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call and returns the result.
-    pub fn fire(self) -> Result<R> {
+    pub fn fire(self) -> Result<R, Error> {
         self.params().eval()
     }
 }

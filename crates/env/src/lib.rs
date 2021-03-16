@@ -69,16 +69,7 @@ mod error;
 pub mod hash;
 #[doc(hidden)]
 pub mod topics;
-
 mod types;
-pub use types::{
-    AccountId,
-    Clear,
-    DefaultEnvironment,
-    Environment,
-    Hash,
-    NoChainExtension,
-};
 
 #[cfg(test)]
 mod tests;
@@ -99,4 +90,12 @@ pub use self::{
         Result,
     },
     topics::Topics,
+    types::{
+        AccountId,
+        Clear,
+        DefaultEnvironment,
+        Environment,
+        Hash,
+        NoChainExtension,
+    },
 };

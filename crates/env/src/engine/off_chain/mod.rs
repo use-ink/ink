@@ -54,10 +54,7 @@ use self::{
     },
 };
 use super::OnInstance;
-use crate::{
-    Environment,
-    Error,
-};
+use crate::Environment;
 use core::cell::RefCell;
 use derive_more::From;
 
@@ -71,12 +68,6 @@ pub enum OffChainError {
     UninitializedExecutionContext,
     #[from(ignore)]
     UnregisteredChainExtension,
-}
-
-impl From<OffChainError> for Error {
-    fn from(err: OffChainError) -> Self {
-        Error::OffChain(err)
-    }
 }
 
 pub type Result<T> = core::result::Result<T, OffChainError>;
@@ -136,7 +127,7 @@ impl EnvInstance {
         Ok(())
     }
 
-    /// Resets the off-chain environment to unintialized state.
+    /// Resets the off-chain environment to uninitialized state.
     pub fn reset(&mut self) {
         self.accounts.reset();
         self.exec_context.clear();

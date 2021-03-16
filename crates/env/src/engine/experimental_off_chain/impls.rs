@@ -40,7 +40,6 @@ use crate::{
 };
 use ink_engine::ext;
 use ink_primitives::Key;
-// use test_api::EmittedEvent;
 
 const BUFFER_SIZE: usize = 1024;
 
@@ -118,7 +117,6 @@ where
     E: Environment,
 {
     type Output = Vec<u8>;
-    // type Output = Vec<Vec<u8>>;
 
     fn expect(&mut self, _expected_topics: usize) {}
 
@@ -231,15 +229,16 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        self.get_property::<T>(ext::input)
+        unimplemented!("the experimental off chain env does not implement `seal_input`")
     }
 
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        let enc_return_value = &scale::Encode::encode(return_value)[..];
-        ext::return_value(flags.into_u32(), enc_return_value);
+        unimplemented!(
+            "the experimental off chain env does not implement `seal_return_value`"
+        )
     }
 
     fn println(&mut self, content: &str) {

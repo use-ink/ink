@@ -22,7 +22,7 @@ use crate::Error;
 use derive_more::From;
 
 /// The experimental off-chain environment.
-pub struct EnvInstance {}
+pub struct EnvInstance;
 
 impl OnInstance for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
@@ -31,14 +31,14 @@ impl OnInstance for EnvInstance {
     {
         use core::cell::RefCell;
         thread_local!(
-            pub static INSTANCE: RefCell<EnvInstance> = RefCell::new(
-                EnvInstance {
-                }
+            static INSTANCE: RefCell<EnvInstance> = RefCell::new(
+                EnvInstance {}
             )
         );
         INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
     }
 }
+
 #[derive(Debug, From, PartialEq, Eq)]
 pub enum OffChainError {
     Account(AccountError),
@@ -57,5 +57,5 @@ pub enum AccountError {
     #[from(ignore)]
     UnexpectedUserAccount,
     #[from(ignore)]
-    NoAccountForId(Vec<u32>),
+    NoAccountForId(Vec<u8>),
 }

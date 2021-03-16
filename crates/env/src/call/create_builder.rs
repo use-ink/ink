@@ -24,7 +24,7 @@ use crate::{
         ExecutionInput,
     },
     Environment,
-    Result,
+    Error,
 };
 use core::marker::PhantomData;
 
@@ -127,7 +127,7 @@ where
 {
     /// Instantiates the contract and returns its account ID back to the caller.
     #[inline]
-    pub fn instantiate(&self) -> Result<R> {
+    pub fn instantiate(&self) -> Result<R, crate::Error> {
         crate::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
 }
@@ -393,7 +393,7 @@ where
 {
     /// Instantiates the contract using the given instantiation parameters.
     #[inline]
-    pub fn instantiate(self) -> Result<R> {
+    pub fn instantiate(self) -> Result<R, Error> {
         self.params().instantiate()
     }
 }

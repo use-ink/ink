@@ -310,7 +310,8 @@ mod erc20 {
                 100,
             );
             let accounts =
-                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                    .expect("Cannot get accounts");
             // Alice owns all the tokens on deployment
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             // Bob does not owns tokens
@@ -686,8 +687,8 @@ mod erc20 {
             assert_eq!(erc20.balance_of(accounts.bob), 0);
 
             // Set the contract as callee and Bob as caller.
-            // let contract = ink_env::test::address::<ink_env::DefaultEnvironment>();
-            // ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
+            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob fails to transfers 10 tokens to Eve.
@@ -731,8 +732,8 @@ mod erc20 {
             assert_eq!(ink_env::test::recorded_events().count(), 2);
 
             // Set the contract as callee and Bob as caller.
-            // let contract = ink_env::test::address::<ink_env::DefaultEnvironment>();
-            // ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
+            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob transfers tokens from Alice to Eve.
@@ -773,20 +774,8 @@ mod erc20 {
             assert_eq!(erc20.approve(accounts.bob, initial_allowance), Ok(()));
 
             // Get contract address.
-            let _callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
-            // Create call.
-            // let mut data =
-            // ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
-            // data.push_arg(&accounts.bob);
-            // Push the new execution context to set Bob as caller.
-            // ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-            // accounts.bob,
-            // callee,
-            // 1000000,
-            // 1000000,
-            // data,
-            // );
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(callee);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob tries to transfer tokens from Alice to Eve.

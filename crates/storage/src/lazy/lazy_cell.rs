@@ -724,10 +724,13 @@ mod tests {
             SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
 
             // then
+            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
+            #[cfg(feature = "ink-experimental-engine")]
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
@@ -759,10 +762,13 @@ mod tests {
             assert!(setup_result.is_ok(), "setup should not panic");
 
             // then
+            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
+            #[cfg(feature = "ink-experimental-engine")]
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
@@ -794,10 +800,13 @@ mod tests {
             assert!(setup_result.is_ok(), "setup should not panic");
 
             // then
+            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
+            #[cfg(feature = "ink-experimental-engine")]
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)

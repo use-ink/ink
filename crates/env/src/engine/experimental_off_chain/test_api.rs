@@ -19,6 +19,10 @@ use crate::{
     Result,
 };
 use ink_engine::test_api;
+use std::{
+    panic::UnwindSafe,
+    str::FromStr,
+};
 
 /// Record for an emitted event.
 #[derive(Clone)]
@@ -41,14 +45,11 @@ pub struct EmittedEvent {
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
-pub fn set_account_balance<T>(
-    _account_id: T::AccountId,
-    _new_balance: T::Balance,
-) -> Result<()>
+pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
-    T: Environment,
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    unimplemented!("off-chain environment does not yet support `set_account_balance`");
+    test_api::set_balance(scale::Encode::encode(&account_id), new_balance);
 }
 
 /// Returns the balance of the account.
@@ -63,11 +64,11 @@ where
 ///
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
-pub fn get_account_balance<T>(_account_id: T::AccountId) -> Result<T::Balance>
+pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: Environment,
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    unimplemented!("off-chain environment does not yet support `get_account_balance`");
+    test_api::get_balance(scale::Encode::encode(&account_id)).map_err(Into::into)
 }
 
 /// Sets the rent allowance of the contract account to the given rent allowance.
@@ -119,8 +120,7 @@ where
 
 /// Returns the contents of the past performed environmental `println` in order.
 pub fn recorded_printlns() -> impl Iterator<Item = String> {
-    // TODO
-    vec![String::from("")].into_iter()
+    test_api::get_recorded_printlns()
 }
 
 /// Set to true to disable clearing storage
@@ -144,24 +144,60 @@ where
     test_api::set_caller(scale::Encode::encode(&caller));
 }
 
-/// Returns the total number of reads and writes of the contract's storage.
-pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
+/// Sets the callee for the next call.
+pub fn set_callee<T>(caller: T::AccountId)
+where
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    test_api::set_callee(scale::Encode::encode(&caller));
+}
+
+/// Gets the currently set callee.
+///
+/// This is account id of the currently executing contract.
+pub fn callee<T>() -> T::AccountId
 where
     T: Environment,
 {
-    let enc_account_id = &scale::Encode::encode(&account_id)[..];
-    test_api::get_contract_storage_rw(enc_account_id.into()).map_err(Into::into)
+    let callee = test_api::get_callee();
+    scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+}
+
+/// Returns the total number of reads and writes of the contract's storage.
+pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> (usize, usize)
+where
+    T: Environment,
+{
+    test_api::get_contract_storage_rw(scale::Encode::encode(&account_id))
+}
+
+/// Sets the balance of `account_id` to `new_balance`.
+pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    test_api::set_balance(scale::Encode::encode(&account_id), new_balance);
+}
+
+/// Sets the value transferred from the caller to the callee as part of the call.
+pub fn set_value_transferred<T>(value: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+{
+    test_api::set_value_transferred(value);
 }
 
 /// Returns the amount of storage cells used by the account `account_id`.
 ///
 /// Returns `None` if the `account_id` is non-existent.
-pub fn count_used_storage_cells<T>(_account_id: &T::AccountId) -> Result<usize>
+pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
 where
     T: Environment,
 {
-    // TODO no more Result
-    Ok(test_api::count_used_storage_cells())
+    test_api::count_used_storage_cells(scale::Encode::encode(&account_id))
+        .map_err(Into::into)
 }
 
 /// Runs the given closure test function with the default configuartion
@@ -172,8 +208,19 @@ where
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::reset();
+    test_api::reset_environment();
     let default_accounts = default_accounts::<T>();
+
+    // set up the funds for the default accounts
+    let substantial = 1_000_000;
+    let some = 1_000;
+    test_api::set_balance(scale::Encode::encode(&default_accounts.alice), substantial);
+    test_api::set_balance(scale::Encode::encode(&default_accounts.bob), some);
+    test_api::set_balance(scale::Encode::encode(&default_accounts.charlie), some);
+    test_api::set_balance(scale::Encode::encode(&default_accounts.django), 0);
+    test_api::set_balance(scale::Encode::encode(&default_accounts.eve), 0);
+    test_api::set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+
     f(default_accounts)
 }
 
@@ -220,11 +267,57 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
         .map(|evt: ink_engine::EmittedEvent| evt.into())
 }
 
-/// Returns the account id of the currently executing contract.
-pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
-where
+/// The result of a successful contract termination.
+#[derive(scale::Encode, scale::Decode)]
+pub struct ContractTerminationResult<E: Environment>(
+    // The value which was transferred to the `beneficiary`.
+    <E as Environment>::Balance,
+    // The beneficiary account who received the remaining value in the contract.
+    Vec<u8>,
+);
+
+/// Tests if a contract terminates successfully after `self.env().terminate()`
+/// has been called.
+///
+/// # Usage
+///
+/// ```no_compile
+/// let should_terminate = move || your_contract.fn_which_should_terminate();
+/// ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+///     should_terminate,
+///     expected_beneficiary,
+///     expected_value_transferred_to_beneficiary
+/// );
+/// ```
+///
+/// See `examples/contract-terminate` for a complete usage example.
+pub fn assert_contract_termination<T, F>(
+    should_terminate: F,
+    expected_beneficiary: T::AccountId,
+    expected_balance: T::Balance,
+) where
     T: Environment,
+    F: FnMut() + UnwindSafe,
+    <T as Environment>::AccountId: core::fmt::Debug,
+    <T as Environment>::Balance: core::fmt::Debug,
 {
-    let callee = test_api::get_current_contract_account_id();
-    Ok(scale::Decode::decode(&mut &callee[..]).expect("encoding failed"))
+    let value_any = ::std::panic::catch_unwind(should_terminate)
+        .expect_err("contract did not terminate");
+    let encoded_input = value_any
+        .downcast_ref::<String>()
+        .expect("panic object can not be cast");
+    let deserialized_vec = encoded_input
+        .replace("[", "")
+        .replace("]", "")
+        .split(", ")
+        .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
+        .collect::<Vec<u8>>();
+    let res: ContractTerminationResult<T> =
+        scale::Decode::decode(&mut &deserialized_vec[..])
+            .expect("input can not be decoded");
+
+    let beneficiary = <T::AccountId as scale::Decode>::decode(&mut &res.1[..])
+        .expect("input can not be decoded");
+    assert_eq!(res.0, expected_balance);
+    assert_eq!(beneficiary, expected_beneficiary);
 }

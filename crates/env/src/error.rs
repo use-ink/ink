@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::From;
+
 #[cfg(any(feature = "std", test, doc))]
 use crate::engine::off_chain::OffChainError;
 
 /// Errors that can be encountered upon environmental interaction.
-//#[derive(Debug, From, PartialEq, Eq)]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, From, PartialEq, Eq)]
 pub enum Error {
     /// Error upon decoding an encoded value.
     Decode(scale::Error),
@@ -49,9 +50,3 @@ pub enum Error {
 
 /// A result of environmental operations.
 pub type Result<T> = core::result::Result<T, Error>;
-
-impl From<scale::Error> for Error {
-    fn from(err: scale::Error) -> Self {
-        Error::Decode(err)
-    }
-}
