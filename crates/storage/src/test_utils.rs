@@ -146,9 +146,10 @@ macro_rules! fuzz_storage {
                     let pulled2: $collection_type = crate::traits::pull_spread_root(&mut root_key.clone());
                     assert_eq!(pulled, pulled2);
 
-                    // we clear the object from storage and assert that everything was
+                    // we clear the objects from storage and assert that everything was
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
+                    SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
                     crate::test_utils::assert_storage_clean();
 
                     Ok(())
@@ -185,9 +186,10 @@ macro_rules! fuzz_storage {
                     assert_eq!(pulled, pulled2);
                     assert_eq!(pulled2, instance2);
 
-                    // we clear the object from storage and assert that everything was
+                    // we clear the objects from storage and assert that everything was
                     // removed without any leftovers.
                     SpreadLayout::clear_spread(&pulled2, &mut ptr.clone());
+                    SpreadLayout::clear_spread(&pulled, &mut ptr.clone());
                     crate::test_utils::assert_storage_clean();
 
                     Ok(())
