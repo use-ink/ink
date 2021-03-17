@@ -102,7 +102,6 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
             Some(item @ InkTraitItem::Message(_)) => {
                 let selector = self.message_selectors[item.ident()];
                 Some((item, selector))
-
             }
         }
     }

@@ -175,7 +175,9 @@ impl<'a> TraitDefinition<'a> {
         let constructors = self.trait_def.iter_items().filter_map(|(item, selector)| {
             match item {
                 ir::InkTraitItem::Constructor(constructor) => {
-                    Some(self.generate_trait_impl_block_constructor(constructor, selector))
+                    Some(
+                        self.generate_trait_impl_block_constructor(constructor, selector),
+                    )
                 }
                 _ => None,
             }

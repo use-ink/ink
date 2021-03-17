@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use super::super::InkAttribute;
-use crate::{Receiver, ir};
+use crate::{
+    ir,
+    Receiver,
+};
 use proc_macro2::Span;
 use syn::{
     spanned::Spanned as _,
