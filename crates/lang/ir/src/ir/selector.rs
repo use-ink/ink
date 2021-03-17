@@ -43,8 +43,8 @@ impl<'a> TraitPrefix<'a> {
     /// Creates a new trait prefix.
     pub fn new(trait_ident: &'a syn::Ident, namespace: &'a Namespace) -> Self {
         Self {
-            trait_ident,
             namespace,
+            trait_ident,
         }
     }
 
