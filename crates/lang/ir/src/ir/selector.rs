@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Namespace;
-
 use super::blake2::blake2b_256;
+use crate::Namespace;
 
 /// A function selector.
 ///
