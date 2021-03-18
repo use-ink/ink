@@ -18,6 +18,7 @@ use crate::{
     Environment,
     Result,
 };
+use core::fmt::Debug;
 use ink_engine::test_api;
 use std::{
     panic::UnwindSafe,
@@ -58,7 +59,7 @@ where
 ///
 /// Note that account could refer to either a user account or
 /// a smart contract account. This returns the same as `env::api::balance`
-/// if given the account ID of the currently executed smart contract.
+/// if given the account id of the currently executed smart contract.
 ///
 /// # Errors
 ///
@@ -208,7 +209,7 @@ where
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::reset_environment();
+    test_api::initialize_or_reset_environment();
     let default_accounts = default_accounts::<T>();
 
     // set up the funds for the default accounts
@@ -264,7 +265,7 @@ where
 pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
     test_api::get_emitted_events()
         .into_iter()
-        .map(|evt: ink_engine::EmittedEvent| evt.into())
+        .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
 }
 
 /// The result of a successful contract termination.
@@ -298,8 +299,8 @@ pub fn assert_contract_termination<T, F>(
 ) where
     T: Environment,
     F: FnMut() + UnwindSafe,
-    <T as Environment>::AccountId: core::fmt::Debug,
-    <T as Environment>::Balance: core::fmt::Debug,
+    <T as Environment>::AccountId: Debug,
+    <T as Environment>::Balance: Debug,
 {
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");

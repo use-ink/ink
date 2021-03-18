@@ -70,3 +70,25 @@ where
         self.hmap.clear();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Storage;
+
+    #[test]
+    fn basic_operations() {
+        let mut storage = Storage::<u32, bool>::new();
+        assert_eq!(storage.len(), 0);
+        assert_eq!(storage.get(&42), None);
+        assert_eq!(storage.insert(42, true), None);
+        assert_eq!(storage.get(&42), Some(&true));
+        assert_eq!(storage.insert(42, false), Some(true));
+        assert_eq!(storage.get(&42), Some(&false));
+        assert_eq!(storage.insert(43, true), None);
+        assert_eq!(storage.len(), 2);
+        assert_eq!(storage.remove(&43), Some(true));
+        assert_eq!(storage.len(), 1);
+        storage.clear();
+        assert_eq!(storage.len(), 0);
+    }
+}

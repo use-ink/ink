@@ -528,12 +528,11 @@ mod erc20 {
         }
     }
 
-    /// Unit tests.
     #[cfg(feature = "ink-experimental-engine")]
     #[cfg(test)]
     mod tests_experimental_engine {
-        /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
+
         use ink_env::Clear;
         use ink_lang as ink;
 

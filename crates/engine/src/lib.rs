@@ -20,9 +20,10 @@ mod hashing;
 mod storage;
 mod types;
 
-pub use test_api::EmittedEvent;
-pub use types::AccountError;
+#[cfg(test)]
+mod tests;
 
+pub use types::AccountError;
 use types::Key;
 
 use derive_more::From;

@@ -180,6 +180,13 @@ codecov:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
+
+    # Just needed as long as we have the `ink-experimental-engine` feature.
+    # We must additionally run the coverage without `--all-features` here -- this
+    # would imply the feature `ink-experimental-engine`. So in order to still run
+    # the tests without the experimental engine feature we need this command.
+    - cargo test --verbose --features std --no-fail-fast --workspace
+
     # coverage with branches
     - grcov . --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
         --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -248,6 +255,8 @@ examples-test-experimental-engine:
     # We test only the examples for which the tests have already been migrated to
     # use the experimental engine.
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc20/Cargo.toml
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
 examples-fmt:
   stage:                           examples

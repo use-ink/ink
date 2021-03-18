@@ -22,8 +22,8 @@ use super::{
     OffChainError,
 };
 
-impl From<ink_engine::EmittedEvent> for EmittedEvent {
-    fn from(evt: ink_engine::EmittedEvent) -> Self {
+impl From<ink_engine::test_api::EmittedEvent> for EmittedEvent {
+    fn from(evt: ink_engine::test_api::EmittedEvent) -> Self {
         EmittedEvent {
             topics: evt.topics,
             data: evt.data,

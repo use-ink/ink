@@ -25,19 +25,6 @@ use crate::{
 use core::cell::RefCell;
 use std::collections::HashMap;
 
-pub struct RecInstance {
-    /// Emitted events recorder.
-    pub emitted_events: Vec<EmittedEvent>,
-    /// Emitted print messages recorder.
-    pub emitted_printlns: Vec<String>,
-    /// The total number of reads to the storage.
-    pub count_reads: HashMap<AccountId, usize>,
-    /// The total number of writes to the storage.
-    pub count_writes: HashMap<AccountId, usize>,
-    /// The number of storage cells used by each account id.
-    pub cells_per_account: HashMap<AccountId, usize>,
-}
-
 /// Record for an emitted event.
 #[derive(Clone)]
 pub struct EmittedEvent {
@@ -45,6 +32,68 @@ pub struct EmittedEvent {
     pub topics: Vec<Vec<u8>>,
     /// Recorded encoding of the emitted event.
     pub data: Vec<u8>,
+}
+
+/// Recorder for relevant interactions with this crate.
+pub struct RecInstance {
+    /// Emitted events recorder.
+    emitted_events: Vec<EmittedEvent>,
+    /// Emitted print messages recorder.
+    emitted_printlns: Vec<String>,
+    /// The total number of reads to the storage.
+    count_reads: HashMap<AccountId, usize>,
+    /// The total number of writes to the storage.
+    count_writes: HashMap<AccountId, usize>,
+    /// The number of storage cells used by each account id.
+    cells_per_account: HashMap<AccountId, usize>,
+}
+
+impl RecInstance {
+    /// Increases the number of storage writes for the supplied account by one.
+    pub fn inc_writes(&mut self, account_id: AccountId) {
+        self.count_writes
+            .entry(account_id)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
+    }
+
+    /// Increases the number of storage reads for the supplied account by one.
+    pub fn inc_reads(&mut self, account_id: AccountId) {
+        self.count_reads
+            .entry(account_id)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
+    }
+
+    /// Increases the number of cells for the supplied account by one.
+    pub fn inc_cells_per_account(&mut self, account_id: AccountId) {
+        self.cells_per_account
+            .entry(account_id)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
+    }
+
+    /// Decreases the number of cells for the supplied account by one.
+    pub fn dec_cells_per_account(&mut self, account_id: AccountId) {
+        self.cells_per_account
+            .entry(account_id)
+            .and_modify(|v| {
+                if *v > 0 {
+                    *v -= 1;
+                }
+            })
+            .or_default();
+    }
+
+    /// Records a println.
+    pub fn record_println(&mut self, println: String) {
+        self.emitted_printlns.push(println);
+    }
+
+    /// Records an event.
+    pub fn record_event(&mut self, event: EmittedEvent) {
+        self.emitted_events.push(event);
+    }
 }
 
 impl OnInstance for RecInstance {
@@ -66,7 +115,7 @@ impl OnInstance for RecInstance {
 }
 
 /// Resets the environment.
-pub fn reset_environment() {
+pub fn initialize_or_reset_environment() {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.exec_context.reset();
         instance.balances.clear();
@@ -166,4 +215,16 @@ pub fn set_value_transferred(value: Balance) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.exec_context.value_transferred = value;
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn setting_getting_callee() {
+        let account_id = vec![1; 32];
+        set_callee(account_id.clone());
+        assert_eq!(get_callee(), account_id);
+    }
 }

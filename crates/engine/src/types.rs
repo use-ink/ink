@@ -65,6 +65,12 @@ impl From<&[u8]> for Key {
     }
 }
 
+impl From<[u8; 32]> for Key {
+    fn from(arr: [u8; 32]) -> Self {
+        arr.to_vec().into()
+    }
+}
+
 /// Errors encountered upon interacting with accounts.
 #[derive(Clone, Debug, From, PartialEq, Eq)]
 pub enum AccountError {

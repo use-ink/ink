@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    types::{
-        AccountId,
-        Balance,
-    },
-    Error,
+use super::types::{
+    AccountId,
+    Balance,
 };
 
-type Result<T> = core::result::Result<T, Error>;
+type Result<T> = core::result::Result<T, super::Error>;
 
 /// The context of a contract execution.
+#[cfg_attr(test, derive(Debug, PartialEq, Eq))]
 pub struct ExecContext {
     /// The caller of the contract execution.
     ///
@@ -56,5 +54,27 @@ impl Default for ExecContext {
             callee: Default::default(),
             value_transferred: 0,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        AccountId,
+        ExecContext,
+    };
+
+    #[test]
+    fn basic_operations() {
+        let mut exec_cont = ExecContext::default();
+        let callee = vec![13];
+
+        exec_cont.callee = AccountId::from(callee.clone());
+        exec_cont.caller = AccountId::from(vec![14]);
+        exec_cont.value_transferred = 15;
+        assert_eq!(exec_cont.callee(), Ok(callee));
+
+        exec_cont.reset();
+        assert_eq!(exec_cont, ExecContext::default());
     }
 }
