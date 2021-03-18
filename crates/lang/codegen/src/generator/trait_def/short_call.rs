@@ -77,7 +77,7 @@ impl<'a> TraitDefinition<'a> {
     }
 
     /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
-    fn generate_arg_list<'b, Args>(args: Args) -> TokenStream2
+    pub(super) fn generate_arg_list<'b, Args>(args: Args) -> TokenStream2
     where
         Args: IntoIterator<Item = &'b syn::Type>,
         <Args as IntoIterator>::IntoIter: DoubleEndedIterator,
