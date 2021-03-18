@@ -199,28 +199,26 @@ impl CrossCalling<'_> {
         format_ident!("__ink_CallForwarder")
     }
 
+    /// Create the identifier of an enforced ink! compilation error.
+    fn enforce_error_ident(error: EnforcedErrors) -> syn::Ident {
+        format_ident!(
+            "__ink_enforce_error_{}",
+            serde_hex::to_hex(&scale::Encode::encode(&error), false)
+        )
+    }
+
+    /// Returns the identifier for the generated `Out*` assoc. type.
+    fn out_assoc_type_ident(method_ident: &Ident) -> syn::Ident {
+        format_ident!("{}Out", method_ident.to_string().to_camel_case())
+    }
+
     fn generate_call_forwarder_trait_ghost_message(
         message: ir::CallableWithSelector<ir::Message>,
     ) -> TokenStream2 {
         let span = message.span();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = Self::out_assoc_type_ident(ident);
         let composed_selector = message.composed_selector().as_bytes().to_owned();
-        let trait_ident = message
-            .item_impl()
-            .trait_ident()
-            .expect("trait identifier must exist")
-            .to_string();
-        let linker_error = EnforcedErrors::CannotCallTraitMessage {
-            trait_ident,
-            message_ident: ident.to_string(),
-            message_selector: composed_selector,
-            message_mut: message.receiver().is_ref_mut(),
-        };
-        let linker_error_ident = format_ident!(
-            "__ink_enforce_error_{}",
-            serde_hex::to_hex(&scale::Encode::encode(&linker_error), false)
-        );
         let attrs = message.attrs();
         let input_bindings = message
             .inputs()
@@ -231,6 +229,18 @@ impl CrossCalling<'_> {
             .inputs()
             .map(|pat_type| &*pat_type.ty)
             .collect::<Vec<_>>();
+        let trait_ident = message
+            .item_impl()
+            .trait_ident()
+            .expect("trait identifier must exist")
+            .to_string();
+        let linker_error_ident =
+            Self::enforce_error_ident(EnforcedErrors::CannotCallTraitMessage {
+                trait_ident,
+                message_ident: ident.to_string(),
+                message_selector: composed_selector,
+                message_mut: message.receiver().is_ref_mut(),
+            });
         let output_ty = message
             .output()
             .cloned()
@@ -266,7 +276,7 @@ impl CrossCalling<'_> {
     ) -> TokenStream2 {
         let span = message.span();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = Self::out_assoc_type_ident(ident);
         let composed_selector = message.composed_selector().as_bytes().to_owned();
         let attrs = message.attrs();
         let input_bindings = message
@@ -288,9 +298,9 @@ impl CrossCalling<'_> {
             Some(_) => None,
             None => Some(quote! { pub }),
         };
-        let receiver = match message.receiver() {
-            ir::Receiver::Ref => Some(quote! { &self }),
-            ir::Receiver::RefMut => Some(quote! { &mut self }),
+        let mut_tok = match message.receiver() {
+            ir::Receiver::Ref => None,
+            ir::Receiver::RefMut => Some(quote! { mut }),
         };
         quote_spanned!(span=>
             #[allow(clippy::type_complexity)]
@@ -306,7 +316,7 @@ impl CrossCalling<'_> {
             #( #attrs )*
             #[inline]
             #pub_tok fn #ident(
-                #receiver #(, #input_bindings : #input_types )*
+                & #mut_tok #(, #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
