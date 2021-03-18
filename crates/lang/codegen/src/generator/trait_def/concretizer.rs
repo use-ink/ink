@@ -107,6 +107,7 @@ impl<'a> TraitDefinition<'a> {
                 E: ::ink_env::Environment,
                 <E as ::ink_env::Environment>::AccountId: Clone,
             {
+                #[inline]
                 fn clone(&self) -> Self {
                     Self { account_id: self.account_id.clone() }
                 }
