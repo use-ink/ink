@@ -60,6 +60,20 @@ impl<'a> TraitDefinition<'a> {
             /// A universal concrete implementer of the ink! trait definition.
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
+            #[derive(
+                Debug,
+                ::scale::Encode,
+                ::scale::Decode,
+                ::ink_storage::traits::SpreadLayout,
+                ::ink_storage::traits::PackedLayout,
+            )]
+            #[cfg_attr(
+                feature = "std",
+                derive(
+                    ::scale_info::TypeInfo,
+                    ::ink_storage::traits::StorageLayout,
+                )
+            )]
             pub struct #concrete_implementer_ident<E>
             where
                 E: ::ink_env::Environment,
