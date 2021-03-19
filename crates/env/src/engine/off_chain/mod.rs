@@ -127,7 +127,7 @@ impl EnvInstance {
         Ok(())
     }
 
-    /// Resets the off-chain environment to unintialized state.
+    /// Resets the off-chain environment to uninitialized state.
     pub fn reset(&mut self) {
         self.accounts.reset();
         self.exec_context.clear();
