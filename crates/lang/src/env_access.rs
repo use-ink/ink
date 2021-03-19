@@ -303,17 +303,6 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
-    #[cfg(not(feature = "seal-random-v1"))]
-    pub fn random(self, subject: &[u8]) -> T::Hash {
-        ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
-    }
-
-    /// Returns a random hash seed.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::random`]
-    #[cfg(feature = "seal-random-v1")]
     pub fn random(self, subject: &[u8]) -> (T::Hash, T::BlockNumber) {
         ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
     }

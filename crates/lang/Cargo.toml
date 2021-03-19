@@ -41,6 +41,3 @@ std = [
     "ink_lang_macro/std",
     "scale/std",
 ]
-
-# Use the new `seal_random` API. Only activate if this is supported by the target chain.
-seal-random-v1 = ["ink_env/seal-random-v1"]
