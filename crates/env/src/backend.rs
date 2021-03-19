@@ -339,7 +339,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`random`][`crate::random`]
-    fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
+    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment;
 }

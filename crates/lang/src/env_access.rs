@@ -303,7 +303,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
-    pub fn random(self, subject: &[u8]) -> T::Hash {
+    pub fn random(self, subject: &[u8]) -> (T::Hash, T::BlockNumber) {
         ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
     }
 

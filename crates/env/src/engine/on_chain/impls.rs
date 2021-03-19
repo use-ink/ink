@@ -460,7 +460,7 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
-    fn random<T>(&mut self, subject: &[u8]) -> Result<T::Hash>
+    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment,
     {
