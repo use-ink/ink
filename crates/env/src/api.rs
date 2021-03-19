@@ -483,7 +483,8 @@ where
     })
 }
 
-/// Returns a random hash seed.
+/// Returns a random hash seed and the block number since which it was determinable
+/// by chain observers.
 ///
 /// # Note
 ///
@@ -493,7 +494,15 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn random<T>(subject: &[u8]) -> Result<T::Hash>
+///
+/// # Important
+///
+/// The returned seed should only be used to distinguish commitments made before
+/// the returned block number. If the block number is too early (i.e. commitments were
+/// made afterwards), then ensure no further commitments may be made and repeatedly
+/// call this on later blocks until the block number returned is later than the latest
+/// commitment.
+pub fn random<T>(subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
 where
     T: Environment,
 {
