@@ -17,30 +17,16 @@ mod tests;
 
 use crate::{
     serde_hex,
-    utils::{
-        deserialize_from_byte_str,
-        serialize_as_byte_str,
-    },
+    utils::{deserialize_from_byte_str, serialize_as_byte_str},
 };
 use derive_more::From;
 use ink_prelude::collections::btree_map::BTreeMap;
 use ink_primitives::Key;
 use scale_info::{
-    form::{
-        Form,
-        MetaForm,
-        PortableForm,
-    },
-    meta_type,
-    IntoPortable,
-    Registry,
-    TypeInfo,
+    form::{Form, MetaForm, PortableForm},
+    meta_type, IntoPortable, Registry, TypeInfo,
 };
-use serde::{
-    de::DeserializeOwned,
-    Deserialize,
-    Serialize,
-};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 /// Represents the static storage layout of an ink! smart contract.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, From, Serialize, Deserialize)]
@@ -535,7 +521,7 @@ pub struct EnumLayout<F: Form = MetaForm> {
     /// The key where the discriminant is stored to dispatch the variants.
     dispatch_key: LayoutKey,
     /// The variants of the enum.
-    variants: BTreeMap<Discriminant, StructLayout<F>>,
+    variants: BTreeMap<Discriminant, Layout<F>>,
 }
 
 impl EnumLayout {
@@ -543,7 +529,7 @@ impl EnumLayout {
     pub fn new<K, V>(dispatch_key: K, variants: V) -> Self
     where
         K: Into<LayoutKey>,
-        V: IntoIterator<Item = (Discriminant, StructLayout)>,
+        V: IntoIterator<Item = (Discriminant, Layout)>,
     {
         Self {
             dispatch_key: dispatch_key.into(),
@@ -562,7 +548,7 @@ where
     }
 
     /// Returns the variants of the enum.
-    pub fn variants(&self) -> &BTreeMap<Discriminant, StructLayout<F>> {
+    pub fn variants(&self) -> &BTreeMap<Discriminant, Layout<F>> {
         &self.variants
     }
 }

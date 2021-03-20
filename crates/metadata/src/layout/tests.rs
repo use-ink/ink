@@ -144,9 +144,9 @@ fn clike_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
     EnumLayout::new(
         key_ptr.advance_by(1),
         vec![
-            (Discriminant(0), StructLayout::new(vec![])),
-            (Discriminant(1), StructLayout::new(vec![])),
-            (Discriminant(2), StructLayout::new(vec![])),
+            (Discriminant(0), Layout::Struct(StructLayout::new(vec![]))),
+            (Discriminant(1), Layout::Struct(StructLayout::new(vec![]))),
+            (Discriminant(2), Layout::Struct(StructLayout::new(vec![]))),
         ],
     )
     .into()
@@ -168,13 +168,19 @@ fn clike_enum_work() {
                     0000000000000000",
                 "variants": {
                     "0": {
-                        "fields": [],
+                      "struct": {
+                       "fields": [],
+                      } ,
                     },
                     "1": {
-                        "fields": [],
+                        "struct": {
+                       "fields": [],
+                      } ,
                     },
                     "2": {
-                        "fields": [],
+                        "struct": {
+                       "fields": [],
+                      } ,
                     },
                 }
             }
@@ -187,12 +193,12 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
     EnumLayout::new(
         *key_ptr.advance_by(1),
         vec![
-            (Discriminant(0), StructLayout::new(vec![])),
+            (Discriminant(0), Layout::Struct(StructLayout::new(vec![]))),
             {
                 let mut variant_key_ptr = key_ptr.clone();
                 (
                     Discriminant(1),
-                    StructLayout::new(vec![
+                    Layout::Struct(StructLayout::new(vec![
                         FieldLayout::new(
                             None,
                             CellLayout::new::<i32>(LayoutKey::from(
@@ -205,14 +211,14 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
                                 variant_key_ptr.advance_by(1),
                             )),
                         ),
-                    ]),
+                    ])),
                 )
             },
             {
                 let mut variant_key_ptr = key_ptr.clone();
                 (
                     Discriminant(2),
-                    StructLayout::new(vec![
+                    Layout::Struct(StructLayout::new(vec![
                         FieldLayout::new(
                             "a",
                             CellLayout::new::<i32>(LayoutKey::from(
@@ -225,7 +231,7 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
                                 variant_key_ptr.advance_by(1),
                             )),
                         ),
-                    ]),
+                    ])),
                 )
             },
         ],
@@ -249,67 +255,73 @@ fn mixed_enum_work() {
                     0000000000000000",
                 "variants": {
                     "0": {
-                        "fields": [],
+                        "struct": {
+                            "fields": []
+                        },
                     },
                     "1": {
-                        "fields": [
-                            {
-                                "layout": {
-                                    "cell": {
-                                        "key": "0x\
-                                            0100000000000000\
-                                            0000000000000000\
-                                            0000000000000000\
-                                            0000000000000000",
-                                        "ty": 1,
-                                    }
+                        "struct": {
+                             "fields": [
+                                {
+                                    "layout": {
+                                        "cell": {
+                                            "key": "0x\
+                                                0100000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000",
+                                            "ty": 1,
+                                        }
+                                    },
+                                    "name": null,
                                 },
-                                "name": null,
-                            },
-                            {
-                                "layout": {
-                                    "cell": {
-                                        "key": "0x\
-                                            0200000000000000\
-                                            0000000000000000\
-                                            0000000000000000\
-                                            0000000000000000",
-                                        "ty": 2,
-                                    }
-                                },
-                                "name": null,
-                            }
-                        ],
+                                {
+                                    "layout": {
+                                        "cell": {
+                                            "key": "0x\
+                                                0200000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000",
+                                            "ty": 2,
+                                        }
+                                    },
+                                    "name": null,
+                                }
+                            ],
+                        }
                     },
                     "2": {
-                        "fields": [
-                            {
-                                "layout": {
-                                    "cell": {
-                                        "key": "0x\
-                                            0100000000000000\
-                                            0000000000000000\
-                                            0000000000000000\
-                                            0000000000000000",
-                                        "ty": 1,
-                                    }
+                        "struct": {
+                            "fields": [
+                                {
+                                    "layout": {
+                                        "cell": {
+                                            "key": "0x\
+                                                0100000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000",
+                                            "ty": 1,
+                                        }
+                                    },
+                                    "name": "a",
                                 },
-                                "name": "a",
-                            },
-                            {
-                                "layout": {
-                                    "cell": {
-                                        "key": "0x\
-                                            0200000000000000\
-                                            0000000000000000\
-                                            0000000000000000\
-                                            0000000000000000",
-                                        "ty": 2,
-                                    }
-                                },
-                                "name": "b",
-                            }
-                        ],
+                                {
+                                    "layout": {
+                                        "cell": {
+                                            "key": "0x\
+                                                0200000000000000\
+                                                0000000000000000\
+                                                0000000000000000\
+                                                0000000000000000",
+                                            "ty": 2,
+                                        }
+                                    },
+                                    "name": "b",
+                                }
+                            ],
+                        }
                     },
                 }
             }
