@@ -1011,7 +1011,6 @@ impl EventParamSpecBuilder {
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ReturnTypeSpec<F: Form = MetaForm> {
-    #[serde(rename = "type")]
     opt_type: Option<TypeSpec<F>>,
 }
 
