@@ -324,7 +324,7 @@ publish-docs:
     # Upload files
     - git add --all --force
     - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
