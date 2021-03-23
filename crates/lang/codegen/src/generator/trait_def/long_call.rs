@@ -117,6 +117,15 @@ impl<'a> TraitDefinition<'a> {
         .enforce_error_ident()
     }
 
+    /// Generate code for cross-calling an invalid ink! trait message.
+    ///
+    /// Trying to call the generated message will always yield a link-time
+    /// error which is caught by the `cargo-contract` CLI tool.
+    ///
+    /// # Note
+    ///
+    /// This is implemented for the call forwarder in case the mutability
+    /// overlaps with the message's mutability.
     fn generate_ghost_message(
         &self,
         message: ir::InkTraitMessage,
@@ -152,6 +161,12 @@ impl<'a> TraitDefinition<'a> {
         )
     }
 
+    /// Generate code for cross-calling an ink! trait message.
+    ///
+    /// # Note
+    ///
+    /// This is implemented for the call forwarder in case the mutability
+    /// overlaps with the message's mutability.
     fn generate_proper_message(
         &self,
         message: ir::InkTraitMessage,
