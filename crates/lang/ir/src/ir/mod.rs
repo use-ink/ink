@@ -87,5 +87,6 @@ pub use self::{
         InkTraitItem,
         InkTraitMessage,
         IterInkTraitItems,
+        InputsIter as TraitItemInputsIter,
     },
 };
