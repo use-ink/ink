@@ -286,4 +286,44 @@ impl<'a> TraitDefinition<'a> {
             }
         )
     }
+
+    /// Generates code for a single call forwarder trait implementation block.
+    ///
+    /// The `mutable` parameter indicates whether only read-only (`false`) or
+    /// write-only (`true`) messages and constructors are to be considered.
+    fn generate_trait_impl_longhand(&self, mutable: bool) -> TokenStream2 {
+        let span = self.trait_def.span();
+        let attrs = self.trait_def.attrs();
+        let forwarder_ident = Self::call_forwarder_ident();
+        let verify_hash = self.trait_def.verify_hash();
+        let checksum = u32::from_be_bytes([
+            verify_hash[0],
+            verify_hash[1],
+            verify_hash[2],
+            verify_hash[3],
+        ]) as usize;
+        let trait_ident = self.trait_def.ident();
+        let self_ident = self.concretizer_ident();
+        let mut_tok = mutable.then(|| quote! { mut });
+        let messages = self.trait_def.iter_items().filter_map(|(item, selector)| {
+            item.filter_map_message().map(|message| {
+                self.generate_proper_or_ghost_message(mutable, message, selector)
+            })
+        });
+        let constructors = self.trait_def.iter_items().filter_map(|(item, selector)| {
+            item.filter_map_constructor()
+                .map(|constructor| self.generate_ghost_constructor(constructor, selector))
+        });
+        quote_spanned!(span =>
+            unsafe impl<'a> ::ink_lang::CheckedInkTrait<[(); #checksum]> for #forwarder_ident<&'a #mut_tok #self_ident> {}
+
+            #( #attrs )*
+            impl<'a> #trait_ident for #forwarder_ident<&'a #mut_tok #self_ident> {
+                type __ink_Checksum = [(); #checksum];
+
+                #( #constructors )*
+                #( #messages )*
+            }
+        )
+    }
 }
