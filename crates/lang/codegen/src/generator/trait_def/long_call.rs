@@ -117,6 +117,21 @@ impl<'a> TraitDefinition<'a> {
         .enforce_error_ident()
     }
 
+    /// Create an enforced ink! message error.
+    fn create_enforced_constructor_error(
+        &self,
+        constructor: &ir::InkTraitConstructor,
+        selector: ir::Selector,
+    ) -> syn::Ident {
+        let trait_ident = self.trait_def.ident();
+        EnforcedErrors::CannotCallTraitConstructor {
+            trait_ident: trait_ident.to_string(),
+            constructor_ident: constructor.ident().to_string(),
+            constructor_selector: selector.as_bytes().to_owned(),
+        }
+        .enforce_error_ident()
+    }
+
     /// Generate code for cross-calling an invalid ink! trait message.
     ///
     /// Trying to call the generated message will always yield a link-time
@@ -234,5 +249,41 @@ impl<'a> TraitDefinition<'a> {
         } else {
             self.generate_ghost_message(message, selector)
         }
+    }
+
+    /// Generates code for a single call forwarder trait constructor.
+    ///
+    /// Note that constructors never need to be forwarded and that we only
+    /// provide their implementations to satisfy the implementation block.
+    /// We generally try to generate code in a way that actually calling
+    /// those constructors will result in a compiler or linker error.
+    fn generate_ghost_constructor(
+        &self,
+        constructor: ir::InkTraitConstructor,
+        selector: ir::Selector,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let attrs = constructor.attrs();
+        let ident = constructor.ident();
+        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let enforced_error =
+            self.create_enforced_constructor_error(&constructor, selector);
+        let input_bindings = Self::input_bindings(constructor.inputs());
+        let input_types = Self::input_types(constructor.inputs());
+        quote_spanned!(span =>
+            type #output_ident = ::ink_lang::NeverReturns;
+
+            #( #attrs )*
+            #[cold]
+            #[doc(hidden)]
+            fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                extern {
+                    fn #enforced_error() -> !;
+                }
+                unsafe { #enforced_error() }
+            }
+        )
     }
 }
