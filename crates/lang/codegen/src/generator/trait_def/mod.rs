@@ -34,6 +34,7 @@ impl GenerateCode for TraitDefinition<'_> {
         let trait_definition = self.generate_trait_definition();
         let trait_concretizer = self.generate_trait_concretizer();
         let trait_concretizer_impls = self.generate_trait_impl_block();
+        // let long_hand_impls = self.generate_trait_impl_longhand();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
