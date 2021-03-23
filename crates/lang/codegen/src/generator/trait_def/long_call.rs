@@ -20,6 +20,7 @@
 use super::TraitDefinition;
 use heck::CamelCase as _;
 use impl_serde::serialize as serde_hex;
+use ir::TraitItemInputsIter;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -88,20 +89,16 @@ impl<'a> TraitDefinition<'a> {
     }
 
     /// Returns the sequence of input parameter bindings for the message.
-    fn input_bindings(message: &ir::InkTraitMessage) -> Vec<syn::Ident> {
-        message
-            .inputs()
+    fn input_bindings(inputs: TraitItemInputsIter) -> Vec<syn::Ident> {
+        inputs
             .enumerate()
             .map(|(n, _)| format_ident!("__ink_binding_{}", n))
             .collect::<Vec<_>>()
     }
 
     /// Returns the sequence of input types for the message.
-    fn input_types<'b>(message: &'b ir::InkTraitMessage) -> Vec<&'b syn::Type> {
-        message
-            .inputs()
-            .map(|pat_type| &*pat_type.ty)
-            .collect::<Vec<_>>()
+    fn input_types<'b>(inputs: TraitItemInputsIter<'b>) -> Vec<&'b syn::Type> {
+        inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
     }
 
     /// Create an enforced ink! message error.
@@ -130,8 +127,8 @@ impl<'a> TraitDefinition<'a> {
         let output_ident = Self::out_assoc_type_ident(ident);
         let attrs = message.attrs();
         let mut_tok = message.mutates().then(|| quote! { mut });
-        let input_bindings = Self::input_bindings(&message);
-        let input_types = Self::input_types(&message);
+        let input_bindings = Self::input_bindings(message.inputs());
+        let input_types = Self::input_types(message.inputs());
         let enforced_error = self.create_enforced_message_error(&message, selector);
         let output_ty = message
             .output()
@@ -165,8 +162,8 @@ impl<'a> TraitDefinition<'a> {
         let output_ident = Self::out_assoc_type_ident(ident);
         let attrs = message.attrs();
         let mut_tok = message.mutates().then(|| quote! { mut });
-        let input_bindings = Self::input_bindings(&message);
-        let input_types = Self::input_types(&message);
+        let input_bindings = Self::input_bindings(message.inputs());
+        let input_types = Self::input_types(message.inputs());
         let selector_bytes = selector.as_bytes();
         let arg_list = Self::generate_arg_list(input_types.iter().cloned());
         let output = message.output();
