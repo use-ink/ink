@@ -165,22 +165,14 @@ impl<'a> TraitDefinition<'a> {
         let verify_hash_id =
             u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         let messages = self.trait_def.iter_items().filter_map(|(item, selector)| {
-            match item {
-                ir::InkTraitItem::Message(message) => {
-                    Some(self.generate_trait_impl_block_message(message, selector))
-                }
-                _ => None,
-            }
+            item.filter_map_message().map(|message| {
+                self.generate_trait_impl_block_message(message, selector)
+            })
         });
         let constructors = self.trait_def.iter_items().filter_map(|(item, selector)| {
-            match item {
-                ir::InkTraitItem::Constructor(constructor) => {
-                    Some(
-                        self.generate_trait_impl_block_constructor(constructor, selector),
-                    )
-                }
-                _ => None,
-            }
+            item.filter_map_constructor().map(|constructor| {
+                self.generate_trait_impl_block_constructor(constructor, selector)
+            })
         });
         quote_spanned!(span =>
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #verify_hash_id]> for #self_ident {}
