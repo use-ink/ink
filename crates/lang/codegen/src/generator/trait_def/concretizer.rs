@@ -30,18 +30,24 @@ use quote::{
 };
 
 impl<'a> TraitDefinition<'a> {
-    pub(super) fn generate_trait_concretizer(&self) -> TokenStream2 {
-        let span = self.trait_def.span();
+    pub(super) fn concretizer_ident(&self) -> syn::Ident {
         let hash = self.trait_def.verify_hash();
         let ident = self.trait_def.ident();
-        let concrete_implementer_ident = format_ident!(
+        format_ident!(
             "__ink_ConcreteImplementer{}_0x{:X}{:X}{:X}{:X}",
             ident,
             hash[0],
             hash[1],
             hash[2],
             hash[3]
-        );
+        )
+    }
+
+    pub(super) fn generate_trait_concretizer(&self) -> TokenStream2 {
+        let span = self.trait_def.span();
+        let hash = self.trait_def.verify_hash();
+        let ident = self.trait_def.ident();
+        let concrete_implementer_ident = self.concretizer_ident();
         let verify_hash_id =
             u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         let constructors_never_call = self
