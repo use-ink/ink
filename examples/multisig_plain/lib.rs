@@ -737,7 +737,7 @@ mod multisig_plain {
             contract
         }
 
-        #[test]
+        #[ink::test]
         fn construction_works() {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
@@ -757,27 +757,27 @@ mod multisig_plain {
             assert_eq!(contract.transactions.len(), 0);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn empty_owner_construction_fails() {
             MultisigPlain::new(0, vec![]);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn zero_requirement_construction_fails() {
             let accounts = default_accounts();
             MultisigPlain::new(0, vec![accounts.alice, accounts.bob]);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn too_large_requirement_construction_fails() {
             let accounts = default_accounts();
             MultisigPlain::new(3, vec![accounts.alice, accounts.bob]);
         }
 
-        #[test]
+        #[ink::test]
         fn add_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -789,7 +789,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn add_existing_owner_fails() {
             let accounts = default_accounts();
@@ -798,7 +798,7 @@ mod multisig_plain {
             contract.add_owner(accounts.bob);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn add_owner_permission_denied() {
             let accounts = default_accounts();
@@ -807,7 +807,7 @@ mod multisig_plain {
             contract.add_owner(accounts.frank);
         }
 
-        #[test]
+        #[ink::test]
         fn remove_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -819,7 +819,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn remove_owner_nonexisting_fails() {
             let accounts = default_accounts();
@@ -828,7 +828,7 @@ mod multisig_plain {
             contract.remove_owner(accounts.django);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn remove_owner_permission_denied() {
             let accounts = default_accounts();
@@ -837,7 +837,7 @@ mod multisig_plain {
             contract.remove_owner(accounts.alice);
         }
 
-        #[test]
+        #[ink::test]
         fn replace_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -850,7 +850,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 2);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_existing_fails() {
             let accounts = default_accounts();
@@ -859,7 +859,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.alice, accounts.bob);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_nonexisting_fails() {
             let accounts = default_accounts();
@@ -868,7 +868,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.django, accounts.frank);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_permission_denied() {
             let accounts = default_accounts();
@@ -877,7 +877,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.alice, accounts.django);
         }
 
-        #[test]
+        #[ink::test]
         fn change_requirement_works() {
             let mut contract = build_contract();
             assert_eq!(*contract.requirement, 2);
@@ -887,7 +887,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn change_requirement_too_high() {
             let mut contract = build_contract();
@@ -895,7 +895,7 @@ mod multisig_plain {
             contract.change_requirement(4);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn change_requirement_zero_fails() {
             let mut contract = build_contract();
@@ -903,12 +903,12 @@ mod multisig_plain {
             contract.change_requirement(0);
         }
 
-        #[test]
+        #[ink::test]
         fn submit_transaction_works() {
             submit_transaction();
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn submit_transaction_noowner_fails() {
             let mut contract = build_contract();
@@ -916,7 +916,7 @@ mod multisig_plain {
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn submit_transaction_wallet_fails() {
             let mut contract = build_contract();
@@ -924,7 +924,7 @@ mod multisig_plain {
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
-        #[test]
+        #[ink::test]
         fn cancel_transaction_works() {
             let mut contract = submit_transaction();
             set_from_wallet();
@@ -933,7 +933,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 3);
         }
 
-        #[test]
+        #[ink::test]
         fn cancel_transaction_nonexisting() {
             let mut contract = submit_transaction();
             set_from_wallet();
@@ -942,14 +942,14 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 2);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn cancel_transaction_no_permission() {
             let mut contract = submit_transaction();
             contract.cancel_transaction(0);
         }
 
-        #[test]
+        #[ink::test]
         fn confirm_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -961,7 +961,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_confirmations() {
             // given
             let mut contract = submit_transaction();
@@ -983,7 +983,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         fn confirm_transaction_already_confirmed() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -995,7 +995,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn confirm_transaction_noowner_fail() {
             let mut contract = submit_transaction();
@@ -1003,7 +1003,7 @@ mod multisig_plain {
             contract.confirm_transaction(0);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -1015,7 +1015,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 0);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_transaction_no_confirmer() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -1027,7 +1027,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn revoke_transaction_noowner_fail() {
             let mut contract = submit_transaction();
@@ -1036,7 +1036,7 @@ mod multisig_plain {
             contract.revoke_confirmation(0);
         }
 
-        #[test]
+        #[ink::test]
         fn execute_transaction_works() {
             // Execution of calls is currently unsupported in off-chain test.
             // Calling execute_transaction panics in any case.

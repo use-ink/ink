@@ -53,13 +53,13 @@ pub mod flipper {
     mod tests {
         use super::*;
 
-        #[test]
+        #[ink::test]
         fn default_works() {
             let flipper = Flipper::default();
             assert_eq!(flipper.get(), false);
         }
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             assert_eq!(flipper.get(), false);

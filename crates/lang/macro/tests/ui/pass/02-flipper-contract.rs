@@ -33,7 +33,7 @@ mod flipper {
     mod tests {
         use super::*;
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             assert_eq!(flipper.get(), false);
