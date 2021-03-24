@@ -666,6 +666,7 @@ mod multisig_plain {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
         use ink_env::{
             call,
             test,

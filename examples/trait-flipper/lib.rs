@@ -68,6 +68,7 @@ pub mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
 
         #[ink::test]
         fn default_works() {
