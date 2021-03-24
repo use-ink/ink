@@ -666,11 +666,11 @@ mod multisig_plain {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink_lang as ink;
         use ink_env::{
             call,
             test,
         };
+        use ink_lang as ink;
         type Accounts = test::DefaultAccounts<Environment>;
         const WALLET: [u8; 32] = [7; 32];
 
