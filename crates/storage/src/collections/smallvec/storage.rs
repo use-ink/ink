@@ -21,8 +21,10 @@ use crate::traits::{
 
 #[cfg(feature = "std")]
 const _: () = {
-    use crate::lazy::LazyArray;
-    use crate::traits::StorageLayout;
+    use crate::{
+        lazy::LazyArray,
+        traits::StorageLayout,
+    };
     use ink_metadata::layout::{
         FieldLayout,
         Layout,
