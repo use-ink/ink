@@ -74,6 +74,7 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -98,9 +99,10 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-unstable&quot;</span>)]</span>
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">lazy</span>::<span class="ident">LazyArray</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{
+        <span class="ident">lazy</span>::<span class="ident">LazyArray</span>,
+        <span class="ident">traits</span>::<span class="ident">StorageLayout</span>,
+    };
     <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout</span>::{
         <span class="ident">FieldLayout</span>,
         <span class="ident">Layout</span>,
