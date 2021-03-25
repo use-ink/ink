@@ -21,7 +21,6 @@ use crate::traits::{
 
 #[cfg(feature = "std")]
 const _: () = {
-    #[cfg(feature = "ink-unstable")]
     use crate::lazy::LazyArray;
     use crate::traits::StorageLayout;
     use ink_metadata::layout::{

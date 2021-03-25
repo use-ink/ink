@@ -56,7 +56,6 @@ std = [
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]
-ink-unstable = ["std"]
 
 [[bench]]
 name = "bench_lazy"
