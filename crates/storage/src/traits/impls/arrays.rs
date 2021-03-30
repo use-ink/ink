@@ -55,7 +55,7 @@ macro_rules! impl_layout_for_array {
                 }
 
                 fn pull_spread(ptr: &mut KeyPtr) -> Self {
-                    array_init::<Self, _>(|_| <T as SpreadLayout>::pull_spread(ptr))
+                    array_init::<_, T, $len>(|_| <T as SpreadLayout>::pull_spread(ptr))
                 }
             }
 
