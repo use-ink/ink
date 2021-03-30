@@ -25,7 +25,7 @@ scale = { package = "parity-scale-codec", version = "2.0", default-features = fa
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
-array-init = { version = "1.0", default-features = false, features = ["const-generics"] }
+array-init = { version = "2.0", default-features = false, features = ["const-generics"] }
 
 # Workaround: we actually just need criterion as a dev-dependency, but
 # there is an issue with a doubly included std lib when executing
