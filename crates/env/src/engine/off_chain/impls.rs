@@ -32,6 +32,7 @@ use crate::{
         Sha2x256,
     },
     topics::Topics,
+    types::RentParams,
     EnvBackend,
     Environment,
     Error,
@@ -348,6 +349,46 @@ impl TypedEnvBackend for EnvInstance {
             .rent_allowance::<T>()
             .map_err(|_| scale::Error::from("could not decode callee rent allowance"))
             .map_err(Into::into)
+    }
+
+    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
+    where
+        T: Environment,
+    {
+        use crate::arithmetic::Saturating as _;
+
+        let total_balance = self.balance::<T>()?;
+
+        // the off-chain environment does currently not support reserved balance,
+        // hence we just use the total balance here.
+        let free_balance = self.balance::<T>()?;
+
+        let deposit_per_contract = self.chain_spec.deposit_per_contract::<T>()?;
+        let deposit_per_storage_byte = self.chain_spec.deposit_per_storage_byte::<T>()?;
+        let deposit_per_storage_item = self.chain_spec.deposit_per_storage_item::<T>()?;
+        let rent_fraction = self.chain_spec.rent_fraction::<T>()?;
+        let minimum_balance: T::Balance = self.minimum_balance::<T>()?;
+        let tombstone_deposit = self.tombstone_deposit::<T>()?;
+        let subsistence_threshold = minimum_balance.saturating_add(tombstone_deposit);
+        let rent_allowance = self.rent_allowance::<T>()?;
+
+        Ok(RentParams {
+            deposit_per_contract,
+            deposit_per_storage_byte,
+            deposit_per_storage_item,
+            rent_fraction,
+            subsistence_threshold,
+
+            rent_allowance,
+            total_balance,
+            free_balance,
+
+            storage_size: 0,
+            code_size: 0,
+            code_refcount: 0,
+
+            _reserved: None,
+        })
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {

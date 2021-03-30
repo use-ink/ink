@@ -97,5 +97,7 @@ pub use self::{
         Environment,
         Hash,
         NoChainExtension,
+        Perbill,
+        RentParams,
     },
 };

@@ -152,6 +152,7 @@ use proc_macro::TokenStream;
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
+///         type RentFraction = ::ink_env::Perbill;
 ///         type ChainExtension = ::ink_env::NoChainExtension;
 ///     }
 ///     ```
@@ -171,6 +172,7 @@ use proc_macro::TokenStream;
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
 ///         #     type ChainExtension = ::ink_env::NoChainExtension;
+///         #     type RentFraction = ::ink_env::Perbill;
 ///         # }
 ///         #
 ///         # #[ink(storage)]
@@ -907,6 +909,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 ///     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+///     type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 ///
 ///     type ChainExtension = RuntimeReadWrite;
 /// }
@@ -1050,6 +1053,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #     type Hash = <ink_env::DefaultEnvironment as ink_env::Environment>::Hash;
 /// #     type BlockNumber = <ink_env::DefaultEnvironment as ink_env::Environment>::BlockNumber;
 /// #     type Timestamp = <ink_env::DefaultEnvironment as ink_env::Environment>::Timestamp;
+/// #     type RentFraction = <ink_env::DefaultEnvironment as ink_env::Environment>::RentFraction;
 /// #
 /// #     type ChainExtension = RuntimeReadWrite;
 /// # }
