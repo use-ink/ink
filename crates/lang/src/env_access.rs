@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use core::marker::PhantomData;
+#[cfg(feature = "ink-unstable")]
+use ink_env::RentParams;
 use ink_env::{
     call::{
         utils::ReturnType,
@@ -24,7 +26,6 @@ use ink_env::{
         HashOutput,
     },
     Environment,
-    RentParams,
     Result,
 };
 use ink_primitives::Key;
@@ -186,6 +187,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::RentParams`]
+    #[cfg(feature = "ink-unstable")]
     pub fn rent_params(self) -> RentParams<T> {
         ink_env::rent_params::<T>().expect("couldn't decode contract rent params")
     }

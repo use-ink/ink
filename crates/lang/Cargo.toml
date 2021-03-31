@@ -41,3 +41,4 @@ std = [
     "ink_lang_macro/std",
     "scale/std",
 ]
+ink-unstable = []
