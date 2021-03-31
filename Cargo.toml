@@ -19,3 +19,8 @@ exclude = [
 [profile.release]
 panic = "abort"
 lto = true
+
+# TODO remove, only needed until change gets released
+[patch.crates-io]
+# parity-scale-codec = { path = "../parity-scale-codec" }
+parity-scale-codec = { git = "https://github.com/austinabell/parity-scale-codec", rev = "1feb094862530eebdce56ae37bdddee525fc64a1" }
