@@ -69,7 +69,6 @@ where
         }
     }
 }
-// forward_supported_array_lens!(impl_layout_for_array);
 
 #[cfg(test)]
 mod tests {
