@@ -303,9 +303,12 @@ publish-docs:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
+  # need to overwrite `before_script` from `*docker-env` here,
+  # this branch does not have a `./scripts/pre_cache.sh`
+  before_script:
+    - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
     # Set git config
     - rm .git/config
     - git config user.email "devops-team@parity.io"
