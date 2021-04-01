@@ -44,7 +44,7 @@ mod my_contract {
         /// Emits a `MyEvent`.
         #[ink(message)]
         pub fn emit_my_event(&self) {
-            Self::env().emit_event(MyEvent {
+            self.env().emit_event(MyEvent {
                 v0: None,
                 v1: 0,
                 v2: false,

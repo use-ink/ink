@@ -20,9 +20,12 @@ use super::OnInstance;
 use crate::Error;
 
 use derive_more::From;
+use ink_engine::ext::Engine;
 
 /// The experimental off-chain environment.
-pub struct EnvInstance;
+pub struct EnvInstance {
+    engine: Engine,
+}
 
 impl OnInstance for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
@@ -32,7 +35,9 @@ impl OnInstance for EnvInstance {
         use core::cell::RefCell;
         thread_local!(
             static INSTANCE: RefCell<EnvInstance> = RefCell::new(
-                EnvInstance {}
+                EnvInstance {
+                    engine: Engine::new()
+                }
             )
         );
         INSTANCE.with(|instance| f(&mut instance.borrow_mut()))

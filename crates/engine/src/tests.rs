@@ -15,6 +15,7 @@
 use crate::{
     ext::{
         self,
+        Engine,
         Error,
     },
     test_api,
@@ -28,32 +29,34 @@ fn get_buffer() -> [u8; 1024] {
 
 #[test]
 fn store_load_clear() {
+    let mut engine = Engine::new();
     let key = &[0x42; 32][..];
     let output = &mut &mut get_buffer()[..];
-    let res = ext::get_storage(key, output);
+    let res = engine.get_storage(key, output);
     assert_eq!(res, Err(Error::KeyNotFound));
 
-    ext::set_storage(&key, &[0x05_u8; 5]);
-    let res = ext::get_storage(&key, output);
+    engine.set_storage(&key, &[0x05_u8; 5]);
+    let res = engine.get_storage(&key, output);
     assert_eq!(res, Ok(()),);
     assert_eq!(output[..5], [0x05; 5]);
 
-    ext::clear_storage(&key);
-    let res = ext::get_storage(key, output);
+    engine.clear_storage(&key);
+    let res = engine.get_storage(key, output);
     assert_eq!(res, Err(Error::KeyNotFound));
 }
 
 #[test]
 fn setting_getting_balance() {
     // given
+    let mut engine = Engine::new();
     let account_id = vec![1; 32];
     let balance = 1337;
-    test_api::set_callee(account_id.clone());
-    test_api::set_balance(account_id, balance);
+    engine.set_callee(account_id.clone());
+    engine.set_balance(account_id, balance);
 
     // when
     let mut output = get_buffer();
-    ext::balance(&mut &mut output[..]);
+    engine.balance(&mut &mut output[..]);
 
     // then
     let output = <u128 as scale::Decode>::decode(&mut &output[..16])
@@ -64,26 +67,28 @@ fn setting_getting_balance() {
 #[test]
 fn setting_getting_caller() {
     // given
+    let mut engine = Engine::new();
     let account_id = vec![1; 32];
 
     // when
-    test_api::set_caller(account_id.clone());
+    engine.set_caller(account_id.clone());
 
     // then
     let mut output = get_buffer();
-    crate::ext::caller(&mut &mut output[..]);
+    engine.caller(&mut &mut output[..]);
     assert_eq!(&output[..account_id.len()], &account_id);
 }
 
 #[test]
 fn address() {
     // given
+    let mut engine = Engine::new();
     let account_id = vec![1; 32];
-    test_api::set_callee(account_id.clone());
+    engine.set_callee(account_id.clone());
 
     // when
     let mut output = get_buffer();
-    ext::address(&mut &mut output[..]);
+    engine.address(&mut &mut output[..]);
 
     // then
     assert_eq!(&output[..account_id.len()], &account_id);
@@ -92,24 +97,26 @@ fn address() {
 #[test]
 fn transfer() {
     // given
+    let mut engine = Engine::new();
     let alice = vec![1; 32];
     let bob = vec![2; 32];
-    test_api::set_callee(alice.clone());
-    test_api::set_balance(alice.clone(), 1337);
+    engine.set_callee(alice.clone());
+    engine.set_balance(alice.clone(), 1337);
 
     // when
     let val = scale::Encode::encode(&337u128);
-    assert_eq!(ext::transfer(&bob, &val), Ok(()));
+    assert_eq!(engine.transfer(&bob, &val), Ok(()));
 
     // then
-    assert_eq!(test_api::get_balance(alice), Ok(1000));
-    assert_eq!(test_api::get_balance(bob), Ok(337));
+    assert_eq!(engine.get_balance(alice), Ok(1000));
+    assert_eq!(engine.get_balance(bob), Ok(337));
 }
 
 #[test]
 fn printlns() {
-    ext::println("foobar");
-    let mut recorded = test_api::get_recorded_printlns();
+    let mut engine = Engine::new();
+    engine.println("foobar");
+    let mut recorded = engine.get_recorded_printlns();
     assert_eq!(recorded.next(), Some("foobar".into()));
     assert_eq!(recorded.next(), None);
 }
@@ -117,6 +124,7 @@ fn printlns() {
 #[test]
 fn events() {
     // given
+    let mut engine = Engine::new();
     let topics_count: scale::Compact<u32> = scale::Compact(2u32);
     let mut enc_topics_count = scale::Encode::encode(&topics_count);
     let topic1 = vec![12u8, 13];
@@ -128,10 +136,10 @@ fn events() {
     enc_topics_info.append(&mut enc_topics_count);
     enc_topics_info.append(&mut topic1.clone());
     enc_topics_info.append(&mut topic2.clone());
-    ext::deposit_event(&enc_topics_info, data);
+    engine.deposit_event(&enc_topics_info, data);
 
     // then
-    let events = test_api::get_emitted_events();
+    let events = engine.get_emitted_events();
     assert_eq!(events.len(), 1);
 
     let event = events.get(0).expect("event must exist");
@@ -150,12 +158,13 @@ fn events() {
 #[test]
 fn value_transferred() {
     // given
+    let mut engine = Engine::new();
     let value = 1337;
-    test_api::set_value_transferred(value);
+    engine.set_value_transferred(value);
 
     // when
     let output = &mut &mut get_buffer()[..];
-    ext::value_transferred(output);
+    engine.value_transferred(output);
 
     // then
     let output = <u128 as scale::Decode>::decode(&mut &output[..16])

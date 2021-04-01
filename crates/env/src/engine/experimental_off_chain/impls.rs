@@ -19,6 +19,7 @@ use crate::{
         CallParams,
         CreateParams,
     },
+    engine::experimental_off_chain::OnInstance,
     hash::{
         Blake2x128,
         Blake2x256,
@@ -38,7 +39,10 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use ink_engine::ext;
+use ink_engine::{
+    ext,
+    ext::Engine,
+};
 use ink_primitives::Key;
 
 const BUFFER_SIZE: usize = 1024;
@@ -51,7 +55,7 @@ impl CryptoHash for Blake2x128 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
-        ext::hash_blake2_128(input, output);
+        Engine::hash_blake2_128(input, output);
     }
 }
 
@@ -63,7 +67,7 @@ impl CryptoHash for Blake2x256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        ext::hash_blake2_256(input, output);
+        Engine::hash_blake2_256(input, output);
     }
 }
 
@@ -75,7 +79,7 @@ impl CryptoHash for Sha2x256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        ext::hash_sha2_256(input, output);
+        Engine::hash_sha2_256(input, output);
     }
 }
 
@@ -87,7 +91,7 @@ impl CryptoHash for Keccak256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        ext::hash_keccak_256(input, output);
+        Engine::hash_keccak_256(input, output);
     }
 }
 
@@ -159,13 +163,16 @@ where
 
 impl EnvInstance {
     /// Returns the contract property value.
-    fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
+    fn get_property<T>(
+        &mut self,
+        ext_fn: fn(engine: &Engine, output: &mut &mut [u8]),
+    ) -> Result<T>
     where
         T: scale::Decode,
     {
         let mut full_scope: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let full_scope = &mut &mut full_scope[..];
-        ext_fn(full_scope);
+        ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 
@@ -186,7 +193,7 @@ impl EnvInstance {
         let enc_input = &scale::Encode::encode(&params.exec_input())[..];
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
-        ext::call(
+        self.engine.call(
             enc_callee,
             gas_limit,
             enc_transferred_value,
@@ -204,7 +211,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        ext::set_storage(key.as_bytes(), &v[..]);
+        self.engine.set_storage(key.as_bytes(), &v[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -212,7 +219,10 @@ impl EnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let mut output: [u8; 9600] = [0; 9600];
-        match ext::get_storage(key.as_bytes(), &mut &mut output[..]) {
+        match self
+            .engine
+            .get_storage(key.as_bytes(), &mut &mut output[..])
+        {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -222,7 +232,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_bytes())
+        self.engine.clear_storage(key.as_bytes())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -242,7 +252,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn println(&mut self, content: &str) {
-        ext::println(content)
+        self.engine.println(content)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -278,7 +288,7 @@ impl EnvBackend for EnvInstance {
         let enc_input = &scale::Encode::encode(input)[..];
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
-        status_to_result(ext::call_chain_extension(
+        status_to_result(self.engine.call_chain_extension(
             func_id,
             enc_input,
             &mut &mut output[..],
@@ -290,43 +300,43 @@ impl EnvBackend for EnvInstance {
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::caller)
+        self.get_property::<T::AccountId>(Engine::caller)
     }
 
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::value_transferred)
+        self.get_property::<T::Balance>(Engine::value_transferred)
     }
 
     fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::gas_left)
+        self.get_property::<T::Balance>(Engine::gas_left)
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(ext::now)
+        self.get_property::<T::Timestamp>(Engine::now)
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::address)
+        self.get_property::<T::AccountId>(Engine::address)
     }
 
     fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::balance)
+        self.get_property::<T::Balance>(Engine::balance)
     }
 
     fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::rent_allowance)
+        self.get_property::<T::Balance>(Engine::rent_allowance)
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
-        self.get_property::<T::BlockNumber>(ext::block_number)
+        self.get_property::<T::BlockNumber>(Engine::block_number)
     }
 
     fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::minimum_balance)
+        self.get_property::<T::Balance>(Engine::minimum_balance)
     }
 
     fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::tombstone_deposit)
+        self.get_property::<T::Balance>(Engine::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -337,7 +347,7 @@ impl TypedEnvBackend for EnvInstance {
         let builder = TopicsBuilder::default();
         let enc_topics = event.topics::<T, _>(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
-        ext::deposit_event(&enc_topics[..], enc_data);
+        self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
     fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
@@ -345,7 +355,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         let buffer = &scale::Encode::encode(&new_value)[..];
-        ext::set_rent_allowance(buffer)
+        self.engine.set_rent_allowance(buffer)
     }
 
     fn invoke_contract<T, Args>(
@@ -397,7 +407,7 @@ impl TypedEnvBackend for EnvInstance {
         // This should change in the future but for that we need to add support
         // for constructors that may return values.
         // This is useful to support fallible constructors for example.
-        ext::instantiate(
+        self.engine.instantiate(
             enc_code_hash,
             gas_limit,
             enc_endowment,
@@ -427,7 +437,7 @@ impl TypedEnvBackend for EnvInstance {
             .iter()
             .map(|k| k.as_bytes().to_vec())
             .collect();
-        ext::restore_to(
+        self.engine.restore_to(
             enc_account_id,
             enc_code_hash,
             enc_rent_allowance,
@@ -440,7 +450,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         let buffer = scale::Encode::encode(&beneficiary);
-        ext::terminate(&buffer[..]);
+        self.engine.terminate(&buffer[..])
     }
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
@@ -449,12 +459,14 @@ impl TypedEnvBackend for EnvInstance {
     {
         let enc_destination = &scale::Encode::encode(&destination)[..];
         let enc_value = &scale::Encode::encode(&value)[..];
-        ext::transfer(enc_destination, enc_value).map_err(Into::into)
+        self.engine
+            .transfer(enc_destination, enc_value)
+            .map_err(Into::into)
     }
 
     fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        ext::weight_to_fee(gas, &mut &mut output[..]);
+        self.engine.weight_to_fee(gas, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
@@ -463,7 +475,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        ext::random(subject, &mut &mut output[..]);
+        self.engine.random(subject, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 }

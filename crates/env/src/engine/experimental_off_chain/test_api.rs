@@ -14,6 +14,11 @@
 
 //! Operations on the off-chain testing environment.
 
+use super::{
+    Engine,
+    EnvInstance,
+    OnInstance,
+};
 use crate::{
     Environment,
     Result,
@@ -50,7 +55,11 @@ pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    test_api::set_balance(scale::Encode::encode(&account_id), new_balance);
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&account_id), new_balance);
+    })
 }
 
 /// Returns the balance of the account.
@@ -69,7 +78,12 @@ pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    test_api::get_balance(scale::Encode::encode(&account_id)).map_err(Into::into)
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .get_balance(scale::Encode::encode(&account_id))
+            .map_err(Into::into)
+    })
 }
 
 /// Sets the rent allowance of the contract account to the given rent allowance.
@@ -121,7 +135,9 @@ where
 
 /// Returns the contents of the past performed environmental `println` in order.
 pub fn recorded_printlns() -> impl Iterator<Item = String> {
-    test_api::get_recorded_printlns()
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.get_recorded_printlns()
+    })
 }
 
 /// Set to true to disable clearing storage
@@ -142,7 +158,9 @@ where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::set_caller(scale::Encode::encode(&caller));
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_caller(scale::Encode::encode(&caller));
+    })
 }
 
 /// Sets the callee for the next call.
@@ -151,7 +169,9 @@ where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::set_callee(scale::Encode::encode(&caller));
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_callee(scale::Encode::encode(&caller));
+    })
 }
 
 /// Gets the currently set callee.
@@ -161,8 +181,10 @@ pub fn callee<T>() -> T::AccountId
 where
     T: Environment,
 {
-    let callee = test_api::get_callee();
-    scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let callee = instance.engine.get_callee();
+        scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+    })
 }
 
 /// Returns the total number of reads and writes of the contract's storage.
@@ -170,7 +192,11 @@ pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> (usize, usize)
 where
     T: Environment,
 {
-    test_api::get_contract_storage_rw(scale::Encode::encode(&account_id))
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .get_contract_storage_rw(scale::Encode::encode(&account_id))
+    })
 }
 
 /// Sets the balance of `account_id` to `new_balance`.
@@ -179,7 +205,11 @@ where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::set_balance(scale::Encode::encode(&account_id), new_balance);
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&account_id), new_balance);
+    })
 }
 
 /// Sets the value transferred from the caller to the callee as part of the call.
@@ -187,7 +217,9 @@ pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
-    test_api::set_value_transferred(value);
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_value_transferred(value);
+    })
 }
 
 /// Returns the amount of storage cells used by the account `account_id`.
@@ -197,8 +229,12 @@ pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
 where
     T: Environment,
 {
-    test_api::count_used_storage_cells(scale::Encode::encode(&account_id))
-        .map_err(Into::into)
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .count_used_storage_cells(scale::Encode::encode(&account_id))
+            .map_err(Into::into)
+    })
 }
 
 /// Runs the given closure test function with the default configuartion
@@ -209,19 +245,32 @@ where
     F: FnOnce(DefaultAccounts<T>) -> Result<()>,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
-    test_api::initialize_or_reset_environment();
     let default_accounts = default_accounts::<T>();
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.initialize_or_reset_environment();
 
-    // set up the funds for the default accounts
-    let substantial = 1_000_000;
-    let some = 1_000;
-    test_api::set_balance(scale::Encode::encode(&default_accounts.alice), substantial);
-    test_api::set_balance(scale::Encode::encode(&default_accounts.bob), some);
-    test_api::set_balance(scale::Encode::encode(&default_accounts.charlie), some);
-    test_api::set_balance(scale::Encode::encode(&default_accounts.django), 0);
-    test_api::set_balance(scale::Encode::encode(&default_accounts.eve), 0);
-    test_api::set_balance(scale::Encode::encode(&default_accounts.frank), 0);
-
+        // set up the funds for the default accounts
+        let substantial = 1_000_000;
+        let some = 1_000;
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.alice), substantial);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.bob), some);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.django), 0);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+    });
     f(default_accounts)
 }
 
@@ -263,9 +312,13 @@ where
 
 /// Returns the recorded emitted events in order.
 pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
-    test_api::get_emitted_events()
-        .into_iter()
-        .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .get_emitted_events()
+            .into_iter()
+            .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
+    })
 }
 
 /// The result of a successful contract termination.

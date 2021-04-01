@@ -39,9 +39,3 @@ pub enum Error {
     #[from(ignore)]
     UnregisteredChainExtension,
 }
-
-pub trait OnInstance {
-    fn on_instance<F, R>(f: F) -> R
-    where
-        F: FnOnce(&mut Self) -> R;
-}
