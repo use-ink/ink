@@ -32,8 +32,9 @@ mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             assert_eq!(flipper.get(), false);
