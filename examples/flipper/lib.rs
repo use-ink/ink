@@ -45,7 +45,16 @@ pub mod flipper {
         /// Returns the current value of the Flipper's bool.
         #[ink(message)]
         pub fn get(&self) -> bool {
+            let _ = self.env().rent_params();
             self.value
+        }
+
+        /// Returns the current value of the Flipper's bool.
+        #[ink(message)]
+        pub fn rent(&self) -> Balance {
+            let rent = self.env().rent_params();
+            let needed_to_stay_alive = rent.total_balance;
+            needed_to_stay_alive
         }
     }
 
