@@ -60,6 +60,7 @@ mod my_contract {
         use ink_lang as ink;
 
         #[ink::test]
+        #[cfg(feature = "ink-experimental-engine")]
         fn event_must_have_unique_topics() {
             // given
             let my_contract = MyContract::new();
@@ -74,15 +75,28 @@ mod my_contract {
             let mut encoded_topics: std::vec::Vec<&[u8]> = emitted_events[0]
                 .topics
                 .iter()
-                .map(|topic| {
-                    #[cfg(feature = "ink-experimental-engine")]
-                    let topic = topic.as_slice();
+                .map(|topic| topic.as_slice())
+                .collect();
+            assert!(!has_duplicates(&mut encoded_topics));
+        }
 
-                    #[cfg(not(feature = "ink-experimental-engine"))]
-                    let topic = topic.encoded_bytes().expect("encoded bytes must exist");
+        #[ink::test]
+        #[cfg(not(feature = "ink-experimental-engine"))]
+        fn event_must_have_unique_topics() {
+            // given
+            let my_contract = MyContract::new();
 
-                    topic
-                })
+            // when
+            MyContract::emit_my_event(&my_contract);
+
+            // then
+            // all topics must be unique
+            let emitted_events =
+                ink_env::test::recorded_events().collect::<Vec<EmittedEvent>>();
+            let mut encoded_topics: std::vec::Vec<&[u8]> = emitted_events[0]
+                .topics
+                .iter()
+                .map(|topic| topic.encoded_bytes().expect("encoded bytes must exist"))
                 .collect();
             assert!(!has_duplicates(&mut encoded_topics));
         }

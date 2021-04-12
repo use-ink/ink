@@ -710,6 +710,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(not(feature = "ink-experimental-engine"))]
     fn nested_lazies_are_cleared_completely_after_pull() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
@@ -724,13 +725,10 @@ mod tests {
             SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
 
             // then
-            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
-            #[cfg(feature = "ink-experimental-engine")]
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
@@ -746,6 +744,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(not(feature = "ink-experimental-engine"))]
     fn lazy_drop_works() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
@@ -762,13 +761,10 @@ mod tests {
             assert!(setup_result.is_ok(), "setup should not panic");
 
             // then
-            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
-            #[cfg(feature = "ink-experimental-engine")]
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,
             >(&contract_id)
@@ -783,6 +779,7 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(not(feature = "ink-experimental-engine"))]
     fn lazy_drop_works_with_greater_footprint() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             // given
@@ -800,12 +797,105 @@ mod tests {
             assert!(setup_result.is_ok(), "setup should not panic");
 
             // then
-            #[cfg(not(feature = "ink-experimental-engine"))]
             let contract_id = ink_env::test::get_current_contract_account_id::<
                 ink_env::DefaultEnvironment,
             >()
             .expect("Cannot get contract id");
-            #[cfg(feature = "ink-experimental-engine")]
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(feature = "ink-experimental-engine")]
+    fn nested_lazies_are_cleared_completely_after_pull() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+            let nested_lazy: Lazy<Lazy<u32>> = Lazy::new(Lazy::new(13u32));
+            SpreadLayout::push_spread(&nested_lazy, &mut KeyPtr::from(root_key));
+            let pulled_lazy = <Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+
+            // when
+            SpreadLayout::clear_spread(&pulled_lazy, &mut KeyPtr::from(root_key));
+
+            // then
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ = *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(feature = "ink-experimental-engine")]
+    fn lazy_drop_works() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<u32> = Lazy::new(13u32);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy =
+                    <Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            let used_cells = ink_env::test::count_used_storage_cells::<
+                ink_env::DefaultEnvironment,
+            >(&contract_id)
+            .expect("used cells must be returned");
+            assert_eq!(used_cells, 0);
+            let _ =
+                *<Lazy<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    #[should_panic(expected = "encountered empty storage cell")]
+    #[cfg(feature = "ink-experimental-engine")]
+    fn lazy_drop_works_with_greater_footprint() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // given
+            let root_key = Key::from([0x42; 32]);
+
+            // when
+            let setup_result = std::panic::catch_unwind(|| {
+                let lazy: Lazy<[u32; 5]> = Lazy::new([13, 14, 15, 16, 17]);
+                SpreadLayout::push_spread(&lazy, &mut KeyPtr::from(root_key));
+                let _pulled_lazy = <Lazy<[u32; 5]> as SpreadLayout>::pull_spread(
+                    &mut KeyPtr::from(root_key),
+                );
+                // lazy is dropped which should clear the cells
+            });
+            assert!(setup_result.is_ok(), "setup should not panic");
+
+            // then
             let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
             let used_cells = ink_env::test::count_used_storage_cells::<
                 ink_env::DefaultEnvironment,

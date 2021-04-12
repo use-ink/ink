@@ -12,35 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ext::{
-        self,
-        Engine,
-        Error,
-    },
-    test_api,
+use crate::ext::{
+    Engine,
+    Error,
 };
 
-const BUFFER_SIZE: usize = 1024;
-
+/// The public methods of the `contracts` pallet write their result into an
+/// `output` buffer instead of returning them. Since we aim to emulate this
+/// behavior, we have to provide some buffer for our tests to pass into these
+/// emulated methods, so that they can write their result into it.
+///
+/// The number 1024 is more or less arbitrary, it just satisfies the need of
+/// our tests without being too large.
 fn get_buffer() -> [u8; 1024] {
-    [0; BUFFER_SIZE]
+    [0; 1024]
 }
 
 #[test]
 fn store_load_clear() {
     let mut engine = Engine::new();
-    let key = &[0x42; 32][..];
+    let key: &[u8; 32] = &[0x42; 32];
     let output = &mut &mut get_buffer()[..];
     let res = engine.get_storage(key, output);
     assert_eq!(res, Err(Error::KeyNotFound));
 
-    engine.set_storage(&key, &[0x05_u8; 5]);
-    let res = engine.get_storage(&key, output);
+    engine.set_storage(key, &[0x05_u8; 5]);
+    let res = engine.get_storage(key, output);
     assert_eq!(res, Ok(()),);
     assert_eq!(output[..5], [0x05; 5]);
 
-    engine.clear_storage(&key);
+    engine.clear_storage(key);
     let res = engine.get_storage(key, output);
     assert_eq!(res, Err(Error::KeyNotFound));
 }

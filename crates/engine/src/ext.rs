@@ -105,12 +105,7 @@ impl ReturnCode {
     }
 }
 
-fn extract_from_slice(output: &mut &mut [u8], new_len: usize) {
-    debug_assert!(new_len <= output.len());
-    let tmp = core::mem::take(output);
-    *output = &mut tmp[..new_len];
-}
-
+/// The off-chain engine.
 pub struct Engine {
     /// The environment storage.
     pub storage: Storage<Key, Vec<u8>>,
@@ -123,12 +118,12 @@ pub struct Engine {
 }
 
 impl Engine {
-    // Creates a new `EnvInstance instance.
+    // Creates a new `Engine instance.
     pub fn new() -> Self {
         Self {
             storage: Storage::new(),
             balances: HashMap::new(),
-            exec_context: ExecContext::default(),
+            exec_context: ExecContext::new(),
             recorder: RecInstance::new(),
         }
     }
@@ -189,30 +184,38 @@ impl Engine {
     }
 
     /// Writes the encoded value into the contract storage at the given key.
-    pub fn set_storage(&mut self, key: &[u8], encoded_value: &[u8]) {
-        let account_id: AccountId = self.get_callee().into();
-        self.recorder.inc_writes(account_id.clone());
-        self.recorder.inc_cells_per_account(account_id);
+    pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
+        if self.exec_context.callee.is_some() {
+            let account_id: AccountId = self.get_callee().into();
+            self.recorder.inc_writes(account_id.clone());
+            self.recorder.inc_cells_per_account(account_id);
+        }
 
         // We ignore if storage is already set for this key
-        let _ = self.storage.insert(key.into(), encoded_value.to_vec());
+        let _ = self
+            .storage
+            .insert(Key::from_bytes(key), encoded_value.to_vec());
     }
 
     /// Removes the value from storage entries at the given key.
-    pub fn clear_storage(&mut self, key: &[u8]) {
-        let account_id: AccountId = self.get_callee().into();
-        self.recorder.inc_writes(account_id.clone());
-        self.recorder.dec_cells_per_account(account_id);
+    pub fn clear_storage(&mut self, key: &[u8; 32]) {
+        if self.exec_context.callee.is_some() {
+            let account_id = AccountId::from_bytes(&self.get_callee()[..]);
+            self.recorder.inc_writes(account_id.clone());
+            self.recorder.dec_cells_per_account(account_id);
+        }
 
-        self.storage.remove(&key.into());
+        self.storage.remove(&Key::from_bytes(key));
     }
 
     /// Returns the decoded storage at the key if any.
-    pub fn get_storage(&mut self, key: &[u8], output: &mut &mut [u8]) -> Result {
-        let account_id = self.get_callee().into();
-        self.recorder.inc_reads(account_id);
+    pub fn get_storage(&mut self, key: &[u8; 32], output: &mut &mut [u8]) -> Result {
+        if self.exec_context.callee.is_some() {
+            let account_id = AccountId::from_bytes(&self.get_callee()[..]);
+            self.recorder.inc_reads(account_id);
+        }
 
-        match self.storage.get(&key.into()) {
+        match self.storage.get(&Key::from_bytes(key)) {
             Some(val) => {
                 output[0..val.len()].copy_from_slice(val);
                 Ok(())
@@ -246,21 +249,28 @@ impl Engine {
 
     /// Returns the address of the caller.
     pub fn caller(&self, output: &mut &mut [u8]) {
-        let caller: Vec<u8> = self.exec_context.caller.clone().into();
-        output[..caller.len()].copy_from_slice(&caller[..]);
-        extract_from_slice(output, caller.len());
+        let caller = self
+            .exec_context
+            .caller
+            .as_ref()
+            .expect("no caller has been set")
+            .as_bytes();
+        output[..caller.len()].copy_from_slice(caller);
     }
 
     /// Returns the balance of the executed contract.
     pub fn balance(&self, output: &mut &mut [u8]) {
-        let contract = &self.exec_context.callee;
+        let contract = self
+            .exec_context
+            .callee
+            .as_ref()
+            .expect("no callee has been set");
         let balance: Vec<u8> = scale::Encode::encode(
             self.balances
-                .get(contract)
+                .get(&contract)
                 .expect("currently executing contract must exist"),
         );
         output[..balance.len()].copy_from_slice(&balance[..]);
-        extract_from_slice(output, balance.len());
     }
 
     /// Returns the transferred value for the called contract.
@@ -268,14 +278,17 @@ impl Engine {
         let value_transferred: Vec<u8> =
             scale::Encode::encode(&self.exec_context.value_transferred);
         output[..value_transferred.len()].copy_from_slice(&value_transferred[..]);
-        extract_from_slice(output, value_transferred.len());
     }
 
     /// Returns the address of the executed contract.
     pub fn address(&self, output: &mut &mut [u8]) {
-        let callee: Vec<u8> = self.exec_context.callee.clone().into();
-        output[..callee.len()].copy_from_slice(&callee[..]);
-        extract_from_slice(output, callee.len());
+        let callee = self
+            .exec_context
+            .callee
+            .as_ref()
+            .expect("no callee has been set")
+            .as_bytes();
+        output[..callee.len()].copy_from_slice(callee);
     }
 
     /// Restores a tombstone to the original smart contract.
@@ -294,10 +307,10 @@ impl Engine {
         _account_id: &[u8],
         _code_hash: &[u8],
         _rent_allowance: &[u8],
-        filtered_keys: &[Vec<u8>],
+        filtered_keys: &[&[u8]],
     ) {
         let _filtered_keys: Vec<crate::Key> =
-            filtered_keys.iter().map(Into::into).collect();
+            filtered_keys.iter().map(|k| Key::from_bytes(k)).collect();
         unimplemented!("off-chain environment does not yet support `restore_to`");
     }
 

@@ -15,7 +15,6 @@
 //! Operations on the off-chain testing environment.
 
 use super::{
-    Engine,
     EnvInstance,
     OnInstance,
 };
@@ -24,7 +23,6 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
-use ink_engine::test_api;
 use std::{
     panic::UnwindSafe,
     str::FromStr,
@@ -164,13 +162,13 @@ where
 }
 
 /// Sets the callee for the next call.
-pub fn set_callee<T>(caller: T::AccountId)
+pub fn set_callee<T>(callee: T::AccountId)
 where
     T: Environment,
     <T as Environment>::AccountId: From<[u8; 32]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.set_callee(scale::Encode::encode(&caller));
+        instance.engine.set_callee(scale::Encode::encode(&callee));
     })
 }
 
@@ -249,12 +247,14 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.initialize_or_reset_environment();
 
+        let encoded_alice = scale::Encode::encode(&default_accounts.alice);
+        instance.engine.set_caller(encoded_alice.clone());
+        instance.engine.set_callee(encoded_alice.clone());
+
         // set up the funds for the default accounts
         let substantial = 1_000_000;
         let some = 1_000;
-        instance
-            .engine
-            .set_balance(scale::Encode::encode(&default_accounts.alice), substantial);
+        instance.engine.set_balance(encoded_alice, substantial);
         instance
             .engine
             .set_balance(scale::Encode::encode(&default_accounts.bob), some);
@@ -321,18 +321,16 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
     })
 }
 
-/// The result of a successful contract termination.
-#[derive(scale::Encode, scale::Decode)]
-pub struct ContractTerminationResult<E: Environment>(
-    // The value which was transferred to the `beneficiary`.
-    <E as Environment>::Balance,
-    // The beneficiary account who received the remaining value in the contract.
-    Vec<u8>,
-);
-
 /// Tests if a contract terminates successfully after `self.env().terminate()`
 /// has been called.
 ///
+/// The arguments denote:
+///
+/// * `should_terminate`: A closure in which the function supposed to terminate is called.
+/// * `expected_beneficiary`: The beneficiary account who should have received the
+///    remaining value in the contract
+/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred
+///   to the `expected_beneficiary`.
 /// # Usage
 ///
 /// ```no_compile
@@ -348,7 +346,7 @@ pub struct ContractTerminationResult<E: Environment>(
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,
-    expected_balance: T::Balance,
+    expected_value_transferred_to_beneficiary: T::Balance,
 ) where
     T: Environment,
     F: FnMut() + UnwindSafe,
@@ -366,12 +364,11 @@ pub fn assert_contract_termination<T, F>(
         .split(", ")
         .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
         .collect::<Vec<u8>>();
-    let res: ContractTerminationResult<T> =
-        scale::Decode::decode(&mut &deserialized_vec[..])
-            .expect("input can not be decoded");
+    let res: (T::Balance, Vec<u8>) = scale::Decode::decode(&mut &deserialized_vec[..])
+        .expect("input can not be decoded");
+    assert_eq!(res.0, expected_value_transferred_to_beneficiary);
 
     let beneficiary = <T::AccountId as scale::Decode>::decode(&mut &res.1[..])
         .expect("input can not be decoded");
-    assert_eq!(res.0, expected_balance);
     assert_eq!(beneficiary, expected_beneficiary);
 }

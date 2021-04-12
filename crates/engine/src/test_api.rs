@@ -145,12 +145,12 @@ impl Engine {
 
     /// Sets a caller for the next call.
     pub fn set_caller(&mut self, output: Vec<u8>) {
-        self.exec_context.caller = output.into();
+        self.exec_context.caller = Some(output.into());
     }
 
     /// Sets the callee for the next call.
     pub fn set_callee(&mut self, output: Vec<u8>) {
-        self.exec_context.caller = output.into();
+        self.exec_context.callee = Some(output.into());
     }
 
     /// Returns the amount of storage cells used by the account `account_id`.
@@ -166,7 +166,7 @@ impl Engine {
 
     /// Returns the callee, i.e. the currently executing contract.
     pub fn get_callee(&self) -> Vec<u8> {
-        self.exec_context.callee.clone().into()
+        self.exec_context.callee()
     }
 
     /// Returns the contents of the past performed environmental `println` in order.

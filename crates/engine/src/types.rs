@@ -28,21 +28,15 @@ pub type Balance = u128;
 #[repr(transparent)]
 pub struct AccountId(Vec<u8>);
 
-impl From<AccountId> for Vec<u8> {
-    fn from(account_id: AccountId) -> Self {
-        account_id.0
+impl AccountId {
+    /// Creates a new `AccountId` from the given raw bytes.
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        Self(bytes.to_vec())
     }
-}
 
-impl From<&[u8]> for AccountId {
-    fn from(slice: &[u8]) -> Self {
-        AccountId(slice.to_vec())
-    }
-}
-
-impl Default for AccountId {
-    fn default() -> Self {
-        Self(vec![0x01; 32])
+    /// Returns the `AccountId` as bytes.
+    pub fn as_bytes(&self) -> &[u8] {
+        &self.0[..]
     }
 }
 
@@ -53,21 +47,10 @@ impl Default for AccountId {
 #[repr(transparent)]
 pub struct Key(Vec<u8>);
 
-impl From<&Vec<u8>> for Key {
-    fn from(vec: &Vec<u8>) -> Self {
-        vec.clone().into()
-    }
-}
-
-impl From<&[u8]> for Key {
-    fn from(slice: &[u8]) -> Self {
-        slice.to_vec().into()
-    }
-}
-
-impl From<[u8; 32]> for Key {
-    fn from(arr: [u8; 32]) -> Self {
-        arr.to_vec().into()
+impl Key {
+    /// Creates a new `Key` from the given raw bytes.
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        Self(bytes.to_vec())
     }
 }
 

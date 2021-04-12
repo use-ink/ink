@@ -19,7 +19,6 @@ use crate::{
         CallParams,
         CreateParams,
     },
-    engine::experimental_off_chain::OnInstance,
     hash::{
         Blake2x128,
         Blake2x256,
@@ -378,10 +377,8 @@ impl TypedEnvBackend for EnvInstance {
         let enc_code_hash = &scale::Encode::encode(&code_hash)[..];
         let enc_rent_allowance = &scale::Encode::encode(&rent_allowance)[..];
 
-        let filtered: Vec<Vec<u8>> = filtered_keys
-            .iter()
-            .map(|k| k.as_bytes().to_vec())
-            .collect();
+        let filtered: Vec<&[u8]> =
+            filtered_keys.iter().map(|k| &k.as_bytes()[..]).collect();
         self.engine.restore_to(
             enc_account_id,
             enc_code_hash,
