@@ -150,6 +150,9 @@ docs:
 spellcheck:
     stage:                           workspace
     <<:                              *docker-env
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "pipeline"
+        when: never
     script:
         - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
 
@@ -326,9 +329,12 @@ publish-docs:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
+  # need to overwrite `before_script` from `*docker-env` here,
+  # this branch does not have a `./scripts/pre_cache.sh`
+  before_script:
+    - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
     # Set git config
     - rm .git/config
     - git config user.email "devops-team@parity.io"
@@ -350,7 +356,12 @@ publish-docs:
     # Upload files
     - git add --all --force
     - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+    # `git commit` has an exit code of > 0 if there is nothing to commit.
+    # This unfortunately causes GitLab to exit immediately and mark this
+    # job as failed subsequently.
+    # We don't want to mark the entire job as failed if there's nothing to
+    # publish though, hence the `|| true`.
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
