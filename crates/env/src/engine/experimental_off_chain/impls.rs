@@ -175,34 +175,6 @@ impl EnvInstance {
         ext_fn(&self.engine, full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
-
-    /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, Args, RetType, R>(
-        &mut self,
-        params: &CallParams<T, Args, RetType>,
-    ) -> Result<R>
-    where
-        T: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        let gas_limit = params.gas_limit();
-        let enc_callee = &scale::Encode::encode(&params.callee())[..];
-        let enc_transferred_value =
-            &scale::Encode::encode(&params.transferred_value())[..];
-        let enc_input = &scale::Encode::encode(&params.exec_input())[..];
-        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-
-        self.engine.call(
-            enc_callee,
-            gas_limit,
-            enc_transferred_value,
-            enc_input,
-            &mut &mut output[..],
-        )?;
-        let decoded = scale::Decode::decode(&mut &output[..])?;
-        Ok(decoded)
-    }
 }
 
 impl EnvBackend for EnvInstance {
@@ -360,64 +332,37 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<T, Args>(
         &mut self,
-        call_params: &CallParams<T, Args, ()>,
+        _call_params: &CallParams<T, Args, ()>,
     ) -> Result<()>
     where
         T: Environment,
         Args: scale::Encode,
     {
-        self.invoke_contract_impl(call_params)
+        unimplemented!("off-chain environment does not support contract invocation")
     }
 
     fn eval_contract<T, Args, R>(
         &mut self,
-        call_params: &CallParams<T, Args, ReturnType<R>>,
+        _call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        self.invoke_contract_impl(call_params)
+        unimplemented!("off-chain environment does not support contract evaluation")
     }
 
     fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, Salt, C>,
+        _params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
     {
-        let gas_limit = params.gas_limit();
-        let enc_code_hash = &scale::Encode::encode(&params.code_hash())[..];
-        let enc_endowment = &scale::Encode::encode(&params.endowment())[..];
-        let enc_input = &scale::Encode::encode(&params.exec_input())[..];
-
-        // We support `AccountId` types with an encoding that requires up to
-        // BUFFER_SIZE bytes. Beyond that limit ink! contracts will trap for now.
-        // In the default configuration encoded `AccountId` require 32 bytes.
-        let mut out_address: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-
-        let salt = params.salt_bytes().as_ref();
-        let mut out_return_value: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-
-        // We currently do nothing with the `out_return_value` buffer.
-        // This should change in the future but for that we need to add support
-        // for constructors that may return values.
-        // This is useful to support fallible constructors for example.
-        self.engine.instantiate(
-            enc_code_hash,
-            gas_limit,
-            enc_endowment,
-            enc_input,
-            &mut &mut out_address[..],
-            &mut &mut out_return_value[..],
-            salt,
-        )?;
-        let account_id = scale::Decode::decode(&mut &out_address[..])?;
-        Ok(account_id)
+        unimplemented!("off-chain environment does not support contract instantiation")
     }
 
     fn restore_contract<T>(

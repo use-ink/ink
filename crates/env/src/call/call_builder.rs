@@ -50,10 +50,7 @@ where
     // We do not currently support cross-contract calling in the off-chain
     // environment so we do not have to provide these getters in case of
     // off-chain environment compilation.
-    any(
-        all(not(feature = "std"), target_arch = "wasm32"),
-        feature = "ink-experimental-engine"
-    )
+    all(not(feature = "std"), target_arch = "wasm32")
 )]
 impl<E, Args, R> CallParams<E, Args, R>
 where

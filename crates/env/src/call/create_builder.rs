@@ -74,7 +74,7 @@ cfg_if::cfg_if! {
     // We do not currently support cross-contract instantiation in the off-chain
     // environment so we do not have to provide these getters in case of
     // off-chain environment compilation.
-    if #[cfg(any(all(not(feature = "std"), target_arch = "wasm32"), feature = "ink-experimental-engine"))] {
+    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
         impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
         where
             E: Environment,
