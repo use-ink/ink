@@ -12,23 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use core::hash::Hash;
-use std::{
-    borrow::Borrow,
-    cmp::Eq,
-    collections::HashMap,
-};
+use std::collections::HashMap;
 
 /// Provides the storage backend.
 #[derive(Default)]
-pub struct Storage<K, V> {
-    hmap: HashMap<K, V>,
+pub struct Storage {
+    hmap: HashMap<Vec<u8>, Vec<u8>>,
 }
 
-impl<K, V> Storage<K, V>
-where
-    K: Eq + Hash,
-{
+impl Storage {
     /// Creates a new storage instance.
     pub fn new() -> Self {
         Storage {
@@ -42,26 +34,18 @@ where
     }
 
     /// Returns a reference to the value corresponding to the key.
-    pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
-    where
-        K: Borrow<Q>,
-        Q: Hash + Eq,
-    {
+    pub fn get(&self, key: &[u8]) -> Option<&Vec<u8>> {
         self.hmap.get(key)
     }
 
     /// Removes a key from the storage, returning the value at the key if the key
     /// was previously in storage.
-    pub fn remove<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
-    where
-        K: Borrow<Q>,
-        Q: Hash + Eq,
-    {
+    pub fn remove(&mut self, key: &[u8]) -> Option<Vec<u8>> {
         self.hmap.remove(key)
     }
 
     /// Sets the value of the entry, and returns the entry's old value.
-    pub fn insert(&mut self, key: K, value: V) -> Option<V> {
+    pub fn insert(&mut self, key: Vec<u8>, value: Vec<u8>) -> Option<Vec<u8>> {
         self.hmap.insert(key, value)
     }
 
@@ -77,16 +61,25 @@ mod tests {
 
     #[test]
     fn basic_operations() {
-        let mut storage = Storage::<u32, bool>::new();
+        let mut storage = Storage::new();
+        let key1 = vec![42];
+        let key2 = vec![43];
+        let val1 = vec![44];
+        let val2 = vec![45];
+        let val3 = vec![46];
+
         assert_eq!(storage.len(), 0);
-        assert_eq!(storage.get(&42), None);
-        assert_eq!(storage.insert(42, true), None);
-        assert_eq!(storage.get(&42), Some(&true));
-        assert_eq!(storage.insert(42, false), Some(true));
-        assert_eq!(storage.get(&42), Some(&false));
-        assert_eq!(storage.insert(43, true), None);
+        assert_eq!(storage.get(&key1), None);
+        assert_eq!(storage.insert(key1.clone(), val1.clone()), None);
+        assert_eq!(storage.get(&key1), Some(&val1));
+        assert_eq!(
+            storage.insert(key1.clone(), val2.clone()),
+            Some(val1.clone())
+        );
+        assert_eq!(storage.get(&key1), Some(&val2));
+        assert_eq!(storage.insert(key2.clone(), val3.clone()), None);
         assert_eq!(storage.len(), 2);
-        assert_eq!(storage.remove(&43), Some(true));
+        assert_eq!(storage.remove(&key2), Some(val3));
         assert_eq!(storage.len(), 1);
         storage.clear();
         assert_eq!(storage.len(), 0);

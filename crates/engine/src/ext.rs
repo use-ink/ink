@@ -108,7 +108,7 @@ impl ReturnCode {
 /// The off-chain engine.
 pub struct Engine {
     /// The environment storage.
-    pub storage: Storage<Key, Vec<u8>>,
+    pub storage: Storage,
     /// Holds the balance of each account.
     pub balances: HashMap<AccountId, Balance>,
     /// The current execution context.
@@ -192,9 +192,7 @@ impl Engine {
         }
 
         // We ignore if storage is already set for this key
-        let _ = self
-            .storage
-            .insert(Key::from_bytes(key), encoded_value.to_vec());
+        let _ = self.storage.insert(key.to_vec(), encoded_value.to_vec());
     }
 
     /// Removes the value from storage entries at the given key.
@@ -205,7 +203,7 @@ impl Engine {
             self.recorder.dec_cells_per_account(account_id);
         }
 
-        self.storage.remove(&Key::from_bytes(key));
+        self.storage.remove(key);
     }
 
     /// Returns the decoded storage at the key if any.
@@ -215,7 +213,7 @@ impl Engine {
             self.recorder.inc_reads(account_id);
         }
 
-        match self.storage.get(&Key::from_bytes(key)) {
+        match self.storage.get(key) {
             Some(val) => {
                 output[0..val.len()].copy_from_slice(val);
                 Ok(())
