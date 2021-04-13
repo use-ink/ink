@@ -305,27 +305,21 @@ where
             self.header.last_vacant = self.header.len;
             return
         }
+        let prev = self
+            .entries
+            .get_mut(prev_vacant)
+            .map(Entry::try_to_vacant_mut)
+            .flatten()
+            .expect("`prev` must point to an existing entry at this point");
         if prev_vacant == next_vacant {
             // There is only one other vacant entry left.
             // We can update the single vacant entry in a single look-up.
-            let entry = self
-                .entries
-                .get_mut(prev_vacant)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`prev` must point to an existing entry at this point");
-            debug_assert_eq!(entry.prev, removed_index);
-            debug_assert_eq!(entry.next, removed_index);
-            entry.prev = prev_vacant;
-            entry.next = prev_vacant;
+            debug_assert_eq!(prev.prev, removed_index);
+            debug_assert_eq!(prev.next, removed_index);
+            prev.prev = prev_vacant;
+            prev.next = prev_vacant;
         } else {
             // There are multiple other vacant entries left.
-            let prev = self
-                .entries
-                .get_mut(prev_vacant)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`prev` must point to an existing entry at this point");
             debug_assert_eq!(prev.next, removed_index);
             prev.next = next_vacant;
             let next = self
