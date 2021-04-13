@@ -130,11 +130,6 @@ impl Engine {
         self.recorder.reset();
     }
 
-    /// Returns the recorded emitted events in order.
-    pub fn get_emitted_events(&self) -> Vec<EmittedEvent> {
-        self.recorder.emitted_events.clone()
-    }
-
     /// Returns the total number of reads and writes of the contract's storage.
     pub fn get_contract_storage_rw(&self, account_id: Vec<u8>) -> (usize, usize) {
         let account_id = AccountId::from(account_id);
@@ -172,6 +167,11 @@ impl Engine {
     /// Returns the contents of the past performed environmental `println` in order.
     pub fn get_recorded_printlns(&self) -> impl Iterator<Item = String> {
         self.recorder.emitted_printlns.clone().into_iter()
+    }
+
+    /// Returns the recorded emitted events in order.
+    pub fn get_emitted_events(&self) -> impl Iterator<Item = EmittedEvent> {
+        self.recorder.emitted_events.clone().into_iter()
     }
 
     /// Sets the balance of `account_id` to `new_balance`.

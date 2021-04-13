@@ -140,10 +140,8 @@ fn events() {
     engine.deposit_event(&enc_topics_info, data);
 
     // then
-    let events = engine.get_emitted_events();
-    assert_eq!(events.len(), 1);
-
-    let event = events.get(0).expect("event must exist");
+    let mut events = engine.get_emitted_events();
+    let event = events.next().expect("event must exist");
     assert_eq!(event.topics.len(), 2);
     assert_eq!(
         event.topics.get(0).expect("first topic must exist"),
@@ -154,6 +152,7 @@ fn events() {
         &topic2
     );
     assert_eq!(&event.data, data);
+    assert!(events.next().is_none());
 }
 
 #[test]
