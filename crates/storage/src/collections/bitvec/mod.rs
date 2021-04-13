@@ -272,17 +272,18 @@ impl Bitvec {
             };
             self.bits.push(bits256);
             *self.len += 1;
-        } else {
-            // Case: The last 256-bit pack has unused bits:
-            // - Set last bit of last 256-bit pack to the given value.
-            // - Opt.: Since bits are initialized as 0 we only need
-            //         to mutate this value if `value` is `true`.
-            *self.len += 1;
-            if value {
-                self.last_mut()
-                    .expect("must have at least a valid bit in this case")
-                    .set()
-            }
+            return
+        }
+
+        // Case: The last 256-bit pack has unused bits:
+        // - Set last bit of last 256-bit pack to the given value.
+        // - Opt.: Since bits are initialized as 0 we only need
+        //         to mutate this value if `value` is `true`.
+        *self.len += 1;
+        if value {
+            self.last_mut()
+                .expect("must have at least a valid bit in this case")
+                .set()
         }
     }
 
