@@ -236,7 +236,7 @@ examples-test:
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path ${contract}/Cargo.toml;
+        cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
       done
 
 examples-fmt:
@@ -247,7 +247,7 @@ examples-fmt:
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path ${contract}/Cargo.toml -- --check;
+        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check;
       done
 
 examples-clippy-std:
@@ -261,7 +261,7 @@ examples-clippy-std:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
@@ -272,7 +272,7 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path ${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
@@ -286,7 +286,7 @@ examples-contract-build:
         popd;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        pushd $contract &&
+        pushd examples/delegator/$contract &&
         cargo contract build &&
         popd;
       done
@@ -312,7 +312,7 @@ examples-docs:
             cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
           done
         - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-            cargo doc --manifest-path ${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+            cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
           done
 
 #### stage:                        publish
