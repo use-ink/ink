@@ -273,12 +273,20 @@ examples-contract-build:
         popd;
       done
 
-examples-contract-build-delegator:
+examples-contract-test-entire-delegator:
     stage:                           examples
     <<:                              *docker-env
     script:
         - cargo contract -V
-        - cd examples/delegator/ && ./build-all.sh
+        - cd examples/delegator/
+        - SUBCONTRACTS=("accumulator" "adder" "subber")
+        - for contract in ${SUBCONTRACTS[*]}; do
+            cargo fmt --verbose --manifest-path ${contract}/Cargo.toml -- --check;
+            cargo clippy --verbose --manifest-path ${contract}/Cargo.toml -- -D warnings;
+            cargo clippy --verbose --manifest-path ${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+            cargo test --verbose --manifest-path ${contract}/Cargo.toml;
+          done
+        - ./build-all.sh
 
 examples-docs:
     stage:                           examples
