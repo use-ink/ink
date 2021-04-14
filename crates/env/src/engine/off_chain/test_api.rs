@@ -422,17 +422,10 @@ pub fn assert_contract_termination<T, F>(
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");
     let encoded_input = value_any
-        .downcast_ref::<String>()
+        .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let deserialized_vec = encoded_input
-        .replace("[", "")
-        .replace("]", "")
-        .split(", ")
-        .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
-        .collect::<Vec<u8>>();
     let res: ContractTerminationResult<T> =
-        scale::Decode::decode(&mut &deserialized_vec[..])
-            .expect("input can not be decoded");
+        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
 
     assert_eq!(res.beneficiary, expected_beneficiary);
     assert_eq!(res.transferred, expected_balance);
