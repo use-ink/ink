@@ -27,7 +27,7 @@ pub mod give_me {
     pub struct GiveMe {}
 
     /// The error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode)]
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         /// Returned if the transfer failed.
