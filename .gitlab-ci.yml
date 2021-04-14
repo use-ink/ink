@@ -273,6 +273,13 @@ examples-contract-build:
         popd;
       done
 
+examples-contract-build-delegator:
+    stage:                           examples
+    <<:                              *docker-env
+    script:
+        - cargo contract -V
+        - cd examples/delegator/ && ./build-all.sh
+
 examples-docs:
     stage:                           examples
     <<:                              *docker-env
