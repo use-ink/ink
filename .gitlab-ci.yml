@@ -23,7 +23,7 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:           ("accumulator" "adder" "subber")
+  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
 
 workflow:
   rules:
@@ -235,7 +235,7 @@ examples-test:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo test --verbose --manifest-path ${contract}/Cargo.toml;
       done
 
@@ -246,7 +246,7 @@ examples-fmt:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo fmt --verbose --manifest-path ${contract}/Cargo.toml -- --check;
       done
 
@@ -260,7 +260,7 @@ examples-clippy-std:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --manifest-path ${contract}/Cargo.toml -- -D warnings;
       done
 
@@ -271,7 +271,7 @@ examples-clippy-wasm:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --manifest-path ${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
@@ -285,7 +285,7 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         pushd $contract &&
         cargo contract build &&
         popd;
@@ -311,7 +311,7 @@ examples-docs:
         - for example in examples/*/; do
             cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
           done
-        - for contract in ${DELEGATOR_SUBCONTRACTS[*]}; do
+        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
             cargo doc --manifest-path ${contract}/Cargo.toml --document-private-items --verbose --no-deps;
           done
 
