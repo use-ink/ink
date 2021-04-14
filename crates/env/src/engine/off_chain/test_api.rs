@@ -31,7 +31,7 @@ use crate::{
     Result,
 };
 use ink_prelude::string::String;
-use std::str::FromStr;
+use std::panic::UnwindSafe;
 
 /// Pushes a contract execution context.
 ///
@@ -390,9 +390,6 @@ where
     pub transferred: <E as Environment>::Balance,
 }
 
-#[cfg(feature = "std")]
-use std::panic::UnwindSafe;
-
 /// Tests if a contract terminates successfully after `self.env().terminate()`
 /// has been called.
 ///
@@ -408,7 +405,6 @@ use std::panic::UnwindSafe;
 /// ```
 ///
 /// See `examples/contract-terminate` for a complete usage example.
-#[cfg(feature = "std")]
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,
