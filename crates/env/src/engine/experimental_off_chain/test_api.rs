@@ -23,10 +23,7 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
-use std::{
-    panic::UnwindSafe,
-    str::FromStr,
-};
+use std::panic::UnwindSafe;
 
 /// Record for an emitted event.
 #[derive(Clone)]
