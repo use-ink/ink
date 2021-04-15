@@ -242,7 +242,7 @@ impl Engine {
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
         let res = (all, beneficiary.to_vec());
-        panic!("{:?}", scale::Encode::encode(&res));
+        std::panic::panic_any(scale::Encode::encode(&res));
     }
 
     /// Returns the address of the caller.

@@ -356,19 +356,13 @@ pub fn assert_contract_termination<T, F>(
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");
     let encoded_input = value_any
-        .downcast_ref::<String>()
+        .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let deserialized_vec = encoded_input
-        .replace("[", "")
-        .replace("]", "")
-        .split(", ")
-        .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
-        .collect::<Vec<u8>>();
-    let res: (T::Balance, Vec<u8>) = scale::Decode::decode(&mut &deserialized_vec[..])
-        .expect("input can not be decoded");
-    assert_eq!(res.0, expected_value_transferred_to_beneficiary);
-
-    let beneficiary = <T::AccountId as scale::Decode>::decode(&mut &res.1[..])
-        .expect("input can not be decoded");
+    let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
+        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
+    let beneficiary =
+        <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
+            .expect("input can not be decoded");
+    assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
     assert_eq!(beneficiary, expected_beneficiary);
 }
