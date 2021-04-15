@@ -36,7 +36,11 @@ criterion_group!(
     bench_key_ptr_advance_by,
     bench_key_ptr_advance_by_repeat,
 );
-criterion_main!(bench_key, bench_key_ptr);
+criterion_group!(
+    bench_key_to_bytes,
+    bench_key_key_to_bytes,
+);
+criterion_main!(bench_key, bench_key_ptr, bench_key_to_bytes);
 
 fn bench_key_add_assign_u64(c: &mut Criterion) {
     let key = Key::from([0x00; 32]);
@@ -119,3 +123,17 @@ fn bench_key_ptr_advance_by_repeat(c: &mut Criterion) {
         })
     });
 }
+
+fn bench_key_key_to_bytes(c: &mut Criterion) {
+    let key = Key::from([
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    ]);
+    c.bench_function("Key::to_bytes()", |b| {
+        b.iter(|| {
+            let _ = black_box(key.to_bytes());
+        })
+    });
+}
+
