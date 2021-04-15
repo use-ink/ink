@@ -741,7 +741,7 @@ a possible source of error could be that you are using `#[test]` instead of `#[i
             <span class="ident">beneficiary</span>,
             <span class="ident">transferred</span>: <span class="ident">all</span>,
         };
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>));
+        <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">panic_any</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>));
     }
 }
 
