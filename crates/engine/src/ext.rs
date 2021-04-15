@@ -30,7 +30,10 @@ use crate::{
         Key,
     },
 };
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    panic::panic_any,
+};
 
 type Result = core::result::Result<(), Error>;
 
@@ -242,7 +245,7 @@ impl Engine {
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
         let res = (all, beneficiary.to_vec());
-        std::panic::panic_any(scale::Encode::encode(&res));
+        panic_any(scale::Encode::encode(&res));
     }
 
     /// Returns the address of the caller.
