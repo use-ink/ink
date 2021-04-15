@@ -23,6 +23,7 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
 
 workflow:
   rules:
@@ -247,6 +248,9 @@ examples-test:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+      done
 
 examples-test-experimental-engine:
   stage:                           examples
@@ -268,6 +272,9 @@ examples-fmt:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check;
+      done
 
 examples-clippy-std:
   stage:                           examples
@@ -279,6 +286,9 @@ examples-clippy-std:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+      done
 
 examples-clippy-wasm:
   stage:                           examples
@@ -286,6 +296,9 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
@@ -298,6 +311,18 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        pushd examples/delegator/$contract &&
+        cargo contract build &&
+        popd;
+      done
+
+examples-contract-build-delegator:
+    stage:                           examples
+    <<:                              *docker-env
+    script:
+        - cargo contract -V
+        - cd examples/delegator/ && ./build-all.sh
 
 examples-docs:
     stage:                           examples
@@ -311,6 +336,9 @@ examples-docs:
         # of this flag.
         - for example in examples/*/; do
             cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
+          done
+        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+            cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
           done
 
 #### stage:                        publish
