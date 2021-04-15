@@ -274,7 +274,6 @@ impl Bitvec {
             *self.len += 1;
             return
         }
-
         // Case: The last 256-bit pack has unused bits:
         // - Set last bit of last 256-bit pack to the given value.
         // - Opt.: Since bits are initialized as 0 we only need
