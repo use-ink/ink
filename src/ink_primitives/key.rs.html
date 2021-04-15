@@ -570,7 +570,7 @@
 <span class="kw">impl</span> <span class="ident">Key</span> {
     <span class="doccomment">/// Returns the bytes that are representing the key.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
         <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
             <span class="comment">// SAFETY: This pointer cast is possible since the outer struct</span>
             <span class="comment">//         (Key) is `repr(transparent)` and since we restrict</span>
@@ -584,7 +584,7 @@
     }
 
     <span class="doccomment">/// Fallback big-endian procedure to return the underlying bytes of `self`.</span>
-    <span class="kw">fn</span> <span class="ident">to_bytes_be_fallback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
+    <span class="kw">fn</span> <span class="ident">to_bytes_be_fallback</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
             <span class="kw">let</span> <span class="ident">o</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">8</span>;

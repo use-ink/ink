@@ -583,17 +583,17 @@
             };
             <span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">push</span>(<span class="ident">bits256</span>);
             <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="comment">// Case: The last 256-bit pack has unused bits:</span>
-            <span class="comment">// - Set last bit of last 256-bit pack to the given value.</span>
-            <span class="comment">// - Opt.: Since bits are initialized as 0 we only need</span>
-            <span class="comment">//         to mutate this value if `value` is `true`.</span>
-            <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">value</span> {
-                <span class="self">self</span>.<span class="ident">last_mut</span>()
-                    .<span class="ident">expect</span>(<span class="string">&quot;must have at least a valid bit in this case&quot;</span>)
-                    .<span class="ident">set</span>()
-            }
+            <span class="kw">return</span>
+        }
+        <span class="comment">// Case: The last 256-bit pack has unused bits:</span>
+        <span class="comment">// - Set last bit of last 256-bit pack to the given value.</span>
+        <span class="comment">// - Opt.: Since bits are initialized as 0 we only need</span>
+        <span class="comment">//         to mutate this value if `value` is `true`.</span>
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if</span> <span class="ident">value</span> {
+            <span class="self">self</span>.<span class="ident">last_mut</span>()
+                .<span class="ident">expect</span>(<span class="string">&quot;must have at least a valid bit in this case&quot;</span>)
+                .<span class="ident">set</span>()
         }
     }
 
