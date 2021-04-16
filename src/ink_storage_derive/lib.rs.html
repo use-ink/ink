@@ -236,11 +236,11 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">packed_layout</span>::<span class="ident">packed_layout_derive</span>,
-    <span class="ident">spread_layout</span>::<span class="ident">spread_layout_derive</span>,
-    <span class="ident">storage_layout</span>::<span class="ident">storage_layout_derive</span>,
+    <span class="ident">packed_layout::packed_layout_derive</span>,
+    <span class="ident">spread_layout::spread_layout_derive</span>,
+    <span class="ident">storage_layout::storage_layout_derive</span>,
 };
-<span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>(
+<span class="macro">synstructure::decl_derive!</span>(
     [<span class="ident">SpreadLayout</span>] <span class="op">=</span><span class="op">&gt;</span>
     <span class="doccomment">/// Derives `ink_storage`&#39;s `SpreadLayout` trait for the given `struct` or `enum`.</span>
     <span class="doccomment">///</span>
@@ -274,7 +274,7 @@
     <span class="doccomment">/// ```</span>
     <span class="ident">spread_layout_derive</span>
 );
-<span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>(
+<span class="macro">synstructure::decl_derive!</span>(
     [<span class="ident">PackedLayout</span>] <span class="op">=</span><span class="op">&gt;</span>
     <span class="doccomment">/// Derives `ink_storage`&#39;s `PackedLayout` trait for the given `struct` or `enum`.</span>
     <span class="doccomment">///</span>
@@ -310,7 +310,7 @@
     <span class="doccomment">/// ```</span>
     <span class="ident">packed_layout_derive</span>
 );
-<span class="ident">synstructure</span>::<span class="macro">decl_derive</span><span class="macro">!</span>(
+<span class="macro">synstructure::decl_derive!</span>(
     [<span class="ident">StorageLayout</span>] <span class="op">=</span><span class="op">&gt;</span>
     <span class="doccomment">/// Derives `ink_storage`&#39;s `StorageLayout` trait for the given `struct` or `enum`.</span>
     <span class="doccomment">///</span>

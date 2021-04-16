@@ -619,17 +619,17 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::<span class="ident">Entries</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::{
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::iter::Entries</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::iter</span>::{
     <span class="ident">Iter</span>,
     <span class="ident">IterMut</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">lazy</span>::<span class="ident">LazyIndexMap</span>,
-    <span class="ident">traits</span>::<span class="ident">PackedLayout</span>,
+    <span class="ident">lazy::LazyIndexMap</span>,
+    <span class="ident">traits::PackedLayout</span>,
     <span class="ident">Pack</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// An index into the stash.</span>
 <span class="kw">type</span> <span class="ident">Index</span> <span class="op">=</span> <span class="ident">u32</span>;
@@ -651,8 +651,8 @@
 }
 
 <span class="doccomment">/// Stores general commonly required information about the storage stash.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">struct</span> <span class="ident">Header</span> {
     <span class="doccomment">/// The latest vacant index.</span>
     <span class="doccomment">///</span>
@@ -673,8 +673,8 @@
 }
 
 <span class="doccomment">/// A vacant entry with previous and next vacant indices.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VacantEntry</span> {
     <span class="doccomment">/// The next vacant index.</span>
     <span class="ident">next</span>: <span class="ident">Index</span>,
@@ -686,8 +686,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// The vacant entries within a storage stash form a doubly linked list of</span>
 <span class="doccomment">/// vacant entries that is used to quickly re-use their vacant storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A vacant entry that holds the index to the next and previous vacant entry.</span>
     <span class="ident">Vacant</span>(<span class="ident">VacantEntry</span>),
@@ -698,7 +698,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Entry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns `true` if the entry is occupied.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_occupied</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="bool-val">true</span>
         }
         <span class="bool-val">false</span>
@@ -712,16 +712,16 @@
     <span class="doccomment">/// Returns the vacant entry if the entry is vacant, otherwise returns `None`.</span>
     <span class="kw">fn</span> <span class="ident">try_to_vacant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VacantEntry</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">vacant_entry</span>),
+            <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">vacant_entry</span>),
         }
     }
 
     <span class="doccomment">/// Returns the vacant entry if the entry is vacant, otherwise returns `None`.</span>
     <span class="kw">fn</span> <span class="ident">try_to_vacant_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">VacantEntry</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">vacant_entry</span>),
+            <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">vacant_entry</span>),
         }
     }
 }
@@ -733,12 +733,12 @@
     <span class="doccomment">/// Creates a new empty stash.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">header</span>: <span class="ident">Pack</span>::<span class="ident">new</span>(<span class="ident">Header</span> {
+            <span class="ident">header</span>: <span class="ident">Pack::new</span>(<span class="ident">Header</span> {
                 <span class="ident">last_vacant</span>: <span class="number">0</span>,
                 <span class="ident">len</span>: <span class="number">0</span>,
                 <span class="ident">len_entries</span>: <span class="number">0</span>,
             }),
-            <span class="ident">entries</span>: <span class="ident">LazyIndexMap</span>::<span class="ident">new</span>(),
+            <span class="ident">entries</span>: <span class="ident">LazyIndexMap::new</span>(),
         }
     }
 
@@ -785,7 +785,7 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Iter</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">Iter::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator yielding exclusive references to all elements of the stash.</span>
@@ -796,12 +796,12 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">IterMut</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">IterMut::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator yielding shared references to all entries of the stash.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Entries</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Entries</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">Entries::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns `true` if the storage stash has vacant entries.</span>
@@ -831,8 +831,8 @@
         }
         <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get</span>(<span class="ident">at</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> {
             <span class="kw">match</span> <span class="ident">entry</span> {
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
-                <span class="ident">Entry</span>::<span class="ident">Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="ident">Entry::Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
+                <span class="ident">Entry::Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             }
         })
     }
@@ -845,8 +845,8 @@
         }
         <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">get_mut</span>(<span class="ident">at</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> {
             <span class="kw">match</span> <span class="ident">entry</span> {
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
-                <span class="ident">Entry</span>::<span class="ident">Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                <span class="ident">Entry::Occupied</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>),
+                <span class="ident">Entry::Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             }
         })
     }
@@ -906,32 +906,32 @@
         <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">entries</span>
             .<span class="ident">get_mut</span>(<span class="ident">prev_vacant</span>)
-            .<span class="ident">map</span>(<span class="ident">Entry</span>::<span class="ident">try_to_vacant_mut</span>)
+            .<span class="ident">map</span>(<span class="ident">Entry::try_to_vacant_mut</span>)
             .<span class="ident">flatten</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;`prev` must point to an existing entry at this point&quot;</span>);
         <span class="kw">if</span> <span class="ident">prev_vacant</span> <span class="op">=</span><span class="op">=</span> <span class="ident">next_vacant</span> {
             <span class="comment">// There is only one other vacant entry left.</span>
             <span class="comment">// We can update the single vacant entry in a single look-up.</span>
-            <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">prev</span>.<span class="ident">prev</span>, <span class="ident">removed_index</span>);
-            <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">prev</span>.<span class="ident">next</span>, <span class="ident">removed_index</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">prev</span>, <span class="ident">removed_index</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">next</span>, <span class="ident">removed_index</span>);
             <span class="ident">prev</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="ident">prev_vacant</span>;
             <span class="ident">prev</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">prev_vacant</span>;
         } <span class="kw">else</span> {
             <span class="comment">// There are multiple other vacant entries left.</span>
-            <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">prev</span>.<span class="ident">next</span>, <span class="ident">removed_index</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="ident">prev</span>.<span class="ident">next</span>, <span class="ident">removed_index</span>);
             <span class="ident">prev</span>.<span class="ident">next</span> <span class="op">=</span> <span class="ident">next_vacant</span>;
             <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>
                 .<span class="ident">entries</span>
                 .<span class="ident">get_mut</span>(<span class="ident">next_vacant</span>)
-                .<span class="ident">map</span>(<span class="ident">Entry</span>::<span class="ident">try_to_vacant_mut</span>)
+                .<span class="ident">map</span>(<span class="ident">Entry::try_to_vacant_mut</span>)
                 .<span class="ident">flatten</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;`next` must point to an existing entry at this point&quot;</span>);
-            <span class="macro">debug_assert_eq</span><span class="macro">!</span>(<span class="ident">next</span>.<span class="ident">prev</span>, <span class="ident">removed_index</span>);
+            <span class="macro">debug_assert_eq!</span>(<span class="ident">next</span>.<span class="ident">prev</span>, <span class="ident">removed_index</span>);
             <span class="ident">next</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="ident">prev_vacant</span>;
         }
         <span class="comment">// Bind the last vacant pointer to the vacant position with the lower index.</span>
         <span class="comment">// This has the effect that lower indices are refilled more quickly.</span>
-        <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>;
+        <span class="kw">use</span> <span class="ident">core::cmp::min</span>;
         <span class="kw">if</span> <span class="ident">removed_index</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span> {
             <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span> <span class="op">=</span> <span class="ident">min</span>(<span class="ident">prev_vacant</span>, <span class="ident">next_vacant</span>);
         }
@@ -988,7 +988,7 @@
             <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="self">self</span>
                 .<span class="ident">entries</span>
                 .<span class="ident">get_mut</span>(<span class="ident">next</span>)
-                .<span class="ident">map</span>(<span class="ident">Entry</span>::<span class="ident">try_to_vacant_mut</span>)
+                .<span class="ident">map</span>(<span class="ident">Entry::try_to_vacant_mut</span>)
                 .<span class="ident">flatten</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;`next` must point to an existing vacant entry at this point&quot;</span>);
             <span class="ident">entry</span>.<span class="ident">prev</span> <span class="op">=</span> <span class="ident">at</span>;
@@ -998,13 +998,13 @@
             <span class="comment">// different look-ups to update them.</span>
             <span class="self">self</span>.<span class="ident">entries</span>
                 .<span class="ident">get_mut</span>(<span class="ident">prev</span>)
-                .<span class="ident">map</span>(<span class="ident">Entry</span>::<span class="ident">try_to_vacant_mut</span>)
+                .<span class="ident">map</span>(<span class="ident">Entry::try_to_vacant_mut</span>)
                 .<span class="ident">flatten</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;`prev` must point to an existing vacant entry at this point&quot;</span>)
                 .<span class="ident">next</span> <span class="op">=</span> <span class="ident">at</span>;
             <span class="self">self</span>.<span class="ident">entries</span>
                 .<span class="ident">get_mut</span>(<span class="ident">next</span>)
-                .<span class="ident">map</span>(<span class="ident">Entry</span>::<span class="ident">try_to_vacant_mut</span>)
+                .<span class="ident">map</span>(<span class="ident">Entry::try_to_vacant_mut</span>)
                 .<span class="ident">flatten</span>()
                 .<span class="ident">expect</span>(<span class="string">&quot;`next` must point to an existing vacant entry at this point&quot;</span>)
                 .<span class="ident">prev</span> <span class="op">=</span> <span class="ident">at</span>;
@@ -1015,7 +1015,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the stash index that the element was put into.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Index</span> {
-        <span class="kw">let</span> <span class="ident">new_entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">new_value</span>));
+        <span class="kw">let</span> <span class="ident">new_entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">new_value</span>));
         <span class="kw">let</span> <span class="ident">new_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_vacant_index</span>() {
             <span class="comment">// Put the new element to the most recent vacant index if not all entries are occupied.</span>
             <span class="kw">let</span> <span class="ident">old_entry</span> <span class="op">=</span> <span class="self">self</span>
@@ -1023,9 +1023,9 @@
                 .<span class="ident">put_get</span>(<span class="ident">index</span>, <span class="ident">new_entry</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;a `last_vacant_index()` must point to an occupied cell&quot;</span>);
             <span class="kw">let</span> <span class="ident">vacant_entry</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">old_entry</span> {
-                <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vacant_entry</span>,
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;`last_vacant_index()` must point to a vacant entry&quot;</span>)
+                <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vacant_entry</span>,
+                <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">unreachable!</span>(<span class="string">&quot;`last_vacant_index()` must point to a vacant entry&quot;</span>)
                 }
             };
             <span class="self">self</span>.<span class="ident">remove_vacant_entry</span>(<span class="ident">index</span>, <span class="ident">vacant_entry</span>);
@@ -1060,20 +1060,20 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
         <span class="comment">// At this point we know that the entry is occupied with a value.</span>
-        <span class="kw">let</span> <span class="ident">new_vacant_entry</span> <span class="op">=</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">VacantEntry</span> { <span class="ident">next</span>, <span class="ident">prev</span> });
-        <span class="kw">let</span> <span class="ident">taken_entry</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">entry_mut</span>, <span class="ident">new_vacant_entry</span>);
+        <span class="kw">let</span> <span class="ident">new_vacant_entry</span> <span class="op">=</span> <span class="ident">Entry::Vacant</span>(<span class="ident">VacantEntry</span> { <span class="ident">next</span>, <span class="ident">prev</span> });
+        <span class="kw">let</span> <span class="ident">taken_entry</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="ident">entry_mut</span>, <span class="ident">new_vacant_entry</span>);
         <span class="self">self</span>.<span class="ident">update_neighboring_vacant_entry_links</span>(<span class="ident">prev</span>, <span class="ident">next</span>, <span class="ident">at</span>);
         <span class="comment">// Take the value out of the taken occupied entry and return it.</span>
         <span class="kw">match</span> <span class="ident">taken_entry</span> {
-            <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>;
+            <span class="ident">Entry::Occupied</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="ident">core::cmp::min</span>;
                 <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span> <span class="op">=</span>
                     <span class="ident">min</span>(<span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span>, <span class="ident">min</span>(<span class="ident">at</span>, <span class="ident">min</span>(<span class="ident">prev</span>, <span class="ident">next</span>)));
                 <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">value</span>)
             }
-            <span class="ident">Entry</span>::<span class="ident">Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;the taken entry is known to be occupied&quot;</span>)
+            <span class="ident">Entry::Vacant</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;the taken entry is known to be occupied&quot;</span>)
             }
         }
     }
@@ -1106,10 +1106,10 @@
         <span class="comment">// Precompute previous and next vacant entries as we might need them later.</span>
         <span class="comment">// Due to borrow checker constraints we cannot have this at a later stage.</span>
         <span class="kw">let</span> (<span class="ident">prev</span>, <span class="ident">next</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_prev_and_next_vacant_entry</span>(<span class="ident">at</span>);
-        <span class="kw">let</span> <span class="ident">new_vacant_entry</span> <span class="op">=</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">VacantEntry</span> { <span class="ident">next</span>, <span class="ident">prev</span> });
+        <span class="kw">let</span> <span class="ident">new_vacant_entry</span> <span class="op">=</span> <span class="ident">Entry::Vacant</span>(<span class="ident">VacantEntry</span> { <span class="ident">next</span>, <span class="ident">prev</span> });
         <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">put</span>(<span class="ident">at</span>, <span class="prelude-val">Some</span>(<span class="ident">new_vacant_entry</span>));
         <span class="self">self</span>.<span class="ident">update_neighboring_vacant_entry_links</span>(<span class="ident">prev</span>, <span class="ident">next</span>, <span class="ident">at</span>);
-        <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>;
+        <span class="kw">use</span> <span class="ident">core::cmp::min</span>;
         <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span> <span class="op">=</span> <span class="ident">min</span>(<span class="self">self</span>.<span class="ident">header</span>.<span class="ident">last_vacant</span>, <span class="ident">min</span>(<span class="ident">at</span>, <span class="ident">min</span>(<span class="ident">prev</span>, <span class="ident">next</span>)));
         <span class="self">self</span>.<span class="ident">header</span>.<span class="ident">len</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         <span class="prelude-val">Some</span>(())
@@ -1158,11 +1158,11 @@
                 .<span class="ident">put_get</span>(<span class="ident">index</span>, <span class="prelude-val">None</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;index is out of bounds&quot;</span>)
             {
-                <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Remove the vacant entry and rebind its neighbors.</span>
                     <span class="self">self</span>.<span class="ident">remove_vacant_entry</span>(<span class="ident">index</span>, <span class="ident">vacant_entry</span>);
                 }
-                <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Entry::Occupied</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Move the occupied entry into one of the remaining vacant</span>
                     <span class="comment">// entries. We do not re-use the `put` method to not update</span>
                     <span class="comment">// the length and other header information.</span>
@@ -1170,14 +1170,14 @@
                         .<span class="ident">last_vacant_index</span>()
                         .<span class="ident">expect</span>(<span class="string">&quot;it has been asserted that there are vacant entries&quot;</span>);
                     <span class="ident">callback</span>(<span class="ident">index</span>, <span class="ident">vacant_index</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>);
-                    <span class="kw">let</span> <span class="ident">new_entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="ident">value</span>));
+                    <span class="kw">let</span> <span class="ident">new_entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">value</span>));
                     <span class="kw">let</span> <span class="ident">old_entry</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">put_get</span>(<span class="ident">vacant_index</span>, <span class="ident">new_entry</span>).<span class="ident">expect</span>(
                         <span class="string">&quot;`last_vacant_index` index must point to an occupied cell&quot;</span>,
                     );
                     <span class="kw">let</span> <span class="ident">vacant_entry</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">old_entry</span> {
-                        <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vacant_entry</span>,
-                        <span class="ident">Entry</span>::<span class="ident">Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="macro">unreachable</span><span class="macro">!</span>(
+                        <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vacant_entry</span>,
+                        <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="macro">unreachable!</span>(
                                 <span class="string">&quot;`last_vacant_index` must point to a vacant entry&quot;</span>
                             )
                         }

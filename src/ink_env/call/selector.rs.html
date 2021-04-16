@@ -50,10 +50,10 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
 
 <span class="doccomment">/// The function selector.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">From</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">From</span>, <span class="ident">scale::Decode</span>, <span class="ident">scale::Encode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Selector</span> {
     <span class="doccomment">/// The 4 underlying bytes.</span>
     <span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>],

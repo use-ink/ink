@@ -376,7 +376,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">test</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-fuzz-tests&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">fuzz_tests</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">iter</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::iter</span>::{
     <span class="ident">Iter</span>,
     <span class="ident">IterMut</span>,
 };
@@ -385,7 +385,7 @@
         <span class="ident">Lazy</span>,
         <span class="ident">LazyIndexMap</span>,
     },
-    <span class="ident">traits</span>::<span class="ident">PackedLayout</span>,
+    <span class="ident">traits::PackedLayout</span>,
 };
 
 <span class="doccomment">/// A contiguous growable array type, written `Vec&lt;T&gt;` but pronounced &quot;vector&quot;.</span>
@@ -422,7 +422,7 @@
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -433,8 +433,8 @@
     <span class="doccomment">/// Creates a new empty storage vector.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">len</span>: <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="number">0</span>),
-            <span class="ident">elems</span>: <span class="ident">LazyIndexMap</span>::<span class="ident">new</span>(),
+            <span class="ident">len</span>: <span class="ident">Lazy::new</span>(<span class="number">0</span>),
+            <span class="ident">elems</span>: <span class="ident">LazyIndexMap::new</span>(),
         }
     }
 
@@ -487,7 +487,7 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Iter</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">Iter::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator yielding exclusive references to all elements of the vector.</span>
@@ -498,7 +498,7 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">IterMut</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">IterMut::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns the index if it is within bounds or `None` otherwise.</span>
@@ -541,8 +541,8 @@
 {
     <span class="doccomment">/// Appends an element to the back of the vector.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">core</span>::<span class="ident">u32</span>::<span class="ident">MAX</span>,
+        <span class="macro">assert!</span>(
+            <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">core::u32::MAX</span>,
             <span class="string">&quot;cannot push more elements into the storage vector&quot;</span>
         );
         <span class="kw">let</span> <span class="ident">last_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>();
@@ -616,7 +616,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If one or both indices are out of bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(
+        <span class="macro">assert!</span>(
             <span class="ident">a</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">b</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>(),
             <span class="string">&quot;indices are out of bounds&quot;</span>
         );

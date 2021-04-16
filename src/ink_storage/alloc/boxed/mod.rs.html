@@ -145,10 +145,10 @@
         <span class="ident">alloc</span>,
         <span class="ident">DynamicAllocation</span>,
     },
-    <span class="ident">lazy</span>::<span class="ident">Lazy</span>,
-    <span class="ident">traits</span>::<span class="ident">SpreadLayout</span>,
+    <span class="ident">lazy::Lazy</span>,
+    <span class="ident">traits::SpreadLayout</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// A dynamically allocated storage entity.</span>
 <span class="doccomment">///</span>
@@ -186,7 +186,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">allocation</span>: <span class="ident">alloc</span>(),
-            <span class="ident">value</span>: <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="ident">value</span>),
+            <span class="ident">value</span>: <span class="ident">Lazy::new</span>(<span class="ident">value</span>),
         }
     }
 
@@ -194,7 +194,7 @@
     <span class="kw">fn</span> <span class="ident">lazy</span>(<span class="ident">allocation</span>: <span class="ident">DynamicAllocation</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">allocation</span>,
-            <span class="ident">value</span>: <span class="ident">Lazy</span>::<span class="ident">lazy</span>(<span class="ident">allocation</span>.<span class="ident">key</span>()),
+            <span class="ident">value</span>: <span class="ident">Lazy::lazy</span>(<span class="ident">allocation</span>.<span class="ident">key</span>()),
         }
     }
 

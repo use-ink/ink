@@ -84,11 +84,11 @@
 
 <span class="doccomment">/// Helper routine implementing variable size BLAKE-2b hash computation.</span>
 <span class="kw">fn</span> <span class="ident">blake2b_var</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
-    <span class="kw">use</span> ::<span class="ident">blake2</span>::<span class="ident">digest</span>::{
+    <span class="kw">use</span> <span class="ident">::blake2::digest</span>::{
         <span class="ident">Update</span> <span class="kw">as</span> <span class="kw">_</span>,
         <span class="ident">VariableOutput</span> <span class="kw">as</span> <span class="kw">_</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blake2</span> <span class="op">=</span> <span class="ident">blake2</span>::<span class="ident">VarBlake2b</span>::<span class="ident">new_keyed</span>(<span class="kw-2">&amp;</span>[], <span class="ident">size</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blake2</span> <span class="op">=</span> <span class="ident">blake2::VarBlake2b::new_keyed</span>(<span class="kw-2">&amp;</span>[], <span class="ident">size</span>);
     <span class="ident">blake2</span>.<span class="ident">update</span>(<span class="ident">input</span>);
     <span class="ident">blake2</span>.<span class="ident">finalize_variable</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">copy_from_slice</span>(<span class="ident">result</span>));
 }
@@ -105,30 +105,30 @@
 
 <span class="doccomment">/// Conduct the KECCAK 256-bit hash and place the result into `output`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keccak_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
-    <span class="kw">use</span> ::<span class="ident">sha3</span>::{
+    <span class="kw">use</span> <span class="ident">::sha3</span>::{
         <span class="ident">digest</span>::{
-            <span class="ident">generic_array</span>::<span class="ident">GenericArray</span>,
+            <span class="ident">generic_array::GenericArray</span>,
             <span class="ident">FixedOutput</span> <span class="kw">as</span> <span class="kw">_</span>,
         },
         <span class="ident">Digest</span> <span class="kw">as</span> <span class="kw">_</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> ::<span class="ident">sha3</span>::<span class="ident">Keccak256</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">::sha3::Keccak256::new</span>();
     <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="ident">input</span>);
-    <span class="ident">hasher</span>.<span class="ident">finalize_into</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>[..]));
+    <span class="ident">hasher</span>.<span class="ident">finalize_into</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>[..]));
 }
 
 <span class="doccomment">/// Conduct the SHA-2 256-bit hash and place the result into `output`.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sha2_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
-    <span class="kw">use</span> ::<span class="ident">sha2</span>::{
+    <span class="kw">use</span> <span class="ident">::sha2</span>::{
         <span class="ident">digest</span>::{
-            <span class="ident">generic_array</span>::<span class="ident">GenericArray</span>,
+            <span class="ident">generic_array::GenericArray</span>,
             <span class="ident">FixedOutput</span> <span class="kw">as</span> <span class="kw">_</span>,
         },
         <span class="ident">Digest</span> <span class="kw">as</span> <span class="kw">_</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> ::<span class="ident">sha2</span>::<span class="ident">Sha256</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">::sha2::Sha256::new</span>();
     <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="ident">input</span>);
-    <span class="ident">hasher</span>.<span class="ident">finalize_into</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>[..]));
+    <span class="ident">hasher</span>.<span class="ident">finalize_into</span>(<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>[..]));
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-search-js="../../../../search-index.js"></div>

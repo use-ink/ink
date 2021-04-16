@@ -280,12 +280,12 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::{
-    <span class="ident">boxed</span>::<span class="ident">Box</span>,
-    <span class="ident">collections</span>::<span class="ident">BTreeMap</span>,
-    <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
-    <span class="ident">string</span>::<span class="ident">String</span>,
-    <span class="ident">vec</span>::<span class="ident">Vec</span>,
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+    <span class="ident">boxed::Box</span>,
+    <span class="ident">collections::BTreeMap</span>,
+    <span class="ident">marker::PhantomData</span>,
+    <span class="ident">string::String</span>,
+    <span class="ident">vec::Vec</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -302,7 +302,7 @@
     <span class="ident">TypeInfo</span>,
 };
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_metadata_for_primitives</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_primitives</span> {
     ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident_kind</span>:<span class="ident">expr</span>, )<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> { $(
         <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
             <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
@@ -314,37 +314,37 @@
     )<span class="op">*</span> }
 }
 
-<span class="macro">impl_metadata_for_primitives</span><span class="macro">!</span>(
-    <span class="ident">bool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">Bool</span>,
-    <span class="ident">char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">Char</span>,
-    <span class="ident">u8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">U8</span>,
-    <span class="ident">u16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">U16</span>,
-    <span class="ident">u32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">U32</span>,
-    <span class="ident">u64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">U64</span>,
-    <span class="ident">u128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">U128</span>,
-    <span class="ident">i8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">I8</span>,
-    <span class="ident">i16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">I16</span>,
-    <span class="ident">i32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">I32</span>,
-    <span class="ident">i64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">I64</span>,
-    <span class="ident">i128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive</span>::<span class="ident">I128</span>,
+<span class="macro">impl_metadata_for_primitives!</span>(
+    <span class="ident">bool</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::Bool</span>,
+    <span class="ident">char</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::Char</span>,
+    <span class="ident">u8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::U8</span>,
+    <span class="ident">u16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::U16</span>,
+    <span class="ident">u32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::U32</span>,
+    <span class="ident">u64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::U64</span>,
+    <span class="ident">u128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::U128</span>,
+    <span class="ident">i8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::I8</span>,
+    <span class="ident">i16</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::I16</span>,
+    <span class="ident">i32</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::I32</span>,
+    <span class="ident">i64</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::I64</span>,
+    <span class="ident">i128</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TypeDefPrimitive::I128</span>,
 );
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_metadata_for_array</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_array</span> {
     ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span> )<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         $(
             <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] {
                 <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
                 <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-                    <span class="ident">TypeDefArray</span>::<span class="ident">new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>, <span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
+                    <span class="ident">TypeDefArray::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>, <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
                 }
             }
         )<span class="op">*</span>
     }
 }
 
-<span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
-<span class="macro">impl_metadata_for_array</span><span class="macro">!</span>(
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
+<span class="macro">impl_metadata_for_array!</span>(
         <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>  <span class="number">8</span>  <span class="number">9</span>
     <span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span> <span class="number">16</span> <span class="number">17</span> <span class="number">18</span> <span class="number">19</span>
     <span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span> <span class="number">24</span> <span class="number">25</span> <span class="number">26</span> <span class="number">27</span> <span class="number">28</span> <span class="number">29</span>
@@ -352,7 +352,7 @@
     <span class="number">40</span> <span class="number">48</span> <span class="number">56</span> <span class="number">64</span> <span class="number">72</span> <span class="number">96</span> <span class="number">128</span> <span class="number">160</span> <span class="number">192</span> <span class="number">224</span> <span class="number">256</span>
 );
 
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_metadata_for_tuple</span> {
+<span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_tuple</span> {
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ident</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>,)<span class="kw-2">*</span>)
         <span class="kw">where</span>
@@ -363,29 +363,29 @@
             <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
             <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-                <span class="ident">TypeDefTuple</span>::<span class="ident">new</span>(<span class="macro">tuple_meta_type</span><span class="macro">!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span>)).<span class="ident">into</span>()
+                <span class="ident">TypeDefTuple::new</span>(<span class="macro">tuple_meta_type!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span>)).<span class="ident">into</span>()
             }
         }
     }
 }
 
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>();
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>);
-<span class="macro">impl_metadata_for_tuple</span><span class="macro">!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>);
+<span class="macro">impl_metadata_for_tuple!</span>();
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -394,7 +394,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> [<span class="ident">T</span>];
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span>::<span class="ident">Identity</span>::<span class="ident">type_info</span>()
+        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
     }
 }
 
@@ -405,13 +405,13 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">Type</span>::<span class="ident">builder</span>()
-            .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">prelude</span>(<span class="string">&quot;Option&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type</span><span class="macro">!</span>[<span class="ident">T</span>])
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Option&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>[<span class="ident">T</span>])
             .<span class="ident">variant</span>(
-                <span class="ident">Variants</span>::<span class="ident">with_fields</span>()
+                <span class="ident">Variants::with_fields</span>()
                     .<span class="ident">variant_unit</span>(<span class="string">&quot;None&quot;</span>)
-                    .<span class="ident">variant</span>(<span class="string">&quot;Some&quot;</span>, <span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>)),
+                    .<span class="ident">variant</span>(<span class="string">&quot;Some&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>)),
             )
     }
 }
@@ -424,13 +424,13 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">Type</span>::<span class="ident">builder</span>()
-            .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">prelude</span>(<span class="string">&quot;Result&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type</span><span class="macro">!</span>(<span class="ident">T</span>, <span class="ident">E</span>))
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Result&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>(<span class="ident">T</span>, <span class="ident">E</span>))
             .<span class="ident">variant</span>(
-                <span class="ident">Variants</span>::<span class="ident">with_fields</span>()
-                    .<span class="ident">variant</span>(<span class="string">&quot;Ok&quot;</span>, <span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>))
-                    .<span class="ident">variant</span>(<span class="string">&quot;Err&quot;</span>, <span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="string">&quot;E&quot;</span>)),
+                <span class="ident">Variants::with_fields</span>()
+                    .<span class="ident">variant</span>(<span class="string">&quot;Ok&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>))
+                    .<span class="ident">variant</span>(<span class="string">&quot;Err&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="string">&quot;E&quot;</span>)),
             )
     }
 }
@@ -443,10 +443,10 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">Type</span>::<span class="ident">builder</span>()
-            .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">prelude</span>(<span class="string">&quot;BTreeMap&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type</span><span class="macro">!</span>[(<span class="ident">K</span>, <span class="ident">V</span>)])
-            .<span class="ident">composite</span>(<span class="ident">Fields</span>::<span class="ident">unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[(<span class="ident">K</span>, <span class="ident">V</span>)]<span class="op">&gt;</span>(<span class="string">&quot;[(K, V)]&quot;</span>))
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;BTreeMap&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>[(<span class="ident">K</span>, <span class="ident">V</span>)])
+            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[(<span class="ident">K</span>, <span class="ident">V</span>)]<span class="op">&gt;</span>(<span class="string">&quot;[(K, V)]&quot;</span>))
     }
 }
 
@@ -457,7 +457,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span>::<span class="ident">Identity</span>::<span class="ident">type_info</span>()
+        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
     }
 }
 
@@ -468,7 +468,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span>::<span class="ident">Identity</span>::<span class="ident">type_info</span>()
+        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
     }
 }
 
@@ -479,7 +479,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span>::<span class="ident">Identity</span>::<span class="ident">type_info</span>()
+        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
     }
 }
 
@@ -490,7 +490,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">TypeDefSequence</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">into</span>()
+        <span class="ident">TypeDefSequence::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">into</span>()
     }
 }
 
@@ -498,7 +498,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">TypeDefPrimitive</span>::<span class="ident">Str</span>.<span class="ident">into</span>()
+        <span class="ident">TypeDefPrimitive::Str</span>.<span class="ident">into</span>()
     }
 }
 
@@ -506,7 +506,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">str</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span>::<span class="ident">Identity</span>::<span class="ident">type_info</span>()
+        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
     }
 }
 
@@ -517,17 +517,17 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">TypeDefPhantom</span>::<span class="ident">new</span>(<span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
+        <span class="ident">TypeDefPhantom::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">scale</span>::<span class="ident">Compact</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">scale::Compact</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="ident">TypeDefCompact</span>::<span class="ident">new</span>(<span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
+        <span class="ident">TypeDefCompact::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
     }
 }
 </pre></div>

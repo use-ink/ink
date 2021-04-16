@@ -127,18 +127,18 @@
 <span class="doccomment">//! Other forms, such as a portable form that is still bound to the registry</span>
 <span class="doccomment">//! (also via lifetime tracking) are possible but current not needed.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::{
-    <span class="ident">any</span>::<span class="ident">TypeId</span>,
-    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+    <span class="ident">any::TypeId</span>,
+    <span class="ident">fmt::Debug</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">interner</span>::<span class="ident">UntrackedSymbol</span>,
-    <span class="ident">meta_type</span>::<span class="ident">MetaType</span>,
+    <span class="ident">interner::UntrackedSymbol</span>,
+    <span class="ident">meta_type::MetaType</span>,
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Serialize</span>;
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
 <span class="doccomment">/// Trait to control the internal structures of type definitions.</span>
 <span class="doccomment">///</span>
@@ -176,12 +176,12 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PortableForm</span> {}
 
-<span class="ident">cfg_if</span>::<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if::cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>))]</span> {
         <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {
             <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>;
             <span class="comment">// Owned string required for decoding/deserialization</span>
-            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">string</span>::<span class="ident">String</span>;
+            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::prelude::string::String</span>;
         }
     } <span class="kw">else</span> {
         <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {

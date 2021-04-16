@@ -103,9 +103,9 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
 
-<span class="kw">use</span> <span class="ident">cfg_if</span>::<span class="ident">cfg_if</span>;
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 
-<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::{
             <span class="ident">borrow</span>,
@@ -118,14 +118,14 @@
         <span class="doccomment">/// Collection types.</span>
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">collections</span> {
             <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-                <span class="ident">binary_heap</span>::<span class="ident">BinaryHeap</span>,
-                <span class="ident">btree_map</span>::<span class="ident">BTreeMap</span>,
-                <span class="ident">btree_set</span>::<span class="ident">BTreeSet</span>,
-                <span class="ident">linked_list</span>::<span class="ident">LinkedList</span>,
-                <span class="ident">vec_deque</span>::<span class="ident">VecDeque</span>,
+                <span class="ident">binary_heap::BinaryHeap</span>,
+                <span class="ident">btree_map::BTreeMap</span>,
+                <span class="ident">btree_set::BTreeSet</span>,
+                <span class="ident">linked_list::LinkedList</span>,
+                <span class="ident">vec_deque::VecDeque</span>,
                 <span class="ident">Bound</span>,
             };
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="kw-2">*</span>;
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">std::collections</span>::<span class="kw-2">*</span>;
         }
     } <span class="kw">else</span> {
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc</span>::{
@@ -145,8 +145,8 @@
                 <span class="ident">LinkedList</span>,
                 <span class="ident">VecDeque</span>,
             };
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">collections</span>::<span class="kw-2">*</span>;
-            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Bound</span>;
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">alloc::collections</span>::<span class="kw-2">*</span>;
+            <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">core::ops::Bound</span>;
         }
     }
 }

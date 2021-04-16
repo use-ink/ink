@@ -116,10 +116,10 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">cell</span>::<span class="ident">UnsafeCell</span>,
+    <span class="ident">cell::UnsafeCell</span>,
     <span class="ident">fmt</span>,
-    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
-    <span class="ident">ptr</span>::<span class="ident">NonNull</span>,
+    <span class="ident">fmt::Debug</span>,
+    <span class="ident">ptr::NonNull</span>,
 };
 
 <span class="doccomment">/// A cache for a `T` that allow to mutate the inner `T` through `&amp;self`.</span>
@@ -136,7 +136,7 @@
     <span class="doccomment">/// Creates a new cache cell from the given value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">inner</span>: <span class="ident">UnsafeCell</span>::<span class="ident">new</span>(<span class="ident">value</span>),
+            <span class="ident">inner</span>: <span class="ident">UnsafeCell::new</span>(<span class="ident">value</span>),
         }
     }
 
@@ -151,14 +151,14 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Debug</span><span class="op">&gt;</span>::<span class="ident">fmt</span>(<span class="self">self</span>.<span class="ident">as_inner</span>(), <span class="ident">f</span>)
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Debug</span><span class="op">&gt;</span><span class="ident">::fmt</span>(<span class="self">self</span>.<span class="ident">as_inner</span>(), <span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CacheCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">value</span>)
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">value</span>)
     }
 }
 
@@ -167,7 +167,7 @@
     <span class="ident">T</span>: <span class="ident">Default</span>,
 {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>())
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>())
     }
 }
 
@@ -197,7 +197,7 @@
         <span class="comment">// SAFETY: The inner `T` of the internal `UnsafeCell` exists and thus</span>
         <span class="comment">//         the pointer that we get returned to it via `UnsafeCell::get`</span>
         <span class="comment">//         is never going to be `null`.</span>
-        <span class="kw">unsafe</span> { <span class="ident">NonNull</span>::<span class="ident">new_unchecked</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get</span>()) }
+        <span class="kw">unsafe</span> { <span class="ident">NonNull::new_unchecked</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get</span>()) }
     }
 }
 </pre></div>

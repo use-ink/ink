@@ -88,7 +88,7 @@
     <span class="kw">type</span> <span class="ident">Instance</span>;
 
     <span class="doccomment">/// Creates a new instance of the chain extension to use methods with method chaining syntax.</span>
-    <span class="kw">fn</span> <span class="ident">instantiate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Instance</span>;
+    <span class="kw">fn</span> <span class="ident">instantiate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Instance</span>;
 }
 
 <span class="doccomment">/// Implemented by chain extension types.</span>
@@ -97,7 +97,7 @@
 <span class="doccomment">/// that share a common error code type.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ChainExtension</span> {
     <span class="doccomment">/// The error code that determines whether a chain extension method call was successful.</span>
-    <span class="kw">type</span> <span class="ident">ErrorCode</span>: <span class="ident">ink_env</span>::<span class="ident">chain_extension</span>::<span class="ident">FromStatusCode</span>;
+    <span class="kw">type</span> <span class="ident">ErrorCode</span>: <span class="ident">ink_env::chain_extension::FromStatusCode</span>;
 }
 
 <span class="doccomment">/// Only implemented for `Result&lt;T, E&gt;`.</span>
@@ -105,14 +105,14 @@
 <span class="doccomment">/// Used to check at compile time if the chain extension method return type</span>
 <span class="doccomment">/// is a `Result` type using the type system instead of the syntactic structure.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsResultType</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsResultType</span>: <span class="ident">private::Sealed</span> {
     <span class="doccomment">/// The `T` type of the `Result&lt;T, E&gt;`.</span>
     <span class="kw">type</span> <span class="prelude-val">Ok</span>;
     <span class="doccomment">/// The `E` type of the `Result&lt;T, E&gt;`.</span>
     <span class="kw">type</span> <span class="prelude-val">Err</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">private</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">private::Sealed</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {}
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">IsResultType</span> <span class="kw">for</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="prelude-val">Ok</span> <span class="op">=</span> <span class="ident">T</span>;
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">E</span>;

@@ -245,12 +245,12 @@
 <span class="doccomment">/// );</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">tuple_meta_type</span> {
+<span class="macro">macro_rules!</span> <span class="ident">tuple_meta_type</span> {
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         {
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">prelude</span>::<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::prelude::vec!</span>[
                 $(
-                    <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
+                    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::MetaType::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
                 )<span class="op">*</span>
             ]
         }
@@ -272,7 +272,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">meta_type</span>::<span class="ident">MetaType</span>,
+    <span class="ident">meta_type::MetaType</span>,
     <span class="ident">registry</span>::{
         <span class="ident">IntoPortable</span>,
         <span class="ident">PortableRegistry</span>,
@@ -282,7 +282,7 @@
 };
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scale_info_derive</span>::<span class="ident">TypeInfo</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scale_info_derive::TypeInfo</span>;
 
 <span class="doccomment">/// Implementors return their meta type information.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TypeInfo</span> {
@@ -304,7 +304,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+    <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-js="../../search-index.js"></div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Entry point for writing ink! smart contracts."><meta name="keywords" content="rust, rustlang, rust-lang, contract"><title>ink_lang_macro::contract - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc attr"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><p class="location"><a href="index.html">ink_lang_macro</a></p><div id="sidebar-vars" data-name="contract" data-ty="attr" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="">contract</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#514-516" title="goto source code">[src]</a></span></h1><pre class="rust attr">#[contract]</pre><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="">contract</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#514-516" title="goto source code">[src]</a></span></h1><pre class="rust attr">#[contract]</pre><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
 our extensive <a href="https://substrate.dev/substrate-contracts-workshop/#/">ink! workshop</a>.</p>
 <p><strong>Note:</strong> In all below examples we will be using <code>ink_lang</code> crate aliased as just <code>ink</code>.
@@ -42,11 +42,11 @@ within a contract’s storage struct definition:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="comment">// A storage vector of storage vectors.</span>
-<span class="ident">storage</span>::<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">storage</span>::<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span></pre></div>
+<span class="ident">storage::Vec</span><span class="op">&lt;</span><span class="ident">storage::Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span></pre></div>
 <p><strong>Usage Example:</strong></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>(<span class="ident">dynamic_storage_allocator</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">dynamic_storage_allocator</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
 <span class="kw">mod</span> <span class="ident">my_contract</span> {
     <span class="comment">// ...</span>
 }</pre></div>
@@ -67,7 +67,7 @@ makes use of this flag but contract writers are encouraged to disprove this.</p>
 <p><strong>Usage Example:</strong></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>(<span class="ident">compile_as_dependency</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">compile_as_dependency</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
 <span class="kw">mod</span> <span class="ident">my_contract</span> {
     <span class="comment">// ...</span>
 }</pre></div>
@@ -87,20 +87,20 @@ must be aligned with respect to SCALE encoding and semantics.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyEnvironment</span>;
 
-<span class="kw">impl</span> <span class="ident">ink_env</span>::<span class="ident">Environment</span> <span class="kw">for</span> <span class="ident">MyEnvironment</span> {
+<span class="kw">impl</span> <span class="ident">ink_env::Environment</span> <span class="kw">for</span> <span class="ident">MyEnvironment</span> {
     <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
     <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> <span class="ident">u64</span>;
     <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span>;
     <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
     <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">u64</span>;
     <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">u32</span>;
-    <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> ::<span class="ident">ink_env</span>::<span class="ident">NoChainExtension</span>;
+    <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> <span class="ident">::ink_env::NoChainExtension</span>;
 }</pre></div>
 <p>A user might implement their ink! smart contract using the above custom <code>Environment</code>
 implementation as demonstrated below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>(<span class="ident">env</span> <span class="op">=</span> <span class="ident">MyEnvironment</span>)]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">env</span> <span class="op">=</span> <span class="ident">MyEnvironment</span>)]</span>
 <span class="kw">mod</span> <span class="ident">my_contract</span> {
     <span class="comment">// ...</span>
 }</pre></div>
@@ -121,7 +121,7 @@ or even provide their own implementations of storage data structures.</p>
 <p><strong>Example:</strong></p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>]</span>
 <span class="kw">mod</span> <span class="ident">flipper</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flipper</span> {
@@ -226,12 +226,12 @@ connects ink! smart contracts with the outer world.</p>
 <p>For example it is possible to query the current call’s caller via:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">caller</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span><span class="op">&gt;</span>();</pre></div>
+<span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="ident">ink_env::caller</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span><span class="op">&gt;</span>();</pre></div>
 <p>However, ink! provides a much simpler way to interact with the contract executor
 via its environment accessor. An example below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>]</span>
 <span class="kw">mod</span> <span class="ident">greeter</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Greeter</span>;
@@ -239,9 +239,9 @@ via its environment accessor. An example below:</p>
     <span class="kw">impl</span> <span class="ident">Greeter</span> {
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">env</span>().<span class="ident">caller</span>();
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;thanks for instantiation {:?}&quot;</span>, <span class="ident">caller</span>);
-            <span class="ident">ink_env</span>::<span class="ident">debug_println</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>);
+            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::env</span>().<span class="ident">caller</span>();
+            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;thanks for instantiation {:?}&quot;</span>, <span class="ident">caller</span>);
+            <span class="ident">ink_env::debug_println</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>);
             <span class="ident">Greeter</span> {}
         }
 
@@ -249,8 +249,8 @@ via its environment accessor. An example below:</p>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fund</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
             <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">caller</span>();
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">env</span>().<span class="ident">transferred_balance</span>();
-            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;thanks for the funding of {:?} from {:?}&quot;</span>, <span class="ident">value</span>, <span class="ident">caller</span>);
-            <span class="ident">ink_env</span>::<span class="ident">debug_println</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>);
+            <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;thanks for the funding of {:?} from {:?}&quot;</span>, <span class="ident">value</span>, <span class="ident">caller</span>);
+            <span class="ident">ink_env::debug_println</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>);
         }
     }
 }</pre></div>
@@ -262,7 +262,7 @@ execution and state.</p>
 emitted in the <code>#[ink(constructor)]</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>]</span>
 <span class="kw">mod</span> <span class="ident">erc20</span> {
     <span class="doccomment">/// Defines an event that is emitted every time value is transferred.</span>
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
@@ -281,8 +281,8 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
     <span class="kw">impl</span> <span class="ident">Erc20</span> {
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_supply</span>: <span class="ident">Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">env</span>().<span class="ident">caller</span>();
-            <span class="self">Self</span>::<span class="ident">env</span>().<span class="ident">emit_event</span>(<span class="ident">Transferred</span> {
+            <span class="kw">let</span> <span class="ident">caller</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::env</span>().<span class="ident">caller</span>();
+            <span class="self">Self</span><span class="ident">::env</span>().<span class="ident">emit_event</span>(<span class="ident">Transferred</span> {
                 <span class="ident">from</span>: <span class="prelude-val">None</span>,
                 <span class="ident">to</span>: <span class="prelude-val">Some</span>(<span class="ident">caller</span>),
                 <span class="ident">value</span>: <span class="ident">initial_supply</span>,
@@ -308,7 +308,7 @@ or retrieve the current value using <code>Flipper::get</code>.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
 
-<span class="attribute">#[<span class="ident">ink</span>::<span class="ident">contract</span>]</span>
+<span class="attribute">#[<span class="ident">ink::contract</span>]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">flipper</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flipper</span> {

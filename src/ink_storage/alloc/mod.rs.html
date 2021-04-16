@@ -215,16 +215,16 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">allocator</span>::<span class="ident">DynamicAllocator</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::allocator::DynamicAllocator</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">allocation</span>::<span class="ident">DynamicAllocation</span>,
-    <span class="ident">boxed</span>::<span class="ident">Box</span>,
-    <span class="ident">init</span>::<span class="ident">ContractPhase</span>,
+    <span class="ident">allocation::DynamicAllocation</span>,
+    <span class="ident">boxed::Box</span>,
+    <span class="ident">init::ContractPhase</span>,
 };
 
 <span class="doccomment">/// Returns a new dynamic storage allocation.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DynamicAllocation</span> {
-    <span class="ident">init</span>::<span class="ident">on_instance</span>(<span class="ident">DynamicAllocator</span>::<span class="ident">alloc</span>)
+    <span class="ident">init::on_instance</span>(<span class="ident">DynamicAllocator::alloc</span>)
 }
 
 <span class="doccomment">/// Frees the given dynamic storage allocation.</span>
@@ -232,7 +232,7 @@
 <span class="doccomment">/// This makes the given dynamic storage allocation available again</span>
 <span class="doccomment">/// for new dynamic storage allocations.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free</span>(<span class="ident">allocation</span>: <span class="ident">DynamicAllocation</span>) {
-    <span class="ident">init</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">allocator</span><span class="op">|</span> <span class="ident">allocator</span>.<span class="ident">free</span>(<span class="ident">allocation</span>))
+    <span class="ident">init::on_instance</span>(<span class="op">|</span><span class="ident">allocator</span><span class="op">|</span> <span class="ident">allocator</span>.<span class="ident">free</span>(<span class="ident">allocation</span>))
 }
 
 <span class="doccomment">/// Tells the global dynamic storage allocator instance how it shall initialize.</span>
@@ -254,7 +254,7 @@
 <span class="doccomment">/// then the default initialization scheme is for contract instantiation.</span>
 <span class="doccomment">/// However, this behavior might change and must not be relied upon.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">phase</span>: <span class="ident">ContractPhase</span>) {
-    <span class="ident">init</span>::<span class="ident">initialize</span>(<span class="ident">phase</span>);
+    <span class="ident">init::initialize</span>(<span class="ident">phase</span>);
 }
 
 <span class="doccomment">/// Finalizes the global dynamic storage allocator instance.</span>
@@ -270,7 +270,7 @@
 <span class="doccomment">/// Normally users of ink! do not have to call this function directly as it is</span>
 <span class="doccomment">/// automatically being use in the correct order and way by the generated code.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>() {
-    <span class="ident">init</span>::<span class="ident">finalize</span>()
+    <span class="ident">init::finalize</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage" data-search-js="../../../search-index.js"></div>

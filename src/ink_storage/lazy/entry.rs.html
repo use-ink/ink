@@ -327,7 +327,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
     <span class="ident">clear_packed_root</span>,
     <span class="ident">clear_spread_root_opt</span>,
     <span class="ident">pull_packed_root_opt</span>,
@@ -340,12 +340,12 @@
     <span class="ident">SpreadLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">cell</span>::<span class="ident">Cell</span>,
+    <span class="ident">cell::Cell</span>,
     <span class="ident">fmt</span>,
-    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">fmt::Debug</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">vec</span>::<span class="ident">Vec</span>;
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_prelude::vec::Vec</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// The entry of a single cached value of a lazy storage data structure.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
@@ -363,7 +363,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;Entry&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;value&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
             .<span class="ident">field</span>(<span class="string">&quot;state&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">get</span>())
@@ -373,14 +373,14 @@
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">debug_impl_works</span>() {
-    <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">e1</span>),
+    <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>);
+    <span class="macro">assert_eq!</span>(
+        <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">e1</span>),
         <span class="string">&quot;Entry { value: None, state: Preserved }&quot;</span>,
     );
-    <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="number">42</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">e2</span>),
+    <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="number">42</span>), <span class="ident">EntryState::Mutated</span>);
+    <span class="macro">assert_eq!</span>(
+        <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">e2</span>),
         <span class="string">&quot;Entry { value: Some(42), state: Mutated }&quot;</span>,
     );
 }
@@ -398,8 +398,8 @@
     <span class="doccomment">/// Returns `true` if the entry state is mutated.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_mutated</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EntryState</span>::<span class="ident">Mutated</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="ident">EntryState</span>::<span class="ident">Preserved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">EntryState::Mutated</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">EntryState::Preserved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
@@ -413,57 +413,57 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>;
+    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
-        <span class="self">Self</span>::<span class="ident">pull_spread_root</span>(<span class="ident">root_key</span>)
+        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
+        <span class="self">Self</span><span class="ident">::pull_spread_root</span>(<span class="ident">root_key</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
         <span class="self">self</span>.<span class="ident">push_spread_root</span>(<span class="ident">root_key</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
         <span class="self">self</span>.<span class="ident">clear_spread_root</span>(<span class="ident">root_key</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="kw">for</span> <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+    <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
+        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale</span>::<span class="ident">Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
-        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">dest</span>)
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">dest</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
+        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">using_encoded</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span> {
-        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Encode</span><span class="op">&gt;</span>::<span class="ident">using_encoded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">f</span>)
+        <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::using_encoded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">f</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="kw">for</span> <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale::Decode</span> <span class="kw">for</span> <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span>,
+    <span class="ident">T</span>: <span class="ident">scale::Decode</span>,
 {
-    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale</span>::<span class="ident">Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">new</span>(
-            <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Decode</span><span class="op">&gt;</span>::<span class="ident">decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
-            <span class="ident">EntryState</span>::<span class="ident">Preserved</span>,
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span><span class="ident">::new</span>(
+            <span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
+            <span class="ident">EntryState::Preserved</span>,
         ))
     }
 }
@@ -474,17 +474,17 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="ident">PackedLayout</span>::<span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
+        <span class="ident">PackedLayout::pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="ident">PackedLayout</span>::<span class="ident">push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
+        <span class="ident">PackedLayout::push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="ident">PackedLayout</span>::<span class="ident">clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
+        <span class="ident">PackedLayout::clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">value</span>, <span class="ident">at</span>)
     }
 }
 
@@ -500,7 +500,7 @@
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
     <span class="doccomment">/// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">pull_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">pull_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>), <span class="ident">EntryState::Preserved</span>)
     }
 
     <span class="doccomment">/// Pushes the underlying associated data to the contract storage using</span>
@@ -511,7 +511,7 @@
     <span class="doccomment">/// Mainly used by lazy storage abstractions that only allow operating on</span>
     <span class="doccomment">/// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_spread_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
+        <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState::Preserved</span>);
         <span class="kw">if</span> <span class="ident">old_state</span>.<span class="ident">is_mutated</span>() {
             <span class="ident">push_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">value</span>().<span class="ident">into</span>(), <span class="kw-2">&amp;</span><span class="ident">root_key</span>);
         }
@@ -540,7 +540,7 @@
     <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`] or</span>
     <span class="doccomment">/// [`LazyArray`][`crate::lazy::LazyArray`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">pull_packed_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">pull_packed_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>), <span class="ident">EntryState::Preserved</span>)
     }
 
     <span class="doccomment">/// Pushes the underlying associated storage as packed representation.</span>
@@ -551,7 +551,7 @@
     <span class="doccomment">/// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]</span>
     <span class="doccomment">/// or [`LazyArray`][`crate::lazy::LazyArray`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_packed_root</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
-        <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
+        <span class="kw">let</span> <span class="ident">old_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState::Preserved</span>);
         <span class="kw">if</span> <span class="ident">old_state</span>.<span class="ident">is_mutated</span>() {
             <span class="ident">push_packed_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">value</span>().<span class="ident">into</span>(), <span class="kw-2">&amp;</span><span class="ident">root_key</span>);
         }
@@ -574,7 +574,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">state</span>: <span class="ident">EntryState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">value</span>,
-            <span class="ident">state</span>: <span class="ident">Cell</span>::<span class="ident">new</span>(<span class="ident">state</span>),
+            <span class="ident">state</span>: <span class="ident">Cell::new</span>(<span class="ident">state</span>),
         }
     }
 
@@ -599,7 +599,7 @@
     <span class="doccomment">/// since the caller could potentially change the returned value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">value</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">EntryState</span>::<span class="ident">Mutated</span>);
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">EntryState::Mutated</span>);
         }
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">value</span>
     }
@@ -617,9 +617,9 @@
     <span class="doccomment">/// least one of `old_value` and `new_value` is `Some`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">new_value_is_some</span> <span class="op">=</span> <span class="ident">new_value</span>.<span class="ident">is_some</span>();
-        <span class="kw">let</span> <span class="ident">old_value</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">value</span>, <span class="ident">new_value</span>);
+        <span class="kw">let</span> <span class="ident">old_value</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">value</span>, <span class="ident">new_value</span>);
         <span class="kw">if</span> <span class="ident">old_value</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">new_value_is_some</span> {
-            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">EntryState</span>::<span class="ident">Mutated</span>);
+            <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">EntryState::Mutated</span>);
         }
         <span class="ident">old_value</span>
     }

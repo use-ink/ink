@@ -298,14 +298,14 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">children_vec</span>::<span class="ident">ChildrenVec</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::children_vec::ChildrenVec</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">collections</span>::<span class="ident">vec</span>::<span class="ident">Vec</span> <span class="kw">as</span> <span class="ident">StorageVec</span>,
-    <span class="ident">traits</span>::<span class="ident">PackedLayout</span>,
+    <span class="ident">collections::vec::Vec</span> <span class="kw">as</span> <span class="ident">StorageVec</span>,
+    <span class="ident">traits::PackedLayout</span>,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">children_vec</span>::<span class="ident">Iter</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">reverse</span>::<span class="ident">Reverse</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">children_vec::Iter</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">reverse::Reverse</span>;
 
 <span class="doccomment">/// A priority queue implemented with a binary heap.</span>
 <span class="doccomment">///</span>
@@ -331,7 +331,7 @@
     <span class="doccomment">/// Creates a new empty storage heap.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">elements</span>: <span class="ident">ChildrenVec</span>::<span class="ident">new</span>(),
+            <span class="ident">elements</span>: <span class="ident">ChildrenVec::new</span>(),
         }
     }
 
@@ -499,7 +499,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">PeekMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::ops::Deref</span> <span class="kw">for</span> <span class="ident">PeekMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
@@ -512,7 +512,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">ops</span>::<span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">PeekMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::ops::DerefMut</span> <span class="kw">for</span> <span class="ident">PeekMut</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {

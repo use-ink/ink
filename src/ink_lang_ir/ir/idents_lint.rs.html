@@ -122,45 +122,45 @@
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Returns a combined error for every instance of `__ink_` prefixed identifier found.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_no_ink_identifiers</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">checked</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_no_ink_identifiers</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">checked</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VisitBy</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visitor</span> <span class="op">=</span> <span class="ident">private</span>::<span class="ident">IdentVisitor</span>::<span class="ident">default</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visitor</span> <span class="op">=</span> <span class="ident">private::IdentVisitor::default</span>();
     <span class="ident">checked</span>.<span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">visitor</span>);
     <span class="ident">visitor</span>.<span class="ident">into_result</span>()
 }
 
 <span class="doccomment">/// Makes sure to call the correct visitor function on the given visitor.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitBy</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
-    <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">private</span>::<span class="ident">IdentVisitor</span>);
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">VisitBy</span>: <span class="ident">private::Sealed</span> {
+    <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">private::IdentVisitor</span>);
 }
 
 <span class="kw">mod</span> <span class="ident">private</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">VisitBy</span>;
-    <span class="kw">use</span> <span class="ident">proc_macro2</span>::<span class="ident">Ident</span>;
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::VisitBy</span>;
+    <span class="kw">use</span> <span class="ident">proc_macro2::Ident</span>;
 
     <span class="doccomment">/// Seals the implementation of `VisitBy`.</span>
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemMod</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemTrait</span> {}
-    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemFn</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemMod</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemTrait</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">syn::ItemFn</span> {}
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemMod</span> {
+    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemMod</span> {
         <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn</span>::<span class="ident">visit</span>::<span class="ident">visit_item_mod</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+            <span class="ident">syn::visit::visit_item_mod</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemTrait</span> {
+    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemTrait</span> {
         <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn</span>::<span class="ident">visit</span>::<span class="ident">visit_item_trait</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+            <span class="ident">syn::visit::visit_item_trait</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
         }
     }
 
-    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ItemFn</span> {
+    <span class="kw">impl</span> <span class="ident">VisitBy</span> <span class="kw">for</span> <span class="ident">syn::ItemFn</span> {
         <span class="kw">fn</span> <span class="ident">visit_by</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visitor</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">IdentVisitor</span>) {
-            <span class="ident">syn</span>::<span class="ident">visit</span>::<span class="ident">visit_item_fn</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
+            <span class="ident">syn::visit::visit_item_fn</span>(<span class="ident">visitor</span>, <span class="self">self</span>);
         }
     }
 
@@ -172,14 +172,14 @@
     <span class="doccomment">/// Will yield one combined error for all found encounters.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IdentVisitor</span> {
-        <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>,
+        <span class="ident">errors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span>,
     }
 
     <span class="kw">impl</span> <span class="ident">IdentVisitor</span> {
         <span class="doccomment">/// Converts the visitor into the errors it found if any.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Returns `Ok` if it found no errors during visitation.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_result</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">split_first</span>() {
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
                 <span class="prelude-val">Some</span>((<span class="ident">first</span>, <span class="ident">rest</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -193,10 +193,10 @@
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="ident">visit</span>::<span class="ident">Visit</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IdentVisitor</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">syn::visit::Visit</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IdentVisitor</span> {
         <span class="kw">fn</span> <span class="ident">visit_ident</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;ast</span> <span class="ident">Ident</span>) {
             <span class="kw">if</span> <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">starts_with</span>(<span class="string">&quot;__ink_&quot;</span>) {
-                <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">push</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">errors</span>.<span class="ident">push</span>(<span class="macro">format_err!</span>(
                     <span class="ident">ident</span>,
                     <span class="string">&quot;encountered invalid identifier starting with __ink_&quot;</span>,
                 ))

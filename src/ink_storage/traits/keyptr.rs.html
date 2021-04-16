@@ -51,9 +51,9 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">SpreadLayout</span>;
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">KeyPtr</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::SpreadLayout</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_primitives::KeyPtr</span>;
 
 <span class="doccomment">/// Extension trait to make `KeyPtr` simpler to use for `T: SpreadLayout` types.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExtKeyPtr</span> {
@@ -69,7 +69,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
     {
-        <span class="self">self</span>.<span class="ident">advance_by</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>)
+        <span class="self">self</span>.<span class="ident">advance_by</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>)
     }
 }
 </pre></div>

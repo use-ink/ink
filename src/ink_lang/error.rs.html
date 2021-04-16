@@ -108,7 +108,7 @@
 
 <span class="doccomment">/// A dispatch result.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DispatchResult</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">DispatchResult</span> <span class="op">=</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// A dispatch error.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
@@ -130,7 +130,7 @@
     <span class="doccomment">/// Converts `self` into an associated `u32` that FRAME contracts can handle.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="ident">DispatchRetCode</span>::<span class="ident">from</span>(<span class="self">self</span>).<span class="ident">to_u32</span>()
+        <span class="ident">DispatchRetCode::from</span>(<span class="self">self</span>).<span class="ident">to_u32</span>()
     }
 }
 
@@ -161,14 +161,14 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">DispatchError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">DispatchError</span>::<span class="ident">UnknownSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x01</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">UnknownInstantiateSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x02</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">UnknownCallSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x03</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">InvalidParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x04</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">InvalidInstantiateParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x05</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">InvalidCallParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x06</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">CouldNotReadInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x07</span>),
-            <span class="ident">DispatchError</span>::<span class="ident">PaidUnpayableMessage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x08</span>),
+            <span class="ident">DispatchError::UnknownSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x01</span>),
+            <span class="ident">DispatchError::UnknownInstantiateSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x02</span>),
+            <span class="ident">DispatchError::UnknownCallSelector</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x03</span>),
+            <span class="ident">DispatchError::InvalidParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x04</span>),
+            <span class="ident">DispatchError::InvalidInstantiateParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x05</span>),
+            <span class="ident">DispatchError::InvalidCallParameters</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x06</span>),
+            <span class="ident">DispatchError::CouldNotReadInput</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x07</span>),
+            <span class="ident">DispatchError::PaidUnpayableMessage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>(<span class="number">0x08</span>),
         }
     }
 }
@@ -177,8 +177,8 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">res</span>: <span class="ident">DispatchResult</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">success</span>(),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">from</span>(<span class="ident">err</span>),
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::success</span>(),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::from</span>(<span class="ident">err</span>),
         }
     }
 }

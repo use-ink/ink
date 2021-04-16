@@ -138,7 +138,7 @@
     <span class="ident">OffHash</span>,
     <span class="ident">OffTimestamp</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Environment</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Environment</span>;
 
 <span class="doccomment">/// An emulated block in the chain.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Block</span> {
@@ -157,35 +157,35 @@
 
 <span class="kw">impl</span> <span class="ident">Block</span> {
     <span class="doccomment">/// Creates a new block for the given number and time stamp.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">number</span>: <span class="ident">T</span>::<span class="ident">BlockNumber</span>, <span class="ident">timestamp</span>: <span class="ident">T</span>::<span class="ident">Timestamp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">number</span>: <span class="ident">T::BlockNumber</span>, <span class="ident">timestamp</span>: <span class="ident">T::Timestamp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Clear</span>;
-        <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entropy</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">Hash</span>::<span class="ident">clear</span>();
-        <span class="ident">rand</span>::<span class="ident">thread_rng</span>().<span class="ident">fill</span>(<span class="ident">entropy</span>.<span class="ident">as_mut</span>());
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Clear</span>;
+        <span class="kw">use</span> <span class="ident">rand::Rng</span> <span class="kw">as</span> <span class="kw">_</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entropy</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Hash::clear</span>();
+        <span class="ident">rand::thread_rng</span>().<span class="ident">fill</span>(<span class="ident">entropy</span>.<span class="ident">as_mut</span>());
         <span class="self">Self</span> {
-            <span class="ident">number</span>: <span class="ident">TypedEncoded</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">number</span>),
-            <span class="ident">timestamp</span>: <span class="ident">TypedEncoded</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">timestamp</span>),
-            <span class="ident">entropy</span>: <span class="ident">TypedEncoded</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">entropy</span>),
+            <span class="ident">number</span>: <span class="ident">TypedEncoded::new</span>(<span class="kw-2">&amp;</span><span class="ident">number</span>),
+            <span class="ident">timestamp</span>: <span class="ident">TypedEncoded::new</span>(<span class="kw-2">&amp;</span><span class="ident">timestamp</span>),
+            <span class="ident">entropy</span>: <span class="ident">TypedEncoded::new</span>(<span class="kw-2">&amp;</span><span class="ident">entropy</span>),
         }
     }
 
     <span class="doccomment">/// Returns the block number.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">BlockNumber</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::BlockNumber</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
-        <span class="self">self</span>.<span class="ident">number</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+        <span class="self">self</span>.<span class="ident">number</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
     <span class="doccomment">/// Returns the timestamp of the block.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Timestamp</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">timestamp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Timestamp</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
-        <span class="self">self</span>.<span class="ident">timestamp</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+        <span class="self">self</span>.<span class="ident">timestamp</span>.<span class="ident">decode</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
     <span class="doccomment">/// Sets the entropy of this block to the given entropy.</span>
@@ -194,11 +194,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is mainly used to control what [`random`][`crate::random`] returns</span>
     <span class="doccomment">/// in the off-chain environment.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_entropy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_entropy</span>: <span class="ident">T</span>::<span class="ident">Hash</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_entropy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_entropy</span>: <span class="ident">T::Hash</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
-        <span class="self">self</span>.<span class="ident">entropy</span>.<span class="ident">assign</span>(<span class="kw-2">&amp;</span><span class="ident">new_entropy</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+        <span class="self">self</span>.<span class="ident">entropy</span>.<span class="ident">assign</span>(<span class="kw-2">&amp;</span><span class="ident">new_entropy</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
     <span class="doccomment">/// Returns a randomized hash.</span>
@@ -214,7 +214,7 @@
     <span class="doccomment">/// testability purposes the actual implementation is quite simple and</span>
     <span class="doccomment">/// computes those &quot;random&quot; hashes by wrapping XOR of the internal entry hash</span>
     <span class="doccomment">/// with the eventually repeated sequence of the subject buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">random</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">subject</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Hash</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">random</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">subject</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Hash</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
@@ -225,7 +225,7 @@
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">n</span> <span class="op">%</span> <span class="ident">len_entropy</span>;
             <span class="ident">entropy_bytes</span>[<span class="ident">id</span>] <span class="op">=</span> <span class="ident">entropy_bytes</span>[<span class="ident">id</span>] <span class="op">^</span> <span class="ident">subject</span> <span class="op">^</span> (<span class="ident">n</span> <span class="kw">as</span> <span class="ident">u8</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">entropy</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Hash</span><span class="op">&gt;</span>()<span class="question-mark">?</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">entropy</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T::Hash</span><span class="op">&gt;</span>()<span class="question-mark">?</span>)
     }
 }
 </pre></div>

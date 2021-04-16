@@ -299,12 +299,12 @@
 <span class="doccomment">//! namespaces. The normal Rust namespace of a type is used, except for the Rust</span>
 <span class="doccomment">//! prelude types that live in the so-called root namespace which is empty.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::{
-    <span class="ident">any</span>::<span class="ident">TypeId</span>,
-    <span class="ident">collections</span>::<span class="ident">BTreeMap</span>,
-    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
-    <span class="ident">num</span>::<span class="ident">NonZeroU32</span>,
-    <span class="ident">vec</span>::<span class="ident">Vec</span>,
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+    <span class="ident">any::TypeId</span>,
+    <span class="ident">collections::BTreeMap</span>,
+    <span class="ident">fmt::Debug</span>,
+    <span class="ident">num::NonZeroU32</span>,
+    <span class="ident">vec::Vec</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -316,10 +316,10 @@
         <span class="ident">Interner</span>,
         <span class="ident">UntrackedSymbol</span>,
     },
-    <span class="ident">meta_type</span>::<span class="ident">MetaType</span>,
+    <span class="ident">meta_type::MetaType</span>,
     <span class="ident">Type</span>,
 };
-<span class="kw">use</span> <span class="ident">scale</span>::<span class="ident">Encode</span>;
+<span class="kw">use</span> <span class="ident">scale::Encode</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{
     <span class="ident">Deserialize</span>,
@@ -332,13 +332,13 @@
     <span class="kw">type</span> <span class="ident">Output</span>;
 
     <span class="doccomment">/// Convert `self` to the portable form by using the registry for caching.</span>
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span>;
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PortableForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span>::<span class="ident">String</span>;
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PortableForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
         <span class="self">self</span>.<span class="ident">into</span>()
     }
 }
@@ -366,12 +366,12 @@
     <span class="doccomment">/// The database where registered types reside.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The contents herein is used for serlialization.</span>
-    <span class="ident">types</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span><span class="op">&gt;</span>, <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">types</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">core::any::TypeId</span><span class="op">&gt;</span>, <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Registry</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -379,8 +379,8 @@
     <span class="doccomment">/// Creates a new empty registry.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">type_table</span>: <span class="ident">Interner</span>::<span class="ident">new</span>(),
-            <span class="ident">types</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+            <span class="ident">type_table</span>: <span class="ident">Interner::new</span>(),
+            <span class="ident">types</span>: <span class="ident">BTreeMap::new</span>(),
         }
     }
 
@@ -429,7 +429,7 @@
 
     <span class="doccomment">/// Converts an iterator into a Vec of the equivalent portable</span>
     <span class="doccomment">/// representations.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_portable</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Output</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_into_portable</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T::Output</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span>,
         <span class="ident">T</span>: <span class="ident">IntoPortable</span>,
@@ -442,7 +442,7 @@
 
 <span class="doccomment">/// A read-only registry containing types in their portable form for serialization.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Decode</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Encode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PortableRegistry</span> {
     <span class="ident">types</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -465,7 +465,7 @@
     <span class="doccomment">/// Returns an iterator for all types paired with their associated NonZeroU32 identifier.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enumerate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">NonZeroU32</span>, <span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">ty</span>)<span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">NonZeroU32</span>::<span class="ident">new</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">expect</span>(<span class="string">&quot;i + 1 &gt; 0; qed&quot;</span>);
+            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">NonZeroU32::new</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">expect</span>(<span class="string">&quot;i + 1 &gt; 0; qed&quot;</span>);
             (<span class="ident">id</span>, <span class="ident">ty</span>)
         })
     }
@@ -475,7 +475,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{
-        <span class="ident">build</span>::<span class="ident">Fields</span>,
+        <span class="ident">build::Fields</span>,
         <span class="ident">meta_type</span>,
         <span class="ident">Path</span>,
         <span class="ident">TypeDef</span>,
@@ -484,18 +484,18 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">readonly_enumerate</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
-        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>());
-        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>());
-        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry::new</span>();
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>());
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>());
+        <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>());
 
         <span class="kw">let</span> <span class="ident">readonly</span>: <span class="ident">PortableRegistry</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">into</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">4</span>, <span class="ident">readonly</span>.<span class="ident">enumerate</span>().<span class="ident">count</span>());
+        <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">readonly</span>.<span class="ident">enumerate</span>().<span class="ident">count</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">readonly</span>.<span class="ident">enumerate</span>() {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">NonZeroU32</span>::<span class="ident">new</span>(<span class="ident">expected</span>).<span class="ident">unwrap</span>(), <span class="ident">i</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">NonZeroU32::new</span>(<span class="ident">expected</span>).<span class="ident">unwrap</span>(), <span class="ident">i</span>);
             <span class="ident">expected</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
     }
@@ -513,10 +513,10 @@
             <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
             <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-                <span class="ident">Type</span>::<span class="ident">builder</span>()
-                    .<span class="ident">path</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;RecursiveRefs&quot;</span>, <span class="macro">module_path</span><span class="macro">!</span>()))
+                <span class="ident">Type::builder</span>()
+                    .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;RecursiveRefs&quot;</span>, <span class="macro">module_path!</span>()))
                     .<span class="ident">composite</span>(
-                        <span class="ident">Fields</span>::<span class="ident">named</span>()
+                        <span class="ident">Fields::named</span>()
                             .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">RecursiveRefs</span><span class="op">&gt;</span><span class="op">&gt;</span>(
                                 <span class="string">&quot;boxed&quot;</span>,
                                 <span class="string">&quot;Box &lt; RecursiveRefs &gt;&quot;</span>,
@@ -533,16 +533,16 @@
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">Registry::new</span>();
         <span class="kw">let</span> <span class="ident">type_id</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">meta_type</span>::<span class="op">&lt;</span><span class="ident">RecursiveRefs</span><span class="op">&gt;</span>());
 
         <span class="kw">let</span> <span class="ident">recursive</span> <span class="op">=</span> <span class="ident">registry</span>.<span class="ident">types</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">type_id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TypeDef</span>::<span class="ident">Composite</span>(<span class="ident">composite</span>) <span class="op">=</span> <span class="ident">recursive</span>.<span class="ident">type_def</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TypeDef::Composite</span>(<span class="ident">composite</span>) <span class="op">=</span> <span class="ident">recursive</span>.<span class="ident">type_def</span>() {
             <span class="kw">for</span> <span class="ident">field</span> <span class="kw">in</span> <span class="ident">composite</span>.<span class="ident">fields</span>() {
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">field</span>.<span class="ident">ty</span>(), <span class="ident">type_id</span>)
+                <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">field</span>.<span class="ident">ty</span>(), <span class="ident">type_id</span>)
             }
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Should be a composite type definition&quot;</span>)
+            <span class="macro">panic!</span>(<span class="string">&quot;Should be a composite type definition&quot;</span>)
         }
     }
 }

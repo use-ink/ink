@@ -144,7 +144,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw">super</span>::<span class="ident">OffHash</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="kw">super</span><span class="ident">::OffHash</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">hash</span>::{
         <span class="ident">Blake2x256</span>,
@@ -174,29 +174,29 @@
 
     <span class="kw">fn</span> <span class="ident">push_topic</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">topic_value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>)
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
         <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">topic_value</span>.<span class="ident">encode</span>();
         <span class="kw">let</span> <span class="ident">len_encoded</span> <span class="op">=</span> <span class="ident">encoded</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">Hash</span>::<span class="ident">clear</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Hash::clear</span>();
         <span class="kw">let</span> <span class="ident">len_result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">as_ref</span>().<span class="ident">len</span>();
         <span class="kw">if</span> <span class="ident">len_encoded</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">len_result</span> {
             <span class="ident">result</span>.<span class="ident">as_mut</span>()[..<span class="ident">len_encoded</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]);
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash_output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span>::<span class="ident">default</span>();
-            <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">CryptoHash</span><span class="op">&gt;</span>::<span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hash_output</span>);
-            <span class="kw">let</span> <span class="ident">copy_len</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">min</span>(<span class="ident">hash_output</span>.<span class="ident">len</span>(), <span class="ident">len_result</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hash_output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type::default</span>();
+            <span class="op">&lt;</span><span class="ident">Blake2x256</span> <span class="kw">as</span> <span class="ident">CryptoHash</span><span class="op">&gt;</span><span class="ident">::hash</span>(<span class="kw-2">&amp;</span><span class="ident">encoded</span>[..], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">hash_output</span>);
+            <span class="kw">let</span> <span class="ident">copy_len</span> <span class="op">=</span> <span class="ident">core::cmp::min</span>(<span class="ident">hash_output</span>.<span class="ident">len</span>(), <span class="ident">len_result</span>);
             <span class="ident">result</span>.<span class="ident">as_mut</span>()[<span class="number">0</span>..<span class="ident">copy_len</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">hash_output</span>[<span class="number">0</span>..<span class="ident">copy_len</span>]);
         }
-        <span class="kw">let</span> <span class="ident">off_hash</span> <span class="op">=</span> <span class="ident">OffHash</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>);
-        <span class="macro">debug_assert</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">off_hash</span> <span class="op">=</span> <span class="ident">OffHash::new</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>);
+        <span class="macro">debug_assert!</span>(
             <span class="op">!</span><span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">off_hash</span>),
             <span class="string">&quot;duplicate topic hash discovered!&quot;</span>
         );
         <span class="self">self</span>.<span class="ident">topics</span>.<span class="ident">push</span>(<span class="ident">off_hash</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">output</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">output</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
         <span class="self">self</span>.<span class="ident">topics</span>
     }
 }
@@ -215,9 +215,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">emitted_event</span>: <span class="ident">E</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
-        <span class="ident">E</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
+        <span class="ident">E</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>,
     {
-        <span class="kw">let</span> <span class="ident">topics</span> <span class="op">=</span> <span class="ident">emitted_event</span>.<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">TopicsBuilder</span>::<span class="ident">default</span>().<span class="ident">into</span>());
+        <span class="kw">let</span> <span class="ident">topics</span> <span class="op">=</span> <span class="ident">emitted_event</span>.<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">TopicsBuilder::default</span>().<span class="ident">into</span>());
         <span class="self">Self</span> {
             <span class="ident">topics</span>,
             <span class="ident">data</span>: <span class="ident">emitted_event</span>.<span class="ident">encode</span>(),
@@ -234,7 +234,7 @@
     <span class="doccomment">/// Creates a new empty emitted event recorder.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">emitted_events</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">emitted_events</span>: <span class="ident">Vec::new</span>(),
         }
     }
 
@@ -247,14 +247,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_event</span>: <span class="ident">E</span>)
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
-        <span class="ident">E</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span>,
+        <span class="ident">E</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>,
     {
         <span class="self">self</span>.<span class="ident">emitted_events</span>
-            .<span class="ident">push</span>(<span class="ident">EmittedEvent</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">new_event</span>));
+            .<span class="ident">push</span>(<span class="ident">EmittedEvent::new</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">new_event</span>));
     }
 
     <span class="doccomment">/// Returns an iterator over the emitted events in their emission order.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emitted_events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">slice</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">EmittedEvent</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emitted_events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::slice::Iter</span><span class="op">&lt;</span><span class="ident">EmittedEvent</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">emitted_events</span>.<span class="ident">iter</span>()
     }
 }

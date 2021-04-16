@@ -313,7 +313,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
     <span class="ident">KeyPtr</span>,
     <span class="ident">SpreadLayout</span>,
 };
@@ -323,13 +323,13 @@
         <span class="ident">AsRef</span>,
     },
     <span class="ident">fmt</span>,
-    <span class="ident">fmt</span>::<span class="ident">Display</span>,
+    <span class="ident">fmt::Display</span>,
     <span class="ident">ops</span>::{
         <span class="ident">Deref</span>,
         <span class="ident">DerefMut</span>,
     },
 };
-<span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">borrow</span>::{
+<span class="kw">use</span> <span class="ident">ink_prelude::borrow</span>::{
     <span class="ident">Borrow</span>,
     <span class="ident">BorrowMut</span>,
 };
@@ -353,8 +353,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
-    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout</span>::{
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::StorageLayout</span>;
+    <span class="kw">use</span> <span class="ident">ink_metadata::layout</span>::{
         <span class="ident">CellLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">LayoutKey</span>,
@@ -362,7 +362,7 @@
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
-            <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
+            <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
                 <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">0</span>),
             )))
         }
@@ -376,7 +376,7 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Default</span>::<span class="ident">default</span>()
+        <span class="ident">Default::default</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {}
@@ -402,7 +402,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">inner</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">inner</span>)
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">inner</span>)
     }
 }
 
@@ -411,7 +411,7 @@
     <span class="ident">T</span>: <span class="ident">Default</span>,
 {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>())
+        <span class="self">Self</span><span class="ident">::new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>())
     }
 }
 
@@ -419,22 +419,22 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Display</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>::<span class="ident">fmt</span>(<span class="self">Self</span>::<span class="ident">get</span>(<span class="self">self</span>), <span class="ident">f</span>)
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="ident">core::fmt::Display::fmt</span>(<span class="self">Self</span><span class="ident">::get</span>(<span class="self">self</span>), <span class="ident">f</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">T</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Target</span> {
-        <span class="self">Self</span>::<span class="ident">get</span>(<span class="self">self</span>)
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Target</span> {
+        <span class="self">Self</span><span class="ident">::get</span>(<span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Target</span> {
-        <span class="self">Self</span>::<span class="ident">get_mut</span>(<span class="self">self</span>)
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="ident">::Target</span> {
+        <span class="self">Self</span><span class="ident">::get_mut</span>(<span class="self">self</span>)
     }
 }
 
@@ -443,16 +443,16 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="self">Self</span>::<span class="ident">get</span>(<span class="self">self</span>)
+        <span class="self">Self</span><span class="ident">::get</span>(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">convert</span>::<span class="ident">AsMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">convert::AsMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
-        <span class="self">Self</span>::<span class="ident">get_mut</span>(<span class="self">self</span>)
+        <span class="self">Self</span><span class="ident">::get_mut</span>(<span class="self">self</span>)
     }
 }
 
@@ -461,7 +461,7 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T</span> {
-        <span class="self">Self</span>::<span class="ident">get</span>(<span class="self">self</span>)
+        <span class="self">Self</span><span class="ident">::get</span>(<span class="self">self</span>)
     }
 }
 
@@ -470,14 +470,14 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
-        <span class="self">Self</span>::<span class="ident">get_mut</span>(<span class="self">self</span>)
+        <span class="self">Self</span><span class="ident">::get_mut</span>(<span class="self">self</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Memory</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::Memory</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
         <span class="ident">KeyPtr</span>,
         <span class="ident">SpreadLayout</span>,
     };
@@ -491,12 +491,12 @@
             <span class="ident">DerefMut</span>,
         },
     };
-    <span class="kw">use</span> <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">DefaultAccounts</span>;
-    <span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">borrow</span>::{
+    <span class="kw">use</span> <span class="ident">ink_env::test::DefaultAccounts</span>;
+    <span class="kw">use</span> <span class="ident">ink_prelude::borrow</span>::{
         <span class="ident">Borrow</span>,
         <span class="ident">BorrowMut</span>,
     };
-    <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+    <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
     <span class="kw">type</span> <span class="ident">ComplexTuple</span> <span class="op">=</span> (<span class="ident">u8</span>, [<span class="ident">i32</span>; <span class="number">4</span>], (<span class="ident">bool</span>, <span class="ident">i32</span>));
 
@@ -507,40 +507,40 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">new_works</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">complex_value</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mem</span> <span class="op">=</span> <span class="ident">Memory</span>::<span class="ident">new</span>(<span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span>::<span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">DerefMut</span><span class="op">&gt;</span>::<span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">AsMut</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Borrow</span>::<span class="op">&lt;</span><span class="ident">ComplexTuple</span><span class="op">&gt;</span>::<span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">BorrowMut</span>::<span class="op">&lt;</span><span class="ident">ComplexTuple</span><span class="op">&gt;</span>::<span class="ident">borrow_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>),
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mem</span> <span class="op">=</span> <span class="ident">Memory::new</span>(<span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Deref</span><span class="op">&gt;</span><span class="ident">::deref</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">DerefMut</span><span class="op">&gt;</span><span class="ident">::deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::as_ref</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">AsMut</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Borrow</span>::<span class="op">&lt;</span><span class="ident">ComplexTuple</span><span class="op">&gt;</span><span class="ident">::borrow</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">BorrowMut</span>::<span class="op">&lt;</span><span class="ident">ComplexTuple</span><span class="op">&gt;</span><span class="ident">::borrow_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Memory</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Memory</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Memory::get</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Memory::get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mem</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_works</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">complex_value</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Memory</span>::<span class="ident">from</span>(<span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">from</span>, <span class="ident">Memory</span>::<span class="ident">new</span>(<span class="ident">expected</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Memory</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">from</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">Memory</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">from</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">Memory::from</span>(<span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">from</span>, <span class="ident">Memory::new</span>(<span class="ident">expected</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">Memory::get</span>(<span class="kw-2">&amp;</span><span class="ident">from</span>), <span class="kw-2">&amp;</span><span class="ident">expected</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">Memory::get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">from</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">expected</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">default_works</span>() {
-        <span class="kw">use</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>;
+        <span class="kw">use</span> <span class="ident">core::fmt::Debug</span>;
         <span class="kw">fn</span> <span class="ident">assert_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
         <span class="kw">where</span>
             <span class="ident">T</span>: <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Default</span> <span class="op">+</span> <span class="ident">PartialEq</span>,
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memory_default</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span>::<span class="ident">default</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">memory_default</span>), <span class="kw-2">&amp;</span><span class="ident">default</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory_default</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">default</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memory_default</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>();
+            <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::get</span>(<span class="kw-2">&amp;</span><span class="ident">memory_default</span>), <span class="kw-2">&amp;</span><span class="ident">default</span>);
+            <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Memory</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory_default</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">default</span>);
         }
         <span class="ident">assert_default</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>();
         <span class="ident">assert_default</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>();
@@ -550,23 +550,23 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">spread_layout_push_pull_works</span>() {
-        <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">Memory</span>::<span class="ident">new</span>((<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="kw-2">*</span><span class="ident">p1</span>, (<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">p1</span>, <span class="ident">Default</span>::<span class="ident">default</span>());
-        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-        <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">p1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
+        <span class="kw">let</span> <span class="ident">p1</span> <span class="op">=</span> <span class="ident">Memory::new</span>((<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
+        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">p1</span>, (<span class="string">b&#39;A&#39;</span>, [<span class="number">0x00</span>; <span class="number">4</span>], (<span class="bool-val">true</span>, <span class="number">42</span>)));
+        <span class="macro">assert_ne!</span>(<span class="ident">p1</span>, <span class="ident">Default::default</span>());
+        <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+        <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">p1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
         <span class="comment">// Now load another instance of a pack from the same key and check</span>
         <span class="comment">// if both instances are equal:</span>
-        <span class="kw">let</span> <span class="ident">p2</span> <span class="op">=</span> <span class="ident">SpreadLayout</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">p1</span>, <span class="ident">p2</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">p2</span>, <span class="ident">Default</span>::<span class="ident">default</span>());
+        <span class="kw">let</span> <span class="ident">p2</span> <span class="op">=</span> <span class="ident">SpreadLayout::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+        <span class="macro">assert_ne!</span>(<span class="ident">p1</span>, <span class="ident">p2</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">p2</span>, <span class="ident">Default::default</span>());
     }
 
     <span class="kw">fn</span> <span class="ident">run_test</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>)
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span><span class="op">&gt;</span>),
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span><span class="op">&gt;</span>),
     {
-        <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">default_accounts</span><span class="op">|</span> {
+        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="ident">default_accounts</span><span class="op">|</span> {
             <span class="ident">f</span>(<span class="ident">default_accounts</span>);
             <span class="prelude-val">Ok</span>(())
         })
@@ -579,20 +579,20 @@
             <span class="comment">// Clearing a memory instance should have no effect on the underlying</span>
             <span class="comment">// contract storage. We can test this by pushing and pulling a storage</span>
             <span class="comment">// affecting entity in between on the same storage region:</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-            <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="number">42</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="kw">let</span> <span class="ident">loaded1</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">loaded1</span>, <span class="number">42</span>);
-            <span class="kw">let</span> <span class="ident">mem</span> <span class="op">=</span> <span class="ident">Memory</span>::<span class="ident">new</span>(<span class="number">77</span>);
-            <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="kw">let</span> <span class="ident">loaded2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">loaded2</span>, <span class="number">42</span>);
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="kw-2">&amp;</span><span class="number">42</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="kw">let</span> <span class="ident">loaded1</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">loaded1</span>, <span class="number">42</span>);
+            <span class="kw">let</span> <span class="ident">mem</span> <span class="op">=</span> <span class="ident">Memory::new</span>(<span class="number">77</span>);
+            <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">mem</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="kw">let</span> <span class="ident">loaded2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">loaded2</span>, <span class="number">42</span>);
             <span class="comment">// Now we clear the `i32` from storage and check whether that works.</span>
             <span class="comment">// We load as `Option&lt;i32&gt;` in order to expect `None`:</span>
-            <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="ident">loaded2</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">pull_packed_root_opt</span>;
+            <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::clear_spread</span>(<span class="kw-2">&amp;</span><span class="ident">loaded2</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::pull_packed_root_opt</span>;
             <span class="kw">let</span> <span class="ident">loaded3</span> <span class="op">=</span> <span class="ident">pull_packed_root_opt</span>::<span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">loaded3</span>, <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">loaded3</span>, <span class="prelude-val">None</span>);
         })
     }
 }

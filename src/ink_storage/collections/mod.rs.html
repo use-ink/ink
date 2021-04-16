@@ -89,16 +89,16 @@
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">binary_heap</span>::<span class="ident">BinaryHeap</span>,
-    <span class="ident">bitstash</span>::<span class="ident">BitStash</span>,
-    <span class="ident">bitvec</span>::<span class="ident">Bitvec</span>,
-    <span class="ident">hashmap</span>::<span class="ident">HashMap</span>,
-    <span class="ident">stash</span>::<span class="ident">Stash</span>,
-    <span class="ident">vec</span>::<span class="ident">Vec</span>,
+    <span class="ident">binary_heap::BinaryHeap</span>,
+    <span class="ident">bitstash::BitStash</span>,
+    <span class="ident">bitvec::Bitvec</span>,
+    <span class="ident">hashmap::HashMap</span>,
+    <span class="ident">stash::Stash</span>,
+    <span class="ident">vec::Vec</span>,
 };
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">smallvec</span>::<span class="ident">SmallVec</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::smallvec::SmallVec</span>;
 
 <span class="doccomment">/// Extends the lifetime `&#39;a` to the outliving lifetime `&#39;b` for the given reference.</span>
 <span class="doccomment">///</span>
@@ -114,7 +114,7 @@
 <span class="doccomment">/// lifetimes of the objects they are referencing and thus potentially create</span>
 <span class="doccomment">/// dangling references if not used carefully.</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">extend_lifetime</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>: <span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">reference</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">T</span> {
-    <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">reference</span>)
+    <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">reference</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage" data-search-js="../../../search-index.js"></div>

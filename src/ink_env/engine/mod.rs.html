@@ -59,11 +59,11 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::backend</span>::{
     <span class="ident">EnvBackend</span>,
     <span class="ident">TypedEnvBackend</span>,
 };
-<span class="kw">use</span> <span class="ident">cfg_if</span>::<span class="ident">cfg_if</span>;
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">OnInstance</span>: <span class="ident">EnvBackend</span> <span class="op">+</span> <span class="ident">TypedEnvBackend</span> {
     <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
@@ -71,19 +71,19 @@
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>;
 }
 
-<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> {
         <span class="kw">mod</span> <span class="ident">on_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">on_chain</span>::<span class="ident">EnvInstance</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::on_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">off_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">off_chain</span>::<span class="ident">EnvInstance</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">off_chain</span>::{
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::off_chain::EnvInstance</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::off_chain</span>::{
             <span class="ident">AccountError</span>,
             <span class="ident">TypedEncodedError</span>,
         };
     } <span class="kw">else</span> {
-        <span class="macro">compile_error</span><span class="macro">!</span> {
+        <span class="macro">compile_error!</span> {
             <span class="string">&quot;ink! only support compilation as `std` or `no_std` + `wasm32-unknown`&quot;</span>
         }
     }

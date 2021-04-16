@@ -884,7 +884,7 @@
     <span class="ident">EntryState</span>,
     <span class="ident">StorageEntry</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
     <span class="ident">clear_packed_root</span>,
     <span class="ident">pull_packed_root_opt</span>,
     <span class="ident">ExtKeyPtr</span>,
@@ -894,11 +894,11 @@
 };
 <span class="kw">use</span> <span class="ident">core</span>::{
     <span class="ident">fmt</span>,
-    <span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="ident">fmt::Debug</span>,
     <span class="ident">mem</span>,
-    <span class="ident">ptr</span>::<span class="ident">NonNull</span>,
+    <span class="ident">ptr::NonNull</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// The index type used in the lazy storage chunk.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Index</span> <span class="op">=</span> <span class="ident">u32</span>;
@@ -933,14 +933,14 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
-    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout</span>::{
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::StorageLayout</span>;
+    <span class="kw">use</span> <span class="ident">ink_metadata::layout</span>::{
         <span class="ident">ArrayLayout</span>,
         <span class="ident">CellLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">LayoutKey</span>,
     };
-    <span class="kw">use</span> <span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>;
+    <span class="kw">use</span> <span class="ident">scale_info::TypeInfo</span>;
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -948,11 +948,11 @@
     {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
             <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u32</span>;
-            <span class="ident">Layout</span>::<span class="ident">Array</span>(<span class="ident">ArrayLayout</span>::<span class="ident">new</span>(
-                <span class="ident">LayoutKey</span>::<span class="ident">from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="ident">capacity</span> <span class="kw">as</span> <span class="ident">u64</span>)),
+            <span class="ident">Layout::Array</span>(<span class="ident">ArrayLayout::new</span>(
+                <span class="ident">LayoutKey::from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="ident">capacity</span> <span class="kw">as</span> <span class="ident">u64</span>)),
                 <span class="ident">capacity</span>,
                 <span class="number">1</span>,
-                <span class="ident">Layout</span>::<span class="ident">Cell</span>(<span class="ident">CellLayout</span>::<span class="ident">new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">LayoutKey</span>::<span class="ident">from</span>(
+                <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
                     <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">0</span>),
                 ))),
             ))
@@ -968,7 +968,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_map</span>()
             .<span class="ident">entries</span>(
                 <span class="self">self</span>.<span class="number">0</span>
@@ -984,7 +984,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Debug</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;LazyArray&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;key&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">key</span>)
             .<span class="ident">field</span>(<span class="string">&quot;cached_entries&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">DebugEntryArray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cached_entries</span>))
@@ -994,18 +994,18 @@
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">debug_impl_works</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">i32</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
     <span class="comment">// Empty imap.</span>
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">larray</span>),
+    <span class="macro">assert_eq!</span>(
+        <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">larray</span>),
         <span class="string">&quot;LazyArray { key: None, cached_entries: {} }&quot;</span>,
     );
     <span class="comment">// Filled imap.</span>
     <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>));
     <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">2</span>, <span class="prelude-val">Some</span>(<span class="number">2</span>));
     <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">3</span>, <span class="prelude-val">None</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">larray</span>),
+    <span class="macro">assert_eq!</span>(
+        <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">larray</span>),
         <span class="string">&quot;LazyArray { \
             key: None, \
             cached_entries: {\
@@ -1040,7 +1040,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>: <span class="ident">core</span>::<span class="ident">slice</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">iter</span>: <span class="ident">core::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">CacheCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
@@ -1054,7 +1054,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">as_inner</span>())
     }
 
@@ -1071,7 +1071,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DoubleEndedIterator</span> <span class="kw">for</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">as_inner</span>())
     }
 }
@@ -1082,14 +1082,14 @@
     <span class="doccomment">/// Creates a new entry array cache.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">entries</span>: <span class="ident">array_init</span>::<span class="ident">array_init</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Default</span>::<span class="ident">default</span>()),
+            <span class="ident">entries</span>: <span class="ident">array_init::array_init</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Default::default</span>()),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">EntryArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -1103,11 +1103,11 @@
     <span class="doccomment">/// Puts the the new value into the indexed slot and</span>
     <span class="doccomment">/// returns the old value if any.</span>
     <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>, <span class="ident">new_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">mem</span>::<span class="ident">replace</span>(
+        <span class="ident">mem::replace</span>(
             <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">get_ptr</span>().<span class="ident">as_mut</span>() },
-            <span class="prelude-val">Some</span>(<span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="ident">new_value</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
+            <span class="prelude-val">Some</span>(<span class="ident">StorageEntry::new</span>(<span class="ident">new_value</span>, <span class="ident">EntryState::Mutated</span>)),
         )
-        .<span class="ident">map</span>(<span class="ident">StorageEntry</span>::<span class="ident">into_value</span>)
+        .<span class="ident">map</span>(<span class="ident">StorageEntry::into_value</span>)
         .<span class="ident">flatten</span>()
     }
 
@@ -1118,25 +1118,25 @@
         <span class="ident">new_entry</span>: <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">entry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">CacheCell</span>::<span class="ident">get_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">as_ptr</span>();
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">CacheCell::get_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">as_ptr</span>();
         <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_entry</span>);
         <span class="ident">entry</span>
             .<span class="ident">as_mut</span>()
-            .<span class="ident">map</span>(<span class="ident">NonNull</span>::<span class="ident">from</span>)
+            .<span class="ident">map</span>(<span class="ident">NonNull::from</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;just inserted the entry&quot;</span>)
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the entry at the given index if any.</span>
     <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_entry_mut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">Self</span>::<span class="ident">capacity</span>() {
+        <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">Self</span><span class="ident">::capacity</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
-        (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">CacheCell</span>::<span class="ident">get_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">as_ptr</span>()).<span class="ident">as_mut</span>()
+        (<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">CacheCell::get_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>]).<span class="ident">as_ptr</span>()).<span class="ident">as_mut</span>()
     }
 
     <span class="doccomment">/// Returns an iterator that yields shared references to all cached entries.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EntriesIter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">EntriesIter</span>::<span class="ident">new</span>(<span class="self">self</span>)
+        <span class="ident">EntriesIter::new</span>(<span class="self">self</span>)
     }
 }
 
@@ -1156,7 +1156,7 @@
     <span class="doccomment">/// high-level abstractions that build upon this low-level data structure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_packed_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">Index</span>) {
         <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">key_at</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot clear in lazy state&quot;</span>);
-        <span class="kw">if</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">REQUIRES_DEEP_CLEAN_UP</span> {
+        <span class="kw">if</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span> {
             <span class="comment">// We need to load the entity before we remove its associated contract storage</span>
             <span class="comment">// because it requires a deep clean-up which propagates clearing to its fields,</span>
             <span class="comment">// for example in the case of `T` being a `storage::Box`.</span>
@@ -1165,14 +1165,14 @@
         } <span class="kw">else</span> {
             <span class="comment">// The type does not require deep clean-up so we can simply clean-up</span>
             <span class="comment">// its associated storage cell and be done without having to load it first.</span>
-            <span class="ident">ink_env</span>::<span class="ident">clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>);
+            <span class="ident">ink_env::clear_contract_storage</span>(<span class="kw-2">&amp;</span><span class="ident">root_key</span>);
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">new</span>()
+        <span class="self">Self</span><span class="ident">::new</span>()
     }
 }
 
@@ -1186,7 +1186,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">key</span>: <span class="prelude-val">None</span>,
-            <span class="ident">cached_entries</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">cached_entries</span>: <span class="ident">Default::default</span>(),
         }
     }
 
@@ -1201,7 +1201,7 @@
     <span class="kw">fn</span> <span class="ident">lazy</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">key</span>: <span class="prelude-val">Some</span>(<span class="ident">key</span>),
-            <span class="ident">cached_entries</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">cached_entries</span>: <span class="ident">Default::default</span>(),
         }
     }
 
@@ -1243,11 +1243,11 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u64</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
+        <span class="self">Self</span><span class="ident">::lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="kw">let</span> <span class="ident">offset_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr</span>::<span class="ident">next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
+        <span class="kw">let</span> <span class="ident">offset_key</span> <span class="op">=</span> <span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>);
         <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">entry</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cached_entries</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span> <span class="ident">entry</span> {
                 <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">offset_key</span> <span class="op">+</span> (<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u64</span>);
@@ -1284,11 +1284,11 @@
     <span class="doccomment">/// Tries to load the entry from cache and falls back to lazily load the</span>
     <span class="doccomment">/// entry from the contract storage.</span>
     <span class="kw">fn</span> <span class="ident">load_through_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NonNull</span><span class="op">&lt;</span><span class="ident">StorageEntry</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">at</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;index is out of bounds&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">at</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">cached_entries</span>.<span class="ident">get_entry_mut</span>(<span class="ident">at</span>) } {
             <span class="prelude-val">Some</span>(<span class="ident">entry</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Load value from cache.</span>
-                <span class="ident">NonNull</span>::<span class="ident">from</span>(<span class="ident">entry</span>)
+                <span class="ident">NonNull::from</span>(<span class="ident">entry</span>)
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Load value from storage and put into cache.</span>
@@ -1297,7 +1297,7 @@
                     .<span class="ident">key_at</span>(<span class="ident">at</span>)
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="ident">pull_packed_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>))
                     .<span class="ident">unwrap_or</span>(<span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="ident">value</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>);
+                <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">StorageEntry::new</span>(<span class="ident">value</span>, <span class="ident">EntryState::Preserved</span>);
                 <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">cached_entries</span>.<span class="ident">insert_entry</span>(<span class="ident">at</span>, <span class="ident">entry</span>) }
             }
         }
@@ -1372,8 +1372,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If any of the given indices is out of bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">Index</span>, <span class="ident">b</span>: <span class="ident">Index</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">a</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;a is out of bounds&quot;</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">b</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;b is out of bounds&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">a</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;a is out of bounds&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">b</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">capacity</span>(), <span class="string">&quot;b is out of bounds&quot;</span>);
         <span class="kw">if</span> <span class="ident">a</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b</span> {
             <span class="comment">// Bail out early if both indices are the same.</span>
             <span class="kw">return</span>
@@ -1392,9 +1392,9 @@
         }
         <span class="comment">// At this point at least one of the values is `Some` so we have to</span>
         <span class="comment">// perform the swap and set both entry states to mutated.</span>
-        <span class="ident">loaded_a</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Mutated</span>);
-        <span class="ident">loaded_b</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState</span>::<span class="ident">Mutated</span>);
-        <span class="ident">core</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="ident">loaded_a</span>.<span class="ident">value_mut</span>(), <span class="ident">loaded_b</span>.<span class="ident">value_mut</span>());
+        <span class="ident">loaded_a</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState::Mutated</span>);
+        <span class="ident">loaded_b</span>.<span class="ident">replace_state</span>(<span class="ident">EntryState::Mutated</span>);
+        <span class="ident">core::mem::swap</span>(<span class="ident">loaded_a</span>.<span class="ident">value_mut</span>(), <span class="ident">loaded_b</span>.<span class="ident">value_mut</span>());
     }
 }
 
@@ -1408,11 +1408,11 @@
         <span class="ident">Index</span>,
         <span class="ident">LazyArray</span>,
     };
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::{
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
         <span class="ident">KeyPtr</span>,
         <span class="ident">SpreadLayout</span>,
     };
-    <span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+    <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
     <span class="doccomment">/// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.</span>
     <span class="kw">fn</span> <span class="ident">assert_cached_entries</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(
@@ -1432,116 +1432,116 @@
             })
             .<span class="ident">zip</span>(<span class="ident">expected</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">index</span>, <span class="ident">entry</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">index</span>, <span class="ident">entry</span>)))
         {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">given</span>, <span class="ident">expected</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">given</span>, <span class="ident">expected</span>);
             <span class="ident">len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">len</span>, <span class="ident">expected</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">len</span>, <span class="ident">expected</span>.<span class="ident">len</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">new_works</span>() {
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="comment">// Key must be none.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
         <span class="comment">// Cached elements must be empty.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span>[]);
         <span class="comment">// Same as default:</span>
-        <span class="kw">let</span> <span class="ident">default_larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">default</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_larray</span>.<span class="ident">key</span>(), <span class="ident">larray</span>.<span class="ident">key</span>());
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
+        <span class="kw">let</span> <span class="ident">default_larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::default</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">default_larray</span>.<span class="ident">key</span>(), <span class="ident">larray</span>.<span class="ident">key</span>());
+        <span class="macro">assert_eq!</span>(<span class="ident">default_larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">default_larray</span>, <span class="kw-2">&amp;</span>[]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">lazy_works</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">lazy</span>(<span class="ident">key</span>);
+        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::lazy</span>(<span class="ident">key</span>);
         <span class="comment">// Key must be Some.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">key</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">key</span> <span class="op">+</span> <span class="number">1u64</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">key</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="ident">key</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">key_at</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="ident">key</span> <span class="op">+</span> <span class="number">1u64</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">capacity</span>(), <span class="number">4</span>);
         <span class="comment">// Cached elements must be empty.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span>[]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">get_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
-            (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-            (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-            (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-            (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;D&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
+            (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+            (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+            (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+            (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;D&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
         ];
         <span class="comment">// Put some values.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;D&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;D&#39;</span>)), <span class="prelude-val">None</span>);
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="ident">nothing_changed</span>);
         <span class="comment">// `get` works:</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;B&#39;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;D&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;B&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;D&#39;</span>));
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="ident">nothing_changed</span>);
         <span class="comment">// `get_mut` works:</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="string">b&#39;B&#39;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="string">b&#39;D&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="string">b&#39;B&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">get_mut</span>(<span class="number">3</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="string">b&#39;D&#39;</span>));
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="ident">nothing_changed</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">get_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">larray</span>.<span class="ident">get</span>(<span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">put_get_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="comment">// Assert that the array cache is empty at first.</span>
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span>[]);
         <span class="comment">// Put none values.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ],
         );
         <span class="comment">// Override with some values.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ],
         );
         <span class="comment">// Override some values with none.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">None</span>), <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>));
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">None</span>), <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ],
         );
     }
@@ -1549,13 +1549,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">put_get_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">put_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="comment">// Put some values.</span>
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">0</span>, <span class="prelude-val">None</span>);
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>));
@@ -1567,9 +1567,9 @@
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
             ],
         );
         <span class="comment">// Overwrite entries:</span>
@@ -1580,10 +1580,10 @@
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;C&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;C&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
             ],
         );
     }
@@ -1591,24 +1591,24 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;index out of bounds: the len is 4 but the index is 4&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">put_out_of_bounds_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="ident">larray</span>.<span class="ident">put</span>(<span class="number">4</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">swap_works</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
-            (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-            (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-            (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-            (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+            (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+            (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+            (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+            (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
         ];
         <span class="comment">// Put some values.</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
         <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="ident">nothing_changed</span>);
         <span class="comment">// Swap same indices: Check that nothing has changed.</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
@@ -1624,10 +1624,10 @@
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ],
         );
         <span class="comment">// Swap `Some` and `Some`:</span>
@@ -1635,10 +1635,10 @@
         <span class="ident">assert_cached_entries</span>(
             <span class="kw-2">&amp;</span><span class="ident">larray</span>,
             <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ],
         );
     }
@@ -1646,59 +1646,59 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;b is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">swap_rhs_out_of_bounds</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="ident">larray</span>.<span class="ident">swap</span>(<span class="number">0</span>, <span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;a is out of bounds&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">swap_both_out_of_bounds</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
         <span class="ident">larray</span>.<span class="ident">swap</span>(<span class="number">4</span>, <span class="number">4</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">spread_layout_works</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_env</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">ink_env</span>::<span class="ident">test</span>::<span class="ident">run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env</span>::<span class="ident">DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>();
+    <span class="kw">fn</span> <span class="ident">spread_layout_works</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ink_env::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">larray</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new</span>();
             <span class="kw">let</span> <span class="ident">nothing_changed</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[
-                (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Mutated</span>)),
-                (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Mutated</span>)),
+                (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
             ];
             <span class="comment">// Put some values.</span>
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>)), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>)), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">2</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray</span>.<span class="ident">put_get</span>(<span class="number">3</span>, <span class="prelude-val">None</span>), <span class="prelude-val">None</span>);
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="ident">nothing_changed</span>);
             <span class="comment">// Push the lazy index map onto the contract storage and then load</span>
             <span class="comment">// another instance of it from the contract stoarge.</span>
             <span class="comment">// Then: Compare both instances to be equal.</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key</span>::<span class="ident">from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-            <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
-            <span class="kw">let</span> <span class="ident">larray2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>),
+            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
+            <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">larray</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
+            <span class="kw">let</span> <span class="ident">larray2</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>),
             );
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray2</span>, <span class="kw-2">&amp;</span>[]);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;A&#39;</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;B&#39;</span>));
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;A&#39;</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;B&#39;</span>));
+            <span class="macro">assert_eq!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray2</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">None</span>);
             <span class="ident">assert_cached_entries</span>(
                 <span class="kw-2">&amp;</span><span class="ident">larray2</span>,
                 <span class="kw-2">&amp;</span>[
-                    (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                    (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;A&#39;</span>), <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">Some</span>(<span class="string">b&#39;B&#39;</span>), <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
                 ],
             );
             <span class="comment">// Clear the first lazy index map instance and reload another instance</span>
             <span class="comment">// to check whether the associated storage has actually been freed</span>
             <span class="comment">// again:</span>
-            <span class="ident">SpreadLayout</span>::<span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="ident">larray2</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>));
+            <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="ident">larray2</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
             <span class="comment">// The above `clear_spread` call is a no-op since lazy index map is</span>
             <span class="comment">// generally not aware of its associated elements. So we have to</span>
             <span class="comment">// manually clear them from the contract storage which is what the</span>
@@ -1707,21 +1707,21 @@
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">1</span>);
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">2</span>); <span class="comment">// Not really needed here.</span>
             <span class="ident">larray2</span>.<span class="ident">clear_packed_at</span>(<span class="number">3</span>); <span class="comment">// Not really needed here.</span>
-            <span class="kw">let</span> <span class="ident">larray3</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="ident">root_key</span>),
+            <span class="kw">let</span> <span class="ident">larray3</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>),
             );
             <span class="ident">assert_cached_entries</span>(<span class="kw-2">&amp;</span><span class="ident">larray3</span>, <span class="kw-2">&amp;</span>[]);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">0</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">1</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">2</span>), <span class="prelude-val">None</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">larray3</span>.<span class="ident">get</span>(<span class="number">3</span>), <span class="prelude-val">None</span>);
             <span class="ident">assert_cached_entries</span>(
                 <span class="kw-2">&amp;</span><span class="ident">larray3</span>,
                 <span class="kw-2">&amp;</span>[
-                    (<span class="number">0</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">1</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">2</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
-                    (<span class="number">3</span>, <span class="ident">StorageEntry</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState</span>::<span class="ident">Preserved</span>)),
+                    (<span class="number">0</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">1</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">2</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
+                    (<span class="number">3</span>, <span class="ident">StorageEntry::new</span>(<span class="prelude-val">None</span>, <span class="ident">EntryState::Preserved</span>)),
                 ],
             );
             <span class="prelude-val">Ok</span>(())

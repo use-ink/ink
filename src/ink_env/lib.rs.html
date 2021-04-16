@@ -150,12 +150,12 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">panic_handler</span>]</span>
-<span class="kw">fn</span> <span class="ident">panic</span>(<span class="ident">_info</span>: <span class="kw-2">&amp;</span><span class="ident">core</span>::<span class="ident">panic</span>::<span class="ident">PanicInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
+<span class="kw">fn</span> <span class="ident">panic</span>(<span class="ident">_info</span>: <span class="kw-2">&amp;</span><span class="ident">core::panic::PanicInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">!</span> {
     <span class="comment">// SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.</span>
     <span class="comment">//         This is used in order to make any panic a direct abort avoiding Rust&#39;s general</span>
     <span class="comment">//         panic infrastructure.</span>
     <span class="kw">unsafe</span> {
-        <span class="ident">core</span>::<span class="ident">arch</span>::<span class="ident">wasm32</span>::<span class="ident">unreachable</span>();
+        <span class="ident">core::arch::wasm32::unreachable</span>();
     }
 }
 
@@ -181,20 +181,20 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">engine</span>::<span class="ident">off_chain</span>::<span class="ident">test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::engine::off_chain::test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">backend</span>::{
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::backend</span>::{
     <span class="ident">EnvBackend</span>,
     <span class="ident">TypedEnvBackend</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">api</span>::<span class="kw-2">*</span>,
-    <span class="ident">backend</span>::<span class="ident">ReturnFlags</span>,
+    <span class="ident">backend::ReturnFlags</span>,
     <span class="ident">error</span>::{
         <span class="ident">Error</span>,
         <span class="prelude-ty">Result</span>,
     },
-    <span class="ident">topics</span>::<span class="ident">Topics</span>,
+    <span class="ident">topics::Topics</span>,
     <span class="ident">types</span>::{
         <span class="ident">AccountId</span>,
         <span class="ident">Clear</span>,

@@ -601,13 +601,13 @@
     <span class="ident">InputsIter</span>,
     <span class="ident">Visibility</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ir</span>;
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ir</span>;
+<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
 };
-<span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">spanned</span>::<span class="ident">Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="doccomment">/// An ink! constructor definition.</span>
 <span class="doccomment">///</span>
@@ -645,28 +645,28 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Constructor</span> {
     <span class="doccomment">/// The underlying Rust method item.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">item</span>: <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>,
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">item</span>: <span class="ident">syn::ImplItemMethod</span>,
     <span class="doccomment">/// An optional user provided selector.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This overrides the computed selector, even when using a manual namespace</span>
     <span class="doccomment">/// for the parent implementation block.</span>
-    <span class="ident">selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Selector</span><span class="op">&gt;</span>,
+    <span class="ident">selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">quote</span>::<span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Constructor</span> {
     <span class="doccomment">/// Returns `true` if the given type is `Self`.</span>
-    <span class="kw">fn</span> <span class="ident">type_is_self_val</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">ty</span>, <span class="ident">syn</span>::<span class="ident">Type</span>::<span class="ident">Path</span>(<span class="ident">syn</span>::<span class="ident">TypePath</span> {
+    <span class="kw">fn</span> <span class="ident">type_is_self_val</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Type</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(<span class="ident">ty</span>, <span class="ident">syn::Type::Path</span>(<span class="ident">syn::TypePath</span> {
             <span class="ident">qself</span>: <span class="prelude-val">None</span>,
             <span class="ident">path</span>
         }) <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;Self&quot;</span>))
@@ -681,18 +681,18 @@
     <span class="doccomment">/// If the ink! constructor does not return `Self` or is missing a return</span>
     <span class="doccomment">/// type entirely.</span>
     <span class="kw">fn</span> <span class="ident">ensure_valid_return_type</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-            <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+            <span class="ident">syn::ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">sig</span>,
                     <span class="string">&quot;missing return for ink! constructor&quot;</span>,
                 ))
             }
-            <span class="ident">syn</span>::<span class="ident">ReturnType</span>::<span class="ident">Type</span>(<span class="kw">_</span>, <span class="ident">return_type</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="self">Self</span>::<span class="ident">type_is_self_val</span>(<span class="ident">return_type</span>.<span class="ident">as_ref</span>()) {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">return_type</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="self">Self</span><span class="ident">::type_is_self_val</span>(<span class="ident">return_type</span>.<span class="ident">as_ref</span>()) {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">return_type</span>,
                         <span class="string">&quot;ink! constructors must return Self&quot;</span>,
                     ))
@@ -711,12 +711,12 @@
     <span class="doccomment">/// If the ink! constructor has a `&amp;self`, `&amp;mut self`, `self` or any other</span>
     <span class="doccomment">/// kind of a `self` receiver as first argument.</span>
     <span class="kw">fn</span> <span class="ident">ensure_no_self_receiver</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">next</span>() {
-            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn</span>::<span class="ident">FnArg</span>::<span class="ident">Typed</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> (),
-            <span class="prelude-val">Some</span>(<span class="ident">syn</span>::<span class="ident">FnArg</span>::<span class="ident">Receiver</span>(<span class="ident">receiver</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">receiver</span>,
                     <span class="string">&quot;ink! constructors must have no `self` receiver&quot;</span>,
                 ))
@@ -729,19 +729,19 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a tuple of ink! attributes and non-ink! attributes.</span>
     <span class="kw">fn</span> <span class="ident">sanitize_attributes</span>(
-        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ir</span>::<span class="ident">InkAttribute</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">ir</span>::<span class="ident">sanitize_attributes</span>(
+        <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">ir::InkAttribute</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="ident">ir::sanitize_attributes</span>(
             <span class="ident">method_item</span>.<span class="ident">span</span>(),
             <span class="ident">method_item</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
-            <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span>,
+            <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Constructor</span>,
             <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Constructor</span> <span class="op">|</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ir::AttributeArg::Constructor</span> <span class="op">|</span> <span class="ident">ir::AttributeArg::Selector</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="prelude-val">Ok</span>(())
                     }
-                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Payable</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="prelude-val">Err</span>(<span class="prelude-val">Some</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                    <span class="ident">ir::AttributeArg::Payable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="prelude-val">Some</span>(<span class="macro">format_err!</span>(
                             <span class="ident">arg</span>.<span class="ident">span</span>(),
                             <span class="string">&quot;constructors are implicitly payable&quot;</span>
                         )))
@@ -753,18 +753,18 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">method_item</span>: <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">ensure_callable_invariants</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>, <span class="ident">CallableKind</span>::<span class="ident">Constructor</span>)<span class="question-mark">?</span>;
-        <span class="self">Self</span>::<span class="ident">ensure_valid_return_type</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
-        <span class="self">Self</span>::<span class="ident">ensure_no_self_receiver</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="self">Self</span>::<span class="ident">sanitize_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">method_item</span>: <span class="ident">syn::ImplItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+        <span class="ident">ensure_callable_invariants</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>, <span class="ident">CallableKind::Constructor</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span><span class="ident">::ensure_valid_return_type</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span><span class="ident">::ensure_no_self_receiver</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="self">Self</span><span class="ident">::sanitize_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">method_item</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">ink_attrs</span>.<span class="ident">selector</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">Constructor</span> {
             <span class="ident">selector</span>,
-            <span class="ident">item</span>: <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span> {
+            <span class="ident">item</span>: <span class="ident">syn::ImplItemMethod</span> {
                 <span class="ident">attrs</span>: <span class="ident">other_attrs</span>,
                 ..<span class="ident">method_item</span>
             },
@@ -774,14 +774,14 @@
 
 <span class="kw">impl</span> <span class="ident">Callable</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
     <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallableKind</span> {
-        <span class="ident">CallableKind</span>::<span class="ident">Constructor</span>
+        <span class="ident">CallableKind::Constructor</span>
     }
 
     <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">ident</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">Selector</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">as_ref</span>()
     }
 
@@ -791,28 +791,28 @@
 
     <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Visibility</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">vis</span> {
-            <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Public</span>(<span class="ident">vis_public</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Visibility</span>::<span class="ident">Public</span>(<span class="ident">vis_public</span>.<span class="ident">clone</span>()),
-            <span class="ident">syn</span>::<span class="ident">Visibility</span>::<span class="ident">Inherited</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Visibility</span>::<span class="ident">Inherited</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;encountered invalid visibility for ink! constructor&quot;</span>),
+            <span class="ident">syn::Visibility::Public</span>(<span class="ident">vis_public</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Visibility::Public</span>(<span class="ident">vis_public</span>.<span class="ident">clone</span>()),
+            <span class="ident">syn::Visibility::Inherited</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Visibility::Inherited</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid visibility for ink! constructor&quot;</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputsIter</span> {
-        <span class="ident">InputsIter</span>::<span class="ident">from</span>(<span class="self">self</span>)
+        <span class="ident">InputsIter::from</span>(<span class="self">self</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">span</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Stmt</span>] {
+    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">block</span>.<span class="ident">stmts</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Constructor</span> {
     <span class="doccomment">/// Returns a slice of all non-ink! attributes of the ink! constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Attribute</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>
     }
 }
@@ -823,61 +823,61 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">inputs_works</span>() {
-        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">expected_inputs</span> {
+        <span class="macro">macro_rules!</span> <span class="ident">expected_inputs</span> {
             ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span> ),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {{
-                <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="macro">vec!</span>[
                     $(
-                        <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                        <span class="macro">syn::parse_quote!</span> {
                             <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>
                         }
                     ),<span class="op">*</span>
                 ]
             }};
         }
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">FnArg</span><span class="op">&gt;</span>, <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::FnArg</span><span class="op">&gt;</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             (
                 <span class="comment">// No inputs:</span>
-                <span class="macro">expected_inputs</span><span class="macro">!</span>(),
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                <span class="macro">expected_inputs!</span>(),
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
                 },
             ),
             (
                 <span class="comment">// Single input:</span>
-                <span class="macro">expected_inputs</span><span class="macro">!</span>(<span class="ident">a</span>: <span class="ident">i32</span>),
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                <span class="macro">expected_inputs!</span>(<span class="ident">a</span>: <span class="ident">i32</span>),
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="ident">a</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
                 },
             ),
             (
                 <span class="comment">// Some inputs:</span>
-                <span class="macro">expected_inputs</span><span class="macro">!</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">u64</span>, <span class="ident">c</span>: [<span class="ident">u8</span>; <span class="number">32</span>]),
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                <span class="macro">expected_inputs!</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">u64</span>, <span class="ident">c</span>: [<span class="ident">u8</span>; <span class="number">32</span>]),
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">u64</span>, <span class="ident">c</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
                 },
             ),
         ];
         <span class="kw">for</span> (<span class="ident">expected_inputs</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">actual_inputs</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_method</span>)
+            <span class="kw">let</span> <span class="ident">actual_inputs</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">inputs</span>()
                 .<span class="ident">cloned</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="ident">syn</span>::<span class="ident">FnArg</span>::<span class="ident">Typed</span>(<span class="ident">pat_type</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>))
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">actual_inputs</span>, <span class="ident">expected_inputs</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">actual_inputs</span>, <span class="ident">expected_inputs</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">visibility_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">test_inputs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">syn::ImplItemMethod</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="comment">// inherited</span>
             (
                 <span class="bool-val">false</span>,
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
                 },
@@ -885,48 +885,48 @@
             <span class="comment">// public</span>
             (
                 <span class="bool-val">true</span>,
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+                <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
                 },
             ),
         ];
         <span class="kw">for</span> (<span class="ident">is_pub</span>, <span class="ident">item_method</span>) <span class="kw">in</span> <span class="ident">test_inputs</span> {
-            <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_method</span>)
+            <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">ir::Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">visibility</span>();
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">visibility</span>.<span class="ident">is_pub</span>(), <span class="ident">is_pub</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">visibility</span>.<span class="ident">is_inherited</span>(), <span class="op">!</span><span class="ident">is_pub</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">visibility</span>.<span class="ident">is_pub</span>(), <span class="ident">is_pub</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">visibility</span>.<span class="ident">is_inherited</span>(), <span class="op">!</span><span class="ident">is_pub</span>);
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_works</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="comment">// simple + inherited visibility</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
             <span class="comment">// simple + public visibility</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
             <span class="comment">// many inputs</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>, <span class="ident">input3</span>: <span class="ident">u32</span>, <span class="ident">input4</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_method</span>).<span class="ident">is_ok</span>());
+            <span class="macro">assert!</span>(<span class="op">&lt;</span><span class="ident">ir::Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>).<span class="ident">is_ok</span>());
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>: <span class="ident">syn</span>::<span class="ident">ImplItemMethod</span>, <span class="ident">expected_err</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_method</span>)
+    <span class="kw">fn</span> <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>: <span class="ident">syn::ImplItemMethod</span>, <span class="ident">expected_err</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+        <span class="macro">assert_eq!</span>(
+            <span class="op">&lt;</span><span class="ident">ir::Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_method</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
             <span class="prelude-val">Err</span>(<span class="ident">expected_err</span>.<span class="ident">to_string</span>()),
         );
@@ -934,12 +934,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_missing_return_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() {}
             },
@@ -951,20 +951,20 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_invalid_return_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, ()<span class="op">&gt;</span> {}
             },
@@ -976,20 +976,20 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_invalid_self_receiver_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1004,12 +1004,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_generics_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1021,12 +1021,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_const_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1038,12 +1038,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_async_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1055,12 +1055,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_unsafe_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1072,12 +1072,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_explicit_abi_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1089,12 +1089,12 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_variadic_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>(...) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>(...) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
@@ -1106,14 +1106,14 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">try_from_visibility_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="kw">crate</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my</span>::<span class="ident">path</span>) <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
+                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my::path</span>) <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1126,25 +1126,25 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">conflicting_attributes_fails</span>() {
-        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">item_methods</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::ImplItemMethod</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="comment">// storage</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">storage</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
             <span class="comment">// namespace</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
             <span class="comment">// event + multiple attributes</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">event</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             },
             <span class="comment">// constructor + payable</span>
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">payable</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}

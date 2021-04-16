@@ -429,7 +429,7 @@
     <span class="ident">Environment</span>,
     <span class="ident">Error</span>,
 };
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
+<span class="kw">use</span> <span class="ident">core::marker::PhantomData</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">state</span> {
     <span class="doccomment">//! Type states that tell what state of a instantiation argument has not</span>
@@ -450,7 +450,7 @@
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// Creates the contract instance from the account ID of the already instantiated contract.</span>
-    <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">from_account_id</span>(<span class="ident">account_id</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
 }
 
 <span class="doccomment">/// Builds up contract instantiations.</span>
@@ -460,11 +460,11 @@
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The code hash of the created contract.</span>
-    <span class="ident">code_hash</span>: <span class="ident">E</span>::<span class="ident">Hash</span>,
+    <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>,
     <span class="doccomment">/// The maximum gas costs allowed for the instantiation.</span>
     <span class="ident">gas_limit</span>: <span class="ident">u64</span>,
     <span class="doccomment">/// The endowment for the instantiated contract.</span>
-    <span class="ident">endowment</span>: <span class="ident">E</span>::<span class="ident">Balance</span>,
+    <span class="ident">endowment</span>: <span class="ident">E::Balance</span>,
     <span class="doccomment">/// The input data for the instantiation.</span>
     <span class="ident">exec_input</span>: <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The salt for determining the hash for the contract account ID.</span>
@@ -473,7 +473,7 @@
     <span class="ident">return_type</span>: <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
 }
 
-<span class="ident">cfg_if</span>::<span class="macro">cfg_if</span><span class="macro">!</span> {
+<span class="macro">cfg_if::cfg_if!</span> {
     <span class="comment">// We do not currently support cross-contract instantiation in the off-chain</span>
     <span class="comment">// environment so we do not have to provide these getters in case of</span>
     <span class="comment">// off-chain environment compilation.</span>
@@ -484,7 +484,7 @@
         {
             <span class="doccomment">/// The code hash of the contract.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E</span>::<span class="ident">Hash</span> {
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E::Hash</span> {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">code_hash</span>
             }
 
@@ -496,7 +496,7 @@
 
             <span class="doccomment">/// The endowment for the instantiated contract.</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
-            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">endowment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E</span>::<span class="ident">Balance</span> {
+            <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">endowment</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E::Balance</span> {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">endowment</span>
             }
 
@@ -524,14 +524,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
-    <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
     <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Instantiates the contract and returns its account ID back to the caller.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span>::<span class="ident">instantiate_contract</span>(<span class="self">self</span>).<span class="ident">map</span>(<span class="ident">FromAccountId</span>::<span class="ident">from_account_id</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+        <span class="kw">crate</span><span class="ident">::instantiate_contract</span>(<span class="self">self</span>).<span class="ident">map</span>(<span class="ident">FromAccountId::from_account_id</span>)
     }
 }
 
@@ -597,14 +597,14 @@
 <span class="doccomment">/// **Note:** The shown example panics because there is currently no cross-calling</span>
 <span class="doccomment">///           support in the off-chain testing environment. However, this code</span>
 <span class="doccomment">///           should work fine in on-chain environments.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">type_complexity</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_create</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">R</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span>
     <span class="ident">E</span>,
-    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>,
     <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
-    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>,
     <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">state</span>::<span class="ident">Salt</span><span class="op">&gt;</span>,
+    <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">state::Salt</span><span class="op">&gt;</span>,
     <span class="ident">R</span>,
 <span class="op">&gt;</span>
 <span class="kw">where</span>
@@ -612,18 +612,18 @@
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {
     <span class="ident">CreateBuilder</span> {
-        <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">code_hash</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">gas_limit</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">endowment</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">exec_input</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">salt</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
-        <span class="ident">return_type</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+        <span class="ident">env</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">code_hash</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">gas_limit</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">endowment</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">exec_input</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">salt</span>: <span class="ident">Default::default</span>(),
+        <span class="ident">return_type</span>: <span class="ident">Default::default</span>(),
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
-    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
@@ -631,10 +631,10 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span>(
         <span class="self">self</span>,
-        <span class="ident">code_hash</span>: <span class="ident">E</span>::<span class="ident">Hash</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+        <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">CreateBuilder</span> {
-            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">code_hash</span>: <span class="ident">Set</span>(<span class="ident">code_hash</span>),
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">endowment</span>: <span class="self">self</span>.<span class="ident">endowment</span>,
@@ -657,7 +657,7 @@
         <span class="ident">gas_limit</span>: <span class="ident">u64</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">CreateBuilder</span> {
-            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">code_hash</span>: <span class="self">self</span>.<span class="ident">code_hash</span>,
             <span class="ident">gas_limit</span>: <span class="ident">Set</span>(<span class="ident">gas_limit</span>),
             <span class="ident">endowment</span>: <span class="self">self</span>.<span class="ident">endowment</span>,
@@ -669,7 +669,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
-    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
@@ -677,10 +677,10 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">endowment</span>(
         <span class="self">self</span>,
-        <span class="ident">endowment</span>: <span class="ident">E</span>::<span class="ident">Balance</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+        <span class="ident">endowment</span>: <span class="ident">E::Balance</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">CreateBuilder</span> {
-            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">code_hash</span>: <span class="self">self</span>.<span class="ident">code_hash</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">endowment</span>: <span class="ident">Set</span>(<span class="ident">endowment</span>),
@@ -712,7 +712,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
     {
         <span class="ident">CreateBuilder</span> {
-            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">code_hash</span>: <span class="self">self</span>.<span class="ident">code_hash</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">endowment</span>: <span class="self">self</span>.<span class="ident">endowment</span>,
@@ -724,7 +724,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>
-    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">state</span>::<span class="ident">Salt</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>
+    <span class="ident">CreateBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CodeHash</span>, <span class="ident">GasLimit</span>, <span class="ident">Endowment</span>, <span class="ident">Args</span>, <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">state::Salt</span><span class="op">&gt;</span>, <span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
@@ -738,7 +738,7 @@
         <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
     {
         <span class="ident">CreateBuilder</span> {
-            <span class="ident">env</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">code_hash</span>: <span class="self">self</span>.<span class="ident">code_hash</span>,
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>,
             <span class="ident">endowment</span>: <span class="self">self</span>.<span class="ident">endowment</span>,
@@ -752,9 +752,9 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">GasLimit</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
     <span class="ident">CreateBuilder</span><span class="op">&lt;</span>
         <span class="ident">E</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>,
         <span class="ident">GasLimit</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>,
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Salt</span><span class="op">&gt;</span>,
         <span class="ident">R</span>,
@@ -780,9 +780,9 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">GasLimit</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">R</span><span class="op">&gt;</span>
     <span class="ident">CreateBuilder</span><span class="op">&lt;</span>
         <span class="ident">E</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Hash</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Hash</span><span class="op">&gt;</span>,
         <span class="ident">GasLimit</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E</span>::<span class="ident">Balance</span><span class="op">&gt;</span>,
+        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>,
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Salt</span><span class="op">&gt;</span>,
         <span class="ident">R</span>,
@@ -790,7 +790,7 @@
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
     <span class="ident">GasLimit</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">u64</span><span class="op">&gt;</span>,
-    <span class="ident">Args</span>: <span class="ident">scale</span>::<span class="ident">Encode</span>,
+    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
     <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
     <span class="ident">R</span>: <span class="ident">FromAccountId</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>,
 {

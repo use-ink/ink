@@ -222,11 +222,11 @@
 <span class="kw">mod</span> <span class="ident">layout</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">layout</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::layout</span>::{
     <span class="ident">LayoutCryptoHasher</span>,
     <span class="ident">StorageLayout</span>,
 };
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span>::<span class="ident">optspec</span>::{
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::optspec</span>::{
     <span class="ident">clear_spread_root_opt</span>,
     <span class="ident">pull_packed_root_opt</span>,
     <span class="ident">pull_spread_root_opt</span>,
@@ -243,18 +243,18 @@
         <span class="ident">ExtKeyPtr</span>,
         <span class="ident">KeyPtr</span>,
     },
-    <span class="ident">packed</span>::<span class="ident">PackedLayout</span>,
+    <span class="ident">packed::PackedLayout</span>,
     <span class="ident">spread</span>::{
         <span class="ident">SpreadLayout</span>,
         <span class="ident">FOOTPRINT_CLEANUP_THRESHOLD</span>,
     },
 };
-<span class="kw">pub</span> <span class="kw">use</span> ::<span class="ident">ink_storage_derive</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::ink_storage_derive</span>::{
     <span class="ident">PackedLayout</span>,
     <span class="ident">SpreadLayout</span>,
     <span class="ident">StorageLayout</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// Pulls an instance of type `T` from the contract storage using spread layout.</span>
 <span class="doccomment">///</span>
@@ -271,8 +271,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
 }
 
 <span class="doccomment">/// Clears the entity from the contract storage using spread layout.</span>
@@ -290,8 +290,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">clear_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::clear_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
 }
 
 <span class="doccomment">/// Pushes the entity to the contract storage using spread layout.</span>
@@ -309,8 +309,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">push_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
 }
 
 <span class="doccomment">/// Pulls an instance of type `T` from the contract storage using packed layout.</span>
@@ -328,10 +328,10 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="ident">ink_env</span>::<span class="ident">get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="ident">ink_env::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;could not properly decode storage entry&quot;</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;storage entry was empty&quot;</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
     <span class="ident">entity</span>
 }
 
@@ -350,8 +350,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">push_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
-    <span class="ident">ink_env</span>::<span class="ident">set_contract_storage</span>(<span class="ident">root_key</span>, <span class="ident">entity</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::push_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="ident">ink_env::set_contract_storage</span>(<span class="ident">root_key</span>, <span class="ident">entity</span>);
 }
 
 <span class="doccomment">/// Clears the entity from the contract storage using packed layout.</span>
@@ -369,8 +369,8 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span>::<span class="ident">clear_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
-    <span class="ident">ink_env</span>::<span class="ident">clear_contract_storage</span>(<span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::clear_packed</span>(<span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="ident">ink_env::clear_contract_storage</span>(<span class="ident">root_key</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage" data-search-js="../../../search-index.js"></div>

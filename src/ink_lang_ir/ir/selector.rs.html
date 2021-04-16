@@ -71,7 +71,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">blake2</span>::<span class="ident">blake2b_256</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::blake2::blake2b_256</span>;
 
 <span class="doccomment">/// A function selector.</span>
 <span class="doccomment">///</span>
@@ -93,7 +93,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">32</span>];
         <span class="ident">blake2b_256</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
-        <span class="self">Self</span>::<span class="ident">from_bytes</span>([<span class="ident">output</span>[<span class="number">0</span>], <span class="ident">output</span>[<span class="number">1</span>], <span class="ident">output</span>[<span class="number">2</span>], <span class="ident">output</span>[<span class="number">3</span>]])
+        <span class="self">Self</span><span class="ident">::from_bytes</span>([<span class="ident">output</span>[<span class="number">0</span>], <span class="ident">output</span>[<span class="number">1</span>], <span class="ident">output</span>[<span class="number">2</span>], <span class="ident">output</span>[<span class="number">3</span>]])
     }
 
     <span class="doccomment">/// Returns the underlying four bytes.</span>
@@ -103,13 +103,13 @@
 
     <span class="doccomment">/// Returns a unique identifier as `usize`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unique_id</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="ident">u32</span>::<span class="ident">from_le_bytes</span>(<span class="self">self</span>.<span class="ident">bytes</span>) <span class="kw">as</span> <span class="ident">usize</span>
+        <span class="ident">u32::from_le_bytes</span>(<span class="self">self</span>.<span class="ident">bytes</span>) <span class="kw">as</span> <span class="ident">usize</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Selector</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">from_bytes</span>(<span class="ident">bytes</span>)
+        <span class="self">Self</span><span class="ident">::from_bytes</span>(<span class="ident">bytes</span>)
     }
 }
 </pre></div>

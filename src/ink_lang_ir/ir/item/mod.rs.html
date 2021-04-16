@@ -285,17 +285,17 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">event</span>::<span class="ident">Event</span>,
-    <span class="ident">storage</span>::<span class="ident">Storage</span>,
+    <span class="ident">event::Event</span>,
+    <span class="ident">storage::Storage</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error</span>::<span class="ident">ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
     <span class="ident">ir</span>,
-    <span class="ident">ir</span>::<span class="ident">attrs</span>::<span class="ident">Attrs</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">ir::attrs::Attrs</span> <span class="kw">as</span> <span class="kw">_</span>,
 };
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">spanned</span>::<span class="ident">Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="doccomment">/// An item in the root of the ink! module ([`ir::ItemMod`](`crate::ir::ItemMod`)).</span>
 <span class="doccomment">///</span>
@@ -305,79 +305,79 @@
     <span class="doccomment">/// The item is an ink! specific item.</span>
     <span class="ident">Ink</span>(<span class="ident">InkItem</span>),
     <span class="doccomment">/// The item is a normal Rust item.</span>
-    <span class="ident">Rust</span>(<span class="ident">syn</span>::<span class="ident">Item</span>),
+    <span class="ident">Rust</span>(<span class="ident">syn::Item</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">quote</span>::<span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">Item</span> {
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Item</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Ink</span>(<span class="ident">ink_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ink_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
-            <span class="self">Self</span>::<span class="ident">Rust</span>(<span class="ident">rust_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rust_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="self">Self</span><span class="ident">::Ink</span>(<span class="ident">ink_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ink_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="self">Self</span><span class="ident">::Rust</span>(<span class="ident">rust_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">rust_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Item</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Item</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::Item</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Item</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item</span>: <span class="ident">syn</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item</span>: <span class="ident">syn::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">syn</span>::<span class="ident">Item</span>::<span class="ident">Struct</span>(<span class="ident">item_struct</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">ir</span>::<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">Rust</span>(<span class="ident">item_struct</span>.<span class="ident">into</span>()))
+            <span class="ident">syn::Item::Struct</span>(<span class="ident">item_struct</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">ir::contains_ink_attributes</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span><span class="ident">::Rust</span>(<span class="ident">item_struct</span>.<span class="ident">into</span>()))
                 }
                 <span class="comment">// At this point we know that there must be at least one ink!</span>
                 <span class="comment">// attribute. This can be either the ink! storage struct,</span>
                 <span class="comment">// an ink! event or an invalid ink! attribute.</span>
-                <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
+                <span class="kw">let</span> <span class="ident">attr</span> <span class="op">=</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">item_struct</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
                     .<span class="ident">expect</span>(<span class="string">&quot;missing expected ink! attribute for struct&quot;</span>);
                 <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>() {
-                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Storage</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Storage</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_struct</span>)
-                            .<span class="ident">map</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-                            .<span class="ident">map</span>(<span class="self">Self</span>::<span class="ident">Ink</span>)
+                    <span class="ident">ir::AttributeArg::Storage</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="op">&lt;</span><span class="ident">ir::Storage</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_struct</span>)
+                            .<span class="ident">map</span>(<span class="ident">Into::into</span>)
+                            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::Ink</span>)
                     }
-                    <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Event</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Event</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_struct</span>)
-                            .<span class="ident">map</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-                            .<span class="ident">map</span>(<span class="self">Self</span>::<span class="ident">Ink</span>)
+                    <span class="ident">ir::AttributeArg::Event</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="op">&lt;</span><span class="ident">ir::Event</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_struct</span>)
+                            .<span class="ident">map</span>(<span class="ident">Into::into</span>)
+                            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::Ink</span>)
                     }
                     <span class="ident">_invalid</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                        <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                             <span class="ident">attr</span>.<span class="ident">span</span>(),
                             <span class="string">&quot;encountered unsupported ink! attribute argument on struct&quot;</span>,
                         ))
                     }
                 }
             }
-            <span class="ident">syn</span>::<span class="ident">Item</span>::<span class="ident">Impl</span>(<span class="ident">item_impl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">ir</span>::<span class="ident">ItemImpl</span>::<span class="ident">is_ink_impl_block</span>(<span class="kw-2">&amp;</span><span class="ident">item_impl</span>)<span class="question-mark">?</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">Rust</span>(<span class="ident">item_impl</span>.<span class="ident">into</span>()))
+            <span class="ident">syn::Item::Impl</span>(<span class="ident">item_impl</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">ir::ItemImpl::is_ink_impl_block</span>(<span class="kw-2">&amp;</span><span class="ident">item_impl</span>)<span class="question-mark">?</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span><span class="ident">::Rust</span>(<span class="ident">item_impl</span>.<span class="ident">into</span>()))
                 }
                 <span class="comment">// At this point we know that there must be at least one ink!</span>
                 <span class="comment">// attribute on either the impl block itself or one of its items.</span>
-                <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">ItemImpl</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">item_impl</span>)
-                    .<span class="ident">map</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-                    .<span class="ident">map</span>(<span class="self">Self</span>::<span class="ident">Ink</span>)
+                <span class="op">&lt;</span><span class="ident">ir::ItemImpl</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item_impl</span>)
+                    .<span class="ident">map</span>(<span class="ident">Into::into</span>)
+                    .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::Ink</span>)
             }
             <span class="ident">item</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// This is an error if the item contains any unexpected</span>
                 <span class="comment">// ink! attributes. Otherwise it is a normal Rust item.</span>
-                <span class="kw">if</span> <span class="ident">ir</span>::<span class="ident">contains_ink_attributes</span>(<span class="ident">item</span>.<span class="ident">attrs</span>()) {
+                <span class="kw">if</span> <span class="ident">ir::contains_ink_attributes</span>(<span class="ident">item</span>.<span class="ident">attrs</span>()) {
                     <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span>
-                        <span class="ident">ir</span>::<span class="ident">partition_attributes</span>(<span class="ident">item</span>.<span class="ident">attrs</span>().<span class="ident">iter</span>().<span class="ident">cloned</span>())<span class="question-mark">?</span>;
-                    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>());
-                    <span class="kw">fn</span> <span class="ident">into_err</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="ident">Error</span> {
-                        <span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;encountered unexpected ink! attribute&quot;</span>,)
+                        <span class="ident">ir::partition_attributes</span>(<span class="ident">item</span>.<span class="ident">attrs</span>().<span class="ident">iter</span>().<span class="ident">cloned</span>())<span class="question-mark">?</span>;
+                    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>());
+                    <span class="kw">fn</span> <span class="ident">into_err</span>(<span class="ident">attr</span>: <span class="kw-2">&amp;</span><span class="ident">ir::InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Error</span> {
+                        <span class="macro">format_err!</span>(<span class="ident">attr</span>.<span class="ident">span</span>(), <span class="string">&quot;encountered unexpected ink! attribute&quot;</span>,)
                     }
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ink_attrs</span>[<span class="number">1</span>..]
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="ident">into_err</span>)
                         .<span class="ident">fold</span>(<span class="ident">into_err</span>(<span class="kw-2">&amp;</span><span class="ident">ink_attrs</span>[<span class="number">0</span>]), <span class="op">|</span><span class="ident">fst</span>, <span class="ident">snd</span><span class="op">|</span> <span class="ident">fst</span>.<span class="ident">into_combine</span>(<span class="ident">snd</span>)))
                 }
-                <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">Rust</span>(<span class="ident">item</span>))
+                <span class="prelude-val">Ok</span>(<span class="self">Self</span><span class="ident">::Rust</span>(<span class="ident">item</span>))
             }
         }
     }
@@ -399,7 +399,7 @@
     <span class="doccomment">/// Otherwise, returns `None`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_ink_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">InkItem</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Item</span>::<span class="ident">Ink</span>(<span class="ident">ink_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ink_item</span>),
+            <span class="ident">Item::Ink</span>(<span class="ident">ink_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ink_item</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -407,9 +407,9 @@
     <span class="doccomment">/// Returns `Some` if `self` is an ink! specific item.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, returns `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_rust_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_rust_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Item</span>::<span class="ident">Rust</span>(<span class="ident">rust_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">rust_item</span>),
+            <span class="ident">Item::Rust</span>(<span class="ident">rust_item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">rust_item</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -419,21 +419,21 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">InkItem</span> {
     <span class="doccomment">/// The ink! storage struct definition.</span>
-    <span class="ident">Storage</span>(<span class="ident">ir</span>::<span class="ident">Storage</span>),
+    <span class="ident">Storage</span>(<span class="ident">ir::Storage</span>),
     <span class="doccomment">/// An ink! event definition.</span>
-    <span class="ident">Event</span>(<span class="ident">ir</span>::<span class="ident">Event</span>),
+    <span class="ident">Event</span>(<span class="ident">ir::Event</span>),
     <span class="doccomment">/// An ink! implementation block.</span>
-    <span class="ident">ImplBlock</span>(<span class="ident">ir</span>::<span class="ident">ItemImpl</span>),
+    <span class="ident">ImplBlock</span>(<span class="ident">ir::ItemImpl</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">quote</span>::<span class="ident">ToTokens</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Storage</span>(<span class="ident">storage</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">storage</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
-            <span class="self">Self</span>::<span class="ident">Event</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">event</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
-            <span class="self">Self</span>::<span class="ident">ImplBlock</span>(<span class="ident">impl_block</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">impl_block</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="self">Self</span><span class="ident">::Storage</span>(<span class="ident">storage</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">storage</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="self">Self</span><span class="ident">::Event</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">event</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="self">Self</span><span class="ident">::ImplBlock</span>(<span class="ident">impl_block</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">impl_block</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
         }
     }
 }
@@ -444,17 +444,17 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If invalid or malformed ink! attributes are encountered for the given item.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ink_item</span>(<span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_ink_item</span>(<span class="ident">item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Item</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">syn</span>::<span class="ident">Item</span>::<span class="ident">Struct</span>(<span class="ident">item_struct</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">ir</span>::<span class="ident">Storage</span>::<span class="ident">is_ink_storage</span>(<span class="ident">item_struct</span>)<span class="question-mark">?</span>
-                    <span class="op">|</span><span class="op">|</span> <span class="ident">ir</span>::<span class="ident">Event</span>::<span class="ident">is_ink_event</span>(<span class="ident">item_struct</span>)<span class="question-mark">?</span>
+            <span class="ident">syn::Item::Struct</span>(<span class="ident">item_struct</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">ir::Storage::is_ink_storage</span>(<span class="ident">item_struct</span>)<span class="question-mark">?</span>
+                    <span class="op">|</span><span class="op">|</span> <span class="ident">ir::Event::is_ink_event</span>(<span class="ident">item_struct</span>)<span class="question-mark">?</span>
                 {
                     <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
                 }
             }
-            <span class="ident">syn</span>::<span class="ident">Item</span>::<span class="ident">Impl</span>(<span class="ident">item_impl</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="ident">ir</span>::<span class="ident">ItemImpl</span>::<span class="ident">is_ink_impl_block</span>(<span class="ident">item_impl</span>)
+            <span class="ident">syn::Item::Impl</span>(<span class="ident">item_impl</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">ir::ItemImpl::is_ink_impl_block</span>(<span class="ident">item_impl</span>)
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
         }
@@ -462,21 +462,21 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Storage</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">storage</span>: <span class="ident">ir</span>::<span class="ident">Storage</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">Storage</span>(<span class="ident">storage</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::Storage</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">storage</span>: <span class="ident">ir::Storage</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::Storage</span>(<span class="ident">storage</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Event</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">event</span>: <span class="ident">ir</span>::<span class="ident">Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">Event</span>(<span class="ident">event</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::Event</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">event</span>: <span class="ident">ir::Event</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::Event</span>(<span class="ident">event</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">ItemImpl</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">impl_block</span>: <span class="ident">ir</span>::<span class="ident">ItemImpl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">ImplBlock</span>(<span class="ident">impl_block</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::ItemImpl</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">impl_block</span>: <span class="ident">ir::ItemImpl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::ImplBlock</span>(<span class="ident">impl_block</span>)
     }
 }
 
@@ -484,9 +484,9 @@
     <span class="doccomment">/// Returns `Some` if `self` is the ink! storage struct definition.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, returns `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_storage_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">Storage</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_storage_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Storage</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">InkItem</span>::<span class="ident">Storage</span>(<span class="ident">storage</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">storage</span>),
+            <span class="ident">InkItem::Storage</span>(<span class="ident">storage</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">storage</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -499,9 +499,9 @@
     <span class="doccomment">/// Returns `Some` if `self` is an ink! event struct definition.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, returns `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_event_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">Event</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_event_item</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Event</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">InkItem</span>::<span class="ident">Event</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>),
+            <span class="ident">InkItem::Event</span>(<span class="ident">event</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">event</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -514,9 +514,9 @@
     <span class="doccomment">/// Returns `Some` if `self` is an ink! implementation block.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Otherwise, returns `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_impl_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">ItemImpl</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_impl_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">InkItem</span>::<span class="ident">ImplBlock</span>(<span class="ident">impl_block</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">impl_block</span>),
+            <span class="ident">InkItem::ImplBlock</span>(<span class="ident">impl_block</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">impl_block</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }

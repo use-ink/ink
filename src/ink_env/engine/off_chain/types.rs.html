@@ -83,10 +83,10 @@
 <span class="doccomment">//! assigned upon initialization to check whether accesses to it are</span>
 <span class="doccomment">//! type safe.</span>
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">TypedEncoded</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::TypedEncoded</span>;
 
 <span class="doccomment">/// Type markers used in conjunction with `TypedEncoded`.</span>
-<span class="attribute">#[<span class="ident">rustfmt</span>::<span class="ident">skip</span>]</span>
+<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
 <span class="kw">mod</span> <span class="ident">type_marker</span> {
     <span class="doccomment">/// Type marker representing an environmental `AccountId`.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span> <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AccountId</span> {}
@@ -101,15 +101,15 @@
 }
 
 <span class="doccomment">/// Off-chain environment account ID type.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffAccountId</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffAccountId</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker::AccountId</span><span class="op">&gt;</span>;
 <span class="doccomment">/// Off-chain environment balance type.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffBalance</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker</span>::<span class="ident">Balance</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffBalance</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker::Balance</span><span class="op">&gt;</span>;
 <span class="doccomment">/// Off-chain environment hash type.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffHash</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker</span>::<span class="ident">Hash</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffHash</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker::Hash</span><span class="op">&gt;</span>;
 <span class="doccomment">/// Off-chain environment timestamp type.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffTimestamp</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker</span>::<span class="ident">OffTimestamp</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffTimestamp</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker::OffTimestamp</span><span class="op">&gt;</span>;
 <span class="doccomment">/// Off-chain environment block number type.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffBlockNumber</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker</span>::<span class="ident">BlockNumber</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OffBlockNumber</span> <span class="op">=</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">type_marker::BlockNumber</span><span class="op">&gt;</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-search-js="../../../../search-index.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

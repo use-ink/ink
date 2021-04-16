@@ -68,16 +68,16 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">engine</span>::<span class="ident">off_chain</span>::<span class="ident">OffChainError</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::engine::off_chain::OffChainError</span>;
 
 <span class="doccomment">/// Errors that can be encountered upon environmental interaction.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">From</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
     <span class="doccomment">/// Error upon decoding an encoded value.</span>
-    <span class="ident">Decode</span>(<span class="ident">scale</span>::<span class="ident">Error</span>),
+    <span class="ident">Decode</span>(<span class="ident">scale::Error</span>),
     <span class="doccomment">/// An error that can only occur in the off-chain environment.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
     <span class="ident">OffChain</span>(<span class="ident">OffChainError</span>),
@@ -105,7 +105,7 @@
 }
 
 <span class="doccomment">/// A result of environmental operations.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-search-js="../../search-index.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

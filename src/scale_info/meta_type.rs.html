@@ -124,9 +124,9 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::{
-    <span class="ident">any</span>::<span class="ident">TypeId</span>,
-    <span class="ident">cmp</span>::<span class="ident">Ordering</span>,
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+    <span class="ident">any::TypeId</span>,
+    <span class="ident">cmp::Ordering</span>,
     <span class="ident">fmt</span>::{
         <span class="ident">Debug</span>,
         <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FmtError</span>,
@@ -139,7 +139,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">form</span>::<span class="ident">MetaForm</span>,
+    <span class="ident">form::MetaForm</span>,
     <span class="ident">Type</span>,
     <span class="ident">TypeInfo</span>,
 };
@@ -203,8 +203,8 @@
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">fn_type_info</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">TypeInfo</span><span class="op">&gt;</span>::<span class="ident">type_info</span>,
-            <span class="ident">type_id</span>: <span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Identity</span><span class="op">&gt;</span>(),
+            <span class="ident">fn_type_info</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">TypeInfo</span><span class="op">&gt;</span><span class="ident">::type_info</span>,
+            <span class="ident">type_id</span>: <span class="ident">TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T::Identity</span><span class="op">&gt;</span>(),
         }
     }
 

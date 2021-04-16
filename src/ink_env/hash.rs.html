@@ -90,7 +90,7 @@
 <span class="doccomment">//! Provides type definitions and traits for the built-in cryptographic hashes.</span>
 
 <span class="doccomment">/// The output type of built-in cryptographic hash functions.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HashOutput</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">HashOutput</span>: <span class="ident">private::Sealed</span> {
     <span class="doccomment">/// The output type of the crypto hash.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This should be a byte array with some constant size such as `[u8; 32]`.</span>
@@ -98,9 +98,9 @@
 }
 
 <span class="doccomment">/// Types that are usable as built-in cryptographic hashes.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CryptoHash</span>: <span class="ident">HashOutput</span> <span class="op">+</span> <span class="ident">private</span>::<span class="ident">Sealed</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">CryptoHash</span>: <span class="ident">HashOutput</span> <span class="op">+</span> <span class="ident">private::Sealed</span> {
     <span class="doccomment">/// Hashes the given raw byte input and copies the result into `output`.</span>
-    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span>::<span class="ident">Type</span>);
+    <span class="kw">fn</span> <span class="ident">hash</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>);
 }
 
 <span class="doccomment">/// The SHA-2 crypto hash with 256-bit output.</span>
@@ -124,10 +124,10 @@
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
 }
 
-<span class="kw">impl</span> <span class="ident">private</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {}
-<span class="kw">impl</span> <span class="ident">private</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">Keccak256</span> {}
-<span class="kw">impl</span> <span class="ident">private</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">Blake2x256</span> {}
-<span class="kw">impl</span> <span class="ident">private</span>::<span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">Blake2x128</span> {}
+<span class="kw">impl</span> <span class="ident">private::Sealed</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {}
+<span class="kw">impl</span> <span class="ident">private::Sealed</span> <span class="kw">for</span> <span class="ident">Keccak256</span> {}
+<span class="kw">impl</span> <span class="ident">private::Sealed</span> <span class="kw">for</span> <span class="ident">Blake2x256</span> {}
+<span class="kw">impl</span> <span class="ident">private::Sealed</span> <span class="kw">for</span> <span class="ident">Blake2x128</span> {}
 
 <span class="kw">impl</span> <span class="ident">HashOutput</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {
     <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];

@@ -137,12 +137,12 @@
         <span class="ident">SpreadLayout</span>,
     },
 };
-<span class="kw">use</span> <span class="ident">ink_primitives</span>::<span class="ident">Key</span>;
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traits</span>::<span class="ident">StorageLayout</span>;
-    <span class="kw">use</span> <span class="ident">ink_metadata</span>::<span class="ident">layout</span>::{
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits::StorageLayout</span>;
+    <span class="kw">use</span> <span class="ident">ink_metadata::layout</span>::{
         <span class="ident">FieldLayout</span>,
         <span class="ident">Layout</span>,
         <span class="ident">StructLayout</span>,
@@ -150,14 +150,14 @@
 
     <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">BitStash</span> {
         <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
-            <span class="ident">Layout</span>::<span class="ident">Struct</span>(<span class="ident">StructLayout</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(
+            <span class="ident">Layout::Struct</span>(<span class="ident">StructLayout::new</span>(<span class="macro">vec!</span>[
+                <span class="ident">FieldLayout::new</span>(
                     <span class="string">&quot;counts&quot;</span>,
-                    <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">CountFree</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>),
+                    <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">CountFree</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>),
                 ),
-                <span class="ident">FieldLayout</span>::<span class="ident">new</span>(
+                <span class="ident">FieldLayout::new</span>(
                     <span class="string">&quot;elems&quot;</span>,
-                    <span class="op">&lt;</span><span class="ident">StorageBitvec</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span>::<span class="ident">layout</span>(<span class="ident">key_ptr</span>),
+                    <span class="op">&lt;</span><span class="ident">StorageBitvec</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>),
                 ),
             ]))
         }
@@ -188,24 +188,24 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">BitStash</span> {
-    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">CountFree</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>
-        <span class="op">+</span> <span class="op">&lt;</span><span class="ident">StorageBitvec</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span>::<span class="ident">FOOTPRINT</span>;
+    <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">CountFree</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>
+        <span class="op">+</span> <span class="op">&lt;</span><span class="ident">StorageBitvec</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">counts</span>: <span class="ident">SpreadLayout</span>::<span class="ident">pull_spread</span>(<span class="ident">ptr</span>),
-            <span class="ident">free</span>: <span class="ident">SpreadLayout</span>::<span class="ident">pull_spread</span>(<span class="ident">ptr</span>),
+            <span class="ident">counts</span>: <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>),
+            <span class="ident">free</span>: <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>, <span class="ident">ptr</span>);
-        <span class="ident">SpreadLayout</span>::<span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">free</span>, <span class="ident">ptr</span>);
+        <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>, <span class="ident">ptr</span>);
+        <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">free</span>, <span class="ident">ptr</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
-        <span class="ident">SpreadLayout</span>::<span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>, <span class="ident">ptr</span>);
-        <span class="ident">SpreadLayout</span>::<span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">free</span>, <span class="ident">ptr</span>);
+        <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>, <span class="ident">ptr</span>);
+        <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">free</span>, <span class="ident">ptr</span>);
     }
 }
 </pre></div>

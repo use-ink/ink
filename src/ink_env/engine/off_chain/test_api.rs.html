@@ -447,14 +447,14 @@
 <span class="doccomment">//! Operations on the off-chain testing environment.</span>
 
 <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">chain_extension</span>::<span class="ident">ChainExtension</span>,
-    <span class="ident">db</span>::<span class="ident">ExecContext</span>,
+    <span class="ident">chain_extension::ChainExtension</span>,
+    <span class="ident">db::ExecContext</span>,
     <span class="ident">AccountError</span>,
     <span class="ident">EnvInstance</span>,
     <span class="ident">OnInstance</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="ident">db</span>::<span class="ident">ChainSpec</span>,
+    <span class="ident">db::ChainSpec</span>,
     <span class="ident">CallData</span>,
     <span class="ident">EmittedEvent</span>,
 };
@@ -462,8 +462,8 @@
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_prelude</span>::<span class="ident">string</span>::<span class="ident">String</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">UnwindSafe</span>;
+<span class="kw">use</span> <span class="ident">ink_prelude::string::String</span>;
+<span class="kw">use</span> <span class="ident">std::panic::UnwindSafe</span>;
 
 <span class="doccomment">/// Pushes a contract execution context.</span>
 <span class="doccomment">///</span>
@@ -474,17 +474,17 @@
 <span class="doccomment">/// Together with [`pop_execution_context`] this can be used to emulated</span>
 <span class="doccomment">/// nested calls.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_execution_context</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">caller</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
-    <span class="ident">callee</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
-    <span class="ident">gas_limit</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
-    <span class="ident">endowment</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
+    <span class="ident">caller</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">callee</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">gas_limit</span>: <span class="ident">T::Balance</span>,
+    <span class="ident">endowment</span>: <span class="ident">T::Balance</span>,
     <span class="ident">call_data</span>: <span class="ident">CallData</span>,
 ) <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">exec_context</span>.<span class="ident">push</span>(
-            <span class="ident">ExecContext</span>::<span class="ident">build</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+            <span class="ident">ExecContext::build</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
                 .<span class="ident">caller</span>(<span class="ident">caller</span>)
                 .<span class="ident">callee</span>(<span class="ident">callee</span>)
                 .<span class="ident">gas</span>(<span class="ident">gas_limit</span>)
@@ -502,7 +502,7 @@
 <span class="doccomment">/// Together with [`push_execution_context`] this can be used to emulated</span>
 <span class="doccomment">/// nested calls.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop_execution_context</span>() {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">exec_context</span>.<span class="ident">pop</span>();
     })
 }
@@ -520,19 +520,19 @@
 <span class="doccomment">/// - If the underlying `account` type does not match.</span>
 <span class="doccomment">/// - If the underlying `new_balance` type does not match.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_account_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">account_id</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
-    <span class="ident">new_balance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
+    <span class="ident">account_id</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">new_balance</span>: <span class="ident">T::Balance</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">set_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">new_balance</span>).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">set_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">new_balance</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>))
     })
 }
 
@@ -548,17 +548,17 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If `account` does not exist.</span>
 <span class="doccomment">/// - If the underlying `account` type does not match.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_account_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_account_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T::AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>))
     })
 }
 
@@ -570,22 +570,22 @@
 <span class="doccomment">/// - If the underlying `account` type does not match.</span>
 <span class="doccomment">/// - If the underlying `new_rent_allowance` type does not match.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_contract_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">account_id</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
-    <span class="ident">new_rent_allowance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
+    <span class="ident">account_id</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">new_rent_allowance</span>: <span class="ident">T::Balance</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> {
                 <span class="ident">account</span>
                     .<span class="ident">set_rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">new_rent_allowance</span>)
-                    .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
             })
     })
 }
@@ -597,17 +597,17 @@
 <span class="doccomment">/// - If `account` does not exist.</span>
 <span class="doccomment">/// - If the underlying `account` type does not match.</span>
 <span class="doccomment">/// - If the returned rent allowance cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">Balance</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="ident">T::AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>))
     })
 }
 
@@ -616,10 +616,10 @@
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">ChainExtension</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">chain_extension_handler</span>
-            .<span class="ident">register</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">extension</span>));
+            .<span class="ident">register</span>(<span class="ident">Box::new</span>(<span class="ident">extension</span>));
     })
 }
 
@@ -628,14 +628,14 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This allows to control what [`random`][`crate::random`] returns.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_block_entropy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entropy</span>: <span class="ident">T</span>::<span class="ident">Hash</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_block_entropy</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entropy</span>: <span class="ident">T::Hash</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">current_block_mut</span>()<span class="question-mark">?</span>.<span class="ident">set_entropy</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entropy</span>)
     })
-    .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+    .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
 }
 
 <span class="doccomment">/// Update the [ChainSpec](`crate::test::ChainSpec`) for the test environment</span>
@@ -643,13 +643,13 @@
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ChainSpec</span>),
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">f</span>(<span class="ident">instance</span>.<span class="ident">chain_spec_mut</span>()));
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">f</span>(<span class="ident">instance</span>.<span class="ident">chain_spec_mut</span>()));
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="doccomment">/// Returns the contents of the past performed environmental `println` in order.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recorded_printlns</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="comment">// We return a clone of the recorded strings instead of</span>
         <span class="comment">// references to them since this would require the whole `on_instance`</span>
         <span class="comment">// API to operate on `&#39;static` environmental instances which would</span>
@@ -658,7 +658,7 @@
         <span class="ident">instance</span>
             .<span class="ident">console</span>
             .<span class="ident">past_prints</span>()
-            .<span class="ident">map</span>(<span class="ident">ToOwned</span>::<span class="ident">to_owned</span>)
+            .<span class="ident">map</span>(<span class="ident">ToOwned::to_owned</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
             .<span class="ident">into_iter</span>()
     })
@@ -666,7 +666,7 @@
 
 <span class="doccomment">/// Returns the recorded emitted events in order.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recorded_events</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EmittedEvent</span><span class="op">&gt;</span> {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="comment">// We return a clone of the recorded emitted events instead of</span>
         <span class="comment">// references to them since this would require the whole `on_instance`</span>
         <span class="comment">// API to operate on `&#39;static` environmental instances which would</span>
@@ -675,7 +675,7 @@
         <span class="ident">instance</span>
             .<span class="ident">emitted_events</span>
             .<span class="ident">emitted_events</span>()
-            .<span class="ident">map</span>(<span class="ident">Clone</span>::<span class="ident">clone</span>)
+            .<span class="ident">map</span>(<span class="ident">Clone::clone</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
             .<span class="ident">into_iter</span>()
     })
@@ -686,7 +686,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">instance</span>.<span class="ident">advance_block</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> <span class="ident">instance</span>.<span class="ident">advance_block</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
 }
 
 <span class="doccomment">/// Set to true to disable clearing storage</span>
@@ -696,7 +696,7 @@
 <span class="doccomment">/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,</span>
 <span class="doccomment">/// because lazy storage structures automatically clear their associated cells when they are dropped.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clear_storage_disabled</span>(<span class="ident">disable</span>: <span class="ident">bool</span>) {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">clear_storage_disabled</span> <span class="op">=</span> <span class="ident">disable</span>
     })
 }
@@ -707,17 +707,17 @@
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The predefined `ALICE` account holding substantial amounts of value.</span>
-    <span class="kw">pub</span> <span class="ident">alice</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">alice</span>: <span class="ident">T::AccountId</span>,
     <span class="doccomment">/// The predefined `BOB` account holding some amounts of value.</span>
-    <span class="kw">pub</span> <span class="ident">bob</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">bob</span>: <span class="ident">T::AccountId</span>,
     <span class="doccomment">/// The predefined `CHARLIE` account holding some amounts of value.</span>
-    <span class="kw">pub</span> <span class="ident">charlie</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">charlie</span>: <span class="ident">T::AccountId</span>,
     <span class="doccomment">/// The predefined `DJANGO` account holding no value.</span>
-    <span class="kw">pub</span> <span class="ident">django</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">django</span>: <span class="ident">T::AccountId</span>,
     <span class="doccomment">/// The predefined `EVE` account holding no value.</span>
-    <span class="kw">pub</span> <span class="ident">eve</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">eve</span>: <span class="ident">T::AccountId</span>,
     <span class="doccomment">/// The predefined `FRANK` account holding no value.</span>
-    <span class="kw">pub</span> <span class="ident">frank</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">frank</span>: <span class="ident">T::AccountId</span>,
 }
 
 <span class="doccomment">/// Returns the default accounts for testing purposes:</span>
@@ -725,15 +725,15 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_accounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
     <span class="prelude-val">Ok</span>(<span class="ident">DefaultAccounts</span> {
-        <span class="ident">alice</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x01</span>; <span class="number">32</span>]),
-        <span class="ident">bob</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x02</span>; <span class="number">32</span>]),
-        <span class="ident">charlie</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x03</span>; <span class="number">32</span>]),
-        <span class="ident">django</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x04</span>; <span class="number">32</span>]),
-        <span class="ident">eve</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x05</span>; <span class="number">32</span>]),
-        <span class="ident">frank</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>::<span class="ident">from</span>([<span class="number">0x06</span>; <span class="number">32</span>]),
+        <span class="ident">alice</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x01</span>; <span class="number">32</span>]),
+        <span class="ident">bob</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x02</span>; <span class="number">32</span>]),
+        <span class="ident">charlie</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x03</span>; <span class="number">32</span>]),
+        <span class="ident">django</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x04</span>; <span class="number">32</span>]),
+        <span class="ident">eve</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x05</span>; <span class="number">32</span>]),
+        <span class="ident">frank</span>: <span class="ident">T::AccountId::from</span>([<span class="number">0x06</span>; <span class="number">32</span>]),
     })
 }
 
@@ -746,9 +746,9 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_or_reset_as_default</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">initialize_or_reset_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     })
 }
@@ -759,7 +759,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="ident">DefaultAccounts</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>,
 {
     <span class="ident">initialize_or_reset_as_default</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">default_accounts</span> <span class="op">=</span> <span class="ident">default_accounts</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
@@ -767,43 +767,43 @@
 }
 
 <span class="doccomment">/// Returns the total number of reads and writes of the contract&#39;s storage.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage_rw</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_contract_storage_rw</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T::AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">get_storage_rw</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">get_storage_rw</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>))
     })
 }
 
 <span class="doccomment">/// Returns the amount of storage cells used by the account `account_id`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Returns `None` if the `account_id` is non-existent.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_used_storage_cells</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>::<span class="ident">AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_used_storage_cells</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>: <span class="kw-2">&amp;</span><span class="ident">T::AccountId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>
             .<span class="ident">accounts</span>
             .<span class="ident">get_account</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError</span>::<span class="ident">no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>))
-            .<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">count_used_storage_cells</span>().<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>))
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">AccountError::no_account_for_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">account_id</span>))
+            .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">account</span><span class="op">|</span> <span class="ident">account</span>.<span class="ident">count_used_storage_cells</span>().<span class="ident">map_err</span>(<span class="ident">Into::into</span>))
     })
 }
 
 <span class="doccomment">/// Returns the account id of the currently executing contract.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_current_contract_account_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>::<span class="ident">AccountId</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_current_contract_account_id</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::AccountId</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span>::<span class="ident">on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">exec_context</span> <span class="op">=</span> <span class="ident">instance</span>.<span class="ident">exec_context</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">callee</span> <span class="op">=</span> <span class="ident">exec_context</span>.<span class="ident">callee</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">callee</span>)
@@ -811,15 +811,15 @@
 }
 
 <span class="doccomment">/// The result of a successful contract termination.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractTerminationResult</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
     <span class="doccomment">/// The beneficiary account who received the remaining value in the contract.</span>
-    <span class="kw">pub</span> <span class="ident">beneficiary</span>: <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>,
+    <span class="kw">pub</span> <span class="ident">beneficiary</span>: <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>,
     <span class="doccomment">/// The value which was transferred to the `beneficiary`.</span>
-    <span class="kw">pub</span> <span class="ident">transferred</span>: <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">Balance</span>,
+    <span class="kw">pub</span> <span class="ident">transferred</span>: <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span>,
 }
 
 <span class="doccomment">/// Tests if a contract terminates successfully after `self.env().terminate()`</span>
@@ -839,24 +839,24 @@
 <span class="doccomment">/// See `examples/contract-terminate` for a complete usage example.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assert_contract_termination</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>(
     <span class="ident">should_terminate</span>: <span class="ident">F</span>,
-    <span class="ident">expected_beneficiary</span>: <span class="ident">T</span>::<span class="ident">AccountId</span>,
-    <span class="ident">expected_balance</span>: <span class="ident">T</span>::<span class="ident">Balance</span>,
+    <span class="ident">expected_beneficiary</span>: <span class="ident">T::AccountId</span>,
+    <span class="ident">expected_balance</span>: <span class="ident">T::Balance</span>,
 ) <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">F</span>: <span class="ident">FnMut</span>() <span class="op">+</span> <span class="ident">UnwindSafe</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">AccountId</span>: <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span>::<span class="ident">Balance</span>: <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">core::fmt::Debug</span>,
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span>: <span class="ident">core::fmt::Debug</span>,
 {
-    <span class="kw">let</span> <span class="ident">value_any</span> <span class="op">=</span> ::<span class="ident">std</span>::<span class="ident">panic</span>::<span class="ident">catch_unwind</span>(<span class="ident">should_terminate</span>)
+    <span class="kw">let</span> <span class="ident">value_any</span> <span class="op">=</span> <span class="ident">::std::panic::catch_unwind</span>(<span class="ident">should_terminate</span>)
         .<span class="ident">expect_err</span>(<span class="string">&quot;contract did not terminate&quot;</span>);
     <span class="kw">let</span> <span class="ident">encoded_input</span> <span class="op">=</span> <span class="ident">value_any</span>
         .<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>()
         .<span class="ident">expect</span>(<span class="string">&quot;panic object can not be cast&quot;</span>);
     <span class="kw">let</span> <span class="ident">res</span>: <span class="ident">ContractTerminationResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">scale</span>::<span class="ident">Decode</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded_input</span>[..]).<span class="ident">expect</span>(<span class="string">&quot;input can not be decoded&quot;</span>);
+        <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded_input</span>[..]).<span class="ident">expect</span>(<span class="string">&quot;input can not be decoded&quot;</span>);
 
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">beneficiary</span>, <span class="ident">expected_beneficiary</span>);
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">transferred</span>, <span class="ident">expected_balance</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">beneficiary</span>, <span class="ident">expected_beneficiary</span>);
+    <span class="macro">assert_eq!</span>(<span class="ident">res</span>.<span class="ident">transferred</span>, <span class="ident">expected_balance</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="ink_env" data-search-js="../../../../search-index.js"></div>

@@ -131,14 +131,14 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">core</span>::<span class="ident">ops</span>::{
+<span class="kw">use</span> <span class="ident">core::ops</span>::{
     <span class="ident">Index</span>,
     <span class="ident">IndexMut</span>,
 };
 
 <span class="doccomment">/// Stores the number of set bits for each 256-bits block in a compact `u8`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CountFree</span> {
     <span class="doccomment">/// Set bits per 256-bit chunk.</span>
     <span class="ident">counts</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
@@ -151,25 +151,25 @@
 <span class="kw">impl</span> <span class="ident">Index</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CountFree</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">u8</span>;
 
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::Output</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]
     }
 }
 
 <span class="kw">impl</span> <span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CountFree</span> {
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>::<span class="ident">Output</span> {
+    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="ident">::Output</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale</span>::<span class="ident">Encode</span>, <span class="ident">scale</span>::<span class="ident">Decode</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info</span>::<span class="ident">TypeInfo</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">scale::Encode</span>, <span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FullMask</span>(<span class="ident">u32</span>);
 
 <span class="kw">impl</span> <span class="ident">FullMask</span> {
     <span class="doccomment">/// Returns `true` if the 256-bit chunk at the given index is full.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_full</span>(<span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>);
+        <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>);
         (<span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span><span class="op">&gt;</span> (<span class="number">31</span> <span class="op">-</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span>)) <span class="op">&amp;</span> <span class="number">0x01</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>
     }
 
@@ -203,7 +203,7 @@
     <span class="doccomment">/// - If the given index is out of bounds.</span>
     <span class="doccomment">/// - If the increment would cause an overflow.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span>] <span class="op">=</span><span class="op">=</span> <span class="op">!</span><span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">set_full</span>(<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u8</span>);
         } <span class="kw">else</span> {
@@ -220,7 +220,7 @@
     <span class="doccomment">/// - If the given index is out of bounds.</span>
     <span class="doccomment">/// - If the decrement would cause an overflow.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dec</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u8</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">is_full</span>(<span class="ident">index</span>) {
             <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">reset_full</span>(<span class="ident">index</span>);
         } <span class="kw">else</span> {

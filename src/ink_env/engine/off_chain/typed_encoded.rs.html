@@ -345,18 +345,18 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">OffChainError</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::OffChainError</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Error</span>;
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">any</span>::<span class="ident">TypeId</span>,
-    <span class="ident">cmp</span>::<span class="ident">Ordering</span>,
+    <span class="ident">any::TypeId</span>,
+    <span class="ident">cmp::Ordering</span>,
     <span class="ident">hash</span>::{
         <span class="ident">Hash</span>,
         <span class="ident">Hasher</span>,
     },
-    <span class="ident">marker</span>::<span class="ident">PhantomData</span>,
+    <span class="ident">marker::PhantomData</span>,
 };
-<span class="kw">use</span> <span class="ident">derive_more</span>::<span class="ident">From</span>;
+<span class="kw">use</span> <span class="ident">derive_more::From</span>;
 
 <span class="doccomment">/// A wrapper around an encoded entity that only allows type safe accesses.</span>
 <span class="doccomment">///</span>
@@ -403,18 +403,18 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">From</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypedEncodedError</span> {
     <span class="doccomment">/// Error upon decoding.</span>
-    <span class="ident">Decode</span>(<span class="ident">scale</span>::<span class="ident">Error</span>),
+    <span class="ident">Decode</span>(<span class="ident">scale::Error</span>),
     <span class="doccomment">/// When operating on instances with different types.</span>
     <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
     <span class="ident">DifferentTypes</span> {
-        <span class="ident">lhs</span>: <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>,
-        <span class="ident">rhs</span>: <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>,
+        <span class="ident">lhs</span>: <span class="ident">core::any::TypeId</span>,
+        <span class="ident">rhs</span>: <span class="ident">core::any::TypeId</span>,
     },
     <span class="doccomment">/// When an already initialized instance is about to be initialized.</span>
     <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
     <span class="ident">AlreadyInitialized</span> {
-        <span class="ident">initialized_id</span>: <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>,
-        <span class="ident">new_id</span>: <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>,
+        <span class="ident">initialized_id</span>: <span class="ident">core::any::TypeId</span>,
+        <span class="ident">new_id</span>: <span class="ident">core::any::TypeId</span>,
     },
     <span class="doccomment">/// When operating on still uninitialized types.</span>
     <span class="attribute">#[<span class="ident">from</span>(<span class="ident">ignore</span>)]</span>
@@ -423,12 +423,12 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TypedEncodedError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">typed_encoded_error</span>: <span class="ident">TypedEncodedError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Error</span>::<span class="ident">OffChain</span>(<span class="ident">OffChainError</span>::<span class="ident">TypedEncoded</span>(<span class="ident">typed_encoded_error</span>))
+        <span class="ident">Error::OffChain</span>(<span class="ident">OffChainError::TypedEncoded</span>(<span class="ident">typed_encoded_error</span>))
     }
 }
 
 <span class="doccomment">/// The result type for typed encoded operations.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TypedEncodedError</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">TypedEncodedError</span><span class="op">&gt;</span>;
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates an uninitialized instance.</span>
@@ -439,9 +439,9 @@
     <span class="doccomment">/// using a call to [`TypedEncoded::try_initialize`].</span>
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">encoded</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">encoded</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">type_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">marker</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
         }
     }
 }
@@ -450,21 +450,21 @@
     <span class="doccomment">/// Creates a new uninitialized instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uninitialized</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">encoded</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">encoded</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">type_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">marker</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
         }
     }
 
     <span class="doccomment">/// Creates a new typed-encoded initialized by `value` of type `T`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">encoded</span>: <span class="ident">value</span>.<span class="ident">encode</span>(),
-            <span class="ident">type_id</span>: <span class="prelude-val">Some</span>(<span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()),
-            <span class="ident">marker</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">type_id</span>: <span class="prelude-val">Some</span>(<span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()),
+            <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
         }
     }
 
@@ -475,16 +475,16 @@
     <span class="doccomment">/// If `self` has already been initialized or is an initialized instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_initialize</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_id</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">AlreadyInitialized</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::AlreadyInitialized</span> {
                 <span class="ident">initialized_id</span>: <span class="ident">id</span>,
-                <span class="ident">new_id</span>: <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
+                <span class="ident">new_id</span>: <span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
             })
         }
         <span class="ident">value</span>.<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">encoded</span>);
-        <span class="self">self</span>.<span class="ident">type_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>());
+        <span class="self">self</span>.<span class="ident">type_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>());
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -495,7 +495,7 @@
     <span class="doccomment">/// If the instance is still uninitialized.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoded_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">type_id</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">StillUninitialized</span>)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::StillUninitialized</span>)
         }
         <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">encoded</span>[..])
     }
@@ -507,7 +507,7 @@
     <span class="doccomment">/// If the instance is still uninitialized.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encoded_bytes_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">type_id</span>.<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">StillUninitialized</span>)
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::StillUninitialized</span>)
         }
         <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">encoded</span>[..])
     }
@@ -517,10 +517,10 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an appropriate error in case the instance is uninitialized.</span>
-    <span class="kw">fn</span> <span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">core::any::TypeId</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">type_id</span> {
             <span class="prelude-val">Some</span>(<span class="ident">type_id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">type_id</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">StillUninitialized</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::StillUninitialized</span>),
         }
     }
 
@@ -529,7 +529,7 @@
         <span class="kw">let</span> <span class="ident">id_lhs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_id</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">id_rhs</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">type_id</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">id_lhs</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id_rhs</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">DifferentTypes</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::DifferentTypes</span> {
                 <span class="ident">lhs</span>: <span class="ident">id_lhs</span>,
                 <span class="ident">rhs</span>: <span class="ident">id_rhs</span>,
             })
@@ -543,9 +543,9 @@
         <span class="ident">T</span>: <span class="lifetime">&#39;static</span>,
     {
         <span class="kw">let</span> <span class="ident">id_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_id</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">id_enforced</span> <span class="op">=</span> <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
-        <span class="kw">if</span> <span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">id_self</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError</span>::<span class="ident">DifferentTypes</span> {
+        <span class="kw">let</span> <span class="ident">id_enforced</span> <span class="op">=</span> <span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
+        <span class="kw">if</span> <span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">id_self</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">TypedEncodedError::DifferentTypes</span> {
                 <span class="ident">lhs</span>: <span class="ident">id_self</span>,
                 <span class="ident">rhs</span>: <span class="ident">id_enforced</span>,
             })
@@ -560,31 +560,31 @@
     <span class="doccomment">/// This effectively creates a clone of the encoded value.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">self</span>.<span class="ident">check_enforced_type</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale</span>::<span class="ident">Decode</span><span class="op">&gt;</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">encoded</span>[..]).<span class="ident">map_err</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">encoded</span>[..]).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
     <span class="doccomment">/// Assigns the given `T` to `self`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assign</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">self</span>.<span class="ident">check_enforced_type</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">encoded</span>.<span class="ident">clear</span>();
         <span class="ident">value</span>.<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">encoded</span>);
-        <span class="self">self</span>.<span class="ident">type_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">core</span>::<span class="ident">any</span>::<span class="ident">TypeId</span>::<span class="ident">of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>());
+        <span class="self">self</span>.<span class="ident">type_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">core::any::TypeId::of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>());
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Evaluates the given clousure on the given typed encoded instances.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
     {
-        <span class="self">Self</span>::<span class="ident">check_matching_types</span>(<span class="self">self</span>, <span class="ident">other</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span><span class="ident">::check_matching_types</span>(<span class="self">self</span>, <span class="ident">other</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">decoded_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">decoded_other</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="ident">decoded_self</span>, <span class="kw-2">&amp;</span><span class="ident">decoded_other</span>))
@@ -594,15 +594,15 @@
     <span class="doccomment">/// and writes back the result into the typed encoded instance.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_mut</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">scale::Encode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
     {
-        <span class="self">Self</span>::<span class="ident">check_matching_types</span>(<span class="self">self</span>, <span class="ident">other</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span><span class="ident">::check_matching_types</span>(<span class="self">self</span>, <span class="ident">other</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">decoded_other</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">decoded_self</span>, <span class="kw-2">&amp;</span><span class="ident">decoded_other</span>);
         <span class="self">self</span>.<span class="ident">encoded</span>.<span class="ident">clear</span>();
-        <span class="ident">scale</span>::<span class="ident">Encode</span>::<span class="ident">encode_to</span>(<span class="kw-2">&amp;</span><span class="ident">decoded_self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">encoded</span>);
+        <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="ident">decoded_self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">encoded</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 
@@ -613,9 +613,9 @@
     <span class="doccomment">/// The equality check is performed on decoded instances.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eq</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">eval</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">lhs</span>, <span class="ident">rhs</span><span class="op">|</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">PartialEq</span>::<span class="ident">eq</span>(<span class="ident">lhs</span>, <span class="ident">rhs</span>))
+        <span class="self">self</span>.<span class="ident">eval</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">lhs</span>, <span class="ident">rhs</span><span class="op">|</span> <span class="ident">core::cmp::PartialEq::eq</span>(<span class="ident">lhs</span>, <span class="ident">rhs</span>))
     }
 
     <span class="doccomment">/// Returns order relation if both instances are of type `T`.</span>
@@ -625,15 +625,15 @@
     <span class="doccomment">/// The order relation is performed on the decoded instances.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cmp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">self</span>.<span class="ident">eval</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">lhs</span>, <span class="ident">rhs</span><span class="op">|</span> <span class="ident">core</span>::<span class="ident">cmp</span>::<span class="ident">Ord</span>::<span class="ident">cmp</span>(<span class="ident">lhs</span>, <span class="ident">rhs</span>))
+        <span class="self">self</span>.<span class="ident">eval</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">other</span>, <span class="op">|</span><span class="ident">lhs</span>, <span class="ident">rhs</span><span class="op">|</span> <span class="ident">core::cmp::Ord::cmp</span>(<span class="ident">lhs</span>, <span class="ident">rhs</span>))
     }
 
     <span class="doccomment">/// Computes the hash of the decoded typed instance if types match.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">H</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">scale</span>::<span class="ident">Decode</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">Hash</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">H</span>: <span class="ident">Hasher</span>,
     {
         <span class="self">self</span>.<span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()<span class="question-mark">?</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
@@ -651,7 +651,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">TypedEncoded</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">Ord</span>::<span class="ident">cmp</span>(<span class="self">self</span>, <span class="ident">other</span>))
+        <span class="prelude-val">Some</span>(<span class="ident">Ord::cmp</span>(<span class="self">self</span>, <span class="ident">other</span>))
     }
 }
 

@@ -1427,7 +1427,7 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">error</span>::<span class="ident">ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
     <span class="ident">ir</span>,
     <span class="ident">ir</span>::{
         <span class="ident">ExtensionId</span>,
@@ -1435,16 +1435,16 @@
     },
 };
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">convert</span>::<span class="ident">TryFrom</span>,
-    <span class="ident">result</span>::<span class="prelude-ty">Result</span>,
+    <span class="ident">convert::TryFrom</span>,
+    <span class="ident">result::Result</span>,
 };
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
     <span class="ident">Span</span>,
 };
-<span class="kw">use</span> <span class="ident">regex</span>::<span class="ident">Regex</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">spanned</span>::<span class="ident">Spanned</span>;
+<span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
 
 <span class="doccomment">/// Either an ink! specific attribute, or another uninterpreted attribute.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -1455,47 +1455,47 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This can be a known `#[derive(Debug)]` or a specific attribute of another</span>
     <span class="doccomment">/// crate.</span>
-    <span class="ident">Other</span>(<span class="ident">syn</span>::<span class="ident">Attribute</span>),
+    <span class="ident">Other</span>(<span class="ident">syn::Attribute</span>),
 }
 
 <span class="doccomment">/// Types implementing this trait can return a slice over their `syn` attributes.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Attrs</span> {
     <span class="doccomment">/// Returns the slice of attributes of an AST entity.</span>
-    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Attribute</span>];
+    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>];
 }
 
-<span class="kw">impl</span> <span class="ident">Attrs</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">ImplItem</span> {
-    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Attribute</span>] {
+<span class="kw">impl</span> <span class="ident">Attrs</span> <span class="kw">for</span> <span class="ident">syn::ImplItem</span> {
+    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">syn</span>::<span class="ident">ImplItem</span>::<span class="ident">Const</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
-            <span class="ident">syn</span>::<span class="ident">ImplItem</span>::<span class="ident">Method</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
-            <span class="ident">syn</span>::<span class="ident">ImplItem</span>::<span class="ident">Type</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
-            <span class="ident">syn</span>::<span class="ident">ImplItem</span>::<span class="ident">Macro</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
+            <span class="ident">syn::ImplItem::Const</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
+            <span class="ident">syn::ImplItem::Method</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
+            <span class="ident">syn::ImplItem::Type</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
+            <span class="ident">syn::ImplItem::Macro</span>(<span class="ident">item</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">item</span>.<span class="ident">attrs</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[],
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Attrs</span> <span class="kw">for</span> <span class="ident">syn</span>::<span class="ident">Item</span> {
-    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Attribute</span>] {
-        <span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">Item</span>;
+<span class="kw">impl</span> <span class="ident">Attrs</span> <span class="kw">for</span> <span class="ident">syn::Item</span> {
+    <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
+        <span class="kw">use</span> <span class="ident">syn::Item</span>;
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Item</span>::<span class="ident">Const</span>(<span class="ident">syn</span>::<span class="ident">ItemConst</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Enum</span>(<span class="ident">syn</span>::<span class="ident">ItemEnum</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">ExternCrate</span>(<span class="ident">syn</span>::<span class="ident">ItemExternCrate</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Fn</span>(<span class="ident">syn</span>::<span class="ident">ItemFn</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">ForeignMod</span>(<span class="ident">syn</span>::<span class="ident">ItemForeignMod</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Impl</span>(<span class="ident">syn</span>::<span class="ident">ItemImpl</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Macro</span>(<span class="ident">syn</span>::<span class="ident">ItemMacro</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Macro2</span>(<span class="ident">syn</span>::<span class="ident">ItemMacro2</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Mod</span>(<span class="ident">syn</span>::<span class="ident">ItemMod</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Static</span>(<span class="ident">syn</span>::<span class="ident">ItemStatic</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Struct</span>(<span class="ident">syn</span>::<span class="ident">ItemStruct</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Trait</span>(<span class="ident">syn</span>::<span class="ident">ItemTrait</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">TraitAlias</span>(<span class="ident">syn</span>::<span class="ident">ItemTraitAlias</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Type</span>(<span class="ident">syn</span>::<span class="ident">ItemType</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Union</span>(<span class="ident">syn</span>::<span class="ident">ItemUnion</span> { <span class="ident">attrs</span>, .. })
-            <span class="op">|</span> <span class="ident">Item</span>::<span class="ident">Use</span>(<span class="ident">syn</span>::<span class="ident">ItemUse</span> { <span class="ident">attrs</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">attrs</span>,
+            <span class="ident">Item::Const</span>(<span class="ident">syn::ItemConst</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Enum</span>(<span class="ident">syn::ItemEnum</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::ExternCrate</span>(<span class="ident">syn::ItemExternCrate</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Fn</span>(<span class="ident">syn::ItemFn</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::ForeignMod</span>(<span class="ident">syn::ItemForeignMod</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Impl</span>(<span class="ident">syn::ItemImpl</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Macro</span>(<span class="ident">syn::ItemMacro</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Macro2</span>(<span class="ident">syn::ItemMacro2</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Mod</span>(<span class="ident">syn::ItemMod</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Static</span>(<span class="ident">syn::ItemStatic</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Struct</span>(<span class="ident">syn::ItemStruct</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Trait</span>(<span class="ident">syn::ItemTrait</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::TraitAlias</span>(<span class="ident">syn::ItemTraitAlias</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Type</span>(<span class="ident">syn::ItemType</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Union</span>(<span class="ident">syn::ItemUnion</span> { <span class="ident">attrs</span>, .. })
+            <span class="op">|</span> <span class="ident">Item::Use</span>(<span class="ident">syn::ItemUse</span> { <span class="ident">attrs</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">attrs</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[],
         }
     }
@@ -1542,9 +1542,9 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the first ink! attribute argument is not of expected kind.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">AttributeArgKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident">AttributeArgKind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">first</span>().<span class="ident">arg</span>.<span class="ident">kind</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">expected</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                 <span class="self">self</span>.<span class="ident">span</span>(),
                 <span class="string">&quot;unexpected first ink! attribute argument&quot;</span>,
             ))
@@ -1558,31 +1558,31 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the given iterator yields duplicate ink! attribute arguments.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_no_duplicate_args</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">ensure_no_duplicate_args</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir</span>::<span class="ident">AttributeFrag</span><span class="op">&gt;</span>,
+        <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::AttributeFrag</span><span class="op">&gt;</span>,
     {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">AttributeFrag</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen2</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">AttributeArgKind</span>, <span class="ident">Span</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
+        <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">AttributeFrag</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen2</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">AttributeArgKind</span>, <span class="ident">Span</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span>.<span class="ident">into_iter</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seen</span>) <span class="op">=</span> <span class="ident">seen</span>.<span class="ident">get</span>(<span class="ident">arg</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                     <span class="ident">arg</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;encountered duplicate ink! attribute arguments&quot;</span>
                 )
-                .<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
                     <span class="ident">seen</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;first equal ink! attribute argument here&quot;</span>
                 )))
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seen</span>) <span class="op">=</span> <span class="ident">seen2</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>.<span class="ident">kind</span>().<span class="ident">kind</span>()) {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                     <span class="ident">arg</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;encountered ink! attribute arguments with equal kinds&quot;</span>
                 )
-                .<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
                     <span class="kw-2">*</span><span class="ident">seen</span>,
                     <span class="string">&quot;first equal ink! attribute argument with equal kind here&quot;</span>
                 )))
@@ -1605,7 +1605,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the sequence of input ink! attributes contains duplicates.</span>
     <span class="doccomment">/// - If the input sequence is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_expanded</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">attrs</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_expanded</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="ident">attrs</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="self">Self</span><span class="op">&gt;</span>,
     {
@@ -1615,12 +1615,12 @@
             .<span class="ident">flatten</span>()
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
-                <span class="ident">Span</span>::<span class="ident">call_site</span>(),
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                <span class="ident">Span::call_site</span>(),
                 <span class="string">&quot;encountered unexpected empty expanded ink! attribute arguments&quot;</span>,
             ))
         }
-        <span class="self">Self</span>::<span class="ident">ensure_no_duplicate_args</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span><span class="ident">::ensure_no_duplicate_args</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">args</span> })
     }
 
@@ -1636,14 +1636,14 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This yields at least one ink! attribute flag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">core</span>::<span class="ident">slice</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">AttributeFrag</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">::core::slice::Iter</span><span class="op">&lt;</span><span class="ident">AttributeFrag</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">args</span>.<span class="ident">iter</span>()
     }
 
     <span class="doccomment">/// Returns the namespace of the ink! attribute if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">namespace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Namespace</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">namespace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::Namespace</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">args</span>().<span class="ident">find_map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Namespace</span>(<span class="ident">namespace</span>) <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ir::AttributeArg::Namespace</span>(<span class="ident">namespace</span>) <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">namespace</span>.<span class="ident">clone</span>())
             }
             <span class="prelude-val">None</span>
@@ -1651,9 +1651,9 @@
     }
 
     <span class="doccomment">/// Returns the selector of the ink! attribute if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Selector</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">args</span>().<span class="ident">find_map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(<span class="ident">selector</span>) <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ir::AttributeArg::Selector</span>(<span class="ident">selector</span>) <span class="op">=</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">selector</span>)
             }
             <span class="prelude-val">None</span>
@@ -1663,13 +1663,13 @@
     <span class="doccomment">/// Returns `true` if the ink! attribute contains the `payable` argument.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">args</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg</span>::<span class="ident">Payable</span>))
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg::Payable</span>))
     }
 
     <span class="doccomment">/// Returns `true` if the ink! attribute contains the `anonymous` argument.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_anonymous</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">args</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg</span>::<span class="ident">Anonymous</span>))
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg::Anonymous</span>))
     }
 
     <span class="doccomment">/// Returns `false` if the ink! attribute contains the `handle_status = false` argument.</span>
@@ -1678,7 +1678,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_handle_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>
             .<span class="ident">args</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg</span>::<span class="ident">HandleStatus</span>(<span class="bool-val">false</span>)))
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg::HandleStatus</span>(<span class="bool-val">false</span>)))
     }
 
     <span class="doccomment">/// Returns `false` if the ink! attribute contains the `returns_result = false` argument.</span>
@@ -1687,14 +1687,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_returns_result</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>
             .<span class="ident">args</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg</span>::<span class="ident">ReturnsResult</span>(<span class="bool-val">false</span>)))
+            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">arg</span>.<span class="ident">kind</span>(), <span class="ident">AttributeArg::ReturnsResult</span>(<span class="bool-val">false</span>)))
     }
 }
 
 <span class="doccomment">/// An ink! specific attribute argument.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AttributeFrag</span> {
-    <span class="kw">pub</span> <span class="ident">ast</span>: <span class="ident">syn</span>::<span class="ident">Meta</span>,
+    <span class="kw">pub</span> <span class="ident">ast</span>: <span class="ident">syn::Meta</span>,
     <span class="kw">pub</span> <span class="ident">arg</span>: <span class="ident">AttributeArg</span>,
 }
 
@@ -1824,28 +1824,28 @@
     <span class="ident">ReturnsResult</span>(<span class="ident">bool</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">AttributeArgKind</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">core::fmt::Display</span> <span class="kw">for</span> <span class="ident">AttributeArgKind</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;storage&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;event&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;anonymous&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;topic&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;payable&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Selector</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = S:[u8; 4]&quot;</span>)
+            <span class="self">Self</span><span class="ident">::Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;storage&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;event&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;anonymous&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;topic&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;payable&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Selector</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = S:[u8; 4]&quot;</span>)
             }
-            <span class="self">Self</span>::<span class="ident">Extension</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;extension = N:u32)&quot;</span>)
+            <span class="self">Self</span><span class="ident">::Extension</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;extension = N:u32)&quot;</span>)
             }
-            <span class="self">Self</span>::<span class="ident">Namespace</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;namespace = N:string&quot;</span>)
+            <span class="self">Self</span><span class="ident">::Namespace</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;namespace = N:string&quot;</span>)
             }
-            <span class="self">Self</span>::<span class="ident">Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;impl&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">HandleStatus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;handle_status&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">ReturnsResult</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;returns_result&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;impl&quot;</span>),
+            <span class="self">Self</span><span class="ident">::HandleStatus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;handle_status&quot;</span>),
+            <span class="self">Self</span><span class="ident">::ReturnsResult</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;returns_result&quot;</span>),
         }
     }
 }
@@ -1854,45 +1854,45 @@
     <span class="doccomment">/// Returns the kind of the ink! attribute argument.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Storage</span>,
-            <span class="self">Self</span>::<span class="ident">Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Event</span>,
-            <span class="self">Self</span>::<span class="ident">Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Anonymous</span>,
-            <span class="self">Self</span>::<span class="ident">Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Topic</span>,
-            <span class="self">Self</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Message</span>,
-            <span class="self">Self</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Constructor</span>,
-            <span class="self">Self</span>::<span class="ident">Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Payable</span>,
-            <span class="self">Self</span>::<span class="ident">Selector</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Selector</span>,
-            <span class="self">Self</span>::<span class="ident">Extension</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Extension</span>,
-            <span class="self">Self</span>::<span class="ident">Namespace</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Namespace</span>,
-            <span class="self">Self</span>::<span class="ident">Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">Implementation</span>,
-            <span class="self">Self</span>::<span class="ident">HandleStatus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">HandleStatus</span>,
-            <span class="self">Self</span>::<span class="ident">ReturnsResult</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind</span>::<span class="ident">ReturnsResult</span>,
+            <span class="self">Self</span><span class="ident">::Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Storage</span>,
+            <span class="self">Self</span><span class="ident">::Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Event</span>,
+            <span class="self">Self</span><span class="ident">::Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Anonymous</span>,
+            <span class="self">Self</span><span class="ident">::Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Topic</span>,
+            <span class="self">Self</span><span class="ident">::Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Message</span>,
+            <span class="self">Self</span><span class="ident">::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Constructor</span>,
+            <span class="self">Self</span><span class="ident">::Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Payable</span>,
+            <span class="self">Self</span><span class="ident">::Selector</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Selector</span>,
+            <span class="self">Self</span><span class="ident">::Extension</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Extension</span>,
+            <span class="self">Self</span><span class="ident">::Namespace</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Namespace</span>,
+            <span class="self">Self</span><span class="ident">::Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::Implementation</span>,
+            <span class="self">Self</span><span class="ident">::HandleStatus</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::HandleStatus</span>,
+            <span class="self">Self</span><span class="ident">::ReturnsResult</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AttributeArgKind::ReturnsResult</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">AttributeArg</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">core::fmt::Display</span> <span class="kw">for</span> <span class="ident">AttributeArg</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">core::fmt::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;storage&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;event&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;anonymous&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;topic&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;payable&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Selector</span>(<span class="ident">selector</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = {:?}&quot;</span>, <span class="ident">selector</span>.<span class="ident">as_bytes</span>())
+            <span class="self">Self</span><span class="ident">::Storage</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;storage&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Event</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;event&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Anonymous</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;anonymous&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Topic</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;topic&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Payable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;payable&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Selector</span>(<span class="ident">selector</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = {:?}&quot;</span>, <span class="ident">selector</span>.<span class="ident">as_bytes</span>())
             }
-            <span class="self">Self</span>::<span class="ident">Extension</span>(<span class="ident">extension</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;extension = {:?}&quot;</span>, <span class="ident">extension</span>.<span class="ident">into_u32</span>())
+            <span class="self">Self</span><span class="ident">::Extension</span>(<span class="ident">extension</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;extension = {:?}&quot;</span>, <span class="ident">extension</span>.<span class="ident">into_u32</span>())
             }
-            <span class="self">Self</span>::<span class="ident">Namespace</span>(<span class="ident">namespace</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;namespace = {:?}&quot;</span>, <span class="ident">namespace</span>.<span class="ident">as_bytes</span>())
+            <span class="self">Self</span><span class="ident">::Namespace</span>(<span class="ident">namespace</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;namespace = {:?}&quot;</span>, <span class="ident">namespace</span>.<span class="ident">as_bytes</span>())
             }
-            <span class="self">Self</span>::<span class="ident">Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;impl&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">HandleStatus</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;handle_status = {:?}&quot;</span>, <span class="ident">value</span>),
-            <span class="self">Self</span>::<span class="ident">ReturnsResult</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;returns_result = {:?}&quot;</span>, <span class="ident">value</span>),
+            <span class="self">Self</span><span class="ident">::Implementation</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;impl&quot;</span>),
+            <span class="self">Self</span><span class="ident">::HandleStatus</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;handle_status = {:?}&quot;</span>, <span class="ident">value</span>),
+            <span class="self">Self</span><span class="ident">::ReturnsResult</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;returns_result = {:?}&quot;</span>, <span class="ident">value</span>),
         }
     }
 }
@@ -1926,7 +1926,7 @@
 <span class="doccomment">/// this check is optimized for efficiency.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_ink_attributes</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">attrs</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>
 <span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
 {
     <span class="ident">attrs</span>.<span class="ident">into_iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;ink&quot;</span>))
 }
@@ -1940,14 +1940,14 @@
 <span class="doccomment">/// Returns an error if the first ink! attribute is invalid.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_ink_attribute</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span>(
     <span class="ident">attrs</span>: <span class="ident">I</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">InkAttribute</span><span class="op">&gt;</span>, <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::InkAttribute</span><span class="op">&gt;</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
 {
     <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">attrs</span>.<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;ink&quot;</span>));
     <span class="kw">match</span> <span class="ident">first</span> {
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-        <span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">InkAttribute</span>::<span class="ident">try_from</span>(<span class="ident">ink_attr</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="prelude-val">Some</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">InkAttribute::try_from</span>(<span class="ident">ink_attr</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="prelude-val">Some</span>),
     }
 }
 
@@ -1958,24 +1958,24 @@
 <span class="doccomment">/// Returns an error if some ink! specific attributes could not be successfully parsed.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partition_attributes</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(
     <span class="ident">attrs</span>: <span class="ident">I</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="ident">syn::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
 {
-    <span class="kw">use</span> <span class="ident">either</span>::<span class="ident">Either</span>;
-    <span class="kw">use</span> <span class="ident">itertools</span>::<span class="ident">Itertools</span> <span class="kw">as</span> <span class="kw">_</span>;
+    <span class="kw">use</span> <span class="ident">either::Either</span>;
+    <span class="kw">use</span> <span class="ident">itertools::Itertools</span> <span class="kw">as</span> <span class="kw">_</span>;
     <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">others</span>) <span class="op">=</span> <span class="ident">attrs</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">Attribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>)
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attribute</span><span class="op">&gt;</span>, <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>
+        .<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">Attribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>)
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attribute</span><span class="op">&gt;</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">partition_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> {
             <span class="kw">match</span> <span class="ident">attr</span> {
-                <span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">ink_attr</span>),
-                <span class="ident">Attribute</span>::<span class="ident">Other</span>(<span class="ident">other_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">other_attr</span>),
+                <span class="ident">Attribute::Ink</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Left</span>(<span class="ident">ink_attr</span>),
+                <span class="ident">Attribute::Other</span>(<span class="ident">other_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Either::Right</span>(<span class="ident">other_attr</span>),
             }
         });
-    <span class="ident">Attribute</span>::<span class="ident">ensure_no_duplicate_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">ink_attrs</span>)<span class="question-mark">?</span>;
+    <span class="ident">Attribute::ensure_no_duplicate_attrs</span>(<span class="kw-2">&amp;</span><span class="ident">ink_attrs</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((<span class="ident">ink_attrs</span>, <span class="ident">others</span>))
 }
 
@@ -2002,19 +2002,19 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sanitize_attributes</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">C</span><span class="op">&gt;</span>(
     <span class="ident">parent_span</span>: <span class="ident">Span</span>,
     <span class="ident">attrs</span>: <span class="ident">I</span>,
-    <span class="ident">is_valid_first</span>: <span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeArgKind</span>,
+    <span class="ident">is_valid_first</span>: <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind</span>,
     <span class="kw-2">mut</span> <span class="ident">is_conflicting_attr</span>: <span class="ident">C</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">InkAttribute</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">InkAttribute</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="ident">syn::Error</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
-    <span class="ident">C</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">ir</span>::<span class="ident">AttributeFrag</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">C</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">ir::AttributeFrag</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
-    <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">partition_attributes</span>(<span class="ident">attrs</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">InkAttribute</span>::<span class="ident">from_expanded</span>(<span class="ident">ink_attrs</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-        <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">parent_span</span>, <span class="string">&quot;at this invocation&quot;</span>,))
+    <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span> <span class="ident">ir::InkAttribute::from_expanded</span>(<span class="ident">ink_attrs</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+        <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(<span class="ident">parent_span</span>, <span class="string">&quot;at this invocation&quot;</span>,))
     })<span class="question-mark">?</span>;
     <span class="ident">normalized</span>.<span class="ident">ensure_first</span>(<span class="ident">is_valid_first</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-        <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+        <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
             <span class="ident">parent_span</span>,
             <span class="string">&quot;expected {} as first ink! attribute argument&quot;</span>,
             <span class="ident">is_valid_first</span>,
@@ -2031,20 +2031,20 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the given iterator yields duplicate ink! attributes.</span>
     <span class="doccomment">/// Note: Duplicate non-ink! attributes are fine.</span>
-    <span class="kw">fn</span> <span class="ident">ensure_no_duplicate_attrs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">attrs</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">ensure_no_duplicate_attrs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">attrs</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">InkAttribute</span><span class="op">&gt;</span>,
     {
-        <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="ident">attrs</span>.<span class="ident">into_iter</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seen</span>) <span class="op">=</span> <span class="ident">seen</span>.<span class="ident">get</span>(<span class="ident">attr</span>) {
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>;
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                     <span class="ident">attr</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;encountered duplicate ink! attribute&quot;</span>
                 )
-                .<span class="ident">into_combine</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">seen</span>.<span class="ident">span</span>(), <span class="string">&quot;first ink! attribute here&quot;</span>)))
+                .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(<span class="ident">seen</span>.<span class="ident">span</span>(), <span class="string">&quot;first ink! attribute here&quot;</span>)))
             }
             <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">attr</span>);
         }
@@ -2052,49 +2052,49 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">attr</span>: <span class="ident">syn</span>::<span class="ident">Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">attr</span>: <span class="ident">syn::Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;ink&quot;</span>) {
-            <span class="kw">return</span> <span class="op">&lt;</span><span class="ident">InkAttribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">attr</span>).<span class="ident">map</span>(<span class="ident">Into</span>::<span class="ident">into</span>)
+            <span class="kw">return</span> <span class="op">&lt;</span><span class="ident">InkAttribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">attr</span>).<span class="ident">map</span>(<span class="ident">Into::into</span>)
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Attribute</span>::<span class="ident">Other</span>(<span class="ident">attr</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">Attribute::Other</span>(<span class="ident">attr</span>))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_attribute</span>: <span class="ident">InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="ident">ink_attribute</span>)
+        <span class="ident">Attribute::Ink</span>(<span class="ident">ink_attribute</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkAttribute</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkAttribute</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">attr</span>: <span class="ident">syn</span>::<span class="ident">Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">attr</span>: <span class="ident">syn::Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">attr</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;ink&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">attr</span>, <span class="string">&quot;unexpected non-ink! attribute&quot;</span>))
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(<span class="ident">attr</span>, <span class="string">&quot;unexpected non-ink! attribute&quot;</span>))
         }
         <span class="kw">match</span> <span class="ident">attr</span>.<span class="ident">parse_meta</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">attr</span>, <span class="string">&quot;unexpected ink! attribute structure&quot;</span>)
+            <span class="macro">format_err_spanned!</span>(<span class="ident">attr</span>, <span class="string">&quot;unexpected ink! attribute structure&quot;</span>)
         })<span class="question-mark">?</span> {
-            <span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">List</span>(<span class="ident">meta_list</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">syn::Meta::List</span>(<span class="ident">meta_list</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">meta_list</span>
                     .<span class="ident">nested</span>
                     .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">AttributeFrag</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>)
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="self">Self</span>::<span class="ident">ensure_no_duplicate_args</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>)<span class="question-mark">?</span>;
+                    .<span class="ident">map</span>(<span class="op">&lt;</span><span class="ident">AttributeFrag</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>)
+                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+                <span class="self">Self</span><span class="ident">::ensure_no_duplicate_args</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>)<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">attr</span>,
                         <span class="string">&quot;encountered unsupported empty ink! attribute&quot;</span>
                     ))
                 }
                 <span class="prelude-val">Ok</span>(<span class="ident">InkAttribute</span> { <span class="ident">args</span> })
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">attr</span>, <span class="string">&quot;unknown ink! attribute&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(<span class="ident">attr</span>, <span class="string">&quot;unknown ink! attribute&quot;</span>)),
         }
     }
 }
@@ -2113,14 +2113,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ensure_no_conflicts</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">P</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
         <span class="kw-2">mut</span> <span class="ident">is_conflicting</span>: <span class="ident">P</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir</span>::<span class="ident">AttributeFrag</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::AttributeFrag</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">args</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">reason</span>) <span class="op">=</span> <span class="ident">is_conflicting</span>(<span class="ident">arg</span>) {
-                <span class="kw">let</span> <span class="ident">conflict_err</span> <span class="op">=</span> <span class="macro">format_err</span><span class="macro">!</span>(
+                <span class="kw">let</span> <span class="ident">conflict_err</span> <span class="op">=</span> <span class="macro">format_err!</span>(
                     <span class="ident">arg</span>.<span class="ident">span</span>(),
                     <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
                 );
@@ -2147,29 +2147,29 @@
 }
 
 <span class="doccomment">/// Returns an error to notify about non-hex digits at a position.</span>
-<span class="kw">fn</span> <span class="ident">err_non_hex</span>(<span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Meta</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="ident">Error</span> {
-    <span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">meta</span>, <span class="string">&quot;encountered non-hex digit at position {}&quot;</span>, <span class="ident">pos</span>)
+<span class="kw">fn</span> <span class="ident">err_non_hex</span>(<span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>, <span class="ident">pos</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Error</span> {
+    <span class="macro">format_err_spanned!</span>(<span class="ident">meta</span>, <span class="string">&quot;encountered non-hex digit at position {}&quot;</span>, <span class="ident">pos</span>)
 }
 
 <span class="doccomment">/// Returns an error to notify about an invalid ink! selector.</span>
-<span class="kw">fn</span> <span class="ident">invalid_selector_err_regex</span>(<span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn</span>::<span class="ident">Meta</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn</span>::<span class="ident">Error</span> {
-    <span class="macro">format_err_spanned</span><span class="macro">!</span>(
+<span class="kw">fn</span> <span class="ident">invalid_selector_err_regex</span>(<span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Meta</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Error</span> {
+    <span class="macro">format_err_spanned!</span>(
         <span class="ident">meta</span>,
         <span class="string">&quot;invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \&quot;0xCAFEBABE\&quot;`)&quot;</span>
     )
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">NestedMeta</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AttributeFrag</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Error</span>;
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::NestedMeta</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AttributeFrag</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">nested_meta</span>: <span class="ident">syn</span>::<span class="ident">NestedMeta</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">nested_meta</span>: <span class="ident">syn::NestedMeta</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">nested_meta</span> {
-            <span class="ident">syn</span>::<span class="ident">NestedMeta</span>::<span class="ident">Meta</span>(<span class="ident">meta</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">syn::NestedMeta::Meta</span>(<span class="ident">meta</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">meta</span> {
-                    <span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">NameValue</span>(<span class="ident">name_value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">syn::Meta::NameValue</span>(<span class="ident">name_value</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;selector&quot;</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit_str</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
-                                <span class="kw">let</span> <span class="ident">regex</span> <span class="op">=</span> <span class="ident">Regex</span>::<span class="ident">new</span>(<span class="string">r&quot;0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})&quot;</span>)
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit_str</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
+                                <span class="kw">let</span> <span class="ident">regex</span> <span class="op">=</span> <span class="ident">Regex::new</span>(<span class="string">r&quot;0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})&quot;</span>)
                                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                                     <span class="ident">invalid_selector_err_regex</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>)
                                 })<span class="question-mark">?</span>;
@@ -2185,135 +2185,135 @@
                                 }
                                 <span class="kw">let</span> <span class="ident">len_digits</span> <span class="op">=</span> (<span class="ident">str</span>.<span class="ident">as_bytes</span>().<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>) <span class="op">/</span> <span class="number">2</span>;
                                 <span class="kw">if</span> <span class="ident">len_digits</span> <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                             <span class="ident">name_value</span>,
                                             <span class="string">&quot;expected 4-digit hexcode for `selector` argument, found {} digits&quot;</span>,
                                             <span class="ident">len_digits</span>,
                                         ))
                                 }
                                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> [
-                                    <span class="ident">u8</span>::<span class="ident">from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">1</span>], <span class="number">16</span>)
+                                    <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">1</span>], <span class="number">16</span>)
                                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">err_non_hex</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="number">0</span>))<span class="question-mark">?</span>,
-                                    <span class="ident">u8</span>::<span class="ident">from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">2</span>], <span class="number">16</span>)
+                                    <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">2</span>], <span class="number">16</span>)
                                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">err_non_hex</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="number">1</span>))<span class="question-mark">?</span>,
-                                    <span class="ident">u8</span>::<span class="ident">from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">3</span>], <span class="number">16</span>)
+                                    <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">3</span>], <span class="number">16</span>)
                                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">err_non_hex</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="number">2</span>))<span class="question-mark">?</span>,
-                                    <span class="ident">u8</span>::<span class="ident">from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">4</span>], <span class="number">16</span>)
+                                    <span class="ident">u8::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">cap</span>[<span class="number">4</span>], <span class="number">16</span>)
                                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">err_non_hex</span>(<span class="kw-2">&amp;</span><span class="ident">meta</span>, <span class="number">3</span>))<span class="question-mark">?</span>,
                                 ];
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(<span class="ident">Selector</span>::<span class="ident">from_bytes</span>(
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg::Selector</span>(<span class="ident">Selector::from_bytes</span>(
                                         <span class="ident">selector_bytes</span>,
                                     )),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;namespace&quot;</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Str</span>(<span class="ident">lit_str</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit_str</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
                                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">lit_str</span>.<span class="ident">value</span>().<span class="ident">into_bytes</span>();
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">Namespace</span>(
-                                        <span class="ident">Namespace</span>::<span class="ident">from</span>(<span class="ident">bytes</span>),
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg::Namespace</span>(
+                                        <span class="ident">Namespace::from</span>(<span class="ident">bytes</span>),
                                     ),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;extension&quot;</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Int</span>(<span class="ident">lit_int</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Int</span>(<span class="ident">lit_int</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
                                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">lit_int</span>.<span class="ident">base10_parse</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">parse_err</span><span class="op">|</span> {
-                                    <span class="macro">format_err</span><span class="macro">!</span>(
+                                    <span class="macro">format_err!</span>(
                                         <span class="ident">name_value</span>,
                                         <span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>,
                                     ).<span class="ident">into_combine</span>(<span class="ident">parse_err</span>)
                                 })<span class="question-mark">?</span>;
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">Extension</span>(
-                                        <span class="ident">ExtensionId</span>::<span class="ident">from_u32</span>(<span class="ident">id</span>),
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg::Extension</span>(
+                                        <span class="ident">ExtensionId::from_u32</span>(<span class="ident">id</span>),
                                     ),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;handle_status&quot;</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
                                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">lit_bool</span>.<span class="ident">value</span>;
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">HandleStatus</span>(<span class="ident">value</span>),
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg::HandleStatus</span>(<span class="ident">value</span>),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;returns_result&quot;</span>) {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn</span>::<span class="ident">Lit</span>::<span class="ident">Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
                                 <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">lit_bool</span>.<span class="ident">value</span>;
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
-                                    <span class="ident">arg</span>: <span class="ident">AttributeArg</span>::<span class="ident">ReturnsResult</span>(<span class="ident">value</span>),
+                                    <span class="ident">arg</span>: <span class="ident">AttributeArg::ReturnsResult</span>(<span class="ident">value</span>),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>))
                         }
-                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             <span class="ident">meta</span>,
                             <span class="string">&quot;unknown ink! attribute argument (name = value)&quot;</span>,
                         ))
                     }
-                    <span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">Path</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">syn::Meta::Path</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">path</span>
                             .<span class="ident">get_ident</span>()
-                            .<span class="ident">map</span>(<span class="ident">Ident</span>::<span class="ident">to_string</span>)
-                            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format_err_spanned</span><span class="macro">!</span>(<span class="ident">meta</span>, <span class="string">&quot;unknown ink! attribute (path)&quot;</span>))
+                            .<span class="ident">map</span>(<span class="ident">Ident::to_string</span>)
+                            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">format_err_spanned!</span>(<span class="ident">meta</span>, <span class="string">&quot;unknown ink! attribute (path)&quot;</span>))
                             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ident</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">ident</span>.<span class="ident">as_str</span>() {
-                                <span class="string">&quot;storage&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Storage</span>),
-                                <span class="string">&quot;message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Message</span>),
-                                <span class="string">&quot;constructor&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Constructor</span>),
-                                <span class="string">&quot;event&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Event</span>),
-                                <span class="string">&quot;anonymous&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Anonymous</span>),
-                                <span class="string">&quot;topic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Topic</span>),
-                                <span class="string">&quot;payable&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Payable</span>),
-                                <span class="string">&quot;impl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg</span>::<span class="ident">Implementation</span>),
-                                <span class="string">&quot;namespace&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                                <span class="string">&quot;storage&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Storage</span>),
+                                <span class="string">&quot;message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Message</span>),
+                                <span class="string">&quot;constructor&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Constructor</span>),
+                                <span class="string">&quot;event&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Event</span>),
+                                <span class="string">&quot;anonymous&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Anonymous</span>),
+                                <span class="string">&quot;topic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Topic</span>),
+                                <span class="string">&quot;payable&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Payable</span>),
+                                <span class="string">&quot;impl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Implementation</span>),
+                                <span class="string">&quot;namespace&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
                                     <span class="string">&quot;encountered #[ink(namespace)] that is missing its string parameter. \
                                     Did you mean #[ink(namespace = name: str)] ?&quot;</span>
                                 )),
-                                <span class="string">&quot;extension&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                                <span class="string">&quot;extension&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
                                     <span class="string">&quot;encountered #[ink(extension)] that is missing its N parameter. \
                                     Did you mean #[ink(extension = N: u32)] ?&quot;</span>
                                 )),
-                                <span class="string">&quot;handle_status&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                                <span class="string">&quot;handle_status&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
                                     <span class="string">&quot;encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
                                     Did you mean #[ink(handle_status = flag: bool)] ?&quot;</span>
                                 )),
-                                <span class="string">&quot;returns_result&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err</span><span class="macro">!</span>(
+                                <span class="string">&quot;returns_result&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
                                     <span class="string">&quot;encountered #[ink(returns_result)] that is missing its `flag: bool` parameter. \
                                     Did you mean #[ink(returns_result = flag: bool)] ?&quot;</span>
                                 )),
-                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                                     <span class="ident">meta</span>, <span class="string">&quot;unknown ink! attribute (path)&quot;</span>
                                 ))
                             })
                             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">kind</span><span class="op">|</span> <span class="ident">AttributeFrag</span> { <span class="ident">ast</span>: <span class="ident">meta</span>, <span class="ident">arg</span>: <span class="ident">kind</span>, })
                     }
-                    <span class="ident">syn</span>::<span class="ident">Meta</span>::<span class="ident">List</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+                    <span class="ident">syn::Meta::List</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             <span class="ident">meta</span>,
                             <span class="string">&quot;unknown ink! attribute argument (list)&quot;</span>
                         ))
                     }
                 }
             }
-            <span class="ident">syn</span>::<span class="ident">NestedMeta</span>::<span class="ident">Lit</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned</span><span class="macro">!</span>(
+            <span class="ident">syn::NestedMeta::Lit</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">nested_meta</span>,
                     <span class="string">&quot;unknown ink! attribute argument (literal)&quot;</span>
                 ))
@@ -2328,17 +2328,17 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">contains_ink_attributes_works</span>() {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[]));
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>]</span> }]));
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(..)]</span> }]));
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">inline</span>]</span> },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">likely</span>]</span> },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span> },
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[]));
+        <span class="macro">assert!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>]</span> }]));
+        <span class="macro">assert!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(..)]</span> }]));
+        <span class="macro">assert!</span>(<span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[
+            <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">inline</span>]</span> },
+            <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">likely</span>]</span> },
+            <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span> },
         ]));
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">inline</span>]</span> },
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">likely</span>]</span> },
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">contains_ink_attributes</span>(<span class="kw-2">&amp;</span>[
+            <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">inline</span>]</span> },
+            <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">likely</span>]</span> },
         ]));
     }
 
@@ -2349,18 +2349,18 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Can be used to assert against the success and failure path.</span>
     <span class="kw">fn</span> <span class="ident">assert_first_ink_attribute</span>(
-        <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="ident">Attribute</span>],
-        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">AttributeArg</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>],
+        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir::AttributeArg</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     ) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">first_ink_attribute</span>(<span class="ident">input</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">maybe_attr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">InkAttribute</span><span class="op">&gt;</span><span class="op">|</span> {
-                    <span class="ident">maybe_attr</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span>: <span class="ident">ir</span>::<span class="ident">InkAttribute</span><span class="op">|</span> {
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">maybe_attr</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::InkAttribute</span><span class="op">&gt;</span><span class="op">|</span> {
+                    <span class="ident">maybe_attr</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span>: <span class="ident">ir::InkAttribute</span><span class="op">|</span> {
                         <span class="ident">attr</span>.<span class="ident">args</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident">arg</span>.<span class="ident">arg</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
                     })
                 })
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString</span>::<span class="ident">to_string</span>),
+            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString::to_string</span>),
         )
     }
 
@@ -2368,30 +2368,30 @@
     <span class="kw">fn</span> <span class="ident">first_ink_attribute_works</span>() {
         <span class="ident">assert_first_ink_attribute</span>(<span class="kw-2">&amp;</span>[], <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
         <span class="ident">assert_first_ink_attribute</span>(
-            <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span> }],
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Storage</span>])),
+            <span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span> }],
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Storage</span>])),
         );
         <span class="ident">assert_first_ink_attribute</span>(
-            <span class="kw-2">&amp;</span>[<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">invalid</span>)]</span> }],
+            <span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">invalid</span>)]</span> }],
             <span class="prelude-val">Err</span>(<span class="string">&quot;unknown ink! attribute (path)&quot;</span>),
         );
     }
 
     <span class="kw">mod</span> <span class="ident">test</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ir</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ir</span>;
 
         <span class="doccomment">/// Mock for `ir::Attribute` to improve testability.</span>
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
         <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Attribute</span> {
-            <span class="ident">Ink</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">AttributeArg</span><span class="op">&gt;</span>),
-            <span class="ident">Other</span>(<span class="ident">syn</span>::<span class="ident">Attribute</span>),
+            <span class="ident">Ink</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir::AttributeArg</span><span class="op">&gt;</span>),
+            <span class="ident">Other</span>(<span class="ident">syn::Attribute</span>),
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">attr</span>: <span class="ident">ir</span>::<span class="ident">Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::Attribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">attr</span>: <span class="ident">ir::Attribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="kw">match</span> <span class="ident">attr</span> {
-                    <span class="ident">ir</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="self">Self</span>::<span class="ident">Ink</span>(
+                    <span class="ident">ir::Attribute::Ink</span>(<span class="ident">ink_attr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">Self</span><span class="ident">::Ink</span>(
                             <span class="ident">ink_attr</span>
                                 .<span class="ident">args</span>
                                 .<span class="ident">into_iter</span>()
@@ -2399,25 +2399,25 @@
                                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                         )
                     }
-                    <span class="ident">ir</span>::<span class="ident">Attribute</span>::<span class="ident">Other</span>(<span class="ident">other_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Other</span>(<span class="ident">other_attr</span>),
+                    <span class="ident">ir::Attribute::Other</span>(<span class="ident">other_attr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Other</span>(<span class="ident">other_attr</span>),
                 }
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">InkAttribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_attr</span>: <span class="ident">ir</span>::<span class="ident">InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                <span class="ident">Attribute</span>::<span class="ident">from</span>(<span class="ident">ir</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="ident">ink_attr</span>))
+        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::InkAttribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Attribute</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_attr</span>: <span class="ident">ir::InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+                <span class="ident">Attribute::from</span>(<span class="ident">ir::Attribute::Ink</span>(<span class="ident">ink_attr</span>))
             }
         }
 
         <span class="doccomment">/// Mock for `ir::InkAttribute` to improve testability.</span>
         <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InkAttribute</span> {
-            <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">AttributeArg</span><span class="op">&gt;</span>,
+            <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ir::AttributeArg</span><span class="op">&gt;</span>,
         }
 
-        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">InkAttribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkAttribute</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_attr</span>: <span class="ident">ir</span>::<span class="ident">InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ir::InkAttribute</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkAttribute</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_attr</span>: <span class="ident">ir::InkAttribute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="self">Self</span> {
                     <span class="ident">args</span>: <span class="ident">ink_attr</span>
                         .<span class="ident">args</span>
@@ -2430,7 +2430,7 @@
 
         <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkAttribute</span>
         <span class="kw">where</span>
-            <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">ir</span>::<span class="ident">AttributeArg</span><span class="op">&gt;</span>,
+            <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">ir::AttributeArg</span><span class="op">&gt;</span>,
         {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">args</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="self">Self</span> {
@@ -2443,24 +2443,24 @@
     <span class="doccomment">/// Asserts that the given [`syn::Attribute`] is converted into the expected</span>
     <span class="doccomment">/// [`ir::Attribute]` or yields the expected error message.</span>
     <span class="kw">fn</span> <span class="ident">assert_attribute_try_from</span>(
-        <span class="ident">input</span>: <span class="ident">syn</span>::<span class="ident">Attribute</span>,
-        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test</span>::<span class="ident">Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">input</span>: <span class="ident">syn::Attribute</span>,
+        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test::Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     ) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="op">&lt;</span><span class="ident">ir</span>::<span class="ident">Attribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">try_from</span>(<span class="ident">input</span>)
-                .<span class="ident">map</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">from</span>)
+        <span class="macro">assert_eq!</span>(
+            <span class="op">&lt;</span><span class="ident">ir::Attribute</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">input</span>)
+                .<span class="ident">map</span>(<span class="ident">test::Attribute::from</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString</span>::<span class="ident">to_string</span>),
+            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString::to_string</span>),
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">storage_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Storage</span>])),
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Storage</span>])),
         );
     }
 
@@ -2469,21 +2469,21 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">impl_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Implementation</span>])),
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Implementation</span>])),
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">selector_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xDEADBEEF&quot;</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Selector</span>(
-                <span class="ident">Selector</span>::<span class="ident">from_bytes</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Selector</span>(
+                <span class="ident">Selector::from_bytes</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
             )])),
         );
     }
@@ -2491,7 +2491,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">selector_non_hexcode</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xhelloworld&quot;</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \&quot;0xCAFEBABE\&quot;`)&quot;</span>),
@@ -2501,7 +2501,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">selector_too_long</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xDEADBEEFC0FEBABE&quot;</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;expected 4-digit hexcode for `selector` argument, found 8 digits&quot;</span>),
@@ -2511,7 +2511,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">selector_invalid_type</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">42</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>),
@@ -2521,11 +2521,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">namespace_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Namespace</span>(
-                <span class="ident">Namespace</span>::<span class="ident">from</span>(<span class="string">&quot;my_namespace&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>()),
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Namespace</span>(
+                <span class="ident">Namespace::from</span>(<span class="string">&quot;my_namespace&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>()),
             )])),
         );
     }
@@ -2533,7 +2533,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">namespace_invalid_type</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span> <span class="op">=</span> <span class="number">42</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>),
@@ -2543,7 +2543,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">namespace_missing_parameter</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
@@ -2556,11 +2556,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">extension_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">42</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Extension</span>(
-                <span class="ident">ExtensionId</span>::<span class="ident">from_u32</span>(<span class="number">42</span>),
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Extension</span>(
+                <span class="ident">ExtensionId::from_u32</span>(<span class="number">42</span>),
             )])),
         );
     }
@@ -2568,7 +2568,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">extension_invalid_value_type</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>),
@@ -2578,7 +2578,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">extension_negative_integer</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>),
@@ -2587,9 +2587,9 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">extension_too_big_integer</span>() {
-        <span class="kw">let</span> <span class="ident">max_u32_plus_1</span> <span class="op">=</span> (<span class="ident">u32</span>::<span class="ident">MAX</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">+</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="ident">max_u32_plus_1</span> <span class="op">=</span> (<span class="ident">u32::MAX</span> <span class="kw">as</span> <span class="ident">u64</span>) <span class="op">+</span> <span class="number">1</span>;
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> #<span class="ident">max_u32_plus_1</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;could not parse `N` in `#[ink(extension = N)]` into a `u32` integer&quot;</span>),
@@ -2599,7 +2599,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">extension_missing_parameter</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
@@ -2611,19 +2611,19 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">handle_status_works</span>() {
-        <span class="kw">fn</span> <span class="ident">expected_ok</span>(<span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test</span>::<span class="ident">Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">HandleStatus</span>(
+        <span class="kw">fn</span> <span class="ident">expected_ok</span>(<span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test::Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::HandleStatus</span>(
                 <span class="ident">value</span>,
             )]))
         }
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
             },
             <span class="ident">expected_ok</span>(<span class="bool-val">true</span>),
         );
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
             },
             <span class="ident">expected_ok</span>(<span class="bool-val">false</span>),
@@ -2633,7 +2633,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">handle_status_missing_parameter</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
@@ -2646,7 +2646,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">handle_status_invalid_parameter_type</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
@@ -2657,19 +2657,19 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">returns_result_works</span>() {
-        <span class="kw">fn</span> <span class="ident">expected_ok</span>(<span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test</span>::<span class="ident">Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">ReturnsResult</span>(
+        <span class="kw">fn</span> <span class="ident">expected_ok</span>(<span class="ident">value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">test::Attribute</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::ReturnsResult</span>(
                 <span class="ident">value</span>,
             )]))
         }
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
             },
             <span class="ident">expected_ok</span>(<span class="bool-val">true</span>),
         );
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
             },
             <span class="ident">expected_ok</span>(<span class="bool-val">false</span>),
@@ -2679,7 +2679,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">returns_result_missing_parameter</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
@@ -2692,7 +2692,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">returns_result_invalid_parameter_type</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>),
@@ -2702,12 +2702,12 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compound_mixed_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">AttributeArg</span>::<span class="ident">Message</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Namespace</span>(<span class="ident">Namespace</span>::<span class="ident">from</span>(
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[
+                <span class="ident">AttributeArg::Message</span>,
+                <span class="ident">AttributeArg::Namespace</span>(<span class="ident">Namespace::from</span>(
                     <span class="string">&quot;my_namespace&quot;</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>(),
                 )),
             ])),
@@ -2717,7 +2717,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">compound_simple_works</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(
                     <span class="ident">storage</span>,
                     <span class="ident">message</span>,
@@ -2728,36 +2728,36 @@
                     <span class="kw">impl</span>,
                 )]</span>
             },
-            <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Ink</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">AttributeArg</span>::<span class="ident">Storage</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Message</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Constructor</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Event</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Topic</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Payable</span>,
-                <span class="ident">AttributeArg</span>::<span class="ident">Implementation</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[
+                <span class="ident">AttributeArg::Storage</span>,
+                <span class="ident">AttributeArg::Message</span>,
+                <span class="ident">AttributeArg::Constructor</span>,
+                <span class="ident">AttributeArg::Event</span>,
+                <span class="ident">AttributeArg::Topic</span>,
+                <span class="ident">AttributeArg::Payable</span>,
+                <span class="ident">AttributeArg::Implementation</span>,
             ])),
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">non_ink_attribute_works</span>() {
-        <span class="kw">let</span> <span class="ident">attr</span>: <span class="ident">syn</span>::<span class="ident">Attribute</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+        <span class="kw">let</span> <span class="ident">attr</span>: <span class="ident">syn::Attribute</span> <span class="op">=</span> <span class="macro">syn::parse_quote!</span> {
             <span class="attribute">#[<span class="ident">non_ink</span>(<span class="ident">message</span>)]</span>
         };
-        <span class="ident">assert_attribute_try_from</span>(<span class="ident">attr</span>.<span class="ident">clone</span>(), <span class="prelude-val">Ok</span>(<span class="ident">test</span>::<span class="ident">Attribute</span>::<span class="ident">Other</span>(<span class="ident">attr</span>)));
+        <span class="ident">assert_attribute_try_from</span>(<span class="ident">attr</span>.<span class="ident">clone</span>(), <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Other</span>(<span class="ident">attr</span>)));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">empty_ink_attribute_fails</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;unknown ink! attribute&quot;</span>),
         );
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>()]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;encountered unsupported empty ink! attribute&quot;</span>),
@@ -2767,7 +2767,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">duplicate_flags_fails</span>() {
         <span class="ident">assert_attribute_try_from</span>(
-            <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> {
+            <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">message</span>)]</span>
             },
             <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! attribute arguments&quot;</span>),
@@ -2778,35 +2778,35 @@
     <span class="doccomment">/// partitioned into the expected tuple of ink! and non-ink! attributes</span>
     <span class="doccomment">/// or that the expected error is returned.</span>
     <span class="kw">fn</span> <span class="ident">assert_parition_attributes</span>(
-        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>,
-        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">test</span>::<span class="ident">InkAttribute</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn</span>::<span class="ident">Attribute</span><span class="op">&gt;</span>), <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
+        <span class="ident">expected</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">test::InkAttribute</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     ) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">partition_attributes</span>(<span class="ident">input</span>)
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">ink_attr</span>, <span class="ident">other_attr</span>)<span class="op">|</span> {
                     (
                         <span class="ident">ink_attr</span>
                             .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="ident">test</span>::<span class="ident">InkAttribute</span>::<span class="ident">from</span>)
+                            .<span class="ident">map</span>(<span class="ident">test::InkAttribute::from</span>)
                             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                         <span class="ident">other_attr</span>,
                     )
                 })
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">to_string</span>()),
-            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString</span>::<span class="ident">to_string</span>)
+            <span class="ident">expected</span>.<span class="ident">map_err</span>(<span class="ident">ToString::to_string</span>)
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">parition_attributes_works</span>() {
         <span class="ident">assert_parition_attributes</span>(
-            <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">non_ink_attribute</span>]</span> },
+            <span class="macro">vec!</span>[
+                <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
+                <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">non_ink_attribute</span>]</span> },
             ],
             <span class="prelude-val">Ok</span>((
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">test</span>::<span class="ident">InkAttribute</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">AttributeArg</span>::<span class="ident">Message</span>])],
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">non_ink_attribute</span>]</span> }],
+                <span class="macro">vec!</span>[<span class="ident">test::InkAttribute::from</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Message</span>])],
+                <span class="macro">vec!</span>[<span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">non_ink_attribute</span>]</span> }],
             )),
         )
     }
@@ -2814,9 +2814,9 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">parition_duplicates_fails</span>() {
         <span class="ident">assert_parition_attributes</span>(
-            <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
-                <span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
+            <span class="macro">vec!</span>[
+                <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
+                <span class="macro">syn::parse_quote!</span> { <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span> },
             ],
             <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! attribute&quot;</span>),
         )

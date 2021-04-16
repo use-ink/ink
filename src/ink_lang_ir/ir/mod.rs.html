@@ -120,9 +120,9 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">utils</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">attrs</span>::<span class="ident">Attribute</span>;
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::attrs::Attribute</span>;
 
-<span class="kw">use</span> <span class="self">self</span>::<span class="ident">attrs</span>::{
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::attrs</span>::{
     <span class="ident">contains_ink_attributes</span>,
     <span class="ident">first_ink_attribute</span>,
     <span class="ident">partition_attributes</span>,
@@ -133,15 +133,15 @@
     <span class="ident">InkAttribute</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">attrs</span>::<span class="ident">Namespace</span>,
+    <span class="ident">attrs::Namespace</span>,
     <span class="ident">chain_extension</span>::{
         <span class="ident">ChainExtension</span>,
         <span class="ident">ChainExtensionMethod</span>,
         <span class="ident">ExtensionId</span>,
     },
-    <span class="ident">config</span>::<span class="ident">Config</span>,
-    <span class="ident">contract</span>::<span class="ident">Contract</span>,
-    <span class="ident">ink_test</span>::<span class="ident">InkTest</span>,
+    <span class="ident">config::Config</span>,
+    <span class="ident">contract::Contract</span>,
+    <span class="ident">ink_test::InkTest</span>,
     <span class="ident">item</span>::{
         <span class="ident">Event</span>,
         <span class="ident">InkItem</span>,
@@ -167,7 +167,7 @@
         <span class="ident">IterEvents</span>,
         <span class="ident">IterItemImpls</span>,
     },
-    <span class="ident">selector</span>::<span class="ident">Selector</span>,
+    <span class="ident">selector::Selector</span>,
     <span class="ident">trait_def</span>::{
         <span class="ident">InkTrait</span>,
         <span class="ident">InkTraitConstructor</span>,

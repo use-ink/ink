@@ -70,7 +70,7 @@
     <span class="doccomment">/// Emits an event that can be trivially converted into the base event.</span>
     <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">event</span>: <span class="ident">E</span>)
     <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">BaseEvent</span><span class="op">&gt;</span>::<span class="ident">Type</span><span class="op">&gt;</span>;
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">BaseEvent</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// Defines a base event type for the contract.</span>
