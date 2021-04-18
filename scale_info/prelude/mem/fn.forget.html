@@ -9,7 +9,7 @@ to this memory will remain valid.</p>
 <li>If you want to leak memory, see <a href="../../std/boxed/struct.Box.html#method.leak"><code>Box::leak</code></a>.</li>
 <li>If you want to obtain a raw pointer to the memory, see <a href="../../std/boxed/struct.Box.html#method.into_raw"><code>Box::into_raw</code></a>.</li>
 <li>If you want to dispose of a value properly, running its destructor, see
-<a href="../../../scale_info/prelude/mem/fn.drop.html"><code>mem::drop</code></a>.</li>
+<a href="fn.drop.html"><code>mem::drop</code></a>.</li>
 </ul>
 <h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
 <p><code>forget</code> is not marked as <code>unsafe</code>, because Rust’s safety guarantees
@@ -20,7 +20,7 @@ a program can create a reference cycle using <a href="../../std/rc/struct.Rc.htm
 guarantees.</p>
 <p>That said, leaking resources such as memory or I/O objects is usually undesirable.
 The need comes up in some specialized use cases for FFI or unsafe code, but even
-then, <a href="../../../scale_info/prelude/mem/struct.ManuallyDrop.html" title="ManuallyDrop"><code>ManuallyDrop</code></a> is typically preferred.</p>
+then, <a href="struct.ManuallyDrop.html" title="ManuallyDrop"><code>ManuallyDrop</code></a> is typically preferred.</p>
 <p>Because forgetting a value is allowed, any <code>unsafe</code> code you write must
 allow for this possibility. You cannot return a value and expect that the
 caller will necessarily run the value’s destructor.</p>
@@ -40,7 +40,7 @@ transferred to code outside of Rust, for example by transmitting the raw
 file descriptor to C code.</p>
 <h1 id="relationship-with-manuallydrop" class="section-header"><a href="#relationship-with-manuallydrop">Relationship with <code>ManuallyDrop</code></a></h1>
 <p>While <code>mem::forget</code> can also be used to transfer <em>memory</em> ownership, doing so is error-prone.
-<a href="../../../scale_info/prelude/mem/struct.ManuallyDrop.html" title="ManuallyDrop"><code>ManuallyDrop</code></a> should be used instead. Consider, for example, this code:</p>
+<a href="struct.ManuallyDrop.html" title="ManuallyDrop"><code>ManuallyDrop</code></a> should be used instead. Consider, for example, this code:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">std::mem</span>;
@@ -89,5 +89,5 @@ erring on the side of (double-)dropping.</p>
 <p>Also, <code>ManuallyDrop</code> prevents us from having to “touch” <code>v</code> after transferring the
 ownership to <code>s</code> — the final step of interacting with <code>v</code> to dispose of it without
 running its destructor is entirely avoided.</p>
-</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-js="../../../search-index.js"></div>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script></body></html>

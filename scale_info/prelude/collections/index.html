@@ -1,12 +1,12 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Collection types."><meta name="keywords" content="rust, rustlang, rust-lang, collections"><title>scale_info::prelude::collections - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
 <link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module collections</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class="location"><a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a></p><div id="sidebar-vars" data-name="collections" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a>::<wbr><a class="mod" href="">collections</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/lib.rs.html#490" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Collection types.</p>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">scale_info</a>::<wbr><a href="../index.html">prelude</a>::<wbr><a class="mod" href="">collections</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/std/lib.rs.html#493" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Collection types.</p>
 <p>Rust’s standard collection library provides efficient implementations of the
 most common general purpose programming data structures. By using the
 standard implementations, it should be possible for two libraries to
 communicate without significant data conversion.</p>
-<p>To get this out of the way: you should probably just use <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a> or <a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a>.
+<p>To get this out of the way: you should probably just use <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a> or <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a>.
 These two collections cover most use cases for generic data storage and
 processing. They are exceptionally good at doing what they do. All the other
 collections in the standard library have specific use cases where they are
@@ -15,10 +15,10 @@ Even when <code>Vec</code> and <code>HashMap</code> are technically suboptimal, 
 good enough choice to get started.</p>
 <p>Rust’s collections can be grouped into four major categories:</p>
 <ul>
-<li>Sequences: <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a>, <a href="../../../scale_info/prelude/collections/struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a>, <a href="../../../scale_info/prelude/collections/struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></li>
-<li>Maps: <a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a>, <a href="../../../scale_info/prelude/collections/struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></li>
-<li>Sets: <a href="../../../scale_info/prelude/collections/struct.HashSet.html" title="HashSet"><code>HashSet</code></a>, <a href="../../../scale_info/prelude/collections/struct.BTreeSet.html" title="BTreeSet"><code>BTreeSet</code></a></li>
-<li>Misc: <a href="../../../scale_info/prelude/collections/struct.BinaryHeap.html" title="BinaryHeap"><code>BinaryHeap</code></a></li>
+<li>Sequences: <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a>, <a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a>, <a href="struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></li>
+<li>Maps: <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a>, <a href="struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></li>
+<li>Sets: <a href="struct.HashSet.html" title="HashSet"><code>HashSet</code></a>, <a href="struct.BTreeSet.html" title="BTreeSet"><code>BTreeSet</code></a></li>
+<li>Misc: <a href="struct.BinaryHeap.html" title="BinaryHeap"><code>BinaryHeap</code></a></li>
 </ul>
 <h1 id="when-should-you-use-which-collection" class="section-header"><a href="#when-should-you-use-which-collection">When Should You Use Which Collection?</a></h1>
 <p>These are fairly high-level and quick break-downs of when each collection
@@ -36,14 +36,14 @@ appending to (or near) the end.</li>
 </ul>
 <h3 id="use-a-vecdeque-when" class="section-header"><a href="#use-a-vecdeque-when">Use a <code>VecDeque</code> when:</a></h3>
 <ul>
-<li>You want a <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a> that supports efficient insertion at both ends of the
+<li>You want a <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a> that supports efficient insertion at both ends of the
 sequence.</li>
 <li>You want a queue.</li>
 <li>You want a double-ended queue (deque).</li>
 </ul>
 <h3 id="use-a-linkedlist-when" class="section-header"><a href="#use-a-linkedlist-when">Use a <code>LinkedList</code> when:</a></h3>
 <ul>
-<li>You want a <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a> or <a href="../../../scale_info/prelude/collections/struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a> of unknown size, and can’t tolerate
+<li>You want a <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a> or <a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a> of unknown size, and can’t tolerate
 amortization.</li>
 <li>You want to efficiently split and append lists.</li>
 <li>You are <em>absolutely</em> certain you <em>really</em>, <em>truly</em>, want a doubly linked
@@ -91,21 +91,21 @@ exhausted. If a resize occurs it will take <em>O</em>(<em>n</em>) time. Our coll
 automatically shrink, so removal operations aren’t amortized. Over a
 sufficiently large series of operations, the average cost per operation will
 deterministically equal the given cost.</p>
-<p>Only <a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a> has expected costs, due to the probabilistic nature of hashing.
-It is theoretically possible, though very unlikely, for <a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a> to
+<p>Only <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a> has expected costs, due to the probabilistic nature of hashing.
+It is theoretically possible, though very unlikely, for <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a> to
 experience worse performance.</p>
 <h2 id="sequences" class="section-header"><a href="#sequences">Sequences</a></h2><table><thead><tr><th></th><th>get(i)</th><th>insert(i)</th><th>remove(i)</th><th>append</th><th>split_off(i)</th></tr></thead><tbody>
-<tr><td><a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a></td><td>O(1)</td><td>O(n-i)*</td><td>O(n-i)</td><td>O(m)*</td><td>O(n-i)</td></tr>
-<tr><td><a href="../../../scale_info/prelude/collections/struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a></td><td>O(1)</td><td>O(min(i, n-i))*</td><td>O(min(i, n-i))</td><td>O(m)*</td><td>O(min(i, n-i))</td></tr>
-<tr><td><a href="../../../scale_info/prelude/collections/struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(1)</td><td>O(min(i, n-i))</td></tr>
+<tr><td><a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a></td><td>O(1)</td><td>O(n-i)*</td><td>O(n-i)</td><td>O(m)*</td><td>O(n-i)</td></tr>
+<tr><td><a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a></td><td>O(1)</td><td>O(min(i, n-i))*</td><td>O(min(i, n-i))</td><td>O(m)*</td><td>O(min(i, n-i))</td></tr>
+<tr><td><a href="struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(1)</td><td>O(min(i, n-i))</td></tr>
 </tbody></table>
-<p>Note that where ties occur, <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a> is generally going to be faster than <a href="../../../scale_info/prelude/collections/struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a>, and
-<a href="../../../scale_info/prelude/collections/struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a> is generally going to be faster than <a href="../../../scale_info/prelude/collections/struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a>.</p>
+<p>Note that where ties occur, <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a> is generally going to be faster than <a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a>, and
+<a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a> is generally going to be faster than <a href="struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a>.</p>
 <h2 id="maps" class="section-header"><a href="#maps">Maps</a></h2>
 <p>For Sets, all operations have the cost of the equivalent Map operation.</p>
 <table><thead><tr><th></th><th>get</th><th>insert</th><th>remove</th><th>range</th><th>append</th></tr></thead><tbody>
-<tr><td><a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a></td><td>O(1)~</td><td>O(1)~*</td><td>O(1)~</td><td>N/A</td><td>N/A</td></tr>
-<tr><td><a href="../../../scale_info/prelude/collections/struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(n+m)</td></tr>
+<tr><td><a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a></td><td>O(1)~</td><td>O(1)~*</td><td>O(1)~</td><td>N/A</td><td>N/A</td></tr>
+<tr><td><a href="struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(n+m)</td></tr>
 </tbody></table>
 <h1 id="correct-and-efficient-usage-of-collections" class="section-header"><a href="#correct-and-efficient-usage-of-collections">Correct and Efficient Usage of Collections</a></h1>
 <p>Of course, knowing which collection is the right one for the job doesn’t
@@ -168,10 +168,10 @@ every collection should provide are <code>iter</code>, <code>iter_mut</code>, an
 Some of these are not provided on collections where it would be unsound or
 unreasonable to provide them.</p>
 <p><code>iter</code> provides an iterator of immutable references to all the contents of a
-collection in the most “natural” order. For sequence collections like <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a>,
+collection in the most “natural” order. For sequence collections like <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a>,
 this means the items will be yielded in increasing order of index starting
-at 0. For ordered collections like <a href="../../../scale_info/prelude/collections/struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a>, this means that the items
-will be yielded in sorted order. For unordered collections like <a href="../../../scale_info/prelude/collections/struct.HashMap.html" title="HashMap"><code>HashMap</code></a>,
+at 0. For ordered collections like <a href="struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a>, this means that the items
+will be yielded in sorted order. For unordered collections like <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a>,
 the items will be yielded in whatever order the internal representation made
 most convenient. This is great for reading through all the contents of the
 collection.</p>
@@ -361,12 +361,12 @@ not update the value of the key. For example:</p>
 <table><tr class="module-item"><td><a class="struct" href="struct.BTreeMap.html" title="scale_info::prelude::collections::BTreeMap struct">BTreeMap</a></td><td class="docblock-short"><p>A map based on a <a href="https://en.wikipedia.org/wiki/B-tree">B-Tree</a>.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.BTreeSet.html" title="scale_info::prelude::collections::BTreeSet struct">BTreeSet</a></td><td class="docblock-short"><p>A set based on a B-Tree.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.BinaryHeap.html" title="scale_info::prelude::collections::BinaryHeap struct">BinaryHeap</a></td><td class="docblock-short"><p>A priority queue implemented with a binary heap.</p>
-</td></tr><tr class="module-item"><td><a class="struct" href="struct.HashMap.html" title="scale_info::prelude::collections::HashMap struct">HashMap</a></td><td class="docblock-short"><p>A <a href="../../../scale_info/prelude/collections/index.html#use-a-hashmap-when">hash map</a> implemented with quadratic probing and SIMD lookup.</p>
-</td></tr><tr class="module-item"><td><a class="struct" href="struct.HashSet.html" title="scale_info::prelude::collections::HashSet struct">HashSet</a></td><td class="docblock-short"><p>A <a href="../../../scale_info/prelude/collections/index.html#use-the-set-variant-of-any-of-these-maps-when">hash set</a> implemented as a <code>HashMap</code> where the value is <code>()</code>.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.HashMap.html" title="scale_info::prelude::collections::HashMap struct">HashMap</a></td><td class="docblock-short"><p>A <a href="index.html#use-a-hashmap-when">hash map</a> implemented with quadratic probing and SIMD lookup.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.HashSet.html" title="scale_info::prelude::collections::HashSet struct">HashSet</a></td><td class="docblock-short"><p>A <a href="index.html#use-the-set-variant-of-any-of-these-maps-when">hash set</a> implemented as a <code>HashMap</code> where the value is <code>()</code>.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.LinkedList.html" title="scale_info::prelude::collections::LinkedList struct">LinkedList</a></td><td class="docblock-short"><p>A doubly-linked list with owned nodes.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.VecDeque.html" title="scale_info::prelude::collections::VecDeque struct">VecDeque</a></td><td class="docblock-short"><p>A double-ended queue implemented with a growable ring buffer.</p>
 </td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
 <table><tr class="unstable module-item"><td><a class="enum" href="enum.TryReserveError.html" title="scale_info::prelude::collections::TryReserveError enum">TryReserveError</a></td><td class="docblock-short"><span class="stab unstable" title="">Experimental</span><p>The error type for <code>try_reserve</code> methods.</p>
 </td></tr><tr class="module-item"><td><a class="enum" href="enum.Bound.html" title="scale_info::prelude::collections::Bound enum">Bound</a></td><td class="docblock-short"><p>An endpoint of a range of keys.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-js="../../../search-index.js"></div>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script></body></html>

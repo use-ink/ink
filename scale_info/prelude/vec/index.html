@@ -7,11 +7,11 @@
 <code>O(1)</code> pop (from the end).</p>
 <p>Vectors ensure they never allocate more than <code>isize::MAX</code> bytes.</p>
 <h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
-<p>You can explicitly create a <a href="../../../scale_info/prelude/vec/struct.Vec.html" title="Vec"><code>Vec</code></a> with <a href="../../../scale_info/prelude/vec/struct.Vec.html#method.new" title="Vec::new"><code>Vec::new</code></a>:</p>
+<p>You can explicitly create a <a href="struct.Vec.html" title="Vec"><code>Vec</code></a> with <a href="struct.Vec.html#method.new" title="Vec::new"><code>Vec::new</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();</pre></div>
-<p>…or by using the <a href="../../../scale_info/prelude/macro.vec.html" title="vec!"><code>vec!</code></a> macro:</p>
+<p>…or by using the <a href="../macro.vec.html" title="vec!"><code>vec!</code></a> macro:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -19,7 +19,7 @@
 <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
 
 <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">10</span>]; <span class="comment">// ten zeroes</span></pre></div>
-<p>You can <a href="../../../scale_info/prelude/vec/struct.Vec.html#method.push"><code>push</code></a> values onto the end of a vector (which will grow the vector
+<p>You can <a href="struct.Vec.html#method.push"><code>push</code></a> values onto the end of a vector (which will grow the vector
 as needed):</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -44,5 +44,5 @@ as needed):</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.IntoIter.html" title="scale_info::prelude::vec::IntoIter struct">IntoIter</a></td><td class="docblock-short"><p>An iterator that moves out of a vector.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Splice.html" title="scale_info::prelude::vec::Splice struct">Splice</a></td><td class="docblock-short"><p>A splicing iterator for <code>Vec</code>.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Vec.html" title="scale_info::prelude::vec::Vec struct">Vec</a></td><td class="docblock-short"><p>A contiguous growable array type, written as <code>Vec&lt;T&gt;</code> and pronounced ‘vector’.</p>
-</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-js="../../../search-index.js"></div>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script></body></html>
