@@ -15,9 +15,6 @@ ink_prelude = { version = "3.0.0-rc3", path = "../../crates/prelude", default-fe
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
-
 [lib]
 name = "multisig_plain"
 path = "lib.rs"

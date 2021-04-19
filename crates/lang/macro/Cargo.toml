@@ -23,9 +23,6 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 syn = "1"
 proc-macro2 = "1"
 
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
-
 [dev-dependencies]
 ink_metadata = { version = "3.0.0-rc3", path = "../../metadata/" }
 ink_env = { version = "3.0.0-rc3", path = "../../env/" }
