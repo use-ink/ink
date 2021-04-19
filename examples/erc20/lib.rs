@@ -43,7 +43,6 @@ mod erc20 {
         from: Option<AccountId>,
         #[ink(topic)]
         to: Option<AccountId>,
-        #[ink(topic)]
         value: Balance,
     }
 
@@ -55,7 +54,6 @@ mod erc20 {
         owner: AccountId,
         #[ink(topic)]
         spender: AccountId,
-        #[ink(topic)]
         value: Balance,
     }
 
