@@ -219,6 +219,10 @@ mod tests {
             Saturating::saturating_mul(u64::max_value(), 2)
         );
         assert_eq!(
+            i64::max_value(),
+            Saturating::saturating_mul(i64::max_value(), 2)
+        );
+        assert_eq!(
             i64::min_value(),
             Saturating::saturating_mul(i64::min_value(), 2)
         );
