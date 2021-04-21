@@ -1074,6 +1074,8 @@
 <span id="1071">1071</span>
 <span id="1072">1072</span>
 <span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1474,6 +1476,8 @@
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// #[ink::contract]</span>
 <span class="doccomment">/// mod greeter {</span>
+<span class="doccomment">///     use ink_prelude::format;</span>
+<span class="doccomment">///</span>
 <span class="doccomment">///     #[ink(storage)]</span>
 <span class="doccomment">///     pub struct Greeter;</span>
 <span class="doccomment">///</span>
@@ -1487,7 +1491,7 @@
 <span class="doccomment">///         }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///         #[ink(message, payable)]</span>
-<span class="doccomment">///         pub fn fund(&amp;mut self) {</span>
+<span class="doccomment">///         pub fn fund(&amp;self) {</span>
 <span class="doccomment">///             let caller = self.env().caller();</span>
 <span class="doccomment">///             let value = self.env().transferred_balance();</span>
 <span class="doccomment">///             let message = format!(&quot;thanks for the funding of {:?} from {:?}&quot;, value, caller);</span>
