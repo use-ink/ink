@@ -247,6 +247,10 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -467,6 +471,10 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">u64::max_value</span>(),
             <span class="ident">Saturating::saturating_mul</span>(<span class="ident">u64::max_value</span>(), <span class="number">2</span>)
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">i64::max_value</span>(),
+            <span class="ident">Saturating::saturating_mul</span>(<span class="ident">i64::max_value</span>(), <span class="number">2</span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="ident">i64::min_value</span>(),
