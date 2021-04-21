@@ -28,6 +28,7 @@ ink_metadata = { version = "3.0.0-rc3", path = "../../metadata/" }
 ink_env = { version = "3.0.0-rc3", path = "../../env/" }
 ink_storage = { version = "3.0.0-rc3", path = "../../storage/" }
 ink_lang = { version = "3.0.0-rc3", path = ".." }
+ink_prelude = { version = "3.0.0-rc3", path = "../../prelude/" }
 
 trybuild = "1.0.24"
 scale-info = { version = "0.6", default-features = false, features = ["derive"] }
