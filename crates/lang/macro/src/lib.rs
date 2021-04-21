@@ -397,6 +397,8 @@ use proc_macro::TokenStream;
 /// #
 /// #[ink::contract]
 /// mod greeter {
+///     use ink_prelude::format;
+///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
