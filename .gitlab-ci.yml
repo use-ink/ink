@@ -122,6 +122,7 @@ test:
       QUICKCHECK_TESTS:            0
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace --doc
 
 docs:
   stage:                           workspace
@@ -141,7 +142,6 @@ docs:
         -p ink_primitives -p ink_prelude
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
-    - cargo test --doc --workspace
 
 spellcheck:
     stage:                           workspace
