@@ -202,7 +202,7 @@ impl Add<u64> for Key {
     }
 }
 
-impl<'a> Add<u64> for &'a Key {
+impl Add<u64> for &Key {
     type Output = Key;
 
     fn add(self, rhs: u64) -> Self::Output {
@@ -210,19 +210,19 @@ impl<'a> Add<u64> for &'a Key {
     }
 }
 
-impl<'a> Add<&'a u64> for Key {
+impl Add<&u64> for Key {
     type Output = Key;
 
-    fn add(self, rhs: &'a u64) -> Self::Output {
+    fn add(self, rhs: &u64) -> Self::Output {
         <Key as Add<u64>>::add(self, *rhs)
     }
 }
 
-impl<'a, 'b> Add<&'b u64> for &'a Key {
+impl Add<&u64> for &Key {
     type Output = Key;
 
-    fn add(self, rhs: &'b u64) -> Self::Output {
-        <&'a Key as Add<u64>>::add(self, *rhs)
+    fn add(self, rhs: &u64) -> Self::Output {
+        <&Key as Add<u64>>::add(self, *rhs)
     }
 }
 
