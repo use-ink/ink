@@ -3,3 +3,6 @@
 # instead of multiple isolated ones.
 [workspace]
 members = ["./*"]
+exclude = [
+    "delegator",
+]
