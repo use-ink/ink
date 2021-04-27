@@ -4,5 +4,7 @@
 [workspace]
 members = ["./*"]
 exclude = [
+    # we need to exclude `delegator` since it's a separate workspace
+    # and nested workspaces are not allowed.
     "delegator",
 ]

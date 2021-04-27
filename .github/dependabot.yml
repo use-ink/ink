@@ -8,3 +8,9 @@ updates:
     directory: "/examples/"
     schedule:
         interval: "daily"
+
+  # `delegator` needs to be a separate stage, since it's a separate workspace.
+  - package-ecosystem: "cargo"
+    directory: "/examples/delegator/"
+    schedule:
+        interval: "daily"
