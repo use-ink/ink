@@ -1,5 +1,5 @@
 [package]
-name = "flipper"
+name = "trait-flipper"
 version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
