@@ -23,6 +23,7 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
+use ink_engine::test_api::RecordedPrintlns;
 use std::panic::UnwindSafe;
 
 /// Record for an emitted event.
@@ -129,7 +130,7 @@ where
 }
 
 /// Returns the contents of the past performed environmental `println` in order.
-pub fn recorded_printlns() -> impl Iterator<Item = String> {
+pub fn recorded_printlns() -> RecordedPrintlns {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_recorded_printlns()
     })
@@ -242,7 +243,7 @@ where
 {
     let default_accounts = default_accounts::<T>();
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.initialize_or_reset_environment();
+        instance.engine.initialize_or_reset();
 
         let encoded_alice = scale::Encode::encode(&default_accounts.alice);
         instance.engine.set_caller(encoded_alice.clone());

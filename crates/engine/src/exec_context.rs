@@ -20,11 +20,19 @@ use super::types::{
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
 pub struct ExecContext {
-    /// The caller of the contract execution.
+    /// The caller of the contract execution. Might be user or another contract.
     ///
-    /// Might be user or another contract.
+    /// We don't know the specifics of the AccountId ‒ like how many bytes or what
+    /// type of default `AccountId` makes sense ‒ they are left to be initialized
+    /// by the crate which uses the `engine`. Methods which require a caller might
+    /// panic when it has not been set.
     pub caller: Option<AccountId>,
-    /// The callee of the contract execution.
+    /// The callee of the contract execution. Might be user or another contract.
+    ///
+    /// We don't know the specifics of the AccountId ‒ like how many bytes or what
+    /// type of default `AccountId` makes sense ‒ they are left to be initialized
+    /// by the crate which uses the `engine`. Methods which require a callee might
+    /// panic when it has not been set.
     pub callee: Option<AccountId>,
     /// The value transferred to the contract as part of the call.
     pub value_transferred: Balance,

@@ -21,8 +21,8 @@ use crate::{
     exec_context::ExecContext,
     storage::Storage,
     test_api::{
+        DebugInfo,
         EmittedEvent,
-        RecInstance,
     },
     types::{
         AccountId,
@@ -117,7 +117,7 @@ pub struct Engine {
     /// The current execution context.
     pub exec_context: ExecContext,
     /// Recorder for relevant interactions with the engine.
-    pub(crate) recorder: RecInstance,
+    pub(crate) debug_info: DebugInfo,
 }
 
 impl Engine {
@@ -127,7 +127,7 @@ impl Engine {
             storage: Storage::new(),
             balances: HashMap::new(),
             exec_context: ExecContext::new(),
-            recorder: RecInstance::new(),
+            debug_info: DebugInfo::new(),
         }
     }
 }
@@ -180,7 +180,7 @@ impl Engine {
             Vec::new()
         };
 
-        self.recorder.record_event(EmittedEvent {
+        self.debug_info.record_event(EmittedEvent {
             topics: topics_vec,
             data: data.to_vec(),
         });
@@ -190,8 +190,9 @@ impl Engine {
     pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
         if self.exec_context.callee.is_some() {
             let account_id: AccountId = self.get_callee().into();
-            self.recorder.inc_writes(account_id.clone());
-            self.recorder.inc_cells_per_account(account_id);
+            self.debug_info.inc_writes(account_id.clone());
+            self.debug_info
+                .record_cell_for_account(account_id, key.to_vec());
         }
 
         // We ignore if storage is already set for this key
@@ -202,8 +203,9 @@ impl Engine {
     pub fn clear_storage(&mut self, key: &[u8; 32]) {
         if self.exec_context.callee.is_some() {
             let account_id = AccountId::from_bytes(&self.get_callee()[..]);
-            self.recorder.inc_writes(account_id.clone());
-            self.recorder.dec_cells_per_account(account_id);
+            self.debug_info.inc_writes(account_id.clone());
+            self.debug_info
+                .remove_cell_for_account(account_id, key.to_vec());
         }
 
         self.storage.remove(key);
@@ -213,12 +215,12 @@ impl Engine {
     pub fn get_storage(&mut self, key: &[u8; 32], output: &mut &mut [u8]) -> Result {
         if self.exec_context.callee.is_some() {
             let account_id = AccountId::from_bytes(&self.get_callee()[..]);
-            self.recorder.inc_reads(account_id);
+            self.debug_info.inc_reads(account_id);
         }
 
         match self.storage.get(key) {
             Some(val) => {
-                output[0..val.len()].copy_from_slice(val);
+                set_output(output, val);
                 Ok(())
             }
             None => Err(Error::KeyNotFound),
@@ -256,7 +258,7 @@ impl Engine {
             .as_ref()
             .expect("no caller has been set")
             .as_bytes();
-        output[..caller.len()].copy_from_slice(caller);
+        set_output(output, caller);
     }
 
     /// Returns the balance of the executed contract.
@@ -271,14 +273,14 @@ impl Engine {
                 .get(&contract)
                 .expect("currently executing contract must exist"),
         );
-        output[..balance.len()].copy_from_slice(&balance[..]);
+        set_output(output, &balance[..])
     }
 
     /// Returns the transferred value for the called contract.
     pub fn value_transferred(&self, output: &mut &mut [u8]) {
         let value_transferred: Vec<u8> =
             scale::Encode::encode(&self.exec_context.value_transferred);
-        output[..value_transferred.len()].copy_from_slice(&value_transferred[..]);
+        set_output(output, &value_transferred[..])
     }
 
     /// Returns the address of the executed contract.
@@ -289,7 +291,7 @@ impl Engine {
             .as_ref()
             .expect("no callee has been set")
             .as_bytes();
-        output[..callee.len()].copy_from_slice(callee);
+        set_output(output, &callee)
     }
 
     /// Restores a tombstone to the original smart contract.
@@ -317,7 +319,7 @@ impl Engine {
 
     /// Prints the given contents to the console log.
     pub fn println(&mut self, content: &str) {
-        self.recorder.record_println(String::from(content));
+        self.debug_info.record_println(String::from(content));
         println!("{}", content);
     }
 
@@ -412,4 +414,19 @@ impl Engine {
             "off-chain environment does not yet support `call_chain_extension`"
         );
     }
+}
+
+/// Copies the `slice` into `output`.
+///
+/// Panics if the slice is too large and doesn't fit.
+fn set_output(output: &mut &mut [u8], slice: &[u8]) {
+    if slice.len() > output.len() {
+        panic!(
+            "the output buffer is too small! the decoded storage is of size {} bytes, \
+            but the output buffer has only room for {}.",
+            slice.len(),
+            output.len()
+        );
+    }
+    output[..slice.len()].copy_from_slice(slice);
 }
