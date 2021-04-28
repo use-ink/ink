@@ -16,9 +16,6 @@ accumulator = { version = "3.0.0-rc3", path = "../accumulator", default-features
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
-
 [lib]
 name = "subber"
 path = "lib.rs"

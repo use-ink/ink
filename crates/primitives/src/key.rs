@@ -169,7 +169,7 @@ impl scale::Decode for Key {
 impl Key {
     /// Returns the bytes that are representing the key.
     #[inline]
-    pub fn to_bytes(&self) -> [u8; 32] {
+    pub fn to_bytes(self) -> [u8; 32] {
         if cfg!(target_endian = "little") {
             // SAFETY: This pointer cast is possible since the outer struct
             //         (Key) is `repr(transparent)` and since we restrict
@@ -183,7 +183,7 @@ impl Key {
     }
 
     /// Fallback big-endian procedure to return the underlying bytes of `self`.
-    fn to_bytes_be_fallback(&self) -> [u8; 32] {
+    fn to_bytes_be_fallback(self) -> [u8; 32] {
         let mut result = [0x00; 32];
         for i in 0..4 {
             let o = i * 8;
@@ -202,7 +202,7 @@ impl Add<u64> for Key {
     }
 }
 
-impl<'a> Add<u64> for &'a Key {
+impl Add<u64> for &Key {
     type Output = Key;
 
     fn add(self, rhs: u64) -> Self::Output {
@@ -210,19 +210,19 @@ impl<'a> Add<u64> for &'a Key {
     }
 }
 
-impl<'a> Add<&'a u64> for Key {
+impl Add<&u64> for Key {
     type Output = Key;
 
-    fn add(self, rhs: &'a u64) -> Self::Output {
+    fn add(self, rhs: &u64) -> Self::Output {
         <Key as Add<u64>>::add(self, *rhs)
     }
 }
 
-impl<'a, 'b> Add<&'b u64> for &'a Key {
+impl Add<&u64> for &Key {
     type Output = Key;
 
-    fn add(self, rhs: &'b u64) -> Self::Output {
-        <&'a Key as Add<u64>>::add(self, *rhs)
+    fn add(self, rhs: &u64) -> Self::Output {
+        <&Key as Add<u64>>::add(self, *rhs)
     }
 }
 
