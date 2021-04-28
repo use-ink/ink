@@ -228,7 +228,7 @@ where
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
             .engine
-            .count_used_storage_cells(scale::Encode::encode(&account_id))
+            .count_used_storage_cells(&scale::Encode::encode(&account_id))
             .map_err(Into::into)
     })
 }
