@@ -56,7 +56,7 @@ impl CryptoHash for Blake2x128 {
             <Blake2x128 as HashOutput>::Type,
             OutputType
         );
-        let output: &mut <Blake2x128 as HashOutput>::Type =
+        let output: &mut OutputType =
             arrayref::array_mut_ref!(output, 0, 16);
         Engine::hash_blake2_128(input, output);
     }
