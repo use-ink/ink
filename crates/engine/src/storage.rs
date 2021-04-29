@@ -17,6 +17,7 @@ use scale::KeyedVec;
 use std::collections::HashMap;
 
 const BALANCE_OF: &[u8] = b"balance:";
+const STORAGE_OF: &[u8] = b"contract-storage:";
 
 /// Returns the storage key under which to find the balance for account `who`.
 pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
@@ -26,7 +27,18 @@ pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
     hashed_key
 }
 
-/// Provides the storage backend.
+/// Returns the storage key under which to find the balance for account `who`.
+pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
+    let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
+
+/// The chain storage.
+///
+/// Everything is stored in here: accounts, balances, contract storage, etc..
+/// Just like in Substrate a prefix hash is computed for every contract.
 #[derive(Default)]
 pub struct Storage {
     hmap: HashMap<Vec<u8>, Vec<u8>>,
@@ -41,13 +53,45 @@ impl Storage {
     }
 
     /// Returns the amount of entries in the storage.
-    pub fn len(&self) -> usize {
+    #[cfg(test)]
+    fn len(&self) -> usize {
         self.hmap.len()
     }
 
     /// Returns a reference to the value corresponding to the key.
-    pub fn get(&self, key: &[u8]) -> Option<&Vec<u8>> {
+    fn get(&self, key: &[u8]) -> Option<&Vec<u8>> {
         self.hmap.get(key)
+    }
+
+    /// Returns a reference to the value corresponding to the key.
+    pub fn get_from_contract_storage(
+        &self,
+        account_id: &[u8],
+        key: &[u8],
+    ) -> Option<&Vec<u8>> {
+        let hashed_key = storage_of_contract_key(&account_id, key);
+        self.hmap.get(&hashed_key.to_vec())
+    }
+
+    /// Inserts `value` into the contract storage of `account_id` at storage key `key`.
+    pub fn insert_into_contract_storage(
+        &mut self,
+        account_id: &[u8],
+        key: &[u8],
+        value: Vec<u8>,
+    ) -> Option<Vec<u8>> {
+        let hashed_key = storage_of_contract_key(&account_id, key);
+        self.hmap.insert(hashed_key.to_vec(), value)
+    }
+
+    /// Removes the value at the contract storage of `account_id` at storage key `key`.
+    pub fn remove_contract_storage(
+        &mut self,
+        account_id: &[u8],
+        key: &[u8],
+    ) -> Option<Vec<u8>> {
+        let hashed_key = storage_of_contract_key(&account_id, key);
+        self.hmap.remove(&hashed_key.to_vec())
     }
 
     /// Removes a key from the storage, returning the value at the key if the key
@@ -113,6 +157,51 @@ mod tests {
         assert_eq!(storage.remove(&key2), Some(val3));
         assert_eq!(storage.len(), 1);
         storage.clear();
+        assert_eq!(storage.len(), 0);
+    }
+
+    #[test]
+    fn contract_storage() {
+        let account_id = vec![1; 32];
+        let mut storage = Storage::new();
+        let key1 = vec![42];
+        let key2 = vec![43];
+        let val1 = vec![44];
+        let val2 = vec![45];
+        let val3 = vec![46];
+
+        assert_eq!(storage.len(), 0);
+        assert_eq!(storage.get_from_contract_storage(&account_id, &key1), None);
+        assert_eq!(
+            storage.insert_into_contract_storage(&account_id, &key1, val1.clone()),
+            None
+        );
+        assert_eq!(
+            storage.get_from_contract_storage(&account_id, &key1),
+            Some(&val1)
+        );
+        assert_eq!(
+            storage.insert_into_contract_storage(&account_id, &key1, val2.clone()),
+            Some(val1.clone())
+        );
+        assert_eq!(
+            storage.get_from_contract_storage(&account_id, &key1),
+            Some(&val2)
+        );
+        assert_eq!(
+            storage.insert_into_contract_storage(&account_id, &key2, val3.clone()),
+            None
+        );
+        assert_eq!(storage.len(), 2);
+        assert_eq!(
+            storage.remove_contract_storage(&account_id, &key2),
+            Some(val3)
+        );
+        assert_eq!(storage.len(), 1);
+        assert_eq!(
+            storage.remove_contract_storage(&account_id, &key1),
+            Some(val2)
+        );
         assert_eq!(storage.len(), 0);
     }
 }

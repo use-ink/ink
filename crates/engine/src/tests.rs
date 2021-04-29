@@ -31,6 +31,7 @@ fn get_buffer() -> [u8; 1024] {
 #[test]
 fn store_load_clear() {
     let mut engine = Engine::new();
+    engine.set_callee(vec![1; 32]);
     let key: &[u8; 32] = &[0x42; 32];
     let output = &mut &mut get_buffer()[..];
     let res = engine.get_storage(key, output);
@@ -179,6 +180,7 @@ fn value_transferred() {
 fn must_panic_when_buffer_too_small() {
     // given
     let mut engine = Engine::new();
+    engine.set_callee(vec![1; 32]);
     let key: &[u8; 32] = &[0x42; 32];
     engine.set_storage(key, &[0x05_u8; 16]);
 

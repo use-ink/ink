@@ -129,6 +129,9 @@ impl DebugInfo {
     }
 
     /// Records that a cell exists for an account under `key`.
+    ///
+    /// Calling this function multiple times won't change the fact that only
+    /// one cell is recorded.
     pub fn record_cell_for_account(&mut self, account_id: AccountId, key: Vec<u8>) {
         self.cells_per_account
             .entry(account_id)
@@ -184,13 +187,13 @@ impl Engine {
     }
 
     /// Sets a caller for the next call.
-    pub fn set_caller(&mut self, output: Vec<u8>) {
-        self.exec_context.caller = Some(output.into());
+    pub fn set_caller(&mut self, caller: Vec<u8>) {
+        self.exec_context.caller = Some(caller.into());
     }
 
     /// Sets the callee for the next call.
-    pub fn set_callee(&mut self, output: Vec<u8>) {
-        self.exec_context.callee = Some(output.into());
+    pub fn set_callee(&mut self, callee: Vec<u8>) {
+        self.exec_context.callee = Some(callee.into());
     }
 
     /// Returns the amount of storage cells used by the account `account_id`.
