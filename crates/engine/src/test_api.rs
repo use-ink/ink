@@ -164,7 +164,6 @@ impl Engine {
     /// Resets the environment.
     pub fn initialize_or_reset(&mut self) {
         self.exec_context.reset();
-        self.balances.clear();
         self.storage.clear();
         self.debug_info.reset();
     }
@@ -216,22 +215,16 @@ impl Engine {
         self.debug_info.emitted_events.clone().into_iter()
     }
 
-    /// Sets the balance of `account_id` to `new_balance`.
-    pub fn set_balance(&mut self, account_id: Vec<u8>, new_balance: Balance) {
-        let account_id = AccountId::from(account_id);
-        self.balances
-            .entry(account_id)
-            .and_modify(|v| *v = new_balance)
-            .or_insert(new_balance);
-    }
-
     /// Returns the current balance of `account_id`.
     pub fn get_balance(&self, account_id: Vec<u8>) -> Result<Balance, Error> {
-        let acc = AccountId::from(account_id.clone());
-        self.balances
-            .get(&acc)
-            .copied()
+        self.storage
+            .get_balance(&account_id)
             .ok_or(Error::Account(AccountError::NoAccountForId(account_id)))
+    }
+
+    /// Sets the balance of `account_id` to `new_balance`.
+    pub fn set_balance(&mut self, account_id: Vec<u8>, new_balance: Balance) {
+        self.storage.set_balance(&account_id, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.

@@ -26,14 +26,10 @@ use crate::{
     },
     types::{
         AccountId,
-        Balance,
         Key,
     },
 };
-use std::{
-    collections::HashMap,
-    panic::panic_any,
-};
+use std::panic::panic_any;
 
 type Result = core::result::Result<(), Error>;
 
@@ -112,8 +108,6 @@ impl ReturnCode {
 pub struct Engine {
     /// The environment storage.
     pub storage: Storage,
-    /// Holds the balance of each account.
-    pub balances: HashMap<AccountId, Balance>,
     /// The current execution context.
     pub exec_context: ExecContext,
     /// Recorder for relevant interactions with the engine.
@@ -125,7 +119,6 @@ impl Engine {
     pub fn new() -> Self {
         Self {
             storage: Storage::new(),
-            balances: HashMap::new(),
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
         }
@@ -154,8 +147,10 @@ impl Engine {
             .get_balance(contract.clone())
             .map_err(|_| Error::TransferFailed)?;
 
-        self.set_balance(contract, contract_old_balance - increment);
-        self.set_balance(dest, dest_old_balance + increment);
+        self.storage
+            .set_balance(&contract, contract_old_balance - increment);
+        self.storage
+            .set_balance(&dest, dest_old_balance + increment);
         Ok(())
     }
 
@@ -268,11 +263,12 @@ impl Engine {
             .callee
             .as_ref()
             .expect("no callee has been set");
-        let balance: Vec<u8> = scale::Encode::encode(
-            self.balances
-                .get(&contract)
-                .expect("currently executing contract must exist"),
-        );
+
+        let balance_in_storage = self
+            .storage
+            .get_balance(&contract.as_bytes().to_vec())
+            .expect("currently executing contract must exist");
+        let balance = scale::Encode::encode(&balance_in_storage);
         set_output(output, &balance[..])
     }
 

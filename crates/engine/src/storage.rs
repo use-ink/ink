@@ -12,7 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::types::Balance;
+use scale::KeyedVec;
 use std::collections::HashMap;
+
+const BALANCE_OF: &[u8] = b"balance:";
+
+/// Returns the storage key under which to find the balance for account `who`.
+pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
+    let keyed = who.to_vec().to_keyed_vec(BALANCE_OF);
+    let mut hashed_key: [u8; 32] = [0; 32];
+    super::hashing::blake2b_256(&keyed[..], &mut hashed_key);
+    hashed_key
+}
 
 /// Provides the storage backend.
 #[derive(Default)]
@@ -52,6 +64,25 @@ impl Storage {
     /// Clears the storage, removing all key-value pairs.
     pub fn clear(&mut self) {
         self.hmap.clear();
+    }
+
+    /// Returns the balance of `account_id`, if available.
+    pub fn get_balance(&self, account_id: &[u8]) -> Option<Balance> {
+        let hashed_key = balance_of_key(&account_id);
+        self.get(&hashed_key).map(|encoded_balance| {
+            scale::Decode::decode(&mut &encoded_balance[..])
+                .expect("unable to decode balance from storage")
+        })
+    }
+
+    /// Sets the balance of `account_id` to `new_balance`.
+    pub fn set_balance(&mut self, account_id: &[u8], new_balance: Balance) {
+        let hashed_key = balance_of_key(&account_id);
+        let encoded_balance = scale::Encode::encode(&new_balance);
+        self.hmap
+            .entry(hashed_key.to_vec())
+            .and_modify(|v| *v = encoded_balance.clone())
+            .or_insert(encoded_balance);
     }
 }
 
