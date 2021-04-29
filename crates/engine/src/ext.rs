@@ -199,7 +199,8 @@ impl Engine {
         if self.exec_context.callee.is_some() {
             let account_id = AccountId::from_bytes(&self.get_callee()[..]);
             self.debug_info.inc_writes(account_id.clone());
-            self.debug_info
+            let _ = self
+                .debug_info
                 .remove_cell_for_account(account_id, key.to_vec());
         }
 

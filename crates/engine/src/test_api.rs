@@ -143,10 +143,17 @@ impl DebugInfo {
     }
 
     /// Removes the cell under `key` for the supplied account.
-    pub fn remove_cell_for_account(&mut self, account_id: AccountId, key: Vec<u8>) {
-        self.cells_per_account.entry(account_id).and_modify(|hm| {
-            let _ = hm.remove(&key).expect("cell must exist for account");
-        });
+    ///
+    /// Returns the removed cell, if there was one.
+    pub fn remove_cell_for_account(
+        &mut self,
+        account_id: AccountId,
+        key: Vec<u8>,
+    ) -> Option<bool> {
+        self.cells_per_account
+            .get_mut(&account_id)
+            .map(|hm| hm.remove(&key))
+            .unwrap_or(None)
     }
 
     /// Records a println.
