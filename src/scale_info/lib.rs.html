@@ -1,0 +1,311 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.6.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
+
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
+<span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
+
+<span class="doccomment">//! Efficient and space-efficient serialization of Rust types.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library provides structures to easily retrieve compile-time type</span>
+<span class="doccomment">//! information at runtime and also to serialize this information in a</span>
+<span class="doccomment">//! space-efficient form, aka `PortableForm`.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Registry</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! At the heart of its functionality is the [`Registry`](`crate::Registry`)</span>
+<span class="doccomment">//! that acts as a cache for known types in order to efficiently deduplicate</span>
+<span class="doccomment">//! types and ensure a space-efficient serialization.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Type Information</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Information about types is provided via the [`TypeInfo`](`crate::TypeInfo`)</span>
+<span class="doccomment">//! trait.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This trait should be implemented for all types that are serializable.</span>
+<span class="doccomment">//! `scale-info` provides implementations for all commonly used Rust standard</span>
+<span class="doccomment">//! types and a derive macro for implementing of custom types.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Forms</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To bridge between compile-time type information and runtime the</span>
+<span class="doccomment">//! [`MetaForm`](`crate::form::MetaForm`) is used to easily retrieve all</span>
+<span class="doccomment">//! information needed to uniquely identify types.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The `MetaForm` and its associated `Registry` can be transformed into the</span>
+<span class="doccomment">//! space-efficient form by the [`IntoPortable`](`crate::IntoPortable`) trait; it is</span>
+<span class="doccomment">//! used internally by the [`Registry`](`crate::Registry`) in order to convert</span>
+<span class="doccomment">//! the expanded types into their space-efficient form.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Symbols and Namespaces</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To differentiate two types sharing the same name, namespaces are used.</span>
+<span class="doccomment">//! Commonly the namespace is equal to the one where the type has been defined</span>
+<span class="doccomment">//! in. For Rust prelude types such as [`Option`](`std::option::Option`) and</span>
+<span class="doccomment">//! [`Result`](`std::result::Result`) the root namespace (empty namespace) is</span>
+<span class="doccomment">//! used.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To use this library simply use the [`MetaForm`](`crate::form::MetaForm`)</span>
+<span class="doccomment">//! initially with your own data structures; make them generic over the</span>
+<span class="doccomment">//! [`Form`](`crate::form::Form`) trait just as has been done in this crate with</span>
+<span class="doccomment">//! [`TypeInfo`](`crate::TypeInfo`) in order to get a simple implementation of</span>
+<span class="doccomment">//! [`IntoPortable`](`crate::IntoPortable`). Use a single instance of the</span>
+<span class="doccomment">//! [`Registry`](`crate::Registry`) for compaction and provide this registry</span>
+<span class="doccomment">//! instance upon serialization.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A usage example can be found in ink! here:</span>
+<span class="doccomment">//! https://github.com/paritytech/ink/blob/master/abi/src/specs.rs</span>
+
+<span class="doccomment">/// Takes a number of types and returns a vector that contains their respective</span>
+<span class="doccomment">/// [`MetaType`](`crate::MetaType`) instances.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is useful for places that require inputs of iterators over [`MetaType`](`crate::MetaType`)</span>
+<span class="doccomment">/// instances and provide a way out of code bloat in these scenarious.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use scale_info::tuple_meta_type;</span>
+<span class="doccomment">/// assert_eq!(</span>
+<span class="doccomment">///     tuple_meta_type!(i32, [u8; 32], String),</span>
+<span class="doccomment">///     {</span>
+<span class="doccomment">///         use scale_info::MetaType;</span>
+<span class="doccomment">///         let mut vec = Vec::new();</span>
+<span class="doccomment">///         vec.push(MetaType::new::&lt;i32&gt;());</span>
+<span class="doccomment">///         vec.push(MetaType::new::&lt;[u8; 32]&gt;());</span>
+<span class="doccomment">///         vec.push(MetaType::new::&lt;String&gt;());</span>
+<span class="doccomment">///         vec</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// );</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">tuple_meta_type</span> {
+    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
+        {
+            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::prelude::vec!</span>[
+                $(
+                    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::MetaType::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
+                )<span class="op">*</span>
+            ]
+        }
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">build</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">form</span>;
+<span class="kw">mod</span> <span class="ident">impls</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">interner</span>;
+<span class="kw">mod</span> <span class="ident">meta_type</span>;
+<span class="kw">mod</span> <span class="ident">registry</span>;
+<span class="kw">mod</span> <span class="ident">ty</span>;
+<span class="kw">mod</span> <span class="ident">utils</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">meta_type::MetaType</span>,
+    <span class="ident">registry</span>::{
+        <span class="ident">IntoPortable</span>,
+        <span class="ident">PortableRegistry</span>,
+        <span class="ident">Registry</span>,
+    },
+    <span class="ident">ty</span>::<span class="kw-2">*</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">scale_info_derive::TypeInfo</span>;
+
+<span class="doccomment">/// Implementors return their meta type information.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TypeInfo</span> {
+    <span class="doccomment">/// The type identifying for which type info is provided.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is used to uniquely identify a type via [`core::any::TypeId::of`]. In most cases it</span>
+    <span class="doccomment">/// will just be `Self`, but can be used to unify different types which have the same encoded</span>
+    <span class="doccomment">/// representation e.g. reference types `Box&lt;T&gt;`, `&amp;T` and `&amp;mut T`.</span>
+    <span class="kw">type</span> <span class="ident">Identity</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
+
+    <span class="doccomment">/// Returns the static type identifier for `Self`.</span>
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span>;
+}
+
+<span class="doccomment">/// Returns the runtime bridge to the types compile-time type information.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meta_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaType</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Builders for defining metadata for variant types (enums), and composite types (structs). They are designed to allow only construction of valid definitions."><meta name="keywords" content="rust, rustlang, rust-lang, build"><title>scale_info::build - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module build</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class="location"><a href="../index.html">scale_info</a></p><div id="sidebar-vars" data-name="build" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../index.html">scale_info</a>::<wbr><a class="mod" href="">build</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/scale_info/build.rs.html#15-360" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Builders for defining metadata for variant types (enums), and composite types (structs).
+They are designed to allow only construction of valid definitions.</p>
+<p>In most cases we recommend using the <code>scale-info-derive</code> crate to auto generate the builder
+constructions.</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="generic-struct" class="section-header"><a href="#generic-struct">Generic struct</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">struct</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">bar</span>: <span class="ident">T</span>,
+    <span class="ident">data</span>: <span class="ident">u64</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
+            .<span class="ident">type_params</span>(<span class="macro">vec!</span>[<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()])
+            .<span class="ident">composite</span>(<span class="ident">Fields::named</span>()
+                .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;T&quot;</span>)
+                .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;u64&quot;</span>)
+            )
+    }
+}</pre></div>
+<h2 id="tuple-struct" class="section-header"><a href="#tuple-struct">Tuple struct</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">u32</span>, <span class="ident">bool</span>);
+
+<span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span> {
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
+            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>()
+                .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;u32&quot;</span>)
+                .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>(<span class="string">&quot;bool&quot;</span>)
+            )
+    }
+}</pre></div>
+<h2 id="enum-with-fields" class="section-header"><a href="#enum-with-fields">Enum with fields</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">enum</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>{
+    <span class="ident">A</span>(<span class="ident">T</span>),
+    <span class="ident">B</span> { <span class="ident">f</span>: <span class="ident">u32</span> },
+    <span class="ident">C</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
+               .<span class="ident">type_params</span>(<span class="macro">vec!</span>[<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()])
+            .<span class="ident">variant</span>(
+                <span class="ident">Variants::with_fields</span>()
+                    .<span class="ident">variant</span>(<span class="string">&quot;A&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>))
+                    .<span class="ident">variant</span>(<span class="string">&quot;B&quot;</span>, <span class="ident">Fields::named</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="string">&quot;f&quot;</span>, <span class="string">&quot;u32&quot;</span>))
+                    .<span class="ident">variant</span>(<span class="string">&quot;C&quot;</span>, <span class="ident">Fields::unit</span>())
+            )
+    }
+}</pre></div>
+<h2 id="enum-without-fields" class="section-header"><a href="#enum-without-fields">Enum without fields</a></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">enum</span> <span class="ident">Foo</span> {
+    <span class="ident">A</span>,
+    <span class="ident">B</span>,
+    <span class="ident">C</span> <span class="op">=</span> <span class="number">33</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span> {
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
+            .<span class="ident">variant</span>(
+                <span class="ident">Variants::fieldless</span>()
+                    .<span class="ident">variant</span>(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>)
+                    .<span class="ident">variant</span>(<span class="string">&quot;B&quot;</span>, <span class="number">2</span>)
+                    .<span class="ident">variant</span>(<span class="string">&quot;C&quot;</span>, <span class="number">33</span>)
+            )
+    }
+}</pre></div>
+</div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="state/index.html" title="scale_info::build::state mod">state</a></td><td class="docblock-short"><p>State types for type builders which require a Path</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.FieldsBuilder.html" title="scale_info::build::FieldsBuilder struct">FieldsBuilder</a></td><td class="docblock-short"><p>Build a set of either all named (e.g. for a struct) or all unnamed (e.g. for a tuple struct)</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeBuilder.html" title="scale_info::build::TypeBuilder struct">TypeBuilder</a></td><td class="docblock-short"><p>Builds a <a href="../struct.Type.html"><code>Type</code></a></p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.VariantsBuilder.html" title="scale_info::build::VariantsBuilder struct">VariantsBuilder</a></td><td class="docblock-short"><p>Builds a definition of a variant type i.e an <code>enum</code></p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.Fieldless.html" title="scale_info::build::Fieldless enum">Fieldless</a></td><td class="docblock-short"><p>Build a type where <em>all</em> variants have no fields and the discriminant can
+be directly chosen or accessed</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.Fields.html" title="scale_info::build::Fields enum">Fields</a></td><td class="docblock-short"><p>Provides FieldsBuilder constructors</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.NamedFields.html" title="scale_info::build::NamedFields enum">NamedFields</a></td><td class="docblock-short"><p>A fields builder only allows named fields (e.g. a struct)</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.NoFields.html" title="scale_info::build::NoFields enum">NoFields</a></td><td class="docblock-short"><p>A fields builder has no fields (e.g. a unit struct)</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.NoVariants.html" title="scale_info::build::NoVariants enum">NoVariants</a></td><td class="docblock-short"><p>Build a type with no variants.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.UnnamedFields.html" title="scale_info::build::UnnamedFields enum">UnnamedFields</a></td><td class="docblock-short"><p>A fields builder only allows unnamed fields (e.g. a tuple)</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.VariantFields.html" title="scale_info::build::VariantFields enum">VariantFields</a></td><td class="docblock-short"><p>Build a type where at least one variant has fields.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.Variants.html" title="scale_info::build::Variants enum">Variants</a></td><td class="docblock-short"><p>Empty enum for VariantsBuilder constructors for the type builder DSL.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script></body></html>

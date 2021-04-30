@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MetaForm","A meta meta-type."],["PortableForm","Portable form that has its lifetime untracked in association to its interner."]],"trait":[["Form","Trait to control the internal structures of type definitions."]]});

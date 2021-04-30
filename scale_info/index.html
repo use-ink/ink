@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Efficient and space-efficient serialization of Rust types."><meta name="keywords" content="rust, rustlang, rust-lang, scale_info"><title>scale_info - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../scale_info/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><p class="location">Crate scale_info</p><div class="block version"><p>Version 0.6.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all scale_info's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"></p><div id="sidebar-vars" data-name="scale_info" data-ty="mod" data-relpath="../"></div></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="">scale_info</a><button id="copy-path" onclick="copy_path(this)">⎘</button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/scale_info/lib.rs.html#15-152" title="goto source code">[src]</a></span></h1><div class="docblock"><p>Efficient and space-efficient serialization of Rust types.</p>
+<p>This library provides structures to easily retrieve compile-time type
+information at runtime and also to serialize this information in a
+space-efficient form, aka <code>PortableForm</code>.</p>
+<h1 id="registry" class="section-header"><a href="#registry">Registry</a></h1>
+<p>At the heart of its functionality is the <a href="struct.Registry.html"><code>Registry</code></a>
+that acts as a cache for known types in order to efficiently deduplicate
+types and ensure a space-efficient serialization.</p>
+<h1 id="type-information" class="section-header"><a href="#type-information">Type Information</a></h1>
+<p>Information about types is provided via the <a href="trait.TypeInfo.html"><code>TypeInfo</code></a>
+trait.</p>
+<p>This trait should be implemented for all types that are serializable.
+<code>scale-info</code> provides implementations for all commonly used Rust standard
+types and a derive macro for implementing of custom types.</p>
+<h1 id="forms" class="section-header"><a href="#forms">Forms</a></h1>
+<p>To bridge between compile-time type information and runtime the
+<a href="form/enum.MetaForm.html"><code>MetaForm</code></a> is used to easily retrieve all
+information needed to uniquely identify types.</p>
+<p>The <code>MetaForm</code> and its associated <code>Registry</code> can be transformed into the
+space-efficient form by the <a href="trait.IntoPortable.html"><code>IntoPortable</code></a> trait; it is
+used internally by the <a href="struct.Registry.html"><code>Registry</code></a> in order to convert
+the expanded types into their space-efficient form.</p>
+<h1 id="symbols-and-namespaces" class="section-header"><a href="#symbols-and-namespaces">Symbols and Namespaces</a></h1>
+<p>To differentiate two types sharing the same name, namespaces are used.
+Commonly the namespace is equal to the one where the type has been defined
+in. For Rust prelude types such as <a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html"><code>Option</code></a> and
+<a href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html"><code>Result</code></a> the root namespace (empty namespace) is
+used.</p>
+<p>To use this library simply use the <a href="form/enum.MetaForm.html"><code>MetaForm</code></a>
+initially with your own data structures; make them generic over the
+<a href="form/trait.Form.html"><code>Form</code></a> trait just as has been done in this crate with
+<a href="trait.TypeInfo.html"><code>TypeInfo</code></a> in order to get a simple implementation of
+<a href="trait.IntoPortable.html"><code>IntoPortable</code></a>. Use a single instance of the
+<a href="struct.Registry.html"><code>Registry</code></a> for compaction and provide this registry
+instance upon serialization.</p>
+<p>A usage example can be found in ink! here:
+https://github.com/paritytech/ink/blob/master/abi/src/specs.rs</p>
+</div><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="build/index.html" title="scale_info::build mod">build</a></td><td class="docblock-short"><p>Builders for defining metadata for variant types (enums), and composite types (structs).
+They are designed to allow only construction of valid definitions.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="form/index.html" title="scale_info::form mod">form</a></td><td class="docblock-short"><p>Provides form definitions.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="interner/index.html" title="scale_info::interner mod">interner</a></td><td class="docblock-short"><p>Interning data structure and associated symbol definitions.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="prelude/index.html" title="scale_info::prelude mod">prelude</a></td><td class="docblock-short"><p>Exports from <code>std</code>, <code>core</code> and <code>alloc</code> crates.</p>
+</td></tr></table><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<table><tr class="module-item"><td><a class="macro" href="macro.tuple_meta_type.html" title="scale_info::tuple_meta_type macro">tuple_meta_type</a></td><td class="docblock-short"><p>Takes a number of types and returns a vector that contains their respective
+<a href="struct.MetaType.html"><code>MetaType</code></a> instances.</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Field.html" title="scale_info::Field struct">Field</a></td><td class="docblock-short"><p>A field of a struct-like data type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MetaType.html" title="scale_info::MetaType struct">MetaType</a></td><td class="docblock-short"><p>A metatype abstraction.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Path.html" title="scale_info::Path struct">Path</a></td><td class="docblock-short"><p>Represents the path of a type definition.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.PortableRegistry.html" title="scale_info::PortableRegistry struct">PortableRegistry</a></td><td class="docblock-short"><p>A read-only registry containing types in their portable form for serialization.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Registry.html" title="scale_info::Registry struct">Registry</a></td><td class="docblock-short"><p>The registry for space-efficient storage of type identifiers and
+definitions.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Type.html" title="scale_info::Type struct">Type</a></td><td class="docblock-short"><p>A <a href="struct.Type.html" title="Type"><code>Type</code></a> definition with optional metadata.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefArray.html" title="scale_info::TypeDefArray struct">TypeDefArray</a></td><td class="docblock-short"><p>An array type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefCompact.html" title="scale_info::TypeDefCompact struct">TypeDefCompact</a></td><td class="docblock-short"><p>A type wrapped in [<code>Compact</code>].</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefComposite.html" title="scale_info::TypeDefComposite struct">TypeDefComposite</a></td><td class="docblock-short"><p>A composite type, consisting of either named (struct) or unnamed (tuple
+struct) fields</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefPhantom.html" title="scale_info::TypeDefPhantom struct">TypeDefPhantom</a></td><td class="docblock-short"><p>A type describing a <code>PhantomData&lt;T&gt;</code> type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefSequence.html" title="scale_info::TypeDefSequence struct">TypeDefSequence</a></td><td class="docblock-short"><p>A type to refer to a sequence of elements of the same type.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefTuple.html" title="scale_info::TypeDefTuple struct">TypeDefTuple</a></td><td class="docblock-short"><p>A type to refer to tuple types.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TypeDefVariant.html" title="scale_info::TypeDefVariant struct">TypeDefVariant</a></td><td class="docblock-short"><p>A Enum type (consisting of variants).</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Variant.html" title="scale_info::Variant struct">Variant</a></td><td class="docblock-short"><p>A struct enum variant with either named (struct) or unnamed (tuple struct)
+fields.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.PathError.html" title="scale_info::PathError enum">PathError</a></td><td class="docblock-short"><p>An error that may be encountered upon constructing namespaces.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.TypeDef.html" title="scale_info::TypeDef enum">TypeDef</a></td><td class="docblock-short"><p>The possible types a SCALE encodable Rust value could have.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.TypeDefPrimitive.html" title="scale_info::TypeDefPrimitive enum">TypeDefPrimitive</a></td><td class="docblock-short"><p>A primitive Rust type.</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.IntoPortable.html" title="scale_info::IntoPortable trait">IntoPortable</a></td><td class="docblock-short"><p>Convert the type definition into the portable form using a registry.</p>
+</td></tr><tr class="module-item"><td><a class="trait" href="trait.TypeInfo.html" title="scale_info::TypeInfo trait">TypeInfo</a></td><td class="docblock-short"><p>Implementors return their meta type information.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.meta_type.html" title="scale_info::meta_type fn">meta_type</a></td><td class="docblock-short"><p>Returns the runtime bridge to the types compile-time type information.</p>
+</td></tr></table><h2 id="derives" class="section-header"><a href="#derives">Derive Macros</a></h2>
+<table><tr class="module-item"><td><a class="derive" href="derive.TypeInfo.html" title="scale_info::TypeInfo derive">TypeInfo</a></td><td class="docblock-short"></td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="scale_info" data-search-index-js="../search-index.js" data-search-js="../search.js"></div>
+    <script src="../main.js"></script></body></html>

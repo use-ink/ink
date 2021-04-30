@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BinaryHeap","A priority queue implemented with a binary heap."],["Iter","An iterator over shared references to the elements of the `BinaryHeap`."],["PeekMut","Structure wrapping a mutable reference to the greatest item on a [`BinaryHeap`]."],["Reverse","Wrapper for [`core::cmp::Reverse`] for using a `BinaryHeap` as a min-heap."]]});

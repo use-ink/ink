@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-0.6.0/src/form.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>form.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="comment">// you may not use this file except in compliance with the License.</span>
+<span class="comment">// You may obtain a copy of the License at</span>
+<span class="comment">//</span>
+<span class="comment">//     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="comment">//</span>
+<span class="comment">// Unless required by applicable law or agreed to in writing, software</span>
+<span class="comment">// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="comment">// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="comment">// See the License for the specific language governing permissions and</span>
+<span class="comment">// limitations under the License.</span>
+
+<span class="doccomment">//! Provides form definitions.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The forms provided here are used to generically communicate the mode a type</span>
+<span class="doccomment">//! identifier, type definition or structure is using.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The default form is the `MetaForm`.</span>
+<span class="doccomment">//! It uses `MetaType` for communicating type identifiers and thus acts as</span>
+<span class="doccomment">//! a bridge from runtime to compile time type information.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The `PortableForm` is a space-efficient representation</span>
+<span class="doccomment">//! that no longer has any connections to the interning registry and thus</span>
+<span class="doccomment">//! can no longer be used to retrieve information from the</span>
+<span class="doccomment">//! original registry. Its sole purpose is for space-efficient serialization.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Other forms, such as a portable form that is still bound to the registry</span>
+<span class="doccomment">//! (also via lifetime tracking) are possible but current not needed.</span>
+
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+    <span class="ident">any::TypeId</span>,
+    <span class="ident">fmt::Debug</span>,
+};
+
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">interner::UntrackedSymbol</span>,
+    <span class="ident">meta_type::MetaType</span>,
+};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+
+<span class="doccomment">/// Trait to control the internal structures of type definitions.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This allows for type-level separation between free forms that can be</span>
+<span class="doccomment">/// instantiated out of the flux and portable forms that require some sort of</span>
+<span class="doccomment">/// interning data structures.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Form</span> {
+    <span class="doccomment">/// The type representing the type.</span>
+    <span class="kw">type</span> <span class="ident">Type</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Debug</span>;
+    <span class="doccomment">/// The string type.</span>
+    <span class="kw">type</span> <span class="ident">String</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Debug</span>;
+}
+
+<span class="doccomment">/// A meta meta-type.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Allows to be converted into other forms such as portable form</span>
+<span class="doccomment">/// through the registry and `IntoPortable`.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MetaForm</span> {}
+
+<span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">MetaForm</span> {
+    <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">MetaType</span>;
+    <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+}
+
+<span class="doccomment">/// Portable form that has its lifetime untracked in association to its interner.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This resolves some lifetime issues with self-referential structs (such as</span>
+<span class="doccomment">/// the registry itself) but can no longer be used to resolve to the original</span>
+<span class="doccomment">/// underlying data.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PortableForm</span> {}
+
+<span class="macro">cfg_if::cfg_if!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>))]</span> {
+        <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {
+            <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>;
+            <span class="comment">// Owned string required for decoding/deserialization</span>
+            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::prelude::string::String</span>;
+        }
+    } <span class="kw">else</span> {
+        <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {
+            <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>;
+            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+        }
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
