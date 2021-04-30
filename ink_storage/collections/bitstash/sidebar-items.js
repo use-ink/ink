@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["BitStash","A stash for bits operating on the contract storage."]]});

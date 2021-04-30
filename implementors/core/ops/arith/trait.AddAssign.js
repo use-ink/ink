@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["ink_primitives"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/arith/trait.AddAssign.html\" title=\"trait core::ops::arith::AddAssign\">AddAssign</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.u64.html\">u64</a>&gt; for <a class=\"struct\" href=\"ink_primitives/struct.Key.html\" title=\"struct ink_primitives::Key\">Key</a>","synthetic":false,"types":["ink_primitives::key::Key"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

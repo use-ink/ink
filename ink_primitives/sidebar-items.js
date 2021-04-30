@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Key","Key into contract storage."],["KeyPtr","A key pointer."]]});
