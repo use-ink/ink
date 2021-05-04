@@ -40,7 +40,7 @@ impl AccountId {
     }
 }
 
-/// Key into the contract storage.
+/// Key into the database.
 ///
 /// Used to identify contract storage cells for read and write operations.
 #[derive(Default, From, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

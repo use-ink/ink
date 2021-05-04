@@ -174,7 +174,7 @@ impl Engine {
     /// Resets the environment.
     pub fn initialize_or_reset(&mut self) {
         self.exec_context.reset();
-        self.storage.clear();
+        self.database.clear();
         self.debug_info.reset();
     }
 
@@ -200,14 +200,14 @@ impl Engine {
     ///
     /// Returns `None` if the `account_id` is non-existent.
     pub fn count_used_storage_cells(&self, account_id: &[u8]) -> Result<usize, Error> {
-        let x = self
+        let cells = self
             .debug_info
             .cells_per_account
             .get(&account_id.to_owned().into())
             .ok_or_else(|| {
                 Error::Account(AccountError::NoAccountForId(account_id.to_vec()))
             })?;
-        Ok(x.len())
+        Ok(cells.len())
     }
 
     /// Returns the callee, i.e. the currently executing contract.
@@ -227,14 +227,14 @@ impl Engine {
 
     /// Returns the current balance of `account_id`.
     pub fn get_balance(&self, account_id: Vec<u8>) -> Result<Balance, Error> {
-        self.storage
+        self.database
             .get_balance(&account_id)
             .ok_or(Error::Account(AccountError::NoAccountForId(account_id)))
     }
 
     /// Sets the balance of `account_id` to `new_balance`.
     pub fn set_balance(&mut self, account_id: Vec<u8>, new_balance: Balance) {
-        self.storage.set_balance(&account_id, new_balance);
+        self.database.set_balance(&account_id, new_balance);
     }
 
     /// Sets the value transferred from the caller to the callee as part of the call.

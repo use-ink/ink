@@ -18,8 +18,8 @@
 //! for more information.
 
 use crate::{
+    database::Database,
     exec_context::ExecContext,
-    storage::Storage,
     test_api::{
         DebugInfo,
         EmittedEvent,
@@ -106,11 +106,13 @@ impl ReturnCode {
 
 /// The off-chain engine.
 pub struct Engine {
-    /// The environment storage.
-    pub storage: Storage,
+    /// The environment database.
+    pub database: Database,
     /// The current execution context.
     pub exec_context: ExecContext,
     /// Recorder for relevant interactions with the engine.
+    /// This is specifically about debug info. This info is
+    /// not available in the `contracts` pallet.
     pub(crate) debug_info: DebugInfo,
 }
 
@@ -118,7 +120,7 @@ impl Engine {
     // Creates a new `Engine instance.
     pub fn new() -> Self {
         Self {
-            storage: Storage::new(),
+            database: Database::new(),
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
         }
@@ -147,9 +149,9 @@ impl Engine {
             .get_balance(contract.clone())
             .map_err(|_| Error::TransferFailed)?;
 
-        self.storage
+        self.database
             .set_balance(&contract, contract_old_balance - increment);
-        self.storage
+        self.database
             .set_balance(&dest, dest_old_balance + increment);
         Ok(())
     }
@@ -181,7 +183,7 @@ impl Engine {
         });
     }
 
-    /// Writes the encoded value into the contract storage at the given key.
+    /// Writes the encoded value into the storage at the given key.
     pub fn set_storage(&mut self, key: &[u8; 32], encoded_value: &[u8]) {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
@@ -191,20 +193,20 @@ impl Engine {
             .record_cell_for_account(account_id, key.to_vec());
 
         // We ignore if storage is already set for this key
-        let _ = self.storage.insert_into_contract_storage(
+        let _ = self.database.insert_into_contract_storage(
             &callee,
             key,
             encoded_value.to_vec(),
         );
     }
 
-    /// Returns the decoded storage at the key if any.
+    /// Returns the decoded contract storage at the key if any.
     pub fn get_storage(&mut self, key: &[u8; 32], output: &mut &mut [u8]) -> Result {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
 
         self.debug_info.inc_reads(account_id);
-        match self.storage.get_from_contract_storage(&callee, key) {
+        match self.database.get_from_contract_storage(&callee, key) {
             Some(val) => {
                 set_output(output, val);
                 Ok(())
@@ -213,7 +215,7 @@ impl Engine {
         }
     }
 
-    /// Removes the value from storage entries at the given key.
+    /// Removes the storage entries at the given key.
     pub fn clear_storage(&mut self, key: &[u8; 32]) {
         let callee = self.get_callee();
         let account_id = AccountId::from_bytes(&callee[..]);
@@ -221,7 +223,7 @@ impl Engine {
         let _ = self
             .debug_info
             .remove_cell_for_account(account_id, key.to_vec());
-        let _ = self.storage.remove_contract_storage(&callee, key);
+        let _ = self.database.remove_contract_storage(&callee, key);
     }
 
     /// Remove the calling account and transfer remaining balance.
@@ -267,7 +269,7 @@ impl Engine {
             .expect("no callee has been set");
 
         let balance_in_storage = self
-            .storage
+            .database
             .get_balance(&contract.as_bytes().to_vec())
             .expect("currently executing contract must exist");
         let balance = scale::Encode::encode(&balance_in_storage);

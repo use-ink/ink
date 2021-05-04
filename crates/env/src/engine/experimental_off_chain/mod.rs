@@ -16,6 +16,9 @@ mod impls;
 pub mod test_api;
 mod types;
 
+#[cfg(test)]
+mod tests;
+
 use super::OnInstance;
 use crate::Error;
 

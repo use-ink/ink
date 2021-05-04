@@ -15,9 +15,9 @@
 pub mod ext;
 pub mod test_api;
 
+mod database;
 mod exec_context;
 mod hashing;
-mod storage;
 mod types;
 
 #[cfg(test)]

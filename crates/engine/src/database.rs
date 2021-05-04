@@ -19,7 +19,7 @@ use std::collections::HashMap;
 const BALANCE_OF: &[u8] = b"balance:";
 const STORAGE_OF: &[u8] = b"contract-storage:";
 
-/// Returns the storage key under which to find the balance for account `who`.
+/// Returns the database key under which to find the balance for account `who`.
 pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
     let keyed = who.to_vec().to_keyed_vec(BALANCE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
@@ -27,7 +27,7 @@ pub fn balance_of_key(who: &[u8]) -> [u8; 32] {
     hashed_key
 }
 
-/// Returns the storage key under which to find the balance for account `who`.
+/// Returns the database key under which to find the balance for account `who`.
 pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
     let keyed = who.to_vec().to_keyed_vec(key).to_keyed_vec(STORAGE_OF);
     let mut hashed_key: [u8; 32] = [0; 32];
@@ -35,24 +35,24 @@ pub fn storage_of_contract_key(who: &[u8], key: &[u8]) -> [u8; 32] {
     hashed_key
 }
 
-/// The chain storage.
+/// The chain database.
 ///
 /// Everything is stored in here: accounts, balances, contract storage, etc..
 /// Just like in Substrate a prefix hash is computed for every contract.
 #[derive(Default)]
-pub struct Storage {
+pub struct Database {
     hmap: HashMap<Vec<u8>, Vec<u8>>,
 }
 
-impl Storage {
-    /// Creates a new storage instance.
+impl Database {
+    /// Creates a new database instance.
     pub fn new() -> Self {
-        Storage {
+        Database {
             hmap: HashMap::new(),
         }
     }
 
-    /// Returns the amount of entries in the storage.
+    /// Returns the amount of entries in the database.
     #[cfg(test)]
     fn len(&self) -> usize {
         self.hmap.len()
@@ -105,7 +105,7 @@ impl Storage {
         self.hmap.insert(key, value)
     }
 
-    /// Clears the storage, removing all key-value pairs.
+    /// Clears the database, removing all key-value pairs.
     pub fn clear(&mut self) {
         self.hmap.clear();
     }
@@ -115,7 +115,7 @@ impl Storage {
         let hashed_key = balance_of_key(&account_id);
         self.get(&hashed_key).map(|encoded_balance| {
             scale::Decode::decode(&mut &encoded_balance[..])
-                .expect("unable to decode balance from storage")
+                .expect("unable to decode balance from database")
         })
     }
 
@@ -132,38 +132,38 @@ impl Storage {
 
 #[cfg(test)]
 mod tests {
-    use super::Storage;
+    use super::Database;
 
     #[test]
     fn basic_operations() {
-        let mut storage = Storage::new();
+        let mut database = Database::new();
         let key1 = vec![42];
         let key2 = vec![43];
         let val1 = vec![44];
         let val2 = vec![45];
         let val3 = vec![46];
 
-        assert_eq!(storage.len(), 0);
-        assert_eq!(storage.get(&key1), None);
-        assert_eq!(storage.insert(key1.clone(), val1.clone()), None);
-        assert_eq!(storage.get(&key1), Some(&val1));
+        assert_eq!(database.len(), 0);
+        assert_eq!(database.get(&key1), None);
+        assert_eq!(database.insert(key1.clone(), val1.clone()), None);
+        assert_eq!(database.get(&key1), Some(&val1));
         assert_eq!(
-            storage.insert(key1.clone(), val2.clone()),
+            database.insert(key1.clone(), val2.clone()),
             Some(val1.clone())
         );
-        assert_eq!(storage.get(&key1), Some(&val2));
-        assert_eq!(storage.insert(key2.clone(), val3.clone()), None);
-        assert_eq!(storage.len(), 2);
-        assert_eq!(storage.remove(&key2), Some(val3));
-        assert_eq!(storage.len(), 1);
-        storage.clear();
-        assert_eq!(storage.len(), 0);
+        assert_eq!(database.get(&key1), Some(&val2));
+        assert_eq!(database.insert(key2.clone(), val3.clone()), None);
+        assert_eq!(database.len(), 2);
+        assert_eq!(database.remove(&key2), Some(val3));
+        assert_eq!(database.len(), 1);
+        database.clear();
+        assert_eq!(database.len(), 0);
     }
 
     #[test]
     fn contract_storage() {
         let account_id = vec![1; 32];
-        let mut storage = Storage::new();
+        let mut storage = Database::new();
         let key1 = vec![42];
         let key2 = vec![43];
         let val1 = vec![44];
