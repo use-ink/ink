@@ -30,7 +30,7 @@ use ink_storage::traits::SpreadLayout;
 /// Trait used to indicate that an ink! trait definition has been checked
 /// by the `#[ink::trait_definition]` proc. macro.
 #[doc(hidden)]
-pub unsafe trait CheckedInkTrait<T> {}
+pub unsafe trait TraitImplementer<const TRAIT_ID: u32> {}
 
 /// Trait used by `#[ink::trait_definition]` to ensure that the associated
 /// return type for each trait message is correct.
@@ -149,11 +149,11 @@ pub trait True {}
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
 #[doc(hidden)]
-pub struct ConcreteImplementers<E> {
+pub struct TraitCallForwarderRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
 
-unsafe impl<E, const N: usize> CheckedInkTrait<[(); N]> for ConcreteImplementers<E> {}
+unsafe impl<E, const N: u32> TraitImplementer<N> for TraitCallForwarderRegistry<E> {}
 
 /// The default type that ink! trait definition implementations use for the
 /// `__ink_DynamicCallForwarder` associated type.
