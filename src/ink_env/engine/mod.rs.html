@@ -44,6 +44,10 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -75,6 +79,10 @@
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> {
         <span class="kw">mod</span> <span class="ident">on_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::on_chain::EnvInstance</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span> {
+        <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">experimental_off_chain</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">experimental_off_chain</span> <span class="kw">as</span> <span class="ident">off_chain</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::experimental_off_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">off_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::off_chain::EnvInstance</span>;

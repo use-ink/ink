@@ -346,6 +346,7 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
+<span id="346">346</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -399,6 +400,7 @@
     }
 
     <span class="doccomment">/// Returns the underlying `u32` representation.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">value</span>
     }
