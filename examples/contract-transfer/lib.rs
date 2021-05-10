@@ -76,16 +76,25 @@ pub mod give_me {
                 })
         }
 
-        /// Returns `true` if the token amount which the contract received
-        /// with this call is exactly `10`.
+        /// Asserts that the token amount sent as payment with this call
+        /// is exactly `10`. This method will fail otherwise, and the
+        /// transaction would then be reverted.
         ///
         /// # Note
         ///
         /// The method needs to be annotated with `payable`; only then it is
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = "0xCAFEBABE")]
-        pub fn was_it_ten(&self) -> bool {
-            self.env().transferred_balance() == 10
+        pub fn was_it_ten(&self) {
+            let msg = ink_prelude::format!(
+                "received payment: {}",
+                self.env().transferred_balance()
+            );
+            ink_env::debug_println(&msg);
+            assert!(
+                self.env().transferred_balance() == 10,
+                "payment was not ten"
+            );
         }
     }
 
@@ -157,7 +166,38 @@ pub mod give_me {
             );
 
             // then
-            assert_eq!(give_me.was_it_ten(), true);
+            // there must be no panic
+            give_me.was_it_ten();
+        }
+
+        #[ink::test]
+        #[should_panic(expected = "payment was not ten")]
+        fn test_transferred_value_must_fail() {
+            // given
+            let accounts = default_accounts();
+            let give_me = create_contract(100);
+
+            // when
+            set_sender(accounts.eve);
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
+                0xCA, 0xFE, 0xBA, 0xBE,
+            ]));
+            data.push_arg(&accounts.eve);
+            let mock_transferred_balance = 13;
+
+            // Push the new execution context which sets Eve as caller and
+            // the `mock_transferred_balance` as the value which the contract
+            // will see as transferred to it.
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.eve,
+                contract_id(),
+                1000000,
+                mock_transferred_balance,
+                data,
+            );
+
+            // then
+            give_me.was_it_ten();
         }
 
         /// Creates a new instance of `GiveMe` with `initial_balance`.
@@ -258,7 +298,26 @@ pub mod give_me {
             ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(10);
 
             // then
-            assert_eq!(give_me.was_it_ten(), true);
+            // there must be no panic
+            give_me.was_it_ten();
+        }
+
+        #[ink::test]
+        #[should_panic(expected = "payment was not ten")]
+        fn test_transferred_value_must_fail() {
+            // given
+            let accounts = default_accounts();
+            let give_me = create_contract(100);
+
+            // when
+            // Push the new execution context which sets Eve as caller and
+            // the `mock_transferred_balance` as the value which the contract
+            // will see as transferred to it.
+            set_sender(accounts.eve);
+            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(13);
+
+            // then
+            give_me.was_it_ten();
         }
 
         /// Creates a new instance of `GiveMe` with `initial_balance`.
