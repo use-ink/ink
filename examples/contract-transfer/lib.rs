@@ -166,7 +166,38 @@ pub mod give_me {
             );
 
             // then
-            assert_eq!(give_me.was_it_ten(), true);
+            // there must be no panic
+            give_me.was_it_ten();
+        }
+
+        #[ink::test]
+        #[should_panic(expected = "payment was not ten")]
+        fn test_transferred_value_must_fail() {
+            // given
+            let accounts = default_accounts();
+            let give_me = create_contract(100);
+
+            // when
+            set_sender(accounts.eve);
+            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
+                0xCA, 0xFE, 0xBA, 0xBE,
+            ]));
+            data.push_arg(&accounts.eve);
+            let mock_transferred_balance = 13;
+
+            // Push the new execution context which sets Eve as caller and
+            // the `mock_transferred_balance` as the value which the contract
+            // will see as transferred to it.
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.eve,
+                contract_id(),
+                1000000,
+                mock_transferred_balance,
+                data,
+            );
+
+            // then
+            give_me.was_it_ten();
         }
 
         /// Creates a new instance of `GiveMe` with `initial_balance`.
@@ -267,7 +298,26 @@ pub mod give_me {
             ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(10);
 
             // then
-            assert_eq!(give_me.was_it_ten(), true);
+            // there must be no panic
+            give_me.was_it_ten();
+        }
+
+        #[ink::test]
+        #[should_panic(expected = "payment was not ten")]
+        fn test_transferred_value_must_fail() {
+            // given
+            let accounts = default_accounts();
+            let give_me = create_contract(100);
+
+            // when
+            // Push the new execution context which sets Eve as caller and
+            // the `mock_transferred_balance` as the value which the contract
+            // will see as transferred to it.
+            set_sender(accounts.eve);
+            ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(13);
+
+            // then
+            give_me.was_it_ten();
         }
 
         /// Creates a new instance of `GiveMe` with `initial_balance`.
