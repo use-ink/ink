@@ -76,16 +76,25 @@ pub mod give_me {
                 })
         }
 
-        /// Returns `true` if the token amount which the contract received
-        /// with this call is exactly `10`.
+        /// Asserts that the token amount sent as payment with this call
+        /// is exactly `10`. This method will fail otherwise, and the
+        /// transaction would then be reverted.
         ///
         /// # Note
         ///
         /// The method needs to be annotated with `payable`; only then it is
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = "0xCAFEBABE")]
-        pub fn was_it_ten(&self) -> bool {
-            self.env().transferred_balance() == 10
+        pub fn was_it_ten(&self) {
+            let msg = ink_prelude::format!(
+                "received payment: {}",
+                self.env().transferred_balance()
+            );
+            ink_env::debug_println(&msg);
+            assert!(
+                self.env().transferred_balance() == 10,
+                "payment was not ten"
+            );
         }
     }
 
