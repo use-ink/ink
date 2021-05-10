@@ -15,6 +15,7 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
+ink_engine = { version = "3.0.0-rc3", path = "../engine/", default-features = false, optional = true }
 ink_metadata = { version = "3.0.0-rc3", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
 ink_allocator = { version = "3.0.0-rc3", path = "../allocator/", default-features = false }
 ink_primitives = { version = "3.0.0-rc3", path = "../primitives/", default-features = false }
@@ -60,3 +61,4 @@ std = [
     "sha3",
     "blake2",
 ]
+ink-experimental-engine = ["ink_engine"]

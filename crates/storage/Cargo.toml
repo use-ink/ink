@@ -53,6 +53,7 @@ std = [
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]
+ink-experimental-engine = ["ink_env/ink-experimental-engine"]
 
 [[bench]]
 name = "bench_lazy"

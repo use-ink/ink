@@ -40,6 +40,7 @@ pub mod just_terminates {
         }
     }
 
+    #[cfg(not(feature = "ink-experimental-engine"))]
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -96,6 +97,37 @@ pub mod just_terminates {
                 account_id, balance,
             )
             .expect("Cannot set account balance");
+        }
+    }
+
+    #[cfg(feature = "ink-experimental-engine")]
+    #[cfg(test)]
+    mod tests_experimental_engine {
+        use super::*;
+        use ink_lang as ink;
+
+        #[ink::test]
+        fn terminating_works() {
+            // given
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
+            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.alice);
+            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
+                contract_id,
+                100,
+            );
+            let mut contract = JustTerminate::new();
+
+            // when
+            let should_terminate = move || contract.terminate_me();
+
+            // then
+            ink_env::test::assert_contract_termination::<ink_env::DefaultEnvironment, _>(
+                should_terminate,
+                accounts.alice,
+                100,
+            );
         }
     }
 }
