@@ -351,8 +351,7 @@ publish-docs:
     - job:                       docs
       artifacts:                 true
   variables:
-    GIT_DEPTH:                     0
-    GIT_STRATEGY:                  none
+    GIT_DEPTH:                   100
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -365,7 +364,7 @@ publish-docs:
   script:
     - rm -rf /tmp/*
     # Set git config
-    - rm .git/config
+    - rm -rf .git/config
     - git config user.email "devops-team@parity.io"
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"

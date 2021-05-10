@@ -34,3 +34,10 @@ is an easy way to get a local smart contract chain running.
    the value stored in the Accumulator smart contract respectively and `switch` to switch the currently
    delegated-to smart contract.
    The initial delegated-to smart contract is the Adder.
+
+   <br/>
+
+   > __Note:__<br/>
+   > Depending on your Substrate version you might encounter [a bug with the pre-filled gas estimation of the UI](https://github.com/paritytech/substrate/issues/8693)
+   > and get the error `ExtrinsicFailed: OutOfGas`.
+   > As a workaround set the maximum allowed gas manually (e.g. to 2500).
