@@ -1,5 +1,5 @@
 [package]
-name = "flipper"
+name = "trait_flipper"
 version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -15,7 +15,7 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "flipper"
+name = "trait_flipper"
 path = "lib.rs"
 crate-type = ["cdylib"]
 
