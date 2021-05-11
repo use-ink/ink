@@ -52,28 +52,30 @@ pub mod give_me {
         ///
         /// # Errors
         ///
-        /// - Returns `Error::InsufficientFunds` in case the requested transfer of
-        ///   `value` exceeds the contracts balance.
-        /// - Returns `Error::BelowSubsistenceThreshold` in case the requested transfer
-        ///   of `value` would have brought the contract's balance below the subsistence
-        ///   threshold.
-        /// - Returns `Error::TransferFailed` in case the transfer failed for another
-        ///   reason.
+        /// - Panics in case the requested transfer exceeds the contract balance.
+        /// - Panics in case the requested transfer would have brought the
+        ///   contract balance below the subsistence threshold.
+        /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
-        pub fn give_me(&mut self, value: Balance) -> Result<(), Error> {
-            if value > self.env().balance() {
-                return Err(Error::InsufficientFunds)
+        pub fn give_me(&mut self, value: Balance) {
+            ink_env::debug_println(&ink_prelude::format!("requested value: {}", value));
+            ink_env::debug_println(&ink_prelude::format!(
+                "contract balance: {}",
+                self.env().balance()
+            ));
+
+            assert!(value <= self.env().balance(), "insufficient funds!");
+
+            match self.env().transfer(self.env().caller(), value) {
+                Err(ink_env::Error::BelowSubsistenceThreshold) => {
+                    panic!(
+                        "requested transfer would have brought contract\
+                        below subsistence threshold!"
+                    )
+                }
+                Err(_) => panic!("transfer failed!"),
+                Ok(_) => {}
             }
-            self.env()
-                .transfer(self.env().caller(), value)
-                .map_err(|err| {
-                    match err {
-                        ink_env::Error::BelowSubsistenceThreshold => {
-                            Error::BelowSubsistenceThreshold
-                        }
-                        _ => Error::TransferFailed,
-                    }
-                })
         }
 
         /// Asserts that the token amount sent as payment with this call
@@ -119,13 +121,14 @@ pub mod give_me {
             // when
             set_sender(accounts.eve);
             set_balance(accounts.eve, 0);
-            assert_eq!(give_me.give_me(80), Ok(()));
+            give_me.give_me(80);
 
             // then
             assert_eq!(get_balance(accounts.eve), 80);
         }
 
         #[ink::test]
+        #[should_panic(expected = "insufficient funds!")]
         fn transfer_fails_insufficient_funds() {
             // given
             let contract_balance = 100;
@@ -134,10 +137,10 @@ pub mod give_me {
 
             // when
             set_sender(accounts.eve);
-            let ret = give_me.give_me(120);
+            give_me.give_me(120);
 
             // then
-            assert_eq!(ret, Err(Error::InsufficientFunds));
+            // `give_me` must already have panicked here
         }
 
         #[ink::test]
@@ -270,6 +273,7 @@ pub mod give_me {
         }
 
         #[ink::test]
+        #[should_panic(expected = "insufficient funds!")]
         fn transfer_fails_insufficient_funds() {
             // given
             let contract_balance = 100;
@@ -278,10 +282,10 @@ pub mod give_me {
 
             // when
             set_sender(accounts.eve);
-            let ret = give_me.give_me(120);
+            give_me.give_me(120);
 
             // then
-            assert_eq!(ret, Err(Error::InsufficientFunds));
+            // `give_me` must already have panicked here
         }
 
         #[ink::test]
