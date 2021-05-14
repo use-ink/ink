@@ -47,7 +47,7 @@ impl DebugBuffer {
 
 /// Iterator over the past debug messages.
 pub struct DebugMessages<'a> {
-    /// Iterator over the past printlns.
+    /// Iterator over the past debug messages.
     iter: core::slice::Iter<'a, String>,
 }
 
