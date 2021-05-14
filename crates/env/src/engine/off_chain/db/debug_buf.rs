@@ -14,53 +14,53 @@
 
 use ink_prelude::string::String;
 
-/// A debug console used to print console contents and store them.
-pub struct Console {
-    /// The buffer to store the already pasted contents.
-    past_prints: Vec<String>,
+/// A debug buffer used to store debug messages and print them to stdout.
+pub struct DebugBuffer {
+    /// The buffer to store the emitted debug messages.
+    past_debug_messages: Vec<String>,
 }
 
-impl Console {
+impl DebugBuffer {
     /// Creates a new empty console.
     pub fn new() -> Self {
         Self {
-            past_prints: Vec::new(),
+            past_debug_messages: Vec::new(),
         }
     }
 
-    /// Resets the console to uninitialized state.
+    /// Resets the debug buffer to uninitialized state.
     pub fn reset(&mut self) {
-        self.past_prints.clear();
+        self.past_debug_messages.clear();
     }
 
-    /// Prints the contents to the actual console and stores them.
-    pub fn println(&mut self, contents: &str) {
-        self.past_prints.push(contents.to_string());
-        println!("{}", contents);
+    /// Prints the message to stdout and stores it.
+    pub fn debug_message(&mut self, message: &str) {
+        self.past_debug_messages.push(message.to_string());
+        print!("{}", message);
     }
 
-    /// Returns an iterator over the past console prints.
-    pub fn past_prints(&self) -> PastPrints {
-        PastPrints::new(self)
+    /// Returns an iterator over the past debug messages.
+    pub fn past_debug_messages(&self) -> DebugMessages {
+        DebugMessages::new(self)
     }
 }
 
-/// Iterator over the past prints to the console.
-pub struct PastPrints<'a> {
+/// Iterator over the past debug messages.
+pub struct DebugMessages<'a> {
     /// Iterator over the past printlns.
     iter: core::slice::Iter<'a, String>,
 }
 
-impl<'a> PastPrints<'a> {
-    /// Creates a new iterator over the past console prints.
-    fn new(console: &'a Console) -> Self {
+impl<'a> DebugMessages<'a> {
+    /// Creates a new iterator over the past debug messages.
+    fn new(console: &'a DebugBuffer) -> Self {
         Self {
-            iter: console.past_prints.iter(),
+            iter: console.past_debug_messages.iter(),
         }
     }
 }
 
-impl<'a> Iterator for PastPrints<'a> {
+impl<'a> Iterator for DebugMessages<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -68,13 +68,13 @@ impl<'a> Iterator for PastPrints<'a> {
     }
 }
 
-impl<'a> ExactSizeIterator for PastPrints<'a> {
+impl<'a> ExactSizeIterator for DebugMessages<'a> {
     fn len(&self) -> usize {
         self.iter.len()
     }
 }
 
-impl<'a> DoubleEndedIterator for PastPrints<'a> {
+impl<'a> DoubleEndedIterator for DebugMessages<'a> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter.next_back().map(AsRef::as_ref)
     }

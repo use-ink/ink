@@ -308,7 +308,7 @@ mod sys {
 
         pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
-        pub fn seal_println(str_ptr: Ptr32<[u8]>, str_len: u32);
+        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32);
 
         pub fn seal_hash_keccak_256(
             input_ptr: Ptr32<[u8]>,
@@ -604,9 +604,9 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-pub fn println(content: &str) {
+pub fn debug_message(content: &str) {
     let bytes = content.as_bytes();
-    unsafe { sys::seal_println(Ptr32::from_slice(bytes), bytes.len() as u32) }
+    unsafe { sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32) }
 }
 
 macro_rules! impl_hash_fn {

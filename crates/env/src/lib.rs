@@ -99,3 +99,24 @@ pub use self::{
         NoChainExtension,
     },
 };
+pub use ink_prelude;
+
+/// Appends a formatted string to the `debug_message` buffer which will be:
+///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)
+///  - Logged as a `debug!` message on the substrate node, which will be printed to the node
+///    console's `stdout` when the log level is set to `debug`.
+#[macro_export]
+macro_rules! debug_print {
+    ($($arg:tt)*) => ($crate::debug_message($crate::ink_prelude::format!($($arg)*)));
+}
+
+/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
+/// with a newline appended.
+#[macro_export]
+macro_rules! debug_println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ({
+        $crate::debug_print!($($arg)*);
+        $crate::debug_print!("\n");
+    })
+}

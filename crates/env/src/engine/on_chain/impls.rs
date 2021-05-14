@@ -251,8 +251,8 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, enc_return_value);
     }
 
-    fn println(&mut self, content: &str) {
-        ext::println(content)
+    fn debug_message(&mut self, content: &str) {
+        ext::debug_message(content)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

@@ -23,7 +23,7 @@ use crate::{
     Result,
 };
 use core::fmt::Debug;
-use ink_engine::test_api::RecordedPrintlns;
+use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 /// Record for an emitted event.
@@ -129,10 +129,10 @@ where
     unimplemented!("off-chain environment does not yet support `set_block_entropy`");
 }
 
-/// Returns the contents of the past performed environmental `println` in order.
-pub fn recorded_printlns() -> RecordedPrintlns {
+/// Returns the contents of the past performed environmental debug messages in order.
+pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.engine.get_recorded_printlns()
+        instance.engine.get_emitted_debug_messages()
     })
 }
 

@@ -58,8 +58,8 @@ pub mod give_me {
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: Balance) {
-            ink_env::debug_println(&ink_prelude::format!("requested value: {}", value));
-            ink_env::debug_println(&ink_prelude::format!(
+            ink_env::debug_println!("requested value: {}", value);
+            ink_env::debug_println!(
                 "contract balance: {}",
                 self.env().balance()
             ));
@@ -88,11 +88,10 @@ pub mod give_me {
         /// allowed to receive value as part of the call.
         #[ink(message, payable, selector = "0xCAFEBABE")]
         pub fn was_it_ten(&self) {
-            let msg = ink_prelude::format!(
+            ink_env::debug_println!(
                 "received payment: {}",
                 self.env().transferred_balance()
             );
-            ink_env::debug_println(&msg);
             assert!(
                 self.env().transferred_balance() == 10,
                 "payment was not ten"

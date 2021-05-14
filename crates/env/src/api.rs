@@ -511,10 +511,10 @@ where
     })
 }
 
-/// Prints the given contents to the environmental log.
-pub fn debug_println(content: &str) {
+/// Appends the given message to the debug message buffer.
+pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::println(instance, content)
+        EnvBackend::debug_message(instance, message)
     })
 }
 

@@ -225,8 +225,8 @@ impl EnvBackend for EnvInstance {
         )
     }
 
-    fn println(&mut self, content: &str) {
-        self.engine.println(content)
+    fn debug_message(&mut self, message: &str) {
+        self.engine.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
