@@ -28,8 +28,8 @@ pub use self::{
     call_data::CallData,
     db::{
         AccountError,
-        EmittedEvent,
         DebugMessages,
+        EmittedEvent,
     },
     typed_encoded::TypedEncodedError,
 };
