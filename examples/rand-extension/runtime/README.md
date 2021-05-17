@@ -2,7 +2,7 @@
 
 To integrate this example into Substrate you need to do two things:
 
-* Use the code in `runtime/chain-extension-example.rs` as an implementation for
+* Use the code in [`chain-extension-example.rs`](./chain-extension-example.rs) as an implementation for
   the trait `ChainExtension` in Substrate.
   You can just copy/paste the content of that file into e.g. your `runtime/src/lib.rs`.
 
