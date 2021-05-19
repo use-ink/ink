@@ -107,7 +107,7 @@ pub use ink_prelude;
 ///    console's `stdout` when the log level is set to `debug`.
 #[macro_export]
 macro_rules! debug_print {
-    ($($arg:tt)*) => ($crate::debug_message($crate::ink_prelude::format!($($arg)*)));
+    ($($arg:tt)*) => ($crate::debug_message(&$crate::ink_prelude::format!($($arg)*)));
 }
 
 /// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
