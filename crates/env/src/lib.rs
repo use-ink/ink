@@ -117,6 +117,6 @@ macro_rules! debug_println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ({
         $crate::debug_print!($($arg)*);
-        $crate::debug_print!("\n");
+        $crate::debug_print!('\n');
     })
 }
