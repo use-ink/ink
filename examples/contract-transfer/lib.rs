@@ -62,7 +62,7 @@ pub mod give_me {
             ink_env::debug_println!(
                 "contract balance: {}",
                 self.env().balance()
-            ));
+            );
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
@@ -341,8 +341,7 @@ pub mod give_me {
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
         }
 
-        fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
+        fn default_accounts() -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
         }
 
