@@ -77,8 +77,8 @@ define_error_codes! {
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable = 8,
      /// The call to `seal_debug_message` had no effect because debug message
-	/// recording was disabled.
-	LoggingDisabled = 9,
+    /// recording was disabled.
+    LoggingDisabled = 9,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.
@@ -624,7 +624,7 @@ pub fn debug_message(message: &str) {
         };
         match ret_code.into() {
             Err(Error::LoggingDisabled) => unsafe { DEBUG_ENABLED = false },
-            _ => ()
+            _ => (),
         }
     }
 }

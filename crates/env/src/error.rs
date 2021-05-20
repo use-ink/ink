@@ -47,7 +47,7 @@ pub enum Error {
     /// An unknown error has occurred.
     UnknownError,
     /// The call to `seal_debug_message` had no effect because debug message
-	/// recording was disabled.
+    /// recording was disabled.
     LoggingDisabled,
 }
 
