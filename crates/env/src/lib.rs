@@ -115,8 +115,7 @@ macro_rules! debug_print {
 #[macro_export]
 macro_rules! debug_println {
     () => ($crate::debug_print!("\n"));
-    ($($arg:tt)*) => ({
-        let msg = $crate::ink_prelude::format!($($arg)*);
-        $crate::debug_print!("{}\n", msg);
-    })
+    ($($arg:tt)*) => (
+        $crate::debug_print!("{}\n", $crate::ink_prelude::format!($($arg)*));
+    )
 }
