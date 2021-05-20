@@ -616,6 +616,11 @@ static mut DEBUG_ENABLED: bool = true;
 /// If debug message recording is disabled in the contracts pallet, the first call to will return
 /// a LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling into
 /// the supervisor.
+///
+/// # Safety
+///
+/// Accesses to the static `DEBUG_ENABLED` are safe because we are executing in a single-threaded
+/// environment.
 pub fn debug_message(message: &str) {
     if unsafe { DEBUG_ENABLED } {
         let bytes = message.as_bytes();
