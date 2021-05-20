@@ -109,6 +109,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
+            ext::Error::LoggingDisabled => Self::LoggingDisabled,
         }
     }
 }
