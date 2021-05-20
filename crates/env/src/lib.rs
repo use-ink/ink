@@ -99,7 +99,12 @@ pub use self::{
         NoChainExtension,
     },
 };
-pub use ink_prelude;
+
+/// Required by the `debug_print*` macros below, because there is no guarantee that contracts will
+/// have a direct `ink_prelude` dependency. In the future we could introduce an "umbrella" crate
+/// containing all the `ink!` crates which could also host these macros.
+#[doc(hidden)]
+pub use ink_prelude::format;
 
 /// Appends a formatted string to the `debug_message` buffer which will be:
 ///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)
@@ -107,7 +112,7 @@ pub use ink_prelude;
 ///    console's `stdout` when the log level is set to `debug`.
 #[macro_export]
 macro_rules! debug_print {
-    ($($arg:tt)*) => ($crate::debug_message(&$crate::ink_prelude::format!($($arg)*)));
+    ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
 }
 
 /// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
@@ -116,6 +121,6 @@ macro_rules! debug_print {
 macro_rules! debug_println {
     () => ($crate::debug_print!("\n"));
     ($($arg:tt)*) => (
-        $crate::debug_print!("{}\n", $crate::ink_prelude::format!($($arg)*));
+        $crate::debug_print!("{}\n", $crate::format!($($arg)*));
     )
 }
