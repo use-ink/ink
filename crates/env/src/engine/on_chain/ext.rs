@@ -627,9 +627,8 @@ pub fn debug_message(message: &str) {
         let ret_code = unsafe {
             sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
         };
-        match ret_code.into() {
-            Err(Error::LoggingDisabled) => unsafe { DEBUG_ENABLED = false },
-            _ => (),
+        if let Err(Error::LoggingDisabled) = ret_code.into() {
+            unsafe { DEBUG_ENABLED = false }
         }
     }
 }
