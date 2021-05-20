@@ -46,6 +46,9 @@ pub enum Error {
     NotCallable,
     /// An unknown error has occurred.
     UnknownError,
+    /// The call to `seal_debug_message` had no effect because debug message
+	/// recording was disabled.
+    LoggingDisabled,
 }
 
 /// A result of environmental operations.

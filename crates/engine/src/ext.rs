@@ -91,6 +91,9 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable = 8,
+    /// The call to `seal_debug_message` had no effect because debug message
+	/// recording was disabled.
+	LoggingDisabled = 9,
 }
 
 /// The raw return code returned by the host side.

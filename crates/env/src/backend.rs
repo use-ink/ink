@@ -121,8 +121,8 @@ pub trait EnvBackend {
     /// client. This buffer is also printed as a debug message to the node console if the
     /// `debug` log level is enabled for the `runtime::contracts` target.
     ///
-    /// This is a no-op if debug message recording is disabled which is always the case
-    /// when the code is executing on-chain.
+    /// If debug message recording is disabled in the contracts pallet, which is always the case
+    /// when the code is executing on-chain, then this will have no effect.
     fn debug_message(&mut self, content: &str);
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
