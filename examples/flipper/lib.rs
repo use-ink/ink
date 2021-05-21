@@ -15,24 +15,19 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
-//use ink_prelude;
 
 #[ink::contract]
 pub mod flipper {
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
-        //hmap: ink_storage::collections::HashMap<String, AccountId>,
-        //hmap: ink_storage::collections::HashMap<ink_prelude::string::String, AccountId>,
-        foo: String,
     }
 
     impl Flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            //Self { value: init_value, hmap: ink_storage::collections::HashMap::new() }
-            Self { value: init_value, foo: String::from("") }
+            Self { value: init_value }
         }
 
         /// Creates a new flipper smart contract initialized to `false`.
@@ -50,29 +45,14 @@ pub mod flipper {
         /// have to pay rent we don't require an additional payment.
         #[ink(message)]
         pub fn flip(&mut self) {
-            //let rent = self.env().rent_params();
-            //let needed_to_stay_alive = rent.total_balance; // TODO
-
             self.value = !self.value;
         }
 
         /// Returns the current value of the Flipper's bool.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            //let _ = self.env().rent_params();
             self.value
         }
-        /*
-
-        /// Returns the current value of the Flipper's bool.
-        #[ink(message)]
-        pub fn rent(&self) -> Balance {
-            let rent = self.env().rent_params();
-            let needed_to_stay_alive = rent.total_balance;
-            needed_to_stay_alive
-        }
-
-         */
     }
 
     #[cfg(test)]
