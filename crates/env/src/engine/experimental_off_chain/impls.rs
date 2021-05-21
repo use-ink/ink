@@ -301,6 +301,13 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(Engine::rent_allowance)
     }
 
+    fn rent_params<T>(&mut self) -> Result<()>
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support rent params")
+    }
+
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
         self.get_property::<T::BlockNumber>(Engine::block_number)
     }
