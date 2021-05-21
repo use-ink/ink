@@ -621,25 +621,23 @@ mod debug {
 
     /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
     ///
-    /// If debug message recording is disabled in the contracts pallet, the first call to will return
-    /// a LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling into
-    /// the supervisor.
+    /// If debug message recording is disabled in the contracts pallet, the first call to will
+    /// return LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling
+    /// into the supervisor.
     ///
     /// # Note
     ///
-    /// This depends on the currently dsiabled
-    ///
-    /// # Safety
-    ///
-    /// Accesses to the static `DEBUG_ENABLED` are safe because we are executing in a single-threaded
-    /// environment.
+    /// This depends on the the `seal_debug_message` interface which requires the
+    /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
     pub fn debug_message(message: &str) {
+        // SAFETY: safe because executing in a single threaded context
         if unsafe { DEBUG_ENABLED } {
             let bytes = message.as_bytes();
             let ret_code = unsafe {
                 sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
             };
             if let Err(Error::LoggingDisabled) = ret_code.into() {
+                // SAFETY: safe because executing in a single threaded context
                 unsafe { DEBUG_ENABLED = false }
             }
         }
