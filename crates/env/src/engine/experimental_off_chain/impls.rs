@@ -34,6 +34,7 @@ use crate::{
     Clear,
     EnvBackend,
     Environment,
+    RentParams,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -301,7 +302,7 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(Engine::rent_allowance)
     }
 
-    fn rent_params<T>(&mut self) -> Result<()>
+    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
     where
         T: Environment,
     {
