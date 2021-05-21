@@ -61,7 +61,7 @@ impl FromIterator<bool> for StorageBitvec {
 
 impl<'a> FromIterator<&'a bool> for StorageBitvec {
     fn from_iter<T: IntoIterator<Item = &'a bool>>(iter: T) -> Self {
-        <Self as FromIterator<bool>>::from_iter(iter.into_iter().copied())
+        iter.into_iter().copied().collect()
     }
 }
 
