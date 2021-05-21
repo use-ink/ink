@@ -313,8 +313,6 @@ mod sys {
 
         pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
-        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
-
         pub fn seal_hash_keccak_256(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
@@ -345,6 +343,11 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
+    }
+
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
+        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
     }
 }
 
