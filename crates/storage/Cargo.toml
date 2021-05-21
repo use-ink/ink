@@ -21,7 +21,7 @@ ink_primitives = { version = "3.0.0-rc3", path = "../primitives/", default-featu
 ink_storage_derive = { version = "3.0.0-rc3", path = "derive", default-features = false }
 ink_prelude = { version = "3.0.0-rc3", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
@@ -32,9 +32,6 @@ array-init = { version = "2.0", default-features = false }
 # `cargo check --no-default-features --target wasm32-unknown-unknown`.
 # We haven't found a better solution yet.
 criterion = { version = "0.3", optional = true }
-
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
 
 [dev-dependencies]
 quickcheck = "1.0"
@@ -56,6 +53,7 @@ std = [
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]
+ink-experimental-engine = ["ink_env/ink-experimental-engine"]
 
 [[bench]]
 name = "bench_lazy"

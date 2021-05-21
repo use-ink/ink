@@ -20,74 +20,55 @@ use crate::traits::{
 use array_init::array_init;
 use ink_primitives::Key;
 
-#[rustfmt::skip]
-macro_rules! forward_supported_array_lens {
-    ( $mac:ident ) => {
-        $mac! {
-                 1,  2,  3,  4,  5,  6,  7,  8,  9,
-            10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-            20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-            30, 31, 32,
+impl<T, const N: usize> SpreadLayout for [T; N]
+where
+    T: SpreadLayout,
+{
+    const FOOTPRINT: u64 = N as u64 * <T as SpreadLayout>::FOOTPRINT;
+    const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
+
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        for elem in self {
+            <T as SpreadLayout>::push_spread(elem, ptr)
         }
-    };
-}
+    }
 
-macro_rules! impl_layout_for_array {
-    ( $($len:literal),* $(,)? ) => {
-        $(
-            impl<T> SpreadLayout for [T; $len]
-            where
-                T: SpreadLayout,
-            {
-                const FOOTPRINT: u64 = $len * <T as SpreadLayout>::FOOTPRINT;
-                const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        for elem in self {
+            <T as SpreadLayout>::clear_spread(elem, ptr)
+        }
+    }
 
-                fn push_spread(&self, ptr: &mut KeyPtr) {
-                    for elem in self {
-                        <T as SpreadLayout>::push_spread(elem, ptr)
-                    }
-                }
-
-                fn clear_spread(&self, ptr: &mut KeyPtr) {
-                    for elem in self {
-                        <T as SpreadLayout>::clear_spread(elem, ptr)
-                    }
-                }
-
-                fn pull_spread(ptr: &mut KeyPtr) -> Self {
-                    array_init::<_, T, $len>(|_| <T as SpreadLayout>::pull_spread(ptr))
-                }
-            }
-
-            impl<T> PackedLayout for [T; $len]
-            where
-                T: PackedLayout,
-            {
-                #[inline]
-                fn push_packed(&self, at: &Key) {
-                    for elem in self {
-                        <T as PackedLayout>::push_packed(elem, at)
-                    }
-                }
-
-                #[inline]
-                fn clear_packed(&self, at: &Key) {
-                    for elem in self {
-                        <T as PackedLayout>::clear_packed(elem, at)
-                    }
-                }
-
-                #[inline]
-                fn pull_packed(&mut self, at: &Key) {
-                    for elem in self {
-                        <T as PackedLayout>::pull_packed(elem, at)
-                    }
-                }
-            }
-        )*
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
+        array_init::<_, T, N>(|_| <T as SpreadLayout>::pull_spread(ptr))
     }
 }
-forward_supported_array_lens!(impl_layout_for_array);
+
+impl<T, const N: usize> PackedLayout for [T; N]
+where
+    T: PackedLayout,
+{
+    #[inline]
+    fn push_packed(&self, at: &Key) {
+        for elem in self {
+            <T as PackedLayout>::push_packed(elem, at)
+        }
+    }
+
+    #[inline]
+    fn clear_packed(&self, at: &Key) {
+        for elem in self {
+            <T as PackedLayout>::clear_packed(elem, at)
+        }
+    }
+
+    #[inline]
+    fn pull_packed(&mut self, at: &Key) {
+        for elem in self {
+            <T as PackedLayout>::pull_packed(elem, at)
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

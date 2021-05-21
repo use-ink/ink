@@ -399,6 +399,8 @@ use proc_macro::TokenStream;
 /// #
 /// #[ink::contract]
 /// mod greeter {
+///     use ink_prelude::format;
+///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
@@ -412,7 +414,7 @@ use proc_macro::TokenStream;
 ///         }
 ///
 ///         #[ink(message, payable)]
-///         pub fn fund(&mut self) {
+///         pub fn fund(&self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_balance();
 ///             let message = format!("thanks for the funding of {:?} from {:?}", value, caller);

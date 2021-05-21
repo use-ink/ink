@@ -19,18 +19,16 @@ ink_lang_ir = { version = "3.0.0-rc3", path = "../ir", default-features = false 
 ink_lang_codegen = { version = "3.0.0-rc3", path = "../codegen", default-features = false }
 ink_primitives = { version = "3.0.0-rc3", path = "../../primitives/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 syn = "1"
 proc-macro2 = "1"
-
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
 
 [dev-dependencies]
 ink_metadata = { version = "3.0.0-rc3", path = "../../metadata/" }
 ink_env = { version = "3.0.0-rc3", path = "../../env/" }
 ink_storage = { version = "3.0.0-rc3", path = "../../storage/" }
 ink_lang = { version = "3.0.0-rc3", path = ".." }
+ink_prelude = { version = "3.0.0-rc3", path = "../../prelude/" }
 
 trybuild = "1.0.24"
 scale-info = { version = "0.6", default-features = false, features = ["derive"] }
@@ -46,3 +44,4 @@ std = [
     "ink_lang_ir/std",
     "ink_primitives/std",
 ]
+ink-experimental-engine = []

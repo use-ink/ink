@@ -202,11 +202,27 @@ macro_rules! fuzz_storage {
 }
 
 /// Asserts that the storage is empty, without any leftovers.
-#[cfg(all(test, feature = "ink-fuzz-tests"))]
+#[cfg(all(
+    test,
+    feature = "ink-fuzz-tests",
+    not(feature = "ink-experimental-engine")
+))]
 pub fn assert_storage_clean() {
     let contract_id =
         ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>()
             .expect("contract id must exist");
+    let used_cells =
+        ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(
+            &contract_id,
+        )
+        .expect("used cells must be returned");
+    assert_eq!(used_cells, 0);
+}
+
+/// Asserts that the storage is empty, without any leftovers.
+#[cfg(all(test, feature = "ink-fuzz-tests", feature = "ink-experimental-engine"))]
+pub fn assert_storage_clean() {
+    let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
     let used_cells =
         ink_env::test::count_used_storage_cells::<ink_env::DefaultEnvironment>(
             &contract_id,
