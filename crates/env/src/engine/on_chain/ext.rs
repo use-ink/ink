@@ -20,6 +20,8 @@ use crate::ReturnFlags;
 use core::marker::PhantomData;
 use ink_primitives::Key;
 
+pub use self::debug::debug_message;
+
 macro_rules! define_error_codes {
     (
         $(
@@ -607,28 +609,36 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-/// If debug message recording is disabled in the contracts pallet, this will be set to false
-/// after an initial call in order to prevent the cost of further calls which will have no effect.
-static mut DEBUG_ENABLED: bool = true;
+mod debug {
+    use super::*;
 
-/// Call `seal_debug_message` with the supplied UTF-8 encoded message.
-///
-/// If debug message recording is disabled in the contracts pallet, the first call to will return
-/// a LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling into
-/// the supervisor.
-///
-/// # Safety
-///
-/// Accesses to the static `DEBUG_ENABLED` are safe because we are executing in a single-threaded
-/// environment.
-pub fn debug_message(message: &str) {
-    if unsafe { DEBUG_ENABLED } {
-        let bytes = message.as_bytes();
-        let ret_code = unsafe {
-            sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
-        };
-        if let Err(Error::LoggingDisabled) = ret_code.into() {
-            unsafe { DEBUG_ENABLED = false }
+    /// If debug message recording is disabled in the contracts pallet, this will be set to false
+    /// after an initial call in order to prevent the cost of further calls which will have no effect.
+    static mut DEBUG_ENABLED: bool = true;
+
+    /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
+    ///
+    /// If debug message recording is disabled in the contracts pallet, the first call to will return
+    /// a LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling into
+    /// the supervisor.
+    ///
+    /// # Note
+    ///
+    /// This depends on the currently dsiabled
+    ///
+    /// # Safety
+    ///
+    /// Accesses to the static `DEBUG_ENABLED` are safe because we are executing in a single-threaded
+    /// environment.
+    pub fn debug_message(message: &str) {
+        if unsafe { DEBUG_ENABLED } {
+            let bytes = message.as_bytes();
+            let ret_code = unsafe {
+                sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
+            };
+            if let Err(Error::LoggingDisabled) = ret_code.into() {
+                unsafe { DEBUG_ENABLED = false }
+            }
         }
     }
 }
