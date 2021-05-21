@@ -37,12 +37,6 @@ pub mod flipper {
         }
 
         /// Flips the current value of the Flipper's bool.
-        ///
-        /// If the contract still has to pay rent we require a small
-        /// additional payment.
-        ///
-        /// If the contract's deposit is high enough so that it doesn't
-        /// have to pay rent we don't require an additional payment.
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
