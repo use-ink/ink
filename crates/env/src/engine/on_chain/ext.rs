@@ -649,8 +649,7 @@ mod debug {
 #[cfg(not(feature = "ink-debug"))]
 mod debug {
     /// A no-op. Enable the `ink-debug` feature for debug messages.
-    pub fn debug_message(_message: &str) {
-    }
+    pub fn debug_message(_message: &str) {}
 }
 
 macro_rules! impl_hash_fn {
