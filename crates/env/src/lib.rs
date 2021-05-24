@@ -101,7 +101,7 @@ pub use self::{
 };
 
 cfg_if::cfg_if! {
-    if #[cfg(feature = "ink-debug")] {
+    if #[cfg(any(feature = "ink-debug", feature = "std"))] {
         /// Required by the `debug_print*` macros below, because there is no guarantee that contracts will
         /// have a direct `ink_prelude` dependency. In the future we could introduce an "umbrella" crate
         /// containing all the `ink!` crates which could also host these macros.
@@ -117,7 +117,6 @@ cfg_if::cfg_if! {
         ///
         /// This depends on the the `seal_debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
-        #[cfg(feature = "ink-debug")]
         #[macro_export]
         macro_rules! debug_print {
             ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
@@ -130,7 +129,6 @@ cfg_if::cfg_if! {
         ///
         /// This depends on the the `seal_debug_message` interface which requires the
         /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
-        #[cfg(feature = "ink-debug")]
         #[macro_export]
         macro_rules! debug_println {
             () => ($crate::debug_print!("\n"));
