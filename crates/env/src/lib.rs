@@ -100,37 +100,58 @@ pub use self::{
     },
 };
 
-/// Required by the `debug_print*` macros below, because there is no guarantee that contracts will
-/// have a direct `ink_prelude` dependency. In the future we could introduce an "umbrella" crate
-/// containing all the `ink!` crates which could also host these macros.
-#[doc(hidden)]
-pub use ink_prelude::format;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "ink-debug")] {
+        /// Required by the `debug_print*` macros below, because there is no guarantee that contracts will
+        /// have a direct `ink_prelude` dependency. In the future we could introduce an "umbrella" crate
+        /// containing all the `ink!` crates which could also host these macros.
+        #[doc(hidden)]
+        pub use ink_prelude::format;
 
-/// Appends a formatted string to the `debug_message` buffer which will be:
-///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)
-///  - Logged as a `debug!` message on the substrate node, which will be printed to the node
-///    console's `stdout` when the log level is set to `debug`.
-///
-/// # Note
-///
-/// This depends on the the `seal_debug_message` interface which requires the
-/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
-#[macro_export]
-macro_rules! debug_print {
-    ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
-}
+        /// Appends a formatted string to the `debug_message` buffer which will be:
+        ///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)
+        ///  - Logged as a `debug!` message on the substrate node, which will be printed to the node
+        ///    console's `stdout` when the log level is set to `debug`.
+        ///
+        /// # Note
+        ///
+        /// This depends on the the `seal_debug_message` interface which requires the
+        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        #[cfg(feature = "ink-debug")]
+        #[macro_export]
+        macro_rules! debug_print {
+            ($($arg:tt)*) => ($crate::debug_message(&$crate::format!($($arg)*)));
+        }
 
-/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
-/// with a newline appended.
-///
-/// # Note
-///
-/// This depends on the the `seal_debug_message` interface which requires the
-/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
-#[macro_export]
-macro_rules! debug_println {
-    () => ($crate::debug_print!("\n"));
-    ($($arg:tt)*) => (
-        $crate::debug_print!("{}\n", $crate::format!($($arg)*));
-    )
+        /// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but
+        /// with a newline appended.
+        ///
+        /// # Note
+        ///
+        /// This depends on the the `seal_debug_message` interface which requires the
+        /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+        #[cfg(feature = "ink-debug")]
+        #[macro_export]
+        macro_rules! debug_println {
+            () => ($crate::debug_print!("\n"));
+            ($($arg:tt)*) => (
+                $crate::debug_print!("{}\n", $crate::format!($($arg)*));
+            )
+        }
+    } else {
+        #[macro_export]
+        /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
+        macro_rules! debug_print {
+            ($($arg:tt)*) => (debug_assert!(true));
+        }
+
+        #[macro_export]
+        /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
+        macro_rules! debug_println {
+            () => (debug_assert!(true));
+            ($($arg:tt)*) => (
+                debug_assert!(true)
+            )
+        }
+    }
 }

@@ -345,6 +345,7 @@ mod sys {
         );
     }
 
+    #[cfg(feature = "ink-debug")]
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
         pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
@@ -612,6 +613,7 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
+#[cfg(feature = "ink-debug")]
 mod debug {
     use super::*;
 
@@ -641,6 +643,13 @@ mod debug {
                 unsafe { DEBUG_ENABLED = false }
             }
         }
+    }
+}
+
+#[cfg(not(feature = "ink-debug"))]
+mod debug {
+    /// A no-op. Enable the `ink-debug` feature for debug messages.
+    pub fn debug_message(_message: &str) {
     }
 }
 
