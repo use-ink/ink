@@ -20,8 +20,6 @@ use crate::ReturnFlags;
 use core::marker::PhantomData;
 use ink_primitives::Key;
 
-pub use self::debug::debug_message;
-
 macro_rules! define_error_codes {
     (
         $(
@@ -614,43 +612,35 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 }
 
 #[cfg(feature = "ink-debug")]
-mod debug {
-    use super::*;
-
-    /// If debug message recording is disabled in the contracts pallet, this will be set to false
-    /// after an initial call in order to prevent the cost of further calls which will have no effect.
+/// Call `seal_debug_message` with the supplied UTF-8 encoded message.
+///
+/// If debug message recording is disabled in the contracts pallet, the first call to will
+/// return LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling
+/// into the supervisor.
+///
+/// # Note
+///
+/// This depends on the the `seal_debug_message` interface which requires the
+/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+pub fn debug_message(message: &str) {
     static mut DEBUG_ENABLED: bool = true;
 
-    /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
-    ///
-    /// If debug message recording is disabled in the contracts pallet, the first call to will
-    /// return LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling
-    /// into the supervisor.
-    ///
-    /// # Note
-    ///
-    /// This depends on the the `seal_debug_message` interface which requires the
-    /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
-    pub fn debug_message(message: &str) {
-        // SAFETY: safe because executing in a single threaded context
-        if unsafe { DEBUG_ENABLED } {
-            let bytes = message.as_bytes();
-            let ret_code = unsafe {
-                sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
-            };
-            if let Err(Error::LoggingDisabled) = ret_code.into() {
-                // SAFETY: safe because executing in a single threaded context
-                unsafe { DEBUG_ENABLED = false }
-            }
+    // SAFETY: safe because executing in a single threaded context
+    if unsafe { DEBUG_ENABLED } {
+        let bytes = message.as_bytes();
+        let ret_code = unsafe {
+            sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
+        };
+        if let Err(Error::LoggingDisabled) = ret_code.into() {
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { DEBUG_ENABLED = false }
         }
     }
 }
 
 #[cfg(not(feature = "ink-debug"))]
-mod debug {
-    /// A no-op. Enable the `ink-debug` feature for debug messages.
-    pub fn debug_message(_message: &str) {}
-}
+/// A no-op. Enable the `ink-debug` feature for debug messages.
+pub fn debug_message(_message: &str) {}
 
 macro_rules! impl_hash_fn {
     ( $name:ident, $bytes_result:literal ) => {
