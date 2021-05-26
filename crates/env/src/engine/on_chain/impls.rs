@@ -36,6 +36,7 @@ use crate::{
         Topics,
         TopicsBuilderBackend,
     },
+    types::RentParams,
     Clear,
     EnvBackend,
     Environment,
@@ -353,6 +354,13 @@ impl TypedEnvBackend for EnvInstance {
     {
         let buffer = self.scoped_buffer().take_encoded(&new_value);
         ext::set_rent_allowance(&buffer[..])
+    }
+
+    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
+    where
+        T: Environment,
+    {
+        self.get_property::<RentParams<T>>(ext::rent_params)
     }
 
     fn invoke_contract<T, Args>(
