@@ -260,7 +260,6 @@ where
     /// self.env().set_rent_allowance(self.env().balance / 2);
     /// ```
     ///
-    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::set_rent_allowance`]
