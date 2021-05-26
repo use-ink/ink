@@ -24,6 +24,7 @@ use ink_env::{
         HashOutput,
     },
     Environment,
+    RentParams,
     Result,
 };
 use ink_primitives::Key;
@@ -265,6 +266,15 @@ where
     /// For more details visit: [`ink_env::set_rent_allowance`]
     pub fn set_rent_allowance(self, new_value: T::Balance) {
         ink_env::set_rent_allowance::<T>(new_value)
+    }
+
+    /// Returns information needed for rent calculations.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::RentParams`]
+    pub fn rent_params(self) -> RentParams<T> {
+        ink_env::rent_params::<T>().expect("couldn't decode contract rent params")
     }
 
     /// Returns the current block number.

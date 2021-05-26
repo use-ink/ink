@@ -34,6 +34,7 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::RentParams,
     Environment,
     Result,
 };
@@ -152,6 +153,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::rent_allowance::<T>(instance)
+    })
+}
+
+/// Returns information needed for rent calculations.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_params<T>() -> Result<RentParams<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_params::<T>(instance)
     })
 }
 
@@ -401,6 +416,8 @@ pub fn restore_contract<T>(
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
+///
+/// No tombstone will be created, this function kills a contract completely!
 ///
 /// # Note
 ///

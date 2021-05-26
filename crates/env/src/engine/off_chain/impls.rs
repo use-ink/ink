@@ -32,6 +32,7 @@ use crate::{
         Sha2x256,
     },
     topics::Topics,
+    types::RentParams,
     EnvBackend,
     Environment,
     Error,
@@ -43,7 +44,7 @@ use core::convert::TryInto;
 use ink_primitives::Key;
 use num_traits::Bounded;
 
-const UNITIALIZED_EXEC_CONTEXT: &str = "unitialized execution context: \
+const UNINITIALIZED_EXEC_CONTEXT: &str = "uninitialized execution context: \
 a possible source of error could be that you are using `#[test]` instead of `#[ink::test]`.";
 
 impl EnvInstance {
@@ -51,7 +52,7 @@ impl EnvInstance {
     fn callee_account(&self) -> &Account {
         let callee = self
             .exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .callee
             .clone();
         self.accounts
@@ -63,7 +64,7 @@ impl EnvInstance {
     fn callee_account_mut(&mut self) -> &mut Account {
         let callee = self
             .exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .callee
             .clone();
         self.accounts
@@ -166,7 +167,7 @@ impl EnvBackend for EnvInstance {
     where
         R: scale::Encode,
     {
-        let ctx = self.exec_context_mut().expect(UNITIALIZED_EXEC_CONTEXT);
+        let ctx = self.exec_context_mut().expect(UNINITIALIZED_EXEC_CONTEXT);
         ctx.output = Some(return_value.encode());
         std::process::exit(flags.into_u32() as i32)
     }
@@ -285,7 +286,7 @@ impl EnvInstance {
 impl TypedEnvBackend for EnvInstance {
     fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .caller::<T>()
             .map_err(|_| scale::Error::from("could not decode caller"))
             .map_err(Into::into)
@@ -293,7 +294,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .transferred_value::<T>()
             .map_err(|_| scale::Error::from("could not decode transferred balance"))
             .map_err(Into::into)
@@ -314,7 +315,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
         self.exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .gas::<T>()
             .map_err(|_| scale::Error::from("could not decode gas left"))
             .map_err(Into::into)
@@ -322,7 +323,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
         self.current_block()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .timestamp::<T>()
             .map_err(|_| scale::Error::from("could not decode block time"))
             .map_err(Into::into)
@@ -330,7 +331,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
         self.exec_context()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .callee::<T>()
             .map_err(|_| scale::Error::from("could not decode callee"))
             .map_err(Into::into)
@@ -350,9 +351,49 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
+    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
+    where
+        T: Environment,
+    {
+        use crate::arithmetic::Saturating as _;
+
+        let total_balance = self.balance::<T>()?;
+
+        // the off-chain environment does currently not support reserved balance,
+        // hence we just use the total balance here.
+        let free_balance = self.balance::<T>()?;
+
+        let deposit_per_contract = self.chain_spec.deposit_per_contract::<T>()?;
+        let deposit_per_storage_byte = self.chain_spec.deposit_per_storage_byte::<T>()?;
+        let deposit_per_storage_item = self.chain_spec.deposit_per_storage_item::<T>()?;
+        let rent_fraction = self.chain_spec.rent_fraction::<T>()?;
+        let minimum_balance: T::Balance = self.minimum_balance::<T>()?;
+        let tombstone_deposit = self.tombstone_deposit::<T>()?;
+        let subsistence_threshold = minimum_balance.saturating_add(tombstone_deposit);
+        let rent_allowance = self.rent_allowance::<T>()?;
+
+        Ok(RentParams {
+            deposit_per_contract,
+            deposit_per_storage_byte,
+            deposit_per_storage_item,
+            rent_fraction,
+            subsistence_threshold,
+
+            rent_allowance,
+            total_balance,
+            free_balance,
+
+            storage_size: 0,
+            code_size: 0,
+            code_refcount: 0,
+
+            _reserved: None,
+        })
+    }
+
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
         self.current_block()
-            .expect(UNITIALIZED_EXEC_CONTEXT)
+            .expect(UNINITIALIZED_EXEC_CONTEXT)
             .number::<T>()
             .map_err(|_| scale::Error::from("could not decode block number"))
             .map_err(Into::into)
@@ -453,7 +494,7 @@ impl TypedEnvBackend for EnvInstance {
     where
         T: Environment,
     {
-        let block = self.current_block().expect(UNITIALIZED_EXEC_CONTEXT);
+        let block = self.current_block().expect(UNINITIALIZED_EXEC_CONTEXT);
         Ok((block.random::<T>(subject)?, block.number::<T>()?))
     }
 }

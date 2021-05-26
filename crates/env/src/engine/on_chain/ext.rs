@@ -341,6 +341,14 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         );
     }
+
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
+        pub fn seal_rent_params(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+    }
 }
 
 fn extract_from_slice(output: &mut &mut [u8], new_len: usize) {
@@ -587,6 +595,19 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
 
 pub fn set_rent_allowance(value: &[u8]) {
     unsafe { sys::seal_set_rent_allowance(Ptr32::from_slice(value), value.len() as u32) }
+}
+
+pub fn rent_params(output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_params(
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
 }
 
 pub fn random(subject: &[u8], output: &mut &mut [u8]) {
