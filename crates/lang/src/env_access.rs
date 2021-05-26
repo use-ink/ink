@@ -110,6 +110,19 @@ where
 {
     /// Returns the address of the caller of the executed contract.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_prelude;
+    ///
+    /// #[ink(message, payable)]
+    /// pub fn call_me(&self) {
+    ///     let caller = self.env().caller();
+    ///     let message = ink_prelude::format!("got a call from {:?}", caller);
+    ///     ink_env::debug_println(&message);
+    /// }
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller`]
@@ -118,6 +131,21 @@ where
     }
 
     /// Returns the transferred balance for the contract execution.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_prelude;
+    ///
+    /// /// Allows funding the contract. Prints a debug message with the transferred balance.
+    /// #[ink(message, payable)]
+    /// pub fn fund(&self) {
+    ///     let caller = self.env().caller();
+    ///     let value = self.env().transferred_balance();
+    ///     let message = ink_prelude::format!("thanks for the funding of {:?} from {:?}", value, caller);
+    ///     ink_env::debug_println(&message);
+    /// }
+    /// ```
     ///
     /// # Note
     ///
@@ -128,6 +156,12 @@ where
 
     /// Returns the price for the specified amount of gas.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let price = self.env().weight_to_fee(13);
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
@@ -136,6 +170,12 @@ where
     }
 
     /// Returns the amount of gas left for the contract execution.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let gas_left = self.env().gas_left();
+    /// ```
     ///
     /// # Note
     ///
@@ -146,6 +186,12 @@ where
 
     /// Returns the timestamp of the current block.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let now = self.env().block_timestamp();
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::block_timestamp`]
@@ -154,6 +200,20 @@ where
     }
 
     /// Returns the account ID of the executed contract.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_prelude;
+    ///
+    /// /// Prints a debug message with the called contract's account id.
+    /// #[ink(message, payable)]
+    /// pub fn call_me(&self) {
+    ///     let account_id = self.env().account_id();
+    ///     let message = ink_prelude::format!("contract's account id is {:?}", account_id);
+    ///     ink_env::debug_println(&message);
+    /// }
+    /// ```
     ///
     /// # Note
     ///
@@ -164,6 +224,12 @@ where
 
     /// Returns the balance of the executed contract.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let contracts_balance = self.env().balance();
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::balance`]
@@ -173,6 +239,12 @@ where
 
     /// Returns the current rent allowance for the executed contract.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let allowance = self.env().rent_allowance();
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::rent_allowance`]
@@ -180,7 +252,29 @@ where
         ink_env::rent_allowance::<T>().expect("couldn't decode contract rent allowance")
     }
 
+    /// Sets the rent allowance of the executed contract to the new value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// self.env().set_rent_allowance(self.env().balance / 2);
+    /// ```
+    ///
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::set_rent_allowance`]
+    pub fn set_rent_allowance(self, new_value: T::Balance) {
+        ink_env::set_rent_allowance::<T>(new_value)
+    }
+
     /// Returns the current block number.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let block_number = self.env().block_number();
+    /// ```
     ///
     /// # Note
     ///
@@ -191,6 +285,12 @@ where
 
     /// Returns the minimum balance that is required for creating an account.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let minimum_balance = self.env().minimum_balance();
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
@@ -200,6 +300,12 @@ where
 
     /// Returns the tombstone deposit for the contracts chain.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// let tombstone_deposit = self.env().tombstone_deposit();
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::tombstone_deposit`]
@@ -207,44 +313,44 @@ where
         ink_env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
     }
 
-    /// Sets the rent allowance of the executed contract to the new value.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::set_rent_allowance`]
-    pub fn set_rent_allowance(self, new_value: T::Balance) {
-        ink_env::set_rent_allowance::<T>(new_value)
-    }
-
-    /// Invokes a contract message.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
-    where
-        Args: scale::Encode,
-    {
-        ink_env::invoke_contract::<T, Args>(params)
-    }
-
-    /// Evaluates a contract message and returns its result.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::eval_contract`]
-    pub fn eval_contract<Args, R>(
-        self,
-        params: &CallParams<T, Args, ReturnType<R>>,
-    ) -> Result<R>
-    where
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        ink_env::eval_contract::<T, Args, R>(params)
-    }
-
     /// Instantiates another contract.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+    /// # };
+    /// # type Hash = <DefaultEnvironment as Environment>::Hash;
+    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// # type Salt = &'static [u8];
+    /// # struct MyContract;
+    /// # impl FromAccountId<DefaultEnvironment> for MyContract {
+    /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
+    /// # }
+    /// /// Instantiates another contract.
+    /// #[ink(message)]
+    /// pub fn instantiate_contract(&self) -> AccountId {
+    ///     let create_params = build_create::<DefaultEnvironment, MyContract>()
+    ///         .code_hash(Hash::from([0x42; 32]))
+    ///         .gas_limit(4000)
+    ///         .endowment(25)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32])
+    ///             )
+    ///         .salt_bytes(&[0xCA, 0xFE, 0xBA, 0xBE])
+    ///         .params();
+    ///     self.env().instantiate_contract(&create_params).expect("instantiation must succeed")
+    /// }
+    /// ```
+    ///
+    /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
+    /// for a complete contract example.
     ///
     /// # Note
     ///
@@ -260,7 +366,111 @@ where
         ink_env::instantiate_contract::<T, Args, Salt, C>(params)
     }
 
-    /// Restores a smart contract in tombstone state.
+    /// Invokes a contract message without fetching its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// #     call::{build_call, Selector, ExecutionInput}
+    /// # };
+    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// /// Invokes another contract message without fetching the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract(&self) {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///         .callee(AccountId::from([0x42; 32]))
+    ///         .gas_limit(5000)
+    ///         .transferred_value(10)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32])
+    ///         )
+    ///         .returns::<()>()
+    ///         .params();
+    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract`]
+    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
+    where
+        Args: scale::Encode,
+    {
+        ink_env::invoke_contract::<T, Args>(params)
+    }
+
+    /// Evaluates a contract message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// #     call::{build_call, Selector, ExecutionInput}
+    /// # };
+    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// /// Evaluates a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract(&self) -> i32 {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///         .callee(AccountId::from([0x42; 32]))
+    ///         .gas_limit(5000)
+    ///         .transferred_value(10)
+    ///         .exec_input(
+    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                 .push_arg(42)
+    ///                 .push_arg(true)
+    ///                 .push_arg(&[0x10u8; 32])
+    ///         )
+    ///         .returns::<i32>()
+    ///         .params();
+    ///     self.env().eval_contract(&call_params).expect("call invocation must succeed")
+    /// }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::eval_contract`]
+    pub fn eval_contract<Args, R>(
+        self,
+        params: &CallParams<T, Args, ReturnType<R>>,
+    ) -> Result<R>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::eval_contract::<T, Args, R>(params)
+    }
+
+    /// Restores a smart contract from its tombstone state.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # type Hash = <DefaultEnvironment as Environment>::Hash;
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// # };
+    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// /// Simple resurrection of a contract.
+    /// #[ink(message)]
+    /// pub fn resurrect(&self, contract: AccountId) {
+    ///     self.env().restore_contract(contract,
+    ///         Hash::from([0x42; 32]),
+    ///         1000,
+    ///         &[]
+    ///     )
+    /// }
+    /// ```
     ///
     /// # Note
     ///
@@ -280,7 +490,17 @@ where
         )
     }
 
-    /// Terminates the existence of a smart contract.
+    /// Terminates the existence of a contract without creating a tombstone.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// /// Terminates with the caller as beneficiary.
+    /// #[ink(message)]
+    /// pub fn terminate_me(&mut self) {
+    ///     self.env().terminate_contract(self.env().caller());
+    /// }
+    /// ```
     ///
     /// # Note
     ///
@@ -291,6 +511,17 @@ where
 
     /// Transfers value from the contract to the destination account ID.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// /// Transfers the token amount ten to the caller.
+    /// #[ink(message)]
+    /// pub fn give_me_ten(&mut self) {
+    ///     let value: Balance = 10;
+    ///     self.env().transfer(self.env().caller(), value).expect("transfer failed");
+    /// }
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::transfer`]
@@ -300,6 +531,17 @@ where
 
     /// Returns a random hash seed.
     ///
+    /// # Example
+    ///
+    /// ```
+    /// #[ink(message)]
+    /// pub fn random_bool(&self) -> bool {
+    ///     let additional_randomness = &[];
+    ///     let (hash, _block_number) = self.env().random(additional_randomness);
+    ///     hash.as_ref()[0] != 0
+    /// }
+    /// ```
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
@@ -308,6 +550,16 @@ where
     }
 
     /// Computes the hash of the given bytes using the cryptographic hash `H`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_env::hash::{Sha2x256, HashOutput};
+    ///
+    /// let input: &[u8] = &[13, 14, 15];
+    /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+    /// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+    /// ```
     ///
     /// # Note
     ///
@@ -322,6 +574,22 @@ where
     }
 
     /// Computes the hash of the given SCALE encoded value using the cryptographic hash `H`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use ink_env::hash::{Sha2x256, HashOutput};
+    ///
+    /// let encodable = (42, "foo", true); // Implements `scale::Encode`
+    /// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+    /// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
+    ///
+    /// const EXPECTED: [u8; 32] = [
+    ///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
+    ///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+    /// ];
+    /// assert_eq!(output, EXPECTED);
+    /// ```
     ///
     /// # Note
     ///

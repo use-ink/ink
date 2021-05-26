@@ -396,7 +396,8 @@ pub fn restore_contract<T>(
     })
 }
 
-/// Terminates the existence of the currently executed smart contract.
+/// Terminates the existence of the currently executed smart contract
+/// without creating a tombstone.
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
@@ -519,6 +520,19 @@ pub fn debug_println(content: &str) {
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// # use ink_env::hash::{Sha2x256, HashOutput};
+/// const EXPECTED: [u8; 32] = [
+///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
+///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
+/// ];
+/// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+/// ink_env::hash_bytes::<Sha2x256>(&encodable, &mut output);
+/// assert_eq!(output, EXPECTED);
+/// ```
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,
