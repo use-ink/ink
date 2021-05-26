@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_env/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
-                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_env/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -239,7 +239,85 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
-</pre><pre class="rust">
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+</pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -285,6 +363,8 @@
 };
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">scale_info::TypeInfo</span>;
+<span class="kw">use</span> <span class="ident">sp_arithmetic::PerThing</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sp_arithmetic::Perbill</span>;
 
 <span class="doccomment">/// The environmental types usable by contracts defined with ink!.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Environment</span> {
@@ -342,6 +422,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html</span>
     <span class="kw">type</span> <span class="ident">ChainExtension</span>;
+
+    <span class="doccomment">/// The fraction of the deposit costs that should be used as rent per block.</span>
+    <span class="kw">type</span> <span class="ident">RentFraction</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">scale::Codec</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PerThing</span>;
 }
 
 <span class="doccomment">/// Placeholder for chains that have no defined chain extension.</span>
@@ -361,6 +444,7 @@
     <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">Timestamp</span>;
     <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">BlockNumber</span>;
     <span class="kw">type</span> <span class="ident">ChainExtension</span> <span class="op">=</span> <span class="ident">NoChainExtension</span>;
+    <span class="kw">type</span> <span class="ident">RentFraction</span> <span class="op">=</span> <span class="ident">RentFraction</span>;
 }
 
 <span class="doccomment">/// The default balance type.</span>
@@ -371,6 +455,9 @@
 
 <span class="doccomment">/// The default block number type.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">BlockNumber</span> <span class="op">=</span> <span class="ident">u32</span>;
+
+<span class="doccomment">/// The default rent fraction type.</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">RentFraction</span> <span class="op">=</span> <span class="ident">Perbill</span>;
 
 <span class="doccomment">/// The default environment `AccountId` type.</span>
 <span class="doccomment">///</span>
@@ -477,6 +564,75 @@
     <span class="kw">fn</span> <span class="ident">clear</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>(<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="ident">Clear</span><span class="op">&gt;</span><span class="ident">::clear</span>())
     }
+}
+
+<span class="doccomment">/// Information needed for rent calculations that can be requested by a contract.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RentParams</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The total balance of the contract. Includes the balance transferred from the caller.</span>
+    <span class="kw">pub</span> <span class="ident">total_balance</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The free balance of the contract, i.e. the portion of the contract&#39;s balance</span>
+    <span class="doccomment">/// that is not reserved. Includes the balance transferred from the caller.</span>
+    <span class="kw">pub</span> <span class="ident">free_balance</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// Subsistence threshold is the extension of the minimum balance (aka existential deposit)</span>
+    <span class="doccomment">/// by the tombstone deposit, required for leaving a tombstone.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Rent or any contract initiated balance transfer mechanism cannot make the balance lower</span>
+    <span class="doccomment">/// than the subsistence threshold in order to guarantee that a tombstone is created.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The only way to completely kill a contract without a tombstone is calling `seal_terminate`.</span>
+    <span class="kw">pub</span> <span class="ident">subsistence_threshold</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The balance every contract needs to deposit to stay alive indefinitely.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is different from the tombstone deposit because this only needs to be</span>
+    <span class="doccomment">/// deposited while the contract is alive. Costs for additional storage are added to</span>
+    <span class="doccomment">/// this base cost.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a simple way to ensure that contracts with empty storage eventually get deleted by</span>
+    <span class="doccomment">/// making them pay rent. This creates an incentive to remove them early in order to save rent.</span>
+    <span class="kw">pub</span> <span class="ident">deposit_per_contract</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The balance a contract needs to deposit per storage byte to stay alive indefinitely.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Let&#39;s suppose the deposit is 1,000 BU (balance units)/byte and the rent is 1 BU/byte/day,</span>
+    <span class="doccomment">/// then a contract with 1,000,000 BU that uses 1,000 bytes of storage would pay no rent.</span>
+    <span class="doccomment">/// But if the balance reduced to 500,000 BU and the storage stayed the same at 1,000,</span>
+    <span class="doccomment">/// then it would pay 500 BU/day.</span>
+    <span class="kw">pub</span> <span class="ident">deposit_per_storage_byte</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The balance a contract needs to deposit per storage item to stay alive indefinitely.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It works as [`Self::deposit_per_storage_byte`] but for storage items.</span>
+    <span class="kw">pub</span> <span class="ident">deposit_per_storage_item</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The contract&#39;s rent allowance, the rent mechanism cannot consume more than this.</span>
+    <span class="kw">pub</span> <span class="ident">rent_allowance</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// The fraction of the deposit costs that should be used as rent per block.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When a contract doesn&#39;t have enough balance deposited to stay alive indefinitely</span>
+    <span class="doccomment">/// it needs to pay per block for the storage it consumes that is not covered by the</span>
+    <span class="doccomment">/// deposit. This determines how high this rent payment is per block as a fraction</span>
+    <span class="doccomment">/// of the deposit costs.</span>
+    <span class="kw">pub</span> <span class="ident">rent_fraction</span>: <span class="ident">T::RentFraction</span>,
+
+    <span class="doccomment">/// The total number of bytes used by this contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is a sum of each key-value pair stored by this contract.</span>
+    <span class="kw">pub</span> <span class="ident">storage_size</span>: <span class="ident">u32</span>,
+
+    <span class="doccomment">/// Sum of instrumented and pristine code length.</span>
+    <span class="kw">pub</span> <span class="ident">code_size</span>: <span class="ident">u32</span>,
+
+    <span class="doccomment">/// The number of contracts using this executable.</span>
+    <span class="kw">pub</span> <span class="ident">code_refcount</span>: <span class="ident">u32</span>,
+
+    <span class="doccomment">/// Reserved for backwards compatible changes to this data structure.</span>
+    <span class="kw">pub</span> <span class="ident">_reserved</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
