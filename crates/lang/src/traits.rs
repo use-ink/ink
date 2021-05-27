@@ -198,6 +198,23 @@ pub trait TraitCallForwarder {
     type Forwarder: TraitCallBuilder;
 }
 
+/// Captures the module path of the ink! trait definition.
+///
+/// This can be used to differentiate between two equally named
+/// ink! trait definitions and also for metadata.
+pub trait TraitModulePath {
+    /// The module path of the ink! trait definition.
+    ///
+    /// This is equivalent to Rust's builtin `module_path!` macro
+    /// invokation at the definition site of the ink! trait.
+    const PATH: &'static str;
+
+    /// The full path and name of the ink! trait separated with `::`.
+    ///
+    /// This is just for convenience.
+    const FULL: &'static str;
+}
+
 /// Implemented by call builders of smart contracts.
 ///
 /// These might be implementing multiple different ink! traits.
@@ -237,4 +254,32 @@ pub trait TraitCallForwarderFor<const ID: u32> {
     ///
     /// This is used for the long-hand calling syntax.
     fn build_mut(&mut self) -> &mut <Self::Forwarder as TraitCallBuilder>::Builder;
+}
+
+/// Stores information per trait message.
+///
+/// This information includes if the ink! trait message has been
+/// annotated with `#[ink(payable)]`.
+///
+/// In the future this info trait might be extended to contain
+/// more information about a single ink! trait message.
+///
+/// The information provided through this trait can be used on the
+/// implementer side of an ink! trait to check and guard certain
+/// properties on a Rust type system level. This is important since
+/// ink! cannot be guaranteed to have both the ink! trait definition
+/// and all of its implementers under its scope and radar.
+///
+/// # Note
+///
+/// - The `TRAIT_ID` is the `u32` identifier uniquely identifying the
+///   ink! trait.
+/// - The `MSG_ID` is the `u32` identifier derived from the selector
+///   that uniquely identifies the message.
+pub trait TraitMessageInfo<const TRAIT_ID: u32, const MSG_ID: u32> {
+    /// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.
+    const PAYABLE: bool;
+
+    /// The unique selector of the ink! trait message.
+    const SELECTOR: [u8; 4];
 }

@@ -80,6 +80,7 @@ pub use self::{
         TraitCallForwarderRegistry,
         TraitUniqueId,
         TraitCallForwarderFor,
+        TraitModulePath,
         True,
     },
 };
