@@ -99,5 +99,6 @@ pub use self::{
         NoChainExtension,
         Perbill,
         RentParams,
+        RentStatus,
     },
 };

@@ -348,6 +348,11 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
+
+        pub fn seal_rent_status(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
     }
 }
 
@@ -602,6 +607,19 @@ pub fn rent_params(output: &mut &mut [u8]) {
     {
         unsafe {
             sys::seal_rent_params(
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
+}
+
+pub fn rent_status(output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_status(
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )

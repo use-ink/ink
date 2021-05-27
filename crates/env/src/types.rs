@@ -314,3 +314,37 @@ pub struct RentParams<T: Environment> {
     /// Reserved for backwards compatible changes to this data structure.
     pub _reserved: Option<()>,
 }
+
+/// Information about the required deposit and resulting rent.
+///
+/// The easiest way to guarantee that a contract stays alive is to assert that
+/// `max_rent == 0` at the **end** of a contract's execution.
+///
+/// # Note
+///
+/// The `current_*` fields do **not** consider changes to the code's refcount made during
+/// the currently running call.
+#[derive(scale::Decode)]
+#[cfg_attr(test, derive(Debug, PartialEq))]
+pub struct RentStatus<T: Environment> {
+    /// Required deposit assuming that this contract is the only user of its code.
+    pub max_deposit: T::Balance,
+
+    /// Required deposit assuming the code's current refcount.
+    pub current_deposit: T::Balance,
+
+    /// Required deposit assuming the specified refcount (`None` if `0` is supplied).
+    pub custom_refcount_deposit: Option<T::Balance>,
+
+    /// Rent that is paid assuming that the contract is the only user of its code.
+    pub max_rent: T::Balance,
+
+    /// Rent that is paid given the code's current refcount.
+    pub current_rent: T::Balance,
+
+    /// Rent that is paid assuming the specified refcount (`None` if `0` is supplied).
+    pub custom_refcount_rent: Option<T::Balance>,
+
+    /// Reserved for backwards compatible changes to this data structure.
+    pub _reserved: Option<()>,
+}

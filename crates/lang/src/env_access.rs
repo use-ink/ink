@@ -25,6 +25,7 @@ use ink_env::{
     },
     Environment,
     RentParams,
+    RentStatus,
     Result,
 };
 use ink_primitives::Key;
@@ -188,6 +189,15 @@ where
     /// For more details visit: [`ink_env::RentParams`]
     pub fn rent_params(self) -> RentParams<T> {
         ink_env::rent_params::<T>().expect("couldn't decode contract rent params")
+    }
+
+    /// Returns information about the required deposit and resulting rent.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::RentStatus`]
+    pub fn rent_status(self) -> RentStatus<T> {
+        ink_env::rent_status::<T>().expect("couldn't decode contract rent params")
     }
 
     /// Returns the current block number.

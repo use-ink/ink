@@ -32,7 +32,10 @@ use crate::{
         Sha2x256,
     },
     topics::Topics,
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     EnvBackend,
     Environment,
     Error,
@@ -389,6 +392,13 @@ impl TypedEnvBackend for EnvInstance {
 
             _reserved: None,
         })
+    }
+
+    fn rent_status<T>(&mut self) -> Result<RentStatus<T>>
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support rent status")
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {

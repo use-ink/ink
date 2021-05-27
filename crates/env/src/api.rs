@@ -34,7 +34,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -167,6 +170,20 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::rent_params::<T>(instance)
+    })
+}
+
+/// Returns information about the required deposit and resulting rent.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_status<T>() -> Result<RentStatus<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_status::<T>(instance)
     })
 }
 
