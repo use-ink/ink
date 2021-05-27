@@ -350,7 +350,7 @@ mod sys {
         );
 
         pub fn seal_rent_status(
-            at_refcount: Option<u32>,
+            at_refcount: u32,
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
