@@ -23,6 +23,7 @@ mod item_impls;
 mod metadata;
 mod storage;
 mod trait_def;
+mod enforced_error;
 
 pub use self::{
     chain_extension::ChainExtension,
