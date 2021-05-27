@@ -17,6 +17,7 @@ mod definition;
 mod long_call;
 mod short_call;
 mod trait_registry;
+mod call_builder;
 
 use heck::CamelCase as _;
 use crate::GenerateCode;
@@ -71,12 +72,14 @@ impl GenerateCode for TraitDefinition<'_> {
         let trait_concretizer_impls = self.generate_trait_impl_block();
         // let long_hand_impls = self.generate_trait_impl_longhand();
         let trait_registry = self.generate_trait_registry_impl();
+        let trait_call_builder = self.generate_call_builder();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
                 #trait_concretizer
                 #trait_concretizer_impls
                 #trait_registry
+                #trait_call_builder
             };
         )
     }
