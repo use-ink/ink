@@ -143,14 +143,14 @@ cfg_if::cfg_if! {
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_print {
-            ($($arg:tt)*) => (debug_assert!(true));
+            ($($arg:tt)*) => ();
         }
 
         #[macro_export]
         /// Debug messages disabled. Enable the `ink-debug` feature for contract debugging.
         macro_rules! debug_println {
-            () => (debug_assert!(true));
-            ($($arg:tt)*) => (debug_assert!(true))
+            () => ();
+            ($($arg:tt)*) => ();
         }
     }
 }
