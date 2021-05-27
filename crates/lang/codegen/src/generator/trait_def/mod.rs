@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod concretizer;
 mod definition;
-mod long_call;
-mod short_call;
 mod trait_registry;
 mod call_builder;
 mod call_forwarder;
@@ -69,17 +66,12 @@ impl GenerateCode for TraitDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_definition = self.generate_trait_definition();
-        let trait_concretizer = self.generate_trait_concretizer();
-        let trait_concretizer_impls = self.generate_trait_impl_block();
-
         let trait_registry = self.generate_trait_registry_impl();
         let trait_call_builder = self.generate_call_builder();
         let trait_call_forwarder = self.generate_call_forwarder();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
-                #trait_concretizer
-                #trait_concretizer_impls
                 #trait_registry
                 #trait_call_builder
                 #trait_call_forwarder
