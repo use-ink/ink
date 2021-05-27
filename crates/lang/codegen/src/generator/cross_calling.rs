@@ -50,7 +50,7 @@ pub enum EnforcedErrors {
         /// The selector of the called message.
         message_selector: [u8; 4],
         /// Is `true` if the `self` receiver of the ink! message is `&mut self`.
-        message_mut: bool,
+        message_is_mut: bool,
     },
     /// The below error represents calling a constructor in a context that does
     /// not allow calling it. This may happen when the constructor defined in a
@@ -239,7 +239,7 @@ impl CrossCalling<'_> {
                 trait_ident,
                 message_ident: ident.to_string(),
                 message_selector: composed_selector,
-                message_mut: message.receiver().is_ref_mut(),
+                message_is_mut: message.receiver().is_ref_mut(),
             });
         let output_ty = message
             .output()
