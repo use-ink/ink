@@ -397,6 +397,7 @@ impl CallForwarder<'_> {
             ir::Receiver::Ref => quote! { call },
             ir::Receiver::RefMut => quote! { call_mut },
         };
+        let mut_tok = message.mutates().then(|| quote! { mut });
         let panic_str = format!(
             "encountered error while calling <{} as {}>::{}",
             forwarder_ident, trait_ident, message_ident,
@@ -407,7 +408,8 @@ impl CallForwarder<'_> {
             #( #attrs )*
             #[inline]
             fn #message_ident(
-                #( #input_bindings : #input_types ),*
+                & #mut_tok self
+                #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 <<Self as ::ink_lang::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
                     <Self as ::ink_lang::TraitCallBuilder>::#call_op(self)

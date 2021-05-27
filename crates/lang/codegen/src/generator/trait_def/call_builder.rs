@@ -384,9 +384,10 @@ impl CallBuilder<'_> {
             #( #attrs )*
             #[inline]
             fn #message_ident(
-                & #mut_tok #(, #input_bindings : #input_types )*
+                & #mut_tok self
+                #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_call::<Environment>()
+                ::ink_env::call::build_call::<Self::Env>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
