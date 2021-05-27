@@ -394,7 +394,7 @@ impl TypedEnvBackend for EnvInstance {
         })
     }
 
-    fn rent_status<T>(&mut self) -> Result<RentStatus<T>>
+    fn rent_status<T>(&mut self, _at_refcount: Option<u32>) -> Result<RentStatus<T>>
     where
         T: Environment,
     {

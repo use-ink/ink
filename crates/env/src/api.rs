@@ -175,15 +175,19 @@ where
 
 /// Returns information about the required deposit and resulting rent.
 ///
+/// # Parameters
+///
+/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+///
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn rent_status<T>() -> Result<RentStatus<T>>
+pub fn rent_status<T>(at_refcount: Option<u32>) -> Result<RentStatus<T>>
 where
     T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::rent_status::<T>(instance)
+        TypedEnvBackend::rent_status::<T>(instance, at_refcount)
     })
 }
 

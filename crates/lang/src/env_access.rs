@@ -193,11 +193,16 @@ where
 
     /// Returns information about the required deposit and resulting rent.
     ///
+    /// # Parameters
+    ///
+    /// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+    ///
     /// # Note
     ///
     /// For more details visit: [`ink_env::RentStatus`]
-    pub fn rent_status(self) -> RentStatus<T> {
-        ink_env::rent_status::<T>().expect("couldn't decode contract rent params")
+    pub fn rent_status(self, at_refcount: Option<u32>) -> RentStatus<T> {
+        ink_env::rent_status::<T>(at_refcount)
+            .expect("couldn't decode contract rent params")
     }
 
     /// Returns the current block number.

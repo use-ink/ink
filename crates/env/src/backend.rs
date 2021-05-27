@@ -238,7 +238,10 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`RentStatus`][`crate::RentStatus`]
-    fn rent_status<T: Environment>(&mut self) -> Result<RentStatus<T>>;
+    fn rent_status<T: Environment>(
+        &mut self,
+        at_refcount: Option<u32>,
+    ) -> Result<RentStatus<T>>;
 
     /// Returns the current block number.
     ///
