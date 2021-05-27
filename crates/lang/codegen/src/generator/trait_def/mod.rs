@@ -71,7 +71,7 @@ impl GenerateCode for TraitDefinition<'_> {
         let trait_definition = self.generate_trait_definition();
         let trait_concretizer = self.generate_trait_concretizer();
         let trait_concretizer_impls = self.generate_trait_impl_block();
-        // let long_hand_impls = self.generate_trait_impl_longhand();
+
         let trait_registry = self.generate_trait_registry_impl();
         let trait_call_builder = self.generate_call_builder();
         let trait_call_forwarder = self.generate_call_forwarder();
