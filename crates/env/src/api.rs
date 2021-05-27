@@ -186,7 +186,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn rent_status<T>(at_refcount: Option<u32>) -> Result<RentStatus<T>>
+pub fn rent_status<T>(at_refcount: Option<core::num::NonZeroU32>) -> Result<RentStatus<T>>
 where
     T: Environment,
 {

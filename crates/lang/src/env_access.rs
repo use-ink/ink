@@ -204,7 +204,10 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::RentStatus`]
-    pub fn rent_status(self, at_refcount: Option<u32>) -> RentStatus<T> {
+    pub fn rent_status(
+        self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> RentStatus<T> {
         ink_env::rent_status::<T>(at_refcount)
             .expect("couldn't decode contract rent params")
     }

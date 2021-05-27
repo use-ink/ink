@@ -616,12 +616,12 @@ pub fn rent_params(output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-pub fn rent_status(at_refcount: Option<u32>, output: &mut &mut [u8]) {
+pub fn rent_status(at_refcount: Option<core::num::NonZeroU32>, output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
         unsafe {
             sys::seal_rent_status(
-                at_refcount.unwrap_or(0),
+                at_refcount.map_or(0, |rc| rc.get()),
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )

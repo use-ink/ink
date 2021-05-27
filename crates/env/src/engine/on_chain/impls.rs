@@ -366,7 +366,10 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<RentParams<T>>(ext::rent_params)
     }
 
-    fn rent_status<T>(&mut self, at_refcount: Option<u32>) -> Result<RentStatus<T>>
+    fn rent_status<T>(
+        &mut self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>
     where
         T: Environment,
     {
