@@ -317,6 +317,40 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -630,6 +664,40 @@
 
     <span class="doccomment">/// The number of contracts using this executable.</span>
     <span class="kw">pub</span> <span class="ident">code_refcount</span>: <span class="ident">u32</span>,
+
+    <span class="doccomment">/// Reserved for backwards compatible changes to this data structure.</span>
+    <span class="kw">pub</span> <span class="ident">_reserved</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+}
+
+<span class="doccomment">/// Information about the required deposit and resulting rent.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The easiest way to guarantee that a contract stays alive is to assert that</span>
+<span class="doccomment">/// `max_rent == 0` at the **end** of a contract&#39;s execution.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The `current_*` fields do **not** consider changes to the code&#39;s refcount made during</span>
+<span class="doccomment">/// the currently running call.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">scale::Decode</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Required deposit assuming that this contract is the only user of its code.</span>
+    <span class="kw">pub</span> <span class="ident">max_deposit</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// Required deposit assuming the code&#39;s current refcount.</span>
+    <span class="kw">pub</span> <span class="ident">current_deposit</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// Required deposit assuming the specified refcount (`None` if `0` is supplied).</span>
+    <span class="kw">pub</span> <span class="ident">custom_refcount_deposit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>,
+
+    <span class="doccomment">/// Rent that is paid assuming that the contract is the only user of its code.</span>
+    <span class="kw">pub</span> <span class="ident">max_rent</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// Rent that is paid given the code&#39;s current refcount.</span>
+    <span class="kw">pub</span> <span class="ident">current_rent</span>: <span class="ident">T::Balance</span>,
+
+    <span class="doccomment">/// Rent that is paid assuming the specified refcount (`None` if `0` is supplied).</span>
+    <span class="kw">pub</span> <span class="ident">custom_refcount_rent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Reserved for backwards compatible changes to this data structure.</span>
     <span class="kw">pub</span> <span class="ident">_reserved</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,

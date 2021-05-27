@@ -572,6 +572,31 @@
 <span id="569">569</span>
 <span id="570">570</span>
 <span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -609,7 +634,10 @@
         <span class="ident">HashOutput</span>,
     },
     <span class="ident">topics::Topics</span>,
-    <span class="ident">types::RentParams</span>,
+    <span class="ident">types</span>::{
+        <span class="ident">RentParams</span>,
+        <span class="ident">RentStatus</span>,
+    },
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
@@ -742,6 +770,28 @@
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">TypedEnvBackend::rent_params</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+    })
+}
+
+<span class="doccomment">/// Returns information about the required deposit and resulting rent.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Parameters</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.</span>
+<span class="doccomment">///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///   The `current_*` fields of `RentStatus` do **not** consider changes to the code&#39;s</span>
+<span class="doccomment">///   refcount made during the currently running call.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_status</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">TypedEnvBackend::rent_status</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">at_refcount</span>)
     })
 }
 

@@ -355,6 +355,19 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -381,7 +394,10 @@
         <span class="ident">HashOutput</span>,
     },
     <span class="ident">topics::Topics</span>,
-    <span class="ident">types::RentParams</span>,
+    <span class="ident">types</span>::{
+        <span class="ident">RentParams</span>,
+        <span class="ident">RentStatus</span>,
+    },
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
@@ -587,6 +603,16 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`RentParams`][`crate::RentParams`]</span>
     <span class="kw">fn</span> <span class="ident">rent_params</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentParams</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Returns information about the required deposit and resulting rent.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`RentStatus`][`crate::RentStatus`]</span>
+    <span class="kw">fn</span> <span class="ident">rent_status</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns the current block number.</span>
     <span class="doccomment">///</span>

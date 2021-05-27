@@ -435,6 +435,17 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -473,6 +484,7 @@
     <span class="ident">EnvBackend</span>,
     <span class="ident">Environment</span>,
     <span class="ident">RentParams</span>,
+    <span class="ident">RentStatus</span>,
     <span class="prelude-ty">Result</span>,
     <span class="ident">ReturnFlags</span>,
     <span class="ident">TypedEnvBackend</span>,
@@ -745,6 +757,16 @@
         <span class="ident">T</span>: <span class="ident">Environment</span>,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support rent params&quot;</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">rent_status</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">_at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">Environment</span>,
+    {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support rent status&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::BlockNumber</span><span class="op">&gt;</span> {

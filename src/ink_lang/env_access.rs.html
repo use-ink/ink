@@ -349,6 +349,28 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -377,6 +399,7 @@
     },
     <span class="ident">Environment</span>,
     <span class="ident">RentParams</span>,
+    <span class="ident">RentStatus</span>,
     <span class="prelude-ty">Result</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
@@ -540,6 +563,27 @@
     <span class="doccomment">/// For more details visit: [`ink_env::RentParams`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_params</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RentParams</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">ink_env::rent_params</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode contract rent params&quot;</span>)
+    }
+
+    <span class="doccomment">/// Returns information about the required deposit and resulting rent.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Parameters</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.</span>
+    <span class="doccomment">///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///   The `current_*` fields of `RentStatus` do **not** consider changes to the code&#39;s</span>
+    <span class="doccomment">///   refcount made during the currently running call.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For more details visit: [`ink_env::RentStatus`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_status</span>(
+        <span class="self">self</span>,
+        <span class="ident">at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="ident">ink_env::rent_status</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at_refcount</span>)
+            .<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode contract rent params&quot;</span>)
     }
 
     <span class="doccomment">/// Returns the current block number.</span>
