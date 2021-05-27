@@ -26,6 +26,10 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 static_assertions = "1.1"
 
+[dev-dependencies]
+ink_lang_ir = { version = "3.0.0-rc3", path = "./ir", default-features = false }
+syn = "1"
+
 [features]
 default = ["std"]
 std = [

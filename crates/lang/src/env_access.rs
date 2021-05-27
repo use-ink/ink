@@ -115,13 +115,17 @@ where
     ///
     /// ```
     /// use ink_prelude;
-    ///
-    /// #[ink(message, payable)]
-    /// pub fn call_me(&self) {
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    ///  #[ink(message)]
+    ///  pub fn call_me(&self) {
     ///     let caller = self.env().caller();
     ///     let message = ink_prelude::format!("got a call from {:?}", caller);
     ///     ink_env::debug_println(&message);
-    /// }
+    ///  }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -138,6 +142,9 @@ where
     /// ```
     /// use ink_prelude;
     ///
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Allows funding the contract. Prints a debug message with the transferred balance.
     /// #[ink(message, payable)]
     /// pub fn fund(&self) {
@@ -146,6 +153,8 @@ where
     ///     let message = ink_prelude::format!("thanks for the funding of {:?} from {:?}", value, caller);
     ///     ink_env::debug_println(&message);
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -160,7 +169,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let price = self.env().weight_to_fee(13);
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _price = self.env().weight_to_fee(13);
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -175,7 +192,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let gas_left = self.env().gas_left();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _gas_left = self.env().gas_left();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -190,7 +215,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let now = self.env().block_timestamp();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _now = self.env().block_timestamp();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -207,6 +240,9 @@ where
     /// ```
     /// use ink_prelude;
     ///
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Prints a debug message with the called contract's account id.
     /// #[ink(message, payable)]
     /// pub fn call_me(&self) {
@@ -214,6 +250,8 @@ where
     ///     let message = ink_prelude::format!("contract's account id is {:?}", account_id);
     ///     ink_env::debug_println(&message);
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -228,7 +266,16 @@ where
     /// # Example
     ///
     /// ```
-    /// let contracts_balance = self.env().balance();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// /// Returns the contract's balance.
+    /// #[ink(message, payable)]
+    /// pub fn my_balance(&self) -> Balance {
+    ///     self.env().balance()
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -243,7 +290,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let allowance = self.env().rent_allowance();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _allowance = self.env().rent_allowance();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -258,7 +313,15 @@ where
     /// # Example
     ///
     /// ```
-    /// self.env().set_rent_allowance(self.env().balance / 2);
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     self.env().set_rent_allowance(self.env().balance() / 2);
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -269,6 +332,22 @@ where
     }
 
     /// Returns information needed for rent calculations.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// /// Returns the balance every contract needs to deposit on this chain
+    /// /// to stay alive indefinitely.
+    /// #[ink(message, payable)]
+    /// pub fn deposit_per_contract(&self) -> Balance {
+    ///     self.env().rent_params().deposit_per_contract
+    /// }
+    /// # }
+    /// # }).unwrap();
+    /// ```
     ///
     /// # Note
     ///
@@ -282,7 +361,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let block_number = self.env().block_number();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _block_number = self.env().block_number();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -297,7 +384,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let minimum_balance = self.env().minimum_balance();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _minimum_balance = self.env().minimum_balance();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -312,7 +407,15 @@ where
     /// # Example
     ///
     /// ```
-    /// let tombstone_deposit = self.env().tombstone_deposit();
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
+    /// #[ink(message, payable)]
+    /// pub fn my_message(&self) {
+    ///     let _tombstone_deposit = self.env().tombstone_deposit();
+    /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -339,6 +442,10 @@ where
     /// # impl FromAccountId<DefaultEnvironment> for MyContract {
     /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
     /// # }
+    /// #
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
@@ -356,6 +463,8 @@ where
     ///         .params();
     ///     self.env().instantiate_contract(&create_params).expect("instantiation must succeed")
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
@@ -386,6 +495,10 @@ where
     /// #     call::{build_call, Selector, ExecutionInput}
     /// # };
     /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// #
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Invokes another contract message without fetching the result.
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) {
@@ -403,6 +516,8 @@ where
     ///         .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -426,6 +541,10 @@ where
     /// #     call::{build_call, Selector, ExecutionInput}
     /// # };
     /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// #
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Evaluates a contract message and fetches the result.
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
@@ -443,6 +562,8 @@ where
     ///         .params();
     ///     self.env().eval_contract(&call_params).expect("call invocation must succeed")
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -470,6 +591,10 @@ where
     /// #     DefaultEnvironment,
     /// # };
     /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// #
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Simple resurrection of a contract.
     /// #[ink(message)]
     /// pub fn resurrect(&self, contract: AccountId) {
@@ -479,6 +604,8 @@ where
     ///         &[]
     ///     )
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -504,11 +631,16 @@ where
     /// # Example
     ///
     /// ```
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Terminates with the caller as beneficiary.
     /// #[ink(message)]
     /// pub fn terminate_me(&mut self) {
     ///     self.env().terminate_contract(self.env().caller());
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -523,12 +655,17 @@ where
     /// # Example
     ///
     /// ```
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// /// Transfers the token amount ten to the caller.
     /// #[ink(message)]
     /// pub fn give_me_ten(&mut self) {
     ///     let value: Balance = 10;
     ///     self.env().transfer(self.env().caller(), value).expect("transfer failed");
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -543,12 +680,18 @@ where
     /// # Example
     ///
     /// ```
+    /// #
+    /// # use core::convert::TryFrom;
+    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # impl MyContract {
     /// #[ink(message)]
     /// pub fn random_bool(&self) -> bool {
     ///     let additional_randomness = &[];
     ///     let (hash, _block_number) = self.env().random(additional_randomness);
     ///     hash.as_ref()[0] != 0
     /// }
+    /// # }
+    /// # }).unwrap();
     /// ```
     ///
     /// # Note
