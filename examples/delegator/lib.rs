@@ -140,6 +140,5 @@ mod delegator {
                 }
             }
         }
-
     }
 }
