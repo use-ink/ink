@@ -23,6 +23,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -228,6 +232,23 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`rent_allowance`][`crate::rent_allowance`]
     fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance>;
+
+    /// Returns information needed for rent calculations.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`RentParams`][`crate::RentParams`]
+    fn rent_params<T: Environment>(&mut self) -> Result<RentParams<T>>;
+
+    /// Returns information about the required deposit and resulting rent.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`RentStatus`][`crate::RentStatus`]
+    fn rent_status<T: Environment>(
+        &mut self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>;
 
     /// Returns the current block number.
     ///

@@ -34,6 +34,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -152,6 +156,42 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::rent_allowance::<T>(instance)
+    })
+}
+
+/// Returns information needed for rent calculations.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_params<T>() -> Result<RentParams<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_params::<T>(instance)
+    })
+}
+
+/// Returns information about the required deposit and resulting rent.
+///
+/// # Parameters
+///
+/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+///
+///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
+///   refcount made during the currently running call.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_status<T>(at_refcount: Option<core::num::NonZeroU32>) -> Result<RentStatus<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_status::<T>(instance, at_refcount)
     })
 }
 
@@ -400,6 +440,8 @@ pub fn restore_contract<T>(
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
+///
+/// No tombstone will be created, this function kills a contract completely!
 ///
 /// # Note
 ///

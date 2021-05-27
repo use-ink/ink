@@ -343,10 +343,24 @@ mod sys {
         );
     }
 
-    #[cfg(feature = "ink-debug")]
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
-        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
+        #[cfg(feature = "ink-debug")]
+        pub fn seal_debug_message(
+            str_ptr: Ptr32<[u8]>,
+            str_len: u32
+        ) -> ReturnCode;
+
+        pub fn seal_rent_params(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+
+        pub fn seal_rent_status(
+            at_refcount: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
     }
 }
 
@@ -594,6 +608,33 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
 
 pub fn set_rent_allowance(value: &[u8]) {
     unsafe { sys::seal_set_rent_allowance(Ptr32::from_slice(value), value.len() as u32) }
+}
+
+pub fn rent_params(output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_params(
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
+}
+
+pub fn rent_status(at_refcount: Option<core::num::NonZeroU32>, output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_status(
+                at_refcount.map_or(0, |rc| rc.get()),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
 }
 
 pub fn random(subject: &[u8], output: &mut &mut [u8]) {
