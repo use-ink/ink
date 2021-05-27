@@ -35,6 +35,7 @@ use crate::{
     EnvBackend,
     Environment,
     RentParams,
+    RentStatus,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -307,6 +308,16 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         unimplemented!("off-chain environment does not support rent params")
+    }
+
+    fn rent_status<T>(
+        &mut self,
+        _at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support rent status")
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
