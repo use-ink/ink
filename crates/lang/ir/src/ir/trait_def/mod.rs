@@ -151,6 +151,12 @@ impl InkTrait {
                 }),
         )
     }
+
+    /// Returns the unique trait identifier.
+    pub fn unique_id(&self) -> u32 {
+        let [h1, h2, h3, h4, ..] = self.verify_hash();
+        u32::from_be_bytes([h1, h2, h3, h4])
+    }
 }
 
 impl InkTrait {
