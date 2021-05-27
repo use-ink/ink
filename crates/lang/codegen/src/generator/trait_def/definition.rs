@@ -24,24 +24,6 @@ use quote::{
 };
 
 impl<'a> TraitDefinition<'a> {
-    fn generate_for_constructor(
-        constructor: ir::InkTraitConstructor<'a>,
-    ) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let sig = constructor.sig();
-        let ident = &sig.ident;
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
-        let inputs = &sig.inputs;
-        quote_spanned!(span =>
-            /// Output type of the respective trait constructor.
-            type #output_ident;
-
-            #(#attrs)*
-            fn #ident(#inputs) -> Self::#output_ident;
-        )
-    }
-
     fn generate_for_message(message: ir::InkTraitMessage<'a>) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
@@ -52,7 +34,7 @@ impl<'a> TraitDefinition<'a> {
             syn::ReturnType::Default => quote! { () },
             syn::ReturnType::Type(_, ty) => quote! { #ty },
         };
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
             type #output_ident: ::ink_lang::ImpliesReturn<#output>;
@@ -69,22 +51,8 @@ impl TraitDefinition<'_> {
         let attrs = self.trait_def.attrs();
         let hash = self.trait_def.verify_hash();
         let ident = self.trait_def.ident();
-        let helper_ident = format_ident!(
-            "__ink_Checked{}_0x{:X}{:X}{:X}{:X}",
-            ident,
-            hash[0],
-            hash[1],
-            hash[2],
-            hash[3]
-        );
-        let verify_hash_id =
+        let unique_trait_id =
             u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
-        let constructors = self
-            .trait_def
-            .iter_items()
-            .map(|(item, _)| item)
-            .flat_map(ir::InkTraitItem::filter_map_constructor)
-            .map(Self::generate_for_constructor);
         let messages = self
             .trait_def
             .iter_items()
@@ -93,27 +61,19 @@ impl TraitDefinition<'_> {
             .map(Self::generate_for_message);
         quote_spanned!(span =>
             #(#attrs)*
-            pub trait #ident: ::ink_lang::CheckedInkTrait<[(); #verify_hash_id]> {
+            pub trait #ident: ::ink_lang::TraitImplementer<#unique_trait_id> {
+                /// The contract environment.
+                type Env: ::ink_env::Environment;
+
+                /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                type __ink_Checksum: #helper_ident;
+                type __ink_TraitInfo: ::ink_lang::TraitUniqueId
+                    + ::ink_lang::TraitCallForwarder
+                    + ::ink_lang::TraitImplementer<#unique_trait_id>;
 
-                /// Used to map from trait to a concrete `AccountId` thin-wrapper
-                /// implementing the exact same trait. This defaults to
-                /// `ink_lang::NoConcreteImplementer` for user provided implementations.
-                #[doc(hidden)]
-                #[allow(non_camel_case_types)]
-                type __ink_ConcreteImplementer;
-
-                #(#constructors)*
                 #(#messages)*
             }
-
-            #[doc(hidden)]
-            #[allow(non_camel_case_types)]
-            pub unsafe trait #helper_ident {}
-
-            unsafe impl #helper_ident for [(); #verify_hash_id] {}
         )
     }
 }
