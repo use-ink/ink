@@ -230,15 +230,7 @@ impl TraitRegistry<'_> {
             {
                 const PATH: &'static ::core::primitive::str = ::core::module_path!();
 
-                const FULL: &'static ::core::primitive::str = ::core::concat!(
-                    // We cannot reuse `Self::PATH` here since only literals
-                    // are allow to be passed into the `concat!` macro.
-                    // Fortunately the Rust compiler produces a string literal
-                    // in place of the `module_path!` macro invokation.
-                    ::core::module_path!(),
-                    "::",
-                    #trait_ident,
-                );
+                const NAME: &'static ::core::primitive::str = ::core::stringify!(#trait_ident);
             }
 
             impl<E> ::ink_lang::TraitCallForwarder for #trait_info_ident<E>

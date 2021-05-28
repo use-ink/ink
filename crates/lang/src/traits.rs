@@ -209,10 +209,10 @@ pub trait TraitModulePath {
     /// invokation at the definition site of the ink! trait.
     const PATH: &'static str;
 
-    /// The full path and name of the ink! trait separated with `::`.
+    /// The name of the ink! trait.
     ///
     /// This is just for convenience.
-    const FULL: &'static str;
+    const NAME: &'static str;
 }
 
 /// Implemented by call builders of smart contracts.
