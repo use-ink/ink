@@ -86,7 +86,7 @@ impl CallForwarder<'_> {
 
     /// Returns the identifier of the ink! trait call forwarder.
     fn ident(&self) -> syn::Ident {
-        self.trait_def.call_builder_ident()
+        self.trait_def.call_forwarder_ident()
     }
 
     /// Generates the struct type definition for the account wrapper type.
