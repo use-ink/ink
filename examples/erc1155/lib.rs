@@ -16,6 +16,9 @@
 
 use ink_lang as ink;
 
+type TokenId = u128;
+type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
+
 #[ink::trait_definition]
 pub trait Erc1155 {
     #[ink(message)]
@@ -25,7 +28,7 @@ pub trait Erc1155 {
     fn safe_batch_transfer_from(&mut self);
 
     #[ink(message)]
-    fn balance_of(&self);
+    fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance;
 
     #[ink(message)]
     fn balance_of_batch(&self);
@@ -48,18 +51,24 @@ pub trait Erc1155TokenReceiver {
 
 #[ink::contract]
 mod erc1155 {
+    use super::*;
+
+    use ink_prelude::collections::BTreeMap;
+
     /// An ERC-1155 contract.
     #[ink(storage)]
-    pub struct Erc1155 {}
+    pub struct Contract {
+        balances: BTreeMap<AccountId, BTreeMap<TokenId, Balance>>,
+    }
 
-    impl Erc1155 {
+    impl Contract {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self {}
+        pub fn new(balances: BTreeMap<AccountId, BTreeMap<TokenId, Balance>>) -> Self {
+            Self { balances }
         }
     }
 
-    impl super::Erc1155 for Erc1155 {
+    impl super::Erc1155 for Contract {
         #[ink(message)]
         fn safe_transfer_from(&mut self) {
             todo!()
@@ -71,8 +80,12 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn balance_of(&self) {
-            todo!()
+        fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance {
+            *self
+                .balances
+                .get(&owner)
+                .and_then(|b| b.get(&token_id))
+                .unwrap_or(&0)
         }
 
         #[ink(message)]
@@ -91,7 +104,7 @@ mod erc1155 {
         }
     }
 
-    impl super::Erc1155TokenReceiver for Erc1155 {
+    impl super::Erc1155TokenReceiver for Contract {
         #[ink(message)]
         fn on_erc_1155_received(&mut self) {
             todo!()
@@ -109,12 +122,28 @@ mod erc1155 {
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
+        use crate::Erc1155;
 
         use ink_lang as ink;
 
         #[ink::test]
-        fn default_works() {
-            assert!(true);
+        fn can_set_and_get_balances() {
+            let alice: AccountId = [1; 32].into();
+            let bob: AccountId = [2; 32].into();
+
+            let mut balances = BTreeMap::new();
+            balances.insert(1, 10);
+            balances.insert(2, 20);
+
+            let mut accounts = BTreeMap::new();
+            accounts.insert(alice, balances);
+
+            let erc = Contract::new(accounts);
+
+            assert_eq!(erc.balance_of(alice, 1), 10);
+            assert_eq!(erc.balance_of(alice, 2), 20);
+            assert_eq!(erc.balance_of(alice, 3), 0);
+            assert_eq!(erc.balance_of(bob, 1), 0);
         }
     }
 }
