@@ -16,6 +16,36 @@
 
 use ink_lang as ink;
 
+#[ink::trait_definition]
+pub trait Erc1155 {
+    #[ink(message)]
+    fn safe_transfer_from(&mut self);
+
+    #[ink(message)]
+    fn safe_batch_transfer_from(&mut self);
+
+    #[ink(message)]
+    fn balance_of(&self);
+
+    #[ink(message)]
+    fn balance_of_batch(&self);
+
+    #[ink(message)]
+    fn set_approval_for_all(&mut self);
+
+    #[ink(message)]
+    fn is_approved_for_all(&self);
+}
+
+#[ink::trait_definition]
+pub trait Erc1155TokenReceiver {
+    #[ink(message)]
+    fn on_erc_1155_received(&mut self);
+
+    #[ink(message)]
+    fn on_erc_1155_batch_received(&mut self);
+}
+
 #[ink::contract]
 mod erc1155 {
     /// An ERC-1155 contract.
@@ -27,9 +57,48 @@ mod erc1155 {
         pub fn new() -> Self {
             Self {}
         }
+    }
+
+    impl super::Erc1155 for Erc1155 {
+        #[ink(message)]
+        fn safe_transfer_from(&mut self) {
+            todo!()
+        }
 
         #[ink(message)]
-        pub fn foo(&self) {
+        fn safe_batch_transfer_from(&mut self) {
+            todo!()
+        }
+
+        #[ink(message)]
+        fn balance_of(&self) {
+            todo!()
+        }
+
+        #[ink(message)]
+        fn balance_of_batch(&self) {
+            todo!()
+        }
+
+        #[ink(message)]
+        fn set_approval_for_all(&mut self) {
+            todo!()
+        }
+
+        #[ink(message)]
+        fn is_approved_for_all(&self) {
+            todo!()
+        }
+    }
+
+    impl super::Erc1155TokenReceiver for Erc1155 {
+        #[ink(message)]
+        fn on_erc_1155_received(&mut self) {
+            todo!()
+        }
+
+        #[ink(message)]
+        fn on_erc_1155_batch_received(&mut self) {
             todo!()
         }
     }
