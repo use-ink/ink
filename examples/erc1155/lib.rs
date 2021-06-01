@@ -15,6 +15,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
+use ink_prelude::vec::Vec;
 
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
@@ -31,7 +32,11 @@ pub trait Erc1155 {
     fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance;
 
     #[ink(message)]
-    fn balance_of_batch(&self);
+    fn balance_of_batch(
+        &self,
+        owners: Vec<ink_env::AccountId>,
+        token_ids: Vec<TokenId>,
+    ) -> Vec<Balance>;
 
     #[ink(message)]
     fn set_approval_for_all(&mut self);
@@ -89,8 +94,19 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn balance_of_batch(&self) {
-            todo!()
+        fn balance_of_batch(
+            &self,
+            owners: Vec<AccountId>,
+            token_ids: Vec<TokenId>,
+        ) -> Vec<Balance> {
+            let mut output = Vec::new();
+            for o in &owners {
+                for t in &token_ids {
+                    let amt = self.balance_of(*o, *t);
+                    output.push(amt);
+                }
+            }
+            output
         }
 
         #[ink(message)]
@@ -144,6 +160,37 @@ mod erc1155 {
             assert_eq!(erc.balance_of(alice, 2), 20);
             assert_eq!(erc.balance_of(alice, 3), 0);
             assert_eq!(erc.balance_of(bob, 1), 0);
+        }
+
+        #[ink::test]
+        fn can_set_and_get_batch_balances() {
+            let alice: AccountId = [1; 32].into();
+            let bob: AccountId = [2; 32].into();
+            let charlie: AccountId = [3; 32].into();
+
+            let mut balances = BTreeMap::new();
+            balances.insert(1, 10);
+            balances.insert(2, 20);
+
+            let mut accounts = BTreeMap::new();
+            accounts.insert(alice, balances.clone());
+            accounts.insert(bob, balances);
+
+            let erc = Contract::new(accounts);
+
+            assert_eq!(
+                erc.balance_of_batch(vec![alice], vec![1, 2, 3]),
+                vec![10, 20, 0]
+            );
+            assert_eq!(
+                erc.balance_of_batch(vec![alice, bob], vec![1]),
+                vec![10, 10]
+            );
+
+            assert_eq!(
+                erc.balance_of_batch(vec![alice, bob, charlie], vec![1, 2]),
+                vec![10, 20, 10, 20, 0, 0]
+            );
         }
     }
 }
