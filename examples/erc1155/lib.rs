@@ -46,10 +46,14 @@ pub trait Erc1155 {
     ) -> Vec<Balance>;
 
     #[ink(message)]
-    fn set_approval_for_all(&mut self);
+    fn set_approval_for_all(&mut self, operator: ink_env::AccountId, approved: bool);
 
     #[ink(message)]
-    fn is_approved_for_all(&self);
+    fn is_approved_for_all(
+        &self,
+        owner: ink_env::AccountId,
+        operator: ink_env::AccountId,
+    ) -> bool;
 }
 
 #[ink::trait_definition]
@@ -72,7 +76,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_prelude::collections::BTreeMap;
+    use ink_prelude::collections::{BTreeMap, BTreeSet};
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -83,16 +87,33 @@ mod erc1155 {
         value: Balance,
     }
 
+    #[ink(event)]
+    pub struct ApprovalForAll {
+        owner: AccountId,
+        operator: AccountId,
+        approved: bool,
+    }
+
     /// An ERC-1155 contract.
     #[ink(storage)]
     pub struct Contract {
         balances: BTreeMap<(AccountId, TokenId), Balance>,
+
+        /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
+        ///
+        /// Note that the mapping is Set<(Owner, Operator)>.
+        ///
+        /// TODO: Figure out why I can't use a Set here...
+        approvals: BTreeMap<(AccountId, AccountId), ()>,
     }
 
     impl Contract {
         #[ink(constructor)]
         pub fn new(balances: BTreeMap<(AccountId, TokenId), Balance>) -> Self {
-            Self { balances }
+            Self {
+                balances,
+                approvals: Default::default(),
+            }
         }
     }
 
@@ -211,13 +232,27 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn set_approval_for_all(&mut self) {
-            todo!()
+        fn set_approval_for_all(&mut self, operator: ink_env::AccountId, approved: bool) {
+            if approved {
+                self.approvals.insert((self.env().caller(), operator), ());
+            } else {
+                self.approvals.remove(&(self.env().caller(), operator));
+            }
+
+            self.env().emit_event(ApprovalForAll {
+                owner: self.env().caller(),
+                operator,
+                approved,
+            });
         }
 
         #[ink(message)]
-        fn is_approved_for_all(&self) {
-            todo!()
+        fn is_approved_for_all(
+            &self,
+            owner: ink_env::AccountId,
+            operator: ink_env::AccountId,
+        ) -> bool {
+            self.approvals.get(&(owner, operator)).is_some()
         }
     }
 
@@ -250,6 +285,17 @@ mod erc1155 {
 
         use ink_lang as ink;
 
+        fn set_sender(sender: AccountId) {
+            const WALLET: [u8; 32] = [7; 32];
+            ink_env::test::push_execution_context::<Environment>(
+                sender,
+                WALLET.into(),
+                1000000,
+                1000000,
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])), // dummy
+            );
+        }
+
         fn default_accounts(
         ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
             ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
@@ -262,6 +308,10 @@ mod erc1155 {
 
         fn bob() -> AccountId {
             default_accounts().bob
+        }
+
+        fn charlie() -> AccountId {
+            default_accounts().charlie
         }
 
         fn init_contract() -> Contract {
@@ -297,10 +347,7 @@ mod erc1155 {
             );
 
             assert_eq!(
-                erc.balance_of_batch(
-                    vec![alice(), bob(), default_accounts().charlie],
-                    vec![1, 2]
-                ),
+                erc.balance_of_batch(vec![alice(), bob(), charlie()], vec![1, 2]),
                 vec![10, 20, 10, 0, 0, 0]
             );
         }
@@ -328,6 +375,28 @@ mod erc1155 {
 
             let mut erc = init_contract();
             erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+        }
+
+        #[ink::test]
+        fn approvals_work() {
+            let mut erc = init_contract();
+            let owner = alice();
+            let operator = bob();
+            let another_operator = charlie();
+
+            // Note: All of these tests are from the context of the owner who is either allowing or
+            // disallowing an operator to control their funds.
+            set_sender(owner);
+            assert!(erc.is_approved_for_all(owner, operator) == false);
+
+            erc.set_approval_for_all(operator, true);
+            assert!(erc.is_approved_for_all(owner, operator));
+
+            erc.set_approval_for_all(another_operator, true);
+            assert!(erc.is_approved_for_all(owner, another_operator));
+
+            erc.set_approval_for_all(operator, false);
+            assert!(erc.is_approved_for_all(owner, operator) == false);
         }
     }
 }
