@@ -250,96 +250,84 @@ mod erc1155 {
 
         use ink_lang as ink;
 
-        #[ink::test]
-        fn can_set_and_get_balances() {
-            let alice: AccountId = [1; 32].into();
-            let bob: AccountId = [2; 32].into();
+        fn default_accounts(
+        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
+            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                .expect("off-chain environment should have been initialized already")
+        }
 
+        fn alice() -> AccountId {
+            default_accounts().alice
+        }
+
+        fn bob() -> AccountId {
+            default_accounts().bob
+        }
+
+        fn init_contract() -> Contract {
             let mut balances = BTreeMap::new();
-            balances.insert((alice, 1), 10);
-            balances.insert((alice, 2), 20);
+            balances.insert((alice(), 1), 10);
+            balances.insert((alice(), 2), 20);
+            balances.insert((bob(), 1), 10);
 
-            let erc = Contract::new(balances);
-
-            assert_eq!(erc.balance_of(alice, 1), 10);
-            assert_eq!(erc.balance_of(alice, 2), 20);
-            assert_eq!(erc.balance_of(alice, 3), 0);
-            assert_eq!(erc.balance_of(bob, 1), 0);
+            Contract::new(balances)
         }
 
         #[ink::test]
-        fn can_set_and_get_batch_balances() {
-            let alice: AccountId = [1; 32].into();
-            let bob: AccountId = [2; 32].into();
-            let charlie: AccountId = [3; 32].into();
+        fn can_get_correct_balance_of() {
+            let erc = init_contract();
 
-            let mut balances = BTreeMap::new();
-            balances.insert((alice, 1), 10);
-            balances.insert((alice, 2), 20);
+            assert_eq!(erc.balance_of(alice(), 1), 10);
+            assert_eq!(erc.balance_of(alice(), 2), 20);
+            assert_eq!(erc.balance_of(alice(), 3), 0);
+            assert_eq!(erc.balance_of(bob(), 2), 0);
+        }
 
-            balances.insert((bob, 1), 10);
-            balances.insert((bob, 2), 20);
-
-            let erc = Contract::new(balances);
+        #[ink::test]
+        fn can_get_correct_batch_balance_of() {
+            let erc = init_contract();
 
             assert_eq!(
-                erc.balance_of_batch(vec![alice], vec![1, 2, 3]),
+                erc.balance_of_batch(vec![alice()], vec![1, 2, 3]),
                 vec![10, 20, 0]
             );
             assert_eq!(
-                erc.balance_of_batch(vec![alice, bob], vec![1]),
+                erc.balance_of_batch(vec![alice(), bob()], vec![1]),
                 vec![10, 10]
             );
 
             assert_eq!(
-                erc.balance_of_batch(vec![alice, bob, charlie], vec![1, 2]),
-                vec![10, 20, 10, 20, 0, 0]
+                erc.balance_of_batch(
+                    vec![alice(), bob(), default_accounts().charlie],
+                    vec![1, 2]
+                ),
+                vec![10, 20, 10, 0, 0, 0]
             );
         }
 
         #[ink::test]
         fn can_send_tokens_between_accounts() {
-            let alice: AccountId = [1; 32].into();
-            let bob: AccountId = [2; 32].into();
+            let mut erc = init_contract();
 
-            let mut balances = BTreeMap::new();
-            balances.insert((alice, 1), 10);
-            balances.insert((alice, 2), 20);
-
-            balances.insert((bob, 1), 10);
-            balances.insert((bob, 2), 20);
-
-            let mut erc = Contract::new(balances);
-
-            erc.safe_transfer_from(alice, bob, 1, 5, vec![]);
-            assert_eq!(erc.balance_of(alice, 1), 5);
-            assert_eq!(erc.balance_of(bob, 1), 15);
+            erc.safe_transfer_from(alice(), bob(), 1, 5, vec![]);
+            assert_eq!(erc.balance_of(alice(), 1), 5);
+            assert_eq!(erc.balance_of(bob(), 1), 15);
         }
 
         #[ink::test]
         #[should_panic]
         fn sending_too_many_tokens_fails() {
-            let alice: AccountId = [1; 32].into();
-            let bob: AccountId = [2; 32].into();
-
-            let mut balances = BTreeMap::new();
-            balances.insert((alice, 1), 10);
-
-            let mut erc = Contract::new(balances);
-            erc.safe_transfer_from(alice, bob, 1, 11, vec![]);
+            let mut erc = init_contract();
+            erc.safe_transfer_from(alice(), bob(), 1, 99, vec![]);
         }
 
         #[ink::test]
         #[should_panic]
         fn sending_tokens_to_zero_address_fails() {
             let burn: AccountId = [0; 32].into();
-            let alice: AccountId = [1; 32].into();
 
-            let mut balances = BTreeMap::new();
-            balances.insert((alice, 1), 10);
-
-            let mut erc = Contract::new(balances);
-            erc.safe_transfer_from(alice, burn, 1, 11, vec![]);
+            let mut erc = init_contract();
+            erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
         }
     }
 }
