@@ -86,12 +86,12 @@ mod erc1155 {
     /// An ERC-1155 contract.
     #[ink(storage)]
     pub struct Contract {
-        balances: BTreeMap<AccountId, BTreeMap<TokenId, Balance>>,
+        balances: BTreeMap<(AccountId, TokenId), Balance>,
     }
 
     impl Contract {
         #[ink(constructor)]
-        pub fn new(balances: BTreeMap<AccountId, BTreeMap<TokenId, Balance>>) -> Self {
+        pub fn new(balances: BTreeMap<(AccountId, TokenId), Balance>) -> Self {
             Self { balances }
         }
     }
@@ -138,13 +138,11 @@ mod erc1155 {
             );
 
             self.balances
-                .get_mut(&from)
-                .and_then(|b| b.get_mut(&token_id))
+                .get_mut(&(from, token_id))
                 .and_then(|b| Some(*b -= value));
 
             self.balances
-                .get_mut(&to)
-                .and_then(|b| b.get_mut(&token_id))
+                .get_mut(&(to, token_id))
                 .and_then(|b| Some(*b += value));
 
             self.env().emit_event(TransferSingle {
@@ -193,11 +191,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance {
-            *self
-                .balances
-                .get(&owner)
-                .and_then(|b| b.get(&token_id))
-                .unwrap_or(&0)
+            *self.balances.get(&(owner, token_id)).unwrap_or(&0)
         }
 
         #[ink(message)]
@@ -262,13 +256,10 @@ mod erc1155 {
             let bob: AccountId = [2; 32].into();
 
             let mut balances = BTreeMap::new();
-            balances.insert(1, 10);
-            balances.insert(2, 20);
+            balances.insert((alice, 1), 10);
+            balances.insert((alice, 2), 20);
 
-            let mut accounts = BTreeMap::new();
-            accounts.insert(alice, balances);
-
-            let erc = Contract::new(accounts);
+            let erc = Contract::new(balances);
 
             assert_eq!(erc.balance_of(alice, 1), 10);
             assert_eq!(erc.balance_of(alice, 2), 20);
@@ -283,14 +274,13 @@ mod erc1155 {
             let charlie: AccountId = [3; 32].into();
 
             let mut balances = BTreeMap::new();
-            balances.insert(1, 10);
-            balances.insert(2, 20);
+            balances.insert((alice, 1), 10);
+            balances.insert((alice, 2), 20);
 
-            let mut accounts = BTreeMap::new();
-            accounts.insert(alice, balances.clone());
-            accounts.insert(bob, balances);
+            balances.insert((bob, 1), 10);
+            balances.insert((bob, 2), 20);
 
-            let erc = Contract::new(accounts);
+            let erc = Contract::new(balances);
 
             assert_eq!(
                 erc.balance_of_batch(vec![alice], vec![1, 2, 3]),
@@ -313,14 +303,13 @@ mod erc1155 {
             let bob: AccountId = [2; 32].into();
 
             let mut balances = BTreeMap::new();
-            balances.insert(1, 10);
-            balances.insert(2, 20);
+            balances.insert((alice, 1), 10);
+            balances.insert((alice, 2), 20);
 
-            let mut accounts = BTreeMap::new();
-            accounts.insert(alice, balances.clone());
-            accounts.insert(bob, balances);
+            balances.insert((bob, 1), 10);
+            balances.insert((bob, 2), 20);
 
-            let mut erc = Contract::new(accounts);
+            let mut erc = Contract::new(balances);
 
             erc.safe_transfer_from(alice, bob, 1, 5, vec![]);
             assert_eq!(erc.balance_of(alice, 1), 5);
@@ -334,15 +323,9 @@ mod erc1155 {
             let bob: AccountId = [2; 32].into();
 
             let mut balances = BTreeMap::new();
-            balances.insert(1, 10);
-            balances.insert(2, 20);
+            balances.insert((alice, 1), 10);
 
-            let mut accounts = BTreeMap::new();
-            accounts.insert(alice, balances.clone());
-            accounts.insert(bob, balances);
-
-            let mut erc = Contract::new(accounts);
-
+            let mut erc = Contract::new(balances);
             erc.safe_transfer_from(alice, bob, 1, 11, vec![]);
         }
 
@@ -353,12 +336,9 @@ mod erc1155 {
             let alice: AccountId = [1; 32].into();
 
             let mut balances = BTreeMap::new();
-            balances.insert(1, 10);
+            balances.insert((alice, 1), 10);
 
-            let mut accounts = BTreeMap::new();
-            accounts.insert(alice, balances.clone());
-
-            let mut erc = Contract::new(accounts);
+            let mut erc = Contract::new(balances);
             erc.safe_transfer_from(alice, burn, 1, 11, vec![]);
         }
     }
