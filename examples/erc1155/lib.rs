@@ -79,7 +79,14 @@ pub trait Erc1155TokenReceiver {
     ) -> Vec<u8>;
 
     #[ink(message)]
-    fn on_erc_1155_batch_received(&mut self);
+    fn on_erc_1155_batch_received(
+        &mut self,
+        operator: ink_env::AccountId,
+        from: ink_env::AccountId,
+        token_ids: Vec<TokenId>,
+        value: Vec<Balance>,
+        data: Vec<u8>,
+    );
 }
 
 #[ink::contract]
@@ -289,12 +296,19 @@ mod erc1155 {
             _value: Balance,
             _data: Vec<u8>,
         ) -> Vec<u8> {
-            todo!()
+            unimplemented!("This smart contract does not accept token transfer.")
         }
 
         #[ink(message)]
-        fn on_erc_1155_batch_received(&mut self) {
-            todo!()
+        fn on_erc_1155_batch_received(
+            &mut self,
+            _operator: ink_env::AccountId,
+            _from: ink_env::AccountId,
+            _token_ids: Vec<TokenId>,
+            _value: Vec<Balance>,
+            _data: Vec<u8>,
+        ) {
+            unimplemented!("This smart contract does not accept batch token transfers.")
         }
     }
 
