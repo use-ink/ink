@@ -43,7 +43,14 @@ pub trait Erc1155 {
     );
 
     #[ink(message)]
-    fn safe_batch_transfer_from(&mut self);
+    fn safe_batch_transfer_from(
+        &mut self,
+        from: ink_env::AccountId,
+        to: ink_env::AccountId,
+        token_ids: Vec<TokenId>,
+        values: Vec<Balance>,
+        data: Vec<u8>,
+    );
 
     #[ink(message)]
     fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance;
@@ -84,7 +91,7 @@ pub trait Erc1155TokenReceiver {
         operator: ink_env::AccountId,
         from: ink_env::AccountId,
         token_ids: Vec<TokenId>,
-        value: Vec<Balance>,
+        values: Vec<Balance>,
         data: Vec<u8>,
     );
 }
@@ -162,6 +169,7 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
+            // Q: Does the caller change if the function is called from within this smart contract?
             if self.env().caller() != from {
                 assert!(
                     self.is_approved_for_all(from, self.env().caller()),
@@ -236,8 +244,24 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn safe_batch_transfer_from(&mut self) {
-            todo!()
+        fn safe_batch_transfer_from(
+            &mut self,
+            from: ink_env::AccountId,
+            to: ink_env::AccountId,
+            token_ids: Vec<TokenId>,
+            values: Vec<Balance>,
+            data: Vec<u8>,
+        ) {
+            assert_eq!(
+                token_ids.len(),
+                values.len(),
+                "The number of tokens being transferred does
+                 not match the number of transfer amounts."
+            );
+
+            token_ids.iter().zip(values.iter()).for_each(|(&id, &v)| {
+                self.safe_transfer_from(from, to, id, v, data.clone());
+            })
         }
 
         #[ink(message)]
@@ -305,7 +329,7 @@ mod erc1155 {
             _operator: ink_env::AccountId,
             _from: ink_env::AccountId,
             _token_ids: Vec<TokenId>,
-            _value: Vec<Balance>,
+            _values: Vec<Balance>,
             _data: Vec<u8>,
         ) {
             unimplemented!("This smart contract does not accept batch token transfers.")
@@ -416,6 +440,22 @@ mod erc1155 {
 
             let mut erc = init_contract();
             erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+        }
+
+        #[ink::test]
+        fn can_send_batch_tokens() {
+            let mut erc = init_contract();
+            erc.safe_batch_transfer_from(alice(), bob(), vec![1, 2], vec![5, 10], vec![]);
+
+            let balances = erc.balance_of_batch(vec![alice(), bob()], vec![1, 2]);
+            assert_eq!(balances, vec![5, 10, 15, 10])
+        }
+
+        #[ink::test]
+        #[should_panic]
+        fn rejects_batch_if_lengths_dont_match() {
+            let mut erc = init_contract();
+            erc.safe_batch_transfer_from(alice(), bob(), vec![1, 2, 3], vec![5], vec![]);
         }
 
         #[ink::test]
