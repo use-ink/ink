@@ -145,7 +145,13 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // TODO: Need to make sure self.env().caller is "Approved" on behalf of `from`
+            if self.env().caller() != from {
+                assert!(
+                    self.is_approved_for_all(from, self.env().caller()),
+                    "Caller is not allowed to transfer on behalf of {:?}.",
+                    from
+                );
+            }
 
             // Q: Would a call be reverted if I return an Error vs. just panicking?
             assert!(
@@ -383,6 +389,22 @@ mod erc1155 {
 
             let mut erc = init_contract();
             erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+        }
+
+        #[ink::test]
+        fn operator_can_send_tokens() {
+            let mut erc = init_contract();
+
+            let owner = alice();
+            let operator = bob();
+
+            set_sender(owner);
+            erc.set_approval_for_all(operator, true);
+
+            set_sender(operator);
+            erc.safe_transfer_from(owner, charlie(), 1, 5, vec![]);
+            assert_eq!(erc.balance_of(alice(), 1), 5);
+            assert_eq!(erc.balance_of(charlie(), 1), 5);
         }
 
         #[ink::test]
