@@ -191,11 +191,13 @@ mod erc1155 {
                 value,
             });
 
-            if is_smart_contract(to) {
+            // Quick Haxx, otherwise my tests just panic due to the use of eval_contract()
+            #[cfg(not(test))]
+            {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                    .callee(self.env().caller())
+                    .callee(to)
                     .gas_limit(5000) // what's the correct amount to use here?
                     .exec_input(
                         // Idk how to get the bytes for the selector
@@ -215,7 +217,13 @@ mod erc1155 {
                         &MAGIC_VALUE[..],
                         "Recipient contract does not accept token transfers."
                     ),
-                    Err(e) => panic!("{:?}", e),
+                    Err(e) => match e {
+                        ink_env::Error::CodeNotFound => {
+                            // Our recipient wasn't a smart contract, so there's nothing more for
+                            // us to do
+                        }
+                        _ => panic!("{:?}", e),
+                    },
                 }
             }
         }
@@ -288,42 +296,6 @@ mod erc1155 {
         fn on_erc_1155_batch_received(&mut self) {
             todo!()
         }
-    }
-
-    fn is_smart_contract(_to: AccountId) -> bool {
-        false
-
-        // Please ignore this :)
-        //
-        // We call this _after_ the balance has been updated and the event has been fired
-        //
-        // Check if `to` is a smart contract
-        // use ink_env::call::{build_call, ExecutionInput, Selector};
-        // let magic_value = if let Err(e) = build_call::<ink_env::DefaultEnvironment>()
-        //     .callee(to)
-        //     .gas_limit(5000)
-        //     .transferred_value(10)
-        //     .exec_input(ExecutionInput::new(Selector::new([0; 4])))
-        //     .returns::<()>()
-        //     .fire()
-        // {
-        //     match e {
-        //         ink_env::Error::CodeNotFound => self.on_erc_1155_received(
-        //             self.env().caller(),
-        //             from,
-        //             token_id,
-        //             value,
-        //             data,
-        //         ),
-        //         _ => todo!("tbh, not sure"),
-        //     }
-        // } else {
-        //     ink_prelude::vec![]
-        // };
-
-        // if magic_value != ink_prelude::vec![0] {
-        //     todo!()
-        // }
     }
 
     /// Unit tests.
