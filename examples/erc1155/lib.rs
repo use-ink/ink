@@ -139,29 +139,12 @@ mod erc1155 {
                 approvals: Default::default(),
             }
         }
-    }
 
-    impl super::Erc1155 for Contract {
-        /*
-            @notice Transfers `_value` amount of an `_id` from the `_from` address to the `_to` address specified (with safety call).
-            @dev Caller must be approved to manage the tokens being transferred out of the `_from`
-                 account (see "Approval" section of the standard).
-            MUST revert if `_to` is the zero address.
-            MUST revert if balance of holder for token `_id` is lower than the `_value` sent.
-            MUST revert on any other error.
-            MUST emit the `TransferSingle` event to reflect the balance change (see "Safe Transfer Rules" section of the standard).
-                After the above conditions are met, this function MUST check if `_to` is a smart contract
-                (e.g. code size > 0). If so, it MUST call `onERC1155Received` on `_to` and act
-                appropriately (see "Safe Transfer Rules" section of the standard).
-
-            @param _from    Source address
-            @param _to      Target address
-            @param _id      ID of the token type
-            @param _value   Transfer amount
-            @param _data    Additional data with no specified format, MUST be sent unaltered in call to `onERC1155Received` on `_to`
-        */
-        #[ink(message)]
-        fn safe_transfer_from(
+        // Helper function for performing single token transfers.
+        //
+        // Should not be used directly since it's missing certain checks which are important to the
+        // ERC-1155 standard (it is expected that the caller has already perfomred these).
+        fn perform_transfer(
             &mut self,
             from: ink_env::AccountId,
             to: ink_env::AccountId,
@@ -169,21 +152,7 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // Q: Does the caller change if the function is called from within this smart contract?
-            if self.env().caller() != from {
-                assert!(
-                    self.is_approved_for_all(from, self.env().caller()),
-                    "Caller is not allowed to transfer on behalf of {:?}.",
-                    from
-                );
-            }
-
-            // Q: Would a call be reverted if I return an Error vs. just panicking?
-            assert!(
-                to != AccountId::default(),
-                "Cannot send tokens to the zero-address."
-            );
-
+            // Pretty sure I wouldn't be able to call balance_of() in real Rust, but okay...
             assert!(
                 self.balance_of(from, token_id) >= value,
                 "Insufficent token balance for transfer."
@@ -242,6 +211,35 @@ mod erc1155 {
                 }
             }
         }
+    }
+
+    impl super::Erc1155 for Contract {
+        #[ink(message)]
+        fn safe_transfer_from(
+            &mut self,
+            from: ink_env::AccountId,
+            to: ink_env::AccountId,
+            token_id: TokenId,
+            value: Balance,
+            data: Vec<u8>,
+        ) {
+            // Q: Does the caller change if the function is called from within this smart contract?
+            if self.env().caller() != from {
+                assert!(
+                    self.is_approved_for_all(from, self.env().caller()),
+                    "Caller is not allowed to transfer on behalf of {:?}.",
+                    from
+                );
+            }
+
+            // Q: Would a call be reverted if I return an Error vs. just panicking?
+            assert!(
+                to != AccountId::default(),
+                "Cannot send tokens to the zero-address."
+            );
+
+            self.perform_transfer(from, to, token_id, value, data);
+        }
 
         #[ink(message)]
         fn safe_batch_transfer_from(
@@ -252,6 +250,19 @@ mod erc1155 {
             values: Vec<Balance>,
             data: Vec<u8>,
         ) {
+            if self.env().caller() != from {
+                assert!(
+                    self.is_approved_for_all(from, self.env().caller()),
+                    "Caller is not allowed to transfer on behalf of {:?}.",
+                    from
+                );
+            }
+
+            assert!(
+                to != AccountId::default(),
+                "Cannot send tokens to the zero-address."
+            );
+
             assert_eq!(
                 token_ids.len(),
                 values.len(),
@@ -260,7 +271,7 @@ mod erc1155 {
             );
 
             token_ids.iter().zip(values.iter()).for_each(|(&id, &v)| {
-                self.safe_transfer_from(from, to, id, v, data.clone());
+                self.perform_transfer(from, to, id, v, data.clone());
             })
         }
 
