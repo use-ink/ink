@@ -76,7 +76,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_prelude::collections::{BTreeMap, BTreeSet};
+    use ink_prelude::collections::BTreeMap;
 
     #[ink(event)]
     pub struct TransferSingle {
@@ -143,7 +143,7 @@ mod erc1155 {
             to: ink_env::AccountId,
             token_id: TokenId,
             value: Balance,
-            data: Vec<u8>,
+            _data: Vec<u8>,
         ) {
             if self.env().caller() != from {
                 assert!(
@@ -184,6 +184,8 @@ mod erc1155 {
                 value,
             });
 
+            // Please ignore this :)
+            //
             // We call this _after_ the balance has been updated and the event has been fired
             //
             // Check if `to` is a smart contract
@@ -270,11 +272,11 @@ mod erc1155 {
         #[ink(message)]
         fn on_erc_1155_received(
             &mut self,
-            operator: ink_env::AccountId,
-            from: ink_env::AccountId,
-            token_id: TokenId,
-            value: Balance,
-            data: Vec<u8>,
+            _operator: ink_env::AccountId,
+            _from: ink_env::AccountId,
+            _token_id: TokenId,
+            _value: Balance,
+            _data: Vec<u8>,
         ) -> Vec<u8> {
             todo!()
         }
