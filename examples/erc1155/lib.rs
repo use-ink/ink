@@ -162,9 +162,13 @@ mod erc1155 {
                 .get_mut(&(from, token_id))
                 .and_then(|b| Some(*b -= value));
 
-            self.balances
-                .get_mut(&(to, token_id))
-                .and_then(|b| Some(*b += value));
+            if self.balances.contains_key(&(to, token_id)) {
+                self.balances
+                    .get_mut(&(to, token_id))
+                    .and_then(|b| Some(*b += value));
+            } else {
+                self.balances.insert((to, token_id), value);
+            }
 
             self.env().emit_event(TransferSingle {
                 operator: self.env().caller(),
@@ -359,6 +363,10 @@ mod erc1155 {
             erc.safe_transfer_from(alice(), bob(), 1, 5, vec![]);
             assert_eq!(erc.balance_of(alice(), 1), 5);
             assert_eq!(erc.balance_of(bob(), 1), 15);
+
+            erc.safe_transfer_from(alice(), bob(), 2, 5, vec![]);
+            assert_eq!(erc.balance_of(alice(), 2), 15);
+            assert_eq!(erc.balance_of(bob(), 2), 5);
         }
 
         #[ink::test]
