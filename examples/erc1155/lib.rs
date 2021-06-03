@@ -17,6 +17,16 @@
 use ink_lang as ink;
 use ink_prelude::vec::Vec;
 
+// This is the "magic" return value that we expect if a smart contract supports receiving ERC-1155
+// tokens.
+//
+// It is calculated with
+// `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
+// to 0xf23a6e61.
+//
+// Note that this is Ethereum specific, I don't know how it translates in Ink! land.
+const MAGIC_VALUE: [u8; 4] = [242, 58, 110, 97];
+
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
@@ -143,7 +153,7 @@ mod erc1155 {
             to: ink_env::AccountId,
             token_id: TokenId,
             value: Balance,
-            _data: Vec<u8>,
+            data: Vec<u8>,
         ) {
             if self.env().caller() != from {
                 assert!(
@@ -181,37 +191,33 @@ mod erc1155 {
                 value,
             });
 
-            // Please ignore this :)
-            //
-            // We call this _after_ the balance has been updated and the event has been fired
-            //
-            // Check if `to` is a smart contract
-            // use ink_env::call::{build_call, ExecutionInput, Selector};
-            // let magic_value = if let Err(e) = build_call::<ink_env::DefaultEnvironment>()
-            //     .callee(to)
-            //     .gas_limit(5000)
-            //     .transferred_value(10)
-            //     .exec_input(ExecutionInput::new(Selector::new([0; 4])))
-            //     .returns::<()>()
-            //     .fire()
-            // {
-            //     match e {
-            //         ink_env::Error::CodeNotFound => self.on_erc_1155_received(
-            //             self.env().caller(),
-            //             from,
-            //             token_id,
-            //             value,
-            //             data,
-            //         ),
-            //         _ => todo!("tbh, not sure"),
-            //     }
-            // } else {
-            //     ink_prelude::vec![]
-            // };
+            if is_smart_contract(to) {
+                // If our recipient is a smart contract we need to see if they accept or
+                // reject this transfer. If they reject it we need to revert the call.
+                let params = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+                    .callee(self.env().caller())
+                    .gas_limit(5000) // what's the correct amount to use here?
+                    .exec_input(
+                        // Idk how to get the bytes for the selector
+                        ink_env::call::ExecutionInput::new(ink_env::call::Selector::new([166, 229, 27, 154]))
+                        .push_arg(self.env().caller())
+                        .push_arg(from)
+                        .push_arg(token_id)
+                        .push_arg(value)
+                        .push_arg(data)
+                    )
+                    .returns::<ink_env::call::utils::ReturnType<Vec<u8>>>()
+                    .params();
 
-            // if magic_value != ink_prelude::vec![0] {
-            //     todo!()
-            // }
+                match ink_env::eval_contract(&params) {
+                    Ok(v) => assert_eq!(
+                        v,
+                        &MAGIC_VALUE[..],
+                        "Recipient contract does not accept token transfers."
+                    ),
+                    Err(e) => panic!("{:?}", e),
+                }
+            }
         }
 
         #[ink(message)]
@@ -282,6 +288,42 @@ mod erc1155 {
         fn on_erc_1155_batch_received(&mut self) {
             todo!()
         }
+    }
+
+    fn is_smart_contract(_to: AccountId) -> bool {
+        false
+
+        // Please ignore this :)
+        //
+        // We call this _after_ the balance has been updated and the event has been fired
+        //
+        // Check if `to` is a smart contract
+        // use ink_env::call::{build_call, ExecutionInput, Selector};
+        // let magic_value = if let Err(e) = build_call::<ink_env::DefaultEnvironment>()
+        //     .callee(to)
+        //     .gas_limit(5000)
+        //     .transferred_value(10)
+        //     .exec_input(ExecutionInput::new(Selector::new([0; 4])))
+        //     .returns::<()>()
+        //     .fire()
+        // {
+        //     match e {
+        //         ink_env::Error::CodeNotFound => self.on_erc_1155_received(
+        //             self.env().caller(),
+        //             from,
+        //             token_id,
+        //             value,
+        //             data,
+        //         ),
+        //         _ => todo!("tbh, not sure"),
+        //     }
+        // } else {
+        //     ink_prelude::vec![]
+        // };
+
+        // if magic_value != ink_prelude::vec![0] {
+        //     todo!()
+        // }
     }
 
     /// Unit tests.
