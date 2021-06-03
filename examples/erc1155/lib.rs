@@ -164,22 +164,19 @@ mod erc1155 {
                 "Insufficent token balance for transfer."
             );
 
-            self.balances
-                .get_mut(&(from, token_id))
-                .and_then(|b| Some(*b -= value));
-
-            if self.balances.contains_key(&(to, token_id)) {
-                self.balances
-                    .get_mut(&(to, token_id))
-                    .and_then(|b| Some(*b += value));
-            } else {
-                self.balances.insert((to, token_id), value);
+            if let Some(b) = self.balances.get_mut(&(from, token_id)) {
+                *b -= value
             }
+
+            self.balances
+                .entry((to, token_id))
+                .and_modify(|b| *b += value)
+                .or_insert(value);
 
             self.env().emit_event(TransferSingle {
                 operator: self.env().caller(),
-                from: from.clone(),
-                to: to.clone(),
+                from,
+                to,
                 token_id,
                 value,
             });
