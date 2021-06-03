@@ -152,7 +152,6 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // Pretty sure I wouldn't be able to call balance_of() in real Rust, but okay...
             assert!(
                 self.balance_of(from, token_id) >= value,
                 "Insufficent token balance for transfer."
