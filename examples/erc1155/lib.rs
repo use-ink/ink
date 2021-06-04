@@ -186,6 +186,7 @@ mod erc1155 {
 
     /// An ERC-1155 contract.
     #[ink(storage)]
+    #[derive(Default)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: BTreeMap<(AccountId, TokenId), Balance>,
@@ -203,12 +204,18 @@ mod erc1155 {
     }
 
     impl Contract {
+        /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
-        pub fn new(balances: BTreeMap<(AccountId, TokenId), Balance>) -> Self {
+        pub fn new() -> Self {
+            Default::default()
+        }
+
+        /// Initialize a instance of this ERC-1155 implementation with the initial specified balances.
+        #[ink(constructor)]
+        pub fn with_balances(balances: BTreeMap<(AccountId, TokenId), Balance>) -> Self {
             Self {
                 balances,
-                approvals: Default::default(),
-                token_id_nonce: Default::default(),
+                ..Default::default()
             }
         }
 
@@ -523,7 +530,7 @@ mod erc1155 {
             balances.insert((alice(), 2), 20);
             balances.insert((bob(), 1), 10);
 
-            Contract::new(balances)
+            Contract::with_balances(balances)
         }
 
         #[ink::test]
@@ -640,7 +647,7 @@ mod erc1155 {
 
         #[ink::test]
         fn minting_tokens_works() {
-            let mut erc = Contract::new(Default::default());
+            let mut erc = Contract::new();
 
             set_sender(alice());
             assert_eq!(erc.create(0, vec![]), 1);
@@ -653,7 +660,7 @@ mod erc1155 {
         #[ink::test]
         #[should_panic]
         fn minting_not_allowed_for_nonexistent_tokens() {
-            let mut erc = Contract::new(Default::default());
+            let mut erc = Contract::new();
             erc.mint(7, 123, vec![]);
         }
     }
