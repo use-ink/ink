@@ -313,6 +313,8 @@ mod erc1155 {
             });
 
             // Quick Haxx, otherwise my tests just panic due to the use of eval_contract()
+            //
+            // NOTE: This panics when testing transfers with the on-chain environment :(
             #[cfg(not(test))]
             {
                 // If our recipient is a smart contract we need to see if they accept or
