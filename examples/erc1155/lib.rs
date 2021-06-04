@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(test, allow(dead_code))]
+#![cfg_attr(test, allow(unused_imports))]
 
 use ink_env::AccountId;
 use ink_lang as ink;
@@ -194,6 +196,10 @@ mod erc1155 {
         ///
         /// TODO: Figure out why I can't use a Set here...
         approvals: BTreeMap<(AccountId, AccountId), ()>,
+
+        /// A unique identifier for the tokens which have been minted (and are therefore supported)
+        /// by this contract.
+        token_id_nonce: TokenId,
     }
 
     impl Contract {
@@ -202,12 +208,67 @@ mod erc1155 {
             Self {
                 balances,
                 approvals: Default::default(),
+                token_id_nonce: Default::default(),
             }
         }
 
+        /// Create the initial supply for a token.
+        ///
+        /// The initial supply will be provided to the caller (a.k.a the minter), and the
+        /// `token_id` will be assigned by the smart contract.
+        ///
+        /// Note that as implemented anyone can create tokens. If you were to deploy this to a
+        /// production environment you'd probably want to lock down the addresses that are allowed
+        /// to create tokens.
         #[ink(message)]
-        pub fn mint(&self) {
-            todo!()
+        pub fn create(&mut self, value: Balance, _data: Vec<u8>) -> TokenId {
+            // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
+            self.token_id_nonce += 1;
+            self.balances
+                .insert((self.env().caller(), self.token_id_nonce), value);
+
+            // Emit transfer event but with mint semantics
+            self.env().emit_event(TransferSingle {
+                operator: self.env().caller(),
+                from: AccountId::from([0; 32]),
+                to: if value == 0 {
+                    AccountId::from([0; 32])
+                } else {
+                    self.env().caller()
+                },
+                token_id: self.token_id_nonce,
+                value,
+            });
+
+            self.token_id_nonce
+        }
+
+        /// Mint a `value` amount of `token_id` tokens.
+        ///
+        /// It is assumed that the token has already been `create`-ed. The newly minted supply will
+        /// be assigned to the caller (a.k.a the minter).
+        ///
+        /// Note that as implemented anyone can mint tokens. If you were to deploy this to a
+        /// production environment you'd probably want to lock down the addresses that are allowed
+        /// to mint tokens.
+        #[ink(message)]
+        pub fn mint(&mut self, token_id: TokenId, value: Balance, _data: Vec<u8>) {
+            assert!(
+                token_id <= self.token_id_nonce,
+                "The `token_id` {:?} has not yet been created in this contract.",
+                token_id
+            );
+
+            self.balances.insert((self.env().caller(), token_id), value);
+
+            // Emit transfer event but with mint semantics
+            self.env().emit_event(TransferSingle {
+                operator: self.env().caller(),
+                from: AccountId::from([0; 32]),
+                to: self.env().caller(),
+                token_id,
+                value,
+            });
         }
 
         // Helper function for performing single token transfers.
@@ -575,6 +636,25 @@ mod erc1155 {
 
             erc.set_approval_for_all(operator, false);
             assert!(erc.is_approved_for_all(owner, operator) == false);
+        }
+
+        #[ink::test]
+        fn minting_tokens_works() {
+            let mut erc = Contract::new(Default::default());
+
+            set_sender(alice());
+            assert_eq!(erc.create(0, vec![]), 1);
+            assert_eq!(erc.balance_of(alice(), 1), 0);
+
+            erc.mint(1, 123, vec![]);
+            assert_eq!(erc.balance_of(alice(), 1), 123);
+        }
+
+        #[ink::test]
+        #[should_panic]
+        fn minting_not_allowed_for_nonexistent_tokens() {
+            let mut erc = Contract::new(Default::default());
+            erc.mint(7, 123, vec![]);
         }
     }
 }
