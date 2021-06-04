@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_builder;
 mod chain_extension;
 mod contract;
 mod cross_calling;
@@ -27,6 +28,7 @@ mod enforced_error;
 
 pub use self::{
     chain_extension::ChainExtension,
+    call_builder::CallBuilder,
     contract::Contract,
     cross_calling::{
         CrossCalling,
