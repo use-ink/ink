@@ -326,18 +326,22 @@ mod erc1155 {
                     .params();
 
                 match ink_env::eval_contract(&params) {
-                    Ok(v) => assert_eq!(
-                        v,
-                        &MAGIC_VALUE[..],
-                        "Recipient contract does not accept token transfers."
-                    ),
-                    Err(e) => match e {
-                        ink_env::Error::CodeNotFound => {
-                            // Our recipient wasn't a smart contract, so there's nothing more for
-                            // us to do
+                    Ok(v) => {
+                        assert_eq!(
+                            v,
+                            &MAGIC_VALUE[..],
+                            "Recipient contract does not accept token transfers."
+                        )
+                    }
+                    Err(e) => {
+                        match e {
+                            ink_env::Error::CodeNotFound => {
+                                // Our recipient wasn't a smart contract, so there's nothing more for
+                                // us to do
+                            }
+                            _ => panic!("{:?}", e),
                         }
-                        _ => panic!("{:?}", e),
-                    },
+                    }
                 }
             }
         }
@@ -495,7 +499,7 @@ mod erc1155 {
                 WALLET.into(),
                 1000000,
                 1000000,
-                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])), // dummy
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])), /* dummy */
             );
         }
 
