@@ -195,7 +195,7 @@ For information on how to deploy this to a chain, please have a look at the [Pla
 
 ## How it Works
 
-* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains
+* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/knowledgebase/runtime/frame) contains
 a module  which implements an API for typical functions smart contracts need (storage, querying information about accounts, …).
 This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
