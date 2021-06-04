@@ -205,6 +205,11 @@ mod erc1155 {
             }
         }
 
+        #[ink(message)]
+        pub fn mint(&self) {
+            todo!()
+        }
+
         // Helper function for performing single token transfers.
         //
         // Should not be used directly since it's missing certain checks which are important to the
@@ -362,6 +367,11 @@ mod erc1155 {
 
         #[ink(message)]
         fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) {
+            assert!(
+                operator != self.env().caller(),
+                "An account does not need to approve themselves to transfer tokens."
+            );
+
             if approved {
                 self.approvals.insert((self.env().caller(), operator), ());
             } else {
