@@ -30,8 +30,22 @@ const MAGIC_VALUE: [u8; 4] = [242, 58, 110, 97];
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
+/// The interface for an ERC-1155 compliant contract.
+///
+/// The interface is defined here: https://eips.ethereum.org/EIPS/eip-1155.
+///
+/// The goal of ERC-1155 is to allow a single deployed contract to manage a variety of assets.
+/// These assets can be fungible, non-fungible, or a combination.
+///
+/// By tracking multiple assets the ERC-1155 standard is able to support batch transfers, which
+/// make it easy to transfer a mix of multiple tokens at once.
 #[ink::trait_definition]
 pub trait Erc1155 {
+    /// Transfer the a `value` amount of `token_id` tokens to the `to` account from the `from`
+    /// account.
+    ///
+    /// Note that the call does not have to originate from the `from` account, and may originate
+    /// from any account which is approved to transfer `from`'s tokens.
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
@@ -42,6 +56,13 @@ pub trait Erc1155 {
         data: Vec<u8>,
     );
 
+    /// Perform a batch transfer of `token_ids` to the `to` account from the `from` account.
+    ///
+    /// The number of `values` specified to be transfer must match the number of `token_ids`,
+    /// otherwise this call will revert.
+    ///
+    /// Note that the call does not have to originate from the `from` account, and may originate
+    /// from any account which is approved to transfer `from`'s tokens.
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
@@ -52,9 +73,19 @@ pub trait Erc1155 {
         data: Vec<u8>,
     );
 
+    /// Query the balance of a specific token for the provided account.
     #[ink(message)]
     fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance;
 
+    /// Query the balances for a set of tokens for a set of accounts.
+    ///
+    /// E.g use this call if you want to query what Alice and Bob's balances are for Tokens ID1 and
+    /// ID2.
+    ///
+    /// This will return all the balances for a given owner before moving on to the next owner. In
+    /// the example above this means that the return value should look like:
+    ///
+    /// [Alice Balance of Token ID1, Alice Balance of Token ID2, Bob Balance of Token ID2, Bob Balance of Token ID2]
     #[ink(message)]
     fn balance_of_batch(
         &self,
@@ -62,9 +93,12 @@ pub trait Erc1155 {
         token_ids: Vec<TokenId>,
     ) -> Vec<Balance>;
 
+    /// Enable or disable a third party, known as an `operator`, to control all tokens on behalf of
+    /// the caller.
     #[ink(message)]
     fn set_approval_for_all(&mut self, operator: ink_env::AccountId, approved: bool);
 
+    /// Query if the given `operator` is allowed to control all of `owner`'s tokens.
     #[ink(message)]
     fn is_approved_for_all(
         &self,
@@ -73,8 +107,26 @@ pub trait Erc1155 {
     ) -> bool;
 }
 
+/// The interface for an ERC-1155 Token Receiver contract.
+///
+/// The interface is defined here: https://eips.ethereum.org/EIPS/eip-1155.
+///
+/// Smart contracts which want to accept token transfers must implement this interface. By default
+/// if a contract does not support this interface any transactions originating from an ERC-1155
+/// compliant contract which attempt to transfer tokens directly to the contract's address must be
+/// reverted.
 #[ink::trait_definition]
 pub trait Erc1155TokenReceiver {
+    /// Handle the receipt of a single ERC-1155 token.
+    ///
+    /// This should be called by a compliant ERC-1155 contract if the intended recipient is a smart
+    /// contract.
+    ///
+    /// If the smart contract implementing this interface accepts token transfers then it must
+    /// return `MAGIC_VALUE` from this function. To reject a transfer it must revert.
+    ///
+    /// Any callers must revert if they receive anything other than `MAGIC_VALUE` as a return
+    /// value.
     #[ink(message)]
     fn on_erc_1155_received(
         &mut self,
@@ -85,6 +137,16 @@ pub trait Erc1155TokenReceiver {
         data: Vec<u8>,
     ) -> Vec<u8>;
 
+    /// Handle the receipt of multiple ERC-1155 tokens.
+    ///
+    /// This should be called by a compliant ERC-1155 contract if the intended recipient is a smart
+    /// contract.
+    ///
+    /// If the smart contract implementing this interface accepts token transfers then it must
+    /// return `BATCH_MAGIC_VALUE` from this function. To reject a transfer it must revert.
+    ///
+    /// Any callers must revert if they receive anything other than `BATCH_MAGIC_VALUE` as a return
+    /// value.
     #[ink(message)]
     fn on_erc_1155_batch_received(
         &mut self,
@@ -102,6 +164,9 @@ mod erc1155 {
 
     use ink_prelude::collections::BTreeMap;
 
+    /// Indicate that a token transfer has occured.
+    ///
+    /// This must be emitted even if a zero value transfer occurs.
     #[ink(event)]
     pub struct TransferSingle {
         operator: AccountId,
@@ -111,6 +176,7 @@ mod erc1155 {
         value: Balance,
     }
 
+    /// Indicate that an approval event has happened.
     #[ink(event)]
     pub struct ApprovalForAll {
         owner: AccountId,
@@ -121,6 +187,7 @@ mod erc1155 {
     /// An ERC-1155 contract.
     #[ink(storage)]
     pub struct Contract {
+        /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: BTreeMap<(AccountId, TokenId), Balance>,
 
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
