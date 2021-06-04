@@ -14,6 +14,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use ink_env::AccountId;
 use ink_lang as ink;
 use ink_prelude::vec::Vec;
 
@@ -49,8 +50,8 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_transfer_from(
         &mut self,
-        from: ink_env::AccountId,
-        to: ink_env::AccountId,
+        from: AccountId,
+        to: AccountId,
         token_id: TokenId,
         value: Balance,
         data: Vec<u8>,
@@ -66,8 +67,8 @@ pub trait Erc1155 {
     #[ink(message)]
     fn safe_batch_transfer_from(
         &mut self,
-        from: ink_env::AccountId,
-        to: ink_env::AccountId,
+        from: AccountId,
+        to: AccountId,
         token_ids: Vec<TokenId>,
         values: Vec<Balance>,
         data: Vec<u8>,
@@ -75,7 +76,7 @@ pub trait Erc1155 {
 
     /// Query the balance of a specific token for the provided account.
     #[ink(message)]
-    fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance;
+    fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance;
 
     /// Query the balances for a set of tokens for a set of accounts.
     ///
@@ -89,22 +90,18 @@ pub trait Erc1155 {
     #[ink(message)]
     fn balance_of_batch(
         &self,
-        owners: Vec<ink_env::AccountId>,
+        owners: Vec<AccountId>,
         token_ids: Vec<TokenId>,
     ) -> Vec<Balance>;
 
     /// Enable or disable a third party, known as an `operator`, to control all tokens on behalf of
     /// the caller.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, operator: ink_env::AccountId, approved: bool);
+    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool);
 
     /// Query if the given `operator` is allowed to control all of `owner`'s tokens.
     #[ink(message)]
-    fn is_approved_for_all(
-        &self,
-        owner: ink_env::AccountId,
-        operator: ink_env::AccountId,
-    ) -> bool;
+    fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool;
 }
 
 /// The interface for an ERC-1155 Token Receiver contract.
@@ -130,8 +127,8 @@ pub trait Erc1155TokenReceiver {
     #[ink(message)]
     fn on_erc_1155_received(
         &mut self,
-        operator: ink_env::AccountId,
-        from: ink_env::AccountId,
+        operator: AccountId,
+        from: AccountId,
         token_id: TokenId,
         value: Balance,
         data: Vec<u8>,
@@ -150,8 +147,8 @@ pub trait Erc1155TokenReceiver {
     #[ink(message)]
     fn on_erc_1155_batch_received(
         &mut self,
-        operator: ink_env::AccountId,
-        from: ink_env::AccountId,
+        operator: AccountId,
+        from: AccountId,
         token_ids: Vec<TokenId>,
         values: Vec<Balance>,
         data: Vec<u8>,
@@ -162,6 +159,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
+    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
     use ink_prelude::collections::BTreeMap;
 
     /// Indicate that a token transfer has occured.
@@ -213,8 +211,8 @@ mod erc1155 {
         // ERC-1155 standard (it is expected that the caller has already perfomred these).
         fn perform_transfer(
             &mut self,
-            from: ink_env::AccountId,
-            to: ink_env::AccountId,
+            from: AccountId,
+            to: AccountId,
             token_id: TokenId,
             value: Balance,
             data: Vec<u8>,
@@ -246,19 +244,19 @@ mod erc1155 {
             {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
-                let params = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+                let params = build_call::<ink_env::DefaultEnvironment>()
                     .callee(to)
                     .gas_limit(5000) // what's the correct amount to use here?
                     .exec_input(
                         // Idk how to get the bytes for the selector
-                        ink_env::call::ExecutionInput::new(ink_env::call::Selector::new([166, 229, 27, 154]))
+                        ExecutionInput::new(Selector::new([166, 229, 27, 154]))
                         .push_arg(self.env().caller())
                         .push_arg(from)
                         .push_arg(token_id)
                         .push_arg(value)
                         .push_arg(data)
                     )
-                    .returns::<ink_env::call::utils::ReturnType<Vec<u8>>>()
+                    .returns::<ReturnType<Vec<u8>>>()
                     .params();
 
                 match ink_env::eval_contract(&params) {
@@ -283,8 +281,8 @@ mod erc1155 {
         #[ink(message)]
         fn safe_transfer_from(
             &mut self,
-            from: ink_env::AccountId,
-            to: ink_env::AccountId,
+            from: AccountId,
+            to: AccountId,
             token_id: TokenId,
             value: Balance,
             data: Vec<u8>,
@@ -310,8 +308,8 @@ mod erc1155 {
         #[ink(message)]
         fn safe_batch_transfer_from(
             &mut self,
-            from: ink_env::AccountId,
-            to: ink_env::AccountId,
+            from: AccountId,
+            to: AccountId,
             token_ids: Vec<TokenId>,
             values: Vec<Balance>,
             data: Vec<u8>,
@@ -342,7 +340,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn balance_of(&self, owner: ink_env::AccountId, token_id: TokenId) -> Balance {
+        fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance {
             *self.balances.get(&(owner, token_id)).unwrap_or(&0)
         }
 
@@ -363,7 +361,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn set_approval_for_all(&mut self, operator: ink_env::AccountId, approved: bool) {
+        fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) {
             if approved {
                 self.approvals.insert((self.env().caller(), operator), ());
             } else {
@@ -378,11 +376,7 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn is_approved_for_all(
-            &self,
-            owner: ink_env::AccountId,
-            operator: ink_env::AccountId,
-        ) -> bool {
+        fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
             self.approvals.get(&(owner, operator)).is_some()
         }
     }
@@ -391,8 +385,8 @@ mod erc1155 {
         #[ink(message)]
         fn on_erc_1155_received(
             &mut self,
-            _operator: ink_env::AccountId,
-            _from: ink_env::AccountId,
+            _operator: AccountId,
+            _from: AccountId,
             _token_id: TokenId,
             _value: Balance,
             _data: Vec<u8>,
@@ -403,8 +397,8 @@ mod erc1155 {
         #[ink(message)]
         fn on_erc_1155_batch_received(
             &mut self,
-            _operator: ink_env::AccountId,
-            _from: ink_env::AccountId,
+            _operator: AccountId,
+            _from: AccountId,
             _token_ids: Vec<TokenId>,
             _values: Vec<Balance>,
             _data: Vec<u8>,
