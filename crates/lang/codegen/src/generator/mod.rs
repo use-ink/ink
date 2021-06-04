@@ -17,6 +17,7 @@ mod chain_extension;
 mod contract;
 mod cross_calling;
 mod dispatch;
+mod enforced_error;
 mod env;
 mod events;
 mod ink_test;
@@ -24,7 +25,6 @@ mod item_impls;
 mod metadata;
 mod storage;
 mod trait_def;
-mod enforced_error;
 
 pub use self::{
     chain_extension::ChainExtension,
