@@ -210,15 +210,6 @@ mod erc1155 {
             Default::default()
         }
 
-        /// Initialize a instance of this ERC-1155 implementation with the initial specified balances.
-        #[ink(constructor)]
-        pub fn with_balances(balances: BTreeMap<(AccountId, TokenId), Balance>) -> Self {
-            Self {
-                balances,
-                ..Default::default()
-            }
-        }
-
         /// Create the initial supply for a token.
         ///
         /// The initial supply will be provided to the caller (a.k.a the minter), and the
@@ -527,12 +518,12 @@ mod erc1155 {
         }
 
         fn init_contract() -> Contract {
-            let mut balances = BTreeMap::new();
-            balances.insert((alice(), 1), 10);
-            balances.insert((alice(), 2), 20);
-            balances.insert((bob(), 1), 10);
+            let mut erc = Contract::new();
+            erc.balances.insert((alice(), 1), 10);
+            erc.balances.insert((alice(), 2), 20);
+            erc.balances.insert((bob(), 1), 10);
 
-            Contract::with_balances(balances)
+            erc
         }
 
         #[ink::test]
