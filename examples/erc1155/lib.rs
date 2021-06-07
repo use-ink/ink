@@ -26,9 +26,15 @@ use ink_prelude::vec::Vec;
 // It is calculated with
 // `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
 // to 0xf23a6e61.
-//
-// Note that this is Ethereum specific, I don't know how it translates in Ink! land.
 const MAGIC_VALUE: [u8; 4] = [242, 58, 110, 97];
+
+// This is the "magic" return value that we expect if a smart contract supports batch receiving ERC-1155
+// tokens.
+//
+// It is calculated with
+//`bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
+//corresponds to 0xbc197c81.
+const _BATCH_MAGIC_VALUE: [u8; 4] = [188, 25, 124, 129];
 
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
@@ -314,8 +320,7 @@ mod erc1155 {
                     .callee(to)
                     .gas_limit(5000) // what's the correct amount to use here?
                     .exec_input(
-                        // Idk how to get the bytes for the selector
-                        ExecutionInput::new(Selector::new([166, 229, 27, 154]))
+                        ExecutionInput::new(Selector::new(MAGIC_VALUE))
                         .push_arg(self.env().caller())
                         .push_arg(from)
                         .push_arg(token_id)
@@ -457,7 +462,7 @@ mod erc1155 {
     }
 
     impl super::Erc1155TokenReceiver for Contract {
-        #[ink(message)]
+        #[ink(message, selector = "0xF23A6E61")]
         fn on_erc_1155_received(
             &mut self,
             _operator: AccountId,
@@ -469,7 +474,7 @@ mod erc1155 {
             unimplemented!("This smart contract does not accept token transfer.")
         }
 
-        #[ink(message)]
+        #[ink(message, selector = "0xBC197C81")]
         fn on_erc_1155_batch_received(
             &mut self,
             _operator: AccountId,
