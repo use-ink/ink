@@ -33,7 +33,7 @@ const MAGIC_VALUE: [u8; 4] = [242, 58, 110, 97];
 //
 // It is calculated with
 //`bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
-//corresponds to 0xbc197c81.
+// corresponds to 0xbc197c81.
 const _BATCH_MAGIC_VALUE: [u8; 4] = [188, 25, 124, 129];
 
 type TokenId = u128;
@@ -167,7 +167,12 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
+    use ink_env::call::{
+        build_call,
+        utils::ReturnType,
+        ExecutionInput,
+        Selector,
+    };
     use ink_prelude::collections::BTreeMap;
 
     /// Indicate that a token transfer has occured.
@@ -357,7 +362,7 @@ mod erc1155 {
                                 //
                                 // ink_env::debug_println(&ink_prelude::format!("{:?}", e));
                                 // panic!("{:?}", e)
-                            },
+                            }
                         }
                     }
                 }
