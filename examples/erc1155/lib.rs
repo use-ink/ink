@@ -175,8 +175,11 @@ mod erc1155 {
     /// This must be emitted even if a zero value transfer occurs.
     #[ink(event)]
     pub struct TransferSingle {
+        #[ink(topic)]
         operator: AccountId,
+        #[ink(topic)]
         from: AccountId,
+        #[ink(topic)]
         to: AccountId,
         token_id: TokenId,
         value: Balance,
@@ -185,7 +188,9 @@ mod erc1155 {
     /// Indicate that an approval event has happened.
     #[ink(event)]
     pub struct ApprovalForAll {
+        #[ink(topic)]
         owner: AccountId,
+        #[ink(topic)]
         operator: AccountId,
         approved: bool,
     }
@@ -194,6 +199,7 @@ mod erc1155 {
     #[ink(event)]
     pub struct Uri {
         value: ink_prelude::string::String,
+        #[ink(topic)]
         token_id: TokenId,
     }
 
