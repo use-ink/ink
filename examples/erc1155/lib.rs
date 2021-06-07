@@ -209,14 +209,10 @@ mod erc1155 {
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: BTreeMap<(AccountId, TokenId), Balance>,
-
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
         ///
         /// Note that the mapping is Set<(Owner, Operator)>.
-        ///
-        /// TODO: Figure out why I can't use a Set here...
         approvals: BTreeMap<(AccountId, AccountId), ()>,
-
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
