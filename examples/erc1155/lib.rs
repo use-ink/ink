@@ -190,6 +190,13 @@ mod erc1155 {
         approved: bool,
     }
 
+    /// Indicate that a token's URI has been updated.
+    #[ink(event)]
+    pub struct Uri {
+        value: ink_prelude::string::String,
+        token_id: TokenId,
+    }
+
     /// An ERC-1155 contract.
     #[ink(storage)]
     #[derive(Default)]
