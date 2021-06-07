@@ -41,7 +41,7 @@ type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
 /// The interface for an ERC-1155 compliant contract.
 ///
-/// The interface is defined here: https://eips.ethereum.org/EIPS/eip-1155.
+/// The interface is defined here: `<https://eips.ethereum.org/EIPS/eip-1155>`.
 ///
 /// The goal of ERC-1155 is to allow a single deployed contract to manage a variety of assets.
 /// These assets can be fungible, non-fungible, or a combination.
@@ -114,7 +114,7 @@ pub trait Erc1155 {
 
 /// The interface for an ERC-1155 Token Receiver contract.
 ///
-/// The interface is defined here: https://eips.ethereum.org/EIPS/eip-1155.
+/// The interface is defined here: `<https://eips.ethereum.org/EIPS/eip-1155>`.
 ///
 /// Smart contracts which want to accept token transfers must implement this interface. By default
 /// if a contract does not support this interface any transactions originating from an ERC-1155
