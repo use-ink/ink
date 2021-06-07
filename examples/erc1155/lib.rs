@@ -319,15 +319,13 @@ mod erc1155 {
             });
 
             // Quick Haxx, otherwise my tests just panic due to the use of eval_contract()
-            //
-            // NOTE: This panics when testing transfers with the on-chain environment :(
             #[cfg(not(test))]
             {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = build_call::<ink_env::DefaultEnvironment>()
                     .callee(to)
-                    .gas_limit(5000) // what's the correct amount to use here?
+                    .gas_limit(5000) // Q: What's the correct amount to use here?
                     .exec_input(
                         ExecutionInput::new(Selector::new(MAGIC_VALUE))
                         .push_arg(self.env().caller())
@@ -353,7 +351,13 @@ mod erc1155 {
                                 // Our recipient wasn't a smart contract, so there's nothing more for
                                 // us to do
                             }
-                            _ => panic!("{:?}", e),
+                            _ => {
+                                // I have no insight to what's happening here, I can't deploy
+                                // the following:
+                                //
+                                // ink_env::debug_println(&ink_prelude::format!("{:?}", e));
+                                // panic!("{:?}", e)
+                            },
                         }
                     }
                 }
