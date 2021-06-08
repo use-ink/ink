@@ -29,14 +29,24 @@ pub struct Metadata<'a> {
     contract: &'a ir::Contract,
 }
 
+impl Metadata<'_> {
+    fn generate_cgf(&self) -> TokenStream2 {
+        if self.contract.config().is_compile_as_dependency_enabled() {
+            return quote! { #[cfg(feature = "__ink_DO_NOT_COMPILE")] }
+        }
+        quote! { #[cfg(not(feature = "ink-as-dependency"))] }
+    }
+}
+
 impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
+        let no_cross_calling_cfg = self.generate_cgf();
 
         quote! {
             #[cfg(feature = "std")]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #no_cross_calling_cfg
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
