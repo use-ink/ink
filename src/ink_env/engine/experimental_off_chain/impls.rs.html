@@ -739,7 +739,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::Timestamp</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Timestamp</span><span class="op">&gt;</span>(<span class="ident">Engine::now</span>)
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Timestamp</span><span class="op">&gt;</span>(<span class="ident">Engine::block_timestamp</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::AccountId</span><span class="op">&gt;</span> {

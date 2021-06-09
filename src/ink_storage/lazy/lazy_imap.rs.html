@@ -1058,7 +1058,7 @@
             <span class="comment">// because it requires a deep clean-up which propagates clearing to its fields,</span>
             <span class="comment">// for example in the case of `T` being a `storage::Box`.</span>
             <span class="kw">let</span> <span class="ident">entity</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;cannot clear a non existing entity&quot;</span>);
-            <span class="ident">clear_packed_root</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="ident">root_key</span>);
+            <span class="ident">clear_packed_root</span>::<span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="ident">root_key</span>);
         } <span class="kw">else</span> {
             <span class="comment">// The type does not require deep clean-up so we can simply clean-up</span>
             <span class="comment">// its associated storage cell and be done without having to load it first.</span>

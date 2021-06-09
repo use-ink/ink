@@ -372,7 +372,7 @@
                 <span class="comment">// Push all state of the global dynamic storage allocator</span>
                 <span class="comment">// instance back onto the contract storage.</span>
                 <span class="ident">push_spread_root</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocator</span><span class="op">&gt;</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">allocator</span>,
+                    <span class="ident">allocator</span>,
                     <span class="kw-2">&amp;</span><span class="ident">Key::from</span>(<span class="ident">DYNAMIC_ALLOCATOR_KEY_OFFSET</span>),
                 );
                 <span class="comment">// Prevent calling `drop` on the dynamic storage allocator</span>

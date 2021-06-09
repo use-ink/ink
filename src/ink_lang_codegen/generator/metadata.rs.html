@@ -529,7 +529,7 @@
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_ident</span>, <span class="ident">constructor</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
-                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="kw-2">&amp;</span><span class="ident">attrs</span>);
+                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="ident">attrs</span>);
                 <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>();
                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
                 <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
@@ -620,7 +620,7 @@
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_ident</span>, <span class="ident">message</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
-                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="kw-2">&amp;</span><span class="ident">attrs</span>);
+                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="ident">attrs</span>);
                 <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>();
                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
                 <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>();

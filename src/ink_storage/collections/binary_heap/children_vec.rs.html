@@ -552,7 +552,7 @@
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Iter::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+        <span class="ident">Iter::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns a shared reference to the first element if any.</span>
