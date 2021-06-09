@@ -324,9 +324,12 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
+            let balance = self.balance_of(from, token_id);
             assert!(
-                self.balance_of(from, token_id) >= value,
-                "Insufficent token balance for transfer."
+                balance >= value,
+                "Insufficent token balance for transfer. Expected: {:?}, Got: {:?}",
+                value,
+                balance,
             );
 
             self.balances
@@ -370,7 +373,8 @@ mod erc1155 {
                         assert_eq!(
                             v,
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
-                            "Recipient contract does not accept token transfers."
+                            "The recipient contract at {:?} does not accept token transfers.\n
+                            Expected: {:?}, Got {:?}", to, ON_ERC_1155_RECEIVED_SELECTOR, v
                         )
                     }
                     Err(e) => {
@@ -406,7 +410,8 @@ mod erc1155 {
             if self.env().caller() != from {
                 assert!(
                     self.is_approved_for_all(from, self.env().caller()),
-                    "Caller is not allowed to transfer on behalf of {:?}.",
+                    "Caller ({:?}) is not allowed to transfer on behalf of {:?}.",
+                    self.env().caller(),
                     from
                 );
             }
@@ -444,8 +449,8 @@ mod erc1155 {
             assert_eq!(
                 token_ids.len(),
                 values.len(),
-                "The number of tokens being transferred does
-                 not match the number of transfer amounts."
+                "The number of tokens being transferred ({:?}) does not match the number of transfer amounts ({:?}).",
+                token_ids.len(), values.len()
             );
 
             token_ids.iter().zip(values.iter()).for_each(|(&id, &v)| {
