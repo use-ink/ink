@@ -20,21 +20,21 @@ use ink_env::AccountId;
 use ink_lang as ink;
 use ink_prelude::vec::Vec;
 
-// This is the "magic" return value that we expect if a smart contract supports receiving ERC-1155
+// This is the return value that we expect if a smart contract supports receiving ERC-1155
 // tokens.
 //
 // It is calculated with
 // `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
 // to 0xf23a6e61.
-const MAGIC_VALUE: [u8; 4] = [242, 58, 110, 97];
+const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [242, 58, 110, 97];
 
-// This is the "magic" return value that we expect if a smart contract supports batch receiving ERC-1155
+// This is the return value that we expect if a smart contract supports batch receiving ERC-1155
 // tokens.
 //
 // It is calculated with
 //`bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
 // corresponds to 0xbc197c81.
-const _BATCH_MAGIC_VALUE: [u8; 4] = [188, 25, 124, 129];
+const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [188, 25, 124, 129];
 
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
@@ -128,9 +128,9 @@ pub trait Erc1155TokenReceiver {
     /// contract.
     ///
     /// If the smart contract implementing this interface accepts token transfers then it must
-    /// return `MAGIC_VALUE` from this function. To reject a transfer it must revert.
+    /// return `ON_ERC_1155_RECEIVED_SELECTOR` from this function. To reject a transfer it must revert.
     ///
-    /// Any callers must revert if they receive anything other than `MAGIC_VALUE` as a return
+    /// Any callers must revert if they receive anything other than `ON_ERC_1155_RECEIVED_SELECTOR` as a return
     /// value.
     #[ink(message)]
     fn on_erc_1155_received(
@@ -148,9 +148,9 @@ pub trait Erc1155TokenReceiver {
     /// contract.
     ///
     /// If the smart contract implementing this interface accepts token transfers then it must
-    /// return `BATCH_MAGIC_VALUE` from this function. To reject a transfer it must revert.
+    /// return `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` from this function. To reject a transfer it must revert.
     ///
-    /// Any callers must revert if they receive anything other than `BATCH_MAGIC_VALUE` as a return
+    /// Any callers must revert if they receive anything other than `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` as a return
     /// value.
     #[ink(message)]
     fn on_erc_1155_batch_received(
@@ -332,7 +332,7 @@ mod erc1155 {
                     .callee(to)
                     .gas_limit(5000)
                     .exec_input(
-                        ExecutionInput::new(Selector::new(MAGIC_VALUE))
+                        ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
                             .push_arg(self.env().caller())
                             .push_arg(from)
                             .push_arg(token_id)
@@ -346,7 +346,7 @@ mod erc1155 {
                     Ok(v) => {
                         assert_eq!(
                             v,
-                            &MAGIC_VALUE[..],
+                            &ON_ERC_1155_RECEIVED_SELECTOR[..],
                             "Recipient contract does not accept token transfers."
                         )
                     }
