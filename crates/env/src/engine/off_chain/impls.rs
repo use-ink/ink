@@ -175,8 +175,8 @@ impl EnvBackend for EnvInstance {
         std::process::exit(flags.into_u32() as i32)
     }
 
-    fn println(&mut self, content: &str) {
-        self.console.println(content)
+    fn debug_message(&mut self, message: &str) {
+        self.debug_buf.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)

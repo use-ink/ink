@@ -62,4 +62,6 @@ std = [
     "sha3",
     "blake2",
 ]
+# Enable contract debug messages via `debug_print!` and `debug_println!`.
+ink-debug = []
 ink-experimental-engine = ["ink_engine"]

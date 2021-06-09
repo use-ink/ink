@@ -115,10 +115,10 @@ fn transfer() {
 }
 
 #[test]
-fn printlns() {
+fn debug_messages() {
     let mut engine = Engine::new();
-    engine.println("foobar");
-    let mut recorded = engine.get_recorded_printlns().into_iter();
+    engine.debug_message("foobar");
+    let mut recorded = engine.get_emitted_debug_messages().into_iter();
     assert_eq!(recorded.next(), Some("foobar".into()));
     assert_eq!(recorded.next(), None);
 }
