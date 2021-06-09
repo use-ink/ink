@@ -347,6 +347,10 @@ impl Engine {
         unimplemented!("off-chain environment does not yet support `block_number`");
     }
 
+    pub fn block_timestamp(&self, _output: &mut &mut [u8]) {
+        unimplemented!("off-chain environment does not yet support `block_timestamp`");
+    }
+
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
