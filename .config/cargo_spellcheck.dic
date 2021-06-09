@@ -35,6 +35,9 @@ scalable
 adjunctive
 invariants
 deserializes
+Dapp
+untyped
+subber
 
 hasher/S
 hashmap/S
@@ -48,3 +51,4 @@ defragment/SD
 layout/JG
 endian/P
 accessor/S
+NFT/S

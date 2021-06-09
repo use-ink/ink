@@ -75,7 +75,7 @@ mod erc721 {
     }
 
     impl Erc721 {
-        /// Creates a new ERC721 token contract.
+        /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -193,7 +193,7 @@ mod erc721 {
             Ok(())
         }
 
-        /// Transfers token `id` `from` the sender to the `to` AccountId.
+        /// Transfers token `id` `from` the sender to the `to` `AccountId`.
         fn transfer_token_from(
             &mut self,
             from: &AccountId,
@@ -336,7 +336,7 @@ mod erc721 {
                 .unwrap_or(&false)
         }
 
-        /// Returns true if the AccountId `from` is the owner of token `id`
+        /// Returns true if the `AccountId` `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
         fn approved_or_owner(&self, from: Option<AccountId>, id: TokenId) -> bool {
             let owner = self.owner_of(id);

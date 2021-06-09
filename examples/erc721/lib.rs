@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! # ERC721
+//! # ERC-721
 //!
-//! This is an ERC721 Token implementation.
+//! This is an ERC-721 Token implementation.
 //!
 //! ## Warning
 //!
@@ -27,9 +27,9 @@
 //!
 //! ## Error Handling
 //!
-//! Any function that modifies the state returns a Result type and does not changes the state
-//! if the Error occurs.
-//! The errors are defined as an Enum type. Any other error or invariant violation
+//! Any function that modifies the state returns a `Result` type and does not changes the state
+//! if the `Error` occurs.
+//! The errors are defined as an `Enum` type. Any other error or invariant violation
 //! triggers a panic and therefore rolls back the transaction.
 //!
 //! ## Token Management
@@ -54,7 +54,7 @@
 //! - An authorized operator of the current owner of a token
 //!
 //! The token owner can transfer a token by calling the `transfer` or `transfer_from` functions.
-//! An approved address can make a token transfer by calling the `transfer_from` funtion.
+//! An approved address can make a token transfer by calling the `transfer_from` function.
 //! Operators can transfer tokens on another account's behalf or can approve a token transfer
 //! for a different account.
 //!
@@ -141,7 +141,7 @@ mod erc721 {
     }
 
     impl Erc721 {
-        /// Creates a new ERC721 token contract.
+        /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -259,7 +259,7 @@ mod erc721 {
             Ok(())
         }
 
-        /// Transfers token `id` `from` the sender to the `to` AccountId.
+        /// Transfers token `id` `from` the sender to the `to` `AccountId`.
         fn transfer_token_from(
             &mut self,
             from: &AccountId,
@@ -354,7 +354,7 @@ mod erc721 {
             }
         }
 
-        /// Approve the passed AccountId to transfer the specified token on behalf of the message's sender.
+        /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
             let caller = self.env().caller();
             let owner = self.owner_of(id);
@@ -402,7 +402,7 @@ mod erc721 {
                 .unwrap_or(&false)
         }
 
-        /// Returns true if the AccountId `from` is the owner of token `id`
+        /// Returns true if the `AccountId` `from` is the owner of token `id`
         /// or it has been approved on behalf of the token `id` owner.
         fn approved_or_owner(&self, from: Option<AccountId>, id: TokenId) -> bool {
             let owner = self.owner_of(id);
@@ -430,7 +430,7 @@ mod erc721 {
         Ok(())
     }
 
-    /// Increase token counter from the `of` AccountId.
+    /// Increase token counter from the `of` `AccountId`.
     fn increase_counter_of(entry: Entry<AccountId, u32>) {
         entry.and_modify(|v| *v += 1).or_insert(1);
     }
