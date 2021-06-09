@@ -668,10 +668,10 @@ mod erc1155 {
             let mut erc = Contract::new();
 
             set_sender(alice());
-            assert_eq!(erc.create(0, vec![]), 1);
+            assert_eq!(erc.create(0), 1);
             assert_eq!(erc.balance_of(alice(), 1), 0);
 
-            erc.mint(1, 123, vec![]);
+            erc.mint(1, 123);
             assert_eq!(erc.balance_of(alice(), 1), 123);
         }
 
@@ -679,7 +679,7 @@ mod erc1155 {
         #[should_panic]
         fn minting_not_allowed_for_nonexistent_tokens() {
             let mut erc = Contract::new();
-            erc.mint(7, 123, vec![]);
+            erc.mint(7, 123);
         }
     }
 }
