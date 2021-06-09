@@ -343,10 +343,6 @@ impl Engine {
         super::hashing::keccak_256(input, output);
     }
 
-    pub fn now(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `now`");
-    }
-
     pub fn block_number(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `block_number`");
     }
