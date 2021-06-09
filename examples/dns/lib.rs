@@ -71,7 +71,7 @@ mod dns {
     /// The main function of this contract is domain name resolution which
     /// refers to the retrieval of numeric values corresponding to readable
     /// and easily memorable names such as "polka.dot" which can be used
-    /// to facilitate transfers, voting and Dapp-related operations instead
+    /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
     #[derive(Default)]

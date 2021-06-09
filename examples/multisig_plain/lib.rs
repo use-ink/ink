@@ -107,7 +107,7 @@ mod multisig_plain {
 
     /// A wrapper that allows us to encode a blob of bytes.
     ///
-    /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
+    /// We use this to pass the set of not typed (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
