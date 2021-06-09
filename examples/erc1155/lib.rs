@@ -330,14 +330,14 @@ mod erc1155 {
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = build_call::<ink_env::DefaultEnvironment>()
                     .callee(to)
-                    .gas_limit(5000) // Q: What's the correct amount to use here?
+                    .gas_limit(5000)
                     .exec_input(
                         ExecutionInput::new(Selector::new(MAGIC_VALUE))
-                        .push_arg(self.env().caller())
-                        .push_arg(from)
-                        .push_arg(token_id)
-                        .push_arg(value)
-                        .push_arg(data)
+                            .push_arg(self.env().caller())
+                            .push_arg(from)
+                            .push_arg(token_id)
+                            .push_arg(value)
+                            .push_arg(data),
                     )
                     .returns::<ReturnType<Vec<u8>>>()
                     .params();
@@ -380,7 +380,6 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // Q: Does the caller change if the function is called from within this smart contract?
             if self.env().caller() != from {
                 assert!(
                     self.is_approved_for_all(from, self.env().caller()),
@@ -389,7 +388,6 @@ mod erc1155 {
                 );
             }
 
-            // Q: Would a call be reverted if I return an Error vs. just panicking?
             assert!(
                 to != AccountId::default(),
                 "Cannot send tokens to the zero-address."
