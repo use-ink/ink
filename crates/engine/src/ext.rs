@@ -294,7 +294,7 @@ impl Engine {
             .as_ref()
             .expect("no callee has been set")
             .as_bytes();
-        set_output(output, &callee)
+        set_output(output, callee)
     }
 
     /// Restores a tombstone to the original smart contract.
@@ -346,12 +346,12 @@ impl Engine {
         super::hashing::keccak_256(input, output);
     }
 
-    pub fn now(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `now`");
-    }
-
     pub fn block_number(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `block_number`");
+    }
+
+    pub fn block_timestamp(&self, _output: &mut &mut [u8]) {
+        unimplemented!("off-chain environment does not yet support `block_timestamp`");
     }
 
     pub fn gas_left(&self, _output: &mut &mut [u8]) {

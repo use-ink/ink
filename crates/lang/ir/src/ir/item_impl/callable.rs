@@ -101,35 +101,35 @@ where
     C: Callable,
 {
     fn kind(&self) -> CallableKind {
-        <C as Callable>::kind(&self.callable)
+        <C as Callable>::kind(self.callable)
     }
 
     fn ident(&self) -> &Ident {
-        <C as Callable>::ident(&self.callable)
+        <C as Callable>::ident(self.callable)
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        <C as Callable>::user_provided_selector(&self.callable)
+        <C as Callable>::user_provided_selector(self.callable)
     }
 
     fn is_payable(&self) -> bool {
-        <C as Callable>::is_payable(&self.callable)
+        <C as Callable>::is_payable(self.callable)
     }
 
     fn visibility(&self) -> Visibility {
-        <C as Callable>::visibility(&self.callable)
+        <C as Callable>::visibility(self.callable)
     }
 
     fn inputs(&self) -> InputsIter {
-        <C as Callable>::inputs(&self.callable)
+        <C as Callable>::inputs(self.callable)
     }
 
     fn inputs_span(&self) -> Span {
-        <C as Callable>::inputs_span(&self.callable)
+        <C as Callable>::inputs_span(self.callable)
     }
 
     fn statements(&self) -> &[syn::Stmt] {
-        <C as Callable>::statements(&self.callable)
+        <C as Callable>::statements(self.callable)
     }
 }
 
@@ -137,7 +137,7 @@ impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
     type Target = C;
 
     fn deref(&self) -> &Self::Target {
-        &self.callable
+        self.callable
     }
 }
 

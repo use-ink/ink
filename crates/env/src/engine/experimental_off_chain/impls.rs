@@ -289,7 +289,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(Engine::now)
+        self.get_property::<T::Timestamp>(Engine::block_timestamp)
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {

@@ -19,7 +19,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 pub mod accumulator {
-    /// Holds a simple i32 value that can be incremented and decremented.
+    /// Holds a simple `i32` value that can be incremented and decremented.
     #[ink(storage)]
     pub struct Accumulator {
         value: i32,
