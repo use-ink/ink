@@ -306,9 +306,9 @@ mod erc1155 {
                 "Insufficent token balance for transfer."
             );
 
-            if let Some(b) = self.balances.get_mut(&(from, token_id)) {
-                *b -= value
-            }
+            self.balances
+                .entry((from, token_id))
+                .and_modify(|b| *b -= value);
 
             self.balances
                 .entry((to, token_id))
