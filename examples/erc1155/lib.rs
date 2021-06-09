@@ -174,6 +174,10 @@ mod erc1155 {
         Selector,
     };
     use ink_prelude::collections::BTreeMap;
+    use ink_storage::traits::{
+        PackedLayout,
+        SpreadLayout,
+    };
 
     /// Indicate that a token transfer has occured.
     ///
@@ -208,6 +212,27 @@ mod erc1155 {
         token_id: TokenId,
     }
 
+    /// Represents an (Owner, Operator) pair, in which the operator is allowed to spend funds on
+    /// behalf of the operator.
+    #[derive(
+        Copy,
+        Clone,
+        Debug,
+        Ord,
+        PartialOrd,
+        Eq,
+        PartialEq,
+        PackedLayout,
+        SpreadLayout,
+        scale::Encode,
+        scale::Decode,
+    )]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    struct Approval {
+        owner: AccountId,
+        operator: AccountId,
+    }
+
     /// An ERC-1155 contract.
     #[ink(storage)]
     #[derive(Default)]
@@ -215,9 +240,7 @@ mod erc1155 {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: BTreeMap<(AccountId, TokenId), Balance>,
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
-        ///
-        /// Note that the mapping is Set<(Owner, Operator)>.
-        approvals: BTreeMap<(AccountId, AccountId), ()>,
+        approvals: BTreeMap<Approval, ()>,
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
@@ -458,14 +481,19 @@ mod erc1155 {
                 "An account does not need to approve themselves to transfer tokens."
             );
 
+            let approval = Approval {
+                owner: self.env().caller(),
+                operator,
+            };
+
             if approved {
-                self.approvals.insert((self.env().caller(), operator), ());
+                self.approvals.insert(approval, ());
             } else {
-                self.approvals.remove(&(self.env().caller(), operator));
+                self.approvals.remove(&approval);
             }
 
             self.env().emit_event(ApprovalForAll {
-                owner: self.env().caller(),
+                owner: approval.owner,
                 operator,
                 approved,
             });
@@ -473,7 +501,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn is_approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self.approvals.get(&(owner, operator)).is_some()
+            self.approvals.get(&Approval { owner, operator }).is_some()
         }
     }
 
