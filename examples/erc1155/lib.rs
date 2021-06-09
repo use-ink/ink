@@ -239,7 +239,7 @@ mod erc1155 {
         /// production environment you'd probably want to lock down the addresses that are allowed
         /// to create tokens.
         #[ink(message)]
-        pub fn create(&mut self, value: Balance, _data: Vec<u8>) -> TokenId {
+        pub fn create(&mut self, value: Balance) -> TokenId {
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
             self.balances
@@ -270,7 +270,7 @@ mod erc1155 {
         /// production environment you'd probably want to lock down the addresses that are allowed
         /// to mint tokens.
         #[ink(message)]
-        pub fn mint(&mut self, token_id: TokenId, value: Balance, _data: Vec<u8>) {
+        pub fn mint(&mut self, token_id: TokenId, value: Balance) {
             assert!(
                 token_id <= self.token_id_nonce,
                 "The `token_id` {:?} has not yet been created in this contract.",
