@@ -415,8 +415,8 @@ where
     /// Returns a reference to this entry's key.
     pub fn key(&self) -> &K {
         match self {
-            Entry::Occupied(entry) => &entry.values_entry.key(),
-            Entry::Vacant(entry) => &entry.values_entry.key(),
+            Entry::Occupied(entry) => entry.values_entry.key(),
+            Entry::Vacant(entry) => entry.values_entry.key(),
         }
     }
 
@@ -459,7 +459,7 @@ where
     {
         match self {
             Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
-            Entry::Vacant(entry) => Entry::insert(default(&entry.key()), entry),
+            Entry::Vacant(entry) => Entry::insert(default(entry.key()), entry),
         }
     }
 
@@ -494,7 +494,7 @@ where
 {
     /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
     pub fn key(&self) -> &K {
-        &self.values_entry.key()
+        self.values_entry.key()
     }
 
     /// Take ownership of the key.
@@ -520,7 +520,7 @@ where
 {
     /// Gets a reference to the key in the entry.
     pub fn key(&self) -> &K {
-        &self.values_entry.key()
+        self.values_entry.key()
     }
 
     /// Take the ownership of the key and value from the map.

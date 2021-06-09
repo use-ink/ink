@@ -291,7 +291,7 @@ impl Engine {
             .as_ref()
             .expect("no callee has been set")
             .as_bytes();
-        set_output(output, &callee)
+        set_output(output, callee)
     }
 
     /// Restores a tombstone to the original smart contract.
