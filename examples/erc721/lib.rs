@@ -29,7 +29,7 @@
 //!
 //! Any function that modifies the state returns a `Result` type and does not changes the state
 //! if the `Error` occurs.
-//! The errors are defined as an `Enum` type. Any other error or invariant violation
+//! The errors are defined as an `enum` type. Any other error or invariant violation
 //! triggers a panic and therefore rolls back the transaction.
 //!
 //! ## Token Management
