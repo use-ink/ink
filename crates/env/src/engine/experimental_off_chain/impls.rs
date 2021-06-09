@@ -111,6 +111,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
+            ext::Error::LoggingDisabled => Self::LoggingDisabled,
         }
     }
 }
@@ -227,8 +228,8 @@ impl EnvBackend for EnvInstance {
         )
     }
 
-    fn println(&mut self, content: &str) {
-        self.engine.println(content)
+    fn debug_message(&mut self, message: &str) {
+        self.engine.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -288,7 +289,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(Engine::now)
+        self.get_property::<T::Timestamp>(Engine::block_timestamp)
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {

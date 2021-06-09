@@ -34,7 +34,7 @@
 //!
 //! ## Error Handling
 //!
-//! With the exeception of `execute_transaction` no error conditions are signalled
+//! With the exception of `execute_transaction` no error conditions are signalled
 //! through return types. Any error or invariant violation triggers a panic and therefore
 //! rolls back the transaction.
 //!
@@ -42,12 +42,12 @@
 //!
 //! The interface is modelled after the popular gnosis multisig wallet. However, there
 //! are subtle variations from the interface. For example the `confirm_transaction`
-//! will never trigger the execution of a `Transaction` even if the treshold is reached.
+//! will never trigger the execution of a `Transaction` even if the threshold is reached.
 //! A call of `execute_transaction` is always required. This can be called by anyone.
 //!
 //! All the messages that are declared as only callable by the wallet must go through
 //! the usual submit, confirm, execute cycle as any other transaction that should be
-//! called by the wallet. For example to add an owner you would submit a transaction
+//! called by the wallet. For example, to add an owner you would submit a transaction
 //! that calls the wallets own `add_owner` message through `submit_transaction`.
 //!
 //! ### Owner Management
@@ -107,7 +107,7 @@ mod multisig_plain {
 
     /// A wrapper that allows us to encode a blob of bytes.
     ///
-    /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
+    /// We use this to pass the set of not typed (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
@@ -143,7 +143,7 @@ mod multisig_plain {
         )
     )]
     pub struct Transaction {
-        /// The AccountId of the contract that is called in this transaction.
+        /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
         /// The selector bytes that identifies the function of the callee that should be called.
         pub selector: [u8; 4],
@@ -166,7 +166,7 @@ mod multisig_plain {
     #[ink(storage)]
     pub struct MultisigPlain {
         /// Every entry in this map represents the confirmation of an owner for a
-        /// transaction. This is effecively a set rather than a map.
+        /// transaction. This is effectively a set rather than a map.
         confirmations: StorageHashMap<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
@@ -204,7 +204,7 @@ mod multisig_plain {
         /// The transaction that was revoked.
         #[ink(topic)]
         transaction: TransactionId,
-        /// The owner that sent the revokation.
+        /// The owner that sent the revocation.
         #[ink(topic)]
         from: AccountId,
     }
@@ -298,7 +298,7 @@ mod multisig_plain {
         /// # Examples
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
-        /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
+        /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
         /// ```no_run
         /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
@@ -403,7 +403,7 @@ mod multisig_plain {
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
-        /// Add a new transaction candiate to the contract.
+        /// Add a new transaction candidate to the contract.
         ///
         /// This also confirms the transaction for the caller. This can be called by any owner.
         #[ink(message)]

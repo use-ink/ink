@@ -22,11 +22,11 @@ pub trait Flip {
     #[ink(constructor)]
     fn new(init_value: bool) -> Self;
 
-    /// Flips the current value of the Flipper's bool.
+    /// Flips the current value of the Flipper's boolean.
     #[ink(message)]
     fn flip(&mut self);
 
-    /// Returns the current value of the Flipper's bool.
+    /// Returns the current value of the Flipper's boolean.
     #[ink(message)]
     fn get(&self) -> bool;
 }

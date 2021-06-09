@@ -36,13 +36,13 @@ pub mod flipper {
             Self::new(Default::default())
         }
 
-        /// Flips the current value of the Flipper's bool.
+        /// Flips the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
-        /// Returns the current value of the Flipper's bool.
+        /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value

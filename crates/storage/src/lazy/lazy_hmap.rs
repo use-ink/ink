@@ -271,7 +271,7 @@ where
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.entries().iter() {
-            let root_key = self.to_offset_key(&offset_key, index);
+            let root_key = self.to_offset_key(offset_key, index);
             entry.push_packed_root(&root_key);
         }
     }
@@ -638,7 +638,7 @@ where
             // because it requires a deep clean-up which propagates clearing to its fields,
             // for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
-            clear_packed_root::<V>(&entity, &root_key);
+            clear_packed_root::<V>(entity, &root_key);
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.

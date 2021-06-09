@@ -69,7 +69,7 @@ impl Database {
         account_id: &[u8],
         key: &[u8],
     ) -> Option<&Vec<u8>> {
-        let hashed_key = storage_of_contract_key(&account_id, key);
+        let hashed_key = storage_of_contract_key(account_id, key);
         self.hmap.get(&hashed_key.to_vec())
     }
 
@@ -80,7 +80,7 @@ impl Database {
         key: &[u8],
         value: Vec<u8>,
     ) -> Option<Vec<u8>> {
-        let hashed_key = storage_of_contract_key(&account_id, key);
+        let hashed_key = storage_of_contract_key(account_id, key);
         self.hmap.insert(hashed_key.to_vec(), value)
     }
 
@@ -90,7 +90,7 @@ impl Database {
         account_id: &[u8],
         key: &[u8],
     ) -> Option<Vec<u8>> {
-        let hashed_key = storage_of_contract_key(&account_id, key);
+        let hashed_key = storage_of_contract_key(account_id, key);
         self.hmap.remove(&hashed_key.to_vec())
     }
 
@@ -112,7 +112,7 @@ impl Database {
 
     /// Returns the balance of `account_id`, if available.
     pub fn get_balance(&self, account_id: &[u8]) -> Option<Balance> {
-        let hashed_key = balance_of_key(&account_id);
+        let hashed_key = balance_of_key(account_id);
         self.get(&hashed_key).map(|encoded_balance| {
             scale::Decode::decode(&mut &encoded_balance[..])
                 .expect("unable to decode balance from database")
@@ -121,7 +121,7 @@ impl Database {
 
     /// Sets the balance of `account_id` to `new_balance`.
     pub fn set_balance(&mut self, account_id: &[u8], new_balance: Balance) {
-        let hashed_key = balance_of_key(&account_id);
+        let hashed_key = balance_of_key(account_id);
         let encoded_balance = scale::Encode::encode(&new_balance);
         self.hmap
             .entry(hashed_key.to_vec())

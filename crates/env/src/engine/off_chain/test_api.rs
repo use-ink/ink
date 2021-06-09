@@ -215,8 +215,8 @@ where
     Ok(())
 }
 
-/// Returns the contents of the past performed environmental `println` in order.
-pub fn recorded_printlns() -> impl Iterator<Item = String> {
+/// Returns the contents of the past performed environmental debug messages in order.
+pub fn recorded_debug_messages() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
         // references to them since this would require the whole `on_instance`
@@ -224,8 +224,8 @@ pub fn recorded_printlns() -> impl Iterator<Item = String> {
         // ultimately allow leaking those `'static` references to the outside
         // and potentially lead to terrible bugs such as iterator invalidation.
         instance
-            .console
-            .past_prints()
+            .debug_buf
+            .past_debug_messages()
             .map(ToOwned::to_owned)
             .collect::<Vec<_>>()
             .into_iter()

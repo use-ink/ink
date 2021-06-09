@@ -85,11 +85,11 @@ where
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        forward_push_packed::<Self>(&self, ptr)
+        forward_push_packed::<Self>(self, ptr)
     }
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        forward_clear_packed::<Self>(&self, ptr)
+        forward_clear_packed::<Self>(self, ptr)
     }
 }
 
