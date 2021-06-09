@@ -42,12 +42,12 @@
 //!
 //! The interface is modelled after the popular gnosis multisig wallet. However, there
 //! are subtle variations from the interface. For example the `confirm_transaction`
-//! will never trigger the execution of a `Transaction` even if the treshold is reached.
+//! will never trigger the execution of a `Transaction` even if the threshold is reached.
 //! A call of `execute_transaction` is always required. This can be called by anyone.
 //!
 //! All the messages that are declared as only callable by the wallet must go through
 //! the usual submit, confirm, execute cycle as any other transaction that should be
-//! called by the wallet. For example to add an owner you would submit a transaction
+//! called by the wallet. For example, to add an owner you would submit a transaction
 //! that calls the wallets own `add_owner` message through `submit_transaction`.
 //!
 //! ### Owner Management
