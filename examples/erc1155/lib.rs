@@ -185,11 +185,11 @@ mod erc1155 {
     #[ink(event)]
     pub struct TransferSingle {
         #[ink(topic)]
-        operator: AccountId,
+        operator: Option<AccountId>,
         #[ink(topic)]
-        from: AccountId,
+        from: Option<AccountId>,
         #[ink(topic)]
-        to: AccountId,
+        to: Option<AccountId>,
         token_id: TokenId,
         value: Balance,
     }
@@ -271,13 +271,9 @@ mod erc1155 {
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
-                operator: caller,
-                from: AccountId::from([0; 32]),
-                to: if value == 0 {
-                    AccountId::from([0; 32])
-                } else {
-                    caller
-                },
+                operator: Some(caller),
+                from: None,
+                to: if value == 0 { None } else { Some(caller) },
                 token_id: self.token_id_nonce,
                 value,
             });
@@ -307,9 +303,9 @@ mod erc1155 {
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
-                operator: caller,
-                from: AccountId::from([0; 32]),
-                to: caller,
+                operator: Some(caller),
+                from: None,
+                to: Some(caller),
                 token_id,
                 value,
             });
@@ -346,9 +342,9 @@ mod erc1155 {
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
-                operator: caller,
-                from,
-                to,
+                operator: Some(caller),
+                from: Some(from),
+                to: Some(from),
                 token_id,
                 value,
             });
