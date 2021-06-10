@@ -263,19 +263,20 @@ mod erc1155 {
         /// to create tokens.
         #[ink(message)]
         pub fn create(&mut self, value: Balance) -> TokenId {
+            let caller = self.env().caller();
+
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances
-                .insert((self.env().caller(), self.token_id_nonce), value);
+            self.balances.insert((caller, self.token_id_nonce), value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
-                operator: self.env().caller(),
+                operator: caller,
                 from: AccountId::from([0; 32]),
                 to: if value == 0 {
                     AccountId::from([0; 32])
                 } else {
-                    self.env().caller()
+                    caller
                 },
                 token_id: self.token_id_nonce,
                 value,
@@ -294,19 +295,21 @@ mod erc1155 {
         /// to mint tokens.
         #[ink(message)]
         pub fn mint(&mut self, token_id: TokenId, value: Balance) {
+            let caller = self.env().caller();
+
             assert!(
                 token_id <= self.token_id_nonce,
                 "The `token_id` {:?} has not yet been created in this contract.",
                 token_id
             );
 
-            self.balances.insert((self.env().caller(), token_id), value);
+            self.balances.insert((caller, token_id), value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
-                operator: self.env().caller(),
+                operator: caller,
                 from: AccountId::from([0; 32]),
-                to: self.env().caller(),
+                to: caller,
                 token_id,
                 value,
             });
@@ -341,8 +344,9 @@ mod erc1155 {
                 .and_modify(|b| *b += value)
                 .or_insert(value);
 
+            let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
-                operator: self.env().caller(),
+                operator: caller,
                 from,
                 to,
                 token_id,
@@ -359,7 +363,7 @@ mod erc1155 {
                     .gas_limit(5000)
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
-                            .push_arg(self.env().caller())
+                            .push_arg(caller)
                             .push_arg(from)
                             .push_arg(token_id)
                             .push_arg(value)
@@ -407,11 +411,12 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            if self.env().caller() != from {
+            let caller = self.env().caller();
+            if caller != from {
                 assert!(
-                    self.is_approved_for_all(from, self.env().caller()),
+                    self.is_approved_for_all(from, caller),
                     "Caller ({:?}) is not allowed to transfer on behalf of {:?}.",
-                    self.env().caller(),
+                    caller,
                     from
                 );
             }
@@ -433,9 +438,10 @@ mod erc1155 {
             values: Vec<Balance>,
             data: Vec<u8>,
         ) {
-            if self.env().caller() != from {
+            let caller = self.env().caller();
+            if caller != from {
                 assert!(
-                    self.is_approved_for_all(from, self.env().caller()),
+                    self.is_approved_for_all(from, caller),
                     "Caller is not allowed to transfer on behalf of {:?}.",
                     from
                 );
@@ -481,13 +487,15 @@ mod erc1155 {
 
         #[ink(message)]
         fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) {
+            let caller = self.env().caller();
+
             assert!(
-                operator != self.env().caller(),
+                operator != caller,
                 "An account does not need to approve themselves to transfer tokens."
             );
 
             let approval = Approval {
-                owner: self.env().caller(),
+                owner: caller,
                 operator,
             };
 
