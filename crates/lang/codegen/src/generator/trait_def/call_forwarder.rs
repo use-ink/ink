@@ -390,7 +390,7 @@ impl CallForwarder<'_> {
         let message_ident = message.ident();
         let attrs = message.attrs();
         let output_ident = self.trait_def.output_ident(message.ident());
-        let output_type = message.output().cloned().unwrap_or(syn::parse_quote!(()));
+        let output_type = message.output().cloned().unwrap_or_else(|| syn::parse_quote!(()));
         let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let call_op = match message.receiver() {

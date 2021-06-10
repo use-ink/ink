@@ -177,9 +177,9 @@ impl TraitRegistry<'_> {
     }
 
     /// Returns a pair of input bindings `__ink_bindings_N` and types.
-    fn input_bindings_and_types<'b>(
-        inputs: ir::TraitItemInputsIter<'b>,
-    ) -> (Vec<syn::Ident>, Vec<&'b syn::Type>) {
+    fn input_bindings_and_types(
+        inputs: ir::TraitItemInputsIter,
+    ) -> (Vec<syn::Ident>, Vec<&syn::Type>) {
         inputs
             .enumerate()
             .map(|(n, pat_type)| {
