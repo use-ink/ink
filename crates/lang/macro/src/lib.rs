@@ -152,6 +152,7 @@ use proc_macro::TokenStream;
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
+///         type RentFraction = ::ink_env::Perbill;
 ///         type ChainExtension = ::ink_env::NoChainExtension;
 ///     }
 ///     ```
@@ -171,6 +172,7 @@ use proc_macro::TokenStream;
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
 ///         #     type ChainExtension = ::ink_env::NoChainExtension;
+///         #     type RentFraction = ::ink_env::Perbill;
 ///         # }
 ///         #
 ///         # #[ink(storage)]
@@ -397,6 +399,8 @@ use proc_macro::TokenStream;
 /// #
 /// #[ink::contract]
 /// mod greeter {
+///     use ink_env::debug_println;
+///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
@@ -404,17 +408,15 @@ use proc_macro::TokenStream;
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
 ///             let caller = Self::env().caller();
-///             let message = format!("thanks for instantiation {:?}", caller);
-///             ink_env::debug_println(&message);
+///             debug_println!("thanks for instantiation {:?}", caller);
 ///             Greeter {}
 ///         }
 ///
 ///         #[ink(message, payable)]
-///         pub fn fund(&mut self) {
+///         pub fn fund(&self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_balance();
-///             let message = format!("thanks for the funding of {:?} from {:?}", value, caller);
-///             ink_env::debug_println(&message);
+///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }
 /// }
@@ -496,13 +498,13 @@ use proc_macro::TokenStream;
 ///             Self { value: init_value }
 ///         }
 ///
-///         /// Flips the current value of the Flipper's bool.
+///         /// Flips the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn flip(&mut self) {
 ///             self.value = !self.value;
 ///         }
 ///
-///         /// Returns the current value of the Flipper's bool.
+///         /// Returns the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn get(&self) -> bool {
 ///             self.value
@@ -653,7 +655,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Usage
 ///
-/// Usually the chain extension definition using this proc. macro is provided
+/// Usually the chain extension definition using this procedural macro is provided
 /// by the author of the chain extension in a separate crate.
 /// ink! smart contracts using this chain extension simply depend on this crate
 /// and use its associated environment definition in order to make use of
@@ -907,6 +909,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 ///     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+///     type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 ///
 ///     type ChainExtension = RuntimeReadWrite;
 /// }
@@ -1050,6 +1053,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #     type Hash = <ink_env::DefaultEnvironment as ink_env::Environment>::Hash;
 /// #     type BlockNumber = <ink_env::DefaultEnvironment as ink_env::Environment>::BlockNumber;
 /// #     type Timestamp = <ink_env::DefaultEnvironment as ink_env::Environment>::Timestamp;
+/// #     type RentFraction = <ink_env::DefaultEnvironment as ink_env::Environment>::RentFraction;
 /// #
 /// #     type ChainExtension = RuntimeReadWrite;
 /// # }

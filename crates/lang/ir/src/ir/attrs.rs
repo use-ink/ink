@@ -394,17 +394,17 @@ pub enum AttributeArg {
     /// Applies on ink! chain extension method to set their `func_id` parameter.
     /// Every chain extension method must have exactly one ink! `extension` attribute.
     ///
-    /// Used by the `#[ink::chain_extension]` proc. macro.
+    /// Used by the `#[ink::chain_extension]` procedural macro.
     Extension(ExtensionId),
     /// `#[ink(handle_status = flag: bool)]`
     ///
-    /// Used by the `#[ink::chain_extension]` proc. macro.
+    /// Used by the `#[ink::chain_extension]` procedural macro.
     ///
     /// Default value: `true`
     HandleStatus(bool),
     /// `#[ink(returns_result = flag: bool)]`
     ///
-    /// Used by the `#[ink::chain_extension]` proc. macro.
+    /// Used by the `#[ink::chain_extension]` procedural macro.
     ///
     /// Default value: `true`
     ReturnsResult(bool),

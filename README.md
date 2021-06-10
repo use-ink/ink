@@ -25,13 +25,13 @@
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
 [k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
-[l2]: https://discord.gg/ztCASQE
+[l2]: https://discord.gg/j2DKRRbSJr
 
-> <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write WebAssembly based smart contracts using the Rust programming language. The compilation target are blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework.
+> <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
 <br/>
 
-[Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract) •
+[Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)&nbsp;&nbsp;•&nbsp;&nbsp;
 [ink! Documentation Portal](https://paritytech.github.io/ink-docs)
 
 <br/>
@@ -39,8 +39,10 @@
 
 More relevant links:
 * Talk to us on [Element][k2] or [Discord][l2]
-* [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ cli tool for ink! contracts
-* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ webpage for contract deployment and interaction
+* [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
+* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract deployment and interaction
+* [Canvas Node](https://github.com/paritytech/canvas-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+
 
 ## Table of Contents
 
@@ -60,18 +62,21 @@ More relevant links:
 
 ## Play with It
 
-We have [a demonstration testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fcanvas-rpc.parity.io) running.
+If you want to have a local setup you can use our [canvas-node](https://github.com/paritytech/canvas-node) for a quickstart.
+It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
+
+The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can be used to deploy your contract to a chain and interact with it.
+
+We also have [a demonstration testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fcanvas-rpc.parity.io) running.
 You can request some tokens to play with from our [Faucet](https://riot.im/app/#/room/#canvas_faucet:matrix.parity.io) and deploy your contracts via the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload).
 
-The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can also be used to deploy your contract to e.g. a Substrate chain which you run locally and execute calls there.
-If you want a quickstart you can use our [canvas-node](https://github.com/paritytech/canvas-node#note) project.
-It's a simple Substrate blockchain which is configured to include the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 ## Usage
 
 A prerequisite for compiling smart contracts is to have Rust and Cargo installed. Here's [an installation guide](https://doc.rust-lang.org/cargo/getting-started/installation.html).
 
-We recommend installing [`cargo-contract`](https://github.com/paritytech/cargo-contract), a CLI tool for helping setting up and managing WebAssembly smart contracts written with ink!:
+We recommend installing [`cargo-contract`](https://github.com/paritytech/cargo-contract) as well.
+It's a CLI tool which helps set up and manage WebAssembly smart contracts written with ink!:
 
 ```
 cargo install cargo-contract --force
@@ -90,9 +95,9 @@ The folder contains a scaffold `Cargo.toml` and a `lib.rs`, which both contain t
 
 The `lib.rs` contains our hello world contract ‒ the `Flipper`, which we explain in the next section.
 
-In order to build the contract just execute these commands in the `flipper` folder:
+In order to build the contract just execute this command in the `flipper` folder:
 ```
-cargo contract build
+cargo +nightly contract build
 ```
 
 As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
@@ -122,7 +127,8 @@ mod flipper {
     }
 
     impl Flipper {
-        /// Instantiates a new Flipper contract and initializes `value` to `init_value`.
+        /// Instantiates a new Flipper contract and initializes
+        /// `value` to `init_value`.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             Self {
@@ -143,12 +149,14 @@ mod flipper {
         }
     }
 
-    /// Simply execute `cargo test` in order to test your contract using the below unit tests.
+    /// Simply execute `cargo test` in order to test your contract
+    /// using the below unit tests.
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             assert_eq!(flipper.get(), false);
@@ -159,7 +167,9 @@ mod flipper {
 }
 ```
 
-Place this code in the `./lib.rs` file of your flipper contract and run `cargo contract build` to build your first ink! smart contract example.
+The [`flipper/src/lib.rs`](https://github.com/paritytech/ink/blob/master/examples/flipper/lib.rs)
+file in our examples folder contains exactly this code. Run `cargo contract build` to build your
+first ink! smart contract.
 
 ## Examples
 
@@ -178,14 +188,14 @@ To build a single example navigate to the root of the example and run:
 cargo contract build
 ```
 
-You should now have an optimized `<contract-name>.wasm` file and a `metadata.json` file in the `target` folder of the contract.
+You should now have an `<name>.contract` file in the `target` folder of the contract.
 
-For further information, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
+For information on how to deploy this to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
 
 
 ## How it Works
 
-* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/next/conceptual/runtime/frame) contains
+* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/knowledgebase/runtime/frame) contains
 a module  which implements an API for typical functions smart contracts need (storage, querying information about accounts, …).
 This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
@@ -222,7 +232,7 @@ See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/mas
 
 ### Off-chain Testing
 
-The `#[ink::test]` proc. macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs#L278-L280) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
+The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs#L278-L280) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
 
 ## Developer Documentation
 
@@ -246,4 +256,6 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 
 ## License
 
-The entire code within this repository is licensed under the [Apache License 2.0](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
+The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
+
+Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.

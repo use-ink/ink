@@ -16,7 +16,7 @@ use crate::Key;
 
 /// A key pointer.
 ///
-/// This wraps a base key and provides an interface to mimic pointer arithmetics.
+/// This wraps a base key and provides an interface to mimic pointer arithmetic.
 /// Mainly used to coordinate keys through static storage structures.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct KeyPtr {

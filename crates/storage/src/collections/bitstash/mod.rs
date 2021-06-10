@@ -50,7 +50,7 @@ pub struct BitStash {
     /// represent 256 different states but since we consider 0 we need an extra
     /// 9th bit. This 9th bit tells for every 256-bit chunk if it is full.
     ///
-    /// In theory it is possible to search up to 8192 storage cells for free
+    /// In theory, it is possible to search up to 8192 storage cells for free
     /// slots with a single contract storage look-up. By iterating over the 32
     /// `CountFree` instances of a single instance.
     counts: StorageVec<CountFree>,

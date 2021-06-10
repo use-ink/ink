@@ -46,7 +46,7 @@ mod dns {
         new_address: AccountId,
     }
 
-    /// Emitted whenver a name is being transferred.
+    /// Emitted whenever a name is being transferred.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
@@ -70,8 +70,8 @@ mod dns {
     ///
     /// The main function of this contract is domain name resolution which
     /// refers to the retrieval of numeric values corresponding to readable
-    /// and easily memorable names such as “polka.dot” which can be used
-    /// to facilitate transfers, voting and dapp-related operations instead
+    /// and easily memorable names such as "polka.dot" which can be used
+    /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
     #[derive(Default)]
@@ -197,8 +197,8 @@ mod dns {
             ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 caller,
                 AccountId::from(DEFAULT_CALLEE_HASH),
-                DEFAULT_ENDOWMENT,
                 DEFAULT_GAS_LIMIT,
+                DEFAULT_ENDOWMENT,
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])),
             )
         }
@@ -232,7 +232,7 @@ mod dns {
                 Err(Error::CallerIsNotOwner)
             );
 
-            // caller is owner, set_address will be successful
+            // Caller is owner, set_address will be successful
             set_next_caller(accounts.alice);
             assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
             assert_eq!(contract.get_address(name), accounts.bob);

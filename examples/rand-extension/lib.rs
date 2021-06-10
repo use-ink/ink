@@ -25,8 +25,8 @@ use ink_lang as ink;
 pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
 
-    /// Note: this gives the operation a corresponding func_id (1101 in this case),
-    /// and the chain-side chain_extension will get the func_id to do further operations.
+    /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
+    /// and the chain-side chain extension will get the `func_id` to do further operations.
     #[ink(extension = 1101, returns_result = false)]
     fn fetch_random() -> [u8; 32];
 }
@@ -60,6 +60,7 @@ impl Environment for CustomEnvironment {
     type Hash = <ink_env::DefaultEnvironment as Environment>::Hash;
     type BlockNumber = <ink_env::DefaultEnvironment as Environment>::BlockNumber;
     type Timestamp = <ink_env::DefaultEnvironment as Environment>::Timestamp;
+    type RentFraction = <ink_env::DefaultEnvironment as Environment>::RentFraction;
 
     type ChainExtension = FetchRandom;
 }

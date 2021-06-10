@@ -22,8 +22,8 @@ use core::{
 /// A cache for a `T` that allow to mutate the inner `T` through `&self`.
 ///
 /// Internally this is a thin wrapper around an `UnsafeCell<T>`.
-/// The main difference to `UnsafeCell` is that this type provides an out of the
-/// box API to safely access the inner `T` as well for single threaded contexts.
+/// The main difference to `UnsafeCell` is that this type provides an out-of-the-box
+/// API to safely access the inner `T` as well for single threaded contexts.
 pub struct CacheCell<T: ?Sized> {
     /// The inner value that is allowed to be mutated in shared contexts.
     inner: UnsafeCell<T>,

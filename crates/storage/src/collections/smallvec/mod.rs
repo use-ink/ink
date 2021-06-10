@@ -48,7 +48,7 @@ type Index = u32;
 /// - The `storage::SmallVec` has a very similar API compared to a `storage::Vec`.
 ///   The major difference between both data structures is that the `SmallVec`
 ///   can only contain up to a fixed amount of elements given by `N` whereas the
-///   `Vec` can contain up to 2^32 elements which is the maximum for 32-bit Wasm
+///   `Vec` can contain up to `2^32` elements which is the maximum for 32-bit Wasm
 ///   targets.
 /// - The performance characteristics may be different from Rust's
 ///   `Vec` due to the internal differences.
@@ -117,7 +117,7 @@ where
         self.elems.capacity()
     }
 
-    /// Returns the number of elements in the vector, also referred to as its 'length'.
+    /// Returns the number of elements in the vector, also referred to as its length.
     #[inline]
     pub fn len(&self) -> u32 {
         *self.len
@@ -156,7 +156,7 @@ where
         IterMut::new(self)
     }
 
-    /// Returns the index if it is witihn bounds or `None` otherwise.
+    /// Returns the index if it is within bounds or `None` otherwise.
     fn within_bounds(&self, index: Index) -> Option<Index> {
         if index < self.len() {
             return Some(index)

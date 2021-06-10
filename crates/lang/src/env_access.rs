@@ -24,6 +24,8 @@ use ink_env::{
         HashOutput,
     },
     Environment,
+    RentParams,
+    RentStatus,
     Result,
 };
 use ink_primitives::Key;
@@ -180,6 +182,36 @@ where
         ink_env::rent_allowance::<T>().expect("couldn't decode contract rent allowance")
     }
 
+    /// Returns information needed for rent calculations.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::RentParams`]
+    pub fn rent_params(self) -> RentParams<T> {
+        ink_env::rent_params::<T>().expect("couldn't decode contract rent params")
+    }
+
+    /// Returns information about the required deposit and resulting rent.
+    ///
+    /// # Parameters
+    ///
+    /// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+    ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+    ///
+    ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
+    ///   refcount made during the currently running call.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::RentStatus`]
+    pub fn rent_status(
+        self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> RentStatus<T> {
+        ink_env::rent_status::<T>(at_refcount)
+            .expect("couldn't decode contract rent params")
+    }
+
     /// Returns the current block number.
     ///
     /// # Note
@@ -303,7 +335,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
-    pub fn random(self, subject: &[u8]) -> T::Hash {
+    pub fn random(self, subject: &[u8]) -> (T::Hash, T::BlockNumber) {
         ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
     }
 

@@ -23,6 +23,7 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
+  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
 
 workflow:
   rules:
@@ -121,6 +122,13 @@ test:
       QUICKCHECK_TESTS:            0
   script:
     - cargo test --verbose --all-features --no-fail-fast --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace --doc
+
+      # Just needed as long as we have the `ink-experimental-engine` feature.
+      # We do not invoke `--all-features` here -- this would imply the feature
+      # `ink-experimental-engine`. So in order to still run the tests without the
+      # experimental engine feature we need this command.
+    - cargo test --verbose --features std --no-fail-fast --workspace
 
 docs:
   stage:                           workspace
@@ -140,6 +148,21 @@ docs:
         -p ink_primitives -p ink_prelude
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+
+spellcheck:
+    stage:                           workspace
+    <<:                              *docker-env
+    rules:
+      - if: $CI_PIPELINE_SOURCE == "pipeline"
+        when: never
+    script:
+        - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
+        - for example in examples/*/; do
+            cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example};
+          done
+        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+            cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/;
+          done
 
 codecov:
   stage:                           workspace
@@ -168,6 +191,13 @@ codecov:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
+
+    # Just needed as long as we have the `ink-experimental-engine` feature.
+    # We must additionally run the coverage without `--all-features` here -- this
+    # would imply the feature `ink-experimental-engine`. So in order to still run
+    # the tests without the experimental engine feature we need this command.
+    - cargo test --verbose --features std --no-fail-fast --workspace
+
     # coverage with branches
     - grcov . --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
         --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
@@ -225,6 +255,22 @@ examples-test:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+      done
+
+examples-test-experimental-engine:
+  stage:                           examples
+  <<:                              *docker-env
+  needs:
+    - job:                         clippy-std
+      artifacts:                   false
+  script:
+    # We test only the examples for which the tests have already been migrated to
+    # use the experimental engine.
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc20/Cargo.toml
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
 examples-fmt:
   stage:                           examples
@@ -232,6 +278,9 @@ examples-fmt:
   script:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check;
       done
 
 examples-clippy-std:
@@ -244,6 +293,9 @@ examples-clippy-std:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+      done
 
 examples-clippy-wasm:
   stage:                           examples
@@ -251,6 +303,9 @@ examples-clippy-wasm:
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
@@ -263,6 +318,18 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        pushd examples/delegator/$contract &&
+        cargo contract build &&
+        popd;
+      done
+
+examples-contract-build-delegator:
+    stage:                           examples
+    <<:                              *docker-env
+    script:
+        - cargo contract -V
+        - cd examples/delegator/ && ./build-all.sh
 
 examples-docs:
     stage:                           examples
@@ -277,6 +344,9 @@ examples-docs:
         - for example in examples/*/; do
             cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
           done
+        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+            cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+          done
 
 #### stage:                        publish
 
@@ -287,18 +357,20 @@ publish-docs:
     - job:                       docs
       artifacts:                 true
   variables:
-    GIT_DEPTH:                     0
-    GIT_STRATEGY:                  none
+    GIT_DEPTH:                   100
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
+  # need to overwrite `before_script` from `*docker-env` here,
+  # this branch does not have a `./scripts/pre_cache.sh`
+  before_script:
+    - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
-    - unset CARGO_TARGET_DIR
     # Set git config
-    - rm .git/config
+    - rm -rf .git/config
     - git config user.email "devops-team@parity.io"
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
@@ -318,7 +390,12 @@ publish-docs:
     # Upload files
     - git add --all --force
     - git status
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages"
+    # `git commit` has an exit code of > 0 if there is nothing to commit.
+    # This unfortunately causes GitLab to exit immediately and mark this
+    # job as failed subsequently.
+    # We don't want to mark the entire job as failed if there's nothing to
+    # publish though, hence the `|| true`.
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
     - git push origin gh-pages --force
   after_script:
     - rm -rf .git/ ./*
@@ -330,7 +407,7 @@ fuzz-tests:
     <<:                              *docker-env
     variables:
         # The QUICKCHECK_TESTS default is 100
-        QUICKCHECK_TESTS:            40000
+        QUICKCHECK_TESTS:            20000
     rules:
         - if: $CI_PIPELINE_SOURCE == "schedule"
         - if: $CI_COMMIT_REF_NAME == "master"

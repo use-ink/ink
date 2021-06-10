@@ -48,14 +48,15 @@ mod incrementer {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
 
-        #[test]
+        #[ink::test]
         fn default_works() {
             let contract = Incrementer::default();
             assert_eq!(contract.get(), 0);
         }
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut contract = Incrementer::new(42);
             assert_eq!(contract.get(), 42);

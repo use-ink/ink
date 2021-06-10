@@ -28,7 +28,7 @@ use ink_env::{
 use ink_storage::traits::SpreadLayout;
 
 /// Trait used to indicate that an ink! trait definition has been checked
-/// by the `#[ink::trait_definition]` proc. macro.
+/// by the `#[ink::trait_definition]` procedural macro.
 #[doc(hidden)]
 pub unsafe trait TraitImplementer<const TRAIT_ID: u32> {}
 

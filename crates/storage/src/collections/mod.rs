@@ -22,7 +22,6 @@ pub mod binary_heap;
 pub mod bitstash;
 pub mod bitvec;
 pub mod hashmap;
-#[cfg(feature = "ink-unstable")]
 pub mod smallvec;
 pub mod stash;
 pub mod vec;
@@ -37,16 +36,15 @@ pub use self::{
     vec::Vec,
 };
 
-#[cfg(feature = "ink-unstable")]
 #[doc(inline)]
 pub use self::smallvec::SmallVec;
 
-/// Extends the lifetime 'a to the outliving lifetime 'b for the given reference.
+/// Extends the lifetime `'a` to the outliving lifetime `'b` for the given reference.
 ///
 /// # Note
 ///
 /// This interface is a bit more constraint than a simple
-/// [transmut](`core::mem::transmute`) and therefore preferred
+/// [transmute](`core::mem::transmute`) and therefore preferred
 /// for extending lifetimes only.
 ///
 /// # Safety

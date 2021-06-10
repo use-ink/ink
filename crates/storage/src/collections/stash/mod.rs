@@ -291,7 +291,7 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
-    /// Rebinds the `prev` and `next` bindings of the neighbours of the vacant entry.
+    /// Rebinds the `prev` and `next` bindings of the neighbors of the vacant entry.
     ///
     /// # Note
     ///
@@ -305,27 +305,21 @@ where
             self.header.last_vacant = self.header.len;
             return
         }
+        let prev = self
+            .entries
+            .get_mut(prev_vacant)
+            .map(Entry::try_to_vacant_mut)
+            .flatten()
+            .expect("`prev` must point to an existing entry at this point");
         if prev_vacant == next_vacant {
             // There is only one other vacant entry left.
             // We can update the single vacant entry in a single look-up.
-            let entry = self
-                .entries
-                .get_mut(prev_vacant)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`prev` must point to an existing entry at this point");
-            debug_assert_eq!(entry.prev, removed_index);
-            debug_assert_eq!(entry.next, removed_index);
-            entry.prev = prev_vacant;
-            entry.next = prev_vacant;
+            debug_assert_eq!(prev.prev, removed_index);
+            debug_assert_eq!(prev.next, removed_index);
+            prev.prev = prev_vacant;
+            prev.next = prev_vacant;
         } else {
             // There are multiple other vacant entries left.
-            let prev = self
-                .entries
-                .get_mut(prev_vacant)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
-                .expect("`prev` must point to an existing entry at this point");
             debug_assert_eq!(prev.next, removed_index);
             prev.next = next_vacant;
             let next = self
@@ -377,13 +371,13 @@ where
                 (root_vacant.prev, index)
             }
         } else {
-            // Default prev and next to the given at index.
+            // Default previous and next to the given at index.
             // So the resulting vacant index is pointing to itself.
             (at, at)
         }
     }
 
-    /// Updates links from and to neighbouring vacant entries.
+    /// Updates links from and to neighboring vacant entries.
     fn update_neighboring_vacant_entry_links(
         &mut self,
         prev: Index,
@@ -459,7 +453,7 @@ where
             // Early return since `at` index is out of bounds.
             return None
         }
-        // Precompute prev and next vacant entries as we might need them later.
+        // Precompute previous and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
         let entry_mut = self.entries.get_mut(at).expect("index is out of bounds");
@@ -511,7 +505,7 @@ where
             // Early return since `at` index is out of bounds.
             return None
         }
-        // Precompute prev and next vacant entries as we might need them later.
+        // Precompute previous and next vacant entries as we might need them later.
         // Due to borrow checker constraints we cannot have this at a later stage.
         let (prev, next) = self.fetch_prev_and_next_vacant_entry(at);
         let new_vacant_entry = Entry::Vacant(VacantEntry { next, prev });
@@ -527,7 +521,7 @@ where
     ///
     /// Returns the number of storage cells freed this way.
     ///
-    /// This might invalidate indices stored outside of the stash.
+    /// This might invalidate indices stored outside the stash.
     ///
     /// # Callback
     ///
@@ -567,7 +561,7 @@ where
                 .expect("index is out of bounds")
             {
                 Entry::Vacant(vacant_entry) => {
-                    // Remove the vacant entry and rebind its neighbours.
+                    // Remove the vacant entry and rebind its neighbors.
                     self.remove_vacant_entry(index, vacant_entry);
                 }
                 Entry::Occupied(value) => {

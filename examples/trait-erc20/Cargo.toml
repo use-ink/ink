@@ -1,5 +1,5 @@
 [package]
-name = "erc20"
+name = "trait_erc20"
 version = "3.0.0-rc3"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -11,14 +11,11 @@ ink_env = { version = "3.0.0-rc3", path = "../../crates/env", default-features =
 ink_storage = { version = "3.0.0-rc3", path = "../../crates/storage", default-features = false }
 ink_lang = { version = "3.0.0-rc3", path = "../../crates/lang", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.0", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
-# Should be removed once bitvecto-rs/bitvec#105 is resolved
-funty = "=1.1.0"
-
 [lib]
-name = "erc20"
+name = "trait_erc20"
 path = "lib.rs"
 crate-type = ["cdylib"]
 

@@ -348,7 +348,7 @@ where
         // what normally a hash map implementation does because we do not resolve
         // or prevent collisions in this hash map implementation at any level.
         // Having a collision is virtually impossible since we
-        // are using a keyspace of 2^256 bit.
+        // are using a keyspace of `2^256` bit.
         self.values.get(key).is_some()
     }
 
@@ -415,8 +415,8 @@ where
     /// Returns a reference to this entry's key.
     pub fn key(&self) -> &K {
         match self {
-            Entry::Occupied(entry) => &entry.values_entry.key(),
-            Entry::Vacant(entry) => &entry.values_entry.key(),
+            Entry::Occupied(entry) => entry.values_entry.key(),
+            Entry::Vacant(entry) => entry.values_entry.key(),
         }
     }
 
@@ -459,7 +459,7 @@ where
     {
         match self {
             Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
-            Entry::Vacant(entry) => Entry::insert(default(&entry.key()), entry),
+            Entry::Vacant(entry) => Entry::insert(default(entry.key()), entry),
         }
     }
 
@@ -492,9 +492,9 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
     pub fn key(&self) -> &K {
-        &self.values_entry.key()
+        self.values_entry.key()
     }
 
     /// Take ownership of the key.
@@ -502,7 +502,7 @@ where
         self.values_entry.into_key()
     }
 
-    /// Sets the value of the entry with the `VacantEntry`'s key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`s key, and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         // At this point we know that `key` does not yet exist in the map.
         let key_index = self.keys.put(self.key().to_owned());
@@ -520,7 +520,7 @@ where
 {
     /// Gets a reference to the key in the entry.
     pub fn key(&self) -> &K {
-        &self.values_entry.key()
+        self.values_entry.key()
     }
 
     /// Take the ownership of the key and value from the map.
@@ -556,7 +556,7 @@ where
         self.remove_entry().1
     }
 
-    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         &mut self.values_entry.into_mut().value
