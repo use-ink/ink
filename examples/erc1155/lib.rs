@@ -370,6 +370,7 @@ mod erc1155 {
 
                 match ink_env::eval_contract(&params) {
                     Ok(v) => {
+                        ink_env::debug_println!("Eval Value `v` {:?}", v);
                         assert_eq!(
                             v,
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
@@ -379,16 +380,22 @@ mod erc1155 {
                     }
                     Err(e) => {
                         match e {
-                            ink_env::Error::CodeNotFound => {
+                            ink_env::Error::CodeNotFound
+                            | ink_env::Error::NotCallable => {
                                 // Our recipient wasn't a smart contract, so there's nothing more for
                                 // us to do
+                                ink_env::debug_println!("Recipient at {:?} from is not a smart contract ({:?})", from, e);
                             }
                             _ => {
-                                // I have no insight to what's happening here, I can't deploy
-                                // the following:
-                                //
-                                // ink_env::debug_println(&ink_prelude::format!("{:?}", e));
-                                // panic!("{:?}", e)
+                                // We got some sort of error from the call to our recipient smart
+                                // contract, and as such we must revert this call
+                                let msg = ink_prelude::format!(
+                                    "Got error \"{:?}\" while trying to call {:?}",
+                                    e,
+                                    from
+                                );
+                                ink_env::debug_println!("{}", &msg);
+                                panic!("{}", &msg)
                             }
                         }
                     }
