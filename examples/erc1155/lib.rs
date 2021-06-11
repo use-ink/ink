@@ -167,17 +167,9 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_env::call::{
-        build_call,
-        utils::ReturnType,
-        ExecutionInput,
-        Selector,
-    };
+    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
+    use ink_storage::traits::{PackedLayout, SpreadLayout};
 
     /// Indicate that a token transfer has occured.
     ///
@@ -370,7 +362,11 @@ mod erc1155 {
 
                 match ink_env::eval_contract(&params) {
                     Ok(v) => {
-                        ink_env::debug_println!("Eval Value `v` {:?}", v);
+                        ink_env::debug_println!(
+                            "Received return value \"{:?}\" from contract {:?}",
+                            v,
+                            from
+                        );
                         assert_eq!(
                             v,
                             &ON_ERC_1155_RECEIVED_SELECTOR[..],
