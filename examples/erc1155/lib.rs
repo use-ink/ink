@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(test, allow(dead_code))]
-#![cfg_attr(test, allow(unused_imports))]
 
 use ink_env::AccountId;
 use ink_lang as ink;
@@ -26,13 +24,14 @@ use ink_prelude::vec::Vec;
 // It is calculated with
 // `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
 // to 0xf23a6e61.
+#[cfg_attr(test, allow(dead_code))]
 const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [242, 58, 110, 97];
 
 // This is the return value that we expect if a smart contract supports batch receiving ERC-1155
 // tokens.
 //
 // It is calculated with
-//`bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
+// `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
 // corresponds to 0xbc197c81.
 const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [188, 25, 124, 129];
 
@@ -167,7 +166,9 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
+    #[allow(unused_imports)]
     use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
+
     use ink_prelude::collections::BTreeMap;
     use ink_storage::traits::{PackedLayout, SpreadLayout};
 
@@ -313,7 +314,7 @@ mod erc1155 {
             to: AccountId,
             token_id: TokenId,
             value: Balance,
-            data: Vec<u8>,
+            #[cfg_attr(test, allow(unused_variables))] data: Vec<u8>,
         ) {
             let balance = self.balance_of(from, token_id);
             assert!(
@@ -341,7 +342,11 @@ mod erc1155 {
                 value,
             });
 
-            // Quick Haxx, otherwise my tests just panic due to the use of eval_contract()
+            // This is disabled during tests due to the use of `eval_contract()` not being
+            // supported (tests end up panicking).
+            //
+            // We should be able to get rid of this with when the new off-chain testing
+            // environement is available.
             #[cfg(not(test))]
             {
                 // If our recipient is a smart contract we need to see if they accept or
