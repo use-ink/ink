@@ -167,10 +167,18 @@ mod erc1155 {
     use super::*;
 
     #[allow(unused_imports)]
-    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
+    use ink_env::call::{
+        build_call,
+        utils::ReturnType,
+        ExecutionInput,
+        Selector,
+    };
 
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{PackedLayout, SpreadLayout};
+    use ink_storage::traits::{
+        PackedLayout,
+        SpreadLayout,
+    };
 
     /// Indicate that a token transfer has occured.
     ///
@@ -346,7 +354,7 @@ mod erc1155 {
             // supported (tests end up panicking).
             //
             // We should be able to get rid of this with when the new off-chain testing
-            // environement is available.
+            // environment is available.
             #[cfg(not(test))]
             {
                 // If our recipient is a smart contract we need to see if they accept or
