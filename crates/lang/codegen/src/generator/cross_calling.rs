@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use super::enforced_error::EnforcedErrors;
+use crate::{
+    generator,
+    GenerateCode,
+    GenerateCodeUsing as _,
+};
 use derive_more::From;
 use heck::CamelCase as _;
 use impl_serde::serialize as serde_hex;
@@ -28,28 +33,13 @@ use quote::{
     quote_spanned,
 };
 use syn::spanned::Spanned as _;
-use super::enforced_error::EnforcedErrors;
-
-/// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
-#[derive(From)]
-pub struct CrossCallingConflictCfg<'a> {
-    contract: &'a ir::Contract,
-}
-
-impl GenerateCode for CrossCallingConflictCfg<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        if self.contract.config().is_compile_as_dependency_enabled() {
-            return quote! { #[cfg(feature = "__ink_DO_NOT_COMPILE")] }
-        }
-        quote! { #[cfg(not(feature = "ink-as-dependency"))] }
-    }
-}
 
 /// Generates code for using this ink! contract as a dependency.
 #[derive(From)]
 pub struct CrossCalling<'a> {
     contract: &'a ir::Contract,
 }
+impl_as_ref_for_generator!(CrossCalling);
 
 impl GenerateCode for CrossCalling<'_> {
     fn generate_code(&self) -> TokenStream2 {
@@ -67,17 +57,6 @@ impl GenerateCode for CrossCalling<'_> {
 }
 
 impl CrossCalling<'_> {
-    /// Generates code for conditionally compiling code only if the contract
-    /// is compiled as dependency.
-    fn generate_cfg(&self) -> Option<TokenStream2> {
-        if self.contract.config().is_compile_as_dependency_enabled() {
-            return None
-        }
-        Some(quote! {
-            #[cfg(feature = "ink-as-dependency")]
-        })
-    }
-
     /// Generates code for the ink! storage struct for cross-calling purposes.
     ///
     /// # Note
@@ -87,13 +66,14 @@ impl CrossCalling<'_> {
     /// forward all calls via ink!'s provided cross-calling infrastructure
     /// automatically over the chain.
     fn generate_storage(&self) -> TokenStream2 {
-        let cfg = self.generate_cfg();
+        let only_as_dependency =
+            self.generate_code_using::<generator::OnlyAsDependencyCfg>();
         let storage = self.contract.module().storage();
         let span = storage.span();
         let ident = storage.ident();
         let attrs = storage.attrs();
         quote_spanned!(span =>
-            #cfg
+            #only_as_dependency
             #( #attrs )*
             #[derive(
                 Clone,
@@ -120,10 +100,11 @@ impl CrossCalling<'_> {
     /// generated ink! storage struct for cross-calling work out-of-the-box
     /// for the cross-calling infrastructure.
     fn generate_standard_impls(&self) -> TokenStream2 {
-        let cfg = self.generate_cfg();
+        let only_as_dependency =
+            self.generate_code_using::<generator::OnlyAsDependencyCfg>();
         let ident = self.contract.module().storage().ident();
         quote! {
-            #cfg
+            #only_as_dependency
             const _: () = {
                 impl ::ink_env::call::FromAccountId<Environment> for #ident {
                     #[inline]
@@ -528,9 +509,10 @@ impl CrossCalling<'_> {
         let storage_ident = self.contract.module().storage().ident();
         let impl_blocks_ref = self.generate_call_forwarder_impl_blocks(false);
         let impl_blocks_refmut = self.generate_call_forwarder_impl_blocks(true);
-        let cfg = self.generate_cfg();
+        let only_as_dependency =
+            self.generate_code_using::<generator::OnlyAsDependencyCfg>();
         quote! {
-            #cfg
+            #only_as_dependency
             const _: () = {
                 impl<'a> ::ink_lang::ForwardCall for &'a #storage_ident {
                     type Forwarder = #forwarder_ident<&'a #storage_ident>;
@@ -672,7 +654,8 @@ impl CrossCalling<'_> {
 
     fn generate_trait_impl_block(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         assert!(impl_block.trait_path().is_some());
-        let cfg = self.generate_cfg();
+        let only_as_dependency =
+            self.generate_code_using::<generator::OnlyAsDependencyCfg>();
         let span = impl_block.span();
         let attrs = impl_block.attrs();
         let trait_path = impl_block
@@ -704,10 +687,10 @@ impl CrossCalling<'_> {
         );
         let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         quote_spanned!(span =>
-            #cfg
+            #only_as_dependency
             unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
 
-            #cfg
+            #only_as_dependency
             #( #attrs )*
             impl #trait_path for #self_type {
                 type __ink_Checksum = [(); #checksum];
@@ -814,7 +797,8 @@ impl CrossCalling<'_> {
 
     fn generate_inherent_impl_block(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         assert!(impl_block.trait_path().is_none());
-        let cfg = self.generate_cfg();
+        let only_as_dependency =
+            self.generate_code_using::<generator::OnlyAsDependencyCfg>();
         let span = impl_block.span();
         let attrs = impl_block.attrs();
         let self_type = impl_block.self_type();
@@ -825,7 +809,7 @@ impl CrossCalling<'_> {
             Self::generate_inherent_impl_block_constructor(constructor)
         });
         quote_spanned!(span =>
-            #cfg
+            #only_as_dependency
             #( #attrs )*
             impl #self_type {
                 #( #messages )*

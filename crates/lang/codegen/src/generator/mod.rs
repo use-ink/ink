@@ -12,6 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Implements `AsRef` for a code generator type.
+///
+/// Code generators always have a shared `contract` reference to the contract.
+/// They need to implement this trait in order to use other code generators.
+macro_rules! impl_as_ref_for_generator {
+    ( $generator_name:ident ) => {
+        impl ::core::convert::AsRef<ir::Contract> for $generator_name<'_> {
+            fn as_ref(&self) -> &ir::Contract {
+                self.contract
+            }
+        }
+    };
+}
+
+mod as_dependency;
 mod call_builder;
 mod chain_extension;
 mod contract;
@@ -27,13 +42,14 @@ mod storage;
 mod trait_def;
 
 pub use self::{
-    chain_extension::ChainExtension,
-    call_builder::CallBuilder,
-    contract::Contract,
-    cross_calling::{
-        CrossCalling,
-        CrossCallingConflictCfg,
+    as_dependency::{
+        NotAsDependencyCfg,
+        OnlyAsDependencyCfg,
     },
+    call_builder::CallBuilder,
+    chain_extension::ChainExtension,
+    contract::Contract,
+    cross_calling::CrossCalling,
     dispatch::Dispatch,
     env::Env,
     events::Events,
