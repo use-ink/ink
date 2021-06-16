@@ -102,7 +102,7 @@ impl CryptoHash for Keccak256 {
 impl From<ext::Error> for crate::Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
-            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::Unknown => Self::Unknown,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
