@@ -50,7 +50,7 @@ macro_rules! define_error_codes {
                 $name = $discr,
             )*
             /// Returns if an unknown error was received from the host module.
-            UnknownError,
+            Unknown,
         }
 
         impl From<ReturnCode> for Result {
@@ -61,7 +61,7 @@ macro_rules! define_error_codes {
                     $(
                         $discr => Err(Error::$name),
                     )*
-                    _ => Err(Error::UnknownError),
+                    _ => Err(Error::Unknown),
                 }
             }
         }

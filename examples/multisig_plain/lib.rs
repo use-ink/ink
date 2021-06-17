@@ -484,15 +484,20 @@ mod multisig_plain {
 
         /// Invoke a confirmed execution without getting its output.
         ///
+        /// If the transaction which is invoked transfers value, this value has
+        /// to be sent as payment with this call. The method will fail otherwise,
+        /// and the transaction would then be reverted.
+        ///
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn invoke_transaction(
             &mut self,
             trans_id: TransactionId,
         ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            assert!(self.env().transferred_balance() == t.transferred_value);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)
