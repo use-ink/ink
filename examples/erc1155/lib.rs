@@ -49,7 +49,7 @@ type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 /// make it easy to transfer a mix of multiple tokens at once.
 #[ink::trait_definition]
 pub trait Erc1155 {
-    /// Transfer the a `value` amount of `token_id` tokens to the `to` account from the `from`
+    /// Transfer a `value` amount of `token_id` tokens to the `to` account from the `from`
     /// account.
     ///
     /// Note that the call does not have to originate from the `from` account, and may originate
@@ -167,18 +167,10 @@ mod erc1155 {
     use super::*;
 
     #[allow(unused_imports)]
-    use ink_env::call::{
-        build_call,
-        utils::ReturnType,
-        ExecutionInput,
-        Selector,
-    };
+    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
 
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
+    use ink_storage::traits::{PackedLayout, SpreadLayout};
 
     /// Indicate that a token transfer has occured.
     ///
@@ -315,7 +307,7 @@ mod erc1155 {
         // Helper function for performing single token transfers.
         //
         // Should not be used directly since it's missing certain checks which are important to the
-        // ERC-1155 standard (it is expected that the caller has already perfomred these).
+        // ERC-1155 standard (it is expected that the caller has already performed these).
         fn perform_transfer(
             &mut self,
             from: AccountId,
