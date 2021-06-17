@@ -169,7 +169,10 @@ mod erc1155 {
     use super::*;
 
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{PackedLayout, SpreadLayout};
+    use ink_storage::traits::{
+        PackedLayout,
+        SpreadLayout,
+    };
 
     /// Indicate that a token transfer has occured.
     ///
@@ -346,7 +349,10 @@ mod erc1155 {
             #[cfg(not(test))]
             {
                 use ink_env::call::{
-                    build_call, utils::ReturnType, ExecutionInput, Selector,
+                    build_call,
+                    utils::ReturnType,
+                    ExecutionInput,
+                    Selector,
                 };
 
                 // If our recipient is a smart contract we need to see if they accept or
