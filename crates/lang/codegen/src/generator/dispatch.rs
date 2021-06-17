@@ -247,7 +247,7 @@ impl Dispatch<'_> {
     /// Returns a tuple of:
     ///
     /// - Vector over the generated identifier bindings (`__ink_binding_N`) for all inputs.
-    /// - `TokenStream` representing the binding identifiers as tuple (for `>= 2` inputs),
+    /// - `TokenStream` representing the binding identifiers as tuple (for equal to two or more inputs),
     ///   as single identifier (for exactly one input) or as wildcard (`_`) if there are
     ///   no input bindings.
     ///
