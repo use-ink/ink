@@ -271,7 +271,7 @@ impl Dispatch<'_> {
     /// # ;
     /// ```
     ///
-    /// **Multiple `(>= 2)` inputs:**
+    /// **Multiple (equal to two or more) inputs:**
     /// ```
     /// # use quote::quote;
     /// # let __ink_binding_0 = ();
