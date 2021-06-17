@@ -35,7 +35,9 @@ const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xf2, 0x3a, 0x6e, 0x61];
 // corresponds to 0xbc197c81.
 const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xbc, 0x19, 0x7c, 0x81];
 
-type TokenId = u128;
+/// A type representing the unique IDs of tokens managed by this contract.
+pub type TokenId = u128;
+
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
 /// The interface for an ERC-1155 compliant contract.
