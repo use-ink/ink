@@ -341,9 +341,6 @@ mod erc1155 {
 
             // This is disabled during tests due to the use of `eval_contract()` not being
             // supported (tests end up panicking).
-            //
-            // We should be able to get rid of this with when the new off-chain testing
-            // environment is available.
             #[cfg(not(test))]
             {
                 use ink_env::call::{
