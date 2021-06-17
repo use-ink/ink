@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/lang/ir/src/ir/trait_def.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trait_def.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../ink_lang_ir/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../ink_lang_ir/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1462,7 +1463,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">item_trait</span>.<span class="ident">supertraits</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">item_trait</span>.<span class="ident">supertraits</span>,
-                <span class="string">&quot;ink! trait definitions with supertraits are not supported, yet&quot;</span>
+                <span class="string">&quot;ink! trait definitions with super-traits are not supported, yet&quot;</span>
             ))
         }
         <span class="prelude-val">Ok</span>(())
@@ -1476,7 +1477,7 @@
     <span class="doccomment">///     - associated constants (`const`)</span>
     <span class="doccomment">///     - associated types (`type`)</span>
     <span class="doccomment">///     - macros definitions or usages</span>
-    <span class="doccomment">///     - unknown token sequences (verbatims)</span>
+    <span class="doccomment">///     - unknown token sequences (`Verbatim`&#39;s)</span>
     <span class="doccomment">///     - methods with default implementations</span>
     <span class="doccomment">/// - If the trait contains methods which do not respect the ink! trait definition requirements:</span>
     <span class="doccomment">///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`</span>
@@ -1754,7 +1755,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">trait_def_with_supertraits_is_denied</span>() {
         <span class="macro">assert_ink_trait_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;ink! trait definitions with supertraits are not supported, yet&quot;</span>,
+            <span class="ident">error</span>: <span class="string">&quot;ink! trait definitions with super-traits are not supported, yet&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span>: <span class="ident">SuperTrait</span> {}
         );
     }

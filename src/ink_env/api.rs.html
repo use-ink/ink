@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/env/src/api.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>api.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_env/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_env/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -776,11 +777,11 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Parameters</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.</span>
+<span class="doccomment">/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.</span>
 <span class="doccomment">///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///   The `current_*` fields of `RentStatus` do **not** consider changes to the code&#39;s</span>
-<span class="doccomment">///   refcount made during the currently running call.</span>
+<span class="doccomment">///   `refcount` made during the currently running call.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
@@ -1014,7 +1015,7 @@
 <span class="doccomment">///   in the restorer contract to not influence the hash calculations.</span>
 <span class="doccomment">/// - Does *not* perform restoration right away but defers it to the end of</span>
 <span class="doccomment">///   the contract execution.</span>
-<span class="doccomment">/// - Restoration is cancelled if there is no tombstone in the destination</span>
+<span class="doccomment">/// - Restoration is canceled if there is no tombstone in the destination</span>
 <span class="doccomment">///   address or if the hashes don&#39;t match. No changes are made in this case.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">account_id</span>: <span class="ident">T::AccountId</span>,
@@ -1066,7 +1067,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// - If the contract doesn&#39;t have sufficient funds.</span>
+<span class="doccomment">/// - If the contract does not have sufficient funds.</span>
 <span class="doccomment">/// - If the transfer had brought the sender&#39;s total balance below the</span>
 <span class="doccomment">///   subsistence threshold.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">destination</span>: <span class="ident">T::AccountId</span>, <span class="ident">value</span>: <span class="ident">T::Balance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>

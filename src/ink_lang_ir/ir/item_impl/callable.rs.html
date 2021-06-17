@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/lang/ir/src/ir/item_impl/callable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>callable.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_lang_ir/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_lang_ir/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -690,7 +691,7 @@
 <span class="kw">where</span>
     <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
-    <span class="doccomment">/// Creates a new wrapper around the given callable and parent impl block.</span>
+    <span class="doccomment">/// Creates a new wrapper around the given callable and parent `impl` block.</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">composed_selector</span>: <span class="ident">compose_selector</span>(<span class="ident">item_impl</span>, <span class="ident">callable</span>),
@@ -701,7 +702,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns the composed selector of the ink! callable the the impl block.</span>
+    <span class="doccomment">/// Returns the composed selector of the ink! callable the the `impl` block.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composed_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ir::Selector</span> {
         <span class="self">self</span>.<span class="ident">composed_selector</span>
     }
@@ -805,13 +806,13 @@
 <span class="doccomment">/// Given</span>
 <span class="doccomment">/// - the callable&#39;s identifier `i`</span>
 <span class="doccomment">/// - the optionally set callable&#39;s selector `s`</span>
-<span class="doccomment">/// - the impl blocks trait path in case it implements a trait, `P`</span>
-<span class="doccomment">/// - the impl blocks optional user provided namespace `S`</span>
+<span class="doccomment">/// - the `impl` blocks trait path in case it implements a trait, `P`</span>
+<span class="doccomment">/// - 16 kB blocks optional user provided namespace `S`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Then the selector is composed in the following way:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If `s` is given we simply return `s`.</span>
-<span class="doccomment">/// - Otherwise if `T` is not `None` (trait impl block) we concatenate</span>
+<span class="doccomment">/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate</span>
 <span class="doccomment">///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.</span>
 <span class="doccomment">///   If `T` refers to a relative path or is just an identifier we only take</span>
 <span class="doccomment">///   its last segment `p` (e.g. the trait&#39;s identifier) into consideration</span>
@@ -914,7 +915,7 @@
 <span class="doccomment">/// wherever possible; OR import the trait and use only its identifier with</span>
 <span class="doccomment">/// an additional namespace if required to disambiguate selectors.</span>
 <span class="doccomment">/// - Try not to intermix the above recommendations.</span>
-<span class="doccomment">/// - Avoid directly setting the selector of an ink! message or constuctor.</span>
+<span class="doccomment">/// - Avoid directly setting the selector of an ink! message or constructor.</span>
 <span class="doccomment">///   Only do this if nothing else helps and you need a very specific selector,</span>
 <span class="doccomment">///   e.g. in case of backwards compatibility.</span>
 <span class="doccomment">/// - Do not use the namespace unless required to disambiguate.</span>
@@ -974,11 +975,11 @@
 <span class="doccomment">/// In case any of the common externally callable invariants are not met:</span>
 <span class="doccomment">/// - This is `true` if the externally callable is:</span>
 <span class="doccomment">///  - generic</span>
-<span class="doccomment">///  - const (compile-time evaluatable)</span>
-<span class="doccomment">///  - async (async WebAssembly smart contract calling is not allowed)</span>
-<span class="doccomment">///  - unsafe (caller provided assertions not yet stable)</span>
+<span class="doccomment">///  - `const` (compile-time evaluable)</span>
+<span class="doccomment">///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)</span>
+<span class="doccomment">///  - `unsafe` (caller provided assertions not yet stable)</span>
 <span class="doccomment">/// - Furthermore this is `true` if the externally callable is defined for a</span>
-<span class="doccomment">///   non default ABI (e.g. `extern &quot;C&quot;`) or doesn&#39;t have valid visibility.</span>
+<span class="doccomment">///   non default ABI (e.g. `extern &quot;C&quot;`) or does not have valid visibility.</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ensure_callable_invariants</span>(
     <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
     <span class="ident">kind</span>: <span class="ident">CallableKind</span>,

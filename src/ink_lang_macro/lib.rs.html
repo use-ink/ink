@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates/lang/macro/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button">?</button>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1117,7 +1118,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ink! smart contracts can compile in several different modes.</span>
 <span class="doccomment">/// There are two main compilation models using either</span>
-<span class="doccomment">/// - on-chain mode: `no_std` + WebAssembly as target</span>
+<span class="doccomment">/// - on-chain mode: `no_std` and WebAssembly as target</span>
 <span class="doccomment">/// - off-chain mode: `std`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// We generally use the on-chain mode for actual smart contract deployment</span>
@@ -1139,7 +1140,7 @@
 <span class="doccomment">///     - `false`: Do NOT use the dynamic storage allocator provided by ink!.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     This feature is generally only needed for smart contracts that try to model</span>
-<span class="doccomment">///     their data in a way that contains storage entites within other storage</span>
+<span class="doccomment">///     their data in a way that contains storage entities within other storage</span>
 <span class="doccomment">///     entities.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     Contract writers should try to write smart contracts that do not depend on the</span>
@@ -1269,7 +1270,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///     **Default value:** `DefaultEnvironment` defined in `ink_env` crate.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## Anaylsis</span>
+<span class="doccomment">/// ## Analysis</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The `#[ink::contract]` macro fully analyses its input smart contract</span>
 <span class="doccomment">/// against invalid arguments and structure.</span>
@@ -1459,7 +1460,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ## Interacting with the Contract Executor</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// The `ink_env` crate provides facitilies to interact with the contract executor that</span>
+<span class="doccomment">/// The `ink_env` crate provides facilities to interact with the contract executor that</span>
 <span class="doccomment">/// connects ink! smart contracts with the outer world.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// For example it is possible to query the current call&#39;s caller via:</span>
@@ -1729,9 +1730,9 @@
 <span class="doccomment">/// The methods are defined as associated trait methods without implementation.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Chain extension methods must not have a `self` receiver such as `&amp;self` or `&amp;mut self`</span>
-<span class="doccomment">/// and must have inputs and output that implement SCALE codec. Their return value follows</span>
-<span class="doccomment">/// specific rules that can be altered using the `handle_status` and `returns_result` attributes</span>
-<span class="doccomment">/// which are described in more detail below.</span>
+<span class="doccomment">/// and must have inputs and output that implement the SCALE encoding and decoding.</span>
+<span class="doccomment">/// Their return value follows specific rules that can be altered using the `handle_status`</span>
+<span class="doccomment">/// and `returns_result` attributes which are described in more detail below.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Usage</span>
 <span class="doccomment">///</span>
@@ -1806,7 +1807,7 @@
 <span class="doccomment">/// Note that if a chain extension method is attributed with `returns_result = false`</span>
 <span class="doccomment">/// and with `handle_status = true` it will still return a value of type `Result&lt;T, Self::ErrorCode&gt;`.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// ## Usage: `handle_status` + `returns_result`</span>
+<span class="doccomment">/// ## Usage: `handle_status` and `returns_result`</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Use both `handle_status = false` and `returns_result = false` for the same chain extension method</span>
 <span class="doccomment">/// if a call to it may never fail and never returns a `Result` type.</span>
@@ -1818,10 +1819,10 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// | `handle_status` | `returns_result` | Effects |</span>
 <span class="doccomment">/// |:---------------:|:----------------:|:--------|</span>
-<span class="doccomment">/// |`true` |`true` | The chain extension method is required to return a value of type `Result&lt;T, E&gt;` where `E: From&lt;Self::ErrorCode&gt;`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |</span>
-<span class="doccomment">/// |`true` |`false`| The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result&lt;T, Self::ErrorCode&gt;` when the chain extension method was defined to return a value of type `T`. |</span>
-<span class="doccomment">/// |`false`|`true` | The chain extension method is required to return a value of type `Result&lt;T, E&gt;`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |</span>
-<span class="doccomment">/// |`false`|`false`| The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |</span>
+<span class="doccomment">/// | `true`  | `true`  | The chain extension method is required to return a value of type `Result&lt;T, E&gt;` where `E: From&lt;Self::ErrorCode&gt;`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |</span>
+<span class="doccomment">/// | `true`  | `false` | The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result&lt;T, Self::ErrorCode&gt;` when the chain extension method was defined to return a value of type `T`. |</span>
+<span class="doccomment">/// | `false` | `true`  | The chain extension method is required to return a value of type `Result&lt;T, E&gt;`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |</span>
+<span class="doccomment">/// | `false` | `false` | The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Error Code</span>
 <span class="doccomment">///</span>
