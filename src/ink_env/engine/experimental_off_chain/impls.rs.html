@@ -552,7 +552,7 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ext::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ext_error</span>: <span class="ident">ext::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">ext_error</span> {
-            <span class="ident">ext::Error::UnknownError</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::UnknownError</span>,
+            <span class="ident">ext::Error::Unknown</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Unknown</span>,
             <span class="ident">ext::Error::CalleeTrapped</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::CalleeTrapped</span>,
             <span class="ident">ext::Error::CalleeReverted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::CalleeReverted</span>,
             <span class="ident">ext::Error::KeyNotFound</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::KeyNotFound</span>,
