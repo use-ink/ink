@@ -25,7 +25,7 @@ use ink_prelude::vec::Vec;
 // `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
 // to 0xf23a6e61.
 #[cfg_attr(test, allow(dead_code))]
-const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [242, 58, 110, 97];
+const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xf2, 0x3a, 0x6e, 0x61];
 
 // This is the return value that we expect if a smart contract supports batch receiving ERC-1155
 // tokens.
@@ -33,7 +33,7 @@ const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [242, 58, 110, 97];
 // It is calculated with
 // `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
 // corresponds to 0xbc197c81.
-const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [188, 25, 124, 129];
+const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xbc, 0x19, 0x7c, 0x81];
 
 type TokenId = u128;
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
