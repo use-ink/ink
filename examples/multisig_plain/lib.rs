@@ -40,7 +40,7 @@
 //!
 //! ## Interface
 //!
-//! The interface is modelled after the popular gnosis multisig wallet. However, there
+//! The interface is modelled after the popular Gnosis multisig wallet. However, there
 //! are subtle variations from the interface. For example the `confirm_transaction`
 //! will never trigger the execution of a `Transaction` even if the threshold is reached.
 //! A call of `execute_transaction` is always required. This can be called by anyone.
@@ -107,7 +107,7 @@ mod multisig_plain {
 
     /// A wrapper that allows us to encode a blob of bytes.
     ///
-    /// We use this to pass the set of not typed (bytes) parameters to the `CallBuilder`.
+    /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {

@@ -91,7 +91,7 @@ impl TryFrom<syn::Item> for Item {
                     return Ok(Self::Rust(item_impl.into()))
                 }
                 // At this point we know that there must be at least one ink!
-                // attribute on either the impl block itself or one of its items.
+                // attribute on either the `impl` block itself or one of its items.
                 <ir::ItemImpl as TryFrom<_>>::try_from(item_impl)
                     .map(Into::into)
                     .map(Self::Ink)

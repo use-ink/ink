@@ -343,7 +343,7 @@ impl InkTrait {
         if !item_trait.supertraits.is_empty() {
             return Err(format_err_spanned!(
                 item_trait.supertraits,
-                "ink! trait definitions with supertraits are not supported, yet"
+                "ink! trait definitions with super-traits are not supported, yet"
             ))
         }
         Ok(())
@@ -357,7 +357,7 @@ impl InkTrait {
     ///     - associated constants (`const`)
     ///     - associated types (`type`)
     ///     - macros definitions or usages
-    ///     - unknown token sequences (verbatims)
+    ///     - unknown token sequences (`Verbatim`'s)
     ///     - methods with default implementations
     /// - If the trait contains methods which do not respect the ink! trait definition requirements:
     ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
@@ -635,7 +635,7 @@ mod tests {
     #[test]
     fn trait_def_with_supertraits_is_denied() {
         assert_ink_trait_eq_err!(
-            error: "ink! trait definitions with supertraits are not supported, yet",
+            error: "ink! trait definitions with super-traits are not supported, yet",
             pub trait MyTrait: SuperTrait {}
         );
     }

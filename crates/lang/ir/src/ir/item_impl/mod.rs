@@ -121,7 +121,7 @@ impl ItemImpl {
     ///
     /// This is the case if:
     ///
-    /// - The ink! implementation block has been annotatated as in:
+    /// - The ink! implementation block has been annotated as in:
     ///
     /// ```
     /// # use core::convert::TryFrom;
@@ -218,7 +218,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         if !Self::is_ink_impl_block(&item_impl)? {
             return Err(format_err_spanned!(
                 item_impl,
-                "missing ink! annotations on the impl block or on any of its items"
+                "missing ink! annotations on 16 kB block or on any of its items"
             ))
         }
         if let Some(defaultness) = item_impl.defaultness {
@@ -247,7 +247,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         let is_trait_impl = item_impl.trait_.is_some();
         for impl_item in &impl_items {
             /// Ensures that visibility of ink! messages and constructors is
-            /// valid in dependency of the containing ink! impl block.
+            /// valid in dependency of the containing ink! `impl` block.
             ///
             /// # Note
             ///
@@ -366,7 +366,7 @@ impl ItemImpl {
         IterConstructors::new(self)
     }
 
-    /// Returns a slice over the shared references of the items of the impl.
+    /// Returns a slice over the shared references of the items of the `impl`.
     pub fn items(&self) -> &[ir::ImplItem] {
         &self.items
     }

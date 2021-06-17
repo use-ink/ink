@@ -243,7 +243,7 @@ pub struct Spreaded {
 
 ### Packing Storage
 
-We can alter this behaviour by using the `ink_storage::Pack` abstraction:
+We can alter this behavior by using the `ink_storage::Pack` abstraction:
 
 ```rust
 pub struct Spreaded {
@@ -972,7 +972,7 @@ caller of a function or amount of value sent), but these will be added back in t
 
 ## ink!-less Implementations
 
-It is also possible to annotate an entire impl blocks with:
+It is also possible to annotate an entire `impl` blocks with:
 
 ```rust
 #[ink(impl)]
@@ -983,6 +983,6 @@ impl Contract {
 }.
 ```
 
-This is useful if the `impl` block itself doesn't contain any ink! constructors or messages, but you
+This is useful if the `impl` block itself does not contain any ink! constructors or messages, but you
 still need to access some of the "magic" provided by ink!. In the example above, you would not have
 access to `emit_event` without `#[ink(impl)]`.

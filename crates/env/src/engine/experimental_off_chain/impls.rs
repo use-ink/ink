@@ -49,7 +49,7 @@ use ink_primitives::Key;
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16kB
+const BUFFER_SIZE: usize = 1 << 14; // 16 kB
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {

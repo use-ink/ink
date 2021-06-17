@@ -195,11 +195,11 @@ where
     ///
     /// # Parameters
     ///
-    /// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+    /// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
     ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
     ///
     ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-    ///   refcount made during the currently running call.
+    ///   `refcount` made during the currently running call.
     ///
     /// # Note
     ///

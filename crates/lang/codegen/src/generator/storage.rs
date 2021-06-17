@@ -25,7 +25,7 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
-/// Generator to create the ink! storage struct and important trait impls.
+/// Generator to create the ink! storage struct and important trait implementations.
 #[derive(From)]
 pub struct Storage<'a> {
     contract: &'a ir::Contract,

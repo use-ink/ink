@@ -382,7 +382,7 @@ pub enum AttributeArg {
     /// This attribute supports a niche case that is rarely needed.
     ///
     /// Can be applied on ink! implementation blocks in order to make ink! aware
-    /// of them. This is useful if such an implementation block doesn't contain
+    /// of them. This is useful if such an implementation block does not contain
     /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
     /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
     /// as ink! implementation blocks thus allowing to access the environment
@@ -966,7 +966,7 @@ mod tests {
     mod test {
         use crate::ir;
 
-        /// Mock for `ir::Attribute` to improve testability.
+        /// Mock for `ir::Attribute` to improve the ability to test.
         #[derive(Debug, PartialEq, Eq)]
         pub enum Attribute {
             Ink(Vec<ir::AttributeArg>),
@@ -996,7 +996,7 @@ mod tests {
             }
         }
 
-        /// Mock for `ir::InkAttribute` to improve testability.
+        /// Mock for `ir::InkAttribute` to improve the ability to test.
         #[derive(Debug, PartialEq, Eq)]
         pub struct InkAttribute {
             args: Vec<ir::AttributeArg>,
@@ -1027,7 +1027,7 @@ mod tests {
     }
 
     /// Asserts that the given [`syn::Attribute`] is converted into the expected
-    /// [`ir::Attribute]` or yields the expected error message.
+    /// [`ir::Attribute`] or yields the expected error message.
     fn assert_attribute_try_from(
         input: syn::Attribute,
         expected: Result<test::Attribute, &'static str>,

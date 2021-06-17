@@ -170,7 +170,7 @@ where
 }
 
 impl EnvInstance {
-    /// Returns a new scoped buffer for the entire scope of the static 16kB buffer.
+    /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
     }

@@ -40,7 +40,7 @@ pub struct Config {
     env: Option<Environment>,
 }
 
-/// Return an error to notify about duplicate ink! config arguments.
+/// Return an error to notify about duplicate ink! configuration arguments.
 fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
 where
     F: Spanned,
@@ -79,7 +79,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `dynamic_storage_allocator` ink! config argument",
+                        "expected a bool literal for `dynamic_storage_allocator` ink! configuration argument",
                     ))
                 }
             } else if arg.name.is_ident("compile_as_dependency") {
@@ -91,7 +91,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a bool literal for `compile_as_dependency` ink! config argument",
+                        "expected a bool literal for `compile_as_dependency` ink! configuration argument",
                     ))
                 }
             } else if arg.name.is_ident("env") {
@@ -103,13 +103,13 @@ impl TryFrom<ast::AttributeArgs> for Config {
                 } else {
                     return Err(format_err_spanned!(
                         arg,
-                        "expected a path for `env` ink! config argument",
+                        "expected a path for `env` ink! configuration argument",
                     ))
                 }
             } else {
                 return Err(format_err_spanned!(
                     arg,
-                    "encountered unknown or unsupported ink! config argument",
+                    "encountered unknown or unsupported ink! configuration argument",
                 ))
             }
         }
@@ -206,7 +206,7 @@ mod tests {
     fn storage_alloc_invalid_value_fails() {
         assert_try_from(
             syn::parse_quote! { dynamic_storage_allocator = "invalid" },
-            Err("expected a bool literal for `dynamic_storage_allocator` ink! config argument"),
+            Err("expected a bool literal for `dynamic_storage_allocator` ink! configuration argument"),
         )
     }
 
@@ -229,7 +229,7 @@ mod tests {
         assert_try_from(
             syn::parse_quote! { compile_as_dependency = "invalid" },
             Err(
-                "expected a bool literal for `compile_as_dependency` ink! config argument"
+                "expected a bool literal for `compile_as_dependency` ink! configuration argument"
             )
         )
     }
@@ -254,7 +254,7 @@ mod tests {
     fn env_invalid_value_fails() {
         assert_try_from(
             syn::parse_quote! { env = "invalid" },
-            Err("expected a path for `env` ink! config argument"),
+            Err("expected a path for `env` ink! configuration argument"),
         );
     }
 
@@ -262,7 +262,7 @@ mod tests {
     fn unknown_arg_fails() {
         assert_try_from(
             syn::parse_quote! { unknown = argument },
-            Err("encountered unknown or unsupported ink! config argument"),
+            Err("encountered unknown or unsupported ink! configuration argument"),
         );
     }
 
