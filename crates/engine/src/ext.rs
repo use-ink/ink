@@ -421,7 +421,7 @@ impl Engine {
 
 /// Copies the `slice` into `output`.
 ///
-/// Panics if the slice is too large and doesn't fit.
+/// Panics if the slice is too large and does not fit.
 fn set_output(output: &mut &mut [u8], slice: &[u8]) {
     if slice.len() > output.len() {
         panic!(

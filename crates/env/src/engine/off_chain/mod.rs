@@ -198,7 +198,7 @@ impl EnvInstance {
         );
         // Initialize the execution context for the first contract execution.
         use crate::call::Selector;
-        // The below selector bytes are incorrect but since calling doesn't work
+        // The below selector bytes are incorrect but since calling does not work
         // yet we do not have to fix this now.
         let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(

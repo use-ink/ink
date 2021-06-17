@@ -1,7 +1,8 @@
-60
+80
 
 WebAssembly
 Wasm
+Wasm32
 validator
 ERC
 fuzzer
@@ -29,13 +30,26 @@ getter
 bitvector
 dereferencing
 recurse
-kb
+kB
 scalability
 scalable
 adjunctive
 invariants
 deserializes
 DApp
+RPC
+AST
+untyped
+variadic
+evaluable
+multisig
+Gnosis
+stdin
+stdout
+interoperate
+cryptographic
+Polkadot
+bitwise
 
 hasher/S
 hashmap/S
@@ -50,3 +64,8 @@ layout/JG
 endian/P
 accessor/S
 NFT/S
+encoding/S
+blockchain/S
+backend/S
+namespace/S
+runtime/S

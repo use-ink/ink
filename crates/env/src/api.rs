@@ -177,11 +177,11 @@ where
 ///
 /// # Parameters
 ///
-/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
 ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
 ///
 ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-///   refcount made during the currently running call.
+///   `refcount` made during the currently running call.
 ///
 /// # Errors
 ///
@@ -415,7 +415,7 @@ where
 ///   in the restorer contract to not influence the hash calculations.
 /// - Does *not* perform restoration right away but defers it to the end of
 ///   the contract execution.
-/// - Restoration is cancelled if there is no tombstone in the destination
+/// - Restoration is canceled if there is no tombstone in the destination
 ///   address or if the hashes don't match. No changes are made in this case.
 pub fn restore_contract<T>(
     account_id: T::AccountId,
@@ -467,7 +467,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract doesn't have sufficient funds.
+/// - If the contract does not have sufficient funds.
 /// - If the transfer had brought the sender's total balance below the
 ///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>

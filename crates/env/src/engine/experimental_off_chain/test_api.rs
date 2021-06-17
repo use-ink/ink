@@ -140,7 +140,7 @@ pub fn recorded_debug_messages() -> RecordedDebugMessages {
 ///
 /// # Note
 ///
-/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(_disable: bool) {
     unimplemented!(
@@ -233,7 +233,7 @@ where
     })
 }
 
-/// Runs the given closure test function with the default configuartion
+/// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where

@@ -652,9 +652,9 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 #[cfg(feature = "ink-debug")]
 /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
 ///
-/// If debug message recording is disabled in the contracts pallet, the first call to will
-/// return LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling
-/// into the supervisor.
+/// If debug message recording is disabled in the contracts pallet, the first call will
+/// return a `LoggingDisabled` error, and further calls will be a no-op to avoid the cost
+/// of calling into the supervisor.
 ///
 /// # Note
 ///
