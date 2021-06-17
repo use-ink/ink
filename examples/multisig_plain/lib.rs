@@ -484,7 +484,7 @@ mod multisig_plain {
 
         /// Invoke a confirmed execution without getting its output.
         ///
-        /// If the transaction which is invoked transfers value this value has
+        /// If the transaction which is invoked transfers value, this value has
         /// to be sent as payment with this call. The method will fail otherwise,
         /// and the transaction would then be reverted.
         ///
