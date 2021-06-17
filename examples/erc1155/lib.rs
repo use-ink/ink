@@ -166,9 +166,6 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    #[allow(unused_imports)]
-    use ink_env::call::{build_call, utils::ReturnType, ExecutionInput, Selector};
-
     use ink_prelude::collections::BTreeMap;
     use ink_storage::traits::{PackedLayout, SpreadLayout};
 
@@ -349,6 +346,10 @@ mod erc1155 {
             // environment is available.
             #[cfg(not(test))]
             {
+                use ink_env::call::{
+                    build_call, utils::ReturnType, ExecutionInput, Selector,
+                };
+
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = build_call::<ink_env::DefaultEnvironment>()
