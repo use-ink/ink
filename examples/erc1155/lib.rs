@@ -639,14 +639,16 @@ mod erc1155 {
         }
 
         #[ink::test]
-        #[should_panic]
+        #[should_panic(
+            expected = "Insufficent token balance for transfer. Expected: 99, Got: 10"
+        )]
         fn sending_too_many_tokens_fails() {
             let mut erc = init_contract();
             erc.safe_transfer_from(alice(), bob(), 1, 99, vec![]);
         }
 
         #[ink::test]
-        #[should_panic]
+        #[should_panic(expected = "Cannot send tokens to the zero-address.")]
         fn sending_tokens_to_zero_address_fails() {
             let burn: AccountId = [0; 32].into();
 
@@ -664,7 +666,9 @@ mod erc1155 {
         }
 
         #[ink::test]
-        #[should_panic]
+        #[should_panic(
+            expected = "The number of tokens being transferred (3) does not match the number of transfer amounts (1)."
+        )]
         fn rejects_batch_if_lengths_dont_match() {
             let mut erc = init_contract();
             erc.safe_batch_transfer_from(alice(), bob(), vec![1, 2, 3], vec![5], vec![]);
@@ -721,7 +725,9 @@ mod erc1155 {
         }
 
         #[ink::test]
-        #[should_panic]
+        #[should_panic(
+            expected = "The `token_id` 7 has not yet been created in this contract."
+        )]
         fn minting_not_allowed_for_nonexistent_tokens() {
             let mut erc = Contract::new();
             erc.mint(7, 123);
