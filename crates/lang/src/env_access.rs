@@ -31,34 +31,6 @@ use ink_primitives::Key;
 
 use crate::ChainExtensionInstance;
 
-#[macro_export]
-macro_rules! mock_contract {
-        ( $($tt:tt)* ) => {{
-            #![cfg_attr(not(feature = "std"), no_std)]
-             use ::ink_lang as ink;
-             use ::ink_env::{
-                 Environment,
-                 DefaultEnvironment,
-                 call::{build_create, Selector, ExecutionInput, FromAccountId}
-             };
-             #[ink::contract]
-             pub mod my_contract {
-             #[ink(storage)]
-             pub struct MyContract { }
-
-             impl MyContract {
-             #[ink(constructor)]
-             pub fn new() -> Self {
-                 Self {}
-             }
-
-             $( $tt )*
-
-             }
-             }
-        }};
-    }
-
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
     /// The environment type.
@@ -142,14 +114,32 @@ where
     /// # Example
     ///
     /// ```
+    /// #![cfg_attr(not(feature = "std"), no_std)]
+    /// use ink_lang as ink;
     /// use ink_prelude;
-    /// # ink_lang::mock_contract! {
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+    /// # };
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// # #[ink(storage)]
+    /// # pub struct MyContract { }
+    /// #
+    /// # impl MyContract {
+    /// # #[ink(constructor)]
+    /// # pub fn new() -> Self {
+    /// #     Self {}
+    /// # }
+    ///
     /// #[ink(message)]
-    /// pub fn call_me2(&self) {
+    /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
     ///     let message = ink_prelude::format!("got a call from {:?}", caller);
     ///     ink_env::debug_println(&message);
     /// }
+    /// # }
     /// # }
     /// ```
     ///
