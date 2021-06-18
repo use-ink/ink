@@ -616,6 +616,7 @@ where
     /// #
     /// #     }
     /// #
+    ///
     /// impl FromAccountId<DefaultEnvironment> for MyContract {
     ///     fn from_account_id(account_id: AccountId) -> Self { Self {} }
     /// }
