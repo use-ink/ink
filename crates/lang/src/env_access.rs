@@ -116,8 +116,7 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
-    ///
+    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -132,8 +131,7 @@ where
     /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
-    ///     let message = ink_prelude::format!("got a call from {:?}", caller);
-    ///     ink_env::debug_println(&message);
+    ///     ink_env::debug_println!("got a call from {:?}", &caller);
     /// }
     /// #
     /// #     }
@@ -153,8 +151,7 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
-    ///
+    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -171,8 +168,7 @@ where
     /// pub fn fund(&self) {
     ///     let caller = self.env().caller();
     ///     let value = self.env().transferred_balance();
-    ///     let message = ink_prelude::format!("thanks for the funding of {:?} from {:?}", value, caller);
-    ///     ink_env::debug_println(&message);
+    ///     ink_env::debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
     /// }
     /// #
     /// #     }
@@ -192,8 +188,7 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
-    ///
+    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -293,8 +288,7 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
-    ///
+    /// #
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -310,8 +304,7 @@ where
     /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let account_id = self.env().account_id();
-    ///     let message = ink_prelude::format!("contract's account id is {:?}", account_id);
-    ///     ink_env::debug_println(&message);
+    ///     ink_env::debug_println!("contract's account id is {:?}", account_id);
     /// }
     /// #
     /// #     }
@@ -623,9 +616,9 @@ where
     /// #
     /// #     }
     /// #
-    /// #     impl FromAccountId<DefaultEnvironment> for MyContract {
-    /// #         fn from_account_id(account_id: AccountId) -> Self { Self {} }
-    /// #     }
+    /// impl FromAccountId<DefaultEnvironment> for MyContract {
+    ///     fn from_account_id(account_id: AccountId) -> Self { Self {} }
+    /// }
     /// # }
     /// ```
     ///
