@@ -89,13 +89,13 @@ pub trait Erc1155 {
 
     /// Query the balances for a set of tokens for a set of accounts.
     ///
-    /// E.g use this call if you want to query what Alice and Bob's balances are for Tokens ID1 and
-    /// ID2.
+    /// E.g use this call if you want to query what Alice and Bob's balances are for Tokens ID 1 and
+    /// ID 2.
     ///
     /// This will return all the balances for a given owner before moving on to the next owner. In
     /// the example above this means that the return value should look like:
     ///
-    /// [Alice Balance of Token ID1, Alice Balance of Token ID2, Bob Balance of Token ID2, Bob Balance of Token ID2]
+    /// [Alice Balance of Token ID 1, Alice Balance of Token ID 2, Bob Balance of Token ID 1, Bob Balance of Token ID 2]
     #[ink(message)]
     fn balance_of_batch(
         &self,
