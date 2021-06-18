@@ -114,18 +114,33 @@ where
     /// # Example
     ///
     /// ```
+    /// #![cfg_attr(not(feature = "std"), no_std)]
+    /// use ink_lang as ink;
     /// use ink_prelude;
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # use ::ink_env::{
+    /// #     Environment,
+    /// #     DefaultEnvironment,
+    /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
+    /// # };
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// # #[ink(storage)]
+    /// # pub struct MyContract { }
+    /// #
     /// # impl MyContract {
-    ///  #[ink(message)]
-    ///  pub fn call_me(&self) {
+    /// # #[ink(constructor)]
+    /// # pub fn new() -> Self {
+    /// #     Self {}
+    /// # }
+    ///
+    /// #[ink(message)]
+    /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
     ///     let message = ink_prelude::format!("got a call from {:?}", caller);
     ///     ink_env::debug_println(&message);
-    ///  }
+    /// }
     /// # }
-    /// # }).unwrap();
+    /// # }
     /// ```
     ///
     /// # Note
