@@ -116,6 +116,7 @@ where
     /// ```
     /// # use ink_lang as ink;
     /// use ink_prelude;
+    ///
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -152,6 +153,7 @@ where
     /// ```
     /// # use ink_lang as ink;
     /// use ink_prelude;
+    ///
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -190,6 +192,7 @@ where
     /// ```
     /// # use ink_lang as ink;
     /// use ink_prelude;
+    ///
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -223,7 +226,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -257,7 +259,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -292,6 +293,7 @@ where
     /// ```
     /// # use ink_lang as ink;
     /// use ink_prelude;
+    ///
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -328,7 +330,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -363,7 +364,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -397,7 +397,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -431,7 +430,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -467,7 +465,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -501,7 +498,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -535,7 +531,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -569,13 +564,13 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput, FromAccountId}
     /// };
+    ///
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -635,13 +630,13 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     call::{build_call, Selector, ExecutionInput}
     /// };
+    ///
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -690,13 +685,13 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     call::{build_call, Selector, ExecutionInput, utils::ReturnType}
     /// };
+    ///
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -749,7 +744,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -799,7 +793,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -834,7 +827,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
@@ -870,7 +862,6 @@ where
     ///
     /// ```
     /// # use ink_lang as ink;
-    /// use ink_prelude;
     /// # #[ink::contract]
     /// # pub mod my_contract {
     /// #     #[ink(storage)]
