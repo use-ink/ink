@@ -230,7 +230,7 @@ impl ChainExtension {
     /// - If the input trait is an automatically implemented trait (`auto trait`).
     /// - If the input trait is generic over some set of types.
     /// - If the input trait's visibility is not public (`pub`).
-    /// - If the input trait has supertraits.
+    /// - If the input trait has super-traits.
     fn analyse_properties(item_trait: &syn::ItemTrait) -> Result<()> {
         if let Some(unsafety) = &item_trait.unsafety {
             return Err(format_err_spanned!(
@@ -259,7 +259,7 @@ impl ChainExtension {
         if !item_trait.supertraits.is_empty() {
             return Err(format_err_spanned!(
                 item_trait.supertraits,
-                "ink! chain extensions with supertraits are not supported, yet"
+                "ink! chain extensions with super-traits are not supported, yet"
             ))
         }
         Ok(())
@@ -326,7 +326,7 @@ impl ChainExtension {
     ///     - associated constants (`const`)
     ///     - associated types (`type`)
     ///     - macros definitions or usages
-    ///     - unknown token sequences (verbatims)
+    ///     - unknown token sequences (`Verbatim`'s)
     ///     - methods with default implementations
     /// - If the trait contains methods which do not respect the ink! trait definition requirements:
     ///     - All trait methods must not have a `self` receiver.
@@ -569,7 +569,7 @@ mod tests {
     #[test]
     fn chain_extension_with_supertraits_is_denied() {
         assert_ink_chain_extension_eq_err!(
-            error: "ink! chain extensions with supertraits are not supported, yet",
+            error: "ink! chain extensions with super-traits are not supported, yet",
             pub trait MyChainExtension: SuperChainExtension {}
         );
     }

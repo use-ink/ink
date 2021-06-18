@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A static buffer with 16kB of capacity.
+/// A static buffer with 16 kB of capacity.
 pub struct StaticBuffer {
-    /// The static buffer with a total capacity of 16kB.
+    /// The static buffer with a total capacity of 16 kB.
     buffer: [u8; Self::CAPACITY],
 }
 
 impl StaticBuffer {
     /// The capacity of the static buffer.
-    const CAPACITY: usize = 1 << 14; // 16kB
+    const CAPACITY: usize = 1 << 14; // 16 kB
 
     /// Creates a new static buffer.
     pub const fn new() -> Self {
@@ -105,7 +105,7 @@ impl<'a> scale::Output for EncodeScope<'a> {
 ///
 /// # Note
 ///
-/// This is used to efficiently chunk up ink!'s internal static 16kB buffer
+/// This is used to efficiently chunk up ink!'s internal static 16 kB buffer
 /// into smaller sub buffers for processing different parts of computations.
 #[derive(Debug)]
 pub struct ScopedBuffer<'a> {
@@ -122,7 +122,7 @@ impl<'a> From<&'a mut [u8]> for ScopedBuffer<'a> {
 impl<'a> ScopedBuffer<'a> {
     /// Splits the scoped buffer into yet another piece to operate on it temporarily.
     ///
-    /// The splitted buffer will have an offset of 0 but be offset by `self`'s offset.
+    /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
     pub fn split(&mut self) -> ScopedBuffer {
         ScopedBuffer {
             offset: 0,

@@ -50,7 +50,7 @@ macro_rules! define_error_codes {
                 $name = $discr,
             )*
             /// Returns if an unknown error was received from the host module.
-            UnknownError,
+            Unknown,
         }
 
         impl From<ReturnCode> for Result {
@@ -61,7 +61,7 @@ macro_rules! define_error_codes {
                     $(
                         $discr => Err(Error::$name),
                     )*
-                    _ => Err(Error::UnknownError),
+                    _ => Err(Error::Unknown),
                 }
             }
         }
@@ -91,6 +91,9 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable = 8,
+    /// The call to `seal_debug_message` had no effect because debug message
+    /// recording was disabled.
+    LoggingDisabled = 9,
 }
 
 /// The raw return code returned by the host side.
@@ -291,7 +294,7 @@ impl Engine {
             .as_ref()
             .expect("no callee has been set")
             .as_bytes();
-        set_output(output, &callee)
+        set_output(output, callee)
     }
 
     /// Restores a tombstone to the original smart contract.
@@ -317,10 +320,10 @@ impl Engine {
         unimplemented!("off-chain environment does not yet support `restore_to`");
     }
 
-    /// Prints the given contents to the console log.
-    pub fn println(&mut self, content: &str) {
-        self.debug_info.record_println(String::from(content));
-        println!("{}", content);
+    /// Records the given debug message and appends to stdout.
+    pub fn debug_message(&mut self, message: &str) {
+        self.debug_info.record_debug_message(String::from(message));
+        print!("{}", message);
     }
 
     /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
@@ -343,12 +346,12 @@ impl Engine {
         super::hashing::keccak_256(input, output);
     }
 
-    pub fn now(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `now`");
-    }
-
     pub fn block_number(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `block_number`");
+    }
+
+    pub fn block_timestamp(&self, _output: &mut &mut [u8]) {
+        unimplemented!("off-chain environment does not yet support `block_timestamp`");
     }
 
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
@@ -418,7 +421,7 @@ impl Engine {
 
 /// Copies the `slice` into `output`.
 ///
-/// Panics if the slice is too large and doesn't fit.
+/// Panics if the slice is too large and does not fit.
 fn set_output(output: &mut &mut [u8], slice: &[u8]) {
     if slice.len() > output.len() {
         panic!(

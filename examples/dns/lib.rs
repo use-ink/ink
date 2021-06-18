@@ -46,7 +46,7 @@ mod dns {
         new_address: AccountId,
     }
 
-    /// Emitted whenver a name is being transferred.
+    /// Emitted whenever a name is being transferred.
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
@@ -58,8 +58,8 @@ mod dns {
         new_owner: AccountId,
     }
 
-    /// Domain name service contract inspired by ChainX's
-    /// [blog post](https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
+    /// Domain name service contract inspired by
+    /// [this blog post](https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
     ///
     /// # Note
     ///
@@ -70,8 +70,8 @@ mod dns {
     ///
     /// The main function of this contract is domain name resolution which
     /// refers to the retrieval of numeric values corresponding to readable
-    /// and easily memorable names such as “polka.dot” which can be used
-    /// to facilitate transfers, voting and dapp-related operations instead
+    /// and easily memorable names such as "polka.dot" which can be used
+    /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
     #[derive(Default)]
@@ -232,7 +232,7 @@ mod dns {
                 Err(Error::CallerIsNotOwner)
             );
 
-            // caller is owner, set_address will be successful
+            // Caller is owner, set_address will be successful
             set_next_caller(accounts.alice);
             assert_eq!(contract.set_address(name, accounts.bob), Ok(()));
             assert_eq!(contract.get_address(name), accounts.bob);

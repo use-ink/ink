@@ -36,7 +36,10 @@ use crate::{
         Topics,
         TopicsBuilderBackend,
     },
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Clear,
     EnvBackend,
     Environment,
@@ -98,7 +101,7 @@ impl CryptoHash for Keccak256 {
 impl From<ext::Error> for Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
-            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::Unknown => Self::Unknown,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
@@ -107,6 +110,7 @@ impl From<ext::Error> for Error {
             ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
+            ext::Error::LoggingDisabled => Self::LoggingDisabled,
         }
     }
 }
@@ -166,7 +170,7 @@ where
 }
 
 impl EnvInstance {
-    /// Returns a new scoped buffer for the entire scope of the static 16kB buffer.
+    /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
     }
@@ -252,8 +256,8 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, enc_return_value);
     }
 
-    fn println(&mut self, content: &str) {
-        ext::println(content)
+    fn debug_message(&mut self, content: &str) {
+        ext::debug_message(content)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -361,6 +365,18 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         self.get_property::<RentParams<T>>(ext::rent_params)
+    }
+
+    fn rent_status<T>(
+        &mut self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>
+    where
+        T: Environment,
+    {
+        let output = &mut self.scoped_buffer().take_rest();
+        ext::rent_status(at_refcount, output);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn invoke_contract<T, Args>(

@@ -206,7 +206,7 @@ where
     .map_err(Into::into)
 }
 
-/// Update the [ChainSpec](`crate::test::ChainSpec`) for the test environment
+/// Update the [`ChainSpec`](`crate::test::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
     F: FnOnce(&mut ChainSpec),
@@ -215,8 +215,8 @@ where
     Ok(())
 }
 
-/// Returns the contents of the past performed environmental `println` in order.
-pub fn recorded_printlns() -> impl Iterator<Item = String> {
+/// Returns the contents of the past performed environmental debug messages in order.
+pub fn recorded_debug_messages() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
         // references to them since this would require the whole `on_instance`
@@ -224,8 +224,8 @@ pub fn recorded_printlns() -> impl Iterator<Item = String> {
         // ultimately allow leaking those `'static` references to the outside
         // and potentially lead to terrible bugs such as iterator invalidation.
         instance
-            .console
-            .past_prints()
+            .debug_buf
+            .past_debug_messages()
             .map(ToOwned::to_owned)
             .collect::<Vec<_>>()
             .into_iter()
@@ -261,7 +261,7 @@ where
 ///
 /// # Note
 ///
-/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(disable: bool) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -321,7 +321,7 @@ where
     })
 }
 
-/// Runs the given closure test function with the default configuartion
+/// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where

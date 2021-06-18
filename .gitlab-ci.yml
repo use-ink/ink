@@ -152,11 +152,14 @@ docs:
 spellcheck:
     stage:                           workspace
     <<:                              *docker-env
-    rules:
-      - if: $CI_PIPELINE_SOURCE == "pipeline"
-        when: never
     script:
         - cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
+        - for example in examples/*/; do
+            cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example};
+          done
+        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+            cargo spellcheck check --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/;
+          done
 
 codecov:
   stage:                           workspace

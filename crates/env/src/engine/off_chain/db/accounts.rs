@@ -92,7 +92,7 @@ impl AccountsDb {
         //       the borrow-checker somehow cannot make sense of it according
         //       to its lifetime analysis. Consider this to be a hack until
         //       the borrow-checker eventually let's us do this.
-        if self.get_account::<T>(&at).is_some() {
+        if self.get_account::<T>(at).is_some() {
             self.get_account_mut::<T>(at)
                 .expect("just checked that account exists")
         } else {

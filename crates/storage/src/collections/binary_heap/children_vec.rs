@@ -175,7 +175,7 @@ where
     /// Prefer using methods like `Iterator::take` in order to limit the number
     /// of yielded elements.
     pub fn iter(&self) -> Iter<T> {
-        Iter::new(&self)
+        Iter::new(self)
     }
 
     /// Returns a shared reference to the first element if any.

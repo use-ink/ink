@@ -32,7 +32,10 @@ use crate::{
         Sha2x256,
     },
     topics::Topics,
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     EnvBackend,
     Environment,
     Error,
@@ -172,8 +175,8 @@ impl EnvBackend for EnvInstance {
         std::process::exit(flags.into_u32() as i32)
     }
 
-    fn println(&mut self, content: &str) {
-        self.console.println(content)
+    fn debug_message(&mut self, message: &str) {
+        self.debug_buf.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -389,6 +392,16 @@ impl TypedEnvBackend for EnvInstance {
 
             _reserved: None,
         })
+    }
+
+    fn rent_status<T>(
+        &mut self,
+        _at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support rent status")
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {

@@ -50,7 +50,7 @@ Following these will ensure that your pull request is going to be accepted.
    Please try to fix them by yourself and resolve all remaining to-do items.
    If that is not possible then write an issue for each of them and link to the source line and commit with a proper description. For more information go [here](#Issues-&-pull-requests).
 1. Document everything properly that you have written, refactored or touched. Especially keeping documentation up-to-date is very important. For larger portions please try to also update the ink! wiki or write a new entry there.
-1. Write tests for your code. If your code is hard to test, try to find a design that allows for testability.
+1. Write tests for your code. If your code is hard to test, try to find a design that allows for testing.
 1. If needed also update the [`README`](README.md).
 1. For performance critical parts we also want additional performance tests.
 1. If you implement a fix for a reported bug also include a regression test alongside the fix if possible.

@@ -34,7 +34,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -167,6 +170,28 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::rent_params::<T>(instance)
+    })
+}
+
+/// Returns information about the required deposit and resulting rent.
+///
+/// # Parameters
+///
+/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
+///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+///
+///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
+///   `refcount` made during the currently running call.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_status<T>(at_refcount: Option<core::num::NonZeroU32>) -> Result<RentStatus<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_status::<T>(instance, at_refcount)
     })
 }
 
@@ -390,7 +415,7 @@ where
 ///   in the restorer contract to not influence the hash calculations.
 /// - Does *not* perform restoration right away but defers it to the end of
 ///   the contract execution.
-/// - Restoration is cancelled if there is no tombstone in the destination
+/// - Restoration is canceled if there is no tombstone in the destination
 ///   address or if the hashes don't match. No changes are made in this case.
 pub fn restore_contract<T>(
     account_id: T::AccountId,
@@ -443,7 +468,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract doesn't have sufficient funds.
+/// - If the contract does not have sufficient funds.
 /// - If the transfer had brought the sender's total balance below the
 ///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
@@ -529,10 +554,10 @@ where
     })
 }
 
-/// Prints the given contents to the environmental log.
-pub fn debug_println(content: &str) {
+/// Appends the given message to the debug message buffer.
+pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::println(instance, content)
+        EnvBackend::debug_message(instance, message)
     })
 }
 

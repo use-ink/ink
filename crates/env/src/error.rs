@@ -45,7 +45,10 @@ pub enum Error {
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable,
     /// An unknown error has occurred.
-    UnknownError,
+    Unknown,
+    /// The call to `seal_debug_message` had no effect because debug message
+    /// recording was disabled.
+    LoggingDisabled,
 }
 
 /// A result of environmental operations.

@@ -35,6 +35,7 @@ use crate::{
     EnvBackend,
     Environment,
     RentParams,
+    RentStatus,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -48,7 +49,7 @@ use ink_primitives::Key;
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16kB
+const BUFFER_SIZE: usize = 1 << 14; // 16 kB
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -101,7 +102,7 @@ impl CryptoHash for Keccak256 {
 impl From<ext::Error> for crate::Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
-            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::Unknown => Self::Unknown,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
@@ -110,6 +111,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
+            ext::Error::LoggingDisabled => Self::LoggingDisabled,
         }
     }
 }
@@ -226,8 +228,8 @@ impl EnvBackend for EnvInstance {
         )
     }
 
-    fn println(&mut self, content: &str) {
-        self.engine.println(content)
+    fn debug_message(&mut self, message: &str) {
+        self.engine.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -287,7 +289,7 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(Engine::now)
+        self.get_property::<T::Timestamp>(Engine::block_timestamp)
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
@@ -307,6 +309,16 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         unimplemented!("off-chain environment does not support rent params")
+    }
+
+    fn rent_status<T>(
+        &mut self,
+        _at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support rent status")
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {

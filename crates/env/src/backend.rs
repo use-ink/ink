@@ -23,7 +23,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
-    types::RentParams,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -116,8 +119,15 @@ pub trait EnvBackend {
     where
         R: scale::Encode;
 
-    /// Prints the given contents to the console log.
-    fn println(&mut self, content: &str);
+    /// Emit a custom debug message.
+    ///
+    /// The message is appended to the debug buffer which is then supplied to the calling RPC
+    /// client. This buffer is also printed as a debug message to the node console if the
+    /// `debug` log level is enabled for the `runtime::contracts` target.
+    ///
+    /// If debug message recording is disabled in the contracts pallet, which is always the case
+    /// when the code is executing on-chain, then this will have no effect.
+    fn debug_message(&mut self, content: &str);
 
     /// Conducts the crypto hash of the given input and stores the result in `output`.
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -229,6 +239,16 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`RentParams`][`crate::RentParams`]
     fn rent_params<T: Environment>(&mut self) -> Result<RentParams<T>>;
+
+    /// Returns information about the required deposit and resulting rent.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`RentStatus`][`crate::RentStatus`]
+    fn rent_status<T: Environment>(
+        &mut self,
+        at_refcount: Option<core::num::NonZeroU32>,
+    ) -> Result<RentStatus<T>>;
 
     /// Returns the current block number.
     ///

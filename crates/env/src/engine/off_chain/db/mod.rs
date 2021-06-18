@@ -15,7 +15,7 @@
 mod accounts;
 mod block;
 mod chain_spec;
-mod console;
+mod debug_buf;
 mod events;
 mod exec_context;
 
@@ -30,9 +30,9 @@ pub use self::{
     },
     block::Block,
     chain_spec::ChainSpec,
-    console::{
-        Console,
-        PastPrints,
+    debug_buf::{
+        DebugBuffer,
+        DebugMessages,
     },
     events::{
         EmittedEvent,

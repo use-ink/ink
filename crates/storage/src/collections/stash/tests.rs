@@ -24,7 +24,7 @@ use ink_primitives::Key;
 
 #[test]
 fn regression_stash_unreachable_minified() {
-    // This regression has been discovered in the ERC721 example implementation
+    // This regression has been discovered in the ERC-721 example implementation
     // `approved_for_all_works` unit test. The fix was to adjust
     // `Stash::remove_vacant_entry` to update `header.last_vacant` if the
     // removed index was the last remaining vacant index in the stash.
