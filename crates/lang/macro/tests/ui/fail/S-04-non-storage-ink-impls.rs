@@ -2,13 +2,13 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod non_storage_ink_impls {
-    // This test ensures that ink! impl blocks are always
+    // This test ensures that ink! `impl` blocks are always
     // implemented on the only storage struct definition.
 
     #[ink(storage)]
     pub struct StorageStruct {}
 
-    // This ink! impl block is okay.
+    // This ink! `impl` block is okay.
     impl StorageStruct {
         #[ink(constructor)]
         pub fn constructor1() -> Self {
@@ -19,10 +19,10 @@ mod non_storage_ink_impls {
         pub fn message1(&self) {}
     }
 
-    // Missing the #[ink(storage)] attribute on purpose.
+    // Missing the `#[ink(storage)]` attribute on purpose.
     pub struct NonStorageStruct {}
 
-    // This ink! impl block is invalid in that it implements
+    // This ink! `impl` block is invalid in that it implements
     // the messages and constructors for a non-existing ink!
     // storage struct. We expect a failure here.
     impl NonStorageStruct {

@@ -446,7 +446,7 @@ fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
     const CONST_READS: usize = 5;
 
     // 1 elements.len + 1 cell which was pushed to
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const CONST_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
@@ -472,7 +472,7 @@ fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
     const EXPECTED_READS: usize = 6;
 
     // binary heap len + one cell
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const EXPECTED_WRITES: usize = 2;
 
     for n in &[2, 4, 8, 16, 32, 64] {

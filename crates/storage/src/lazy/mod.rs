@@ -59,7 +59,7 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// Use this if the storage field doesn't need to be loaded in some or most cases.
+/// Use this if the storage field does not need to be loaded in some or most cases.
 #[derive(Debug)]
 pub struct Lazy<T>
 where

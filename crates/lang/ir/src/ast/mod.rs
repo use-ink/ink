@@ -20,9 +20,9 @@
 //! syntax.
 //!
 //! At the time of this writing we currently only use this for the argument
-//! parsing of ink! config header `#[ink(env = my::env::Types, etc...)]` in order
-//! to be able to parse identifiers in `name = value` segments for the `value`
-//! part.
+//! parsing of ink! configuration header `#[ink(env = my::env::Types, etc...)]`
+//! in order to be able to parse identifiers in `name = value` segments for
+//! the `value` part.
 
 mod attr_args;
 

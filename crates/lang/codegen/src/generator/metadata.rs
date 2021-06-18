@@ -374,7 +374,7 @@ mod tests {
                     /// line
                 ),
                 syn::parse_quote!(
-                    /// commments
+                    /// comments
                 ),
             ])
             .collect::<Vec<_>>(),
@@ -382,7 +382,7 @@ mod tests {
                 " multiple".to_string(),
                 " single".to_string(),
                 " line".to_string(),
-                " commments".to_string(),
+                " comments".to_string(),
             ],
         );
         assert_eq!(
