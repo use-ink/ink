@@ -114,32 +114,27 @@ where
     /// # Example
     ///
     /// ```
-    /// #![cfg_attr(not(feature = "std"), no_std)]
-    /// use ink_lang as ink;
+    /// # use ink_lang as ink;
     /// use ink_prelude;
-    /// # use ::ink_env::{
-    /// #     Environment,
-    /// #     DefaultEnvironment,
-    /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
-    /// # };
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// # #[ink(storage)]
-    /// # pub struct MyContract { }
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
     /// #
-    /// # impl MyContract {
-    /// # #[ink(constructor)]
-    /// # pub fn new() -> Self {
-    /// #     Self {}
-    /// # }
-    ///
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let caller = self.env().caller();
     ///     let message = ink_prelude::format!("got a call from {:?}", caller);
     ///     ink_env::debug_println(&message);
     /// }
-    /// # }
+    /// #
+    /// #     }
     /// # }
     /// ```
     ///
@@ -155,11 +150,19 @@ where
     /// # Example
     ///
     /// ```
+    /// # use ink_lang as ink;
     /// use ink_prelude;
-    ///
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Allows funding the contract. Prints a debug message with the transferred balance.
     /// #[ink(message, payable)]
     /// pub fn fund(&self) {
@@ -168,8 +171,9 @@ where
     ///     let message = ink_prelude::format!("thanks for the funding of {:?} from {:?}", value, caller);
     ///     ink_env::debug_println(&message);
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -184,15 +188,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _price = self.env().weight_to_fee(13);
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -207,15 +222,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _gas_left = self.env().gas_left();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -230,15 +256,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _now = self.env().block_timestamp();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -253,20 +290,29 @@ where
     /// # Example
     ///
     /// ```
+    /// # use ink_lang as ink;
     /// use ink_prelude;
-    ///
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Prints a debug message with the called contract's account id.
-    /// #[ink(message, payable)]
+    /// #[ink(message)]
     /// pub fn call_me(&self) {
     ///     let account_id = self.env().account_id();
     ///     let message = ink_prelude::format!("contract's account id is {:?}", account_id);
     ///     ink_env::debug_println(&message);
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -281,16 +327,27 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Returns the contract's balance.
-    /// #[ink(message, payable)]
+    /// #[ink(message)]
     /// pub fn my_balance(&self) -> Balance {
     ///     self.env().balance()
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -305,15 +362,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _allowance = self.env().rent_allowance();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -328,15 +396,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     self.env().set_rent_allowance(self.env().balance() / 2);
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -351,17 +430,28 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Returns the balance every contract needs to deposit on this chain
     /// /// to stay alive indefinitely.
-    /// #[ink(message, payable)]
+    /// #[ink(message)]
     /// pub fn deposit_per_contract(&self) -> Balance {
     ///     self.env().rent_params().deposit_per_contract
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -376,15 +466,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _block_number = self.env().block_number();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -399,15 +500,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _minimum_balance = self.env().minimum_balance();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -422,15 +534,26 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
-    /// #[ink(message, payable)]
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
     /// pub fn my_message(&self) {
     ///     let _tombstone_deposit = self.env().tombstone_deposit();
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -445,22 +568,24 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ::ink_env::{
-    /// #     Environment,
-    /// #     DefaultEnvironment,
-    /// #     call::{build_create, Selector, ExecutionInput, FromAccountId}
-    /// # };
-    /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
-    /// # type Salt = &'static [u8];
-    /// # struct MyContract;
-    /// # impl FromAccountId<DefaultEnvironment> for MyContract {
-    /// #     fn from_account_id(account_id: AccountId) -> Self { Self }
-    /// # }
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_create, Selector, ExecutionInput, FromAccountId}
+    /// };
     /// #
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
@@ -478,8 +603,13 @@ where
     ///         .params();
     ///     self.env().instantiate_contract(&create_params).expect("instantiation must succeed")
     /// }
+    /// #
+    /// #     }
+    /// #
+    /// #     impl FromAccountId<DefaultEnvironment> for MyContract {
+    /// #         fn from_account_id(account_id: AccountId) -> Self { Self {} }
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// See [our `delegator` example](https://github.com/paritytech/ink/tree/master/examples/delegator)
@@ -504,16 +634,24 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ::ink_env::{
-    /// #     Environment,
-    /// #     DefaultEnvironment,
-    /// #     call::{build_call, Selector, ExecutionInput}
-    /// # };
-    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_call, Selector, ExecutionInput}
+    /// };
     /// #
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Invokes another contract message without fetching the result.
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) {
@@ -531,8 +669,9 @@ where
     ///         .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -550,19 +689,27 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ::ink_env::{
-    /// #     Environment,
-    /// #     DefaultEnvironment,
-    /// #     call::{build_call, Selector, ExecutionInput}
-    /// # };
-    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     call::{build_call, Selector, ExecutionInput, utils::ReturnType}
+    /// };
     /// #
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Evaluates a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn invoke_contract(&self) -> i32 {
+    /// pub fn evaluate_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .callee(AccountId::from([0x42; 32]))
     ///         .gas_limit(5000)
@@ -573,12 +720,13 @@ where
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32])
     ///         )
-    ///         .returns::<i32>()
+    ///         .returns::<ReturnType<i32>>()
     ///         .params();
     ///     self.env().eval_contract(&call_params).expect("call invocation must succeed")
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -600,16 +748,19 @@ where
     /// # Example
     ///
     /// ```
-    /// # type Hash = <DefaultEnvironment as Environment>::Hash;
-    /// # use ::ink_env::{
-    /// #     Environment,
-    /// #     DefaultEnvironment,
-    /// # };
-    /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
     /// #
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Simple resurrection of a contract.
     /// #[ink(message)]
     /// pub fn resurrect(&self, contract: AccountId) {
@@ -619,8 +770,9 @@ where
     ///         &[]
     ///     )
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -646,16 +798,27 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Terminates with the caller as beneficiary.
     /// #[ink(message)]
     /// pub fn terminate_me(&mut self) {
     ///     self.env().terminate_contract(self.env().caller());
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -670,17 +833,28 @@ where
     /// # Example
     ///
     /// ```
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// /// Transfers the token amount ten to the caller.
     /// #[ink(message)]
     /// pub fn give_me_ten(&mut self) {
     ///     let value: Balance = 10;
     ///     self.env().transfer(self.env().caller(), value).expect("transfer failed");
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
@@ -695,18 +869,28 @@ where
     /// # Example
     ///
     /// ```
+    /// # use ink_lang as ink;
+    /// use ink_prelude;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
     /// #
-    /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-    /// # impl MyContract {
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
     /// #[ink(message)]
     /// pub fn random_bool(&self) -> bool {
     ///     let additional_randomness = &[];
     ///     let (hash, _block_number) = self.env().random(additional_randomness);
     ///     hash.as_ref()[0] != 0
     /// }
+    /// #
+    /// #     }
     /// # }
-    /// # }).unwrap();
     /// ```
     ///
     /// # Note
