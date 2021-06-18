@@ -25,7 +25,7 @@ use ink_prelude::vec::Vec;
 // `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`, and corresponds
 // to 0xf23a6e61.
 #[cfg_attr(test, allow(dead_code))]
-const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xf2, 0x3a, 0x6e, 0x61];
+const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xF2, 0x3A, 0x6E, 0x61];
 
 // This is the return value that we expect if a smart contract supports batch receiving ERC-1155
 // tokens.
@@ -33,7 +33,7 @@ const ON_ERC_1155_RECEIVED_SELECTOR: [u8; 4] = [0xf2, 0x3a, 0x6e, 0x61];
 // It is calculated with
 // `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`, and
 // corresponds to 0xbc197c81.
-const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xbc, 0x19, 0x7c, 0x81];
+const _ON_ERC_1155_BATCH_RECEIVED_SELECTOR: [u8; 4] = [0xBC, 0x19, 0x7C, 0x81];
 
 /// A type representing the unique IDs of tokens managed by this contract.
 pub type TokenId = u128;
@@ -169,10 +169,7 @@ mod erc1155 {
     use super::*;
 
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
+    use ink_storage::traits::{PackedLayout, SpreadLayout};
 
     /// Indicate that a token transfer has occured.
     ///
@@ -349,10 +346,7 @@ mod erc1155 {
             #[cfg(not(test))]
             {
                 use ink_env::call::{
-                    build_call,
-                    utils::ReturnType,
-                    ExecutionInput,
-                    Selector,
+                    build_call, utils::ReturnType, ExecutionInput, Selector,
                 };
 
                 // If our recipient is a smart contract we need to see if they accept or
