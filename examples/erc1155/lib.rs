@@ -548,8 +548,6 @@ mod erc1155 {
         }
     }
 
-    /// Unit tests.
-    #[cfg(not(feature = "ink-experimental-engine"))]
     #[cfg(test)]
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
@@ -558,6 +556,12 @@ mod erc1155 {
 
         use ink_lang as ink;
 
+        #[cfg(feature = "ink-experimental-engine")]
+        fn set_sender(sender: AccountId) {
+            ink_env::test::set_caller::<Environment>(sender);
+        }
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         fn set_sender(sender: AccountId) {
             const WALLET: [u8; 32] = [7; 32];
             ink_env::test::push_execution_context::<Environment>(
@@ -569,6 +573,12 @@ mod erc1155 {
             );
         }
 
+        #[cfg(feature = "ink-experimental-engine")]
+        fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
+            ink_env::test::default_accounts::<Environment>()
+        }
+
+        #[cfg(not(feature = "ink-experimental-engine"))]
         fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
             ink_env::test::default_accounts::<Environment>()
                 .expect("off-chain environment should have been initialized already")
