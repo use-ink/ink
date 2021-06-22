@@ -169,10 +169,7 @@ mod erc1155 {
     use super::*;
 
     use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-    };
+    use ink_storage::traits::{PackedLayout, SpreadLayout};
 
     /// Indicate that a token transfer has occured.
     ///
@@ -349,15 +346,12 @@ mod erc1155 {
             #[cfg(not(test))]
             {
                 use ink_env::call::{
-                    build_call,
-                    utils::ReturnType,
-                    ExecutionInput,
-                    Selector,
+                    build_call, utils::ReturnType, ExecutionInput, Selector,
                 };
 
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
-                let params = build_call::<ink_env::DefaultEnvironment>()
+                let params = build_call::<Environment>()
                     .callee(to)
                     .gas_limit(5000)
                     .exec_input(
@@ -575,9 +569,8 @@ mod erc1155 {
             );
         }
 
-        fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+        fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
+            ink_env::test::default_accounts::<Environment>()
                 .expect("off-chain environment should have been initialized already")
         }
 
