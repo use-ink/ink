@@ -40,6 +40,38 @@ pub type TokenId = u128;
 
 type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 
+// The ERC-1155 error types.
+#[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub enum Error {
+    /// This token ID has not yet been created by the contract.
+    UnexistentToken,
+    /// The caller tried to sending tokens to the zero-address (0x00).
+    ZeroAddressTransfer,
+    /// The caller is not approved to transfer tokens on behalf of the account.
+    NotApproved,
+    /// The account does not have enough funds to complete the transfer.
+    InsufficientBalance,
+    /// An account does not need to approve themselves to transfer tokens.
+    SelfApproval,
+    /// The number of tokens being transferred does not match the specified number of transfers.
+    BatchTransferMismatch,
+}
+
+// The ERC-1155 result types.
+pub type Result<T> = core::result::Result<T, Error>;
+
+/// Evaluate `$x:expr` and if not true return `Err($y:expr)`.
+///
+/// Used as `ensure!(expression_to_ensure, expression_to_return_on_false)`.
+macro_rules! ensure {
+    ( $x:expr, $y:expr $(,)? ) => {{
+        if !$x {
+            return Err($y.into());
+        }
+    }};
+}
+
 /// The interface for an ERC-1155 compliant contract.
 ///
 /// The interface is defined here: <https://eips.ethereum.org/EIPS/eip-1155>.
@@ -64,7 +96,7 @@ pub trait Erc1155 {
         token_id: TokenId,
         value: Balance,
         data: Vec<u8>,
-    );
+    ) -> Result<()>;
 
     /// Perform a batch transfer of `token_ids` to the `to` account from the `from` account.
     ///
@@ -81,7 +113,7 @@ pub trait Erc1155 {
         token_ids: Vec<TokenId>,
         values: Vec<Balance>,
         data: Vec<u8>,
-    );
+    ) -> Result<()>;
 
     /// Query the balance of a specific token for the provided account.
     #[ink(message)]
@@ -106,7 +138,8 @@ pub trait Erc1155 {
     /// Enable or disable a third party, known as an `operator`, to control all tokens on behalf of
     /// the caller.
     #[ink(message)]
-    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool);
+    fn set_approval_for_all(&mut self, operator: AccountId, approved: bool)
+        -> Result<()>;
 
     /// Query if the given `operator` is allowed to control all of `owner`'s tokens.
     #[ink(message)]
@@ -204,14 +237,6 @@ mod erc1155 {
         token_id: TokenId,
     }
 
-    // The ERC-1155 error types.
-    #[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum Error {
-        /// This token ID has not yet been created by the contract.
-        UnexistentToken,
-    }
-
     /// Represents an (Owner, Operator) pair, in which the operator is allowed to spend funds on
     /// behalf of the operator.
     #[derive(
@@ -290,10 +315,8 @@ mod erc1155 {
         /// production environment you'd probably want to lock down the addresses that are allowed
         /// to mint tokens.
         #[ink(message)]
-        pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<(), Error> {
-            if token_id > self.token_id_nonce {
-                return Err(Error::UnexistentToken);
-            }
+        pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<()> {
+            ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
             self.balances.insert((caller, token_id), value);
@@ -321,14 +344,9 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
             #[cfg_attr(test, allow(unused_variables))] data: Vec<u8>,
-        ) {
+        ) -> Result<()> {
             let balance = self.balance_of(from, token_id);
-            assert!(
-                balance >= value,
-                "Insufficent token balance for transfer. Expected: {:?}, Got: {:?}",
-                value,
-                balance,
-            );
+            ensure!(balance >= value, Error::InsufficientBalance);
 
             self.balances
                 .entry((from, token_id))
@@ -409,6 +427,8 @@ mod erc1155 {
                     }
                 }
             }
+
+            Ok(())
         }
     }
 
@@ -421,23 +441,16 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
             data: Vec<u8>,
-        ) {
+        ) -> Result<()> {
             let caller = self.env().caller();
             if caller != from {
-                assert!(
-                    self.is_approved_for_all(from, caller),
-                    "Caller ({:?}) is not allowed to transfer on behalf of {:?}.",
-                    caller,
-                    from
-                );
+                ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            assert!(
-                to != AccountId::default(),
-                "Cannot send tokens to the zero-address."
-            );
+            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            self.perform_transfer(from, to, token_id, value, data)?;
 
-            self.perform_transfer(from, to, token_id, value, data);
+            Ok(())
         }
 
         #[ink(message)]
@@ -448,31 +461,29 @@ mod erc1155 {
             token_ids: Vec<TokenId>,
             values: Vec<Balance>,
             data: Vec<u8>,
-        ) {
+        ) -> Result<()> {
             let caller = self.env().caller();
             if caller != from {
-                assert!(
-                    self.is_approved_for_all(from, caller),
-                    "Caller is not allowed to transfer on behalf of {:?}.",
-                    from
-                );
+                ensure!(self.is_approved_for_all(from, caller), Error::NotApproved);
             }
 
-            assert!(
-                to != AccountId::default(),
-                "Cannot send tokens to the zero-address."
-            );
-
-            assert_eq!(
-                token_ids.len(),
-                values.len(),
-                "The number of tokens being transferred ({:?}) does not match the number of transfer amounts ({:?}).",
-                token_ids.len(), values.len()
+            ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(
+                token_ids.len() == values.len(),
+                Error::BatchTransferMismatch,
             );
 
             token_ids.iter().zip(values.iter()).for_each(|(&id, &v)| {
-                self.perform_transfer(from, to, id, v, data.clone());
-            })
+                // If any of the transfers fail we don't want the caller to be able to handle this.
+                // Instead we want to revert the whole call in order to ensure the atomicity of the
+                // batch transfer.
+                assert!(self.perform_transfer(from, to, id, v, data.clone()).is_ok(),
+                    "Failed to transfer {:?} tokens of ID {:?} from {:?} to {:?} as part of a batch transfer.",
+                    v, id, from, to
+                );
+            });
+
+            Ok(())
         }
 
         #[ink(message)]
@@ -497,13 +508,13 @@ mod erc1155 {
         }
 
         #[ink(message)]
-        fn set_approval_for_all(&mut self, operator: AccountId, approved: bool) {
+        fn set_approval_for_all(
+            &mut self,
+            operator: AccountId,
+            approved: bool,
+        ) -> Result<()> {
             let caller = self.env().caller();
-
-            assert!(
-                operator != caller,
-                "An account does not need to approve themselves to transfer tokens."
-            );
+            ensure!(operator != caller, Error::SelfApproval);
 
             let approval = Approval {
                 owner: caller,
@@ -521,6 +532,8 @@ mod erc1155 {
                 operator,
                 approved,
             });
+
+            Ok(())
         }
 
         #[ink(message)]
@@ -661,49 +674,53 @@ mod erc1155 {
         fn can_send_tokens_between_accounts() {
             let mut erc = init_contract();
 
-            erc.safe_transfer_from(alice(), bob(), 1, 5, vec![]);
+            assert!(erc.safe_transfer_from(alice(), bob(), 1, 5, vec![]).is_ok());
             assert_eq!(erc.balance_of(alice(), 1), 5);
             assert_eq!(erc.balance_of(bob(), 1), 15);
 
-            erc.safe_transfer_from(alice(), bob(), 2, 5, vec![]);
+            assert!(erc.safe_transfer_from(alice(), bob(), 2, 5, vec![]).is_ok());
             assert_eq!(erc.balance_of(alice(), 2), 15);
             assert_eq!(erc.balance_of(bob(), 2), 5);
         }
 
         #[ink::test]
-        #[should_panic(
-            expected = "Insufficent token balance for transfer. Expected: 99, Got: 10"
-        )]
         fn sending_too_many_tokens_fails() {
             let mut erc = init_contract();
-            erc.safe_transfer_from(alice(), bob(), 1, 99, vec![]);
+            let res = erc.safe_transfer_from(alice(), bob(), 1, 99, vec![]);
+            assert_eq!(res.unwrap_err(), Error::InsufficientBalance);
         }
 
         #[ink::test]
-        #[should_panic(expected = "Cannot send tokens to the zero-address.")]
         fn sending_tokens_to_zero_address_fails() {
             let burn: AccountId = [0; 32].into();
 
             let mut erc = init_contract();
-            erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+            let res = erc.safe_transfer_from(alice(), burn, 1, 10, vec![]);
+            assert_eq!(res.unwrap_err(), Error::ZeroAddressTransfer);
         }
 
         #[ink::test]
         fn can_send_batch_tokens() {
             let mut erc = init_contract();
-            erc.safe_batch_transfer_from(alice(), bob(), vec![1, 2], vec![5, 10], vec![]);
+            assert!(erc
+                .safe_batch_transfer_from(alice(), bob(), vec![1, 2], vec![5, 10], vec![])
+                .is_ok());
 
             let balances = erc.balance_of_batch(vec![alice(), bob()], vec![1, 2]);
             assert_eq!(balances, vec![5, 10, 15, 10])
         }
 
         #[ink::test]
-        #[should_panic(
-            expected = "The number of tokens being transferred (3) does not match the number of transfer amounts (1)."
-        )]
         fn rejects_batch_if_lengths_dont_match() {
             let mut erc = init_contract();
-            erc.safe_batch_transfer_from(alice(), bob(), vec![1, 2, 3], vec![5], vec![]);
+            let res = erc.safe_batch_transfer_from(
+                alice(),
+                bob(),
+                vec![1, 2, 3],
+                vec![5],
+                vec![],
+            );
+            assert_eq!(res.unwrap_err(), Error::BatchTransferMismatch);
         }
 
         #[ink::test]
@@ -714,10 +731,12 @@ mod erc1155 {
             let operator = bob();
 
             set_sender(owner);
-            erc.set_approval_for_all(operator, true);
+            assert!(erc.set_approval_for_all(operator, true).is_ok());
 
             set_sender(operator);
-            erc.safe_transfer_from(owner, charlie(), 1, 5, vec![]);
+            assert!(erc
+                .safe_transfer_from(owner, charlie(), 1, 5, vec![])
+                .is_ok());
             assert_eq!(erc.balance_of(alice(), 1), 5);
             assert_eq!(erc.balance_of(charlie(), 1), 5);
         }
@@ -734,13 +753,13 @@ mod erc1155 {
             set_sender(owner);
             assert!(erc.is_approved_for_all(owner, operator) == false);
 
-            erc.set_approval_for_all(operator, true);
+            assert!(erc.set_approval_for_all(operator, true).is_ok());
             assert!(erc.is_approved_for_all(owner, operator));
 
-            erc.set_approval_for_all(another_operator, true);
+            assert!(erc.set_approval_for_all(another_operator, true).is_ok());
             assert!(erc.is_approved_for_all(owner, another_operator));
 
-            erc.set_approval_for_all(operator, false);
+            assert!(erc.set_approval_for_all(operator, false).is_ok());
             assert!(erc.is_approved_for_all(owner, operator) == false);
         }
 
@@ -761,7 +780,6 @@ mod erc1155 {
             let mut erc = Contract::new();
 
             let res = erc.mint(1, 123);
-            assert!(res.is_err());
             assert_eq!(res.unwrap_err(), Error::UnexistentToken);
         }
     }
