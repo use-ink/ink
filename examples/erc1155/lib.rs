@@ -204,6 +204,14 @@ mod erc1155 {
         token_id: TokenId,
     }
 
+    // The ERC-1155 error types.
+    #[derive(Debug, PartialEq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// This token ID has not yet been created by the contract.
+        UnexistentToken,
+    }
+
     /// Represents an (Owner, Operator) pair, in which the operator is allowed to spend funds on
     /// behalf of the operator.
     #[derive(
@@ -282,15 +290,12 @@ mod erc1155 {
         /// production environment you'd probably want to lock down the addresses that are allowed
         /// to mint tokens.
         #[ink(message)]
-        pub fn mint(&mut self, token_id: TokenId, value: Balance) {
+        pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<(), Error> {
+            if token_id > self.token_id_nonce {
+                return Err(Error::UnexistentToken);
+            }
+
             let caller = self.env().caller();
-
-            assert!(
-                token_id <= self.token_id_nonce,
-                "The `token_id` {:?} has not yet been created in this contract.",
-                token_id
-            );
-
             self.balances.insert((caller, token_id), value);
 
             // Emit transfer event but with mint semantics
@@ -301,6 +306,8 @@ mod erc1155 {
                 token_id,
                 value,
             });
+
+            Ok(())
         }
 
         // Helper function for performing single token transfers.
@@ -745,17 +752,17 @@ mod erc1155 {
             assert_eq!(erc.create(0), 1);
             assert_eq!(erc.balance_of(alice(), 1), 0);
 
-            erc.mint(1, 123);
+            assert!(erc.mint(1, 123).is_ok());
             assert_eq!(erc.balance_of(alice(), 1), 123);
         }
 
         #[ink::test]
-        #[should_panic(
-            expected = "The `token_id` 7 has not yet been created in this contract."
-        )]
         fn minting_not_allowed_for_nonexistent_tokens() {
             let mut erc = Contract::new();
-            erc.mint(7, 123);
+
+            let res = erc.mint(1, 123);
+            assert!(res.is_err());
+            assert_eq!(res.unwrap_err(), Error::UnexistentToken);
         }
     }
 }
