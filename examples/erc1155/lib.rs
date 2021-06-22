@@ -532,6 +532,14 @@ mod erc1155 {
             _value: Balance,
             _data: Vec<u8>,
         ) -> Vec<u8> {
+            // The ERC-1155 standard dictates that if a contract does not accept token transfers
+            // directly to the contract, then the contract must revert.
+            //
+            // This prevents a user from unintentionally transferring tokens to a smart contract
+            // and getting their funds stuck without any sort of recovery mechanism.
+            //
+            // Note that the choice of whether or not to accept tokens is implementation specific,
+            // and we've decided to not accept them in this implementation.
             unimplemented!("This smart contract does not accept token transfer.")
         }
 
@@ -544,6 +552,14 @@ mod erc1155 {
             _values: Vec<Balance>,
             _data: Vec<u8>,
         ) {
+            // The ERC-1155 standard dictates that if a contract does not accept token transfers
+            // directly to the contract, then the contract must revert.
+            //
+            // This prevents a user from unintentionally transferring tokens to a smart contract
+            // and getting their funds stuck without any sort of recovery mechanism.
+            //
+            // Note that the choice of whether or not to accept tokens is implementation specific,
+            // and we've decided to not accept them in this implementation.
             unimplemented!("This smart contract does not accept batch token transfers.")
         }
     }
