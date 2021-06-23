@@ -346,8 +346,7 @@ mod erc1155 {
             to: AccountId,
             token_id: TokenId,
             value: Balance,
-            #[cfg_attr(test, allow(unused_variables))] data: Vec<u8>,
-        ) -> Result<()> {
+        ) {
             self.balances
                 .entry((from, token_id))
                 .and_modify(|b| *b -= value);
@@ -365,7 +364,23 @@ mod erc1155 {
                 token_id,
                 value,
             });
+        }
 
+        // Check if the address at `to` is a smart contract which accepts ERC-1155 token transfers.
+        //
+        // If they're a smart contract which **doesn't** accept tokens transfers this call will
+        // revert. Otherwise we risk locking user funds at in that contract with no chance of
+        // recovery.
+        #[cfg_attr(test, allow(unused_variables))]
+        fn transfer_acceptance_check(
+            &mut self,
+            caller: AccountId,
+            from: AccountId,
+            to: AccountId,
+            token_id: TokenId,
+            value: Balance,
+            data: Vec<u8>,
+        ) {
             // This is disabled during tests due to the use of `eval_contract()` not being
             // supported (tests end up panicking).
             #[cfg(not(test))]
@@ -430,8 +445,6 @@ mod erc1155 {
                     }
                 }
             }
-
-            Ok(())
         }
     }
 
@@ -455,7 +468,8 @@ mod erc1155 {
             let balance = self.balance_of(from, token_id);
             ensure!(balance >= value, Error::InsufficientBalance);
 
-            self.perform_transfer(from, to, token_id, value, data)?;
+            self.perform_transfer(from, to, token_id, value);
+            self.transfer_acceptance_check(caller, from, to, token_id, value, data);
 
             Ok(())
         }
@@ -475,6 +489,7 @@ mod erc1155 {
             }
 
             ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+            ensure!(token_ids.len() != 0, Error::BatchTransferMismatch);
             ensure!(
                 token_ids.len() == values.len(),
                 Error::BatchTransferMismatch,
@@ -487,14 +502,19 @@ mod erc1155 {
             }
 
             for (&id, &v) in &transfers {
-                // If any of the transfers fail we don't want the caller to be able to handle this.
-                // Instead we want to revert the whole call in order to ensure the atomicity of the
-                // batch transfer.
-                assert!(self.perform_transfer(from, to, id, v, data.clone()).is_ok(),
-                    "Failed to transfer {:?} tokens of ID {:?} from {:?} to {:?} as part of a batch transfer.",
-                    v, id, from, to
-                );
+                self.perform_transfer(from, to, id, v);
             }
+
+            // Can use the any token ID/value here, we really just care about knowing if `to` is a
+            // smart contract which accepts transfers
+            self.transfer_acceptance_check(
+                caller,
+                from,
+                to,
+                token_ids[0],
+                values[0],
+                data,
+            );
 
             Ok(())
         }
@@ -733,6 +753,14 @@ mod erc1155 {
                 vec![5],
                 vec![],
             );
+            assert_eq!(res.unwrap_err(), Error::BatchTransferMismatch);
+        }
+
+        #[ink::test]
+        fn batch_transfers_fail_if_len_is_zero() {
+            let mut erc = init_contract();
+            let res =
+                erc.safe_batch_transfer_from(alice(), bob(), vec![], vec![], vec![]);
             assert_eq!(res.unwrap_err(), Error::BatchTransferMismatch);
         }
 
