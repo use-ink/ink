@@ -348,9 +348,6 @@ mod erc1155 {
             value: Balance,
             #[cfg_attr(test, allow(unused_variables))] data: Vec<u8>,
         ) -> Result<()> {
-            let balance = self.balance_of(from, token_id);
-            ensure!(balance >= value, Error::InsufficientBalance);
-
             self.balances
                 .entry((from, token_id))
                 .and_modify(|b| *b -= value);
@@ -454,6 +451,10 @@ mod erc1155 {
             }
 
             ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
+
+            let balance = self.balance_of(from, token_id);
+            ensure!(balance >= value, Error::InsufficientBalance);
+
             self.perform_transfer(from, to, token_id, value, data)?;
 
             Ok(())
@@ -479,7 +480,13 @@ mod erc1155 {
                 Error::BatchTransferMismatch,
             );
 
-            token_ids.iter().zip(values.iter()).for_each(|(&id, &v)| {
+            let transfers: Vec<(_, _)> = token_ids.iter().zip(values.iter()).collect();
+            for (&id, &v) in &transfers {
+                let balance = self.balance_of(from, id);
+                ensure!(balance >= v, Error::InsufficientBalance);
+            }
+
+            for (&id, &v) in &transfers {
                 // If any of the transfers fail we don't want the caller to be able to handle this.
                 // Instead we want to revert the whole call in order to ensure the atomicity of the
                 // batch transfer.
@@ -487,7 +494,7 @@ mod erc1155 {
                     "Failed to transfer {:?} tokens of ID {:?} from {:?} to {:?} as part of a batch transfer.",
                     v, id, from, to
                 );
-            });
+            }
 
             Ok(())
         }
