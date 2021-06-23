@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    ast,
-    ir,
-};
+use crate::{ast, ir};
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 
@@ -102,7 +99,7 @@ impl Contract {
     ///            types.
     /// - `storage-alloc`: If `true` enables the dynamic storage allocator
     ///                    facilities and code generation of the ink! smart
-    ///                    contract. Does incure some overhead. The default is
+    ///                    contract. Does incur some overhead. The default is
     ///                    `true`.
     /// - `as-dependency`: If `true` compiles this ink! smart contract always as
     ///                    if it was a dependency of another smart contract.
