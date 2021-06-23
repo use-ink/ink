@@ -266,6 +266,7 @@ examples-test-experimental-engine:
     # We test only the examples for which the tests have already been migrated to
     # use the experimental engine.
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc20/Cargo.toml
+    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc1155/Cargo.toml
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
