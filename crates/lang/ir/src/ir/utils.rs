@@ -38,7 +38,7 @@ pub fn ensure_pub_visibility(
             bad_visibility,
             "non `pub` ink! {} are not supported",
             name
-        ));
+        ))
     }
     Ok(())
 }

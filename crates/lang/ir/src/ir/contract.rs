@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{ast, ir};
+use crate::{
+    ast,
+    ir,
+};
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 
