@@ -489,7 +489,7 @@ mod erc1155 {
             }
 
             ensure!(to != AccountId::default(), Error::ZeroAddressTransfer);
-            ensure!(token_ids.len() != 0, Error::BatchTransferMismatch);
+            ensure!(!token_ids.is_empty(), Error::BatchTransferMismatch);
             ensure!(
                 token_ids.len() == values.len(),
                 Error::BatchTransferMismatch,
