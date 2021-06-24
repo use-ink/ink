@@ -65,9 +65,9 @@ pub type Result<T> = core::result::Result<T, Error>;
 ///
 /// Used as `ensure!(expression_to_ensure, expression_to_return_on_false)`.
 macro_rules! ensure {
-    ( $x:expr, $y:expr $(,)? ) => {{
-        if !$x {
-            return Err($y.into())
+    ( $condition:expr, $error:expr $(,)? ) => {{
+        if !$condition {
+            return ::core::result::Result::Err(::core::convert::Into::into($error))
         }
     }};
 }
