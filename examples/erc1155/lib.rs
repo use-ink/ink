@@ -531,10 +531,10 @@ mod erc1155 {
             token_ids: Vec<TokenId>,
         ) -> Vec<Balance> {
             let mut output = Vec::new();
-            for o in &owners {
-                for t in &token_ids {
-                    let amt = self.balance_of(*o, *t);
-                    output.push(amt);
+            for o in owners {
+                for t in token_ids {
+                    let amount = self.balance_of(o, t);
+                    output.push(amount);
                 }
             }
             output
