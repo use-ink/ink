@@ -194,7 +194,7 @@ pub trait Erc1155TokenReceiver {
         token_ids: Vec<TokenId>,
         values: Vec<Balance>,
         data: Vec<u8>,
-    );
+    ) -> Vec<u8>;
 }
 
 #[ink::contract]
@@ -604,7 +604,7 @@ mod erc1155 {
             _token_ids: Vec<TokenId>,
             _values: Vec<Balance>,
             _data: Vec<u8>,
-        ) {
+        ) -> Vec<u8> {
             // The ERC-1155 standard dictates that if a contract does not accept token transfers
             // directly to the contract, then the contract must revert.
             //
