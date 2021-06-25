@@ -28,3 +28,5 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[cfg(not(feature = "std"))]
 mod handlers;
+
+mod bump;
