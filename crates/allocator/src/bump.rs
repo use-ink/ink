@@ -55,21 +55,33 @@ impl BumpAllocator {
     // In this case we'll be backed by a page of Wasm memory which is all we'll use for the life of
     // the contract.
     pub fn init(&mut self) {
-        self.next = core::arch::wasm32::memory_grow(0, 1);
+        let ptr = core::arch::wasm32::memory_grow(0, 1);
+        if ptr == usize::max_value() {
+            todo!("TODO: OOM")
+        }
     }
 }
 
 unsafe impl GlobalAlloc for Locked<BumpAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // Layout is `size: usize`, `align: NonZeroUsize`, and
-        // Number of bytes, `align` is always a power-of-two
-        // In our case `usize` will be `u32` or 4-bytes
-
-        // This should be okay since we're in a single threaded context anyways
+        // This should be okay performance wise since we're in a single threaded context anyways
         let mut bump = self.lock();
 
+        let aligned_layout = layout.pad_to_align();
+
         let alloc_start = bump.next;
-        bump.next += layout.size();
+        let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
+            Some(end) => end,
+            None => return core::ptr::null_mut(),
+        };
+
+        // Since we're using a single page as our entire heap if we exceed it we're effectively
+        // out-of-memory.
+        if alloc_end > PAGE_SIZE {
+            return core::ptr::null_mut();
+        }
+
+        bump.next = alloc_end;
         alloc_start as *mut u8
     }
 
