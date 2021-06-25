@@ -495,13 +495,13 @@ mod erc1155 {
                 Error::BatchTransferMismatch,
             );
 
-            let transfers: Vec<(_, _)> = token_ids.iter().zip(values.iter()).collect();
-            for (&id, &v) in &transfers {
+            let transfers = token_ids.iter().zip(values.iter());
+            for (&id, &v) in transfers.clone() {
                 let balance = self.balance_of(from, id);
                 ensure!(balance >= v, Error::InsufficientBalance);
             }
 
-            for (&id, &v) in &transfers {
+            for (&id, &v) in transfers {
                 self.perform_transfer(from, to, id, v);
             }
 
