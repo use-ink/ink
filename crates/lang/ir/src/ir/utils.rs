@@ -16,7 +16,7 @@ use crate::format_err;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
-/// Ensures that the given visibility is `pub` and anotherwise returns an appropriate error.
+/// Ensures that the given visibility is `pub` and otherwise returns an appropriate error.
 ///
 /// # Note
 ///
