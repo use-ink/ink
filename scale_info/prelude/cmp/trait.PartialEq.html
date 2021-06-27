@@ -16,7 +16,7 @@ so floating point types implement <code>PartialEq</code> but not <a href="trait.
 </ul>
 <p>If <a href="trait.PartialOrd.html" title="PartialOrd"><code>PartialOrd</code></a> or <a href="trait.Ord.html" title="Ord"><code>Ord</code></a> are also implemented for <code>Self</code> and <code>Rhs</code>, their methods must also
 be consistent with <code>PartialEq</code> (see the documentation of those traits for the exact
-requirememts). It’s easy to accidentally make them disagree by deriving some of the traits and
+requirements). It’s easy to accidentally make them disagree by deriving some of the traits and
 manually implementing others.</p>
 <p>The equality relation <code>==</code> must satisfy the following conditions
 (for all <code>a</code>, <code>b</code>, <code>c</code> of type <code>A</code>, <code>B</code>, <code>C</code>):</p>
