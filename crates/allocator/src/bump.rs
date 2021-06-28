@@ -16,6 +16,10 @@
 //!
 //! It's goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
 //! allocator which is currently being used by ink! smart contracts.
+//!
+//! The heap which will be used by this allocator is a single page of memory, which in Wasm is
+//! 64KiB. We do not expect contracts to use more memory than this (for now), so we will throw an
+//! OOM error instead of requesting more memory.
 
 use core::alloc::{GlobalAlloc, Layout};
 
@@ -45,7 +49,8 @@ impl<A> Locked<A> {
 pub struct BumpAllocator {
     /// Points to the start of the next available allocation
     next: usize,
-    /// Hacks
+    /// We need some way to initialize our heap. However, I can't figure out how to get the
+    /// initialization working properly with `lazy_static` so this hack is the best I got for now.
     heap_initialized: bool,
 }
 
@@ -54,17 +59,6 @@ impl BumpAllocator {
         Self {
             next: 0,
             heap_initialized: false,
-        }
-    }
-
-    /// Initalize the backing heap of the allocator.
-    //
-    // In this case we'll be backed by a page of Wasm memory which is all we'll use for the life of
-    // the contract.
-    pub fn init(&mut self) {
-        let ptr = core::arch::wasm32::memory_grow(0, 1);
-        if ptr == usize::max_value() {
-            todo!("TODO: OOM")
         }
     }
 }
@@ -78,8 +72,9 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
         if !bump.heap_initialized {
             let ptr = core::arch::wasm32::memory_grow(0, 1);
             if ptr == usize::max_value() {
-                todo!("TODO: OOM")
+                // todo!("TODO: OOM")
             }
+            bump.heap_initialized = true;
         }
 
         let aligned_layout = layout.pad_to_align();
@@ -101,6 +96,6 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
     }
 
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
-        todo!();
+        // todo!();
     }
 }
