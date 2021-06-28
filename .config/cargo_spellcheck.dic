@@ -26,6 +26,7 @@ cryptographic
 deallocate
 deallocation
 decodable
+decrement
 defrag
 defragmentation
 deploy
@@ -42,17 +43,23 @@ invariants
 kB
 layed
 multisig
+multi
 postfix
 prefilled
 recurse
+refcount
 scalability
 scalable
 stdin
 stdout
+tuple
+unordered
 untyped
 validator
 variadic
 
+Django/S
+IP/S
 NFT/S
 accessor/S
 allocator/S
@@ -67,6 +74,7 @@ hashmap/S
 instantiation/S
 layout/JG
 namespace/S
+parameterize/SD
 runtime/S
 struct/S
 vec/S
