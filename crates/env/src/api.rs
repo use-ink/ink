@@ -90,7 +90,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> Result<T::Balance>
+pub fn gas_left<T>() -> Result<u64>
 where
     T: Environment,
 {

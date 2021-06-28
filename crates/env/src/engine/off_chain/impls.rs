@@ -316,12 +316,11 @@ impl TypedEnvBackend for EnvInstance {
             .saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.exec_context()
+    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
+        Ok(self
+            .exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .gas::<T>()
-            .map_err(|_| scale::Error::from("could not decode gas left"))
-            .map_err(Into::into)
+            .gas::<T>())
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {

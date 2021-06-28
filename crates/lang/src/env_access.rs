@@ -205,7 +205,7 @@ where
     /// ///   - the gas costs of this addition operation
     /// ///   - the price for the gas
     /// #[ink(message)]
-    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, Balance, Balance) {
+    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, u64, Balance) {
     ///     let before = self.env().gas_left();
     ///     let result = rhs + lhs;
     ///     let after = self.env().gas_left();
@@ -246,7 +246,7 @@ where
     /// ///   - the result of adding the `rhs` to the `lhs` and
     /// ///   - the gas used for this addition operation.
     /// #[ink(message)]
-    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, Weight) {
+    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, u64) {
     ///     let before = self.env().gas_left();
     ///     let result = rhs + lhs;
     ///     let after = self.env().gas_left();
@@ -260,7 +260,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::gas_left`]
-    pub fn gas_left(self) -> T::Balance {
+    pub fn gas_left(self) -> u64 {
         ink_env::gas_left::<T>().expect("couldn't decode gas left")
     }
 

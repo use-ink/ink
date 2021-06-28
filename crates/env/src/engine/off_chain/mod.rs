@@ -205,7 +205,7 @@ impl EnvInstance {
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
-                .gas(T::Balance::from(500_000u32))
+                .gas(500_000u64)
                 .transferred_value(T::Balance::from(500u32))
                 .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),

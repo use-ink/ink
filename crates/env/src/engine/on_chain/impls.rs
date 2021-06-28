@@ -309,7 +309,7 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
         self.get_property::<T::Balance>(ext::gas_left)
     }
 

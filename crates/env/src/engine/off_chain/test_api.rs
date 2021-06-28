@@ -44,7 +44,7 @@ use std::panic::UnwindSafe;
 pub fn push_execution_context<T>(
     caller: T::AccountId,
     callee: T::AccountId,
-    gas_limit: T::Balance,
+    gas_limit: u64,
     endowment: T::Balance,
     call_data: CallData,
 ) where
