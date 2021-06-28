@@ -21,7 +21,10 @@
 //! 64KiB. We do not expect contracts to use more memory than this (for now), so we will throw an
 //! OOM error instead of requesting more memory.
 
-use core::alloc::{GlobalAlloc, Layout};
+use core::alloc::{
+    GlobalAlloc,
+    Layout,
+};
 
 /// A page in Wasm is 64KiB
 const PAGE_SIZE: usize = 64 * 1024;
@@ -88,7 +91,7 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
         // Since we're using a single page as our entire heap if we exceed it we're effectively
         // out-of-memory.
         if alloc_end > PAGE_SIZE {
-            return core::ptr::null_mut();
+            return core::ptr::null_mut()
         }
 
         bump.next = alloc_end;
