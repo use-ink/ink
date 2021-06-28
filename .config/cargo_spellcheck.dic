@@ -43,6 +43,7 @@ invariants
 kB
 layed
 multisig
+multi
 postfix
 prefilled
 recurse
@@ -58,6 +59,7 @@ validator
 variadic
 
 Django/S
+IP/S
 NFT/S
 accessor/S
 allocator/S
