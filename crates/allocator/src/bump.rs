@@ -22,6 +22,10 @@ use core::alloc::{GlobalAlloc, Layout};
 /// A page in Wasm is 64KiB
 const PAGE_SIZE: usize = 64 * 1024;
 
+lazy_static::lazy_static! {
+    pub static ref BUMP_ALLOC: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
+}
+
 pub struct Locked<A> {
     inner: spin::Mutex<A>,
 }
@@ -41,12 +45,15 @@ impl<A> Locked<A> {
 pub struct BumpAllocator {
     /// Points to the start of the next available allocation
     next: usize,
+    /// Hacks
+    heap_initialized: bool,
 }
 
 impl BumpAllocator {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
-            next: Default::default(),
+            next: 0,
+            heap_initialized: false,
         }
     }
 
@@ -66,6 +73,14 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         // This should be okay performance wise since we're in a single threaded context anyways
         let mut bump = self.lock();
+
+        // TODO: Figure out how to properly initalize the heap
+        if !bump.heap_initialized {
+            let ptr = core::arch::wasm32::memory_grow(0, 1);
+            if ptr == usize::max_value() {
+                todo!("TODO: OOM")
+            }
+        }
 
         let aligned_layout = layout.pad_to_align();
 

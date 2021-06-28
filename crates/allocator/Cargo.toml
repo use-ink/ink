@@ -15,9 +15,12 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-wee_alloc = { version = "0.4", default-features = false }
-spin = { version = "0.9", default-features = false, features = ["mutex", "spin_mutex"] }
+wee_alloc = { version = "0.4", default-features = false, optional = true }
+spin = { version = "0.9", default-features = false, features = ["mutex", "spin_mutex"], optional = true }
+lazy_static = { version = "1.4", default-features = false, features = ["spin_no_std"], optional = true }
 
 [features]
 default = ["std"]
 std = []
+bump-allocator = ["spin", "lazy_static"]
+wee-allocator = ["wee_alloc"]

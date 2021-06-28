@@ -23,10 +23,23 @@
 // We use `wee_alloc` as the global allocator since it is optimized for binary file size
 // so that contracts compiled with it as allocator do not grow too much in size.
 #[cfg(not(feature = "std"))]
+#[cfg(feature = "wee-allocator")]
+#[cfg(not(feature = "bump-allocator"))]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[cfg(not(feature = "std"))]
+#[cfg(feature = "bump-allocator")]
+#[cfg(not(feature = "wee-allocator"))]
+#[global_allocator]
+static ALLOC: bump::Locked<bump::BumpAllocator> =
+    bump::Locked::new(bump::BumpAllocator::new());
+// static ALLOC: bump::BUMP_ALLOC = bump::BUMP_ALLOC;
+
+#[cfg(not(feature = "std"))]
 mod handlers;
 
+#[cfg(not(feature = "std"))]
+#[cfg(feature = "bump-allocator")]
+#[cfg(not(feature = "wee-allocator"))]
 mod bump;
