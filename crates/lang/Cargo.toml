@@ -26,6 +26,10 @@ scale = { package = "parity-scale-codec", version = "2.1", default-features = fa
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 static_assertions = "1.1"
 
+[dev-dependencies]
+# required for the doctest of `env_access::EnvAccess::instantiate_contract`
+scale-info = { version = "0.6", default-features = false, features = ["derive"] }
+
 [features]
 default = ["std"]
 std = [

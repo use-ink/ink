@@ -200,9 +200,18 @@ where
     /// #             Self {}
     /// #         }
     /// #
+    /// /// Returns a tuple of
+    /// ///   - the result of adding the `rhs` to the `lhs`
+    /// ///   - the gas costs of this addition operation
+    /// ///   - the price for the gas
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _price = self.env().weight_to_fee(13);
+    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, Balance, Balance) {
+    ///     let before = self.env().gas_left();
+    ///     let result = rhs + lhs;
+    ///     let after = self.env().gas_left();
+    ///     let gas_used = after - before;
+    ///     let gas_cost = self.env().weight_to_fee(gas_used);
+    ///     (result, gas_used, gas_cost)
     /// }
     /// #
     /// #     }
@@ -233,9 +242,15 @@ where
     /// #             Self {}
     /// #         }
     /// #
+    /// /// Returns a tuple of
+    /// ///   - the result of adding the `rhs` to the `lhs` and
+    /// ///   - the gas used for this addition operation.
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _gas_left = self.env().gas_left();
+    /// pub fn addition_gas_cost(&self, rhs: i32, lhs: i32) -> (i32, Weight) {
+    ///     let before = self.env().gas_left();
+    ///     let result = rhs + lhs;
+    ///     let after = self.env().gas_left();
+    ///     (result, after - before)
     /// }
     /// #
     /// #     }
@@ -254,25 +269,32 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _now = self.env().block_timestamp();
+    /// use ink_lang as ink;
+    ///
+    /// #[ink::contract]
+    /// pub mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract {
+    ///         last_invocation: Timestamp
+    ///     }
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {
+    ///                 last_invocation: Self::env().block_timestamp()
+    ///             }
+    ///         }
+    ///
+    ///         /// The function can be executed at most once every 100 blocks.
+    ///         #[ink(message)]
+    ///         pub fn execute_me(&mut self) {
+    ///             let now = self.env().block_timestamp();
+    ///             assert!(now - self.last_invocation > 100);
+    ///             self.last_invocation = now;
+    ///         }
+    ///     }
     /// }
-    /// #
-    /// #     }
-    /// # }
     /// ```
     ///
     /// # Note
@@ -369,9 +391,11 @@ where
     /// #             Self {}
     /// #         }
     /// #
+    /// /// Returns the amount of the contract's balance which
+    /// /// can be used for paying rent.
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _allowance = self.env().rent_allowance();
+    /// pub fn rent_allowance(&self) -> Balance {
+    ///     self.env().rent_allowance()
     /// }
     /// #
     /// #     }
@@ -402,8 +426,10 @@ where
     /// #             Self {}
     /// #         }
     /// #
+    /// /// Limits the amount of contract balance which can be used for paying rent
+    /// /// to half of the contract's total balance.
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
+    /// pub fn limit_rent_allowance(&self) {
     ///     self.env().set_rent_allowance(self.env().balance() / 2);
     /// }
     /// #
@@ -492,8 +518,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _block_number = self.env().block_number();
+    /// pub fn block_number(&self) -> BlockNumber {
+    ///     self.env().block_number()
     /// }
     /// #
     /// #     }
@@ -525,8 +551,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _minimum_balance = self.env().minimum_balance();
+    /// pub fn minimum_balance(&self) -> Balance {
+    ///     self.env().minimum_balance()
     /// }
     /// #
     /// #     }
@@ -558,8 +584,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn my_message(&self) {
-    ///     let _tombstone_deposit = self.env().tombstone_deposit();
+    /// pub fn tombstone_deposit(&self) -> Balance {
+    ///     self.env().tombstone_deposit()
     /// }
     /// #
     /// #     }
@@ -581,11 +607,30 @@ where
     /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
+    /// #     use ink_lang as ink;
+    /// #     #[ink::contract(compile_as_dependency = true)]
+    /// #     pub mod other_contract {
+    /// #         #[ink(storage)]
+    /// #         pub struct OtherContract { }
+    /// #
+    /// #         impl OtherContract {
+    /// #             #[ink(constructor)]
+    /// #             pub fn new() -> Self {
+    /// #                 Self {}
+    /// #             }
+    /// #
+    /// #             #[ink(message)]
+    /// #             pub fn some_operation(&self) {
+    /// #                 // ...
+    /// #             }
+    /// #         }
+    /// #     }
+    /// #
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     call::{build_create, Selector, ExecutionInput, FromAccountId}
+    ///     call::{build_create, Selector, ExecutionInput}
     /// };
-    ///
+    /// use other_contract::OtherContract;
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -596,10 +641,11 @@ where
     /// #             Self {}
     /// #         }
     /// #
+    ///
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, MyContract>()
+    ///     let create_params = build_create::<DefaultEnvironment, OtherContract>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)
@@ -615,11 +661,6 @@ where
     /// }
     /// #
     /// #     }
-    /// #
-    ///
-    /// impl FromAccountId<DefaultEnvironment> for MyContract {
-    ///     fn from_account_id(account_id: AccountId) -> Self { Self {} }
-    /// }
     /// # }
     /// ```
     ///
