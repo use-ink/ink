@@ -56,7 +56,7 @@ impl InnerAlloc {
     unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
         // TODO: Figure out how to properly initalize the heap
         let alloc_start = if let Some(start) = self.next {
-            start;
+            start
         } else {
             let prev_page = core::arch::wasm32::memory_grow(0, 1);
             if prev_page == usize::max_value() {
