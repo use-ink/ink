@@ -46,11 +46,19 @@ struct InnerAlloc {
     ///
     /// If the heap hasn't been initialized yet this value will be `None`.
     next: Option<usize>,
+
+    /// The address of the upper limit of our heap.
+    ///
+    /// If the heap hasn't been initialized yet this value will be `None`.
+    upper_limit: Option<usize>,
 }
 
 impl InnerAlloc {
     pub const fn new() -> Self {
-        Self { next: None }
+        Self {
+            next: None,
+            upper_limit: None,
+        }
     }
 
     unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
@@ -62,7 +70,10 @@ impl InnerAlloc {
             if prev_page == usize::max_value() {
                 panic!("OOM")
             }
-            prev_page.checked_mul(PAGE_SIZE).expect("OOM")
+
+            let start = prev_page.checked_mul(PAGE_SIZE).expect("OOM");
+            self.upper_limit = Some(start + PAGE_SIZE);
+            start
         };
 
         let aligned_layout = layout.pad_to_align();
@@ -71,9 +82,9 @@ impl InnerAlloc {
             None => return core::ptr::null_mut(),
         };
 
-        // Since we're using a single page as our entire heap if we exceed it we're effectively
-        // out-of-memory.
-        if alloc_end > PAGE_SIZE {
+        let upper_limit = self.upper_limit
+            .expect("Since we're here the heap must've been initialized, therefore this must exist.");
+        if alloc_end > upper_limit {
             return core::ptr::null_mut()
         }
 
