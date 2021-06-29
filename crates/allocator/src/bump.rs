@@ -43,33 +43,29 @@ unsafe impl GlobalAlloc for BumpAllocator {
 
 struct InnerAlloc {
     /// Points to the start of the next available allocation.
-    next: usize,
-    /// We need some way to initialize our heap. However, I can't figure out how to get the
-    /// initialization working properly with `lazy_static` so this hack is the best I got for now.
-    heap_initialized: bool,
+    ///
+    /// If the heap hasn't been initialized yet this value will be `None`.
+    next: Option<usize>,
 }
 
 impl InnerAlloc {
     pub const fn new() -> Self {
-        Self {
-            next: 0,
-            heap_initialized: false,
-        }
+        Self { next: None }
     }
 
     unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
         // TODO: Figure out how to properly initalize the heap
-        if !self.heap_initialized {
-            let ptr = core::arch::wasm32::memory_grow(0, 1);
-            if ptr == usize::max_value() {
-                // todo!("OOM")
+        let alloc_start = if let Some(start) = self.next {
+            start;
+        } else {
+            let prev_page = core::arch::wasm32::memory_grow(0, 1);
+            if prev_page == usize::max_value() {
+                panic!("OOM")
             }
-            self.heap_initialized = true;
-        }
+            prev_page.checked_mul(PAGE_SIZE).expect("OOM")
+        };
 
         let aligned_layout = layout.pad_to_align();
-
-        let alloc_start = self.next;
         let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
             Some(end) => end,
             None => return core::ptr::null_mut(),
@@ -81,7 +77,7 @@ impl InnerAlloc {
             return core::ptr::null_mut()
         }
 
-        self.next = alloc_end;
+        self.next = Some(alloc_end);
         alloc_start as *mut u8
     }
 }
