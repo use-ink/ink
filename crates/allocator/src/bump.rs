@@ -29,60 +29,47 @@ use core::alloc::{
 /// A page in Wasm is 64KiB
 const PAGE_SIZE: usize = 64 * 1024;
 
-lazy_static::lazy_static! {
-    pub static ref BUMP_ALLOC: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
-}
+static mut INNER: InnerAlloc = InnerAlloc::new();
 
-pub struct Locked<A> {
-    inner: spin::Mutex<A>,
-}
+pub struct BumpAllocator;
 
-impl<A> Locked<A> {
-    pub const fn new(inner: A) -> Self {
-        Locked {
-            inner: spin::Mutex::new(inner),
-        }
+unsafe impl GlobalAlloc for BumpAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        INNER.alloc(layout)
     }
 
-    pub fn lock(&self) -> spin::MutexGuard<A> {
-        self.inner.lock()
-    }
+    unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
 }
 
-pub struct BumpAllocator {
-    /// Points to the start of the next available allocation
+struct InnerAlloc {
+    /// Points to the start of the next available allocation.
     next: usize,
     /// We need some way to initialize our heap. However, I can't figure out how to get the
     /// initialization working properly with `lazy_static` so this hack is the best I got for now.
     heap_initialized: bool,
 }
 
-impl BumpAllocator {
+impl InnerAlloc {
     pub const fn new() -> Self {
         Self {
             next: 0,
             heap_initialized: false,
         }
     }
-}
 
-unsafe impl GlobalAlloc for Locked<BumpAllocator> {
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // This should be okay performance wise since we're in a single threaded context anyways
-        let mut bump = self.lock();
-
+    unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
         // TODO: Figure out how to properly initalize the heap
-        if !bump.heap_initialized {
+        if !self.heap_initialized {
             let ptr = core::arch::wasm32::memory_grow(0, 1);
             if ptr == usize::max_value() {
-                // todo!("TODO: OOM")
+                // todo!("OOM")
             }
-            bump.heap_initialized = true;
+            self.heap_initialized = true;
         }
 
         let aligned_layout = layout.pad_to_align();
 
-        let alloc_start = bump.next;
+        let alloc_start = self.next;
         let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
             Some(end) => end,
             None => return core::ptr::null_mut(),
@@ -94,11 +81,7 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
             return core::ptr::null_mut()
         }
 
-        bump.next = alloc_end;
+        self.next = alloc_end;
         alloc_start as *mut u8
-    }
-
-    unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
-        // todo!();
     }
 }

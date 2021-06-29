@@ -32,9 +32,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[cfg(feature = "bump-allocator")]
 #[cfg(not(feature = "wee-allocator"))]
 #[global_allocator]
-static ALLOC: bump::Locked<bump::BumpAllocator> =
-    bump::Locked::new(bump::BumpAllocator::new());
-// static ALLOC: bump::BUMP_ALLOC = bump::BUMP_ALLOC;
+static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 
 #[cfg(not(feature = "std"))]
 mod handlers;
