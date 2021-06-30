@@ -68,22 +68,26 @@ impl InnerAlloc {
         } else {
             let prev_page = core::arch::wasm32::memory_grow(0, 1);
             if prev_page == usize::max_value() {
-                panic!("OOM")
+                return core::ptr::null_mut()
             }
 
-            let start = prev_page.checked_mul(PAGE_SIZE).expect("OOM");
+            let start = prev_page
+                .checked_mul(PAGE_SIZE)
+                .unwrap_or_else(|| return core::ptr::null_mut());
+
             self.upper_limit = Some(start + PAGE_SIZE);
             start
         };
 
         let aligned_layout = layout.pad_to_align();
-        let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
-            Some(end) => end,
-            None => return core::ptr::null_mut(),
-        };
+        let alloc_end = alloc_start
+            .checked_add(aligned_layout.size())
+            .unwrap_or_else(|| return core::ptr::null_mut());
 
-        let upper_limit = self.upper_limit
-            .expect("Since we're here the heap must've been initialized, therefore this must exist.");
+        let upper_limit = self
+            .upper_limit
+            .unwrap_or_else(|| return core::ptr::null_mut());
+
         if alloc_end > upper_limit {
             return core::ptr::null_mut()
         }
