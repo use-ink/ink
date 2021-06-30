@@ -34,10 +34,12 @@ static mut INNER: InnerAlloc = InnerAlloc::new();
 pub struct BumpAllocator;
 
 unsafe impl GlobalAlloc for BumpAllocator {
+    #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         INNER.alloc(layout)
     }
 
+    #[inline]
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
 }
 
@@ -54,7 +56,7 @@ struct InnerAlloc {
 }
 
 impl InnerAlloc {
-    pub const fn new() -> Self {
+    const fn new() -> Self {
         Self {
             next: None,
             upper_limit: None,
