@@ -61,7 +61,7 @@ impl InnerAlloc {
         }
     }
 
-    unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
+    fn alloc(&mut self, layout: Layout) -> *mut u8 {
         // TODO: Figure out how to properly initalize the heap
         let alloc_start = if let Some(start) = self.next {
             start
