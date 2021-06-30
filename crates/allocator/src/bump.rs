@@ -75,7 +75,10 @@ impl InnerAlloc {
                 .checked_mul(PAGE_SIZE)
                 .unwrap_or_else(|| return core::ptr::null_mut());
 
-            self.upper_limit = Some(start + PAGE_SIZE);
+            self.upper_limit = start
+                .checked_add(PAGE_SIZE)
+                .map_or_else(|| return core::ptr::null_mut());
+
             start
         };
 
