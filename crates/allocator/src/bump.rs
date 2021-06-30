@@ -67,7 +67,7 @@ impl InnerAlloc {
             start
         } else {
             let prev_page = core::arch::wasm32::memory_grow(0, 1);
-            if prev_page == usize::max_value() {
+            if prev_page == usize::MAX() {
                 return core::ptr::null_mut()
             }
 
