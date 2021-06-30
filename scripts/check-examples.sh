@@ -71,26 +71,26 @@ metadata() {
 
 for example in $(ls -d examples/*/ | grep -v delegator); do
     build $example
-    run_tests $example
-    metadata $example
+    # run_tests $example
+    # metadata $example
 done
 
 # the delegator is a special case, we need to build it's sub-contracts first
 for example in $(ls -d examples/delegator/{accumulator,adder,subber}/); do
-    build $example
-    run_tests $example
+    # build $example
+    # run_tests $example
 done
 build examples/delegator/
-run_tests examples/delegator/
-metadata examples/delegator/
+# run_tests examples/delegator/
+# metadata examples/delegator/
 
 banner="---------------"
 echo "Example Results"
 echo "$banner"
 for entry in ${!results_wasm[@]}; do
     echo "- $entry (wasm):     ${results_wasm[$entry]}"
-    echo "- $entry (test):     ${results_test[$entry]}"
-    echo "- $entry (metadata): ${results_metadata[$entry]}"
+    # echo "- $entry (test):     ${results_test[$entry]}"
+    # echo "- $entry (metadata): ${results_metadata[$entry]}"
 done
 echo ""
 if [ $all_checks_passed -eq 0 ]
