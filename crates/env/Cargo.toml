@@ -17,8 +17,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 [dependencies]
 ink_engine = { version = "3.0.0-rc3", path = "../engine/", default-features = false, optional = true }
 ink_metadata = { version = "3.0.0-rc3", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-# ink_allocator = { version = "3.0.0-rc3", path = "../allocator/", default-features = false, features = ["wee-allocator"] }
-ink_allocator = { version = "3.0.0-rc3", path = "../allocator/", default-features = false, features = ["bump-allocator"] }
+ink_allocator = { version = "3.0.0-rc3", path = "../allocator/", default-features = false }
 ink_primitives = { version = "3.0.0-rc3", path = "../primitives/", default-features = false }
 ink_prelude = { version = "3.0.0-rc3", path = "../prelude/", default-features = false }
 
@@ -66,3 +65,4 @@ std = [
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
 ink-experimental-engine = ["ink_engine"]
+wee-alloc = ["ink_allocator/wee-alloc"]

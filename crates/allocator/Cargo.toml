@@ -20,5 +20,4 @@ wee_alloc = { version = "0.4", default-features = false, optional = true }
 [features]
 default = ["std"]
 std = []
-bump-allocator = []
-wee-allocator = ["wee_alloc"]
+wee-alloc = ["wee_alloc"]
