@@ -302,7 +302,7 @@ where
             // SAFETY: the call is made safe by the following invariants:
             // - `mid >= 0`
             // - `mid < size`: `mid` is limited by `[left; right)` bound.
-            let cmp = f(self.elems.get(mid).unwrap());
+            let cmp = f(&self[mid]);
 
             // The reason why we use if/else control flow rather than match
             // is because match reorders comparison operations, which is perf sensitive.
