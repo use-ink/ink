@@ -14,7 +14,7 @@
 
 //! A simple bump allocator.
 //!
-//! It's goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
+//! Its goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
 //! allocator which is currently being used by ink! smart contracts.
 //!
 //! The heap which will be used by this allocator is a single page of memory, which in Wasm is
@@ -31,6 +31,7 @@ const PAGE_SIZE: usize = 64 * 1024;
 
 static mut INNER: InnerAlloc = InnerAlloc::new();
 
+/// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
 
 impl BumpAllocator {
@@ -72,26 +73,33 @@ impl InnerAlloc {
         }
     }
 
+    /// Initialize the heap which backs the bump allocator.
+    ///
+    /// Our heap is a single page of Wasm memory (64KiB) and will not grow beyond that.
+    ///
+    /// Note that this function must be called before any allocations can take place, otherwise any
+    /// attempts to perform an allocation will fail.
     fn init(&mut self) {
         let prev_page = core::arch::wasm32::memory_grow(0, 1);
         if prev_page == usize::MAX {
-            return
+            todo!()
         }
 
         let start = match prev_page.checked_mul(PAGE_SIZE) {
             Some(s) => s,
-            None => return,
+            None => todo!(),
         };
 
         self.upper_limit = match start.checked_add(PAGE_SIZE) {
             Some(u) => u,
-            None => return,
+            None => todo!(),
         };
 
         self.next = start;
     }
 
-    /// Note: This function assumes that the allocator has already been initialized properly.
+    /// Note: This function assumes that the allocator has already been initialized properly (see
+    /// [Self::init()].
     fn alloc(&mut self, layout: Layout) -> *mut u8 {
         let alloc_start = self.next;
 
