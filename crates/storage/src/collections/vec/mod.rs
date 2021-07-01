@@ -200,6 +200,169 @@ where
         *self.len += 1;
         self.elems.put(last_index, Some(value));
     }
+
+    /// Binary searches this sorted slice for a given element.
+    ///
+    /// If the value is found then [`Result::Ok`] is returned, containing the
+    /// index of the matching element. If there are multiple matches, then any
+    /// one of the matches could be returned. If the value is not found then
+    /// [`Result::Err`] is returned, containing the index where a matching
+    /// element could be inserted while maintaining sorted order.
+    ///
+    /// See also [`binary_search_by`], [`binary_search_by_key`], and [`partition_point`].
+    ///
+    /// [`binary_search_by`]: slice::binary_search_by
+    /// [`binary_search_by_key`]: slice::binary_search_by_key
+    /// [`partition_point`]: slice::partition_point
+    ///
+    /// # Examples
+    ///
+    /// Looks up a series of four elements. The first is found, with a
+    /// uniquely determined position; the second and third are not
+    /// found; the fourth could match any position in `[1, 4]`.
+    ///
+    /// ```
+    /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    ///
+    /// assert_eq!(s.binary_search(&13),  Ok(9));
+    /// assert_eq!(s.binary_search(&4),   Err(7));
+    /// assert_eq!(s.binary_search(&100), Err(13));
+    /// let r = s.binary_search(&1);
+    /// assert!(match r { Ok(1..=4) => true, _ => false, });
+    /// ```
+    ///
+    /// If you want to insert an item to a sorted vector, while maintaining
+    /// sort order:
+    ///
+    /// ```
+    /// let mut s = vec![0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    /// let num = 42;
+    /// let idx = s.binary_search(&num).unwrap_or_else(|x| x);
+    /// s.insert(idx, num);
+    /// assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);
+    /// ```
+    pub fn binary_search(&self, x: &T) -> Result<u32, u32>
+    where
+        T: Ord,
+    {
+        self.binary_search_by(|p| p.cmp(x))
+    }
+
+    /// Binary searches this sorted slice with a comparator function.
+    ///
+    /// The comparator function should implement an order consistent
+    /// with the sort order of the underlying slice, returning an
+    /// order code that indicates whether its argument is `Less`,
+    /// `Equal` or `Greater` the desired target.
+    ///
+    /// If the value is found then [`Result::Ok`] is returned, containing the
+    /// index of the matching element. If there are multiple matches, then any
+    /// one of the matches could be returned. If the value is not found then
+    /// [`Result::Err`] is returned, containing the index where a matching
+    /// element could be inserted while maintaining sorted order.
+    ///
+    /// See also [`binary_search`], [`binary_search_by_key`], and [`partition_point`].
+    ///
+    /// [`binary_search`]: slice::binary_search
+    /// [`binary_search_by_key`]: slice::binary_search_by_key
+    /// [`partition_point`]: slice::partition_point
+    ///
+    /// # Examples
+    ///
+    /// Looks up a series of four elements. The first is found, with a
+    /// uniquely determined position; the second and third are not
+    /// found; the fourth could match any position in `[1, 4]`.
+    ///
+    /// ```
+    /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    ///
+    /// let seek = 13;
+    /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Ok(9));
+    /// let seek = 4;
+    /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Err(7));
+    /// let seek = 100;
+    /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Err(13));
+    /// let seek = 1;
+    /// let r = s.binary_search_by(|probe| probe.cmp(&seek));
+    /// assert!(match r { Ok(1..=4) => true, _ => false, });
+    /// ```
+    #[inline]
+    pub fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<u32, u32>
+    where
+        F: FnMut(&'a T) -> core::cmp::Ordering,
+    {
+        use core::cmp::Ordering::*;
+
+        let mut size = self.len();
+        let mut left = 0;
+        let mut right = size;
+        while left < right {
+            let mid = left + size / 2;
+
+            // SAFETY: the call is made safe by the following invariants:
+            // - `mid >= 0`
+            // - `mid < size`: `mid` is limited by `[left; right)` bound.
+            let cmp = f(self.elems.get(mid).unwrap());
+
+            // The reason why we use if/else control flow rather than match
+            // is because match reorders comparison operations, which is perf sensitive.
+            // This is x86 asm for u8: https://rust.godbolt.org/z/8Y8Pra.
+            if cmp == Less {
+                left = mid + 1;
+            } else if cmp == Greater {
+                right = mid;
+            } else {
+                return Ok(mid)
+            }
+
+            size = right - left;
+        }
+        Err(left)
+    }
+
+    /// Binary searches this sorted slice with a key extraction function.
+    ///
+    /// Assumes that the slice is sorted by the key, for instance with
+    /// [`sort_by_key`] using the same key extraction function.
+    ///
+    /// If the value is found then [`Result::Ok`] is returned, containing the
+    /// index of the matching element. If there are multiple matches, then any
+    /// one of the matches could be returned. If the value is not found then
+    /// [`Result::Err`] is returned, containing the index where a matching
+    /// element could be inserted while maintaining sorted order.
+    ///
+    /// See also [`binary_search`], [`binary_search_by`], and [`partition_point`].
+    ///
+    /// [`sort_by_key`]: slice::sort_by_key
+    /// [`binary_search`]: slice::binary_search
+    /// [`binary_search_by`]: slice::binary_search_by
+    /// [`partition_point`]: slice::partition_point
+    ///
+    /// # Examples
+    ///
+    /// Looks up a series of four elements in a slice of pairs sorted by
+    /// their second elements. The first is found, with a uniquely
+    /// determined position; the second and third are not found; the
+    /// fourth could match any position in `[1, 4]`.
+    ///
+    /// ```
+    /// let s = [(0, 0), (2, 1), (4, 1), (5, 1), (3, 1),
+    ///          (1, 2), (2, 3), (4, 5), (5, 8), (3, 13),
+    ///          (1, 21), (2, 34), (4, 55)];
+    ///
+    /// assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b),  Ok(9));
+    /// assert_eq!(s.binary_search_by_key(&4, |&(a, b)| b),   Err(7));
+    /// assert_eq!(s.binary_search_by_key(&100, |&(a, b)| b), Err(13));
+    /// let r = s.binary_search_by_key(&1, |&(a, b)| b);
+    /// assert!(match r { Ok(1..=4) => true, _ => false, });
+    /// ```
+    pub fn binary_search_by_key<'a, B, F>(&'a self, b: &B, mut f: F) -> Result<u32, u32>
+    where
+        F: FnMut(&'a T) -> B,
+        B: Ord,
+    {
+        self.binary_search_by(|k| f(k).cmp(b))
+    }
 }
 
 impl<T> Vec<T>

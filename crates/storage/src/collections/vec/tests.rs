@@ -428,6 +428,19 @@ fn clear_works_on_empty_vec() {
 }
 
 #[test]
+fn binary_search_works() {
+    let vec = vec_from_slice(&[1, 2, 3, 4]);
+    assert_eq!(vec.binary_search(&2), Ok(1));
+    assert_eq!(vec.binary_search(&5), Err(4));
+}
+
+#[test]
+fn binary_search_works_on_empty_vec() {
+    let vec = vec_from_slice(&[]);
+    assert_eq!(vec.binary_search(&2), Err(0));
+}
+
+#[test]
 #[should_panic(expected = "encountered empty storage cell")]
 #[cfg(not(feature = "ink-experimental-engine"))]
 fn storage_is_cleared_completely_after_pull_lazy() {
