@@ -432,6 +432,7 @@ fn binary_search_works() {
     let vec = vec_from_slice(&[1, 2, 3, 4]);
     assert_eq!(vec.binary_search(&2), Ok(1));
     assert_eq!(vec.binary_search(&5), Err(4));
+    assert_eq!(vec.binary_search(&0), Err(0));
 }
 
 #[test]
