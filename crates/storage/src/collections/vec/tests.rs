@@ -1,16 +1,3 @@
-use core::cmp::Ordering;
-
-use ink_primitives::Key;
-
-use crate::{
-    collections::vec::IndexOutOfBounds,
-    traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
-    Lazy,
-};
-
 // Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +12,16 @@ use crate::{
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use super::Vec as StorageVec;
+use crate::{
+    collections::vec::IndexOutOfBounds,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+    Lazy,
+};
+use core::cmp::Ordering;
+use ink_primitives::Key;
 
 #[test]
 fn new_vec_works() {
