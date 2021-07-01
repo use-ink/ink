@@ -33,6 +33,19 @@ static mut INNER: InnerAlloc = InnerAlloc::new();
 
 pub struct BumpAllocator;
 
+impl BumpAllocator {
+    /// Initialize the backing heap of the bump allocator.
+    ///
+    /// This function must only be called **once**, and it **must** be called before any
+    /// allocations are made.
+    #[inline]
+    pub fn init(&self) {
+        // SAFETY: We are in a single threaded context, so we don't have to worry about this being
+        // concurrently mutated by multiple threads.
+        unsafe { INNER.init() }
+    }
+}
+
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
@@ -45,46 +58,42 @@ unsafe impl GlobalAlloc for BumpAllocator {
 
 struct InnerAlloc {
     /// Points to the start of the next available allocation.
-    ///
-    /// If the heap hasn't been initialized yet this value will be `None`.
-    next: Option<usize>,
+    next: usize,
 
     /// The address of the upper limit of our heap.
-    ///
-    /// If the heap hasn't been initialized yet this value will be `None`.
-    upper_limit: Option<usize>,
+    upper_limit: usize,
 }
 
 impl InnerAlloc {
     const fn new() -> Self {
         Self {
-            next: None,
-            upper_limit: None,
+            next: 0,
+            upper_limit: 0,
         }
     }
 
-    fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        // TODO: Figure out how to properly initalize the heap
-        let alloc_start = if let Some(start) = self.next {
-            start
-        } else {
-            let prev_page = core::arch::wasm32::memory_grow(0, 1);
-            if prev_page == usize::MAX {
-                return core::ptr::null_mut()
-            }
+    fn init(&mut self) {
+        let prev_page = core::arch::wasm32::memory_grow(0, 1);
+        if prev_page == usize::MAX {
+            return
+        }
 
-            let start = match prev_page.checked_mul(PAGE_SIZE) {
-                Some(s) => s,
-                None => return core::ptr::null_mut(),
-            };
-
-            self.upper_limit = match start.checked_add(PAGE_SIZE) {
-                Some(u) => Some(u),
-                None => return core::ptr::null_mut(),
-            };
-
-            start
+        let start = match prev_page.checked_mul(PAGE_SIZE) {
+            Some(s) => s,
+            None => return,
         };
+
+        self.upper_limit = match start.checked_add(PAGE_SIZE) {
+            Some(u) => u,
+            None => return,
+        };
+
+        self.next = start;
+    }
+
+    /// Note: This function assumes that the allocator has already been initialized properly.
+    fn alloc(&mut self, layout: Layout) -> *mut u8 {
+        let alloc_start = self.next;
 
         let aligned_layout = layout.pad_to_align();
         let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
@@ -92,16 +101,11 @@ impl InnerAlloc {
             None => return core::ptr::null_mut(),
         };
 
-        let upper_limit = match self.upper_limit {
-            Some(u) => u,
-            None => return core::ptr::null_mut(),
-        };
-
-        if alloc_end > upper_limit {
+        if alloc_end > self.upper_limit {
             return core::ptr::null_mut()
         }
 
-        self.next = Some(alloc_end);
+        self.next = alloc_end;
         alloc_start as *mut u8
     }
 }
