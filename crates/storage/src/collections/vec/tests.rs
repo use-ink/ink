@@ -4,11 +4,11 @@ use ink_primitives::Key;
 
 use crate::{
     collections::vec::IndexOutOfBounds,
-    Lazy,
     traits::{
         KeyPtr,
         SpreadLayout,
     },
+    Lazy,
 };
 
 // Copyright 2018-2021 Parity Technologies (UK) Ltd.
