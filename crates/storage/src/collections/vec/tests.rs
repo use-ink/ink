@@ -1,3 +1,16 @@
+use core::cmp::Ordering;
+
+use ink_primitives::Key;
+
+use crate::{
+    collections::vec::IndexOutOfBounds,
+    Lazy,
+    traits::{
+        KeyPtr,
+        SpreadLayout,
+    },
+};
+
 // Copyright 2018-2021 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,17 +24,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 use super::Vec as StorageVec;
-use crate::{
-    collections::vec::IndexOutOfBounds,
-    traits::{
-        KeyPtr,
-        SpreadLayout,
-    },
-    Lazy,
-};
-use ink_primitives::Key;
 
 #[test]
 fn new_vec_works() {
@@ -428,17 +431,77 @@ fn clear_works_on_empty_vec() {
 }
 
 #[test]
-fn binary_search_works() {
-    let vec = vec_from_slice(&[1, 2, 3, 4]);
-    assert_eq!(vec.binary_search(&2), Ok(1));
-    assert_eq!(vec.binary_search(&5), Err(4));
-    assert_eq!(vec.binary_search(&0), Err(0));
+fn test_binary_search() {
+    let b: [i32; 0] = [];
+    assert_eq!(b.binary_search(&5), Err(0));
+
+    let b = [4];
+    assert_eq!(b.binary_search(&3), Err(0));
+    assert_eq!(b.binary_search(&4), Ok(0));
+    assert_eq!(b.binary_search(&5), Err(1));
+
+    let b = [1, 2, 4, 6, 8, 9];
+    assert_eq!(b.binary_search(&5), Err(3));
+    assert_eq!(b.binary_search(&6), Ok(3));
+    assert_eq!(b.binary_search(&7), Err(4));
+    assert_eq!(b.binary_search(&8), Ok(4));
+
+    let b = [1, 2, 4, 5, 6, 8];
+    assert_eq!(b.binary_search(&9), Err(6));
+
+    let b = [1, 2, 4, 6, 7, 8, 9];
+    assert_eq!(b.binary_search(&6), Ok(3));
+    assert_eq!(b.binary_search(&5), Err(3));
+    assert_eq!(b.binary_search(&8), Ok(5));
+
+    let b = [1, 2, 4, 5, 6, 8, 9];
+    assert_eq!(b.binary_search(&7), Err(5));
+    assert_eq!(b.binary_search(&0), Err(0));
+
+    let b = [1, 3, 3, 3, 7];
+    assert_eq!(b.binary_search(&0), Err(0));
+    assert_eq!(b.binary_search(&1), Ok(0));
+    assert_eq!(b.binary_search(&2), Err(1));
+    assert!(match b.binary_search(&3) {
+        Ok(1..=3) => true,
+        _ => false,
+    });
+    assert!(match b.binary_search(&3) {
+        Ok(1..=3) => true,
+        _ => false,
+    });
+    assert_eq!(b.binary_search(&4), Err(4));
+    assert_eq!(b.binary_search(&5), Err(4));
+    assert_eq!(b.binary_search(&6), Err(4));
+    assert_eq!(b.binary_search(&7), Ok(4));
+    assert_eq!(b.binary_search(&8), Err(5));
+
+    let b = [(); usize::MAX];
+    assert_eq!(b.binary_search(&()), Ok(usize::MAX / 2));
 }
 
 #[test]
-fn binary_search_works_on_empty_vec() {
-    let vec = vec_from_slice(&[]);
-    assert_eq!(vec.binary_search(&2), Err(0));
+fn test_binary_search_by_overflow() {
+    let b = [(); usize::MAX];
+    assert_eq!(b.binary_search_by(|_| Ordering::Equal), Ok(usize::MAX / 2));
+    assert_eq!(b.binary_search_by(|_| Ordering::Greater), Err(0));
+    assert_eq!(b.binary_search_by(|_| Ordering::Less), Err(usize::MAX));
+}
+
+#[test]
+// Test implementation specific behavior when finding equivalent elements.
+// It is ok to break this test but when you do a crater run is highly advisable.
+fn test_binary_search_implementation_details() {
+    let b = [1, 1, 2, 2, 3, 3, 3];
+    assert_eq!(b.binary_search(&1), Ok(1));
+    assert_eq!(b.binary_search(&2), Ok(3));
+    assert_eq!(b.binary_search(&3), Ok(5));
+    let b = [1, 1, 1, 1, 1, 3, 3, 3, 3];
+    assert_eq!(b.binary_search(&1), Ok(4));
+    assert_eq!(b.binary_search(&3), Ok(7));
+    let b = [1, 1, 1, 1, 3, 3, 3, 3, 3];
+    assert_eq!(b.binary_search(&1), Ok(2));
+    assert_eq!(b.binary_search(&3), Ok(4));
 }
 
 #[test]
