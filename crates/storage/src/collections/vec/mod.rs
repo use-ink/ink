@@ -201,7 +201,7 @@ where
         self.elems.put(last_index, Some(value));
     }
 
-    /// Binary searches this sorted slice for a given element.
+    /// Binary searches this sorted vector for a given element.
     ///
     /// If the value is found then [`Result::Ok`] is returned, containing the
     /// index of the matching element. If there are multiple matches, then any
@@ -209,11 +209,10 @@ where
     /// [`Result::Err`] is returned, containing the index where a matching
     /// element could be inserted while maintaining sorted order.
     ///
-    /// See also [`binary_search_by`], [`binary_search_by_key`], and [`partition_point`].
+    /// See also [`binary_search_by`], [`binary_search_by_key`].
     ///
-    /// [`binary_search_by`]: slice::binary_search_by
-    /// [`binary_search_by_key`]: slice::binary_search_by_key
-    /// [`partition_point`]: slice::partition_point
+    /// [`binary_search_by`]: Vec::binary_search_by
+    /// [`binary_search_by_key`]: Vec::binary_search_by_key
     ///
     /// # Examples
     ///
@@ -222,7 +221,7 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    /// let s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
     ///
     /// assert_eq!(s.binary_search(&13),  Ok(9));
     /// assert_eq!(s.binary_search(&4),   Err(7));
@@ -235,12 +234,13 @@ where
     /// sort order:
     ///
     /// ```
-    /// let mut s = vec![0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    /// let mut s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
     /// let num = 42;
     /// let idx = s.binary_search(&num).unwrap_or_else(|x| x);
     /// s.insert(idx, num);
     /// assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);
     /// ```
+    #[inline]
     pub fn binary_search(&self, x: &T) -> Result<u32, u32>
     where
         T: Ord,
@@ -248,10 +248,10 @@ where
         self.binary_search_by(|p| p.cmp(x))
     }
 
-    /// Binary searches this sorted slice with a comparator function.
+    /// Binary searches this sorted vector with a comparator function.
     ///
     /// The comparator function should implement an order consistent
-    /// with the sort order of the underlying slice, returning an
+    /// with the sort order of the underlying vector, returning an
     /// order code that indicates whether its argument is `Less`,
     /// `Equal` or `Greater` the desired target.
     ///
@@ -261,11 +261,10 @@ where
     /// [`Result::Err`] is returned, containing the index where a matching
     /// element could be inserted while maintaining sorted order.
     ///
-    /// See also [`binary_search`], [`binary_search_by_key`], and [`partition_point`].
+    /// See also [`binary_search`], [`binary_search_by_key`].
     ///
-    /// [`binary_search`]: slice::binary_search
-    /// [`binary_search_by_key`]: slice::binary_search_by_key
-    /// [`partition_point`]: slice::partition_point
+    /// [`binary_search`]: Vec::binary_search
+    /// [`binary_search_by_key`]: Vec::binary_search_by_key
     ///
     /// # Examples
     ///
@@ -274,7 +273,7 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+    /// let s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
     ///
     /// let seek = 13;
     /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Ok(9));
@@ -299,7 +298,7 @@ where
         while left < right {
             let mid = left + size / 2;
 
-            // SAFETY: the call is made safe by the following invariants:
+            // the call is made safe by the following invariants:
             // - `mid >= 0`
             // - `mid < size`: `mid` is limited by `[left; right)` bound.
             let cmp = f(&self[mid]);
@@ -320,10 +319,7 @@ where
         Err(left)
     }
 
-    /// Binary searches this sorted slice with a key extraction function.
-    ///
-    /// Assumes that the slice is sorted by the key, for instance with
-    /// [`sort_by_key`] using the same key extraction function.
+    /// Binary searches this sorted vector with a key extraction function.
     ///
     /// If the value is found then [`Result::Ok`] is returned, containing the
     /// index of the matching element. If there are multiple matches, then any
@@ -331,24 +327,22 @@ where
     /// [`Result::Err`] is returned, containing the index where a matching
     /// element could be inserted while maintaining sorted order.
     ///
-    /// See also [`binary_search`], [`binary_search_by`], and [`partition_point`].
+    /// See also [`binary_search`], [`binary_search_by`].
     ///
-    /// [`sort_by_key`]: slice::sort_by_key
-    /// [`binary_search`]: slice::binary_search
-    /// [`binary_search_by`]: slice::binary_search_by
-    /// [`partition_point`]: slice::partition_point
+    /// [`binary_search`]: Vec::binary_search
+    /// [`binary_search_by`]: Vec::binary_search_by
     ///
     /// # Examples
     ///
-    /// Looks up a series of four elements in a slice of pairs sorted by
+    /// Looks up a series of four elements in a vector of pairs sorted by
     /// their second elements. The first is found, with a uniquely
     /// determined position; the second and third are not found; the
     /// fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = [(0, 0), (2, 1), (4, 1), (5, 1), (3, 1),
+    /// let s = Vec::from([(0, 0), (2, 1), (4, 1), (5, 1), (3, 1),
     ///          (1, 2), (2, 3), (4, 5), (5, 8), (3, 13),
-    ///          (1, 21), (2, 34), (4, 55)];
+    ///          (1, 21), (2, 34), (4, 55)]);
     ///
     /// assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b),  Ok(9));
     /// assert_eq!(s.binary_search_by_key(&4, |&(a, b)| b),   Err(7));
@@ -356,6 +350,7 @@ where
     /// let r = s.binary_search_by_key(&1, |&(a, b)| b);
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
     /// ```
+    #[inline]
     pub fn binary_search_by_key<'a, B, F>(&'a self, b: &B, mut f: F) -> Result<u32, u32>
     where
         F: FnMut(&'a T) -> B,
