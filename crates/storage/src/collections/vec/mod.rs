@@ -306,7 +306,6 @@ where
 
             // The reason why we use if/else control flow rather than match
             // is because match reorders comparison operations, which is perf sensitive.
-            // This is x86 asm for u8: https://rust.godbolt.org/z/8Y8Pra.
             if cmp == Less {
                 left = mid + 1;
             } else if cmp == Greater {
