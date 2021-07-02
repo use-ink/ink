@@ -309,28 +309,38 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
-    /// #
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Prints a debug message with the called contract's account id.
-    /// #[ink(message)]
-    /// pub fn call_me(&self) {
-    ///     let account_id = self.env().account_id();
-    ///     ink_env::debug_println!("contract's account id is {:?}", account_id);
+    /// use ink_lang as ink;
+    ///
+    /// #[ink::contract]
+    /// pub mod only_owner {
+    ///     #[ink(storage)]
+    ///     pub struct OnlyOwner {
+    ///         owner: AccountId,
+    ///         value: u32,
+    ///     }
+    ///
+    ///     impl OnlyOwner {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {
+    ///                 owner: Self::env().caller(),
+    ///                 value: 0,
+    ///             }
+    ///         }
+    ///
+    ///         /// Allows incrementing the contract's `value` only
+    ///         /// for the owner (i.e. the account which instantiated
+    ///         /// this contract.
+    ///         ///
+    ///         /// The contract panics if the caller is not the owner.
+    ///         #[ink(message)]
+    ///         pub fn increment(&mut self) {
+    ///             let caller = self.env().caller();
+    ///             assert_eq!(self.owner == caller);
+    ///             value = value + 1;
+    ///         }
+    ///     }
     /// }
-    /// #
-    /// #     }
-    /// # }
     /// ```
     ///
     /// # Note
