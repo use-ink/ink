@@ -309,8 +309,8 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::gas_left)
+    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
+        self.get_property::<u64>(ext::gas_left)
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
