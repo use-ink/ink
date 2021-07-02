@@ -442,6 +442,7 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -747,6 +748,7 @@
     <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> () {}
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw">super</span><span class="ident">::ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 }
+
 <span class="doccomment">/// Types that can be used in [`CallBuilder::returns`] to signal return type.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IndicateReturnType</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="self">self</span><span class="ident">::seal::Sealed</span> {}
 <span class="kw">impl</span> <span class="ident">IndicateReturnType</span> <span class="kw">for</span> () {}
