@@ -815,7 +815,8 @@ where
     /// /// Simple resurrection of a contract.
     /// #[ink(message)]
     /// pub fn resurrect(&self, contract: AccountId) {
-    ///     self.env().restore_contract(contract,
+    ///     self.env().restore_contract(
+    ///         contract,
     ///         Hash::from([0x42; 32]),
     ///         1000,
     ///         &[]
@@ -932,7 +933,7 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn random_bool(&self) -> bool {
-    ///     let additional_randomness = &[];
+    ///     let additional_randomness = b"seed";
     ///     let (hash, _block_number) = self.env().random(additional_randomness);
     ///     hash.as_ref()[0] != 0
     /// }
