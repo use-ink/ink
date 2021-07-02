@@ -336,8 +336,8 @@ where
     ///         #[ink(message)]
     ///         pub fn increment(&mut self) {
     ///             let caller = self.env().caller();
-    ///             assert_eq!(self.owner == caller);
-    ///             value = value + 1;
+    ///             assert!(self.owner == caller);
+    ///             self.value = self.value + 1;
     ///         }
     ///     }
     /// }
