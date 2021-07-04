@@ -203,7 +203,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`gas_left`][`crate::gas_left`]
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn gas_left<T: Environment>(&mut self) -> Result<u64>;
 
     /// Returns the timestamp of the current block.
     ///
