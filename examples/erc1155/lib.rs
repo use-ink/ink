@@ -46,7 +46,7 @@ type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
 pub enum Error {
     /// This token ID has not yet been created by the contract.
     UnexistentToken,
-    /// The caller tried to sending tokens to the zero-address (0x00).
+    /// The caller tried to sending tokens to the zero-address (`0x00`).
     ZeroAddressTransfer,
     /// The caller is not approved to transfer tokens on behalf of the account.
     NotApproved,
