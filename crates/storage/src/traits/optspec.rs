@@ -14,7 +14,7 @@
 
 //! Implement specialized routines for managing Option<T> storage entities.
 //!
-//! These are mere optimizations compared to the non specialized root functions.
+//! These are mere optimizations compared to the non-specialized root functions.
 //! The specializations make use of the storage entry state (occupied or vacant)
 //! in order to store the option's state thus using less storage in total.
 
@@ -45,7 +45,7 @@ where
         Some(value) => {
             // Handle the Option<T> as if it was a T.
             //
-            // Sadly this doesn't not work well with `Option<Option<T>>`.
+            // Sadly this does not not work well with `Option<Option<T>>`.
             // For this we'd need specialization in Rust or similar.
             super::push_spread_root(value, root_key)
         }
@@ -123,7 +123,7 @@ where
         Some(value) => {
             // Handle the Option<T> as if it was a T.
             //
-            // Sadly this doesn't not work well with `Option<Option<T>>`.
+            // Sadly this does not work well with `Option<Option<T>>`.
             // For this we'd need specialization in Rust or similar.
             super::push_packed_root(value, root_key)
         }

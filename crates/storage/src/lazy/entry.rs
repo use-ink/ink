@@ -177,17 +177,19 @@ impl<T> StorageEntry<T>
 where
     T: SpreadLayout,
 {
-    /// Pulls the entity from the underlying associated storage as spreaded representation.
+    /// Pulls the entity from the underlying associated storage as a `SpreadLayout`
+    /// storage layout representation.
     ///
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].
     pub fn pull_spread_root(root_key: &Key) -> Self {
-        Self::new(pull_spread_root_opt::<T>(&root_key), EntryState::Preserved)
+        Self::new(pull_spread_root_opt::<T>(root_key), EntryState::Preserved)
     }
 
-    /// Pushes the underlying associated storage as spreaded representation.
+    /// Pushes the underlying associated data to the contract storage using
+    /// the `SpreadLayout` storage layout.
     ///
     /// # Note
     ///
@@ -196,18 +198,18 @@ where
     pub fn push_spread_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
-            push_spread_root_opt::<T>(self.value().into(), &root_key);
+            push_spread_root_opt::<T>(self.value().into(), root_key);
         }
     }
 
-    /// Clears the underlying associated storage as spreaded representation.
+    /// Clears the underlying associated storage as `SpreadLayout` storage layout representation.
     ///
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
     /// packed storage entities such as [`LazyCell`][`crate::lazy::LazyCell`].
     pub fn clear_spread_root(&self, root_key: &Key) {
-        clear_spread_root_opt::<T, _>(&root_key, || self.value().into());
+        clear_spread_root_opt::<T, _>(root_key, || self.value().into());
     }
 }
 
@@ -236,7 +238,7 @@ where
     pub fn push_packed_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
         if old_state.is_mutated() {
-            push_packed_root_opt::<T>(self.value().into(), &root_key);
+            push_packed_root_opt::<T>(self.value().into(), root_key);
         }
     }
 
@@ -248,7 +250,7 @@ where
     /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
     /// or [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn clear_packed_root(&self, root_key: &Key) {
-        clear_packed_root::<Option<T>>(self.value(), &root_key);
+        clear_packed_root::<Option<T>>(self.value(), root_key);
     }
 }
 

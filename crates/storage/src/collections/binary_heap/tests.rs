@@ -238,6 +238,7 @@ fn spread_layout_clear_works() {
 
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
+#[cfg(not(feature = "ink-experimental-engine"))]
 fn drop_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let root_key = Key::from([0x42; 32]);
@@ -273,6 +274,40 @@ fn drop_works() {
 }
 
 #[test]
+#[should_panic(expected = "encountered empty storage cell")]
+#[cfg(feature = "ink-experimental-engine")]
+fn drop_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+
+        // if the setup panics it should not cause the test to pass
+        let setup_result = std::panic::catch_unwind(|| {
+            let heap = heap_from_slice(&[23, 25, 65]);
+            SpreadLayout::push_spread(&heap, &mut KeyPtr::from(root_key));
+
+            let _ = <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
+                root_key,
+            ));
+            // heap is dropped which should clear the cells
+        });
+
+        assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("Used cells must be returned");
+        assert_eq!(used_cells, 0);
+
+        let _ =
+            <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
 fn clear_works_on_filled_heap() {
     let mut heap = heap_from_slice(&[b'a', b'b', b'c', b'd']);
     heap.clear();
@@ -286,6 +321,7 @@ fn clear_works_on_empty_heap() {
     assert!(heap.is_empty());
 }
 
+#[cfg(not(feature = "ink-experimental-engine"))]
 fn check_complexity_read_writes<F>(
     heap_size: u32,
     heap_op: F,
@@ -299,9 +335,11 @@ where
         let heap1 = heap_of_size(heap_size);
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+
         let contract_account = ink_env::test::get_current_contract_account_id::<
             ink_env::DefaultEnvironment,
-        >()?;
+        >()
+        .expect("Cannot get contract id");
 
         let mut lazy_heap =
             <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
@@ -325,6 +363,65 @@ where
         let (reads, writes) = ink_env::test::get_contract_storage_rw::<
             ink_env::DefaultEnvironment,
         >(&contract_account)?;
+
+        let net_reads = reads - base_reads;
+        let net_writes = writes - base_writes;
+
+        assert_eq!(
+            net_reads, expected_net_reads,
+            "size {}: storage reads",
+            heap_size
+        );
+        assert_eq!(
+            net_writes, expected_net_writes,
+            "size {}: storage writes",
+            heap_size
+        );
+
+        Ok(())
+    })
+}
+
+#[cfg(feature = "ink-experimental-engine")]
+fn check_complexity_read_writes<F>(
+    heap_size: u32,
+    heap_op: F,
+    expected_net_reads: usize,
+    expected_net_writes: usize,
+) -> ink_env::Result<()>
+where
+    F: FnOnce(&mut BinaryHeap<u32>),
+{
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let heap1 = heap_of_size(heap_size);
+        let root_key = Key::from([0x42; 32]);
+        SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
+
+        let contract_account = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+
+        let mut lazy_heap =
+            <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+
+        let (base_reads, base_writes) = ink_env::test::get_contract_storage_rw::<
+            ink_env::DefaultEnvironment,
+        >(&contract_account);
+
+        // elements.len + vec.len
+        const CONST_WRITES: u32 = 2;
+        assert_eq!(
+            (base_reads as u32, base_writes as u32),
+            (0, CONST_WRITES + get_count_cells(heap_size))
+        );
+
+        heap_op(&mut lazy_heap);
+
+        // write back to storage so we can see how many writes required
+        SpreadLayout::push_spread(&lazy_heap, &mut KeyPtr::from(root_key));
+
+        let (reads, writes) = ink_env::test::get_contract_storage_rw::<
+            ink_env::DefaultEnvironment,
+        >(&contract_account);
+
         let net_reads = reads - base_reads;
         let net_writes = writes - base_writes;
 
@@ -349,7 +446,7 @@ fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
     const CONST_READS: usize = 5;
 
     // 1 elements.len + 1 cell which was pushed to
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const CONST_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
@@ -375,7 +472,7 @@ fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
     const EXPECTED_READS: usize = 6;
 
     // binary heap len + one cell
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const EXPECTED_WRITES: usize = 2;
 
     for n in &[2, 4, 8, 16, 32, 64] {

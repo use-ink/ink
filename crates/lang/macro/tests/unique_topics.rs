@@ -44,7 +44,7 @@ mod my_contract {
         /// Emits a `MyEvent`.
         #[ink(message)]
         pub fn emit_my_event(&self) {
-            Self::env().emit_event(MyEvent {
+            self.env().emit_event(MyEvent {
                 v0: None,
                 v1: 0,
                 v2: false,
@@ -60,6 +60,28 @@ mod my_contract {
         use ink_lang as ink;
 
         #[ink::test]
+        #[cfg(feature = "ink-experimental-engine")]
+        fn event_must_have_unique_topics() {
+            // given
+            let my_contract = MyContract::new();
+
+            // when
+            MyContract::emit_my_event(&my_contract);
+
+            // then
+            // all topics must be unique
+            let emitted_events =
+                ink_env::test::recorded_events().collect::<Vec<EmittedEvent>>();
+            let mut encoded_topics: std::vec::Vec<&[u8]> = emitted_events[0]
+                .topics
+                .iter()
+                .map(|topic| topic.as_slice())
+                .collect();
+            assert!(!has_duplicates(&mut encoded_topics));
+        }
+
+        #[ink::test]
+        #[cfg(not(feature = "ink-experimental-engine"))]
         fn event_must_have_unique_topics() {
             // given
             let my_contract = MyContract::new();

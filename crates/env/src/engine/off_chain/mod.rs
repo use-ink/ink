@@ -28,8 +28,8 @@ pub use self::{
     call_data::CallData,
     db::{
         AccountError,
+        DebugMessages,
         EmittedEvent,
-        PastPrints,
     },
     typed_encoded::TypedEncodedError,
 };
@@ -40,7 +40,7 @@ use self::{
         AccountsDb,
         Block,
         ChainSpec,
-        Console,
+        DebugBuffer,
         EmittedEventsRecorder,
         ExecContext,
     },
@@ -84,8 +84,8 @@ pub struct EnvInstance {
     chain_spec: ChainSpec,
     /// The blocks of the chain.
     blocks: Vec<Block>,
-    /// The console to print debug contents.
-    console: Console,
+    /// The debug buffer to collect debug messages and print them to stdout.
+    debug_buf: DebugBuffer,
     /// Handler for registered chain extensions.
     chain_extension_handler: ChainExtensionHandler,
     /// Emitted events recorder.
@@ -102,7 +102,7 @@ impl EnvInstance {
             exec_context: Vec::new(),
             chain_spec: ChainSpec::uninitialized(),
             blocks: Vec::new(),
-            console: Console::new(),
+            debug_buf: DebugBuffer::new(),
             chain_extension_handler: ChainExtensionHandler::new(),
             emitted_events: EmittedEventsRecorder::new(),
             clear_storage_disabled: false,
@@ -127,13 +127,13 @@ impl EnvInstance {
         Ok(())
     }
 
-    /// Resets the off-chain environment to unintialized state.
+    /// Resets the off-chain environment to uninitialized state.
     pub fn reset(&mut self) {
         self.accounts.reset();
         self.exec_context.clear();
         self.chain_spec.reset();
         self.blocks.clear();
-        self.console.reset();
+        self.debug_buf.reset();
         self.chain_extension_handler.reset();
         self.emitted_events.reset();
         self.clear_storage_disabled = false;
@@ -198,14 +198,14 @@ impl EnvInstance {
         );
         // Initialize the execution context for the first contract execution.
         use crate::call::Selector;
-        // The below selector bytes are incorrect but since calling doesn't work
+        // The below selector bytes are incorrect but since calling does not work
         // yet we do not have to fix this now.
         let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
-                .gas(T::Balance::from(500_000u32))
+                .gas(500_000u64)
                 .transferred_value(T::Balance::from(500u32))
                 .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),

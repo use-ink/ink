@@ -1,0 +1,18 @@
+[Hunspell]
+lang = "en_US"
+search_dirs = ["."]
+extra_dictionaries = ["cargo_spellcheck.dic"]
+
+# If set to `true`, the OS specific default search paths are skipped and only explicitly
+# specified ones are used.
+skip_os_lookups = true
+
+# Use the builtin dictionaries if none were found in in the configured lookup paths.
+# Usually combined with `skip_os_lookups=true` to enforce the `builtin` usage for
+# consistent results across distributions and CI runs.  Setting this will still use the
+# dictionaries specified in `extra_dictionaries = [..]` for topic specific lingo.
+use_builtin = true
+
+[Hunspell.quirks]
+allow_concatenation = true
+allow_dashes = true

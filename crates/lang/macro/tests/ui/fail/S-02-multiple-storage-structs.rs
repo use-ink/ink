@@ -5,7 +5,7 @@ mod multiple_storage_structs {
     #[ink(storage)]
     pub struct FirstStorageStruct {}
 
-    // ink! currently doesn't allow for multiple #[ink(storage)] structs
+    // ink! currently does not allow for multiple #[ink(storage)] structs
     #[ink(storage)]
     pub struct SecondStorageStruct {}
 

@@ -51,8 +51,8 @@ pub trait FromStatusCode: Sized {
 /// A concrete instance of a chain extension method.
 ///
 /// This is a utility type used to drive the execution of a chain extension method call.
-/// It has several different specializations of its `call` method for different ways to
-/// manage error handling when calling a predefined chain extension method.
+/// It has several specializations of its `call` method for different ways to manage
+/// error handling when calling a predefined chain extension method.
 ///
 /// - `I` represents the input type of the chain extension method.
 ///   All tuple types that may act as input parameters for the chain extension method are valid.
@@ -168,12 +168,12 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
         }
     }
 
-    /// Makes the chain exntesion method call handle the returned status code.
+    /// Makes the chain extension method call handle the returned status code.
     ///
     /// # Note
     ///
     /// This will handle the returned status code and only loads and decodes the value
-    /// returned in the output of the chain extension method call in case of success.
+    /// returned as the output of the chain extension method call in case of success.
     #[inline(always)]
     pub fn handle_error_code<ErrorCode>(
         self,
@@ -204,7 +204,7 @@ pub mod state {
 
     /// Type state meaning that the chain extension method deliberately does not return a `Result` type.
     ///
-    /// Additionally this is enforced by the `#[ink::chain_extension]` proc. macro when used.
+    /// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.
     #[derive(Debug)]
     pub struct NoResult<T> {
         no_result: PhantomData<fn() -> T>,
@@ -219,9 +219,9 @@ where
     E: scale::Decode + From<ErrorCode> + From<scale::Error>,
     ErrorCode: FromStatusCode,
 {
-    /// Calls the chain extension method for case 1A described [here].
+    /// Calls the chain extension method for case 1.A described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -281,9 +281,9 @@ where
     T: scale::Decode,
     E: scale::Decode + From<scale::Error>,
 {
-    /// Calls the chain extension method for case 2A described [here].
+    /// Calls the chain extension method for case 2.A described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -336,9 +336,9 @@ where
     O: scale::Decode,
     ErrorCode: FromStatusCode,
 {
-    /// Calls the chain extension method for case 1B described [here].
+    /// Calls the chain extension method for case 1.B described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Errors
     ///
@@ -395,9 +395,9 @@ where
     I: scale::Encode,
     O: scale::Decode,
 {
-    /// Calls the chain extension method for case 2B described [here].
+    /// Calls the chain extension method for case 2.B described [here].
     ///
-    /// [here]: [`ChainExtensionMethodInstance`]
+    /// [here]: [`ChainExtensionMethod`]
     ///
     /// # Panics
     ///

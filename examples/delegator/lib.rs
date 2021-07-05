@@ -29,9 +29,9 @@ mod delegator {
     };
     use subber::Subber;
 
-    /// Specifies the state of the delegator.
+    /// Specifies the state of the `delegator` contract.
     ///
-    /// In `Adder` state the delegator will delegate to the `Adder` contract
+    /// In `Adder` state the `delegator` contract will delegate to the `Adder` contract
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
@@ -55,28 +55,28 @@ mod delegator {
         Subber,
     }
 
-    /// Delegates calls to an adder or subber contract to mutate
-    /// a value in an accumulator contract.
+    /// Delegates calls to an `adder` or `subber` contract to mutate
+    /// a value in an `accumulator` contract.
     ///
-    /// In order to deploy the delegator smart contract we first
-    /// have to manually put the code of the accumulator, adder
-    /// and subber smart contracts, receive their code hashes from
+    /// In order to deploy the `delegator` smart contract we first
+    /// have to manually put the code of the `accumulator`, `adder`
+    /// and `subber` smart contracts, receive their code hashes from
     /// the signalled events and put their code hash into our
-    /// delegator smart contract.
+    /// `delegator` smart contract.
     #[ink(storage)]
     pub struct Delegator {
-        /// Says which of adder or subber is currently in use.
+        /// Says which of `adder` or `subber` is currently in use.
         which: Which,
-        /// The accumulator smart contract.
+        /// The `accumulator` smart contract.
         accumulator: Lazy<Accumulator>,
-        /// The adder smart contract.
+        /// The `adder` smart contract.
         adder: Lazy<Adder>,
-        /// The subber smart contract.
+        /// The `subber` smart contract.
         subber: Lazy<Subber>,
     }
 
     impl Delegator {
-        /// Instantiate a delegator with the given sub-contract codes.
+        /// Instantiate a `delegator` contract with the given sub-contract codes.
         #[ink(constructor)]
         pub fn new(
             init_value: i32,
@@ -113,7 +113,7 @@ mod delegator {
             }
         }
 
-        /// Returns the accumulator's value.
+        /// Returns the `accumulator` value.
         #[ink(message)]
         pub fn get(&self) -> i32 {
             self.accumulator.get()
@@ -128,7 +128,7 @@ mod delegator {
             }
         }
 
-        /// Switches the delegator.
+        /// Switches the `delegator` contract.
         #[ink(message)]
         pub fn switch(&mut self) {
             match self.which {

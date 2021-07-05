@@ -125,7 +125,7 @@ where
 {
     /// Finalizes the topics builder.
     ///
-    /// No more event topics can be serialized afterwards but the environment will be
+    /// No more event topics can be serialized afterwards, but the environment will be
     /// able to extract the information collected by the topics builder in order to
     /// emit the serialized event.
     pub fn finish(self) -> <B as TopicsBuilderBackend<E>>::Output
@@ -204,11 +204,11 @@ pub trait Topics {
 
 /// For each topic a hash is generated. This hash must be unique
 /// for a field and its value. The `prefix` is concatenated
-/// with the `value` and this result is then hashed.
+/// with the `value`. This result is then hashed.
 /// The `prefix` is typically set to the path a field has in
-/// an event struct + the identifier of the event struct.
+/// an event struct plus the identifier of the event struct.
 ///
-/// For example, in the case of our Erc20 example contract the
+/// For example, in the case of our ERC-20 example contract the
 /// prefix `Erc20::Transfer::from` is concatenated with the
 /// field value of `from` and then hashed.
 /// In this example `Erc20` would be the contract identified,

@@ -28,12 +28,10 @@ pub mod lazy_hmap;
 
 mod cache_cell;
 mod entry;
-#[cfg(feature = "ink-unstable")]
 mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
 
-#[cfg(feature = "ink-unstable")]
 #[doc(inline)]
 pub use self::lazy_array::LazyArray;
 use self::{
@@ -61,7 +59,7 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// Use this if the storage field doesn't need to be loaded in some or most cases.
+/// Use this if the storage field does not need to be loaded in some or most cases.
 #[derive(Debug)]
 pub struct Lazy<T>
 where

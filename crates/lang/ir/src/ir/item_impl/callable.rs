@@ -69,7 +69,7 @@ impl<'a, C> CallableWithSelector<'a, C>
 where
     C: Callable,
 {
-    /// Creates a new wrapper around the given callable and parent impl block.
+    /// Creates a new wrapper around the given callable and parent `impl` block.
     pub(super) fn new(item_impl: &'a ir::ItemImpl, callable: &'a C) -> Self {
         Self {
             composed_selector: compose_selector(item_impl, callable),
@@ -80,7 +80,7 @@ where
 }
 
 impl<'a, C> CallableWithSelector<'a, C> {
-    /// Returns the composed selector of the ink! callable the the impl block.
+    /// Returns the composed selector of the ink! callable the the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
     }
@@ -101,35 +101,35 @@ where
     C: Callable,
 {
     fn kind(&self) -> CallableKind {
-        <C as Callable>::kind(&self.callable)
+        <C as Callable>::kind(self.callable)
     }
 
     fn ident(&self) -> &Ident {
-        <C as Callable>::ident(&self.callable)
+        <C as Callable>::ident(self.callable)
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        <C as Callable>::user_provided_selector(&self.callable)
+        <C as Callable>::user_provided_selector(self.callable)
     }
 
     fn is_payable(&self) -> bool {
-        <C as Callable>::is_payable(&self.callable)
+        <C as Callable>::is_payable(self.callable)
     }
 
     fn visibility(&self) -> Visibility {
-        <C as Callable>::visibility(&self.callable)
+        <C as Callable>::visibility(self.callable)
     }
 
     fn inputs(&self) -> InputsIter {
-        <C as Callable>::inputs(&self.callable)
+        <C as Callable>::inputs(self.callable)
     }
 
     fn inputs_span(&self) -> Span {
-        <C as Callable>::inputs_span(&self.callable)
+        <C as Callable>::inputs_span(self.callable)
     }
 
     fn statements(&self) -> &[syn::Stmt] {
-        <C as Callable>::statements(&self.callable)
+        <C as Callable>::statements(self.callable)
     }
 }
 
@@ -137,7 +137,7 @@ impl<'a, C> ::core::ops::Deref for CallableWithSelector<'a, C> {
     type Target = C;
 
     fn deref(&self) -> &Self::Target {
-        &self.callable
+        self.callable
     }
 }
 
@@ -184,13 +184,13 @@ pub trait Callable {
 /// Given
 /// - the callable's identifier `i`
 /// - the optionally set callable's selector `s`
-/// - the impl blocks trait path in case it implements a trait, `P`
-/// - the impl blocks optional user provided namespace `S`
+/// - the `impl` blocks trait path in case it implements a trait, `P`
+/// - 16 kB blocks optional user provided namespace `S`
 ///
 /// Then the selector is composed in the following way:
 ///
 /// - If `s` is given we simply return `s`.
-/// - Otherwise if `T` is not `None` (trait impl block) we concatenate
+/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate
 ///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
 ///   If `T` refers to a relative path or is just an identifier we only take
 ///   its last segment `p` (e.g. the trait's identifier) into consideration
@@ -293,7 +293,7 @@ pub trait Callable {
 /// wherever possible; OR import the trait and use only its identifier with
 /// an additional namespace if required to disambiguate selectors.
 /// - Try not to intermix the above recommendations.
-/// - Avoid directly setting the selector of an ink! message or constuctor.
+/// - Avoid directly setting the selector of an ink! message or constructor.
 ///   Only do this if nothing else helps and you need a very specific selector,
 ///   e.g. in case of backwards compatibility.
 /// - Do not use the namespace unless required to disambiguate.
@@ -353,11 +353,11 @@ where
 /// In case any of the common externally callable invariants are not met:
 /// - This is `true` if the externally callable is:
 ///  - generic
-///  - const (compile-time evaluatable)
-///  - async (async WebAssembly smart contract calling is not allowed)
-///  - unsafe (caller provided assertions not yet stable)
+///  - `const` (compile-time evaluable)
+///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
+///  - `unsafe` (caller provided assertions not yet stable)
 /// - Furthermore this is `true` if the externally callable is defined for a
-///   non default ABI (e.g. `extern "C"`) or doesn't have valid visibility.
+///   non default ABI (e.g. `extern "C"`) or does not have valid visibility.
 pub(super) fn ensure_callable_invariants(
     method_item: &syn::ImplItemMethod,
     kind: CallableKind,

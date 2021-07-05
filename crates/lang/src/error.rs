@@ -33,7 +33,7 @@ pub enum DispatchError {
 }
 
 impl DispatchError {
-    /// Converts `self` into an associated `u32` that SRML contracts can handle.
+    /// Converts `self` into an associated `u32` that FRAME contracts can handle.
     #[inline]
     pub fn to_u32(self) -> u32 {
         DispatchRetCode::from(self).to_u32()
@@ -56,7 +56,7 @@ impl DispatchRetCode {
     ///
     /// # Note
     ///
-    /// This is useful to communicate back to SRML contracts.
+    /// This is useful to communicate back to FRAME contracts.
     #[inline]
     pub fn to_u32(self) -> u32 {
         self.0

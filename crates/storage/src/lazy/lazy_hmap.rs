@@ -71,7 +71,7 @@ pub type EntryMap<K, V> = BTreeMap<K, Box<StorageEntry<V>>>;
 /// storage primitives in order to manage the contract storage for a whole
 /// mapping of storage cells.
 ///
-/// This storage data structure might store its entires anywhere in the contract
+/// This storage data structure might store its entries anywhere in the contract
 /// storage. It is the users responsibility to keep track of the entries if it
 /// is necessary to do so.
 pub struct LazyHashMap<K, V, H> {
@@ -97,7 +97,7 @@ pub struct LazyHashMap<K, V, H> {
 /// in storage we insert it into the cache.
 ///
 /// The problem now is that in this case we only have the `Vacant` object
-/// which we got from searching in the cache, but we need to return an
+/// which we got from searching in the cache, but we need to return
 /// `Occupied` here, since the object is now in the cache. We could do this
 /// by querying the cache another time -- but this would be an additional
 /// search. So what we do instead is to save a reference to the inserted
@@ -139,7 +139,7 @@ where
     /// In an `BTreeMapEntry::Occupied` state the entry has been marked to
     /// be removed (with `None`), but we still want to expose the `VacantEntry` API
     /// to the use.
-    /// In an `BTreeMapEntry::Vacant` state the entry is vacant and we want to expose
+    /// In an `BTreeMapEntry::Vacant` state the entry is vacant, and we want to expose
     /// the `VacantEntry` API.
     entry: BTreeMapEntry<'a, K, Box<StorageEntry<V>>>,
 }
@@ -271,7 +271,7 @@ where
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         for (index, entry) in self.entries().iter() {
-            let root_key = self.to_offset_key(&offset_key, index);
+            let root_key = self.to_offset_key(offset_key, index);
             entry.push_packed_root(&root_key);
         }
     }
@@ -553,8 +553,8 @@ where
     ///
     /// This is an `unsafe` operation because it has a `&self` receiver but returns
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
-    /// within internal use only and should never be given outside of the lazy
-    /// entity for public `&self` methods.
+    /// within internal use only and should never be given outside the lazy entity
+    /// for public `&self` methods.
     unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<StorageEntry<V>>
     where
         K: Borrow<Q>,
@@ -625,7 +625,7 @@ where
     /// Care should be taken when using this API.
     ///
     /// The general use of this API is to streamline `Drop` implementations of
-    /// high-level abstractions that build upon this low-level data strcuture.
+    /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at<Q>(&self, index: &Q)
     where
         K: Borrow<Q>,
@@ -638,7 +638,7 @@ where
             // because it requires a deep clean-up which propagates clearing to its fields,
             // for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
-            clear_packed_root::<V>(&entity, &root_key);
+            clear_packed_root::<V>(entity, &root_key);
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
@@ -819,7 +819,7 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// Gets a reference to the key that would be used when inserting a value through the VacantEntry.
+    /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
     pub fn key(&self) -> &K {
         &self.key
     }
@@ -829,7 +829,7 @@ where
         self.key
     }
 
-    /// Sets the value of the entry with the VacantEntry's key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`s key, and returns a mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         let new = Box::new(StorageEntry::new(Some(value), EntryState::Mutated));
         match self.entry {
@@ -946,7 +946,7 @@ where
         self.remove_entry().1
     }
 
-    /// Converts the OccupiedEntry into a mutable reference to the value in the entry
+    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
     /// with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         match self.entry {
@@ -1022,7 +1022,7 @@ mod tests {
     fn key_at_works() {
         let key = Key::from([0x42; 32]);
 
-        // BLAKE2 256-bit hasher:
+        // BLAKE-2 256-bit hasher:
         let hmap1 = <LazyHashMap<i32, u8, Blake2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap1.key(), Some(&key));
@@ -1050,7 +1050,7 @@ mod tests {
                 \xFB\x85\x36\x3B\x82\x94\x85\x3F"
             ))
         );
-        // SHA2 256-bit hasher:
+        // SHA-2 256-bit hasher:
         let hmap2 = <LazyHashMap<i32, u8, Sha2x256>>::lazy(key);
         // Key must be some.
         assert_eq!(hmap2.key(), Some(&key));

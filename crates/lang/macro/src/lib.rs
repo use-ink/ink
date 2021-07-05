@@ -37,7 +37,7 @@ use proc_macro::TokenStream;
 ///
 /// ink! smart contracts can compile in several different modes.
 /// There are two main compilation models using either
-/// - on-chain mode: `no_std` + WebAssembly as target
+/// - on-chain mode: `no_std` and WebAssembly as target
 /// - off-chain mode: `std`
 ///
 /// We generally use the on-chain mode for actual smart contract deployment
@@ -59,7 +59,7 @@ use proc_macro::TokenStream;
 ///     - `false`: Do NOT use the dynamic storage allocator provided by ink!.
 ///
 ///     This feature is generally only needed for smart contracts that try to model
-///     their data in a way that contains storage entites within other storage
+///     their data in a way that contains storage entities within other storage
 ///     entities.
 ///
 ///     Contract writers should try to write smart contracts that do not depend on the
@@ -152,6 +152,7 @@ use proc_macro::TokenStream;
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
 ///         type BlockNumber = u32;
+///         type RentFraction = ::ink_env::Perbill;
 ///         type ChainExtension = ::ink_env::NoChainExtension;
 ///     }
 ///     ```
@@ -171,6 +172,7 @@ use proc_macro::TokenStream;
 ///         #     type Timestamp = u64;
 ///         #     type BlockNumber = u32;
 ///         #     type ChainExtension = ::ink_env::NoChainExtension;
+///         #     type RentFraction = ::ink_env::Perbill;
 ///         # }
 ///         #
 ///         # #[ink(storage)]
@@ -187,7 +189,7 @@ use proc_macro::TokenStream;
 ///
 ///     **Default value:** `DefaultEnvironment` defined in `ink_env` crate.
 ///
-/// ## Anaylsis
+/// ## Analysis
 ///
 /// The `#[ink::contract]` macro fully analyses its input smart contract
 /// against invalid arguments and structure.
@@ -377,7 +379,7 @@ use proc_macro::TokenStream;
 ///
 /// ## Interacting with the Contract Executor
 ///
-/// The `ink_env` crate provides facitilies to interact with the contract executor that
+/// The `ink_env` crate provides facilities to interact with the contract executor that
 /// connects ink! smart contracts with the outer world.
 ///
 /// For example it is possible to query the current call's caller via:
@@ -397,6 +399,8 @@ use proc_macro::TokenStream;
 /// #
 /// #[ink::contract]
 /// mod greeter {
+///     use ink_env::debug_println;
+///
 ///     #[ink(storage)]
 ///     pub struct Greeter;
 ///
@@ -404,17 +408,15 @@ use proc_macro::TokenStream;
 ///         #[ink(constructor)]
 ///         pub fn new() -> Self {
 ///             let caller = Self::env().caller();
-///             let message = format!("thanks for instantiation {:?}", caller);
-///             ink_env::debug_println(&message);
+///             debug_println!("thanks for instantiation {:?}", caller);
 ///             Greeter {}
 ///         }
 ///
 ///         #[ink(message, payable)]
-///         pub fn fund(&mut self) {
+///         pub fn fund(&self) {
 ///             let caller = self.env().caller();
 ///             let value = self.env().transferred_balance();
-///             let message = format!("thanks for the funding of {:?} from {:?}", value, caller);
-///             ink_env::debug_println(&message);
+///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }
 /// }
@@ -496,13 +498,13 @@ use proc_macro::TokenStream;
 ///             Self { value: init_value }
 ///         }
 ///
-///         /// Flips the current value of the Flipper's bool.
+///         /// Flips the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn flip(&mut self) {
 ///             self.value = !self.value;
 ///         }
 ///
-///         /// Returns the current value of the Flipper's bool.
+///         /// Returns the current value of the Flipper's boolean.
 ///         #[ink(message)]
 ///         pub fn get(&self) -> bool {
 ///             self.value
@@ -647,13 +649,13 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// The methods are defined as associated trait methods without implementation.
 ///
 /// Chain extension methods must not have a `self` receiver such as `&self` or `&mut self`
-/// and must have inputs and output that implement SCALE codec. Their return value follows
-/// specific rules that can be altered using the `handle_status` and `returns_result` attributes
-/// which are described in more detail below.
+/// and must have inputs and output that implement the SCALE encoding and decoding.
+/// Their return value follows specific rules that can be altered using the `handle_status`
+/// and `returns_result` attributes which are described in more detail below.
 ///
 /// # Usage
 ///
-/// Usually the chain extension definition using this proc. macro is provided
+/// Usually the chain extension definition using this procedural macro is provided
 /// by the author of the chain extension in a separate crate.
 /// ink! smart contracts using this chain extension simply depend on this crate
 /// and use its associated environment definition in order to make use of
@@ -724,7 +726,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Note that if a chain extension method is attributed with `returns_result = false`
 /// and with `handle_status = true` it will still return a value of type `Result<T, Self::ErrorCode>`.
 ///
-/// ## Usage: `handle_status` + `returns_result`
+/// ## Usage: `handle_status` and `returns_result`
 ///
 /// Use both `handle_status = false` and `returns_result = false` for the same chain extension method
 /// if a call to it may never fail and never returns a `Result` type.
@@ -736,10 +738,10 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// | `handle_status` | `returns_result` | Effects |
 /// |:---------------:|:----------------:|:--------|
-/// |`true` |`true` | The chain extension method is required to return a value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |
-/// |`true` |`false`| The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result<T, Self::ErrorCode>` when the chain extension method was defined to return a value of type `T`. |
-/// |`false`|`true` | The chain extension method is required to return a value of type `Result<T, E>`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
-/// |`false`|`false`| The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
+/// | `true`  | `true`  | The chain extension method is required to return a value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |
+/// | `true`  | `false` | The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result<T, Self::ErrorCode>` when the chain extension method was defined to return a value of type `T`. |
+/// | `false` | `true`  | The chain extension method is required to return a value of type `Result<T, E>`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
+/// | `false` | `false` | The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
 ///
 /// # Error Code
 ///
@@ -907,6 +909,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = <DefaultEnvironment as Environment>::BlockNumber;
 ///     type Timestamp = <DefaultEnvironment as Environment>::Timestamp;
+///     type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 ///
 ///     type ChainExtension = RuntimeReadWrite;
 /// }
@@ -1050,6 +1053,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #     type Hash = <ink_env::DefaultEnvironment as ink_env::Environment>::Hash;
 /// #     type BlockNumber = <ink_env::DefaultEnvironment as ink_env::Environment>::BlockNumber;
 /// #     type Timestamp = <ink_env::DefaultEnvironment as ink_env::Environment>::Timestamp;
+/// #     type RentFraction = <ink_env::DefaultEnvironment as ink_env::Environment>::RentFraction;
 /// #
 /// #     type ChainExtension = RuntimeReadWrite;
 /// # }

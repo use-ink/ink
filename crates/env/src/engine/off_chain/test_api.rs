@@ -31,7 +31,7 @@ use crate::{
     Result,
 };
 use ink_prelude::string::String;
-use std::str::FromStr;
+use std::panic::UnwindSafe;
 
 /// Pushes a contract execution context.
 ///
@@ -44,7 +44,7 @@ use std::str::FromStr;
 pub fn push_execution_context<T>(
     caller: T::AccountId,
     callee: T::AccountId,
-    gas_limit: T::Balance,
+    gas_limit: u64,
     endowment: T::Balance,
     call_data: CallData,
 ) where
@@ -206,7 +206,7 @@ where
     .map_err(Into::into)
 }
 
-/// Update the [ChainSpec](`crate::test::ChainSpec`) for the test environment
+/// Update the [`ChainSpec`](`crate::test::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
     F: FnOnce(&mut ChainSpec),
@@ -215,8 +215,8 @@ where
     Ok(())
 }
 
-/// Returns the contents of the past performed environmental `println` in order.
-pub fn recorded_printlns() -> impl Iterator<Item = String> {
+/// Returns the contents of the past performed environmental debug messages in order.
+pub fn recorded_debug_messages() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
         // references to them since this would require the whole `on_instance`
@@ -224,8 +224,8 @@ pub fn recorded_printlns() -> impl Iterator<Item = String> {
         // ultimately allow leaking those `'static` references to the outside
         // and potentially lead to terrible bugs such as iterator invalidation.
         instance
-            .console
-            .past_prints()
+            .debug_buf
+            .past_debug_messages()
             .map(ToOwned::to_owned)
             .collect::<Vec<_>>()
             .into_iter()
@@ -261,7 +261,7 @@ where
 ///
 /// # Note
 ///
-/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(disable: bool) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -321,7 +321,7 @@ where
     })
 }
 
-/// Runs the given closure test function with the default configuartion
+/// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where
@@ -390,9 +390,6 @@ where
     pub transferred: <E as Environment>::Balance,
 }
 
-#[cfg(feature = "std")]
-use std::panic::UnwindSafe;
-
 /// Tests if a contract terminates successfully after `self.env().terminate()`
 /// has been called.
 ///
@@ -408,7 +405,6 @@ use std::panic::UnwindSafe;
 /// ```
 ///
 /// See `examples/contract-terminate` for a complete usage example.
-#[cfg(feature = "std")]
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,
@@ -422,17 +418,10 @@ pub fn assert_contract_termination<T, F>(
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");
     let encoded_input = value_any
-        .downcast_ref::<String>()
+        .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let deserialized_vec = encoded_input
-        .replace("[", "")
-        .replace("]", "")
-        .split(", ")
-        .map(|s| u8::from_str(s).expect("u8 cannot be extracted from str"))
-        .collect::<Vec<u8>>();
     let res: ContractTerminationResult<T> =
-        scale::Decode::decode(&mut &deserialized_vec[..])
-            .expect("input can not be decoded");
+        scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
 
     assert_eq!(res.beneficiary, expected_beneficiary);
     assert_eq!(res.transferred, expected_balance);

@@ -112,13 +112,13 @@ const fn max(a: u64, b: u64) -> u64 {
 /// # Note
 ///
 /// Use this utility function to use a packed pull operation for the type
-/// instead of a spreaded pull operation.
+/// instead of a spread storage layout pull operation.
 #[inline]
 pub fn forward_pull_packed<T>(ptr: &mut KeyPtr) -> T
 where
     T: PackedLayout,
 {
-    pull_packed_root::<T>(&ptr.next_for::<T>())
+    pull_packed_root::<T>(ptr.next_for::<T>())
 }
 
 /// Pushes an instance of type `T` in packed fashion to the contract storage.
@@ -129,13 +129,13 @@ where
 /// # Note
 ///
 /// Use this utility function to use a packed push operation for the type
-/// instead of a spreaded push operation.
+/// instead of a spread storage layout push operation.
 #[inline]
 pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,
 {
-    push_packed_root::<T>(entity, &ptr.next_for::<T>())
+    push_packed_root::<T>(entity, ptr.next_for::<T>())
 }
 
 /// Clears an instance of type `T` in packed fashion from the contract storage.
@@ -146,11 +146,11 @@ where
 /// # Note
 ///
 /// Use this utility function to use a packed clear operation for the type
-/// instead of a spreaded clear operation.
+/// instead of a spread storage layout clear operation.
 #[inline]
 pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,
 {
-    clear_packed_root::<T>(entity, &ptr.next_for::<T>())
+    clear_packed_root::<T>(entity, ptr.next_for::<T>())
 }

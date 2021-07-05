@@ -29,14 +29,24 @@ pub struct Metadata<'a> {
     contract: &'a ir::Contract,
 }
 
+impl Metadata<'_> {
+    fn generate_cgf(&self) -> TokenStream2 {
+        if self.contract.config().is_compile_as_dependency_enabled() {
+            return quote! { #[cfg(feature = "__ink_DO_NOT_COMPILE")] }
+        }
+        quote! { #[cfg(not(feature = "ink-as-dependency"))] }
+    }
+}
+
 impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
+        let no_cross_calling_cfg = self.generate_cgf();
 
         quote! {
             #[cfg(feature = "std")]
-            #[cfg(not(feature = "ink-as-dependency"))]
+            #no_cross_calling_cfg
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
@@ -125,7 +135,7 @@ impl Metadata<'_> {
             .map(|(trait_ident, constructor)| {
                 let span = constructor.span();
                 let attrs = constructor.attrs();
-                let docs = Self::extract_doc_comments(&attrs);
+                let docs = Self::extract_doc_comments(attrs);
                 let selector = constructor.composed_selector();
                 let selector_bytes = selector.as_bytes();
                 let constructor = constructor.callable();
@@ -216,7 +226,7 @@ impl Metadata<'_> {
             .map(|(trait_ident, message)| {
                 let span = message.span();
                 let attrs = message.attrs();
-                let docs = Self::extract_doc_comments(&attrs);
+                let docs = Self::extract_doc_comments(attrs);
                 let selector = message.composed_selector();
                 let selector_bytes = selector.as_bytes();
                 let is_payable = message.is_payable();
@@ -364,7 +374,7 @@ mod tests {
                     /// line
                 ),
                 syn::parse_quote!(
-                    /// commments
+                    /// comments
                 ),
             ])
             .collect::<Vec<_>>(),
@@ -372,7 +382,7 @@ mod tests {
                 " multiple".to_string(),
                 " single".to_string(),
                 " line".to_string(),
-                " commments".to_string(),
+                " comments".to_string(),
             ],
         );
         assert_eq!(

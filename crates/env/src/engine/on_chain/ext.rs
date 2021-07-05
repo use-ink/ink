@@ -14,7 +14,7 @@
 
 //! External C API to communicate with substrate contracts runtime module.
 //!
-//! Refer to substrate SRML contract module for more documentation.
+//! Refer to substrate FRAME contract module for more documentation.
 
 use crate::ReturnFlags;
 use core::marker::PhantomData;
@@ -35,7 +35,7 @@ macro_rules! define_error_codes {
                 $name = $discr,
             )*
             /// Returns if an unknown error was received from the host module.
-            UnknownError,
+            Unknown,
         }
 
         impl From<ReturnCode> for Result {
@@ -46,7 +46,7 @@ macro_rules! define_error_codes {
                     $(
                         $discr => Err(Error::$name),
                     )*
-                    _ => Err(Error::UnknownError),
+                    _ => Err(Error::Unknown),
                 }
             }
         }
@@ -76,6 +76,9 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is either no contract (e.g. user account) or is a tombstone.
     NotCallable = 8,
+     /// The call to `seal_debug_message` had no effect because debug message
+    /// recording was disabled.
+    LoggingDisabled = 9,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.
@@ -308,14 +311,6 @@ mod sys {
 
         pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
-        pub fn seal_random(
-            subject_ptr: Ptr32<[u8]>,
-            subject_len: u32,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-        pub fn seal_println(str_ptr: Ptr32<[u8]>, str_len: u32);
-
         pub fn seal_hash_keccak_256(
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
@@ -335,6 +330,33 @@ mod sys {
             input_ptr: Ptr32<[u8]>,
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
+        );
+    }
+
+    #[link(wasm_import_module = "seal1")]
+    extern "C" {
+        pub fn seal_random(
+            subject_ptr: Ptr32<[u8]>,
+            subject_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+    }
+
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
+        #[cfg(feature = "ink-debug")]
+        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
+
+        pub fn seal_rent_params(
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        );
+
+        pub fn seal_rent_status(
+            at_refcount: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
         );
     }
 }
@@ -585,6 +607,33 @@ pub fn set_rent_allowance(value: &[u8]) {
     unsafe { sys::seal_set_rent_allowance(Ptr32::from_slice(value), value.len() as u32) }
 }
 
+pub fn rent_params(output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_params(
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
+}
+
+pub fn rent_status(at_refcount: Option<core::num::NonZeroU32>, output: &mut &mut [u8]) {
+    let mut output_len = output.len() as u32;
+    {
+        unsafe {
+            sys::seal_rent_status(
+                at_refcount.map_or(0, |rc| rc.get()),
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        };
+    }
+    extract_from_slice(output, output_len as usize);
+}
+
 pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     let mut output_len = output.len() as u32;
     {
@@ -600,10 +649,36 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-pub fn println(content: &str) {
-    let bytes = content.as_bytes();
-    unsafe { sys::seal_println(Ptr32::from_slice(bytes), bytes.len() as u32) }
+#[cfg(feature = "ink-debug")]
+/// Call `seal_debug_message` with the supplied UTF-8 encoded message.
+///
+/// If debug message recording is disabled in the contracts pallet, the first call will
+/// return a `LoggingDisabled` error, and further calls will be a no-op to avoid the cost
+/// of calling into the supervisor.
+///
+/// # Note
+///
+/// This depends on the the `seal_debug_message` interface which requires the
+/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+pub fn debug_message(message: &str) {
+    static mut DEBUG_ENABLED: bool = true;
+
+    // SAFETY: safe because executing in a single threaded context
+    if unsafe { DEBUG_ENABLED } {
+        let bytes = message.as_bytes();
+        let ret_code = unsafe {
+            sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
+        };
+        if let Err(Error::LoggingDisabled) = ret_code.into() {
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { DEBUG_ENABLED = false }
+        }
+    }
 }
+
+#[cfg(not(feature = "ink-debug"))]
+/// A no-op. Enable the `ink-debug` feature for debug messages.
+pub fn debug_message(_message: &str) {}
 
 macro_rules! impl_hash_fn {
     ( $name:ident, $bytes_result:literal ) => {

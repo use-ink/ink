@@ -103,12 +103,12 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_map()
-            .entries(self.0.iter().enumerate().filter_map(|(key, entry)| {
-                match entry {
-                    Some(entry) => Some((key, entry)),
-                    None => None,
-                }
-            }))
+            .entries(
+                self.0
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(key, entry)| entry.as_ref().map(|entry| (key, entry))),
+            )
             .finish()
     }
 }
@@ -286,7 +286,7 @@ where
     /// Care should be taken when using this API.
     ///
     /// The general use of this API is to streamline `Drop` implementations of
-    /// high-level abstractions that build upon this low-level data strcuture.
+    /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at(&self, index: Index) {
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
@@ -294,7 +294,7 @@ where
             // because it requires a deep clean-up which propagates clearing to its fields,
             // for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
-            clear_packed_root::<T>(&entity, &root_key);
+            clear_packed_root::<T>(entity, &root_key);
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.

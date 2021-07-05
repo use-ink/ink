@@ -34,20 +34,20 @@
 //!
 //! ## Error Handling
 //!
-//! With the exeception of `execute_transaction` no error conditions are signalled
+//! With the exception of `execute_transaction` no error conditions are signalled
 //! through return types. Any error or invariant violation triggers a panic and therefore
 //! rolls back the transaction.
 //!
 //! ## Interface
 //!
-//! The interface is modelled after the popular gnosis multisig wallet. However, there
+//! The interface is modelled after the popular Gnosis multisig wallet. However, there
 //! are subtle variations from the interface. For example the `confirm_transaction`
-//! will never trigger the execution of a `Transaction` even if the treshold is reached.
+//! will never trigger the execution of a `Transaction` even if the threshold is reached.
 //! A call of `execute_transaction` is always required. This can be called by anyone.
 //!
 //! All the messages that are declared as only callable by the wallet must go through
 //! the usual submit, confirm, execute cycle as any other transaction that should be
-//! called by the wallet. For example to add an owner you would submit a transaction
+//! called by the wallet. For example, to add an owner you would submit a transaction
 //! that calls the wallets own `add_owner` message through `submit_transaction`.
 //!
 //! ### Owner Management
@@ -143,7 +143,7 @@ mod multisig_plain {
         )
     )]
     pub struct Transaction {
-        /// The AccountId of the contract that is called in this transaction.
+        /// The `AccountId` of the contract that is called in this transaction.
         pub callee: AccountId,
         /// The selector bytes that identifies the function of the callee that should be called.
         pub selector: [u8; 4],
@@ -166,7 +166,7 @@ mod multisig_plain {
     #[ink(storage)]
     pub struct MultisigPlain {
         /// Every entry in this map represents the confirmation of an owner for a
-        /// transaction. This is effecively a set rather than a map.
+        /// transaction. This is effectively a set rather than a map.
         confirmations: StorageHashMap<(TransactionId, AccountId), ()>,
         /// The amount of confirmations for every transaction. This is a redundant
         /// information and is kept in order to prevent iterating through the
@@ -204,7 +204,7 @@ mod multisig_plain {
         /// The transaction that was revoked.
         #[ink(topic)]
         transaction: TransactionId,
-        /// The owner that sent the revokation.
+        /// The owner that sent the revocation.
         #[ink(topic)]
         from: AccountId,
     }
@@ -298,7 +298,7 @@ mod multisig_plain {
         /// # Examples
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
-        /// `Transaction` and dispatched through `submit_transaction` + `invoke_transaction`:
+        /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
         /// ```no_run
         /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig_plain::{Transaction, ConfirmationStatus};
@@ -403,7 +403,7 @@ mod multisig_plain {
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
-        /// Add a new transaction candiate to the contract.
+        /// Add a new transaction candidate to the contract.
         ///
         /// This also confirms the transaction for the caller. This can be called by any owner.
         #[ink(message)]
@@ -484,15 +484,20 @@ mod multisig_plain {
 
         /// Invoke a confirmed execution without getting its output.
         ///
+        /// If the transaction which is invoked transfers value, this value has
+        /// to be sent as payment with this call. The method will fail otherwise,
+        /// and the transaction would then be reverted.
+        ///
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn invoke_transaction(
             &mut self,
             trans_id: TransactionId,
         ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            assert!(self.env().transferred_balance() == t.transferred_value);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)
@@ -670,6 +675,7 @@ mod multisig_plain {
             call,
             test,
         };
+        use ink_lang as ink;
         type Accounts = test::DefaultAccounts<Environment>;
         const WALLET: [u8; 32] = [7; 32];
 
@@ -737,7 +743,7 @@ mod multisig_plain {
             contract
         }
 
-        #[test]
+        #[ink::test]
         fn construction_works() {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
@@ -757,27 +763,27 @@ mod multisig_plain {
             assert_eq!(contract.transactions.len(), 0);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn empty_owner_construction_fails() {
             MultisigPlain::new(0, vec![]);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn zero_requirement_construction_fails() {
             let accounts = default_accounts();
             MultisigPlain::new(0, vec![accounts.alice, accounts.bob]);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn too_large_requirement_construction_fails() {
             let accounts = default_accounts();
             MultisigPlain::new(3, vec![accounts.alice, accounts.bob]);
         }
 
-        #[test]
+        #[ink::test]
         fn add_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -789,7 +795,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn add_existing_owner_fails() {
             let accounts = default_accounts();
@@ -798,7 +804,7 @@ mod multisig_plain {
             contract.add_owner(accounts.bob);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn add_owner_permission_denied() {
             let accounts = default_accounts();
@@ -807,7 +813,7 @@ mod multisig_plain {
             contract.add_owner(accounts.frank);
         }
 
-        #[test]
+        #[ink::test]
         fn remove_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -819,7 +825,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn remove_owner_nonexisting_fails() {
             let accounts = default_accounts();
@@ -828,7 +834,7 @@ mod multisig_plain {
             contract.remove_owner(accounts.django);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn remove_owner_permission_denied() {
             let accounts = default_accounts();
@@ -837,7 +843,7 @@ mod multisig_plain {
             contract.remove_owner(accounts.alice);
         }
 
-        #[test]
+        #[ink::test]
         fn replace_owner_works() {
             let accounts = default_accounts();
             let mut contract = build_contract();
@@ -850,7 +856,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 2);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_existing_fails() {
             let accounts = default_accounts();
@@ -859,7 +865,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.alice, accounts.bob);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_nonexisting_fails() {
             let accounts = default_accounts();
@@ -868,7 +874,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.django, accounts.frank);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn replace_owner_permission_denied() {
             let accounts = default_accounts();
@@ -877,7 +883,7 @@ mod multisig_plain {
             contract.replace_owner(accounts.alice, accounts.django);
         }
 
-        #[test]
+        #[ink::test]
         fn change_requirement_works() {
             let mut contract = build_contract();
             assert_eq!(*contract.requirement, 2);
@@ -887,7 +893,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn change_requirement_too_high() {
             let mut contract = build_contract();
@@ -895,7 +901,7 @@ mod multisig_plain {
             contract.change_requirement(4);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn change_requirement_zero_fails() {
             let mut contract = build_contract();
@@ -903,12 +909,12 @@ mod multisig_plain {
             contract.change_requirement(0);
         }
 
-        #[test]
+        #[ink::test]
         fn submit_transaction_works() {
             submit_transaction();
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn submit_transaction_noowner_fails() {
             let mut contract = build_contract();
@@ -916,7 +922,7 @@ mod multisig_plain {
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn submit_transaction_wallet_fails() {
             let mut contract = build_contract();
@@ -924,7 +930,7 @@ mod multisig_plain {
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
-        #[test]
+        #[ink::test]
         fn cancel_transaction_works() {
             let mut contract = submit_transaction();
             set_from_wallet();
@@ -933,7 +939,7 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 3);
         }
 
-        #[test]
+        #[ink::test]
         fn cancel_transaction_nonexisting() {
             let mut contract = submit_transaction();
             set_from_wallet();
@@ -942,14 +948,14 @@ mod multisig_plain {
             assert_eq!(test::recorded_events().count(), 2);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn cancel_transaction_no_permission() {
             let mut contract = submit_transaction();
             contract.cancel_transaction(0);
         }
 
-        #[test]
+        #[ink::test]
         fn confirm_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -961,7 +967,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_confirmations() {
             // given
             let mut contract = submit_transaction();
@@ -983,7 +989,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         fn confirm_transaction_already_confirmed() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -995,7 +1001,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn confirm_transaction_noowner_fail() {
             let mut contract = submit_transaction();
@@ -1003,7 +1009,7 @@ mod multisig_plain {
             contract.confirm_transaction(0);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -1015,7 +1021,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 0);
         }
 
-        #[test]
+        #[ink::test]
         fn revoke_transaction_no_confirmer() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
@@ -1027,7 +1033,7 @@ mod multisig_plain {
             assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
-        #[test]
+        #[ink::test]
         #[should_panic]
         fn revoke_transaction_noowner_fail() {
             let mut contract = submit_transaction();
@@ -1036,7 +1042,7 @@ mod multisig_plain {
             contract.revoke_confirmation(0);
         }
 
-        #[test]
+        #[ink::test]
         fn execute_transaction_works() {
             // Execution of calls is currently unsupported in off-chain test.
             // Calling execute_transaction panics in any case.

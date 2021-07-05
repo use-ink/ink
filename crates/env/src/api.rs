@@ -34,6 +34,10 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::{
+        RentParams,
+        RentStatus,
+    },
     Environment,
     Result,
 };
@@ -86,7 +90,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> Result<T::Balance>
+pub fn gas_left<T>() -> Result<u64>
 where
     T: Environment,
 {
@@ -152,6 +156,42 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::rent_allowance::<T>(instance)
+    })
+}
+
+/// Returns information needed for rent calculations.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_params<T>() -> Result<RentParams<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_params::<T>(instance)
+    })
+}
+
+/// Returns information about the required deposit and resulting rent.
+///
+/// # Parameters
+///
+/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
+///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+///
+///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
+///   `refcount` made during the currently running call.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn rent_status<T>(at_refcount: Option<core::num::NonZeroU32>) -> Result<RentStatus<T>>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::rent_status::<T>(instance, at_refcount)
     })
 }
 
@@ -371,11 +411,11 @@ where
 ///
 /// # Note
 ///
-/// - The `filtered_keys` can be used to ignore certain storage regions
+/// - `filtered_keys` can be used to ignore certain storage regions
 ///   in the restorer contract to not influence the hash calculations.
 /// - Does *not* perform restoration right away but defers it to the end of
 ///   the contract execution.
-/// - Restoration is cancelled if there is no tombstone in the destination
+/// - Restoration is canceled if there is no tombstone in the destination
 ///   address or if the hashes don't match. No changes are made in this case.
 pub fn restore_contract<T>(
     account_id: T::AccountId,
@@ -396,16 +436,19 @@ pub fn restore_contract<T>(
     })
 }
 
-/// Terminates the existence of the currently executed smart contract.
+/// Terminates the existence of the currently executed smart contract
+/// without creating a tombstone.
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
+///
+/// No tombstone will be created, this function kills a contract completely!
 ///
 /// # Note
 ///
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
-/// which is considered fatal and results in a trap + rollback.
+/// which is considered fatal and results in a trap and rollback.
 pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
 where
     T: Environment,
@@ -425,8 +468,8 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract doesn't have sufficient funds.
-/// - If the transfer would have brought the sender's total balance below the
+/// - If the contract does not have sufficient funds.
+/// - If the transfer had brought the sender's total balance below the
 ///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
@@ -449,8 +492,8 @@ where
 /// # Usage
 ///
 /// Normally contracts define their own `enum` dispatch types respective
-/// to their exported contructors and messages that implement `scale::Decode`
-/// according to the contructors or messages selectors and their arguments.
+/// to their exported constructors and messages that implement `scale::Decode`
+/// according to the constructors or messages selectors and their arguments.
 /// These `enum` dispatch types are then given to this procedure as the `T`.
 ///
 /// When using ink! users do not have to construct those enum dispatch types
@@ -483,7 +526,8 @@ where
     })
 }
 
-/// Returns a random hash seed.
+/// Returns a random hash seed and the block number since which it was determinable
+/// by chain observers.
 ///
 /// # Note
 ///
@@ -493,7 +537,15 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn random<T>(subject: &[u8]) -> Result<T::Hash>
+///
+/// # Important
+///
+/// The returned seed should only be used to distinguish commitments made before
+/// the returned block number. If the block number is too early (i.e. commitments were
+/// made afterwards), then ensure no further commitments may be made and repeatedly
+/// call this on later blocks until the block number returned is later than the latest
+/// commitment.
+pub fn random<T>(subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
 where
     T: Environment,
 {
@@ -502,14 +554,23 @@ where
     })
 }
 
-/// Prints the given contents to the environmental log.
-pub fn debug_println(content: &str) {
+/// Appends the given message to the debug message buffer.
+pub fn debug_message(message: &str) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        EnvBackend::println(instance, content)
+        EnvBackend::debug_message(instance, message)
     })
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// use ink_env::hash::{Sha2x256, HashOutput};
+/// let input: &[u8] = &[13, 14, 15];
+/// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+/// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+/// ```
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,

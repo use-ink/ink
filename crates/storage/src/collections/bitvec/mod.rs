@@ -53,10 +53,10 @@ use crate::{
 /// The index of a bit pack within the bit vector.
 type Index = u32;
 
-/// A bit position within a 256-bit package.
+/// The position of a bit within a 256-bit package.
 type Index256 = u8;
 
-/// A bit position within a `u64`.
+/// The position of a bit within a `u64`.
 type Index64 = u8;
 
 /// A pack of 64 bits.
@@ -127,7 +127,7 @@ impl Bitvec {
         Bits256IterMut::new(self)
     }
 
-    /// Splits the given index into a 256-bit pack index and bit position index.
+    /// Splits the given index into a 256-bit pack index and a position index of the bit.
     fn split_index(&self, at: Index) -> Option<(Index, Index256)> {
         if at >= self.len() {
             return None
@@ -268,21 +268,21 @@ impl Bitvec {
             if value {
                 // If `value` is `true` set its first bit to `1`.
                 bits256.set(0);
-                debug_assert_eq!(bits256.get(0), true);
+                debug_assert!(bits256.get(0));
             };
             self.bits.push(bits256);
             *self.len += 1;
-        } else {
-            // Case: The last 256-bit pack has unused bits:
-            // - Set last bit of last 256-bit pack to the given value.
-            // - Opt.: Since bits are initialized as 0 we only need
-            //         to mutate this value if `value` is `true`.
-            *self.len += 1;
-            if value {
-                self.last_mut()
-                    .expect("must have at least a valid bit in this case")
-                    .set()
-            }
+            return
+        }
+        // Case: The last 256-bit pack has unused bits:
+        // - Set last bit of last 256-bit pack to the given value.
+        // - Opt.: Since bits are initialized as 0 we only need
+        //         to mutate this value if `value` is `true`.
+        *self.len += 1;
+        if value {
+            self.last_mut()
+                .expect("must have at least a valid bit in this case")
+                .set()
         }
     }
 

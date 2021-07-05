@@ -40,6 +40,8 @@ mod type_marker {
     #[derive(Debug, Clone)] pub enum OffTimestamp {}
     /// Type marker representing an environmental `BlockNumber`.
     #[derive(Debug, Clone)] pub enum BlockNumber {}
+    /// Type marker representing an environmental `RentFraction`.
+    #[derive(Debug, Clone)] pub enum RentFraction {}
 }
 
 /// Off-chain environment account ID type.
@@ -52,3 +54,5 @@ pub type OffHash = TypedEncoded<type_marker::Hash>;
 pub type OffTimestamp = TypedEncoded<type_marker::OffTimestamp>;
 /// Off-chain environment block number type.
 pub type OffBlockNumber = TypedEncoded<type_marker::BlockNumber>;
+/// Off-chain environment rent fraction type.
+pub type OffRentFraction = TypedEncoded<type_marker::RentFraction>;

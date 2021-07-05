@@ -23,7 +23,7 @@ use crate::{
 
 /// The dynamic allocator.
 ///
-/// Manages dynamic storage allocations in a very efficient and economic way.
+/// Manages dynamic storage allocations in a very efficient and economical way.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct DynamicAllocator {
     allocations: BitStash,

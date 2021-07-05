@@ -36,13 +36,13 @@ pub mod flipper {
             Self::new(Default::default())
         }
 
-        /// Flips the current value of the Flipper's bool.
+        /// Flips the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
-        /// Returns the current value of the Flipper's bool.
+        /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
             self.value
@@ -52,14 +52,15 @@ pub mod flipper {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use ink_lang as ink;
 
-        #[test]
+        #[ink::test]
         fn default_works() {
             let flipper = Flipper::default();
             assert_eq!(flipper.get(), false);
         }
 
-        #[test]
+        #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             assert_eq!(flipper.get(), false);

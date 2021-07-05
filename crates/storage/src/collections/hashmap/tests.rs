@@ -324,6 +324,7 @@ fn spread_layout_clear_works() {
 }
 
 #[test]
+#[cfg(not(feature = "ink-experimental-engine"))]
 fn storage_is_cleared_completely_after_pull_lazy() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
@@ -355,6 +356,7 @@ fn storage_is_cleared_completely_after_pull_lazy() {
 
 #[test]
 #[should_panic(expected = "storage entry was empty")]
+#[cfg(not(feature = "ink-experimental-engine"))]
 fn drop_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let root_key = Key::from([0x42; 32]);
@@ -374,6 +376,67 @@ fn drop_works() {
             ink_env::DefaultEnvironment,
         >()
         .expect("Cannot get contract id");
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
+        let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+#[cfg(feature = "ink-experimental-engine")]
+fn storage_is_cleared_completely_after_pull_lazy() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        // given
+        let root_key = Key::from([0x42; 32]);
+        let lazy_hmap = Lazy::new(filled_hmap());
+        SpreadLayout::push_spread(&lazy_hmap, &mut KeyPtr::from(root_key));
+        let pulled_hmap = <Lazy<StorageHashMap<u8, i32>> as SpreadLayout>::pull_spread(
+            &mut KeyPtr::from(root_key),
+        );
+
+        // when
+        SpreadLayout::clear_spread(&pulled_hmap, &mut KeyPtr::from(root_key));
+
+        // then
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+        let used_cells = ink_env::test::count_used_storage_cells::<
+            ink_env::DefaultEnvironment,
+        >(&contract_id)
+        .expect("used cells must be returned");
+        assert_eq!(used_cells, 0);
+
+        Ok(())
+    })
+    .unwrap()
+}
+
+#[test]
+#[should_panic(expected = "storage entry was empty")]
+#[cfg(feature = "ink-experimental-engine")]
+fn drop_works() {
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+
+        // if the setup panics it should not cause the test to pass
+        let setup_result = std::panic::catch_unwind(|| {
+            let hmap = filled_hmap();
+            SpreadLayout::push_spread(&hmap, &mut KeyPtr::from(root_key));
+            let _ = <StorageHashMap<u8, i32> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
+            // hmap is dropped which should clear the cells
+        });
+        assert!(setup_result.is_ok(), "setup should not panic");
+
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)

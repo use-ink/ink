@@ -47,7 +47,7 @@ pub type Index = u32;
 /// storage primitives in order to manage the contract storage for a whole
 /// chunk of storage cells.
 ///
-/// A chunk of storage cells is a contiguous range of 2^32 storage cells.
+/// A chunk of storage cells is a contiguous range of `2^32` storage cells.
 pub struct LazyIndexMap<V> {
     /// The offset key for the chunk of cells.
     ///
@@ -276,7 +276,7 @@ where
     /// Care should be taken when using this API.
     ///
     /// The general use of this API is to streamline `Drop` implementations of
-    /// high-level abstractions that build upon this low-level data strcuture.
+    /// high-level abstractions that build upon this low-level data structure.
     pub fn clear_packed_at(&self, index: Index) {
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
@@ -284,7 +284,7 @@ where
             // because it requires a deep clean-up which propagates clearing to its fields,
             // for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
-            clear_packed_root::<V>(&entity, &root_key);
+            clear_packed_root::<V>(entity, &root_key);
         } else {
             // The type does not require deep clean-up so we can simply clean-up
             // its associated storage cell and be done without having to load it first.
@@ -321,8 +321,8 @@ where
     ///
     /// This is an `unsafe` operation because it has a `&self` receiver but returns
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
-    /// within internal use only and should never be given outside of the lazy
-    /// entity for public `&self` methods.
+    /// within internal use only and should never be given outside the lazy entity
+    /// for public `&self` methods.
     unsafe fn lazily_load(&self, index: Index) -> NonNull<StorageEntry<V>> {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The

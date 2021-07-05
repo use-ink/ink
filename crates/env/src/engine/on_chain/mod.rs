@@ -27,11 +27,11 @@ use super::OnInstance;
 
 /// The on-chain environment.
 pub struct EnvInstance {
-    /// Encode & decode buffer with static size of 16kB.
+    /// Encode & decode buffer with static size of 16 kB.
     ///
     /// If operations require more than that they will fail.
-    /// This limit was chosen after benchmarking Substrate storage
-    /// storage and load performance and was found to be a sweet spot.
+    /// This limit was found to be a sweet spot after running benchmarks
+    /// on Substrate's storage and load performance.
     ///
     /// Please note that this is still an implementation detail and
     /// might change. Users should generally avoid storing too big values

@@ -17,7 +17,11 @@ use super::{
     OffBalance,
     OffTimestamp,
 };
-use crate::Environment;
+use crate::{
+    engine::off_chain::types::OffRentFraction,
+    Environment,
+};
+use sp_arithmetic::PerThing;
 
 /// The chain specification.
 pub struct ChainSpec {
@@ -29,6 +33,14 @@ pub struct ChainSpec {
     tombstone_deposit: OffBalance,
     /// The targeted block time.
     block_time: OffTimestamp,
+    /// The balance a contract needs to deposit per storage byte to stay alive indefinitely.
+    deposit_per_storage_byte: OffBalance,
+    /// The balance every contract needs to deposit to stay alive indefinitely.
+    deposit_per_contract: OffBalance,
+    /// The balance a contract needs to deposit per storage item to stay alive indefinitely.
+    deposit_per_storage_item: OffBalance,
+    /// The fraction of the deposit costs that should be used as rent per block.
+    rent_fraction: OffRentFraction,
 }
 
 impl ChainSpec {
@@ -39,6 +51,10 @@ impl ChainSpec {
             minimum_balance: OffBalance::uninitialized(),
             tombstone_deposit: OffBalance::uninitialized(),
             block_time: OffTimestamp::uninitialized(),
+            deposit_per_storage_byte: OffBalance::uninitialized(),
+            deposit_per_contract: OffBalance::uninitialized(),
+            deposit_per_storage_item: OffBalance::uninitialized(),
+            rent_fraction: OffRentFraction::uninitialized(),
         }
     }
 
@@ -48,6 +64,10 @@ impl ChainSpec {
         self.minimum_balance = OffBalance::uninitialized();
         self.tombstone_deposit = OffBalance::uninitialized();
         self.block_time = OffTimestamp::uninitialized();
+        self.deposit_per_storage_byte = OffBalance::uninitialized();
+        self.deposit_per_contract = OffBalance::uninitialized();
+        self.deposit_per_storage_item = OffBalance::uninitialized();
+        self.rent_fraction = OffRentFraction::uninitialized();
     }
 
     /// Default initialization for the off-chain specification.
@@ -64,6 +84,20 @@ impl ChainSpec {
             .try_initialize::<T::Balance>(&T::Balance::from(16u32))?;
         self.block_time
             .try_initialize::<T::Timestamp>(&T::Timestamp::from(5u32))?;
+
+        let deposit_per_storage_byte = 10_000u32;
+        self.deposit_per_storage_byte
+            .try_initialize::<T::Balance>(&T::Balance::from(deposit_per_storage_byte))?;
+        self.deposit_per_contract
+            .try_initialize::<T::Balance>(&T::Balance::from(
+                8 * deposit_per_storage_byte,
+            ))?;
+        self.deposit_per_storage_item
+            .try_initialize::<T::Balance>(&T::Balance::from(10_000u32))?;
+        self.rent_fraction.try_initialize::<T::RentFraction>(
+            &T::RentFraction::from_rational_approximation(4, 10_000),
+        )?;
+
         Ok(())
     }
 
@@ -105,5 +139,37 @@ impl ChainSpec {
         T: Environment,
     {
         self.block_time.decode().map_err(Into::into)
+    }
+
+    /// The balance a contract needs to deposit per storage byte to stay alive indefinitely.
+    pub fn deposit_per_storage_byte<T>(&self) -> Result<T::Balance>
+    where
+        T: Environment,
+    {
+        self.deposit_per_storage_byte.decode().map_err(Into::into)
+    }
+
+    /// The balance every contract needs to deposit to stay alive indefinitely.
+    pub fn deposit_per_contract<T>(&self) -> Result<T::Balance>
+    where
+        T: Environment,
+    {
+        self.deposit_per_contract.decode().map_err(Into::into)
+    }
+
+    /// The balance a contract needs to deposit per storage item to stay alive indefinitely.
+    pub fn deposit_per_storage_item<T>(&self) -> Result<T::Balance>
+    where
+        T: Environment,
+    {
+        self.deposit_per_storage_item.decode().map_err(Into::into)
+    }
+
+    /// The fraction of the deposit costs that should be used as rent per block.
+    pub fn rent_fraction<T>(&self) -> Result<T::RentFraction>
+    where
+        T: Environment,
+    {
+        self.rent_fraction.decode().map_err(Into::into)
     }
 }

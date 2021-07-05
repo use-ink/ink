@@ -37,7 +37,7 @@ pub struct ItemImpls<'a> {
 
 impl AsRef<ir::Contract> for ItemImpls<'_> {
     fn as_ref(&self) -> &ir::Contract {
-        &self.contract
+        self.contract
     }
 }
 
