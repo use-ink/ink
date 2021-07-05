@@ -285,6 +285,8 @@ where
     /// let r = s.binary_search_by(|probe| probe.cmp(&seek));
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
     /// ```
+    // The binary_search implementation is ported from [core::slice] and attempts to remain as close
+    // to the source as possible.
     #[inline]
     pub fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<u32, u32>
     where

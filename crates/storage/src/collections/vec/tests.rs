@@ -491,7 +491,6 @@ fn test_binary_search_by_overflow() {
 
 #[test]
 // Test implementation specific behavior when finding equivalent elements.
-// It is ok to break this test but when you do a crater run is highly advisable.
 fn test_binary_search_implementation_details() {
     let b = vec_from_slice(&[1, 1, 2, 2, 3, 3, 3]);
     assert_eq!(b.binary_search(&1), Ok(1));
