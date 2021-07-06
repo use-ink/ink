@@ -417,6 +417,24 @@ pub(super) fn ensure_callable_invariants(
             kind,
         ))
     }
+
+    if let Some(arg) = method_item
+        .sig
+        .inputs
+        .iter()
+        .find(|input| {
+            match input {
+                syn::FnArg::Typed(pat) => !matches!(*pat.pat, syn::Pat::Ident(_)),
+                _ => false,
+            }
+        })
+    {
+        return Err(format_err_spanned!(
+            arg,
+            "ink! {} arguments must have an identifier",
+            kind
+        ))
+    }
     Ok(())
 }
 
