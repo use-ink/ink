@@ -15,9 +15,15 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
+cfg-if = "1.0"
 wee_alloc = { version = "0.4", default-features = false, optional = true }
+
+[target.'cfg(all(unix, not(target_arch = "wasm32")))'.dependencies.libc]
+version = "0.2"
+default-features = false
+optional = true
 
 [features]
 default = ["std"]
-std = []
+std = ["libc/std"]
 wee-alloc = ["wee_alloc"]
