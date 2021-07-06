@@ -136,12 +136,7 @@ impl InnerAlloc {
                 }
 
                 let start = start as usize;
-
-                self.upper_limit = match start.checked_add(PAGE_SIZE) {
-                    Some(u) => u,
-                    None => todo!(),
-                };
-
+                self.upper_limit = start + PAGE_SIZE;
                 self.next = start;
             }
         } else {
