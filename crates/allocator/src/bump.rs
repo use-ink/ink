@@ -84,17 +84,17 @@ impl InnerAlloc {
             fn init(&mut self) {
                 let prev_page = core::arch::wasm32::memory_grow(0, 1);
                 if prev_page == usize::MAX {
-                    todo!()
+                    panic!("Unable to grow Wasm memory.")
                 }
 
                 let start = match prev_page.checked_mul(PAGE_SIZE) {
                     Some(s) => s,
-                    None => todo!(),
+                    None => panic!("Start of page boundary is invalid."),
                 };
 
                 self.upper_limit = match start.checked_add(PAGE_SIZE) {
                     Some(u) => u,
-                    None => todo!(),
+                    None => panic!("Not enough memory left to allocate Wasm page."),
                 };
 
                 self.next = start;
