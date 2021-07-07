@@ -4,7 +4,7 @@ use ink_lang as ink;
 mod noop {
 
     struct Args {
-        foo: ()
+        foo: (),
     }
 
     #[ink(storage)]
