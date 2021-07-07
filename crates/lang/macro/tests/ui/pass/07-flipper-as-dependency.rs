@@ -1,20 +1,18 @@
 use ink_lang as ink;
 
-#[ink::trait_definition]
-pub trait FlipperTrait {
-    #[ink(constructor)]
-    fn new() -> Self;
-
-    #[ink(message)]
-    fn flip(&mut self);
-
-    #[ink(message)]
-    fn get(&self) -> bool;
-}
-
 #[ink::contract(compile_as_dependency = true)]
 mod flipper {
-    use super::FlipperTrait;
+    #[ink_lang::trait_definition]
+    pub trait FlipperTrait {
+        #[ink(constructor)]
+        fn new() -> Self;
+
+        #[ink(message)]
+        fn flip(&mut self);
+
+        #[ink(message)]
+        fn get(&self) -> bool;
+    }
 
     #[ink(storage)]
     pub struct Flipper {
