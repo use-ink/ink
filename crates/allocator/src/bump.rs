@@ -34,23 +34,13 @@ static mut INNER: InnerAlloc = InnerAlloc::new();
 /// A bump allocator suitable for use in a Wasm environment.
 pub struct BumpAllocator;
 
-impl BumpAllocator {
-    /// Initialize the backing heap of the bump allocator.
-    ///
-    /// This function must only be called **once**, and it **must** be called before any
-    /// allocations are made.
-    #[inline]
-    pub fn init(&self) {
-        // SAFETY: We are in a single threaded context, so we don't have to worry about this being
-        // concurrently mutated by multiple threads.
-        unsafe { INNER.init() }
-    }
-}
-
 unsafe impl GlobalAlloc for BumpAllocator {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        INNER.alloc(layout)
+        match INNER.alloc(layout) {
+            Some(start) => start as *mut u8,
+            None => core::ptr::null_mut(),
+        }
     }
 
     #[inline]
@@ -75,29 +65,16 @@ impl InnerAlloc {
 
     cfg_if::cfg_if! {
         if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
-            /// Initialize the heap which backs the bump allocator.
+            /// Request a new page of Wasm memory (64KiB).
             ///
-            /// Our heap is a single page of Wasm memory (64KiB) and will not grow beyond that.
-            ///
-            /// Note that this function must be called before any allocations can take place, otherwise any
-            /// attempts to perform an allocation will fail.
-            fn init(&mut self) {
+            /// Returns `None` if a page isn't available.
+            fn request_page(&mut self) -> Option<usize> {
                 let prev_page = core::arch::wasm32::memory_grow(0, 1);
                 if prev_page == usize::MAX {
-                    panic!("Unable to grow Wasm memory.")
+                    return None;
                 }
 
-                let start = match prev_page.checked_mul(PAGE_SIZE) {
-                    Some(s) => s,
-                    None => panic!("Start of page boundary is invalid."),
-                };
-
-                self.upper_limit = match start.checked_add(PAGE_SIZE) {
-                    Some(u) => u,
-                    None => panic!("Not enough memory left to allocate Wasm page."),
-                };
-
-                self.next = start;
+                prev_page.checked_mul(PAGE_SIZE)
             }
 
         } else if #[cfg(all(feature = "std", unix))] {
@@ -111,7 +88,10 @@ impl InnerAlloc {
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
-            fn init(&mut self) {
+            fn request_page(&mut self) -> Option<usize> {
+                // TODO
+                return None;
+
                 let start = unsafe {
                     let protection_bits = libc::PROT_WRITE | libc::PROT_READ;
                     let flags = libc::MAP_ANONYMOUS | libc::MAP_PRIVATE;
@@ -146,28 +126,25 @@ impl InnerAlloc {
         }
     }
 
-    /// Note: This function assumes that the allocator has already been initialized properly (see
-    /// [Self::init()].
-    fn alloc(&mut self, layout: Layout) -> *mut u8 {
-        // TODO: Init properly
-        unsafe {
-            INNER.init();
-        }
-
+    /// Tries to allocate enough memory on the heap for the given `Layout`. If there isn't enough
+    /// room on the heap it'll try and grow it by a page.
+    // NOTE: I think we'll end up with fragmentation here
+    fn alloc(&mut self, layout: Layout) -> Option<usize> {
         let alloc_start = self.next;
 
         let aligned_layout = layout.pad_to_align();
-        let alloc_end = match alloc_start.checked_add(aligned_layout.size()) {
-            Some(end) => end,
-            None => return core::ptr::null_mut(),
-        };
+        let alloc_end = alloc_start.checked_add(aligned_layout.size())?;
 
         if alloc_end > self.upper_limit {
-            return core::ptr::null_mut()
-        }
+            let alloc_start = self.request_page()?;
+            self.upper_limit = alloc_start.checked_add(PAGE_SIZE)?;
+            self.next = alloc_start.checked_add(aligned_layout.size())?;
 
-        self.next = alloc_end;
-        alloc_start as *mut u8
+            Some(alloc_start)
+        } else {
+            self.next = alloc_end;
+            Some(alloc_start)
+        }
     }
 }
 
