@@ -285,8 +285,8 @@ where
     /// let r = s.binary_search_by(|probe| probe.cmp(&seek));
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
     /// ```
-    // The binary_search implementation is ported from [core::slice] and attempts to remain as close
-    // to the source as possible.
+    // The binary_search implementation is ported from https://github.com/rust-lang/rust/blob/c5e344f7747dbd7e7d4b209e3c480deb5979a56f/library/core/src/slice/mod.rs#L2191
+    // and attempts to remain as close to the source as possible.
     #[inline]
     pub fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<u32, u32>
     where
