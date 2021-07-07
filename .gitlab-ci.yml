@@ -9,6 +9,7 @@ stages:
   - check
   - workspace
   - examples
+  - ink-waterfall
   - fuzz
   - publish
 
@@ -344,6 +345,19 @@ examples-docs:
         - for contract in ${DELEGATOR_SUBCONTRACTS}; do
             cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
           done
+
+
+#### stage:                        ink-waterfall
+
+ink-waterfall:
+  stage:                           ink-waterfall
+  variables:
+    UPSTREAM_PR_ID:                $CI_COMMIT_REF_NAME
+  trigger:
+    project:                       parity/ink-waterfall
+    branch:                        master
+    strategy:                      depend
+
 
 #### stage:                        publish
 
