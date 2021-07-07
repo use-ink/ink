@@ -23,7 +23,7 @@ mod flipper {
 
     impl Flipper {
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
+        pub fn new2(init_value: bool) -> Self {
             Self { value: init_value }
         }
 
