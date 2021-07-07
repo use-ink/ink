@@ -57,6 +57,9 @@ unordered
 untyped
 validator
 variadic
+metadata
+timestamp
+prepend
 
 Django/S
 IP/S
