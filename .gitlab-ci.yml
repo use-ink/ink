@@ -353,6 +353,7 @@ ink-waterfall:
   stage:                           ink-waterfall
   variables:
     UPSTREAM_PR_ID:                $CI_COMMIT_REF_NAME
+    CI_IMAGE:                      "paritytech/ink-waterfall-ci:latest"
   trigger:
     project:                       parity/ink-waterfall
     branch:                        master
