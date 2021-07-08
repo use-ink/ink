@@ -221,24 +221,15 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
+    /// use ink_storage::Vec as StorageVec;
+    ///
+    /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55].into_iter().copied().collect();
     ///
     /// assert_eq!(s.binary_search(&13),  Ok(9));
     /// assert_eq!(s.binary_search(&4),   Err(7));
     /// assert_eq!(s.binary_search(&100), Err(13));
     /// let r = s.binary_search(&1);
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
-    /// ```
-    ///
-    /// If you want to insert an item to a sorted vector, while maintaining
-    /// sort order:
-    ///
-    /// ```
-    /// let mut s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
-    /// let num = 42;
-    /// let idx = s.binary_search(&num).unwrap_or_else(|x| x);
-    /// s.insert(idx, num);
-    /// assert_eq!(s, [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 42, 55]);
     /// ```
     #[inline]
     pub fn binary_search(&self, x: &T) -> Result<u32, u32>
@@ -273,7 +264,9 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = Vec::from([0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]);
+    /// use ink_storage::Vec as StorageVec;
+    ///
+    /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55].into_iter().copied().collect();
     ///
     /// let seek = 13;
     /// assert_eq!(s.binary_search_by(|probe| probe.cmp(&seek)), Ok(9));
@@ -342,9 +335,11 @@ where
     /// fourth could match any position in `[1, 4]`.
     ///
     /// ```
-    /// let s = Vec::from([(0, 0), (2, 1), (4, 1), (5, 1), (3, 1),
+    /// use ink_storage::Vec as StorageVec;
+    ///
+    /// let s: StorageVec<(i32, i32)> = [(0, 0), (2, 1), (4, 1), (5, 1), (3, 1),
     ///          (1, 2), (2, 3), (4, 5), (5, 8), (3, 13),
-    ///          (1, 21), (2, 34), (4, 55)]);
+    ///          (1, 21), (2, 34), (4, 55)].into_iter().copied().collect();
     ///
     /// assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b),  Ok(9));
     /// assert_eq!(s.binary_search_by_key(&4, |&(a, b)| b),   Err(7));
