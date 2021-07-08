@@ -99,6 +99,15 @@ spellcheck:
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
+fmt:
+  stage:                        check
+  <<:                           *docker-env
+  script:
+    - cargo fmt --verbose --all -- --check
+
+    # For the UI tests we need to disable the license check
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
+
 
 #### stage:                        workspace
 
@@ -239,14 +248,6 @@ clippy-wasm:
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  script:
-    - cargo fmt --verbose --all -- --check
-
-    # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
 
 
 #### stage:                        examples
