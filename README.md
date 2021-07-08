@@ -25,7 +25,7 @@
 [k1]: https://img.shields.io/badge/matrix-chat-brightgreen.svg?style=flat
 [k2]: https://riot.im/app/#/room/#ink:matrix.parity.io
 [l1]: https://img.shields.io/discord/722223075629727774?style=flat-square&label=discord
-[l2]: https://discord.gg/j2DKRRbSJr
+[l2]: https://discord.com/invite/wGUDt2p
 
 > <img src="./.images/ink-squid.svg" alt="squink, the ink! mascot" style="vertical-align: middle" align="left" height="60" />ink! is an [eDSL](https://wiki.haskell.org/Embedded_domain_specific_language) to write smart contracts in Rust for blockchains built on the [Substrate](https://github.com/paritytech/substrate) framework. ink! contracts are compiled to WebAssembly.
 
@@ -38,7 +38,8 @@
 </div>
 
 More relevant links:
-* Talk to us on [Element][k2] or [Discord][l2]
+* Talk to us on [Element][k2] or in [Discord][l2]
+  on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract deployment and interaction
 * [Canvas Node](https://github.com/paritytech/canvas-node) ‒ Simple Substrate blockchain which includes smart contract functionality
