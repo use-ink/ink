@@ -75,7 +75,7 @@ check-std:
     - for crate in ${ALL_CRATES}; do
         echo "cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 check-wasm:
   stage:                           check
@@ -84,7 +84,7 @@ check-wasm:
     - for crate in ${ALSO_WASM_CRATES}; do
         echo "cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 
 #### stage:                        workspace
@@ -99,7 +99,7 @@ build-std:
     - for crate in ${ALL_CRATES}; do
         echo "cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 
 build-wasm:
@@ -112,7 +112,7 @@ build-wasm:
     - for crate in ${ALSO_WASM_CRATES}; do
         echo "cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 test:
   stage:                           workspace
@@ -166,7 +166,7 @@ spellcheck:
         - for contract in ${DELEGATOR_SUBCONTRACTS}; do
             echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/" >> /tmp/cmds;
           done
-        - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+        - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 codecov:
   stage:                           workspace
@@ -225,7 +225,7 @@ clippy-std:
     - for crate in ${ALL_CRATES}; do
         echo "cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 clippy-wasm:
   stage:                           workspace
@@ -237,7 +237,7 @@ clippy-wasm:
     - for crate in ${ALSO_WASM_CRATES}; do
         echo "cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 fmt:
   stage:                           workspace
@@ -289,7 +289,7 @@ examples-fmt:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         echo "cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 examples-clippy-std:
   stage:                           examples
@@ -304,7 +304,7 @@ examples-clippy-std:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         echo "cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 examples-clippy-wasm:
   stage:                           examples
@@ -316,7 +316,7 @@ examples-clippy-wasm:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         echo "cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 examples-contract-build:
   stage:                           examples
@@ -329,7 +329,7 @@ examples-contract-build:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         echo "cargo build --manifest-path examples/delegator/${contract}/Cargo.toml" >> /tmp/cmds;
       done
-    - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 examples-contract-build-delegator:
     stage:                           examples
@@ -354,7 +354,7 @@ examples-docs:
         - for contract in ${DELEGATOR_SUBCONTRACTS}; do
             echo "cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps" >> /tmp/cmds;
           done
-        - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
+        - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 
 #### stage:                        publish
