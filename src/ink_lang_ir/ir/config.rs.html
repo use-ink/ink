@@ -328,12 +328,12 @@
 {
     <span class="macro">format_err!</span>(
         <span class="ident">snd</span>.<span class="ident">span</span>(),
-        <span class="string">&quot;encountered duplicate ink! `{}` config argument&quot;</span>,
+        <span class="string">&quot;encountered duplicate ink! `{}` configuration argument&quot;</span>,
         <span class="ident">name</span>,
     )
     .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
         <span class="ident">fst</span>.<span class="ident">span</span>(),
-        <span class="string">&quot;first `{}` config argument here&quot;</span>,
+        <span class="string">&quot;first `{}` configuration argument here&quot;</span>,
         <span class="ident">name</span>
     ))
 }
@@ -450,7 +450,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Asserts that the given input config attribute argument are converted</span>
+    <span class="doccomment">/// Asserts that the given input configuration attribute argument are converted</span>
     <span class="doccomment">/// into the expected ink! configuration or yields the expected error message.</span>
     <span class="kw">fn</span> <span class="ident">assert_try_from</span>(
         <span class="ident">input</span>: <span class="ident">ast::AttributeArgs</span>,
@@ -553,7 +553,7 @@
                 <span class="ident">env</span> <span class="op">=</span> <span class="ident">::my::env::Types</span>,
                 <span class="ident">env</span> <span class="op">=</span> <span class="ident">::my::other::env::Types</span>,
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! `env` config argument&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;encountered duplicate ink! `env` configuration argument&quot;</span>),
         );
     }
 }
