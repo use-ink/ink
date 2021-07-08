@@ -48,12 +48,12 @@ where
 {
     format_err!(
         snd.span(),
-        "encountered duplicate ink! `{}` config argument",
+        "encountered duplicate ink! `{}` configuration argument",
         name,
     )
     .into_combine(format_err!(
         fst.span(),
-        "first `{}` config argument here",
+        "first `{}` configuration argument here",
         name
     ))
 }
@@ -170,7 +170,7 @@ impl Default for Environment {
 mod tests {
     use super::*;
 
-    /// Asserts that the given input config attribute argument are converted
+    /// Asserts that the given input configuration attribute argument are converted
     /// into the expected ink! configuration or yields the expected error message.
     fn assert_try_from(
         input: ast::AttributeArgs,
@@ -273,7 +273,7 @@ mod tests {
                 env = ::my::env::Types,
                 env = ::my::other::env::Types,
             },
-            Err("encountered duplicate ink! `env` config argument"),
+            Err("encountered duplicate ink! `env` configuration argument"),
         );
     }
 }
