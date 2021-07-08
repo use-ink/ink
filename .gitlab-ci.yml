@@ -86,6 +86,19 @@ check-wasm:
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
+spellcheck:
+  stage:                          check
+  <<:                             *docker-env
+  script:
+    - echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1" >> /tmp/cmds
+    - for example in examples/*/; do
+        echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example}" >> /tmp/cmds;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/" >> /tmp/cmds;
+      done
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
+
 
 #### stage:                        workspace
 
@@ -154,19 +167,6 @@ docs:
         -p ink_primitives -p ink_prelude
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
-
-spellcheck:
-    stage:                           workspace
-    <<:                              *docker-env
-    script:
-        - echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1" >> /tmp/cmds
-        - for example in examples/*/; do
-            echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example}" >> /tmp/cmds;
-          done
-        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-            echo "cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/" >> /tmp/cmds;
-          done
-        - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
 codecov:
   stage:                           workspace
