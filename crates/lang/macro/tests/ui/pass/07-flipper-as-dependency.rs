@@ -2,18 +2,6 @@ use ink_lang as ink;
 
 #[ink::contract(compile_as_dependency = true)]
 mod flipper {
-    #[ink_lang::trait_definition]
-    pub trait FlipperTrait {
-        #[ink(constructor)]
-        fn new() -> Self;
-
-        #[ink(message)]
-        fn flip(&mut self);
-
-        #[ink(message)]
-        fn get(&self) -> bool;
-    }
-
     #[ink(storage)]
     pub struct Flipper {
         value: bool,
@@ -21,7 +9,7 @@ mod flipper {
 
     impl Flipper {
         #[ink(constructor)]
-        pub fn new2(init_value: bool) -> Self {
+        pub fn new(init_value: bool) -> Self {
             Self { value: init_value }
         }
 
@@ -31,29 +19,12 @@ mod flipper {
         }
 
         #[ink(message)]
-        pub fn flip2(&mut self) {
+        pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
         #[ink(message)]
-        pub fn get2(&self) -> bool {
-            self.value
-        }
-    }
-
-    impl FlipperTrait for Flipper {
-        #[ink(constructor)]
-        fn new() -> Self {
-            Self::default()
-        }
-
-        #[ink(message)]
-        fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        #[ink(message)]
-        fn get(&self) -> bool {
+        pub fn get(&self) -> bool {
             self.value
         }
     }

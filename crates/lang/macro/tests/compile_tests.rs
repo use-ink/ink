@@ -23,9 +23,10 @@ fn compile_tests() {
     t.pass("tests/ui/pass/05-erc721-contract.rs");
     t.pass("tests/ui/pass/06-non-ink-items.rs");
     t.pass("tests/ui/pass/07-flipper-as-dependency.rs");
-    t.pass("tests/ui/pass/08-static-env.rs");
-    t.pass("tests/ui/pass/09-derive-for-storage.rs");
-    t.pass("tests/ui/pass/10-alias-storage-struct-impl.rs");
+    t.pass("tests/ui/pass/08-flipper-as-dependency-trait.rs");
+    t.pass("tests/ui/pass/09-static-env.rs");
+    t.pass("tests/ui/pass/10-derive-for-storage.rs");
+    t.pass("tests/ui/pass/11-alias-storage-struct-impl.rs");
 
     t.compile_fail("tests/ui/fail/C-00-constructor-self-ref.rs");
     t.compile_fail("tests/ui/fail/C-01-constructor-self-mut.rs");
