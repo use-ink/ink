@@ -254,9 +254,6 @@ fmt:
 examples-test:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
   script:
     - for example in examples/*/; do
         cargo test --verbose --manifest-path ${example}/Cargo.toml;
@@ -268,9 +265,6 @@ examples-test:
 examples-test-experimental-engine:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
   script:
     # We test only the examples for which the tests have already been migrated to
     # use the experimental engine.
@@ -294,9 +288,6 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
   script:
     - for example in examples/*/; do
         echo "cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings" >> /tmp/cmds;
