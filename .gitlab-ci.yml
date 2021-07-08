@@ -86,6 +86,24 @@ check-wasm:
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
+clippy-std:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALL_CRATES}; do
+        echo "cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings" >> /tmp/cmds;
+      done
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
+
+clippy-wasm:
+  stage:                           check
+  <<:                              *docker-env
+  script:
+    - for crate in ${ALSO_WASM_CRATES}; do
+        echo "cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings" >> /tmp/cmds;
+      done
+    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
+
 spellcheck:
   stage:                          check
   <<:                             *docker-env
@@ -223,31 +241,6 @@ codecov:
         --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
     - bash <(curl -s https://codecov.io/bash) -f lcov-lines-fixed.info
-
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        echo "cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings" >> /tmp/cmds;
-      done
-    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALSO_WASM_CRATES}; do
-        echo "cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings" >> /tmp/cmds;
-      done
-    - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
-
 
 
 #### stage:                        examples
