@@ -616,6 +616,19 @@
 <span id="616">616</span>
 <span id="617">617</span>
 <span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -1034,6 +1047,19 @@
             <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">variadic</span>,
             <span class="string">&quot;ink! {}s must not be variadic&quot;</span>,
             <span class="ident">kind</span>,
+        ))
+    }
+
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+        <span class="kw">match</span> <span class="ident">input</span> {
+            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">pat</span>.<span class="ident">pat</span>, <span class="ident">syn::Pat::Ident</span>(<span class="kw">_</span>)),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        }
+    }) {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
+            <span class="ident">arg</span>,
+            <span class="string">&quot;ink! {} arguments must have an identifier&quot;</span>,
+            <span class="ident">kind</span>
         ))
     }
     <span class="prelude-val">Ok</span>(())
