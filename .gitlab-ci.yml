@@ -331,13 +331,6 @@ examples-contract-build:
       done
     - cat /tmp/cmds | xargs -P 3 -I{} bash -c "{}"
 
-examples-contract-build-delegator:
-    stage:                           examples
-    <<:                              *docker-env
-    script:
-        - cargo contract -V
-        - cd examples/delegator/ && ./build-all.sh
-
 examples-docs:
     stage:                           examples
     <<:                              *docker-env
