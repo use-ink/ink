@@ -357,19 +357,6 @@ examples-docs:
         - cat /tmp/cmds | xargs -P 2 -I{} bash -c "{}"
 
 
-#### stage:                        ink-waterfall
-
-ink-waterfall:
-  stage:                           ink-waterfall
-  variables:
-    UPSTREAM_PR_ID:                $CI_COMMIT_REF_NAME
-    CI_IMAGE:                      "paritytech/ink-waterfall-ci:latest"
-  trigger:
-    project:                       parity/ink-waterfall
-    branch:                        master
-    strategy:                      depend
-
-
 #### stage:                        publish
 
 publish-docs:
