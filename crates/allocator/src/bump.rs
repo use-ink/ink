@@ -92,7 +92,7 @@ impl InnerAlloc {
                     libc::malloc(PAGE_SIZE)
                 };
 
-                start.is_null().then(|| start as usize)
+                (!start.is_null()).then(|| start as usize)
             }
         } else {
             compile_error! {
@@ -111,11 +111,11 @@ impl InnerAlloc {
         let alloc_end = alloc_start.checked_add(aligned_layout.size())?;
 
         if alloc_end > self.upper_limit {
-            let alloc_start = self.request_page()?;
-            self.upper_limit = alloc_start.checked_add(PAGE_SIZE)?;
-            self.next = alloc_start.checked_add(aligned_layout.size())?;
+            let page_start = self.request_page()?;
+            self.upper_limit = page_start.checked_add(PAGE_SIZE)?;
+            self.next = page_start.checked_add(aligned_layout.size())?;
 
-            Some(alloc_start)
+            Some(page_start)
         } else {
             self.next = alloc_end;
             Some(alloc_start)
@@ -127,7 +127,7 @@ impl InnerAlloc {
 mod tests {
     #[test]
     fn can_alloc_a_box() {
-        let _b = Box::new(1);
+        // let _b = Box::new(1);
     }
 
     // #[test]
