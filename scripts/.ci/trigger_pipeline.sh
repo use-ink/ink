@@ -7,6 +7,8 @@ set -eu
 # API trigger another project's pipeline
 echo "Triggering ink-waterfall pipeline."
 
+echo "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline"
+
 curl --silent \
     -X POST \
     -F "token=${CI_JOB_TOKEN}" \
