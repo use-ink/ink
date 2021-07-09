@@ -352,13 +352,14 @@ examples-docs:
 
 ink-waterfall:
   stage:                           ink-waterfall
+  <<:                              *docker-env
   variables:
-    UPSTREAM_PR_ID:                $CI_COMMIT_REF_NAME
     IMAGE_NAME:                    "paritytech/ink-waterfall-ci"
     IMAGE_TAG:                     "latest"
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
-      # The `ink-waterfall` project id in GitLab
+    UPSTREAM_PR_ID:                ${CI_COMMIT_REF_NAME}
+    # The `ink-waterfall` project id in GitLab
     DWNSTRM_ID:                    409
   script:
     - ./scripts/gitlab/trigger_pipeline.sh
