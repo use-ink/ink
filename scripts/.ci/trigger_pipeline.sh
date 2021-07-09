@@ -54,5 +54,5 @@ for i in $(seq 1 360); do
     else
         echo "Something else has happened in ${PIPELINE_URL}"; exit 1;
     fi
-sleep 8;
+sleep 5;
 done
