@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# This script is mostly copied from https://github.com/paritytech/polkadot/blob/master/scripts/gitlab/trigger_pipeline.sh.
+# This script is mostly copied from here:
+# https://github.com/paritytech/polkadot/blob/d822565487bdb41a9e8d73615877a8ea31ae0f6c/scripts/gitlab/trigger_pipeline.sh
 
 set -eu
 
