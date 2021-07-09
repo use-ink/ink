@@ -21,6 +21,8 @@ curl --silent \
     -F "ref=master" \
     -F "variables[TRGR_PROJECT]=${TRGR_PROJECT}" \
     -F "variables[TRGR_REF]=${TRGR_REF}" \
+    -F "variables[IMAGE_NAME]=${IMAGE_NAME}" \
+    -F "variables[IMAGE_TAG]=${IMAGE_TAG}" \
     "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline" | \
         tee pipeline;
 

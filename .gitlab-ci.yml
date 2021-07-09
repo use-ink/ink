@@ -387,13 +387,15 @@ ink-waterfall:
   <<:                              *kubernetes-env
   <<:                              *test-refs
   variables:
+    IMAGE_NAME:                    "paritytech/ink-waterfall-ci"
+    IMAGE_TAG:                     "latest"
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
     # The `ink-waterfall` project id in GitLab
     DWNSTRM_ID:                    409
+  allow_failure:                   true
   script:
     - ./scripts/.ci/trigger_pipeline.sh
-  allow_failure:                   true
 
 
 #### stage:                        publish
