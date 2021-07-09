@@ -46,7 +46,7 @@ workflow:
     - rustc -vV
     - rustup show
     - bash --version
-    - ./scripts/pre_cache.sh
+    - ./scripts/.ci/pre_cache.sh
     - sccache -s
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
@@ -377,7 +377,7 @@ publish-docs:
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
   # need to overwrite `before_script` from `*docker-env` here,
-  # this branch does not have a `./scripts/pre_cache.sh`
+  # this branch does not have a `./scripts/.ci/pre_cache.sh`
   before_script:
     - unset CARGO_TARGET_DIR
   script:
