@@ -44,6 +44,7 @@ workflow:
   - cargo --version
   - rustup +nightly show
   - cargo +nightly --version
+  - bash --version
   - sccache -s
 
 .test-refs:                        &test-refs
@@ -203,10 +204,7 @@ codecov:
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
   before_script:
-    - cargo -vV
-    - rustc -vV
-    - rustup show
-    - bash --version
+    - *rust-info-script
     - unset "CARGO_TARGET_DIR"
     - cargo clean
   script:
@@ -417,6 +415,7 @@ publish-docs:
   # need to overwrite `before_script` from `*docker-env` here,
   # this branch does not have a `./scripts/.ci/pre_cache.sh`
   before_script:
+    - *rust-info-script
     - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
