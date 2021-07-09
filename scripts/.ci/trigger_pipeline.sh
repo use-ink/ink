@@ -4,11 +4,15 @@
 
 set -eu
 
+if [ ! -n "$PIPELINE_TOKEN" ]; then
+    echo "PIPELINE_TOKEN is missing!"
+    exit 1
+fi
+
 # API trigger another project's pipeline
 echo "Triggering ink-waterfall pipeline."
 
 echo "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline"
-
 
 curl --silent \
     -X POST \
