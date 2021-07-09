@@ -362,7 +362,7 @@ ink-waterfall:
     # The `ink-waterfall` project id in GitLab
     DWNSTRM_ID:                    409
   script:
-    - ./scripts/gitlab/trigger_pipeline.sh
+    - ./scripts/.ci/trigger_pipeline.sh
   allow_failure:                   true
 
 
