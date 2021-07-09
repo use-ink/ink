@@ -384,6 +384,7 @@ examples-docs:
 
 ink-waterfall:
   stage:                           ink-waterfall
+  image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
   <<:                              *test-refs
   variables:
