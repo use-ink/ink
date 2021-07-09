@@ -12,6 +12,7 @@ Polkadot
 RPC
 SHA
 UI
+URI
 Wasm
 Wasm32
 WebAssembly
@@ -20,6 +21,7 @@ bitvector
 bitwise
 callee
 codegen
+comparator
 const
 crypto
 cryptographic
@@ -57,6 +59,9 @@ unordered
 untyped
 validator
 variadic
+metadata
+timestamp
+prepend
 
 Django/S
 IP/S
