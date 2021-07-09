@@ -9,17 +9,27 @@ echo "Triggering ink-waterfall pipeline."
 
 echo "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline"
 
+curl \
+    -X POST \
+    -F "token=${CI_JOB_TOKEN}" \
+    -F "variables[TRGR_PROJECT]=${TRGR_PROJECT}" \
+    -F "variables[TRGR_REF]=${TRGR_REF}" \
+    -F "variables[IMAGE_NAME]=${IMAGE_NAME}" \
+    -F "variables[IMAGE_TAG]=${IMAGE_TAG}" \
+    "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline"
+
 curl --silent \
     -X POST \
     -F "token=${CI_JOB_TOKEN}" \
-    #-F "ref=v3" `# trigger the pinned version of simnet CI config` \
     -F "variables[TRGR_PROJECT]=${TRGR_PROJECT}" \
     -F "variables[TRGR_REF]=${TRGR_REF}" \
-    #-F "variables[IMAGE_NAME]=${IMAGE_NAME}" \
-    #-F "variables[IMAGE_TAG]=${IMAGE_TAG}" \
-    -F "variables[UPSTREAM_PR_ID]=${UPSTREAM_PR_ID}" \
     "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline" | \
         tee pipeline;
+
+    #-F "variables[IMAGE_NAME]=${IMAGE_NAME}" \
+    #-F "variables[IMAGE_TAG]=${IMAGE_TAG}" \
+    #-F "variables[UPSTREAM_PR_ID]=${UPSTREAM_PR_ID}" \
+    #-F "ref=v3" `# trigger the pinned version of simnet CI config` \
 
 PIPELINE_ID=$(cat pipeline | jq ".id")
 PIPELINE_URL=$(cat pipeline | jq ".web_url")
