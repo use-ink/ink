@@ -47,12 +47,17 @@ unsafe impl GlobalAlloc for BumpAllocator {
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
 }
 
+#[cfg_attr(feature = "std", derive(Debug, Copy, Clone))]
 struct InnerAlloc {
     /// Points to the start of the next available allocation.
     next: usize,
 
     /// The address of the upper limit of our heap.
     upper_limit: usize,
+
+    /// How many page requests have we made?
+    #[cfg(feature = "std")]
+    page_requests: usize,
 }
 
 impl InnerAlloc {
@@ -60,6 +65,8 @@ impl InnerAlloc {
         Self {
             next: 0,
             upper_limit: 0,
+            #[cfg(feature = "std")]
+            page_requests: 0,
         }
     }
 
@@ -85,14 +92,9 @@ impl InnerAlloc {
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
             fn request_page(&mut self) -> Option<usize> {
-                // _Technically_ the `PAGE_SIZE` here will more than likely *not* match the page
-                // size of our non-wasm32 architecture, but it's fine to request that many bytes
-                // from `malloc`.
-                let start = unsafe {
-                    libc::malloc(PAGE_SIZE)
-                };
-
-                (!start.is_null()).then(|| start as usize)
+                let prev_page = self.page_requests.checked_mul(PAGE_SIZE);
+                self.page_requests += 1;
+                prev_page
             }
         } else {
             compile_error! {
@@ -107,7 +109,7 @@ impl InnerAlloc {
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
         let alloc_start = self.next;
 
-        let aligned_layout = layout.pad_to_align();
+        let aligned_layout = dbg!(layout.pad_to_align());
         let alloc_end = alloc_start.checked_add(aligned_layout.size())?;
 
         if alloc_end > self.upper_limit {
@@ -125,28 +127,96 @@ impl InnerAlloc {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
-    fn can_alloc_a_box() {
-        // let _b = Box::new(1);
+    fn can_alloc_a_byte() {
+        let mut inner = InnerAlloc::new();
+
+        let layout = Layout::new::<u8>();
+        assert!(inner.alloc(layout).is_some());
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = 1 * std::mem::size_of::<u8>();
+        assert_eq!(inner.next, expected_alloc_start);
     }
 
-    // #[test]
-    // fn can_alloc_a_vec() {
-    //     let mut v = Vec::new();
-    //     v.push(1)
-    // }
+    #[test]
+    fn can_alloc_a_foobarbaz() {
+        let mut inner = InnerAlloc::new();
 
-    // #[test]
-    // fn can_alloc_a_big_vec() {
-    //     let mut v = Vec::with_capacity(PAGE_SIZE);
-    //     v.push(true)
-    // }
+        struct FooBarBaz {
+            _foo: u32,
+            _bar: u128,
+            _baz: (u16, bool),
+        }
 
-    // TODO: This fails, as expected, but I get `SIGABRT`-ed, need to figure out how to set up a
-    // handler to deal with this correctly
-    // #[test]
-    // fn cannot_alloc_a_bigger_vec() {
-    //     let mut v = Vec::with_capacity(PAGE_SIZE + 1);
-    //     v.push(true)
-    // }
+        let layout = Layout::new::<FooBarBaz>();
+
+        let allocations = 3;
+        for _ in 0..allocations {
+            assert!(inner.alloc(layout).is_some());
+        }
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = allocations * std::mem::size_of::<FooBarBaz>();
+        assert_eq!(inner.next, expected_alloc_start);
+    }
+
+    #[test]
+    fn can_alloc_across_pages() {
+        let mut inner = InnerAlloc::new();
+
+        struct Foo {
+            _foo: [u8; PAGE_SIZE - 1],
+        }
+
+        let layout = Layout::new::<Foo>();
+        dbg!(layout);
+
+        assert!(inner.alloc(layout).is_some());
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = 1 * std::mem::size_of::<Foo>();
+        assert_eq!(inner.next, expected_alloc_start);
+
+        dbg!(inner);
+
+        // Since this is two bytes it'll push us over to the next page
+        let layout = Layout::new::<u16>();
+        assert!(inner.alloc(layout).is_some());
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        // TODO: Fix size hack
+        let expected_alloc_start =
+            1 * std::mem::size_of::<Foo>() + 1 * std::mem::size_of::<u16>() + 1;
+        assert_eq!(inner.next, expected_alloc_start);
+    }
+
+    // TODO: Don't think this actually quite works as expected at the moment...
+    #[test]
+    fn can_alloc_multiple_pages() {
+        let mut inner = InnerAlloc::new();
+
+        struct Foo {
+            _foo: [u8; 2 * PAGE_SIZE - 1],
+        }
+
+        let layout = Layout::new::<Foo>();
+        assert!(inner.alloc(layout).is_some());
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = 1 * std::mem::size_of::<Foo>();
+        assert_eq!(inner.next, expected_alloc_start);
+    }
 }

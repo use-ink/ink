@@ -29,6 +29,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[cfg(not(feature = "wee-alloc"))]
+#[cfg(not(test))]
 #[global_allocator]
 static mut ALLOC: bump::BumpAllocator = bump::BumpAllocator {};
 
