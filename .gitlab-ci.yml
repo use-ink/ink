@@ -39,15 +39,15 @@ workflow:
     paths:
       - artifacts/
 
-.docker-env:                       &docker-env
-  image:                           "${CI_IMAGE}"
-  before_script:
-    - cargo -vV
-    - rustc -vV
-    - rustup show
-    - bash --version
-    - ./scripts/pre_cache.sh
-    - sccache -s
+.rust-info-script:                 &rust-info-script
+  - rustup show
+  - cargo --version
+  - rustup +nightly show
+  - cargo +nightly --version
+  - bash --version
+  - sccache -s
+
+.test-refs:                        &test-refs
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -55,6 +55,13 @@ workflow:
     - if: $CI_COMMIT_REF_NAME == "tags"
     - if: $CI_COMMIT_REF_NAME =~ /^[0-9]+$/                         # PRs
     - if: $CI_COMMIT_REF_NAME =~ /^v[0-9]+\.[0-9]+.*$/              # i.e. v1.0, v2.1rc1
+
+.docker-env:                       &docker-env
+  image:                           "${CI_IMAGE}"
+  before_script:
+    - *rust-info-script
+    - ./scripts/.ci/pre_cache.sh
+    - sccache -s
   interruptible:                   true
   retry:
     max: 2
@@ -65,12 +72,23 @@ workflow:
   tags:
     - linux-docker
 
+.kubernetes-env:                   &kubernetes-env
+  interruptible:                   true
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - unknown_failure
+      - api_failure
+  tags:
+    - kubernetes-parity-build
 
 #### stage:                        check
 
 check-std:
   stage:                           check
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - for crate in ${ALL_CRATES}; do
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
@@ -79,6 +97,7 @@ check-std:
 check-wasm:
   stage:                           check
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
@@ -90,6 +109,7 @@ check-wasm:
 build-std:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -101,6 +121,7 @@ build-std:
 build-wasm:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-wasm
       artifacts:                   false
@@ -112,6 +133,7 @@ build-wasm:
 test:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -134,6 +156,7 @@ test:
 docs:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   variables:
     RUSTDOCFLAGS: -Dwarnings
   artifacts:
@@ -151,20 +174,22 @@ docs:
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
 
 spellcheck:
-    stage:                           workspace
-    <<:                              *docker-env
-    script:
-        - cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
-        - for example in examples/*/; do
-            cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example};
-          done
-        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-            cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/;
-          done
+  stage:                           workspace
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
+    - for example in examples/*/; do
+        cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example};
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/;
+      done
 
 codecov:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -179,10 +204,7 @@ codecov:
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
   before_script:
-    - cargo -vV
-    - rustc -vV
-    - rustup show
-    - bash --version
+    - *rust-info-script
     - unset "CARGO_TARGET_DIR"
     - cargo clean
   script:
@@ -212,6 +234,7 @@ codecov:
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -223,6 +246,7 @@ clippy-std:
 clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         check-wasm
       artifacts:                   false
@@ -234,9 +258,9 @@ clippy-wasm:
 fmt:
   stage:                           workspace
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - cargo fmt --verbose --all -- --check
-
     # For the UI tests we need to disable the license check
     - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
 
@@ -246,6 +270,7 @@ fmt:
 examples-test:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         clippy-std
       artifacts:                   false
@@ -260,6 +285,7 @@ examples-test:
 examples-test-experimental-engine:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         clippy-std
       artifacts:                   false
@@ -274,6 +300,7 @@ examples-test-experimental-engine:
 examples-fmt:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - for example in examples/*/; do
         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
@@ -285,6 +312,7 @@ examples-fmt:
 examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
     - job:                         clippy-std
       artifacts:                   false
@@ -299,6 +327,7 @@ examples-clippy-std:
 examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - for example in examples/*/; do
         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
@@ -310,6 +339,7 @@ examples-clippy-wasm:
 examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
+  <<:                              *test-refs
   script:
     - cargo contract -V
     - for example in examples/*/; do
@@ -324,41 +354,47 @@ examples-contract-build:
       done
 
 examples-contract-build-delegator:
-    stage:                           examples
-    <<:                              *docker-env
+    stage:                         examples
+    <<:                            *docker-env
+    <<:                            *test-refs
     script:
         - cargo contract -V
         - cd examples/delegator/ && ./build-all.sh
 
 examples-docs:
-    stage:                           examples
-    <<:                              *docker-env
-    variables:
-        RUSTDOCFLAGS: -Dwarnings
-    script:
-        # `--document-private-items` needs to be in here because currently our contract macro
-        # puts the contract functions in a private module.
-        # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-        # of this flag.
-        - for example in examples/*/; do
-            cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
-          done
-        - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-            cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-          done
+  stage:                           examples
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    RUSTDOCFLAGS: -Dwarnings
+  script:
+    # `--document-private-items` needs to be in here because currently our contract macro
+    # puts the contract functions in a private module.
+    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+    # of this flag.
+    - for example in examples/*/; do
+        cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+      done
 
 
 #### stage:                        ink-waterfall
 
 ink-waterfall:
   stage:                           ink-waterfall
+  image:                           paritytech/tools:latest
+  <<:                              *kubernetes-env
+  <<:                              *test-refs
   variables:
-    UPSTREAM_PR_ID:                $CI_COMMIT_REF_NAME
-    CI_IMAGE:                      "paritytech/ink-waterfall-ci:latest"
-  trigger:
-    project:                       parity/ink-waterfall
-    branch:                        master
-    strategy:                      depend
+    TRGR_PROJECT:                  ${CI_PROJECT_NAME}
+    TRGR_REF:                      ${CI_COMMIT_REF_NAME}
+    # The `ink-waterfall` project id in GitLab
+    DWNSTRM_ID:                    409
+  script:
+    - ./scripts/.ci/trigger_pipeline.sh
+  allow_failure:                   true
 
 
 #### stage:                        publish
@@ -366,19 +402,21 @@ ink-waterfall:
 publish-docs:
   stage:                           publish
   <<:                              *docker-env
+  <<:                              *test-refs
   needs:
-    - job:                       docs
-      artifacts:                 true
+    - job:                         docs
+      artifacts:                   true
   variables:
-    GIT_DEPTH:                   100
+    GIT_DEPTH:                     100
   rules:
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
   # need to overwrite `before_script` from `*docker-env` here,
-  # this branch does not have a `./scripts/pre_cache.sh`
+  # this branch does not have a `./scripts/.ci/pre_cache.sh`
   before_script:
+    - *rust-info-script
     - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
@@ -416,36 +454,37 @@ publish-docs:
 #### stage:                        fuzz
 
 fuzz-tests:
-    stage:                           fuzz
-    <<:                              *docker-env
-    variables:
-        # The QUICKCHECK_TESTS default is 100
-        QUICKCHECK_TESTS:            20000
-    rules:
-        - if: $CI_PIPELINE_SOURCE == "schedule"
-        - if: $CI_COMMIT_REF_NAME == "master"
-    script:
-        # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
-        - all_tests_passed=0
-        - for crate in ${ALL_CRATES}; do
-            if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
-            then
-                cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
-                all_tests_passed=$(( all_tests_passed | exit_code ));
-            fi
-          done
-        - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
-        - |
-             curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
-                -H "Cookie: logged_in=no" \
-                -H "Authorization: token ${GITHUB_TOKEN}" \
-                -H "Content-Type: application/json; charset=utf-8" \
-                -d $'{
-                    "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
-                    "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is ['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"').",
-                    "assignees": [],
-                    "labels": [
-                        "P-high"
-                    ]
-                }'
-        - exit ${all_tests_passed}
+  stage:                           fuzz
+  <<:                              *docker-env
+  <<:                              *test-refs
+  variables:
+    # The QUICKCHECK_TESTS default is 100
+    QUICKCHECK_TESTS:              20000
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_COMMIT_REF_NAME == "master"
+  script:
+    # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+    - all_tests_passed=0
+    - for crate in ${ALL_CRATES}; do
+        if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
+        then
+          cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+          all_tests_passed=$(( all_tests_passed | exit_code ));
+        fi
+      done
+    - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
+    - |
+      curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
+        -H "Cookie: logged_in=no" \
+        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Content-Type: application/json; charset=utf-8" \
+        -d $'{
+            "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
+            "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is ['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"').",
+            "assignees": [],
+            "labels": [
+                "P-high"
+            ]
+        }'
+    - exit ${all_tests_passed}
