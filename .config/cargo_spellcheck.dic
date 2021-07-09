@@ -21,6 +21,7 @@ bitvector
 bitwise
 callee
 codegen
+comparator
 const
 crypto
 cryptographic
