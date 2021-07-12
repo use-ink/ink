@@ -83,7 +83,7 @@ impl InnerAlloc {
         if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
             ///
-            /// Returns `None` if a page isn't available.
+            /// Returns `None` if a page is not available.
             fn request_pages(&mut self, pages: usize) -> Option<usize> {
                 let prev_page = core::arch::wasm32::memory_grow(0, pages);
                 if prev_page == usize::MAX {
@@ -96,7 +96,7 @@ impl InnerAlloc {
         } else if #[cfg(feature = "std")] {
             /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
             ///
-            /// Returns `None` if a page isn't available.
+            /// Returns `None` if a page is not available.
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
@@ -112,7 +112,7 @@ impl InnerAlloc {
         }
     }
 
-    /// Tries to allocate enough memory on the heap for the given `Layout`. If there isn't enough
+    /// Tries to allocate enough memory on the heap for the given `Layout`. If there is not enough
     /// room on the heap it'll try and grow it by a page.
     ///
     /// Note: This implementation results in internal fragmentation when allocating across pages.
