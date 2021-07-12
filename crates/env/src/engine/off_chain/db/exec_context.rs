@@ -37,7 +37,7 @@ pub struct ExecContext {
     /// The transferred value from caller to callee.
     pub transferred_value: OffBalance,
     /// The gas provided for the whole execution.
-    pub gas: OffBalance,
+    pub gas: u64,
     /// The inputs provided for the whole execution.
     ///
     /// # Note
@@ -82,11 +82,11 @@ impl ExecContext {
     }
 
     /// Returns the gas.
-    pub fn gas<T>(&self) -> Result<T::Balance>
+    pub fn gas<T>(&self) -> u64
     where
         T: Environment,
     {
-        self.gas.decode().map_err(Into::into)
+        self.gas
     }
 
     /// Returns the call data.
@@ -122,7 +122,7 @@ where
     /// The transferred value from caller to callee.
     transferred_value: Option<T::Balance>,
     /// The gas provided for the contract execution from caller to callee.
-    gas: Option<T::Balance>,
+    gas: Option<u64>,
     /// The inputs given to the contract execution.
     call_data: Option<CallData>,
 }
@@ -173,7 +173,7 @@ where
     /// # Panics
     ///
     /// If there has already been set provided gas.
-    pub fn gas(mut self, gas: T::Balance) -> Self {
+    pub fn gas(mut self, gas: u64) -> Self {
         if self.gas.is_some() {
             panic!("already has provided gas");
         }
@@ -223,7 +223,7 @@ where
             caller: TypedEncoded::new(&caller),
             callee: TypedEncoded::new(&callee),
             transferred_value: TypedEncoded::new(&transferred_value),
-            gas: TypedEncoded::new(&gas),
+            gas,
             call_data: self.call_data.unwrap(),
             output: None,
         }

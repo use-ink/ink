@@ -90,7 +90,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> Result<T::Balance>
+pub fn gas_left<T>() -> Result<u64>
 where
     T: Environment,
 {
@@ -436,7 +436,8 @@ pub fn restore_contract<T>(
     })
 }
 
-/// Terminates the existence of the currently executed smart contract.
+/// Terminates the existence of the currently executed smart contract
+/// without creating a tombstone.
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
@@ -561,6 +562,15 @@ pub fn debug_message(message: &str) {
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// use ink_env::hash::{Sha2x256, HashOutput};
+/// let input: &[u8] = &[13, 14, 15];
+/// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+/// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+/// ```
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,
