@@ -44,6 +44,13 @@ unsafe impl GlobalAlloc for BumpAllocator {
     }
 
     #[inline]
+    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+        // A new page in Wasm is guaranteed to already be zero initialized, so we can just use our
+        // regular `alloc` call here and save a bit of work.
+        self.alloc(layout)
+    }
+
+    #[inline]
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
 }
 
