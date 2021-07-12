@@ -17,16 +17,16 @@
 //! Its goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
 //! allocator which is currently being used by ink! smart contracts.
 //!
-//! The heap which is used by this allocator is built from pages of Wasm memory (each page is 64KiB).
+//! The heap which is used by this allocator is built from pages of Wasm memory (each page is `64KiB`).
 //! We will request new pages of memory as needed until we run out of memory, at which point we
-//! will crash with an OOM error instead of freeing any memory.
+//! will crash with an `OOM` error instead of freeing any memory.
 
 use core::alloc::{
     GlobalAlloc,
     Layout,
 };
 
-/// A page in Wasm is 64KiB
+/// A page in Wasm is `64KiB`
 const PAGE_SIZE: usize = 64 * 1024;
 
 static mut INNER: InnerAlloc = InnerAlloc::new();
@@ -64,7 +64,7 @@ struct InnerAlloc {
 
     /// The number of page requests made so far.
     ///
-    /// This is meant to mimic the behaviour exhibited by `core::arch::wasm32::memory_grow`
+    /// This is meant to mimic the behavior exhibited by `core::arch::wasm32::memory_grow`
     #[cfg(feature = "std")]
     page_requests: usize,
 }
@@ -81,7 +81,7 @@ impl InnerAlloc {
 
     cfg_if::cfg_if! {
         if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
-            /// Request a `pages` number of pages of Wasm memory. Each page is 64KiB in size.
+            /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page isn't available.
             fn request_pages(&mut self, pages: usize) -> Option<usize> {
@@ -94,7 +94,7 @@ impl InnerAlloc {
             }
 
         } else if #[cfg(feature = "std")] {
-            /// Request a `pages` number of page sized sections of Wasm memory. Each page is 64KiB in size.
+            /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page isn't available.
             ///
