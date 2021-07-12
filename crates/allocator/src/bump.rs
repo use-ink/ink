@@ -61,12 +61,6 @@ struct InnerAlloc {
 
     /// The address of the upper limit of our heap.
     upper_limit: usize,
-
-    /// The number of page requests made so far.
-    ///
-    /// This is meant to mimic the behavior exhibited by `core::arch::wasm32::memory_grow`
-    #[cfg(feature = "std")]
-    page_requests: usize,
 }
 
 impl InnerAlloc {
@@ -74,8 +68,6 @@ impl InnerAlloc {
         Self {
             next: 0,
             upper_limit: 0,
-            #[cfg(feature = "std")]
-            page_requests: 0,
         }
     }
 
@@ -100,10 +92,8 @@ impl InnerAlloc {
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
-            fn request_pages(&mut self, pages: usize) -> Option<usize> {
-                let prev_page = self.page_requests.checked_mul(PAGE_SIZE);
-                self.page_requests += pages;
-                prev_page
+            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                Some(self.upper_limit)
             }
         } else {
             compile_error! {
@@ -150,7 +140,7 @@ mod tests {
         let layout = Layout::new::<u8>();
         assert!(inner.alloc(layout).is_some());
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<u8>();
@@ -174,7 +164,7 @@ mod tests {
             assert!(inner.alloc(layout).is_some());
         }
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = allocations * std::mem::size_of::<FooBarBaz>();
@@ -193,7 +183,7 @@ mod tests {
         let layout = Layout::new::<Foo>();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<Foo>();
@@ -203,7 +193,7 @@ mod tests {
         let layout = Layout::new::<u16>();
         assert_eq!(inner.alloc(layout), Some(PAGE_SIZE));
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = 2 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         // Notice that we start the allocation on the second page, instead of making use of the
@@ -223,7 +213,7 @@ mod tests {
         let layout = Layout::new::<Foo>();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = 2 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<Foo>();
@@ -234,7 +224,7 @@ mod tests {
         let layout = Layout::new::<u8>();
         assert_eq!(inner.alloc(layout), Some(2 * PAGE_SIZE));
 
-        let expected_limit = inner.page_requests * PAGE_SIZE;
+        let expected_limit = 3 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = 2 * PAGE_SIZE + std::mem::size_of::<u8>();
