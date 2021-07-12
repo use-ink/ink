@@ -17,9 +17,9 @@
 //! Its goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
 //! allocator which is currently being used by ink! smart contracts.
 //!
-//! The heap which will be used by this allocator is a single page of memory, which in Wasm is
-//! 64KiB. We do not expect contracts to use more memory than this (for now), so we will throw an
-//! OOM error instead of requesting more memory.
+//! The heap which is used by this allocator is built from pages of Wasm memory (each page is 64KiB).
+//! We will request new pages of memory as needed until we run out of memory, at which point we
+//! will crash with an OOM error instead of freeing any memory.
 
 use core::alloc::{
     GlobalAlloc,
@@ -55,7 +55,9 @@ struct InnerAlloc {
     /// The address of the upper limit of our heap.
     upper_limit: usize,
 
-    /// How many page requests have we made?
+    /// The number of page requests made so far.
+    ///
+    /// This is meant to mimic the behaviour exhibited by `core::arch::wasm32::memory_grow`
     #[cfg(feature = "std")]
     page_requests: usize,
 }
