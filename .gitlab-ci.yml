@@ -25,6 +25,7 @@ variables:
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
+  MIRI_CRATES:                      "ink_allocator ink_engine ink_env ink_lang ink_metadata ink_prelude ink_primitives ink_storage"
 
 workflow:
   rules:
@@ -103,6 +104,14 @@ check-wasm:
         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
+check-miri:
+  stage:                           check
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - for crate in ${MIRI_CRATES}; do
+        cargo miri test -p ${crate};
+      done
 
 #### stage:                        workspace
 
