@@ -72,11 +72,11 @@ impl InnerAlloc {
 
     cfg_if::cfg_if! {
         if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
-            /// Request a new page of Wasm memory (64KiB).
+            /// Request a `pages` number of pages of Wasm memory. Each page is 64KiB in size.
             ///
             /// Returns `None` if a page isn't available.
-            fn request_page(&mut self) -> Option<usize> {
-                let prev_page = core::arch::wasm32::memory_grow(0, 1);
+            fn request_pages(&mut self, pages: usize) -> Option<usize> {
+                let prev_page = core::arch::wasm32::memory_grow(0, pages);
                 if prev_page == usize::MAX {
                     return None;
                 }
@@ -84,16 +84,16 @@ impl InnerAlloc {
                 prev_page.checked_mul(PAGE_SIZE)
             }
 
-        } else if #[cfg(all(feature = "std", unix))] {
-            /// Request a new Wasm page sized section (64KiB) of memory.
+        } else if #[cfg(feature = "std")] {
+            /// Request a `pages` number of page sized sections of Wasm memory. Each page is 64KiB in size.
             ///
             /// Returns `None` if a page isn't available.
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
-            fn request_page(&mut self) -> Option<usize> {
+            fn request_page(&mut self, pages: usize) -> Option<usize> {
                 let prev_page = self.page_requests.checked_mul(PAGE_SIZE);
-                self.page_requests += 1;
+                self.page_requests += pages;
                 prev_page
             }
         } else {
@@ -105,17 +105,22 @@ impl InnerAlloc {
 
     /// Tries to allocate enough memory on the heap for the given `Layout`. If there isn't enough
     /// room on the heap it'll try and grow it by a page.
-    // NOTE: I think we'll end up with fragmentation here
+    ///
+    /// Note: This implementation results in internal fragmentation when allocating across pages.
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
         let alloc_start = self.next;
 
-        let aligned_layout = dbg!(layout.pad_to_align());
-        let alloc_end = alloc_start.checked_add(aligned_layout.size())?;
+        let aligned_size = layout.pad_to_align().size();
+        let alloc_end = alloc_start.checked_add(aligned_size)?;
 
         if alloc_end > self.upper_limit {
-            let page_start = self.request_page()?;
-            self.upper_limit = page_start.checked_add(PAGE_SIZE)?;
-            self.next = page_start.checked_add(aligned_layout.size())?;
+            let required_pages = (aligned_size + PAGE_SIZE - 1) / PAGE_SIZE;
+            let page_start = self.request_page(required_pages)?;
+
+            self.upper_limit = required_pages
+                .checked_mul(PAGE_SIZE)
+                .and_then(|pages| page_start.checked_add(pages))?;
+            self.next = page_start.checked_add(aligned_size)?;
 
             Some(page_start)
         } else {
@@ -139,7 +144,7 @@ mod tests {
         let expected_limit = inner.page_requests * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = 1 * std::mem::size_of::<u8>();
+        let expected_alloc_start = std::mem::size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
@@ -175,48 +180,55 @@ mod tests {
             _foo: [u8; PAGE_SIZE - 1],
         }
 
+        // First, let's allocate a struct which is _almost_ a full page
         let layout = Layout::new::<Foo>();
-        dbg!(layout);
-
-        assert!(inner.alloc(layout).is_some());
+        assert_eq!(inner.alloc(layout), Some(0));
 
         let expected_limit = inner.page_requests * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = 1 * std::mem::size_of::<Foo>();
+        let expected_alloc_start = std::mem::size_of::<Foo>();
         assert_eq!(inner.next, expected_alloc_start);
 
-        dbg!(inner);
-
-        // Since this is two bytes it'll push us over to the next page
+        // Now we'll allocate two bytes which will push us over to the next page
         let layout = Layout::new::<u16>();
-        assert!(inner.alloc(layout).is_some());
+        assert_eq!(inner.alloc(layout), Some(PAGE_SIZE));
 
         let expected_limit = inner.page_requests * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        // TODO: Fix size hack
-        let expected_alloc_start =
-            1 * std::mem::size_of::<Foo>() + 1 * std::mem::size_of::<u16>() + 1;
+        // Notice that we start the allocation on the second page, instead of making use of the
+        // remaining byte on the first page
+        let expected_alloc_start = PAGE_SIZE + std::mem::size_of::<u16>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
-    // TODO: Don't think this actually quite works as expected at the moment...
     #[test]
     fn can_alloc_multiple_pages() {
         let mut inner = InnerAlloc::new();
 
         struct Foo {
-            _foo: [u8; 2 * PAGE_SIZE - 1],
+            _foo: [u8; 2 * PAGE_SIZE],
         }
 
         let layout = Layout::new::<Foo>();
-        assert!(inner.alloc(layout).is_some());
+        assert_eq!(inner.alloc(layout), Some(0));
 
         let expected_limit = inner.page_requests * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = 1 * std::mem::size_of::<Foo>();
+        let expected_alloc_start = std::mem::size_of::<Foo>();
+        assert_eq!(inner.next, expected_alloc_start);
+
+        // Now we want to make sure that the state of our allocator is correct for any subsequent
+        // allocations
+        let layout = Layout::new::<u8>();
+        assert_eq!(inner.alloc(layout), Some(2 * PAGE_SIZE));
+
+        let expected_limit = inner.page_requests * PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = 2 * PAGE_SIZE + std::mem::size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 }
