@@ -100,7 +100,7 @@ impl InnerAlloc {
             ///
             /// This implementation is only meant to be used for testing, since we cannot (easily)
             /// test the `wasm32` implementation.
-            fn request_page(&mut self, pages: usize) -> Option<usize> {
+            fn request_pages(&mut self, pages: usize) -> Option<usize> {
                 let prev_page = self.page_requests.checked_mul(PAGE_SIZE);
                 self.page_requests += pages;
                 prev_page
@@ -124,7 +124,7 @@ impl InnerAlloc {
 
         if alloc_end > self.upper_limit {
             let required_pages = (aligned_size + PAGE_SIZE - 1) / PAGE_SIZE;
-            let page_start = self.request_page(required_pages)?;
+            let page_start = self.request_pages(required_pages)?;
 
             self.upper_limit = required_pages
                 .checked_mul(PAGE_SIZE)
