@@ -1562,7 +1562,7 @@
             <span class="kw">fn</span> #<span class="ident">ident</span>(
                 #( #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> ),<span class="op">*</span>
             ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                <span class="ident">::ink_env::call::build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="ident">Salt</span>, <span class="self">Self</span><span class="op">&gt;</span>()
+                <span class="ident">::ink_env::call::build_create</span>::<span class="op">&lt;</span><span class="ident">Environment</span>, <span class="self">Self</span><span class="op">&gt;</span>()
                     .<span class="ident">exec_input</span>(
                         <span class="ident">::ink_env::call::ExecutionInput::new</span>(
                             <span class="ident">::ink_env::call::Selector::new</span>([ #( #<span class="ident">composed_selector</span> ),<span class="op">*</span> ])
