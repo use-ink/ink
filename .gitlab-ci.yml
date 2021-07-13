@@ -44,6 +44,7 @@ workflow:
   - cargo --version
   - rustup +nightly show
   - cargo +nightly --version
+  - cargo spellcheck --version
   - bash --version
   - sccache -s
 
