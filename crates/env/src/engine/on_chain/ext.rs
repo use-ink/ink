@@ -658,7 +658,7 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 ///
 /// # Note
 ///
-/// This depends on the the `seal_debug_message` interface which requires the
+/// This depends on the `seal_debug_message` interface which requires the
 /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
 pub fn debug_message(message: &str) {
     static mut DEBUG_ENABLED: bool = true;
