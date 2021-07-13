@@ -47,6 +47,8 @@ unsafe impl GlobalAlloc for BumpAllocator {
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         // A new page in Wasm is guaranteed to already be zero initialized, so we can just use our
         // regular `alloc` call here and save a bit of work.
+        //
+        // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
         self.alloc(layout)
     }
 
