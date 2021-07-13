@@ -29,16 +29,15 @@ of key improvements to our testing setup:
   Those are now tested in the context of a complete ink! contract. In the past this was not
   always the case, sometimes usage examples were just isolated code snippets.
 - We started our [`ink-waterfall`](https://github.com/paritytech/ink-waterfall) project,
-  which runs End-to-End tests through our entire stack:
-  All our examples are built using the latest `cargo-contract` and subsequently deployed
-  on the latest `canvas-node` by emulating browser interactions with both the
-  [`canvas-ui`](https://paritytech.github.io/canvas-ui/#/) and the
+  which runs End-to-End tests through our entire stack.
+  All our examples are continuously built using the latest `cargo-contract`. They are
+  subsequently deployed on the latest `canvas-node` by emulating browser interactions with
+  both the [`canvas-ui`](https://paritytech.github.io/canvas-ui/#/) and the
   [`polkadot-js`](https://polkadot.js.org/apps/#/) UI.
-  This testing setup enables us to detect bugs which only appear in the context of using multiple
-  components together early on.
-- To improve the overall readability of our documentation we introduced automated grammar
-  and spell checking into our Continuous Integration environment.
-
+  This testing setup enables us to detect bugs which only appear in the context of using
+  multiple components together early on.
+- To improve the readability of our documentation we introduced automated grammar and spell
+  checking into our Continuous Integration environment.
 
 ## Added
 - Added support for the new `seal_random` API ‒ [#734](https://github.com/paritytech/ink/pull/734).
@@ -46,20 +45,23 @@ of key improvements to our testing setup:
 - Implemented the (unstable) `seal_rent_params` API ‒ [#755](https://github.com/paritytech/ink/pull/755).
 - Implemented the (unstable) `seal_rent_status` API ‒ [#798](https://github.com/paritytech/ink/pull/798).
 - Implemented the (unstable) `seal_debug_message` API ‒ [#792](https://github.com/paritytech/ink/pull/792).
-    - The examples have been updated to reflect the new way of printing debug messages via `ink_env::debug_println!(…)`.
+    - Printing debug messages can now be achieved via `ink_env::debug_println!(…)`.
+    - See [our documentation](https://paritytech.github.io/ink-docs/faq#is-it-possible-to-do-println-foo-on-chain-for-debugging-purposes)
+      for more information.
+    - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/paritytech/ink/pull/797).
     - The [published crate documentation](https://paritytech.github.io/ink/ink_lang/struct.EnvAccess.html) now contains
       much more code examples for the methods behind `self.env()` and `Self::env()`.
 - Added an example implementation for ERC-1155, a multi-token standard ‒ [#800](https://github.com/paritytech/ink/pull/800).
 - Implemented binary search for `collections::Vec` ‒ [#836](https://github.com/paritytech/ink/pull/836).
-- Added the ability for submitting payable transactions to the `multisig` example ‒ [#820](https://github.com/paritytech/ink/pull/820).
+- Added the ability of submitting payable transactions to the `multisig` example ‒ [#820](https://github.com/paritytech/ink/pull/820).
 - Implemented `Decode` for `Error` types in the examples, enabling building them as dependencies ‒ [#761](https://github.com/paritytech/ink/pull/761).
 - We started working on a new off-chain environment testing engine ‒ [#712](https://github.com/paritytech/ink/pull/712).
     - The old testing environment has a number of limitations, which we are well aware of.
       We're confident that with the new testing engine we will be able to conduct much more
-      elaborate testing.
-    - For the moment it's only available behind a feature flag, but a number of examples
-      have already been converted to support the new testing engine.
+      elaborate testing in an emulated chain environment.
+    - For the moment, the new engine is unstable and only available behind a feature flag.
+      A number of examples have already been converted to support the new testing engine.
 
 ## Changed
 - A couple of readme's have been reworked:
