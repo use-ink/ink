@@ -72,7 +72,7 @@ accessor/S
 allocator/S
 backend/S
 blockchain/S
-callable/S
+callable/MS
 defragment/SD
 encoding/S
 endian/P
