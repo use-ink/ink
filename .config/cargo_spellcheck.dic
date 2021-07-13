@@ -1,4 +1,4 @@
-80
+90
 
 ABI
 AST
@@ -65,11 +65,14 @@ prepend
 
 Django/S
 IP/S
+ink!/S
 NFT/S
+SCALE/S
 accessor/S
 allocator/S
 backend/S
 blockchain/S
+callable/MS
 defragment/SD
 encoding/S
 endian/P

@@ -100,7 +100,7 @@ pub trait Erc1155 {
 
     /// Perform a batch transfer of `token_ids` to the `to` account from the `from` account.
     ///
-    /// The number of `values` specified to be transfer must match the number of `token_ids`,
+    /// The number of `values` specified to be transferred must match the number of `token_ids`,
     /// otherwise this call will revert.
     ///
     /// Note that the call does not have to originate from the `from` account, and may originate
