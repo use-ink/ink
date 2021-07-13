@@ -1097,7 +1097,7 @@
         <span class="ident">array_capacity</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>()
     }
 
-    <span class="doccomment">/// Puts the the new value into the indexed slot and</span>
+    <span class="doccomment">/// Puts the new value into the indexed slot and</span>
     <span class="doccomment">/// returns the old value if any.</span>
     <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>, <span class="ident">new_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">mem::replace</span>(
