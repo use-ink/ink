@@ -139,7 +139,7 @@ mod tests {
         let mut inner = InnerAlloc::new();
 
         let layout = Layout::new::<u8>();
-        assert!(inner.alloc(layout).is_some());
+        assert_eq!(inner.alloc(layout), Some(0));
 
         let expected_limit = PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
