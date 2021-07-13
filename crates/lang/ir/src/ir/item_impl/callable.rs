@@ -80,7 +80,7 @@ where
 }
 
 impl<'a, C> CallableWithSelector<'a, C> {
-    /// Returns the composed selector of the ink! callable the the `impl` block.
+    /// Returns the composed selector of the ink! callable the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
     }
