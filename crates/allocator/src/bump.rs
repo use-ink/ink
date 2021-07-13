@@ -84,8 +84,7 @@ impl InnerAlloc {
 
                 prev_page.checked_mul(PAGE_SIZE)
             }
-
-        } else if #[cfg(feature = "std")] {
+        } else if #[cfg(any(test, feature = "std"))] {
             /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
