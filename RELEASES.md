@@ -46,7 +46,7 @@ of key improvements to our testing setup:
 - Implemented the (unstable) `seal_rent_status` API ‒ [#798](https://github.com/paritytech/ink/pull/798).
 - Implemented the (unstable) `seal_debug_message` API ‒ [#792](https://github.com/paritytech/ink/pull/792).
     - Printing debug messages can now be achieved via `ink_env::debug_println!(…)`.
-    - See [our documentation](https://paritytech.github.io/ink-docs/faq#is-it-possible-to-do-println-foo-on-chain-for-debugging-purposes)
+    - See [our documentation](https://paritytech.github.io/ink-docs/faq#how-do-i-print-something-to-the-console-from-the-runtime)
       for more information.
     - The examples have been updated to reflect this new way of printing debug messages.
 - Added usage comments with code examples to the `ink_env` API ‒ [#797](https://github.com/paritytech/ink/pull/797).
