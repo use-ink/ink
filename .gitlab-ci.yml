@@ -114,7 +114,7 @@ check-miri:
   <<:                              *test-refs
   script:
     - for crate in ${MIRI_CRATES}; do
-        cargo miri test -p ${crate};
+        cargo miri test -p ${crate} -- --test-threads=1;
       done
 
 #### stage:                        workspace
