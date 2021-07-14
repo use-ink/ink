@@ -299,8 +299,5 @@ fn metadata_name_empty_works() {
             }
         })
         .unwrap();
-    assert_eq!(
-        impl_block.trait_metadata_name(),
-        None
-    )
+    assert_eq!(impl_block.trait_metadata_name(), None)
 }

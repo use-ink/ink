@@ -85,7 +85,7 @@ pub struct ItemImpl {
     /// # Note
     ///
     /// User can provide name of trait which will be used inside of metadata.
-    /// But he doesn't must to implement that trait.
+    /// But he is not obliged to implement this trait.
     trait_metadata_name: Option<String>,
 }
 
@@ -310,9 +310,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 match arg.kind() {
                     ir::AttributeArg::Implementation
                     | ir::AttributeArg::Namespace(_)
-                    | ir::AttributeArg::MetadataName(_) => {
-                        Ok(())
-                    }
+                    | ir::AttributeArg::MetadataName(_) => Ok(()),
                     _ => Err(None),
                 }
             })?;

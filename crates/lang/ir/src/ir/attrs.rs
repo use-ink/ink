@@ -386,8 +386,8 @@ pub enum AttributeArg {
     Selector(Selector),
     /// `#[ink(metadata_name = "transfer")]`
     ///
-    /// Applied on ink! constructors, messages or impl blocks with traits to manually control their
-    /// naming inside of metadata.
+    /// Applied on ink! constructors, messages or implementation blocks
+    /// with traits to manually control their naming inside of metadata.
     MetadataName(String),
     /// `#[ink(namespace = "my_namespace")]`
     ///

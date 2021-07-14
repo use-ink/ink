@@ -163,9 +163,7 @@ impl Constructor {
                 match arg.kind() {
                     ir::AttributeArg::Constructor
                     | ir::AttributeArg::MetadataName(_)
-                    | ir::AttributeArg::Selector(_) => {
-                        Ok(())
-                    }
+                    | ir::AttributeArg::Selector(_) => Ok(()),
                     ir::AttributeArg::Payable => {
                         Err(Some(format_err!(
                             arg.span(),
