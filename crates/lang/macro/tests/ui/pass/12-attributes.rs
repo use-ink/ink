@@ -20,7 +20,7 @@ mod noop {
         #[ink(constructor)]
         #[ink(metadata_name = "new_flipper")]
         pub fn new() -> Self {
-            Self { flipped: false}
+            Self { flipped: false }
         }
     }
 
