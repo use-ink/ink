@@ -233,7 +233,7 @@ impl<T, const N: usize> EntryArray<T, N> {
         array_capacity::<T, N>()
     }
 
-    /// Puts the the new value into the indexed slot and
+    /// Puts the new value into the indexed slot and
     /// returns the old value if any.
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(

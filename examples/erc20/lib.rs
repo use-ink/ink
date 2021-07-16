@@ -157,7 +157,7 @@ mod erc20 {
         /// for the caller to withdraw from `from`.
         ///
         /// Returns `InsufficientBalance` error if there are not enough tokens on
-        /// the the account balance of `from`.
+        /// the account balance of `from`.
         #[ink(message)]
         pub fn transfer_from(
             &mut self,
