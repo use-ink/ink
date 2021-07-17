@@ -7,9 +7,7 @@ off-chain testing capabilities but merely improves code readability.</p>
 <p>Normally if the test recursively uses or invokes some contract methods that
 call a method defined in <code>self.env()</code> or <code>Self::env()</code>.</p>
 <p>An examples is the following:</p>
-<pre><code class="language-no_compile">let caller: AccountId = self.env().caller();
-</code></pre>
-<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class="example-wrap"><pre class="language-no_compile">let caller: AccountId = self.env().caller();</pre></div><h1 id="example" class="section-header"><a href="#example">Example</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
 
