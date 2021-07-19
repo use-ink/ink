@@ -200,7 +200,7 @@ codecov:
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     CARGO_INCREMENTAL:             0
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                      -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
+                                      -Copt-level=0 -Coverflow-checks=off"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
