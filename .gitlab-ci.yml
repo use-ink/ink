@@ -225,12 +225,15 @@ codecov:
     - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
+    # -t TOKEN     Set the private repository token
+    # -f FILE     Target file(s) to upload
+    # -Z           Exit with 1 if not successful. Default will Exit with 0
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info -Z
     # lines coverage
     - grcov . --source-dir . --output-type lcov --llvm --ignore-not-existing
         --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -f lcov-lines-fixed.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -f lcov-lines-fixed.info -Z
 
 clippy-std:
   stage:                           workspace
