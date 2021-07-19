@@ -230,7 +230,7 @@ codecov:
     - grcov . --source-dir . --output-type lcov --llvm --ignore-not-existing
         --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-lines-fixed.info
+    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -f lcov-lines-fixed.info
 
 clippy-std:
   stage:                           workspace
