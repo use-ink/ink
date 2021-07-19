@@ -74,7 +74,24 @@ impl InnerAlloc {
     }
 
     cfg_if::cfg_if! {
-        if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
+        if #[cfg(test)] {
+            /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
+            ///
+            /// Returns `None` if a page is not available.
+            ///
+            /// This implementation is only meant to be used for testing, since we cannot (easily)
+            /// test the `wasm32` implementation.
+            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                Some(self.upper_limit)
+            }
+        } else if #[cfg(feature = "std")] {
+            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
+                unreachable!(
+                    "This branch is only used to keep the compiler happy when building tests, and
+                     should never actually be called outside of a test run."
+                )
+            }
+        } else if #[cfg(target_arch = "wasm32")] {
             /// Request a `pages` number of pages of Wasm memory. Each page is `64KiB` in size.
             ///
             /// Returns `None` if a page is not available.
@@ -85,23 +102,6 @@ impl InnerAlloc {
                 }
 
                 prev_page.checked_mul(PAGE_SIZE)
-            }
-        } else if #[cfg(test)] {
-            /// Request a `pages` number of page sized sections of Wasm memory. Each page is `64KiB` in size.
-            ///
-            /// Returns `None` if a page is not available.
-            ///
-            /// This implementation is only meant to be used for testing, since we cannot (easily)
-            /// test the `wasm32` implementation.
-            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
-                Some(self.upper_limit)
-            }
-        } else if #[cfg(all(not(test), feature = "std"))] {
-            fn request_pages(&mut self, _pages: usize) -> Option<usize> {
-                unreachable!(
-                    "This branch is only used to keep the compiler happy when building tests, and
-                     should never actually be called outside of a test run."
-                )
             }
         } else {
             compile_error! {
