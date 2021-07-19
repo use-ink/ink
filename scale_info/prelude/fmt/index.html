@@ -52,8 +52,7 @@ format string.</p>
 function, but the <a href="../macro.format.html"><code>format!</code></a> macro is a syntax extension that allows it to
 leverage named parameters. Named parameters are listed at the end of the
 argument list and have the syntax:</p>
-<pre><code class="language-text">identifier '=' expression
-</code></pre>
+<div class="example-wrap"><pre class="language-text">identifier &#39;=&#39; expression</pre></div>
 <p>For example, the following <a href="../macro.format.html"><code>format!</code></a> expressions all use named argument:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
@@ -201,11 +200,9 @@ to the <em>value</em> to print, and the <code>precision</code> must come in the 
 <span class="macro">println!</span>(<span class="string">&quot;{}, `{name:.*}` has 3 characters&quot;</span>, <span class="string">&quot;Hello&quot;</span>, <span class="number">3</span>, <span class="ident">name</span><span class="op">=</span><span class="string">&quot;1234.56&quot;</span>);
 <span class="macro">println!</span>(<span class="string">&quot;{}, `{name:&gt;8.*}` has 3 right-aligned characters&quot;</span>, <span class="string">&quot;Hello&quot;</span>, <span class="number">3</span>, <span class="ident">name</span><span class="op">=</span><span class="string">&quot;1234.56&quot;</span>);</pre></div>
 <p>print three significantly different things:</p>
-<pre><code class="language-text">Hello, `1234.560` has 3 fractional digits
+<div class="example-wrap"><pre class="language-text">Hello, `1234.560` has 3 fractional digits
 Hello, `123` has 3 characters
-Hello, `     123` has 3 right-aligned characters
-</code></pre>
-<h2 id="localization" class="section-header"><a href="#localization">Localization</a></h2>
+Hello, `     123` has 3 right-aligned characters</pre></div><h2 id="localization" class="section-header"><a href="#localization">Localization</a></h2>
 <p>In some programming languages, the behavior of string formatting functions
 depends on the operating system’s locale setting. The format functions
 provided by Rust’s standard library do not have any concept of locale and
@@ -230,21 +227,20 @@ The syntax for the formatting language used is drawn from other languages,
 so it should not be too alien. Arguments are formatted with Python-like
 syntax, meaning that arguments are surrounded by <code>{}</code> instead of the C-like
 <code>%</code>. The actual grammar for the formatting syntax is:</p>
-<pre><code class="language-text">format_string := text [ maybe_format text ] *
-maybe_format := '{' '{' | '}' '}' | format
-format := '{' [ argument ] [ ':' format_spec ] '}'
+<div class="example-wrap"><pre class="language-text">format_string := text [ maybe_format text ] *
+maybe_format := &#39;{&#39; &#39;{&#39; | &#39;}&#39; &#39;}&#39; | format
+format := &#39;{&#39; [ argument ] [ &#39;:&#39; format_spec ] &#39;}&#39;
 argument := integer | identifier
 
-format_spec := [[fill]align][sign]['#']['0'][width]['.' precision]type
+format_spec := [[fill]align][sign][&#39;#&#39;][&#39;0&#39;][width][&#39;.&#39; precision]type
 fill := character
-align := '&lt;' | '^' | '&gt;'
-sign := '+' | '-'
+align := &#39;&lt;&#39; | &#39;^&#39; | &#39;&gt;&#39;
+sign := &#39;+&#39; | &#39;-&#39;
 width := count
-precision := count | '*'
-type := '' | '?' | 'x?' | 'X?' | identifier
+precision := count | &#39;*&#39;
+type := &#39;&#39; | &#39;?&#39; | &#39;x?&#39; | &#39;X?&#39; | identifier
 count := parameter | integer
-parameter := argument '$'
-</code></pre>
+parameter := argument &#39;$&#39;</pre></div>
 <p>In the above grammar, <code>text</code> may not contain any <code>'{'</code> or <code>'}'</code> characters.</p>
 <h1 id="formatting-traits" class="section-header"><a href="#formatting-traits">Formatting traits</a></h1>
 <p>When requesting that an argument be formatted with a particular type, you
