@@ -22,7 +22,9 @@ This enables us to have 32-bit keys instead of 256-bit keys.</p>
 keys by using one of the built-in crypto hashes that has a 256-bit output,
 e.g. KECCAK, SHA-2 or BLAKE-2. For technical reasons we should prepend the
 bytes of the 32-bit key by some unique byte sequence, e.g.:</p>
-<div class="example-wrap"><pre class="language-no_compile">let key256 = blake2x256(b&quot;DYNAMICALLY ALLOCATED&quot;, bytes(key32));</pre></div><h1 id="internals" class="section-header"><a href="#internals">Internals</a></h1>
+<pre><code class="language-no_compile">let key256 = blake2x256(b&quot;DYNAMICALLY ALLOCATED&quot;, bytes(key32));
+</code></pre>
+<h1 id="internals" class="section-header"><a href="#internals">Internals</a></h1>
 <p>As described in [# Simplification] there are <code>2^32</code> possible uniform dynamic
 allocations available. For each such slot the dynamic allocator stores via
 a single bit in a bitvector if that slot is free or occupied.
