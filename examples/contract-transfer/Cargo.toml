@@ -1,16 +1,16 @@
 [package]
 name = "contract_transfer"
-version = "3.0.0-rc3"
+version = "3.0.0-rc4"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { version = "3.0.0-rc3", path = "../../crates/primitives", default-features = false }
-ink_metadata = { version = "3.0.0-rc3", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc3", path = "../../crates/env", default-features = false, features = [ "ink-debug" ] }
-ink_storage = { version = "3.0.0-rc3", path = "../../crates/storage", default-features = false }
-ink_lang = { version = "3.0.0-rc3", path = "../../crates/lang", default-features = false }
-ink_prelude = { version = "3.0.0-rc3", path = "../../crates/prelude", default-features = false }
+ink_primitives = { version = "3.0.0-rc4", path = "../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc4", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc4", path = "../../crates/env", default-features = false, features = [ "ink-debug" ] }
+ink_storage = { version = "3.0.0-rc4", path = "../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.0-rc4", path = "../../crates/lang", default-features = false }
+ink_prelude = { version = "3.0.0-rc4", path = "../../crates/prelude", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
