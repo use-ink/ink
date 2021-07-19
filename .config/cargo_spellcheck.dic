@@ -59,15 +59,16 @@ unordered
 untyped
 validator
 variadic
+Verbatim
 metadata
 timestamp
 prepend
 
 Django/S
 IP/S
-ink!/S
+ink!/MS
 NFT/S
-SCALE/S
+SCALE/MS
 accessor/S
 allocator/S
 backend/S
