@@ -121,7 +121,7 @@ impl InnerAlloc {
         let alloc_end = alloc_start.checked_add(aligned_size)?;
 
         if alloc_end > self.upper_limit {
-            let required_pages = (aligned_size + PAGE_SIZE - 1) / PAGE_SIZE;
+            let required_pages = required_pages(aligned_size);
             let page_start = self.request_pages(required_pages)?;
 
             self.upper_limit = required_pages
@@ -137,9 +137,28 @@ impl InnerAlloc {
     }
 }
 
+#[inline]
+fn required_pages(size: usize) -> usize {
+    (size + PAGE_SIZE - 1) / PAGE_SIZE
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn can_alloc_no_bytes() {
+        let mut inner = InnerAlloc::new();
+
+        let layout = Layout::new::<()>();
+        assert_eq!(inner.alloc(layout), Some(0));
+
+        let expected_limit = PAGE_SIZE * required_pages(layout.pad_to_align().size());
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = std::mem::size_of::<()>();
+        assert_eq!(inner.next, expected_alloc_start);
+    }
 
     #[test]
     fn can_alloc_a_byte() {
@@ -148,7 +167,7 @@ mod tests {
         let layout = Layout::new::<u8>();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = PAGE_SIZE;
+        let expected_limit = PAGE_SIZE * required_pages(layout.pad_to_align().size());
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<u8>();
@@ -166,13 +185,15 @@ mod tests {
         }
 
         let layout = Layout::new::<FooBarBaz>();
+        let mut total_size = 0;
 
         let allocations = 3;
         for _ in 0..allocations {
             assert!(inner.alloc(layout).is_some());
+            total_size += layout.pad_to_align().size();
         }
 
-        let expected_limit = PAGE_SIZE;
+        let expected_limit = PAGE_SIZE * required_pages(total_size);
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = allocations * std::mem::size_of::<FooBarBaz>();
@@ -191,7 +212,7 @@ mod tests {
         let layout = Layout::new::<Foo>();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = PAGE_SIZE;
+        let expected_limit = PAGE_SIZE * required_pages(layout.pad_to_align().size());
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<Foo>();
@@ -221,7 +242,7 @@ mod tests {
         let layout = Layout::new::<Foo>();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = 2 * PAGE_SIZE;
+        let expected_limit = PAGE_SIZE * required_pages(layout.pad_to_align().size());
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = std::mem::size_of::<Foo>();
@@ -245,17 +266,20 @@ mod fuzz_tests {
     use super::*;
     use quickcheck::quickcheck;
 
+    #[ignore]
     #[quickcheck]
-    fn allocate_random_vec(n: usize) {
+    fn allocate_random_bytes(n: usize) {
         let mut inner = InnerAlloc::new();
 
         let layout = Layout::from_size_align(n, std::mem::size_of::<usize>()).unwrap();
+        dbg!(layout);
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = PAGE_SIZE;
+        let expected_limit = PAGE_SIZE * required_pages(layout.pad_to_align().size());
         assert_eq!(inner.upper_limit, expected_limit);
 
         let expected_alloc_start = n * std::mem::size_of::<u8>();
+        dbg!(expected_alloc_start);
         assert_eq!(inner.next, expected_alloc_start);
     }
 }
