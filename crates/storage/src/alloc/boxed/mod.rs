@@ -72,7 +72,7 @@ where
     fn lazy(allocation: DynamicAllocation) -> Self {
         Self {
             allocation,
-            value: Lazy::lazy(allocation.key()),
+            value: Lazy::from_key(allocation.key()),
         }
     }
 
