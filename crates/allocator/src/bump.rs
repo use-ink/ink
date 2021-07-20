@@ -239,3 +239,23 @@ mod tests {
         assert_eq!(inner.next, expected_alloc_start);
     }
 }
+
+#[cfg(test)]
+mod fuzz_tests {
+    use super::*;
+    use quickcheck::quickcheck;
+
+    #[quickcheck]
+    fn allocate_random_vec(n: usize) {
+        let mut inner = InnerAlloc::new();
+
+        let layout = Layout::from_size_align(n, std::mem::size_of::<usize>()).unwrap();
+        assert_eq!(inner.alloc(layout), Some(0));
+
+        let expected_limit = PAGE_SIZE;
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        let expected_alloc_start = n * std::mem::size_of::<u8>();
+        assert_eq!(inner.next, expected_alloc_start);
+    }
+}
