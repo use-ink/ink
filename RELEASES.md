@@ -64,6 +64,7 @@ of key improvements to our testing setup:
       A number of examples have already been converted to support the new testing engine.
 
 ## Changed
+- To reduce a contract's space footprint we switched the default allocator to a bump allocator implementation ‒ [#831](https://github.com/paritytech/ink/pull/831).
 - A couple of readme's have been reworked:
     - Our main ink! readme ‒ [#774](https://github.com/paritytech/ink/pull/774).
     - The `rand-extension` example readme ‒ [#793](https://github.com/paritytech/ink/pull/793).
