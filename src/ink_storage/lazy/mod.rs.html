@@ -428,7 +428,7 @@
 
     <span class="doccomment">/// Creates a true lazy storage value for the given key.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">lazy</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_key</span>(<span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">cell</span>: <span class="ident">LazyCell::lazy</span>(<span class="ident">key</span>),
         }
