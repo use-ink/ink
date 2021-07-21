@@ -107,8 +107,8 @@ fn fuzz_binary_search(mut std_vec: Vec<i32>) {
             .expect("`x` must be found in `StorageVec`");
 
         // then
-        assert_eq!(index, index_sv);
-        assert_eq!(index, index_sv_by);
+        assert_eq!(index, ink_index);
+        assert_eq!(index, ink_index_by);
     }
 }
 
