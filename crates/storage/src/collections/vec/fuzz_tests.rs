@@ -119,7 +119,9 @@ fn fuzz_binary_search_nonexistent(std_vec: Vec<i32>) {
         return
     }
     let mut unique_std_vec: Vec<i32> = std_vec.into_iter().unique().collect();
-    let removed_el = unique_std_vec.pop().expect("first element must exist");
+    let removed_el = unique_std_vec
+        .pop()
+        .expect("length is non-zero, first element must exist");
     unique_std_vec.sort();
     let ink_vec = StorageVec::from_iter(unique_std_vec.clone());
 
@@ -170,7 +172,9 @@ fn fuzz_binary_search_by_key_nonexistent(std_vec: Vec<(i32, i32)>) {
     }
     let mut unique_std_vec: Vec<(i32, i32)> =
         std_vec.into_iter().unique_by(|&(_a, b)| b).collect();
-    let removed_el = unique_std_vec.pop().expect("first element must exist");
+    let removed_el = unique_std_vec
+        .pop()
+        .expect("length is non-zero, first element must exist");
     unique_std_vec.sort_by_key(|&(_a, b)| b);
     let ink_vec = StorageVec::from_iter(unique_std_vec.clone());
 
