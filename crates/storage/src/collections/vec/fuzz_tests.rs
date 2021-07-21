@@ -99,10 +99,10 @@ fn fuzz_binary_search(mut std_vec: Vec<i32>) {
         let index = std_vec
             .binary_search(&x)
             .expect("`x` must be found in `Vec`") as u32;
-        let index_sv = ink_vec
+        let ink_index = ink_vec
             .binary_search(&x)
             .expect("`x` must be found in `StorageVec`");
-        let index_sv_by = ink_vec
+        let ink_index_by = ink_vec
             .binary_search_by(|by_x| by_x.cmp(&x))
             .expect("`x` must be found in `StorageVec`");
 
