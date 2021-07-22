@@ -64,6 +64,7 @@ of key improvements to our testing setup:
       A number of examples have already been converted to support the new testing engine.
 
 ## Changed
+- To reduce a contract's space footprint we switched the default allocator to a bump allocator implementation ‒ [#831](https://github.com/paritytech/ink/pull/831).
 - A couple of readme's have been reworked:
     - Our main ink! readme ‒ [#774](https://github.com/paritytech/ink/pull/774).
     - The `rand-extension` example readme ‒ [#793](https://github.com/paritytech/ink/pull/793).
@@ -84,6 +85,7 @@ of key improvements to our testing setup:
 
 ## Fixed
 - Catch illegal `struct` destructuring pattern in ink! message arguments ‒ [#846](https://github.com/paritytech/ink/pull/846).
+- Removed an erroneous `Salt` type in code generation for cross-contract calls ‒ [#842](https://github.com/paritytech/ink/pull/842).
 - Do not generate metadata if compiled as dependency ‒ [#811](https://github.com/paritytech/ink/pull/811).
 - Fix execution context parameters in DNS example tests ‒ [#723](https://github.com/paritytech/ink/pull/723).
 - Fixed the `Greeter` contract example from our doc comments ‒ [#773](https://github.com/paritytech/ink/pull/773).
