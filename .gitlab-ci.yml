@@ -209,8 +209,11 @@ codecov:
   before_script:
     - *rust-info-script
     # RUSTFLAGS are the cause target cache can't be used here
-    - unset "CARGO_TARGET_DIR"
-    - cargo clean
+    # FIXME: try with cache
+    # - unset "CARGO_TARGET_DIR"
+    # - cargo clean
+    # make sure there's no stale coverage artifacts
+    - find . -name "*.profraw" -type f -delete
   script:
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
@@ -228,12 +231,12 @@ codecov:
     # We'd like to not use a remote bash script for uploading the coverage reports,
     # binary named `codecov` is already installed in the CI image, just doesn't work
     # https://github.com/codecov/uploader/issues/217 https://github.com/codecov/uploader/issues/222
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info -Z
+    - codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
     # lines coverage
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm
         --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN" -f lcov-lines-fixed.info -Z
+    - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
 clippy-std:
   stage:                           workspace
