@@ -122,7 +122,6 @@ impl InnerAlloc {
         let alloc_end = alloc_end?;
 
         if alloc_end > self.upper_limit {
-            dbg!(aligned_size);
             let required_pages = dbg!(required_pages(aligned_size));
             let required_pages = required_pages?;
 
@@ -390,33 +389,41 @@ mod fuzz_tests {
         }
     }
 
-    // TODO: What I want to end up doing is turning this into a `quickcheck` test such that the
-    // random sized bytes and the number of allocations comes from `quickcheck`
+    // The idea behind this fuzz test is to check a series of allocation sequences. For
+    // example, we maybe have back to back runs as follows:
+    //
+    // 1. vec![1, 2, 3]
+    // 2. vec![4, 5, 6, 7]
+    // 3. vec![8]
+    //
+    // Each of the Vec's represents one sequence of allocations. Within each sequence the
+    // individual size of allocations will be randomly selected by `quickcheck`.
+    //
     // #[ignore]
     #[quickcheck]
-    fn fuzz_buzz(bytes: Vec<Vec<usize>>) -> TestResult {
-        if bytes.is_empty() {
+    fn fuzz_variable_length_and_size_sequences(sequences: Vec<Vec<usize>>) -> TestResult {
+        if sequences.is_empty() {
             return TestResult::discard()
         }
 
-        for v in bytes.into_iter() {
+        for seq in sequences.into_iter() {
             let mut inner = InnerAlloc::new();
 
-            // TODO: Remove limit
-            if v.is_empty() {
+            if seq.is_empty() {
                 return TestResult::discard()
             }
 
             // We want to make sure no single allocation is going to overflow, we'll check that
             // case seperately
-            if !v.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
+            if !seq.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
                 return TestResult::discard()
             }
 
             // We can't just use `required_pages(Iterator::sum())` here because it ends up
             // underestimating the pages due to the ceil rounding at each step
-            let pages_required =
-                v.iter().fold(0, |acc, &x| acc + required_pages(x).unwrap());
+            let pages_required = seq
+                .iter()
+                .fold(0, |acc, &x| acc + required_pages(x).unwrap());
             let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
             // We know this is going to end up overflowing, so let's check this case seperately
@@ -424,11 +431,11 @@ mod fuzz_tests {
                 return TestResult::discard()
             }
 
-            let mut total_bytes_requested = 0;
             let mut expected_alloc_start = 0;
+            let mut total_bytes_requested = 0;
             let mut total_bytes_fragmented = 0;
 
-            for alloc in v {
+            for alloc in seq {
                 let layout =
                     Layout::from_size_align(alloc, std::mem::size_of::<usize>()).unwrap();
                 let size = layout.pad_to_align().size();
@@ -451,9 +458,8 @@ mod fuzz_tests {
                     expected_alloc_start = inner.upper_limit;
                 }
 
-                let ptr = inner.alloc(layout);
                 assert_eq!(
-                    ptr,
+                    inner.alloc(layout),
                     Some(expected_alloc_start),
                     "The given pointer for the allocation doesn't match."
                 );
