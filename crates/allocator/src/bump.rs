@@ -275,67 +275,6 @@ mod tests {
         let expected_alloc_start = 2 * PAGE_SIZE + std::mem::size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
-
-    // TODO: What I want to end up doing is turning this into a `quickcheck` test such that the
-    // random sized bytes and the number of allocations comes from `quickcheck`
-    #[ignore]
-    #[test]
-    fn can_alloc_many_different_sized_chunks() {
-        let mut inner = InnerAlloc::new();
-
-        // let v = vec![16, 15, 3, 10, 10, 10, 5, 65];
-        let v = vec![32, 30, 6, 20, 20, 20, 10, 130];
-
-        let mut total_bytes_requested = 0;
-        let mut expected_alloc_start = 0;
-        let mut total_bytes_fragmented = 0;
-
-        for alloc in v {
-            // let n = alloc * 1024;
-
-            let layout =
-                Layout::from_size_align(alloc, std::mem::size_of::<usize>()).unwrap();
-            let size = layout.pad_to_align().size();
-
-            let current_page_limit = required_pages(inner.next).unwrap() * PAGE_SIZE;
-            let is_too_big_for_current_page = inner.next + size > current_page_limit;
-
-            if is_too_big_for_current_page && inner.next != 0 {
-                let fragmented_in_current_page = if current_page_limit % inner.next == 0 {
-                    current_page_limit - inner.next
-                } else {
-                    current_page_limit % inner.next
-                };
-
-                total_bytes_fragmented += fragmented_in_current_page;
-
-                // We expect our next allocation to be aligned to the start of the next page
-                // boundary
-                expected_alloc_start = inner.upper_limit;
-            }
-
-            assert_eq!(
-                inner.alloc(layout),
-                Some(expected_alloc_start),
-                "The given pointer for the allocation doesn't match."
-            );
-            total_bytes_requested += size;
-
-            let pages_required =
-                required_pages(total_bytes_requested + total_bytes_fragmented).unwrap();
-            let expected_limit = pages_required * PAGE_SIZE;
-            assert_eq!(
-                inner.upper_limit, expected_limit,
-                "The upper bound of our heap doesn't match."
-            );
-
-            expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
-            assert_eq!(
-                inner.next, expected_alloc_start,
-                "Our next allocation doesn't match where it should start."
-            );
-        }
-    }
 }
 
 #[cfg(test)]
