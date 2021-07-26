@@ -649,6 +649,24 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
+/// Return the same value as passed in but hide the ouput value from the optimizer.
+///
+/// # Note
+///
+/// This contains wasm inline assembly. Since the on_chain module is never compiled
+/// to something else that should be fine.
+#[allow(unused_assignments)]
+fn is_true(is_true: bool) -> bool {
+    // Inline assembly cannot operate on booleans. Only primitives.
+    let mut dummy: u32 = if is_true { 1 } else { 0 };
+    // This marks the `dummy` variable as written to. LLVM cannot know the value of it.
+    // Safety: We only emit a `nop` instruction which is safe.
+    unsafe {
+        asm!("nop /* {0} */", out(local) dummy);
+    }
+    dummy == 1
+}
+
 #[cfg(feature = "ink-debug")]
 /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
 ///
@@ -669,10 +687,9 @@ pub fn debug_message(message: &str) {
         let ret_code = unsafe {
             sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
         };
-        if let Err(Error::LoggingDisabled) = ret_code.into() {
-            // SAFETY: safe because executing in a single threaded context
-            unsafe { DEBUG_ENABLED = false }
-        }
+        let enabled = !is_true(matches!(ret_code.into(), Err(Error::LoggingDisabled)));
+        // SAFETY: safe because executing in a single threaded context
+        unsafe { DEBUG_ENABLED = enabled }
     }
 }
 
