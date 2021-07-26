@@ -302,7 +302,12 @@ mod tests {
             let is_too_big_for_current_page = inner.next + size > current_page_limit;
 
             if is_too_big_for_current_page && inner.next != 0 {
-                let fragmented_in_current_page = current_page_limit % inner.next;
+                let fragmented_in_current_page = if current_page_limit % inner.next == 0 {
+                    current_page_limit - inner.next
+                } else {
+                    current_page_limit % inner.next
+                };
+
                 total_bytes_fragmented += fragmented_in_current_page;
 
                 // We expect our next allocation to be aligned to the start of the next page
@@ -310,16 +315,26 @@ mod tests {
                 expected_alloc_start = inner.upper_limit;
             }
 
-            assert_eq!(inner.alloc(layout), Some(expected_alloc_start));
+            assert_eq!(
+                inner.alloc(layout),
+                Some(expected_alloc_start),
+                "The given pointer for the allocation doesn't match."
+            );
             total_bytes_requested += size;
 
             let pages_required =
                 required_pages(total_bytes_requested + total_bytes_fragmented).unwrap();
             let expected_limit = pages_required * PAGE_SIZE;
-            assert_eq!(inner.upper_limit, expected_limit);
+            assert_eq!(
+                inner.upper_limit, expected_limit,
+                "The upper bound of our heap doesn't match."
+            );
 
             expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
-            assert_eq!(inner.next, expected_alloc_start);
+            assert_eq!(
+                inner.next, expected_alloc_start,
+                "Our next allocation doesn't match where it should start."
+            );
         }
     }
 }
@@ -381,10 +396,13 @@ mod fuzz_tests {
     #[quickcheck]
     fn fuzz_buzz(bytes: Vec<Vec<usize>>) -> TestResult {
         let mut inner = InnerAlloc::new();
+        if bytes.is_empty() {
+            return TestResult::discard()
+        }
 
         for v in bytes.into_iter() {
             // TODO: Remove limit
-            if v.len() > 10 {
+            if v.is_empty() {
                 return TestResult::discard()
             }
 
@@ -418,7 +436,13 @@ mod fuzz_tests {
                 let is_too_big_for_current_page = inner.next + size > current_page_limit;
 
                 if is_too_big_for_current_page && inner.next != 0 {
-                    let fragmented_in_current_page = current_page_limit % inner.next;
+                    let fragmented_in_current_page =
+                        if current_page_limit % inner.next == 0 {
+                            current_page_limit - inner.next
+                        } else {
+                            current_page_limit % inner.next
+                        };
+
                     total_bytes_fragmented += fragmented_in_current_page;
 
                     // We expect our next allocation to be aligned to the start of the next page
@@ -427,17 +451,27 @@ mod fuzz_tests {
                 }
 
                 let ptr = inner.alloc(layout);
-                assert_eq!(ptr, Some(expected_alloc_start));
+                assert_eq!(
+                    ptr,
+                    Some(expected_alloc_start),
+                    "The given pointer for the allocation doesn't match."
+                );
                 total_bytes_requested += size;
 
                 let pages_required =
                     required_pages(total_bytes_requested + total_bytes_fragmented)
                         .unwrap();
                 let expected_limit = pages_required * PAGE_SIZE;
-                assert_eq!(inner.upper_limit, expected_limit);
+                assert_eq!(
+                    inner.upper_limit, expected_limit,
+                    "The upper bound of our heap doesn't match."
+                );
 
                 expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
-                assert_eq!(inner.next, expected_alloc_start);
+                assert_eq!(
+                    inner.next, expected_alloc_start,
+                    "Our next allocation doesn't match where it should start."
+                );
             }
         }
 
