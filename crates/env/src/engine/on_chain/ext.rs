@@ -649,13 +649,14 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-/// Return the same value as passed in but hide the ouput value from the optimizer.
+/// Return the same value as passed in but hide the output value from the optimizer.
 ///
 /// # Note
 ///
-/// This contains wasm inline assembly. Since the on_chain module is never compiled
+/// This contains Wasm inline assembly. Since the this module is never compiled
 /// to something else that should be fine.
 #[allow(unused_assignments)]
+#[cfg(feature = "ink-debug")]
 fn is_true(is_true: bool) -> bool {
     // Inline assembly cannot operate on booleans. Only primitives.
     let mut dummy: u32 = if is_true { 1 } else { 0 };
