@@ -395,12 +395,13 @@ mod fuzz_tests {
     // #[ignore]
     #[quickcheck]
     fn fuzz_buzz(bytes: Vec<Vec<usize>>) -> TestResult {
-        let mut inner = InnerAlloc::new();
         if bytes.is_empty() {
             return TestResult::discard()
         }
 
         for v in bytes.into_iter() {
+            let mut inner = InnerAlloc::new();
+
             // TODO: Remove limit
             if v.is_empty() {
                 return TestResult::discard()
