@@ -285,9 +285,8 @@ mod fuzz_tests {
         TestResult,
     };
 
-    // #[ignore]
     #[quickcheck]
-    fn fuzz_should_allocate_random_bytes_that_do_not_overflow(n: usize) -> TestResult {
+    fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
         // If `n` is going to overflow we don't want to check it here (we'll check the overflow
         // case in another test)
         if n.checked_add(PAGE_SIZE - 1).is_none() {
@@ -309,9 +308,8 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
-    // #[ignore]
     #[quickcheck]
-    fn fuzz_should_not_allocate_if_it_overflows(n: usize) -> TestResult {
+    fn should_not_allocate_arbitrary_bytes_if_they_overflow(n: usize) -> TestResult {
         // In the last test we ignored the overflow case, now we ignore the valid cases
         if n.checked_add(PAGE_SIZE - 1).is_some() {
             return TestResult::discard()
@@ -337,10 +335,8 @@ mod fuzz_tests {
     //
     // Each of the Vec's represents one sequence of allocations. Within each sequence the
     // individual size of allocations will be randomly selected by `quickcheck`.
-    //
-    // #[ignore]
     #[quickcheck]
-    fn fuzz_variable_length_and_size_sequences_are_allocated(
+    fn should_allocate_arbitrary_byte_sequences(
         sequences: Vec<Vec<usize>>,
     ) -> TestResult {
         if sequences.is_empty() {
@@ -426,8 +422,13 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
+    // For this test we have sequences of allocations which will eventually overflow the maximum
+    // amount of pages (in practice this means our heap will be OOM).
+    //
+    // We don't care about the allocations that succeed (those are checked in other tests), we just
+    // care that eventually an allocation doesn't success.
     #[quickcheck]
-    fn fuzz_variable_length_allocations_eventually_overflow_but_do_not_allocate(
+    fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
         sequences: Vec<Vec<usize>>,
     ) -> TestResult {
         if sequences.is_empty() {
@@ -467,9 +468,7 @@ mod fuzz_tests {
                 results.push(inner.alloc(layout));
             }
 
-            // We don't care about the pointers returned during the valid allocations (those are
-            // checked by other tests), but we do want to ensure that at least one of those
-            // allocations overflowed our calculations.
+            // Ensure that at least one of the allocations ends up overflowing our calculations.
             assert!(results.iter().any(|r| r.is_none()));
         }
 
