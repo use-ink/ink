@@ -328,6 +328,35 @@ mod fuzz_tests {
         }
     }
 
+    #[quickcheck]
+    fn should_allocate_regardless_of_alignment_size(
+        n: usize,
+        align: usize,
+    ) -> TestResult {
+        let aligns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
+        let align = aligns[align % aligns.len()];
+
+        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
+        // case in another test)
+        if n.checked_add(PAGE_SIZE - 1).is_none() {
+            return TestResult::discard()
+        }
+
+        let mut inner = InnerAlloc::new();
+
+        let layout = Layout::from_size_align(n, align).unwrap();
+        let size = layout.pad_to_align().size();
+        assert_eq!(inner.alloc(layout), Some(0));
+
+        let expected_alloc_start = size;
+        assert_eq!(inner.next, expected_alloc_start);
+
+        let expected_limit = PAGE_SIZE * required_pages(size).unwrap();
+        assert_eq!(inner.upper_limit, expected_limit);
+
+        TestResult::passed()
+    }
+
     // The idea behind this fuzz test is to check a series of allocation sequences. For
     // example, we maybe have back to back runs as follows:
     //
