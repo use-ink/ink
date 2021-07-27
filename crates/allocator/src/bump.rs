@@ -338,85 +338,79 @@ mod fuzz_tests {
     // Each of the Vec's represents one sequence of allocations. Within each sequence the
     // individual size of allocations will be randomly selected by `quickcheck`.
     #[quickcheck]
-    fn should_allocate_arbitrary_byte_sequences(
-        sequences: Vec<Vec<usize>>,
-    ) -> TestResult {
-        if sequences.is_empty() {
+    fn should_allocate_arbitrary_byte_sequences(sequence: Vec<usize>) -> TestResult {
+        let mut inner = InnerAlloc::new();
+
+        if sequence.is_empty() {
             return TestResult::discard()
         }
 
-        for seq in sequences.into_iter() {
-            let mut inner = InnerAlloc::new();
+        // We want to make sure no single allocation is going to overflow, we'll check this
+        // case in a different test
+        if !sequence
+            .iter()
+            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
+        {
+            return TestResult::discard()
+        }
 
-            if seq.is_empty() {
-                return TestResult::discard()
+        // We can't just use `required_pages(Iterator::sum())` here because it ends up
+        // underestimating the pages due to the ceil rounding at each step
+        let pages_required = sequence
+            .iter()
+            .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+        let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
+
+        // We know this is going to end up overflowing, we'll check this case in a different
+        // test
+        if pages_required > max_pages {
+            return TestResult::discard()
+        }
+
+        let mut expected_alloc_start = 0;
+        let mut total_bytes_requested = 0;
+        let mut total_bytes_fragmented = 0;
+
+        for alloc in sequence {
+            let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
+            let size = layout.pad_to_align().size();
+
+            let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
+            let is_too_big_for_current_page = inner.next + size > current_page_limit;
+
+            if is_too_big_for_current_page && inner.next != 0 {
+                let fragmented_in_current_page = if current_page_limit % inner.next == 0 {
+                    current_page_limit - inner.next
+                } else {
+                    current_page_limit % inner.next
+                };
+
+                total_bytes_fragmented += fragmented_in_current_page;
+
+                // We expect our next allocation to be aligned to the start of the next page
+                // boundary
+                expected_alloc_start = inner.upper_limit;
             }
 
-            // We want to make sure no single allocation is going to overflow, we'll check this
-            // case in a different test
-            if !seq.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
-                return TestResult::discard()
-            }
+            assert_eq!(
+                inner.alloc(layout),
+                Some(expected_alloc_start),
+                "The given pointer for the allocation doesn't match."
+            );
+            total_bytes_requested += size;
 
-            // We can't just use `required_pages(Iterator::sum())` here because it ends up
-            // underestimating the pages due to the ceil rounding at each step
-            let pages_required = seq
-                .iter()
-                .fold(0, |acc, &x| acc + required_pages(x).unwrap());
-            let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
+            expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
+            assert_eq!(
+                inner.next, expected_alloc_start,
+                "Our next allocation doesn't match where it should start."
+            );
 
-            // We know this is going to end up overflowing, we'll check this case in a different
-            // test
-            if pages_required > max_pages {
-                return TestResult::discard()
-            }
-
-            let mut expected_alloc_start = 0;
-            let mut total_bytes_requested = 0;
-            let mut total_bytes_fragmented = 0;
-
-            for alloc in seq {
-                let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
-                let size = layout.pad_to_align().size();
-
-                let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
-                let is_too_big_for_current_page = inner.next + size > current_page_limit;
-
-                if is_too_big_for_current_page && inner.next != 0 {
-                    let fragmented_in_current_page =
-                        if current_page_limit % inner.next == 0 {
-                            current_page_limit - inner.next
-                        } else {
-                            current_page_limit % inner.next
-                        };
-
-                    total_bytes_fragmented += fragmented_in_current_page;
-
-                    // We expect our next allocation to be aligned to the start of the next page
-                    // boundary
-                    expected_alloc_start = inner.upper_limit;
-                }
-
-                assert_eq!(
-                    inner.alloc(layout),
-                    Some(expected_alloc_start),
-                    "The given pointer for the allocation doesn't match."
-                );
-                total_bytes_requested += size;
-
-                expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
-                assert_eq!(
-                    inner.next, expected_alloc_start,
-                    "Our next allocation doesn't match where it should start."
-                );
-
-                let pages_required = required_pages(expected_alloc_start).unwrap();
-                let expected_limit = PAGE_SIZE * pages_required;
-                assert_eq!(
-                    inner.upper_limit, expected_limit,
-                    "The upper bound of our heap doesn't match."
-                );
-            }
+            let pages_required = required_pages(expected_alloc_start).unwrap();
+            let expected_limit = PAGE_SIZE * pages_required;
+            assert_eq!(
+                inner.upper_limit, expected_limit,
+                "The upper bound of our heap doesn't match."
+            );
         }
 
         TestResult::passed()
@@ -429,47 +423,44 @@ mod fuzz_tests {
     // care that eventually an allocation doesn't success.
     #[quickcheck]
     fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
-        sequences: Vec<Vec<usize>>,
+        sequence: Vec<usize>,
     ) -> TestResult {
-        if sequences.is_empty() {
+        let mut inner = InnerAlloc::new();
+
+        if sequence.is_empty() {
             return TestResult::discard()
         }
 
-        for seq in sequences.into_iter() {
-            let mut inner = InnerAlloc::new();
-
-            if seq.is_empty() {
-                return TestResult::discard()
-            }
-
-            // We want to make sure no single allocation is going to overflow, we'll check that
-            // case seperately
-            if !seq.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
-                return TestResult::discard()
-            }
-
-            // We can't just use `required_pages(Iterator::sum())` here because it ends up
-            // underestimating the pages due to the ceil rounding at each step
-            let pages_required = seq
-                .iter()
-                .fold(0, |acc, &x| acc + required_pages(x).unwrap());
-            let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
-
-            // We want to explicitly test for the case where a series of allocations eventually
-            // runs out of pages of memory
-            if !(pages_required > max_pages) {
-                return TestResult::discard()
-            }
-
-            let mut results = vec![];
-            for alloc in seq {
-                let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
-                results.push(inner.alloc(layout));
-            }
-
-            // Ensure that at least one of the allocations ends up overflowing our calculations.
-            assert!(results.iter().any(|r| r.is_none()));
+        // We want to make sure no single allocation is going to overflow, we'll check that
+        // case seperately
+        if !sequence
+            .iter()
+            .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
+        {
+            return TestResult::discard()
         }
+
+        // We can't just use `required_pages(Iterator::sum())` here because it ends up
+        // underestimating the pages due to the ceil rounding at each step
+        let pages_required = sequence
+            .iter()
+            .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+        let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
+
+        // We want to explicitly test for the case where a series of allocations eventually
+        // runs out of pages of memory
+        if !(pages_required > max_pages) {
+            return TestResult::discard()
+        }
+
+        let mut results = vec![];
+        for alloc in sequence {
+            let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
+            results.push(inner.alloc(layout));
+        }
+
+        // Ensure that at least one of the allocations ends up overflowing our calculations.
+        assert!(results.iter().any(|r| r.is_none()));
 
         TestResult::passed()
     }
