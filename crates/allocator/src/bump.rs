@@ -157,6 +157,7 @@ fn required_pages(size: usize) -> Option<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::mem::size_of;
 
     #[test]
     fn can_alloc_no_bytes() {
@@ -169,7 +170,7 @@ mod tests {
             PAGE_SIZE * required_pages(layout.pad_to_align().size()).unwrap();
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = std::mem::size_of::<()>();
+        let expected_alloc_start = size_of::<()>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
@@ -184,7 +185,7 @@ mod tests {
             PAGE_SIZE * required_pages(layout.pad_to_align().size()).unwrap();
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = std::mem::size_of::<u8>();
+        let expected_alloc_start = size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
@@ -210,7 +211,7 @@ mod tests {
         let expected_limit = PAGE_SIZE * required_pages(total_size).unwrap();
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = allocations * std::mem::size_of::<FooBarBaz>();
+        let expected_alloc_start = allocations * size_of::<FooBarBaz>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
@@ -230,7 +231,7 @@ mod tests {
             PAGE_SIZE * required_pages(layout.pad_to_align().size()).unwrap();
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = std::mem::size_of::<Foo>();
+        let expected_alloc_start = size_of::<Foo>();
         assert_eq!(inner.next, expected_alloc_start);
 
         // Now we'll allocate two bytes which will push us over to the next page
@@ -242,7 +243,7 @@ mod tests {
 
         // Notice that we start the allocation on the second page, instead of making use of the
         // remaining byte on the first page
-        let expected_alloc_start = PAGE_SIZE + std::mem::size_of::<u16>();
+        let expected_alloc_start = PAGE_SIZE + size_of::<u16>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 
@@ -261,7 +262,7 @@ mod tests {
             PAGE_SIZE * required_pages(layout.pad_to_align().size()).unwrap();
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = std::mem::size_of::<Foo>();
+        let expected_alloc_start = size_of::<Foo>();
         assert_eq!(inner.next, expected_alloc_start);
 
         // Now we want to make sure that the state of our allocator is correct for any subsequent
@@ -272,7 +273,7 @@ mod tests {
         let expected_limit = 3 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        let expected_alloc_start = 2 * PAGE_SIZE + std::mem::size_of::<u8>();
+        let expected_alloc_start = 2 * PAGE_SIZE + size_of::<u8>();
         assert_eq!(inner.next, expected_alloc_start);
     }
 }
@@ -284,6 +285,7 @@ mod fuzz_tests {
         quickcheck,
         TestResult,
     };
+    use std::mem::size_of;
 
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
@@ -295,15 +297,15 @@ mod fuzz_tests {
 
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n, std::mem::size_of::<usize>()).unwrap();
+        let layout = Layout::from_size_align(n, size_of::<usize>()).unwrap();
         let size = layout.pad_to_align().size();
         assert_eq!(inner.alloc(layout), Some(0));
 
-        let expected_limit = PAGE_SIZE * required_pages(size).unwrap();
-        assert_eq!(inner.upper_limit, expected_limit);
-
         let expected_alloc_start = size;
         assert_eq!(inner.next, expected_alloc_start);
+
+        let expected_limit = PAGE_SIZE * required_pages(size).unwrap();
+        assert_eq!(inner.upper_limit, expected_limit);
 
         TestResult::passed()
     }
@@ -315,7 +317,7 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        if let Ok(layout) = Layout::from_size_align(n, std::mem::size_of::<usize>()) {
+        if let Ok(layout) = Layout::from_size_align(n, size_of::<usize>()) {
             let mut inner = InnerAlloc::new();
             assert_eq!(inner.alloc(layout), None);
 
@@ -350,8 +352,8 @@ mod fuzz_tests {
                 return TestResult::discard()
             }
 
-            // We want to make sure no single allocation is going to overflow, we'll check that
-            // case seperately
+            // We want to make sure no single allocation is going to overflow, we'll check this
+            // case in a different test
             if !seq.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
                 return TestResult::discard()
             }
@@ -363,7 +365,8 @@ mod fuzz_tests {
                 .fold(0, |acc, &x| acc + required_pages(x).unwrap());
             let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
-            // We know this is going to end up overflowing, so let's check this case seperately
+            // We know this is going to end up overflowing, we'll check this case in a different
+            // test
             if pages_required > max_pages {
                 return TestResult::discard()
             }
@@ -373,11 +376,10 @@ mod fuzz_tests {
             let mut total_bytes_fragmented = 0;
 
             for alloc in seq {
-                let layout =
-                    Layout::from_size_align(alloc, std::mem::size_of::<usize>()).unwrap();
+                let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
                 let size = layout.pad_to_align().size();
 
-                let current_page_limit = required_pages(inner.next).unwrap() * PAGE_SIZE;
+                let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
                 let is_too_big_for_current_page = inner.next + size > current_page_limit;
 
                 if is_too_big_for_current_page && inner.next != 0 {
@@ -402,19 +404,17 @@ mod fuzz_tests {
                 );
                 total_bytes_requested += size;
 
-                let pages_required =
-                    required_pages(total_bytes_requested + total_bytes_fragmented)
-                        .unwrap();
-                let expected_limit = pages_required * PAGE_SIZE;
-                assert_eq!(
-                    inner.upper_limit, expected_limit,
-                    "The upper bound of our heap doesn't match."
-                );
-
                 expected_alloc_start = total_bytes_requested + total_bytes_fragmented;
                 assert_eq!(
                     inner.next, expected_alloc_start,
                     "Our next allocation doesn't match where it should start."
+                );
+
+                let pages_required = required_pages(expected_alloc_start).unwrap();
+                let expected_limit = PAGE_SIZE * pages_required;
+                assert_eq!(
+                    inner.upper_limit, expected_limit,
+                    "The upper bound of our heap doesn't match."
                 );
             }
         }
@@ -463,8 +463,7 @@ mod fuzz_tests {
 
             let mut results = vec![];
             for alloc in seq {
-                let layout =
-                    Layout::from_size_align(alloc, std::mem::size_of::<usize>()).unwrap();
+                let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
                 results.push(inner.alloc(layout));
             }
 
