@@ -340,7 +340,9 @@ mod fuzz_tests {
     //
     // #[ignore]
     #[quickcheck]
-    fn fuzz_variable_length_and_size_sequences(sequences: Vec<Vec<usize>>) -> TestResult {
+    fn fuzz_variable_length_and_size_sequences_are_allocated(
+        sequences: Vec<Vec<usize>>,
+    ) -> TestResult {
         if sequences.is_empty() {
             return TestResult::discard()
         }
@@ -419,6 +421,56 @@ mod fuzz_tests {
                     "Our next allocation doesn't match where it should start."
                 );
             }
+        }
+
+        TestResult::passed()
+    }
+
+    #[quickcheck]
+    fn fuzz_variable_length_allocations_eventually_overflow_but_do_not_allocate(
+        sequences: Vec<Vec<usize>>,
+    ) -> TestResult {
+        if sequences.is_empty() {
+            return TestResult::discard()
+        }
+
+        for seq in sequences.into_iter() {
+            let mut inner = InnerAlloc::new();
+
+            if seq.is_empty() {
+                return TestResult::discard()
+            }
+
+            // We want to make sure no single allocation is going to overflow, we'll check that
+            // case seperately
+            if !seq.iter().all(|n| n.checked_add(PAGE_SIZE - 1).is_some()) {
+                return TestResult::discard()
+            }
+
+            // We can't just use `required_pages(Iterator::sum())` here because it ends up
+            // underestimating the pages due to the ceil rounding at each step
+            let pages_required = seq
+                .iter()
+                .fold(0, |acc, &x| acc + required_pages(x).unwrap());
+            let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
+
+            // We want to explicitly test for the case where a series of allocations eventually
+            // runs out of pages of memory
+            if !(pages_required > max_pages) {
+                return TestResult::discard()
+            }
+
+            let mut results = vec![];
+            for alloc in seq {
+                let layout =
+                    Layout::from_size_align(alloc, std::mem::size_of::<usize>()).unwrap();
+                results.push(inner.alloc(layout));
+            }
+
+            // We don't care about the pointers returned during the valid allocations (those are
+            // checked by other tests), but we do want to ensure that at least one of those
+            // allocations overflowed our calculations.
+            assert!(results.iter().any(|r| r.is_none()));
         }
 
         TestResult::passed()
