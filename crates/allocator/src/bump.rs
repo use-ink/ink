@@ -118,27 +118,16 @@ impl InnerAlloc {
         let alloc_start = self.next;
 
         let aligned_size = layout.pad_to_align().size();
-        let alloc_end = dbg!(alloc_start.checked_add(aligned_size));
-        let alloc_end = alloc_end?;
+        let alloc_end = alloc_start.checked_add(aligned_size)?;
 
         if alloc_end > self.upper_limit {
-            let required_pages = dbg!(required_pages(aligned_size));
-            let required_pages = required_pages?;
+            let required_pages = required_pages(aligned_size)?;
+            let page_start = self.request_pages(required_pages)?;
 
-            let page_start = dbg!(self.request_pages(required_pages));
-            let page_start = page_start?;
-
-            let pages = dbg!(required_pages.checked_mul(PAGE_SIZE)?);
-            let limit = dbg!(page_start.checked_add(pages));
-            self.upper_limit = limit?;
-            dbg!(self.upper_limit);
-            // self.upper_limit = required_pages
-            //     .checked_mul(PAGE_SIZE)
-            //     .and_then(|pages| page_start.checked_add(pages))?;
-
-            let next = dbg!(page_start.checked_add(aligned_size));
-            self.next = next?;
-            // self.next = dbg!(page_start.checked_add(aligned_size))?;
+            self.upper_limit = required_pages
+                .checked_mul(PAGE_SIZE)
+                .and_then(|pages| page_start.checked_add(pages))?;
+            self.next = page_start.checked_add(aligned_size)?;
 
             Some(page_start)
         } else {
