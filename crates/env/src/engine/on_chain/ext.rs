@@ -649,25 +649,6 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
     extract_from_slice(output, output_len as usize);
 }
 
-/// Return the same value as passed in but hide the output value from the optimizer.
-///
-/// # Note
-///
-/// This contains Wasm inline assembly. Since the this module is never compiled
-/// to something else that should be fine.
-#[allow(unused_assignments)]
-#[cfg(feature = "ink-debug")]
-fn is_true(is_true: bool) -> bool {
-    // Inline assembly cannot operate on booleans. Only primitives.
-    let mut dummy: u32 = if is_true { 1 } else { 0 };
-    // This marks the `dummy` variable as written to. LLVM cannot know the value of it.
-    // Safety: We only emit a `nop` instruction which is safe.
-    unsafe {
-        asm!("nop /* {0} */", out(local) dummy);
-    }
-    dummy == 1
-}
-
 #[cfg(feature = "ink-debug")]
 /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
 ///
@@ -680,17 +661,26 @@ fn is_true(is_true: bool) -> bool {
 /// This depends on the `seal_debug_message` interface which requires the
 /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
 pub fn debug_message(message: &str) {
-    static mut DEBUG_ENABLED: bool = true;
+    static mut DEBUG_ENABLED: bool = false;
+    static mut FIRST_RUN: bool = true;
 
     // SAFETY: safe because executing in a single threaded context
-    if unsafe { DEBUG_ENABLED } {
+    // We need those two variables in order to make sure that the assignment is performed
+    // in the "logging enabled" case. This is because during RPC execution logging might
+    // be enabled while it is disabled during the actual execution as part of a transaction.
+    // The gas estimation takes place during RPC execution. We want to overestimate instead
+    // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
+    if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
         let ret_code = unsafe {
             sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
         };
-        let enabled = !is_true(matches!(ret_code.into(), Err(Error::LoggingDisabled)));
+        if !matches!(ret_code.into(), Err(Error::LoggingDisabled)) {
+            // SAFETY: safe because executing in a single threaded context
+            unsafe { DEBUG_ENABLED = true }
+        }
         // SAFETY: safe because executing in a single threaded context
-        unsafe { DEBUG_ENABLED = enabled }
+        unsafe { FIRST_RUN = false }
     }
 }
 
