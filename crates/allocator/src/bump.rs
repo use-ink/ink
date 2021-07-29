@@ -267,7 +267,7 @@ mod tests {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "ink-fuzz-tests"))]
 mod fuzz_tests {
     use super::*;
     use quickcheck::{

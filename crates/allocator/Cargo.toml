@@ -26,3 +26,4 @@ quickcheck_macros = "1"
 default = ["std"]
 std = []
 wee-alloc = ["wee_alloc"]
+ink-fuzz-tests = ["std"]
