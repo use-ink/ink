@@ -28,7 +28,7 @@ pub mod lazy_hmap;
 
 mod cache_cell;
 mod entry;
-mod lazy_array;
+pub(crate) mod lazy_array;
 mod lazy_cell;
 mod lazy_imap;
 

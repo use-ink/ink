@@ -22,7 +22,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(
-    missing_docs,
+    // missing_docs,
     bad_style,
     bare_trait_objects,
     const_err,

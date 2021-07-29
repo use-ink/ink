@@ -19,7 +19,6 @@
 
 mod impls;
 mod iter;
-mod slice;
 mod storage;
 
 #[cfg(test)]
@@ -33,7 +32,7 @@ pub use self::iter::{
     IterMut,
 };
 use crate::{
-    collections::vec::slice::{
+    collections::slice::{
         Slice,
         SliceMut,
     },
@@ -524,25 +523,30 @@ where
         *self.len = 0;
     }
 
-
     #[inline]
-    pub fn split_at(&self, mid: u32) -> (Slice<T>, Slice<T>) {
+    pub fn split_at(
+        &self,
+        mid: u32,
+    ) -> (Slice<&LazyIndexMap<T>>, Slice<&LazyIndexMap<T>>) {
         assert!(mid <= self.len());
         (
-            Slice::new_unchecked(0..mid, &self.elems),
-            Slice::new_unchecked(mid..self.len(), &self.elems),
+            Slice::new(0..mid, &self.elems),
+            Slice::new(mid..self.len(), &self.elems),
         )
     }
 
     #[inline]
-    pub fn split_at_mut(&mut self, mid: u32) -> (SliceMut<T>, SliceMut<T>) {
+    pub fn split_at_mut(
+        &mut self,
+        mid: u32,
+    ) -> (SliceMut<&LazyIndexMap<T>>, SliceMut<&LazyIndexMap<T>>) {
         assert!(mid <= *self.len);
 
-        // SAFETY: Slice::new_unchecked requires that the ranges do not overlap.
+        // SAFETY: SliceMut::new requires that the ranges do not overlap.
         unsafe {
             (
-                SliceMut::new_unchecked(0..mid, &self.elems),
-                SliceMut::new_unchecked(mid..(*self.len), &self.elems),
+                SliceMut::new(0..mid, &self.elems),
+                SliceMut::new(mid..(*self.len), &self.elems),
             )
         }
     }

@@ -22,10 +22,10 @@ pub mod binary_heap;
 pub mod bitstash;
 pub mod bitvec;
 pub mod hashmap;
+pub mod slice;
 pub mod smallvec;
 pub mod stash;
 pub mod vec;
-
 #[doc(inline)]
 pub use self::{
     binary_heap::BinaryHeap,

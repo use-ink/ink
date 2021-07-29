@@ -61,7 +61,7 @@ pub struct LazyArray<T, const N: usize> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    cached_entries: EntryArray<T, N>,
+    pub(crate) cached_entries: EntryArray<T, N>,
 }
 
 #[cfg(feature = "std")]
@@ -260,7 +260,7 @@ impl<T, const N: usize> EntryArray<T, N> {
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.
-    unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut StorageEntry<T>> {
+    pub(crate) unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut StorageEntry<T>> {
         if at >= Self::capacity() {
             return None
         }
