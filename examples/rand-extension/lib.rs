@@ -17,10 +17,11 @@
 use ink_env::Environment;
 use ink_lang as ink;
 
-/// This is an example of how ink! contract should
-/// call substrate runtime `RandomnessCollectiveFlip::random_seed`.
-
-/// Define the operations to interact with the substrate runtime
+/// This is an example of how an ink! contract may call the Substrate
+/// runtime function `RandomnessCollectiveFlip::random_seed`. See the
+/// file `runtime/chain-extension-example.rs` for that implementation.
+///
+/// Here we define the operations to interact with the Substrate runtime.
 #[ink::chain_extension]
 pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
@@ -69,8 +70,9 @@ impl Environment for CustomEnvironment {
 mod rand_extension {
     use super::RandomReadErr;
 
-    /// Defines the storage of your contract.
-    /// Here we store the random seed fetched from the chain
+    /// Defines the storage of our contract.
+    ///
+    /// Here we store the random seed fetched from the chain.
     #[ink(storage)]
     pub struct RandExtension {
         /// Stores a single `bool` value on the storage.
@@ -92,19 +94,19 @@ mod rand_extension {
 
         /// Constructor that initializes the `bool` value to `false`.
         ///
-        /// Constructors can delegate to other constructors.
+        /// Constructors may delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
             Self::new(Default::default())
         }
 
-        /// update the value from runtime random source
+        /// Update the value from the runtimes random source.
         #[ink(message)]
         pub fn update(&mut self) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed
             let new_random = self.env().extension().fetch_random()?;
             self.value = new_random;
-            // emit the RandomUpdated event when the random seed
+            // Emit the `RandomUpdated` event when the random seed
             // is successfully fetched.
             self.env().emit_event(RandomUpdated { new: new_random });
             Ok(())
