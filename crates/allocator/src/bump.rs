@@ -137,6 +137,11 @@ impl InnerAlloc {
     }
 }
 
+/// Calculates the number of pages of memory needed for an allocation of `size` bytes.
+///
+/// This function rounds up to the next page. For example, if we have an allocation of
+/// `size = PAGE_SIZE / 2` this function will indicate that one page is required to satisfy
+/// the allocation.
 #[inline]
 fn required_pages(size: usize) -> Option<usize> {
     size.checked_add(PAGE_SIZE - 1)
@@ -301,7 +306,7 @@ mod fuzz_tests {
 
     #[quickcheck]
     fn should_not_allocate_arbitrary_bytes_if_they_overflow(n: usize) -> TestResult {
-        // In the last test we ignored the overflow case, now we ignore the valid cases
+        // In the previous test we ignored the overflow case, now we ignore the valid cases
         if n.checked_add(PAGE_SIZE - 1).is_some() {
             return TestResult::discard()
         }
@@ -346,15 +351,15 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
-    // The idea behind this fuzz test is to check a series of allocation sequences. For
-    // example, we maybe have back to back runs as follows:
-    //
-    // 1. vec![1, 2, 3]
-    // 2. vec![4, 5, 6, 7]
-    // 3. vec![8]
-    //
-    // Each of the Vec's represents one sequence of allocations. Within each sequence the
-    // individual size of allocations will be randomly selected by `quickcheck`.
+    /// The idea behind this fuzz test is to check a series of allocation sequences. For
+    /// example, we maybe have back to back runs as follows:
+    ///
+    /// 1. `vec![1, 2, 3]`
+    /// 2. `vec![4, 5, 6, 7]`
+    /// 3. `vec![8]`
+    ///
+    /// Each of the vectors represents one sequence of allocations. Within each sequence the
+    /// individual size of allocations will be randomly selected by `quickcheck`.
     #[quickcheck]
     fn should_allocate_arbitrary_byte_sequences(sequence: Vec<usize>) -> TestResult {
         let mut inner = InnerAlloc::new();
