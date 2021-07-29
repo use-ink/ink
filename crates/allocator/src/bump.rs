@@ -293,13 +293,23 @@ mod fuzz_tests {
 
         let layout = Layout::from_size_align(n, size_of::<usize>()).unwrap();
         let size = layout.pad_to_align().size();
-        assert_eq!(inner.alloc(layout), Some(0));
+        assert_eq!(
+            inner.alloc(layout),
+            Some(0),
+            "The given pointer for the allocation doesn't match."
+        );
 
         let expected_alloc_start = size;
-        assert_eq!(inner.next, expected_alloc_start);
+        assert_eq!(
+            inner.next, expected_alloc_start,
+            "Our next allocation doesn't match where it should start."
+        );
 
         let expected_limit = PAGE_SIZE * required_pages(size).unwrap();
-        assert_eq!(inner.upper_limit, expected_limit);
+        assert_eq!(
+            inner.upper_limit, expected_limit,
+            "The upper bound of our heap doesn't match."
+        );
 
         TestResult::passed()
     }
@@ -313,7 +323,11 @@ mod fuzz_tests {
 
         if let Ok(layout) = Layout::from_size_align(n, size_of::<usize>()) {
             let mut inner = InnerAlloc::new();
-            assert_eq!(inner.alloc(layout), None);
+            assert_eq!(
+                inner.alloc(layout),
+                None,
+                "An allocation which overflows the heap was made."
+            );
 
             TestResult::passed()
         } else {
@@ -340,13 +354,23 @@ mod fuzz_tests {
 
         let layout = Layout::from_size_align(n, align).unwrap();
         let size = layout.pad_to_align().size();
-        assert_eq!(inner.alloc(layout), Some(0));
+        assert_eq!(
+            inner.alloc(layout),
+            Some(0),
+            "The given pointer for the allocation doesn't match."
+        );
 
         let expected_alloc_start = size;
-        assert_eq!(inner.next, expected_alloc_start);
+        assert_eq!(
+            inner.next, expected_alloc_start,
+            "Our next allocation doesn't match where it should start."
+        );
 
         let expected_limit = PAGE_SIZE * required_pages(size).unwrap();
-        assert_eq!(inner.upper_limit, expected_limit);
+        assert_eq!(
+            inner.upper_limit, expected_limit,
+            "The upper bound of our heap doesn't match."
+        );
 
         TestResult::passed()
     }
@@ -483,7 +507,10 @@ mod fuzz_tests {
         }
 
         // Ensure that at least one of the allocations ends up overflowing our calculations.
-        assert!(results.iter().any(|r| r.is_none()));
+        assert!(
+            results.iter().any(|r| r.is_none()),
+            "Expected an allocation to overflow our heap, but this didn't happen."
+        );
 
         TestResult::passed()
     }
