@@ -163,7 +163,6 @@ mod rand_extension {
             rand_extension.update().expect("update must work");
 
             // then
-            assert_ne!(rand_extension.get(), [0; 32]);
             assert_eq!(rand_extension.get(), [1; 32]);
         }
     }
