@@ -104,7 +104,7 @@ left-aligned. The
 default for numeric formatters is also a space character but with right-alignment. If
 the <code>0</code> flag (see below) is specified for numerics, then the implicit fill character is
 <code>0</code>.</p>
-<p>Note that alignment may not be implemented by some types. In particular, it
+<p>Note that alignment might not be implemented by some types. In particular, it
 is not generally implemented for the <code>Debug</code> trait.  A good way to ensure
 padding is applied is to format your input, then pad this resulting string
 to obtain your output:</p>
@@ -241,7 +241,7 @@ precision := count | &#39;*&#39;
 type := &#39;&#39; | &#39;?&#39; | &#39;x?&#39; | &#39;X?&#39; | identifier
 count := parameter | integer
 parameter := argument &#39;$&#39;</pre></div>
-<p>In the above grammar, <code>text</code> may not contain any <code>'{'</code> or <code>'}'</code> characters.</p>
+<p>In the above grammar, <code>text</code> must not contain any <code>'{'</code> or <code>'}'</code> characters.</p>
 <h1 id="formatting-traits" class="section-header"><a href="#formatting-traits">Formatting traits</a></h1>
 <p>When requesting that an argument be formatted with a particular type, you
 are actually requesting that an argument ascribes to a particular trait.
