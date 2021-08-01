@@ -460,14 +460,8 @@ fn test_binary_search() {
     assert_eq!(b.binary_search(&0), Err(0));
     assert_eq!(b.binary_search(&1), Ok(0));
     assert_eq!(b.binary_search(&2), Err(1));
-    assert!(match b.binary_search(&3) {
-        Ok(1..=3) => true,
-        _ => false,
-    });
-    assert!(match b.binary_search(&3) {
-        Ok(1..=3) => true,
-        _ => false,
-    });
+    matches!(b.binary_search(&3), Ok(1..=3));
+    matches!(b.binary_search(&3), Ok(1..=3));
     assert_eq!(b.binary_search(&4), Err(4));
     assert_eq!(b.binary_search(&5), Err(4));
     assert_eq!(b.binary_search(&6), Err(4));
