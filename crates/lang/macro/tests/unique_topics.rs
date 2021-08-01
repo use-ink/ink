@@ -118,7 +118,7 @@ mod my_contract {
         // And then find any two consecutive equal elements.
         items.windows(2).any(|w| {
             match w {
-                &[ref a, ref b] => a == b,
+                [ref a, ref b] => a == b,
                 _ => false,
             }
         })
