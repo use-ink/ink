@@ -91,7 +91,7 @@ fn fuzz_binary_search(mut std_vec: Vec<i32>) {
         return
     }
     let original_std_vec = std_vec.clone();
-    std_vec.sort();
+    std_vec.sort_unstable();
     let ink_vec = StorageVec::from_iter(std_vec.clone());
 
     for x in original_std_vec {
@@ -122,7 +122,7 @@ fn fuzz_binary_search_nonexistent(std_vec: Vec<i32>) {
     let removed_el = unique_std_vec
         .pop()
         .expect("length is non-zero, first element must exist");
-    unique_std_vec.sort();
+    unique_std_vec.sort_unstable();
     let ink_vec = StorageVec::from_iter(unique_std_vec.clone());
 
     // when
