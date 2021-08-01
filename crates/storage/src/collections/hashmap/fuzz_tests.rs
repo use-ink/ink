@@ -124,7 +124,7 @@ fn fuzz_removes(xs: Vec<i32>, xth: usize) {
                 let i = xs.get(x).expect(
                     "x is always in bounds since we iterate over the vec length; qed",
                 );
-                assert_eq!(map.take(&i), Some(i.saturating_mul(10)));
+                assert_eq!(map.take(i), Some(i.saturating_mul(10)));
                 len -= 1;
             }
             assert_eq!(map.len(), len);
@@ -137,7 +137,7 @@ fn fuzz_removes(xs: Vec<i32>, xth: usize) {
                 let i = xs.get(x).expect(
                     "x is always in bounds since we iterate over the vec length; qed",
                 );
-                assert_eq!(map.get(&i), Some(&(i.saturating_mul(10))));
+                assert_eq!(map.get(i), Some(&(i.saturating_mul(10))));
             }
         }
 

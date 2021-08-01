@@ -67,26 +67,26 @@ mod populated_cache {
     use super::*;
 
     pub fn clear(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         black_box(vec.clear());
     }
 
     pub fn pop_all(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         while let Some(ignored) = black_box(vec.pop()) {
             black_box(ignored);
         }
     }
 
     pub fn set(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         for (index, _value) in test_values.iter().enumerate() {
             let _ = black_box(vec.set(index as u32, b'X'));
         }
     }
 
     pub fn get_mut(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         for (index, _value) in test_values.iter().enumerate() {
             *black_box(vec.get_mut(index as u32).unwrap()) = b'X';
         }
