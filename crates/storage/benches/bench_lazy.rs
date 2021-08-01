@@ -52,10 +52,10 @@ mod populated_cache {
 fn bench_set_populated_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (populated cache)");
     group.bench_function(BenchmarkId::new("set", 0), |b| {
-        b.iter(|| populated_cache::set())
+        b.iter(populated_cache::set)
     });
     group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
-        b.iter(|| populated_cache::deref_mut())
+        b.iter(populated_cache::deref_mut)
     });
     group.finish();
 }
@@ -85,10 +85,10 @@ fn bench_set_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (empty cache)");
         group.bench_function(BenchmarkId::new("set", 0), |b| {
-            b.iter(|| empty_cache::set())
+            b.iter(empty_cache::set)
         });
         group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
-            b.iter(|| empty_cache::deref_mut())
+            b.iter(empty_cache::deref_mut)
         });
         group.finish();
         Ok(())

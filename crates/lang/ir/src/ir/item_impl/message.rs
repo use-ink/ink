@@ -366,7 +366,7 @@ mod tests {
                 .unwrap()
                 .inputs()
                 .cloned()
-                .map(|pat_type| syn::FnArg::Typed(pat_type))
+                .map(syn::FnArg::Typed)
                 .collect::<Vec<_>>();
             assert_eq!(actual_inputs, expected_inputs);
         }

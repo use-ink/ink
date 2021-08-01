@@ -167,8 +167,8 @@ mod empty_cache {
 fn bench_clear_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `clear` and `pop_all` (empty cache)");
-        group.bench_function("clear", |b| b.iter(|| empty_cache::clear()));
-        group.bench_function("pop_all", |b| b.iter(|| empty_cache::pop_all()));
+        group.bench_function("clear", |b| b.iter(empty_cache::clear));
+        group.bench_function("pop_all", |b| b.iter(empty_cache::pop_all));
         group.finish();
         Ok(())
     })
@@ -181,8 +181,8 @@ fn bench_clear_empty_cache(c: &mut Criterion) {
 fn bench_put_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `get_mut` (empty cache)");
-        group.bench_function("set", |b| b.iter(|| empty_cache::set()));
-        group.bench_function("get_mut", |b| b.iter(|| empty_cache::get_mut()));
+        group.bench_function("set", |b| b.iter(empty_cache::set));
+        group.bench_function("get_mut", |b| b.iter(empty_cache::get_mut));
         group.finish();
         Ok(())
     })
