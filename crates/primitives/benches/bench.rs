@@ -104,7 +104,7 @@ fn bench_key_ptr_advance_by(c: &mut Criterion) {
     let key = Key::from([0x00; 32]);
     c.bench_function("KeyPtr2::advance_by copy", |b| {
         b.iter(|| {
-            let mut key_ptr = KeyPtr::from(key.clone());
+            let mut key_ptr = KeyPtr::from(key);
             let _ = black_box(key_ptr.advance_by(1));
         })
     });
@@ -112,7 +112,7 @@ fn bench_key_ptr_advance_by(c: &mut Criterion) {
 
 fn bench_key_ptr_advance_by_repeat(c: &mut Criterion) {
     let key = Key::from([0x00; 32]);
-    let mut key_ptr = KeyPtr::from(key.clone());
+    let mut key_ptr = KeyPtr::from(key);
     c.bench_function("KeyPtr2::advance_by reuse", |b| {
         b.iter(|| {
             let _ = black_box(key_ptr.advance_by(1));
