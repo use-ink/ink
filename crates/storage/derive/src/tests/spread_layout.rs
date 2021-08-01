@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::absurd_extreme_comparisons)]
+#![allow(clippy::identity_op)]
+#![allow(clippy::eq_op)]
+#![allow(clippy::match_single_binding)]
+
 use crate::spread_layout_derive;
 
 #[test]
