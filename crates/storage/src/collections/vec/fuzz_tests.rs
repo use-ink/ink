@@ -74,7 +74,7 @@ where
     /// others intact.
     fn assign(&mut self, val: Self::Item) {
         if let Some(popped_val) = self.pop() {
-            *val = popped_val.clone();
+            *val = popped_val;
         }
     }
 }

@@ -24,7 +24,7 @@ fn simple_storage_works() {
         }
     };
     assert!(matches!(
-        <ir::Item as TryFrom<_>>::try_from(storage_struct.clone())
+        <ir::Item as TryFrom<_>>::try_from(storage_struct)
             .map_err(|err| err.to_string()),
         Ok(ir::Item::Ink(ir::InkItem::Storage(_)))
     ))
@@ -41,7 +41,7 @@ fn simple_event_works() {
         }
     };
     assert!(matches!(
-        <ir::Item as TryFrom<_>>::try_from(event_struct.clone())
+        <ir::Item as TryFrom<_>>::try_from(event_struct)
             .map_err(|err| err.to_string()),
         Ok(ir::Item::Ink(ir::InkItem::Event(_)))
     ))
