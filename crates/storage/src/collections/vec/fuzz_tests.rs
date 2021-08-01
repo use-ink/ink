@@ -87,7 +87,7 @@ crate::fuzz_storage!("vec_4", StorageVec<(i128, u32, bool, Option<(u32, i128)>)>
 #[quickcheck]
 fn fuzz_binary_search(mut std_vec: Vec<i32>) {
     // given
-    if std_vec.len() == 0 {
+    if std_vec.is_empty() {
         return
     }
     let original_std_vec = std_vec.clone();
@@ -115,7 +115,7 @@ fn fuzz_binary_search(mut std_vec: Vec<i32>) {
 #[quickcheck]
 fn fuzz_binary_search_nonexistent(std_vec: Vec<i32>) {
     // given
-    if std_vec.len() == 0 {
+    if std_vec.is_empty() {
         return
     }
     let mut unique_std_vec: Vec<i32> = std_vec.into_iter().unique().collect();
@@ -144,7 +144,7 @@ fn fuzz_binary_search_nonexistent(std_vec: Vec<i32>) {
 #[quickcheck]
 fn fuzz_binary_search_by_key(mut std_vec: Vec<(i32, i32)>) {
     // given
-    if std_vec.len() == 0 {
+    if std_vec.is_empty() {
         return
     }
     let original_std_vec = std_vec.clone();
@@ -167,7 +167,7 @@ fn fuzz_binary_search_by_key(mut std_vec: Vec<(i32, i32)>) {
 #[quickcheck]
 fn fuzz_binary_search_by_key_nonexistent(std_vec: Vec<(i32, i32)>) {
     // given
-    if std_vec.len() == 0 {
+    if std_vec.is_empty() {
         return
     }
     let mut unique_std_vec: Vec<(i32, i32)> =
