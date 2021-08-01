@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::type_complexity)]
+
 use super::Vec as StorageVec;
 use crate::{
     test_utils::FuzzCollection,
