@@ -43,7 +43,7 @@ fn bench_key_add_assign_u64(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64)", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -57,7 +57,7 @@ fn bench_key_add_assign_u64_one_ofvl(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 1 ofvl", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -71,7 +71,7 @@ fn bench_key_add_assign_u64_two_ofvls(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 2 ofvls", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -85,7 +85,7 @@ fn bench_key_add_assign_u64_three_ofvls(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 3 ofvls", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -95,7 +95,7 @@ fn bench_key_add_assign_u64_wrap(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - wrap", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }

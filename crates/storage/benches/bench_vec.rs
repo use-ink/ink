@@ -68,7 +68,7 @@ mod populated_cache {
 
     pub fn clear(test_values: &[u8]) {
         let mut vec = storage_vec_from_slice(test_values);
-        black_box(vec.clear());
+        let _ = black_box(|| vec.clear());
     }
 
     pub fn pop_all(test_values: &[u8]) {
@@ -124,7 +124,7 @@ mod empty_cache {
     pub fn clear() {
         push_storage_vec();
         let mut vec = pull_storage_vec();
-        black_box(vec.clear());
+        let _ = black_box(|| vec.clear());
     }
 
     /// In this case we lazily load the vec from storage using `pull_spread`.

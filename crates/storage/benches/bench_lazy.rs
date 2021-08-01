@@ -39,13 +39,13 @@ mod populated_cache {
     pub fn set() {
         let mut lazy = <Lazy<i32>>::new(1);
         let lazy_mut = black_box(&mut lazy);
-        black_box(Lazy::set(lazy_mut, 17));
+        let _ = black_box(|| Lazy::set(lazy_mut, 17));
     }
 
     pub fn deref_mut() {
         let mut lazy = <Lazy<i32>>::new(1);
         let i32_mut = black_box(lazy.deref_mut());
-        black_box(*i32_mut = 17);
+        let _ = black_box(|| *i32_mut = 17);
     }
 }
 
@@ -72,12 +72,12 @@ mod empty_cache {
 
     pub fn set() {
         let mut lazy = push_storage_lazy(1);
-        black_box(Lazy::set(&mut lazy, 13));
+        let _ = black_box(|| Lazy::set(&mut lazy, 13));
     }
 
     pub fn deref_mut() {
         let mut lazy = push_storage_lazy(1);
-        black_box(*lazy = 13);
+        let _ = black_box(|| *lazy = 13);
     }
 }
 
