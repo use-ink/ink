@@ -510,7 +510,8 @@ mod fuzz_tests {
 
         let mut results = vec![];
         for alloc in sequence {
-            let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
+            let layout = Layout::from_size_align(alloc, size_of::<usize>())
+                .expect(FROM_SIZE_ALIGN_EXPECT);
             results.push(inner.alloc(layout));
         }
 
