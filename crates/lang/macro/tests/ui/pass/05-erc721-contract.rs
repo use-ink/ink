@@ -460,7 +460,7 @@ mod erc721 {
             assert_eq!(erc721.owner_of(2), Some(accounts.alice));
             // Get contract address
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -492,7 +492,7 @@ mod erc721 {
             assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -542,7 +542,7 @@ mod erc721 {
             );
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -601,7 +601,7 @@ mod erc721 {
             assert_eq!(erc721.balance_of(accounts.eve), 0);
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -672,7 +672,7 @@ mod erc721 {
 
         fn set_sender(sender: AccountId) {
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             test::push_execution_context::<Environment>(
                 sender,
                 callee,

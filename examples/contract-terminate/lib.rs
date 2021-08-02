@@ -82,7 +82,7 @@ pub mod just_terminates {
 
         fn set_sender(sender: AccountId) {
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             test::push_execution_context::<Environment>(
                 sender,
                 callee,

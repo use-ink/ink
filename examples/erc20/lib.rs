@@ -360,7 +360,7 @@ mod erc20 {
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -417,7 +417,7 @@ mod erc20 {
 
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call.
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -471,7 +471,7 @@ mod erc20 {
 
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call.
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
