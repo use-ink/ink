@@ -523,6 +523,13 @@ where
         *self.len = 0;
     }
 
+    /// Divides the Vec into two slices at an index.
+    ///
+    /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
+    /// second will contain all indices from [mid, len) (excluding the index len itself).
+    ///
+    /// # Panics
+    /// Panics if mid <= len.
     #[inline]
     pub fn split_at(
         &self,
@@ -535,6 +542,13 @@ where
         )
     }
 
+    /// Divides the Vec into two mutable slices at an index.
+    ///
+    /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
+    /// second will contain all indices from [mid, len) (excluding the index len itself).
+    ///
+    /// # Panics
+    /// Panics if mid <= len.
     #[inline]
     pub fn split_at_mut(
         &mut self,
@@ -549,5 +563,53 @@ where
                 SliceMut::new(mid..(*self.len), &self.elems),
             )
         }
+    }
+
+    /// Returns the first and all the rest of the elements of the slice, or None if it is empty.
+    pub fn split_first(&self) -> Option<(&T, Slice<&LazyIndexMap<T>>)> {
+        let first = self.first()?;
+        Some((first, Slice::new(1..self.len(), &self.elems)))
+    }
+
+    /// Returns the first and all the rest of the elements of the slice, or None if it is empty.
+    pub fn split_first_mut(&mut self) -> Option<(&mut T, SliceMut<&LazyIndexMap<T>>)> {
+        use crate::collections::slice::ContiguousStorage;
+
+        let first =
+            // Safety: we have exclusive access to the slice through the &mut receiver, thus this
+            // mutable borrow is guaranteed to be unique.
+            unsafe { <LazyIndexMap<T> as ContiguousStorage>::get_mut(&self.elems, 0)? };
+        Some((
+            first,
+            // Safety: By taking &mut self, we ensure that other getters of items become cannot be
+            // called until the newly returned SliceMut is dropped. Thus only a single slice has
+            // mutable access to the underlying items.
+            unsafe { SliceMut::new(1..self.len(), &self.elems) },
+        ))
+    }
+
+    /// Returns the last and all the rest of the elements of the vec, or None if it is empty.
+    pub fn split_last(&self) -> Option<(&T, Slice<&LazyIndexMap<T>>)> {
+        let last = self.last()?;
+        Some((last, Slice::new(0..self.len() - 1, &self.elems)))
+    }
+
+    /// Returns the last and all the rest of the elements of the vec, or None if it is empty.
+    pub fn split_last_mut(&self) -> Option<(&T, SliceMut<&LazyIndexMap<T>>)> {
+        use crate::collections::slice::ContiguousStorage;
+
+        let last =
+            // Safety: we have exclusive access to the slice through the &mut receiver, thus this
+            // mutable borrow is guaranteed to be unique.
+            unsafe {
+            <LazyIndexMap<T> as ContiguousStorage>::get_mut(&self.elems, self.len())?
+        };
+        Some((
+            last,
+            // Safety: By taking &mut self, we ensure that other getters of items become cannot be
+            // called until the newly returned SliceMut is dropped. Thus only a single slice has
+            // mutable access to the underlying items.
+            unsafe { SliceMut::new(0..self.len() - 1, &self.elems) },
+        ))
     }
 }

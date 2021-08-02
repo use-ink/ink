@@ -15,6 +15,7 @@
 use crate::collections::slice::ContiguousStorage;
 use core::ops::Range;
 
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct IterMut<'a, T> {
     pub(crate) index: u32,
     pub(crate) range: Range<u32>,
@@ -70,6 +71,7 @@ where
     }
 }
 
+#[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct Iter<'a, T> {
     pub(crate) index: u32,
     pub(crate) range: Range<u32>,
