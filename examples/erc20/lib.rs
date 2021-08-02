@@ -486,8 +486,7 @@ mod erc20 {
             );
 
             // Bob tries to transfer tokens from Alice to Eve.
-            let emitted_events_before =
-                ink_env::test::recorded_events().collect::<Vec<_>>();
+            let emitted_events_before = ink_env::test::recorded_events();
             assert_eq!(
                 erc20.transfer_from(accounts.alice, accounts.eve, alice_balance + 1),
                 Err(Error::InsufficientBalance)
@@ -498,9 +497,8 @@ mod erc20 {
                 initial_allowance
             );
             // No more events must have been emitted
-            let emitted_events_after =
-                ink_env::test::recorded_events().collect::<Vec<_>>();
-            assert_eq!(emitted_events_before.len(), emitted_events_after.len());
+            let emitted_events_after = ink_env::test::recorded_events();
+            assert_eq!(emitted_events_before.count(), emitted_events_after.count());
         }
     }
 
