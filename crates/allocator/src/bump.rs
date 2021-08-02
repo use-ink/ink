@@ -281,6 +281,11 @@ mod fuzz_tests {
     };
     use std::mem::size_of;
 
+    const FROM_SIZE_ALIGN_EXPECT: &str =
+        "The rounded value of `size` cannot be more than `usize::MAX` since we have
+        checked that it is a PAGE_SIZE less than `usize::MAX`; Alignment is a
+        non-zero, power of two.";
+
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
         // If `n` is going to overflow we don't want to check it here (we'll check the overflow
@@ -291,7 +296,9 @@ mod fuzz_tests {
 
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n, size_of::<usize>()).unwrap();
+        let layout =
+            Layout::from_size_align(n, size_of::<usize>()).expect(FROM_SIZE_ALIGN_EXPECT);
+
         let size = layout.pad_to_align().size();
         assert_eq!(
             inner.alloc(layout),
@@ -352,7 +359,7 @@ mod fuzz_tests {
 
         let mut inner = InnerAlloc::new();
 
-        let layout = Layout::from_size_align(n, align).unwrap();
+        let layout = Layout::from_size_align(n, align).expect(FROM_SIZE_ALIGN_EXPECT);
         let size = layout.pad_to_align().size();
         assert_eq!(
             inner.alloc(layout),
@@ -419,7 +426,8 @@ mod fuzz_tests {
         let mut total_bytes_fragmented = 0;
 
         for alloc in sequence {
-            let layout = Layout::from_size_align(alloc, size_of::<usize>()).unwrap();
+            let layout = Layout::from_size_align(alloc, size_of::<usize>())
+                .expect(FROM_SIZE_ALIGN_EXPECT);
             let size = layout.pad_to_align().size();
 
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
