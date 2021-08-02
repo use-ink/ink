@@ -15,13 +15,26 @@
 use crate::collections::slice::ContiguousStorage;
 use std::ops::Range;
 
-pub struct IterMut<'a, T>
-where
-    T: ContiguousStorage,
-{
+pub struct IterMut<'a, T> {
     pub(crate) index: u32,
     pub(crate) range: Range<u32>,
     pub(crate) backing_storage: &'a T,
+}
+
+impl<'a, T> IterMut<'a, T> {
+    fn current(&self) -> u32 {
+        self.range.start + self.index
+    }
+
+    fn increment(&mut self) -> Option<u32> {
+        let current = self.current();
+        if current >= self.range.end {
+            None
+        } else {
+            self.index += 1;
+            Some(current)
+        }
+    }
 }
 
 impl<'a, T> Iterator for IterMut<'a, T>
@@ -31,23 +44,52 @@ where
     type Item = &'a mut <T as ContiguousStorage>::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if !self.range.contains(&self.index) {
-            return None
+        if let Some(i) = self.increment() {
+            unsafe { self.backing_storage.get_mut(i) }
+        } else {
+            None
         }
+    }
 
-        let item = unsafe { self.backing_storage.get_mut(self.index) };
-        self.index += 1;
-        item
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let left = (self.range.end - self.current()) as usize;
+        (left, Some(left))
+    }
+
+    fn count(self) -> usize {
+        (self.range.end - self.current()) as usize
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        unsafe { self.backing_storage.get_mut(self.range.end) }
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        self.index += n as u32;
+        self.next()
     }
 }
 
-pub struct Iter<'a, T>
-where
-    T: ContiguousStorage,
-{
+pub struct Iter<'a, T> {
     pub(crate) index: u32,
     pub(crate) range: Range<u32>,
     pub(crate) backing_storage: &'a T,
+}
+
+impl<'a, T> Iter<'a, T> {
+    fn current(&self) -> u32 {
+        self.range.start + self.index
+    }
+
+    fn increment(&mut self) -> Option<u32> {
+        let current = self.current();
+        if current >= self.range.end {
+            None
+        } else {
+            self.index += 1;
+            Some(current)
+        }
+    }
 }
 
 impl<'a, T> Iterator for Iter<'a, T>
@@ -57,12 +99,28 @@ where
     type Item = &'a <T as ContiguousStorage>::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if !self.range.contains(&self.index) {
-            return None
+        if let Some(i) = self.increment() {
+            self.backing_storage.get(i)
+        } else {
+            None
         }
+    }
 
-        let item = self.backing_storage.get(self.index);
-        self.index += 1;
-        item
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let left = (self.range.end - self.current()) as usize;
+        (left, Some(left))
+    }
+
+    fn count(self) -> usize {
+        (self.range.end - self.current()) as usize
+    }
+
+    fn last(self) -> Option<Self::Item> {
+        self.backing_storage.get(self.range.end)
+    }
+
+    fn nth(&mut self, n: usize) -> Option<Self::Item> {
+        self.index += n as u32;
+        self.next()
     }
 }

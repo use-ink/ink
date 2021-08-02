@@ -31,6 +31,10 @@ pub use self::iter::{
     IterMut,
 };
 use crate::{
+    collections::slice::{
+        Slice,
+        SliceMut,
+    },
     lazy::{
         Lazy,
         LazyArray,
@@ -187,6 +191,34 @@ where
     pub fn get(&self, index: u32) -> Option<&T> {
         self.within_bounds(index)
             .and_then(|index| self.elems.get(index))
+    }
+
+    #[inline]
+    pub fn split_at(
+        &self,
+        mid: u32,
+    ) -> (Slice<&LazyArray<T, N>>, Slice<&LazyArray<T, N>>) {
+        assert!(mid <= self.len());
+        (
+            Slice::new(0..mid, &self.elems),
+            Slice::new(mid..self.len(), &self.elems),
+        )
+    }
+
+    #[inline]
+    pub fn split_at_mut(
+        &mut self,
+        mid: u32,
+    ) -> (SliceMut<&LazyArray<T, N>>, SliceMut<&LazyArray<T, N>>) {
+        assert!(mid <= *self.len);
+
+        // SAFETY: SliceMut::new requires that the ranges do not overlap.
+        unsafe {
+            (
+                SliceMut::new(0..mid, &self.elems),
+                SliceMut::new(mid..(*self.len), &self.elems),
+            )
+        }
     }
 }
 
