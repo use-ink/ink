@@ -17,7 +17,7 @@ use crate::collections::slice::{
     Slice,
     SliceMut,
 };
-use std::ops::{
+use core::ops::{
     Index,
     IndexMut,
 };

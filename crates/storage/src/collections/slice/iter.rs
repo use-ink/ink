@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::collections::slice::ContiguousStorage;
-use std::ops::Range;
+use core::ops::Range;
 
 pub struct IterMut<'a, T> {
     pub(crate) index: u32,
