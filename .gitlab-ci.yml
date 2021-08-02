@@ -203,7 +203,7 @@ clippy-wasm:
       artifacts:                   false
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --all-targets --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
