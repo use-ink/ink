@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// The fuzz tests are testing complex types.
 #![allow(clippy::type_complexity)]
 
 use super::Vec as StorageVec;

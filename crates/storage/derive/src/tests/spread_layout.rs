@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// These tests are partly testing if code is expanded correctly.
+// Hence the syntax contains a number of verbose statements which
+// are not properly cleaned up.
 #![allow(clippy::absurd_extreme_comparisons)]
 #![allow(clippy::identity_op)]
 #![allow(clippy::eq_op)]
