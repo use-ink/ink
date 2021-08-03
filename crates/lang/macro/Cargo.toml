@@ -44,4 +44,7 @@ std = [
     "ink_lang_ir/std",
     "ink_primitives/std",
 ]
-ink-experimental-engine = []
+
+# Due to https://github.com/rust-lang/cargo/issues/6915 features that affect a dev-dependency
+# currently can't be enabled by a parent crate.
+# ink-experimental-engine = ["ink_env/ink-experimental-engine"]
