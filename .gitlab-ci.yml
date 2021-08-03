@@ -283,10 +283,10 @@ examples-clippy-wasm:
   <<:                              *test-refs
   script:
     - for example in examples/*/; do
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings ${CLIPPY_FLAGS};
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings ${CLIPPY_FLAGS};
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings ${CLIPPY_FLAGS};
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings ${CLIPPY_FLAGS};
       done
 
 examples-contract-build:
