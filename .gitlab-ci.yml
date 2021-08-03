@@ -293,6 +293,8 @@ examples-contract-build:
   <<:                              *test-refs
   artifacts:
       name: "$CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv"
+      paths:
+          - artifacts/
   script:
     - cargo contract -V
     - SIZE_OUT=""
