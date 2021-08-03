@@ -59,6 +59,7 @@ mod my_contract {
         }
     }
 
+    #[cfg(not(feature = "ink-experimental-engine"))]
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -93,7 +94,6 @@ mod my_contract {
         // }
 
         #[ink::test]
-        #[cfg(not(feature = "ink-experimental-engine"))]
         fn event_must_have_unique_topics() {
             // given
             let my_contract = MyContract::new();
@@ -112,21 +112,21 @@ mod my_contract {
                 .collect();
             assert!(!has_duplicates(&mut encoded_topics));
         }
-    }
 
-    /// Finds duplicates in a given vector.
-    ///
-    /// This function has complexity of `O(n * log n)` and no additional memory
-    /// is required, although the order of items is not preserved.
-    fn has_duplicates<T: PartialEq + AsRef<[u8]>>(items: &mut Vec<T>) -> bool {
-        // Sort the vector
-        items.sort_by(|a, b| Ord::cmp(a.as_ref(), b.as_ref()));
-        // And then find any two consecutive equal elements.
-        items.windows(2).any(|w| {
-            match w {
-                [ref a, ref b] => a == b,
-                _ => false,
-            }
-        })
+        /// Finds duplicates in a given vector.
+        ///
+        /// This function has complexity of `O(n * log n)` and no additional memory
+        /// is required, although the order of items is not preserved.
+        fn has_duplicates<T: PartialEq + AsRef<[u8]>>(items: &mut Vec<T>) -> bool {
+            // Sort the vector
+            items.sort_by(|a, b| Ord::cmp(a.as_ref(), b.as_ref()));
+            // And then find any two consecutive equal elements.
+            items.windows(2).any(|w| {
+                match w {
+                    [ref a, ref b] => a == b,
+                    _ => false,
+                }
+            })
+        }
     }
 }
