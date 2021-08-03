@@ -218,74 +218,74 @@ workflow:
 
 #### stage:                        examples
 
-examples-test:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - for example in examples/*/; do
-        cargo test --verbose --manifest-path ${example}/Cargo.toml;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-      done
-
-examples-test-experimental-engine:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    # We test only the examples for which the tests have already been migrated to
-    # use the experimental engine.
-    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc20/Cargo.toml
-    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc1155/Cargo.toml
-    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
-    - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
-
-examples-fmt:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - for example in examples/*/; do
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check;
-      done
-
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
-      done
-
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
+      # examples-test:
+      #   stage:                           examples
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         clippy-std
+      #       artifacts:                   false
+      #   script:
+      #     - for example in examples/*/; do
+      #         cargo test --verbose --manifest-path ${example}/Cargo.toml;
+      #       done
+      #     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #         cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+      #       done
+      #
+      # examples-test-experimental-engine:
+      #   stage:                           examples
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         clippy-std
+      #       artifacts:                   false
+      #   script:
+      #     # We test only the examples for which the tests have already been migrated to
+      #     # use the experimental engine.
+      #     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc20/Cargo.toml
+      #     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/erc1155/Cargo.toml
+      #     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
+      #     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
+      #
+      # examples-fmt:
+      #   stage:                           examples
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - for example in examples/*/; do
+      #         cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check;
+      #       done
+      #     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #         cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check;
+      #       done
+      #
+      # examples-clippy-std:
+      #   stage:                           examples
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         clippy-std
+      #       artifacts:                   false
+      #   script:
+      #     - for example in examples/*/; do
+      #         cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+      #       done
+      #     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #         cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+      #       done
+      #
+      # examples-clippy-wasm:
+      #   stage:                           examples
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - for example in examples/*/; do
+      #         cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      #       done
+      #     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #         cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      #       done
 
 examples-contract-build:
   stage:                           examples
@@ -318,23 +318,23 @@ examples-contract-build-delegator:
         - cargo contract -V
         - cd examples/delegator/ && ./build-all.sh
 
-examples-docs:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    RUSTDOCFLAGS: -Dwarnings
-  script:
-    # `--document-private-items` needs to be in here because currently our contract macro
-    # puts the contract functions in a private module.
-    # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
-    # of this flag.
-    - for example in examples/*/; do
-        cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
-      done
+          # examples-docs:
+          #   stage:                           examples
+          #   <<:                              *docker-env
+          #   <<:                              *test-refs
+          #   variables:
+          #     RUSTDOCFLAGS: -Dwarnings
+          #   script:
+          #     # `--document-private-items` needs to be in here because currently our contract macro
+          #     # puts the contract functions in a private module.
+          #     # Once https://github.com/paritytech/ink/issues/336 has been implemented we can get rid
+          #     # of this flag.
+          #     - for example in examples/*/; do
+          #         cargo doc --manifest-path ${example}/Cargo.toml --document-private-items --verbose --no-deps;
+          #       done
+          #     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+          #         cargo doc --manifest-path examples/delegator/${contract}/Cargo.toml --document-private-items --verbose --no-deps;
+          #       done
 
 
 #### stage:                        ink-waterfall
