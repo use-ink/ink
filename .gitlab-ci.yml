@@ -6,12 +6,12 @@
 
 
 stages:
-    # - check
-    # - workspace
+  - check
+  - workspace
   - examples
-    # - ink-waterfall
-    # - fuzz
-    # - publish
+  - ink-waterfall
+  - fuzz
+  - publish
 
 variables:
   GIT_STRATEGY:                    fetch
@@ -86,134 +86,134 @@ workflow:
 
 #### stage:                        check
 
-check-std:
-  stage:                           check
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-check-wasm:
-  stage:                           check
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - for crate in ${ALSO_WASM_CRATES}; do
-        cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-
-#### stage:                        workspace
-
-build-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-build-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALSO_WASM_CRATES}; do
-        cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
-      done
-
-test:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  variables:
-      # Since we run the tests with `--all-features` this implies the feature
-      # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
-      # There's no way to disable a single feature while enabling all features
-      # at the same time, hence we use this workaround.
-      QUICKCHECK_TESTS:            0
-  script:
-    - cargo test --verbose --all-features --no-fail-fast --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace --doc
-
-      # Just needed as long as we have the `ink-experimental-engine` feature.
-      # We do not invoke `--all-features` here -- this would imply the feature
-      # `ink-experimental-engine`. So in order to still run the tests without the
-      # experimental engine feature we need this command.
-    - cargo test --verbose --features std --no-fail-fast --workspace
-
-docs:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    RUSTDOCFLAGS: -Dwarnings
-  artifacts:
-    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}-doc"
-    when: on_success
-    expire_in: 7 days
-    paths:
-      - ./crate-docs/
-  script:
-    - cargo doc --no-deps --all-features
-        -p scale-info -p ink_metadata
-        -p ink_env -p ink_storage -p ink_storage_derive
-        -p ink_primitives -p ink_prelude
-        -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
-    - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
-
-spellcheck:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
-
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
-      done
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - cargo fmt --verbose --all -- --check
-    # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
+      # check-std:
+      #   stage:                           check
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - for crate in ${ALL_CRATES}; do
+      #         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
+      #       done
+      #
+      # check-wasm:
+      #   stage:                           check
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - for crate in ${ALSO_WASM_CRATES}; do
+      #         cargo check --verbose --no-default-features --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+      #       done
+      #
+      #
+      # #### stage:                        workspace
+      #
+      # build-std:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         check-std
+      #       artifacts:                   false
+      #   script:
+      #     - for crate in ${ALL_CRATES}; do
+      #         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
+      #       done
+      #
+      # build-wasm:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         check-wasm
+      #       artifacts:                   false
+      #   script:
+      #     - for crate in ${ALSO_WASM_CRATES}; do
+      #         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
+      #       done
+      #
+      # test:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         check-std
+      #       artifacts:                   false
+      #   variables:
+      #       # Since we run the tests with `--all-features` this implies the feature
+      #       # `ink-fuzz-tests` as well -- i.e. the fuzz tests are run.
+      #       # There's no way to disable a single feature while enabling all features
+      #       # at the same time, hence we use this workaround.
+      #       QUICKCHECK_TESTS:            0
+      #   script:
+      #     - cargo test --verbose --all-features --no-fail-fast --workspace
+      #     - cargo test --verbose --all-features --no-fail-fast --workspace --doc
+      #
+      #       # Just needed as long as we have the `ink-experimental-engine` feature.
+      #       # We do not invoke `--all-features` here -- this would imply the feature
+      #       # `ink-experimental-engine`. So in order to still run the tests without the
+      #       # experimental engine feature we need this command.
+      #     - cargo test --verbose --features std --no-fail-fast --workspace
+      #
+      # docs:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   variables:
+      #     RUSTDOCFLAGS: -Dwarnings
+      #   artifacts:
+      #     name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}-doc"
+      #     when: on_success
+      #     expire_in: 7 days
+      #     paths:
+      #       - ./crate-docs/
+      #   script:
+      #     - cargo doc --no-deps --all-features
+      #         -p scale-info -p ink_metadata
+      #         -p ink_env -p ink_storage -p ink_storage_derive
+      #         -p ink_primitives -p ink_prelude
+      #         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
+      #     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+      #
+      # spellcheck:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+      #     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
+      #
+      # clippy-std:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         check-std
+      #       artifacts:                   false
+      #   script:
+      #     - for crate in ${ALL_CRATES}; do
+      #         cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+      #       done
+      #
+      # clippy-wasm:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         check-wasm
+      #       artifacts:                   false
+      #   script:
+      #     - for crate in ${ALSO_WASM_CRATES}; do
+      #         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+      #       done
+      #
+      # fmt:
+      #   stage:                           workspace
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   script:
+      #     - cargo fmt --verbose --all -- --check
+      #     # For the UI tests we need to disable the license check
+      #     - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
 
 
 #### stage:                        examples
@@ -339,109 +339,109 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
-  stage:                           ink-waterfall
-  image:                           paritytech/tools:latest
-  <<:                              *kubernetes-env
-  <<:                              *test-refs
-  variables:
-    TRGR_PROJECT:                  ${CI_PROJECT_NAME}
-    TRGR_REF:                      ${CI_COMMIT_REF_NAME}
-    # The `ink-waterfall` project id in GitLab
-    DWNSTRM_ID:                    409
-  script:
-    - ./scripts/.ci/trigger_pipeline.sh
-  allow_failure:                   true
-
-
-#### stage:                        publish
-
-publish-docs:
-  stage:                           publish
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         docs
-      artifacts:                   true
-  variables:
-    GIT_DEPTH:                     100
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME == "tags"
-  # need to overwrite `before_script` from `*docker-env` here,
-  # this branch does not have a `./scripts/.ci/pre_cache.sh`
-  before_script:
-    - *rust-info-script
-    - unset CARGO_TARGET_DIR
-  script:
-    - rm -rf /tmp/*
-    # Set git config
-    - rm -rf .git/config
-    - git config user.email "devops-team@parity.io"
-    - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
-    - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    - git fetch origin gh-pages
-    # saving README and docs
-    - cp -r ./crate-docs/ /tmp/doc/
-    - cp README.md /tmp/doc/
-    - cp -r .images/ /tmp/doc/
-    - git checkout gh-pages
-    - mv _config.yml /tmp/doc/
-    # remove everything and restore generated docs, README and Jekyll config
-    - rm -rf ./*
-    - rm -rf ./.images
-    - mv /tmp/doc/* .
-    - mv /tmp/doc/.images .
-    # Upload files
-    - git add --all --force
-    - git status
-    # `git commit` has an exit code of > 0 if there is nothing to commit.
-    # This unfortunately causes GitLab to exit immediately and mark this
-    # job as failed subsequently.
-    # We don't want to mark the entire job as failed if there's nothing to
-    # publish though, hence the `|| true`.
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
-    - git push origin gh-pages --force
-  after_script:
-    - rm -rf .git/ ./*
-
-#### stage:                        fuzz
-
-fuzz-tests:
-  stage:                           fuzz
-  <<:                              *docker-env
-  <<:                              *test-refs
-  variables:
-    # The QUICKCHECK_TESTS default is 100
-    QUICKCHECK_TESTS:              5000
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-  script:
-    # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
-    - all_tests_passed=0
-    - for crate in ${ALL_CRATES}; do
-        if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
-        then
-          cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
-          all_tests_passed=$(( all_tests_passed | exit_code ));
-        fi
-      done
-    - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
-    - |
-      curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
-        -H "Cookie: logged_in=no" \
-        -H "Authorization: token ${GITHUB_TOKEN}" \
-        -H "Content-Type: application/json; charset=utf-8" \
-        -d $'{
-            "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
-            "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is ['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"').",
-            "assignees": [],
-            "labels": [
-                "P-high"
-            ]
-        }'
-    - exit ${all_tests_passed}
+      # ink-waterfall:
+      #   stage:                           ink-waterfall
+      #   image:                           paritytech/tools:latest
+      #   <<:                              *kubernetes-env
+      #   <<:                              *test-refs
+      #   variables:
+      #     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
+      #     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
+      #     # The `ink-waterfall` project id in GitLab
+      #     DWNSTRM_ID:                    409
+      #   script:
+      #     - ./scripts/.ci/trigger_pipeline.sh
+      #   allow_failure:                   true
+      #
+      #
+      # #### stage:                        publish
+      #
+      # publish-docs:
+      #   stage:                           publish
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   needs:
+      #     - job:                         docs
+      #       artifacts:                   true
+      #   variables:
+      #     GIT_DEPTH:                     100
+      #   rules:
+      #     - if: $CI_PIPELINE_SOURCE == "web"
+      #     - if: $CI_PIPELINE_SOURCE == "schedule"
+      #     - if: $CI_COMMIT_REF_NAME == "master"
+      #     - if: $CI_COMMIT_REF_NAME == "tags"
+      #   # need to overwrite `before_script` from `*docker-env` here,
+      #   # this branch does not have a `./scripts/.ci/pre_cache.sh`
+      #   before_script:
+      #     - *rust-info-script
+      #     - unset CARGO_TARGET_DIR
+      #   script:
+      #     - rm -rf /tmp/*
+      #     # Set git config
+      #     - rm -rf .git/config
+      #     - git config user.email "devops-team@parity.io"
+      #     - git config user.name "${GITHUB_USER}"
+      #     - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+      #     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+      #     - git fetch origin gh-pages
+      #     # saving README and docs
+      #     - cp -r ./crate-docs/ /tmp/doc/
+      #     - cp README.md /tmp/doc/
+      #     - cp -r .images/ /tmp/doc/
+      #     - git checkout gh-pages
+      #     - mv _config.yml /tmp/doc/
+      #     # remove everything and restore generated docs, README and Jekyll config
+      #     - rm -rf ./*
+      #     - rm -rf ./.images
+      #     - mv /tmp/doc/* .
+      #     - mv /tmp/doc/.images .
+      #     # Upload files
+      #     - git add --all --force
+      #     - git status
+      #     # `git commit` has an exit code of > 0 if there is nothing to commit.
+      #     # This unfortunately causes GitLab to exit immediately and mark this
+      #     # job as failed subsequently.
+      #     # We don't want to mark the entire job as failed if there's nothing to
+      #     # publish though, hence the `|| true`.
+      #     - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
+      #     - git push origin gh-pages --force
+      #   after_script:
+      #     - rm -rf .git/ ./*
+      #
+      # #### stage:                        fuzz
+      #
+      # fuzz-tests:
+      #   stage:                           fuzz
+      #   <<:                              *docker-env
+      #   <<:                              *test-refs
+      #   variables:
+      #     # The QUICKCHECK_TESTS default is 100
+      #     QUICKCHECK_TESTS:              5000
+      #   rules:
+      #     - if: $CI_PIPELINE_SOURCE == "schedule"
+      #     - if: $CI_COMMIT_REF_NAME == "master"
+      #   script:
+      #     # We fuzz-test only crates which possess the `ink-fuzz-tests` feature
+      #     - all_tests_passed=0
+      #     - for crate in ${ALL_CRATES}; do
+      #         if grep "ink-fuzz-tests =" crates/${crate}/Cargo.toml;
+      #         then
+      #           cargo test --verbose --features ink-fuzz-tests --manifest-path crates/${crate}/Cargo.toml --no-fail-fast -- fuzz_ || exit_code=$?;
+      #           all_tests_passed=$(( all_tests_passed | exit_code ));
+      #         fi
+      #       done
+      #     - if [ $all_tests_passed -eq 0 ]; then exit 0; fi
+      #     - |
+      #       curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
+      #         -H "Cookie: logged_in=no" \
+      #         -H "Authorization: token ${GITHUB_TOKEN}" \
+      #         -H "Content-Type: application/json; charset=utf-8" \
+      #         -d $'{
+      #             "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
+      #             "body": "The CI job ['"${CI_JOB_ID}"']('"${CI_JOB_URL}"') just failed.\n\nThe offending commit is ['"${CI_COMMIT_TITLE}"'](https://github.com/paritytech/ink/commit/'"${CI_COMMIT_SHA}"').",
+      #             "assignees": [],
+      #             "labels": [
+      #                 "P-high"
+      #             ]
+      #         }'
+      #     - exit ${all_tests_passed}
