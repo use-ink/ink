@@ -296,6 +296,8 @@ examples-contract-build:
       paths:
           - $CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv
   script:
+    - echo $CI_MERGE_REQUEST_ID
+    - echo $CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv
     - cargo contract -V
     - SIZE_OUT=""
     - for example in examples/*/; do
