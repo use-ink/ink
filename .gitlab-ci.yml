@@ -6,12 +6,12 @@
 
 
 stages:
-  - check
-  - workspace
+    # - check
+    # - workspace
   - examples
-  - ink-waterfall
-  - fuzz
-  - publish
+    # - ink-waterfall
+    # - fuzz
+    # - publish
 
 variables:
   GIT_STRATEGY:                    fetch
