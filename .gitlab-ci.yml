@@ -292,12 +292,12 @@ examples-contract-build:
   <<:                              *docker-env
   <<:                              *test-refs
   artifacts:
-      name: "$CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv"
+      name: "$CI_JOB_NAME-$CI_COMMIT_SHORT_SHA.csv"
       paths:
           - $CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv
   script:
-    - echo $CI_MERGE_REQUEST_ID
-    - echo $CI_MERGE_REQUEST_ID-$CI_COMMIT_SHORT_SHA.csv
+    - echo $CI_JOB_NAME
+    - echo $CI_JOB_NAME-$CI_COMMIT_SHORT_SHA.csv
     - cargo contract -V
     - SIZE_OUT=""
     - for example in examples/*/; do
