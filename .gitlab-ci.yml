@@ -291,12 +291,18 @@ examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
+  artifacts:
+      paths:
+          - pr-xxx-example-wasm-sizes.csv
   script:
     - cargo contract -V
+    - SIZE_OUT=""
     - for example in examples/*/; do
         pushd $example &&
-        cargo contract build &&
+        SIZE_OUT=$(cargo contract build | rg "Original" | cut -d " " -f 4,6) &&
+        echo "${SIZE_OUT}" &&
         popd;
+        echo "${example}, ${SIZE_OUT}" >> pr-xxx-example-wasm-sizes.csv;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         pushd examples/delegator/$contract &&
