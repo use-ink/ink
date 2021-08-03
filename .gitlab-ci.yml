@@ -24,7 +24,8 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
+  DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  CLIPPY_FLAGS:                    "-A clippy::bool_assert_comparison"
 
 workflow:
   rules:
@@ -191,7 +192,7 @@ clippy-std:
       artifacts:                   false
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -203,7 +204,7 @@ clippy-wasm:
       artifacts:                   false
   script:
     - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
 fmt:
@@ -269,10 +270,10 @@ examples-clippy-std:
       artifacts:                   false
   script:
     - for example in examples/*/; do
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
@@ -281,10 +282,10 @@ examples-clippy-wasm:
   <<:                              *test-refs
   script:
     - for example in examples/*/; do
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --all-targets --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+        cargo clippy ${CLIPPY_FLAGS} --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
 examples-contract-build:
