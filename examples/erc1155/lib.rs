@@ -792,7 +792,7 @@ mod erc1155 {
             // Note: All of these tests are from the context of the owner who is either allowing or
             // disallowing an operator to control their funds.
             set_sender(owner);
-            assert!(!erc.is_approved_for_all(owner, operator));
+            assert!(erc.is_approved_for_all(owner, operator) == false);
 
             assert!(erc.set_approval_for_all(operator, true).is_ok());
             assert!(erc.is_approved_for_all(owner, operator));
@@ -801,7 +801,7 @@ mod erc1155 {
             assert!(erc.is_approved_for_all(owner, another_operator));
 
             assert!(erc.set_approval_for_all(operator, false).is_ok());
-            assert!(!erc.is_approved_for_all(owner, operator));
+            assert!(erc.is_approved_for_all(owner, operator) == false);
         }
 
         #[ink::test]
