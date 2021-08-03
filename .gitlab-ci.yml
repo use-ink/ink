@@ -304,19 +304,19 @@ examples-contract-build:
         popd;
         echo "${example}, ${SIZE_OUT}" >> pr-xxx-example-wasm-sizes.csv;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        pushd examples/delegator/$contract &&
-        cargo contract build &&
-        popd;
-      done
+      # - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #     pushd examples/delegator/$contract &&
+      #     cargo contract build &&
+      #     popd;
+      #   done
 
-examples-contract-build-delegator:
-    stage:                         examples
-    <<:                            *docker-env
-    <<:                            *test-refs
-    script:
-        - cargo contract -V
-        - cd examples/delegator/ && ./build-all.sh
+      # examples-contract-build-delegator:
+      #     stage:                         examples
+      #     <<:                            *docker-env
+      #     <<:                            *test-refs
+      #     script:
+      #         - cargo contract -V
+      #         - cd examples/delegator/ && ./build-all.sh
 
           # examples-docs:
           #   stage:                           examples
