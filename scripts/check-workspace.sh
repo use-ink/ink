@@ -21,9 +21,6 @@ purely_std_crates=("lang/codegen" "metadata")
 also_wasm_crates=("env" "storage" "storage/derive" "allocator" "prelude" "primitives" "lang" "lang/macro" "lang/ir")
 all_crates=("${also_wasm_crates[@]}" "${purely_std_crates[@]}")
 
-# until https://github.com/rust-lang/cargo/issues/5034 has been implemented
-clippy_flags="-A clippy::bool_assert_comparison"
-
 results["check_all_features"]=true
 for crate in "${all_crates[@]}"; do
     cargo check --verbose --all-features --manifest-path crates/$crate/Cargo.toml
@@ -41,7 +38,7 @@ done
 cargo fmt --verbose --all -- --check
 results["fmt"]=$?
 
-cargo clippy --verbose --all --all-features -- -D warnings ${clippy_flags}
+cargo clippy --verbose --all --all-features -- -D warnings
 results["clippy_all_features"]=$?
 
 cargo test --verbose --all-features --no-fail-fast --workspace --release

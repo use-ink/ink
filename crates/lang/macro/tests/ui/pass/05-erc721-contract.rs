@@ -536,10 +536,7 @@ mod erc721 {
             // Approve token Id 1 transfer for Bob on behalf of Alice.
             assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
             // Bob is an approved operator for Alice
-            assert_eq!(
-                erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                true
-            );
+            assert!(erc721.is_approved_for_all(accounts.alice, accounts.bob));
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
                 .unwrap_or_else(|_| [0x0; 32].into());
@@ -578,10 +575,7 @@ mod erc721 {
             // Remove operator approval for Bob on behalf of Alice.
             assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
             // Bob is not an approved operator for Alice.
-            assert_eq!(
-                erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                false
-            );
+            assert!(!erc721.is_approved_for_all(accounts.alice, accounts.bob));
         }
 
         #[ink::test]
