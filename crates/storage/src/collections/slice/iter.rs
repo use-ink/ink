@@ -53,7 +53,7 @@ where
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let left = (self.range.end - self.current()) as usize;
+        let left = self.len();
         (left, Some(left))
     }
 
@@ -68,6 +68,15 @@ where
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
         self.index += n as u32;
         self.next()
+    }
+}
+
+impl<'a, T> ExactSizeIterator for IterMut<'a, T>
+where
+    T: ContiguousStorage,
+{
+    fn len(&self) -> usize {
+        (self.range.end - self.current()) as usize
     }
 }
 
@@ -124,5 +133,14 @@ where
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
         self.index += n as u32;
         self.next()
+    }
+}
+
+impl<'a, T> ExactSizeIterator for Iter<'a, T>
+    where
+        T: ContiguousStorage,
+{
+    fn len(&self) -> usize {
+        (self.range.end - self.current()) as usize
     }
 }
