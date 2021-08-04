@@ -73,7 +73,7 @@ pub mod flipper {
         #[ink::test]
         fn default_works() {
             let flipper = Flipper::default();
-            assert_eq!(flipper.get(), false);
+            assert_eq!(!flipper.get());
         }
 
         #[ink::test]
