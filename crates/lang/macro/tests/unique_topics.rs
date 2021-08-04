@@ -66,12 +66,9 @@ mod my_contract {
         use ink_env::test::EmittedEvent;
         use ink_lang as ink;
 
-        // The following test unfortunately has to be ignored until
-        // https://github.com/rust-lang/cargo/issues/6915 is fixed or until
-        // we make `ink-experimental-engine` the default.
-        // The reason is that the mentioned issue currently prevents crates
-        // from activating features in dev-dependencies of child crates.
-        // See also the `Cargo.toml` of this crate.
+        // The following test unfortunately has to be ignored until we make
+        // `ink-experimental-engine` the default with https://github.com/paritytech/ink/issues/565.
+        // See the issue for details.
         #[ignore]
         #[ink::test]
         #[cfg(feature = "ink-experimental-engine")]
