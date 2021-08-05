@@ -682,7 +682,7 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">256</span> {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>;
             <span class="ident">bits256</span>.<span class="ident">set</span>(<span class="ident">i</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="bool-val">true</span>);
+            <span class="macro">assert!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>));
         }
     }
 
@@ -692,7 +692,7 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">256</span> {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>;
             <span class="ident">bits256</span>.<span class="ident">reset</span>(<span class="ident">i</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="bool-val">false</span>);
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>));
         }
     }
 
