@@ -39,6 +39,6 @@ mod bump;
 #[cfg(not(feature = "std"))]
 mod handlers;
 
-#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests"))]
+#[cfg(all(test, feature = "std", feature = "ink-fuzz-tests", not(feature = "wee-alloc")))]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
