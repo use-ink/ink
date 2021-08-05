@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Slices provide (mutable) views into contiguous storage, akin to regular rust slices.
+//! Slices provide (mutable) views into contiguous storage, akin to regular Rust slices.
 
 mod impls;
 mod iter;
