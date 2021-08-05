@@ -558,10 +558,7 @@ mod tests {
             .iter()
             .enumerate()
             .filter_map(|(index, entry)| {
-                match entry {
-                    Some(entry) => Some((index as u32, entry)),
-                    None => None,
-                }
+                entry.as_ref().map(|entry| (index as u32, entry))
             })
             .zip(expected.iter().map(|(index, entry)| (*index, entry)))
         {

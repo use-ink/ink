@@ -73,17 +73,17 @@ pub mod flipper {
         #[ink::test]
         fn default_works() {
             let flipper = Flipper::default();
-            assert_eq!(flipper.get(), false);
+            assert!(!flipper.get());
         }
 
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
             // Can call using universal call syntax using the trait.
-            assert_eq!(<Flipper as Flip>::get(&flipper), false);
+            assert!(!<Flipper as Flip>::get(&flipper));
             <Flipper as Flip>::flip(&mut flipper);
             // Normal call syntax possible to as long as the trait is in scope.
-            assert_eq!(flipper.get(), true);
+            assert!(flipper.get());
         }
     }
 }

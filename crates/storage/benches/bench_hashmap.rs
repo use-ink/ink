@@ -131,14 +131,14 @@ macro_rules! gen_tests_for_backend {
             );
             group.bench_function("insert_and_inc", |b| {
                 b.iter_batched_ref(
-                    || setup_hashmap(),
+                    setup_hashmap,
                     |hmap| insert_and_inc(hmap),
                     BatchSize::SmallInput,
                 )
             });
             group.bench_function("insert_and_inc_entry_api", |b| {
                 b.iter_batched_ref(
-                    || setup_hashmap(),
+                    setup_hashmap,
                     |hmap| insert_and_inc_entry_api(hmap),
                     BatchSize::SmallInput,
                 )
@@ -153,14 +153,14 @@ macro_rules! gen_tests_for_backend {
                 );
                 group.bench_function("remove", |b| {
                     b.iter_batched_ref(
-                        || setup_hashmap(),
+                        setup_hashmap,
                         |hmap| remove(hmap),
                         BatchSize::SmallInput,
                     )
                 });
                 group.bench_function("remove_entry_api", |b| {
                     b.iter_batched_ref(
-                        || setup_hashmap(),
+                        setup_hashmap,
                         |hmap| remove_entry_api(hmap),
                         BatchSize::SmallInput,
                     )

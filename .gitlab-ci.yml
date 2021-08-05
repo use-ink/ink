@@ -24,7 +24,7 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
+  DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
 
 workflow:
   rules:
@@ -191,7 +191,7 @@ clippy-std:
       artifacts:                   false
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -269,10 +269,10 @@ examples-clippy-std:
       artifacts:                   false
   script:
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
