@@ -191,7 +191,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">ir::ChainExtensionMethod</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
@@ -326,7 +326,7 @@
         <span class="kw">let</span> <span class="ident">instance_methods</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">extension</span>
             .<span class="ident">iter_methods</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_for_instance_method</span>(<span class="ident">method</span>, <span class="ident">error_code</span>));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">method</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_for_instance_method</span>(<span class="ident">method</span>, <span class="ident">error_code</span>));
         <span class="kw">let</span> <span class="ident">instance_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;__ink_{}Instance&quot;</span>, <span class="ident">ident</span>);
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
@@ -347,8 +347,8 @@
                 <span class="kw">impl</span> <span class="ident">::ink_lang::ChainExtensionInstance</span> <span class="kw">for</span> #<span class="ident">ident</span> {
                     <span class="kw">type</span> <span class="ident">Instance</span> <span class="op">=</span> #<span class="ident">instance_ident</span>;
 
-                    <span class="kw">fn</span> <span class="ident">instantiate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Instance</span> {
-                        <span class="self">Self</span><span class="ident">::Instance</span> { <span class="ident">__ink_private</span>: <span class="ident">__ink_Private</span> }
+                    <span class="kw">fn</span> <span class="ident">instantiate</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Instance</span> {
+                        <span class="ident"><span class="self">Self</span>::Instance</span> { <span class="ident">__ink_private</span>: <span class="ident">__ink_Private</span> }
                     }
                 }
             };

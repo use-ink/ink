@@ -73,7 +73,7 @@ and user friendly while also maintaining access invariants.</p>
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
             <span class="self">Self</span> {
-                <span class="ident">last_invocation</span>: <span class="self">Self</span><span class="ident">::env</span>().<span class="ident">block_timestamp</span>()
+                <span class="ident">last_invocation</span>: <span class="ident"><span class="self">Self</span>::env</span>().<span class="ident">block_timestamp</span>()
             }
         }
 
@@ -105,7 +105,7 @@ and user friendly while also maintaining access invariants.</p>
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
             <span class="self">Self</span> {
-                <span class="ident">owner</span>: <span class="self">Self</span><span class="ident">::env</span>().<span class="ident">caller</span>(),
+                <span class="ident">owner</span>: <span class="ident"><span class="self">Self</span>::env</span>().<span class="ident">caller</span>(),
                 <span class="ident">value</span>: <span class="number">0</span>,
             }
         }

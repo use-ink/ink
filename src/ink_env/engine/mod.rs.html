@@ -60,7 +60,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::backend</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend</span>::{
     <span class="ident">EnvBackend</span>,
     <span class="ident">TypedEnvBackend</span>,
 };
@@ -75,15 +75,15 @@
 <span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> {
         <span class="kw">mod</span> <span class="ident">on_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::on_chain::EnvInstance</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::on_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">experimental_off_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">experimental_off_chain</span> <span class="kw">as</span> <span class="ident">off_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::experimental_off_chain::EnvInstance</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::experimental_off_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">off_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::off_chain::EnvInstance</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::off_chain</span>::{
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::off_chain::EnvInstance</span>;
+        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::off_chain</span>::{
             <span class="ident">AccountError</span>,
             <span class="ident">TypedEncodedError</span>,
         };

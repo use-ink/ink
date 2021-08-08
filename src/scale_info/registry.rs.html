@@ -296,7 +296,7 @@
 <span class="doccomment">//! namespaces. The normal Rust namespace of a type is used, except for the Rust</span>
 <span class="doccomment">//! prelude types that live in the so-called root namespace which is empty.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
     <span class="ident">any::TypeId</span>,
     <span class="ident">collections::BTreeMap</span>,
     <span class="ident">fmt::Debug</span>,
@@ -329,13 +329,13 @@
     <span class="kw">type</span> <span class="ident">Output</span>;
 
     <span class="doccomment">/// Convert `self` to the portable form by using the registry for caching.</span>
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span>;
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">PortableForm</span> <span class="kw">as</span> <span class="ident">Form</span><span class="op">&gt;</span><span class="ident">::String</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">_registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="self">self</span>.<span class="ident">into</span>()
     }
 }
@@ -368,7 +368,7 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Registry</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::new</span>()
+        <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 

@@ -245,9 +245,9 @@
 <span class="macro">macro_rules!</span> <span class="ident">tuple_meta_type</span> {
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         {
-            <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::prelude::vec!</span>[
+            <span class="macro-nonterminal">$</span><span class="macro">crate::prelude::vec!</span>[
                 $(
-                    <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::MetaType::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
+                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::MetaType::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span>(),
                 )<span class="op">*</span>
             ]
         }

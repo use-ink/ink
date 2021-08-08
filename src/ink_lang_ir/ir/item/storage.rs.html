@@ -317,7 +317,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemStruct</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Storage</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_struct</span>: <span class="ident">syn::ItemStruct</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="self">Self</span><span class="ident">::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_struct</span>: <span class="ident">syn::ItemStruct</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">struct_span</span> <span class="op">=</span> <span class="ident">item_struct</span>.<span class="ident">span</span>();
         <span class="kw">let</span> (<span class="ident">_ink_attrs</span>, <span class="ident">other_attrs</span>) <span class="op">=</span> <span class="ident">ir::sanitize_attributes</span>(
             <span class="ident">struct_span</span>,

@@ -85,7 +85,7 @@
     <span class="kw">type</span> <span class="ident">Forwarder</span>;
 
     <span class="doccomment">/// Instantiates a call forwarder to forward `&amp;self` messages.</span>
-    <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Forwarder</span>;
+    <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>;
 }
 
 <span class="doccomment">/// Implemented by contracts that are compiled as dependencies.</span>
@@ -98,7 +98,7 @@
     <span class="kw">type</span> <span class="ident">Forwarder</span>;
 
     <span class="doccomment">/// Instantiates a call forwarder to forward `&amp;mut self` messages.</span>
-    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Forwarder</span>;
+    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>;
 }
 
 <span class="doccomment">/// Implemented by contracts that are compiled as dependencies.</span>

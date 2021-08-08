@@ -287,8 +287,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span><span class="ident">::BitRefMut</span>;
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::collections::bitvec::Bits256</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::BitRefMut</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::collections::bitvec::Bits256</span>;
 
     <span class="kw">fn</span> <span class="ident">is_populated_bit_set</span>(<span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         (<span class="ident">index</span> <span class="op">%</span> <span class="number">5</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">index</span> <span class="op">%</span> <span class="number">13</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>

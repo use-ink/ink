@@ -124,7 +124,7 @@
 <span class="doccomment">//! Other forms, such as a portable form that is still bound to the registry</span>
 <span class="doccomment">//! (also via lifetime tracking) are possible but current not needed.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
     <span class="ident">any::TypeId</span>,
     <span class="ident">fmt::Debug</span>,
 };
@@ -178,7 +178,7 @@
         <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {
             <span class="kw">type</span> <span class="ident">Type</span> <span class="op">=</span> <span class="ident">UntrackedSymbol</span><span class="op">&lt;</span><span class="ident">TypeId</span><span class="op">&gt;</span>;
             <span class="comment">// Owned string required for decoding/deserialization</span>
-            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::prelude::string::String</span>;
+            <span class="kw">type</span> <span class="ident">String</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::prelude::string::String</span>;
         }
     } <span class="kw">else</span> {
         <span class="kw">impl</span> <span class="ident">Form</span> <span class="kw">for</span> <span class="ident">PortableForm</span> {

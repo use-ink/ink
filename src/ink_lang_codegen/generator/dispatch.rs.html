@@ -864,9 +864,9 @@
     <span class="doccomment">/// selectors.</span>
     <span class="kw">fn</span> <span class="ident">generate_trait_impl_namespaces</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">message_namespace</span> <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
+            <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
         <span class="kw">let</span> <span class="ident">constructor_namespace</span> <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
+            <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
         <span class="macro">quote!</span> {
             <span class="comment">// Namespace for messages.</span>
             <span class="comment">//</span>
@@ -913,7 +913,7 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">ty</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">cws</span>.<span class="ident">kind</span>());
+        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">cws</span>.<span class="ident">kind</span>());
         <span class="kw">let</span> <span class="ident">input_types_tuple</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_types</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
             <span class="comment">// Pack all types into a tuple if they are not exactly 1.</span>
             <span class="comment">// This results in `()` for zero input types.</span>
@@ -1015,7 +1015,7 @@
         <span class="kw">let</span> <span class="ident">is_mut</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
+        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
         <span class="kw">let</span> <span class="ident">fn_output_impl</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">span</span>() <span class="op">=</span><span class="op">&gt;</span>
             <span class="kw">impl</span> <span class="ident">::ink_lang::FnOutput</span> <span class="kw">for</span> #<span class="ident">namespace</span><span class="op">&lt;</span>[(); #<span class="ident">selector_id</span>]<span class="op">&gt;</span> {
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_parens</span>)]</span>
@@ -1032,7 +1032,7 @@
             (<span class="prelude-val">None</span>, <span class="macro">format_ident!</span>(<span class="string">&quot;MessageRef&quot;</span>))
         };
         <span class="kw">let</span> (<span class="ident">input_bindings</span>, <span class="ident">inputs_as_tuple_or_wildcard</span>) <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::generate_input_bindings</span>(<span class="ident">message</span>);
+            <span class="ident"><span class="self">Self</span>::generate_input_bindings</span>(<span class="ident">message</span>);
         <span class="kw">let</span> <span class="ident">as_trait</span> <span class="op">=</span> <span class="ident">cws</span>.<span class="ident">item_impl</span>().<span class="ident">trait_path</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
             <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="kw">as</span> #<span class="ident">trait_path</span>
@@ -1067,10 +1067,10 @@
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
+            <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
         <span class="kw">let</span> <span class="ident">callable_impl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_impls_for_callable</span>(<span class="ident">cws</span>);
         <span class="kw">let</span> (<span class="ident">input_bindings</span>, <span class="ident">inputs_as_tuple_or_wildcard</span>) <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::generate_input_bindings</span>(<span class="ident">constructor</span>);
+            <span class="ident"><span class="self">Self</span>::generate_input_bindings</span>(<span class="ident">constructor</span>);
         <span class="kw">let</span> <span class="ident">as_trait</span> <span class="op">=</span> <span class="ident">cws</span>.<span class="ident">item_impl</span>().<span class="ident">trait_path</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
             <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="kw">as</span> #<span class="ident">trait_path</span>
@@ -1231,7 +1231,7 @@
             }
         };
         <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="ident">cws</span>.<span class="ident">composed_selector</span>().<span class="ident">unique_id</span>();
-        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
+        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Message</span>);
         <span class="comment">// If all ink! messages deny payment we can move the payment check to before</span>
         <span class="comment">// the message dispatch which is more efficient.</span>
         <span class="kw">let</span> <span class="ident">accepts_payments</span> <span class="op">=</span> <span class="ident">cws</span>.<span class="ident">is_payable</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">all_messages_deny_payment</span>();
@@ -1328,7 +1328,7 @@
         };
         <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="ident">cws</span>.<span class="ident">composed_selector</span>().<span class="ident">unique_id</span>();
         <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span>
-            <span class="self">Self</span><span class="ident">::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
+            <span class="ident"><span class="self">Self</span>::dispatch_trait_impl_namespace</span>(<span class="ident">ir::CallableKind::Constructor</span>);
         <span class="kw">let</span> <span class="ident">is_dynamic_storage_allocation_enabled</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">contract</span>
             .<span class="ident">config</span>()

@@ -277,7 +277,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
     <span class="ident">boxed::Box</span>,
     <span class="ident">collections::BTreeMap</span>,
     <span class="ident">marker::PhantomData</span>,
@@ -391,7 +391,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> [<span class="ident">T</span>];
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
     }
 }
 
@@ -454,7 +454,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
     }
 }
 
@@ -465,7 +465,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
     }
 }
 
@@ -476,7 +476,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">T</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
     }
 }
 
@@ -503,7 +503,7 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">str</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
-        <span class="self">Self</span><span class="ident">::Identity::type_info</span>()
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
     }
 }
 

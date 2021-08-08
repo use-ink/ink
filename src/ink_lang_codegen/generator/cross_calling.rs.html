@@ -889,7 +889,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">heck::CamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">impl_serde::serialize</span> <span class="kw">as</span> <span class="ident">serde_hex</span>;
@@ -1155,7 +1155,7 @@
             .<span class="ident">inputs</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
+        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>();
         <span class="kw">let</span> <span class="ident">output_sig</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">map_or_else</span>(
             <span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () },
@@ -1211,9 +1211,9 @@
         <span class="ident">message</span>: <span class="ident">ir::CallableWithSelector</span><span class="op">&lt;</span><span class="ident">ir::Message</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">if</span> <span class="ident">mutable</span> <span class="op">=</span><span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>() {
-            <span class="self">Self</span><span class="ident">::generate_call_forwarder_trait_proper_message</span>(<span class="ident">message</span>)
+            <span class="ident"><span class="self">Self</span>::generate_call_forwarder_trait_proper_message</span>(<span class="ident">message</span>)
         } <span class="kw">else</span> {
-            <span class="self">Self</span><span class="ident">::generate_call_forwarder_trait_ghost_message</span>(<span class="ident">message</span>)
+            <span class="ident"><span class="self">Self</span>::generate_call_forwarder_trait_ghost_message</span>(<span class="ident">message</span>)
         }
     }
 
@@ -1283,15 +1283,15 @@
         <span class="macro">assert!</span>(<span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_some</span>());
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::call_forwarder_ident</span>();
+        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::call_forwarder_ident</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">mut_tok</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mutable</span> { <span class="prelude-val">Some</span>(<span class="macro">quote!</span> { <span class="kw-2">mut</span> }) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
         <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
-            <span class="self">Self</span><span class="ident">::generate_call_forwarder_trait_constructor</span>(<span class="ident">constructor</span>)
+            <span class="ident"><span class="self">Self</span>::generate_call_forwarder_trait_constructor</span>(<span class="ident">constructor</span>)
         });
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_call_forwarder_trait_message</span>(<span class="ident">mutable</span>, <span class="ident">message</span>));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_call_forwarder_trait_message</span>(<span class="ident">mutable</span>, <span class="ident">message</span>));
         <span class="kw">let</span> <span class="ident">trait_path</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">trait_path</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;encountered missing trait path for trait impl block&quot;</span>);
@@ -1342,7 +1342,7 @@
             .<span class="ident">inputs</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
+        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>();
         <span class="kw">let</span> <span class="ident">output_sig</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">map_or_else</span>(
             <span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () },
@@ -1394,13 +1394,13 @@
         <span class="macro">assert!</span>(<span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>());
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::call_forwarder_ident</span>();
+        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::call_forwarder_ident</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">mut_tok</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mutable</span> { <span class="prelude-val">Some</span>(<span class="macro">quote!</span> { <span class="kw-2">mut</span> }) } <span class="kw">else</span> { <span class="prelude-val">None</span> };
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_messages</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="ident">mutable</span> <span class="op">=</span><span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>())
-            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::generate_call_forwarder_inherent_message</span>);
+            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_call_forwarder_inherent_message</span>);
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
             <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> #<span class="ident">forwarder_ident</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">mut_tok</span> #<span class="ident">storage_ident</span><span class="op">&gt;</span> {
@@ -1429,7 +1429,7 @@
 
     <span class="doccomment">/// Generates code for the call forwarder utility struct.</span>
     <span class="kw">fn</span> <span class="ident">generate_call_forwarders</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::call_forwarder_ident</span>();
+        <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::call_forwarder_ident</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">impl_blocks_ref</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_call_forwarder_impl_blocks</span>(<span class="bool-val">false</span>);
         <span class="kw">let</span> <span class="ident">impl_blocks_refmut</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_call_forwarder_impl_blocks</span>(<span class="bool-val">true</span>);
@@ -1441,7 +1441,7 @@
                     <span class="kw">type</span> <span class="ident">Forwarder</span> <span class="op">=</span> #<span class="ident">forwarder_ident</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">storage_ident</span><span class="op">&gt;</span>;
 
                     <span class="attribute">#[<span class="ident">inline</span>]</span>
-                    <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Forwarder</span> {
+                    <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Forwarder</span> {
                         #<span class="ident">forwarder_ident</span> { <span class="ident">contract</span>: <span class="self">self</span> }
                     }
                 }
@@ -1450,7 +1450,7 @@
                     <span class="kw">type</span> <span class="ident">Forwarder</span> <span class="op">=</span> #<span class="ident">forwarder_ident</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> #<span class="ident">storage_ident</span><span class="op">&gt;</span>;
 
                     <span class="attribute">#[<span class="ident">inline</span>]</span>
-                    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Forwarder</span> {
+                    <span class="kw">fn</span> <span class="ident">call_mut</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Forwarder</span> {
                         #<span class="ident">forwarder_ident</span> { <span class="ident">contract</span>: <span class="self">self</span> }
                     }
                 }
@@ -1544,7 +1544,7 @@
             .<span class="ident">inputs</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
+        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">::ink_env::call::CreateBuilder</span><span class="op">&lt;</span>
@@ -1592,7 +1592,7 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_trait_impl_block_message</span>(<span class="ident">message</span>));
         <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">impl_block</span>
             .<span class="ident">iter_constructors</span>()
-            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::generate_trait_impl_block_constructor</span>);
+            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_trait_impl_block_constructor</span>);
         <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">ir::InkTrait::compute_verify_hash</span>(
             <span class="ident">trait_ident</span>,
             <span class="ident">impl_block</span>.<span class="ident">iter_constructors</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
@@ -1644,7 +1644,7 @@
             .<span class="ident">inputs</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pat_type</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
+        <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_arg_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
             <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -1727,7 +1727,7 @@
             .<span class="ident">iter_messages</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_inherent_impl_block_message</span>(<span class="ident">message</span>));
         <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">impl_block</span>.<span class="ident">iter_constructors</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
-            <span class="self">Self</span><span class="ident">::generate_inherent_impl_block_constructor</span>(<span class="ident">constructor</span>)
+            <span class="ident"><span class="self">Self</span>::generate_inherent_impl_block_constructor</span>(<span class="ident">constructor</span>)
         });
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #<span class="ident">cfg</span>

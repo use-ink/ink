@@ -233,9 +233,9 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">test</span>, <span class="ident">doc</span>))]</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">inline</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::engine::off_chain::test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::engine::off_chain::test_api</span> <span class="kw">as</span> <span class="ident">test</span>;
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::backend</span>::{
+<span class="kw">use</span> <span class="ident"><span class="self">self</span>::backend</span>::{
     <span class="ident">EnvBackend</span>,
     <span class="ident">TypedEnvBackend</span>,
 };
@@ -279,7 +279,7 @@
         <span class="doccomment">/// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.</span>
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_print</span> {
-            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro-nonterminal">::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>)));
+            ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::debug_message</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>)));
         }
 
         <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer, as per [`debug_print`] but</span>
@@ -291,9 +291,9 @@
         <span class="doccomment">/// `&quot;pallet-contracts/unstable-interface&quot;` feature to be enabled in the target runtime.</span>
         <span class="attribute">#[<span class="ident">macro_export</span>]</span>
         <span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
-            () <span class="op">=</span><span class="op">&gt;</span> (<span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::debug_print!</span>(<span class="string">&quot;\n&quot;</span>));
+            () <span class="op">=</span><span class="op">&gt;</span> (<span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;\n&quot;</span>));
             ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
-                <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="kw">crate</span><span class="macro">::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>));
+                <span class="macro-nonterminal">$</span><span class="macro">crate::debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="macro-nonterminal">$</span><span class="macro">crate::format!</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>)<span class="kw-2">*</span>));
             )
         }
     } <span class="kw">else</span> {

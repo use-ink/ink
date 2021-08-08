@@ -170,7 +170,7 @@
     <span class="ident">ink_env::get_contract_storage</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>(<span class="ident">root_key</span>)
         .<span class="ident">ok</span>()
         .<span class="ident">flatten</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">super</span><span class="ident">::pull_spread_root</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>))
+        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident"><span class="kw">super</span>::pull_spread_root</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>))
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_spread_root_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>)
@@ -183,7 +183,7 @@
             <span class="comment">//</span>
             <span class="comment">// Sadly this does not not work well with `Option&lt;Option&lt;T&gt;&gt;`.</span>
             <span class="comment">// For this we&#39;d need specialization in Rust or similar.</span>
-            <span class="kw">super</span><span class="ident">::push_spread_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
+            <span class="ident"><span class="kw">super</span>::push_spread_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
         }
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">clear_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">root_key</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">entity</span>),
     }
@@ -216,14 +216,14 @@
     <span class="comment">// we will still load it first in order to not clean-up too many unneeded</span>
     <span class="comment">// storage cells.</span>
     <span class="kw">let</span> <span class="ident">footprint</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
-    <span class="kw">if</span> <span class="ident">footprint</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw">super</span><span class="ident">::FOOTPRINT_CLEANUP_THRESHOLD</span>
+    <span class="kw">if</span> <span class="ident">footprint</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident"><span class="kw">super</span>::FOOTPRINT_CLEANUP_THRESHOLD</span>
         <span class="op">|</span><span class="op">|</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>
     {
         <span class="comment">// We need to load the entity before we remove its associated contract storage</span>
         <span class="comment">// because it requires a deep clean-up which propagates clearing to its fields,</span>
         <span class="comment">// for example in the case of `T` being a `storage::Box`.</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">f</span>() {
-            <span class="kw">super</span><span class="ident">::clear_spread_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>);
+            <span class="ident"><span class="kw">super</span>::clear_spread_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>);
             <span class="kw">return</span>
         }
     }
@@ -261,7 +261,7 @@
             <span class="comment">//</span>
             <span class="comment">// Sadly this does not work well with `Option&lt;Option&lt;T&gt;&gt;`.</span>
             <span class="comment">// For this we&#39;d need specialization in Rust or similar.</span>
-            <span class="kw">super</span><span class="ident">::push_packed_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
+            <span class="ident"><span class="kw">super</span>::push_packed_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
         }
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Clear the associated storage cell.</span>

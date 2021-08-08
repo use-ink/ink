@@ -538,8 +538,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::invoke_contract</span>(<span class="self">self</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="kw">crate</span>::invoke_contract</span>(<span class="self">self</span>)
     }
 }
 
@@ -557,8 +557,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="kw">crate</span><span class="ident">::Error</span><span class="op">&gt;</span> {
-        <span class="kw">crate</span><span class="ident">::eval_contract</span>(<span class="self">self</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+        <span class="ident"><span class="kw">crate</span>::eval_contract</span>(<span class="self">self</span>)
     }
 }
 
@@ -746,11 +746,11 @@
     <span class="doccomment">/// Used to prevent users from implementing `IndicateReturnType` for their own types.</span>
     <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
     <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> () {}
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw">super</span><span class="ident">::ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident"><span class="kw">super</span>::ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 }
 
 <span class="doccomment">/// Types that can be used in [`CallBuilder::returns`] to signal return type.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IndicateReturnType</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="self">self</span><span class="ident">::seal::Sealed</span> {}
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IndicateReturnType</span>: <span class="ident">Default</span> <span class="op">+</span> <span class="ident"><span class="self">self</span>::seal::Sealed</span> {}
 <span class="kw">impl</span> <span class="ident">IndicateReturnType</span> <span class="kw">for</span> () {}
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">IndicateReturnType</span> <span class="kw">for</span> <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 

@@ -1047,7 +1047,7 @@
 };
 <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ChainExtensionInstance</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ChainExtensionInstance</span>;
 
 <span class="doccomment">/// The environment of the compiled ink! smart contract.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractEnv</span> {
@@ -1067,7 +1067,7 @@
     <span class="kw">type</span> <span class="ident">EnvAccess</span>;
 
     <span class="doccomment">/// Accesses the environment with predefined environmental types.</span>
-    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::EnvAccess</span>;
+    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::EnvAccess</span>;
 }
 
 <span class="doccomment">/// Simplifies interaction with the host environment via `Self`.</span>
@@ -1082,7 +1082,7 @@
     <span class="kw">type</span> <span class="ident">EnvAccess</span>;
 
     <span class="doccomment">/// Accesses the environment with predefined environmental types.</span>
-    <span class="kw">fn</span> <span class="ident">env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::EnvAccess</span>;
+    <span class="kw">fn</span> <span class="ident">env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::EnvAccess</span>;
 }
 
 <span class="doccomment">/// A typed accessor to the environment.</span>

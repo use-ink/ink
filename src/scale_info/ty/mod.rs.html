@@ -482,7 +482,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
     <span class="ident">vec</span>,
     <span class="ident">vec::Vec</span>,
 };
@@ -553,7 +553,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Type</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">Type</span> {
             <span class="ident">path</span>: <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
             <span class="ident">type_params</span>: <span class="ident">registry</span>.<span class="ident">register_types</span>(<span class="self">self</span>.<span class="ident">type_params</span>),
@@ -566,7 +566,7 @@
     ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>  ), <span class="op">+</span> $(,)<span class="question-mark">?</span>) <span class="op">=</span><span class="op">&gt;</span> { $(
         <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">item</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">Path::voldemort</span>(), <span class="ident">Vec::new</span>(), <span class="ident">item</span>)
+                <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Path::voldemort</span>(), <span class="ident">Vec::new</span>(), <span class="ident">item</span>)
             }
         }
     )<span class="op">*</span> }
@@ -654,7 +654,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDef</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">TypeDef::Composite</span>(<span class="ident">composite</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">composite</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
             <span class="ident">TypeDef::Variant</span>(<span class="ident">variant</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">variant</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
@@ -721,7 +721,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefArray</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefArray</span> {
             <span class="ident">len</span>: <span class="self">self</span>.<span class="ident">len</span>,
             <span class="ident">type_param</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>),
@@ -772,7 +772,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefTuple</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefTuple</span> {
             <span class="ident">fields</span>: <span class="ident">registry</span>.<span class="ident">register_types</span>(<span class="self">self</span>.<span class="ident">fields</span>),
         }
@@ -792,7 +792,7 @@
 
     <span class="doccomment">/// Creates a new unit tuple to represent the unit type, `()`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::new</span>(<span class="macro">vec!</span>[])
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="macro">vec!</span>[])
     }
 }
 
@@ -819,7 +819,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefSequence</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefSequence</span> {
             <span class="ident">type_param</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>),
         }
@@ -842,7 +842,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>())
     }
 }
 
@@ -869,7 +869,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefCompact</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefCompact</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefCompact</span> {
             <span class="ident">type_param</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>),
         }
@@ -914,7 +914,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefPhantom</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefPhantom</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefPhantom</span> {
             <span class="ident">type_param</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>),
         }

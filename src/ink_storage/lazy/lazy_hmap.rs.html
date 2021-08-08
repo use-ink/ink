@@ -1365,7 +1365,7 @@
     <span class="ident">EntryState</span>,
     <span class="ident">StorageEntry</span>,
 };
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
     <span class="ident">clear_packed_root</span>,
     <span class="ident">pull_packed_root_opt</span>,
     <span class="ident">ExtKeyPtr</span>,
@@ -1565,7 +1565,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
         <span class="ident">LayoutCryptoHasher</span>,
         <span class="ident">StorageLayout</span>,
     };
@@ -1611,7 +1611,7 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
 
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
+        <span class="ident"><span class="self">Self</span>::lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
@@ -1645,7 +1645,7 @@
     <span class="ident">K</span>: <span class="ident">Ord</span>,
 {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::new</span>()
+        <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 
@@ -2320,7 +2320,7 @@
         <span class="ident">LazyHashMap</span>,
         <span class="ident">StorageEntry</span>,
     };
-    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traits</span>::{
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
         <span class="ident">KeyPtr</span>,
         <span class="ident">SpreadLayout</span>,
     };

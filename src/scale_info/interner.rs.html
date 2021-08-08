@@ -274,7 +274,7 @@
 <span class="doccomment">//! elements and is later used for space-efficient serialization within the</span>
 <span class="doccomment">//! registry.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::prelude</span>::{
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
     <span class="ident">collections::btree_map</span>::{
         <span class="ident">BTreeMap</span>,
         <span class="ident">Entry</span>,
@@ -410,7 +410,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Interner</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::new</span>()
+        <span class="ident"><span class="self">Self</span>::new</span>()
     }
 }
 

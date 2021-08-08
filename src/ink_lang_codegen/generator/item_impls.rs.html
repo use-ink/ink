@@ -385,10 +385,10 @@
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_trait_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_trait_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
         <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_constructors</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_trait_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_trait_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
         <span class="kw">let</span> <span class="ident">other_items</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">items</span>()
             .<span class="ident">iter</span>()
@@ -480,10 +480,10 @@
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_messages</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_inherent_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_inherent_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
         <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_constructors</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_inherent_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_inherent_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
         <span class="kw">let</span> <span class="ident">other_items</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">items</span>()
             .<span class="ident">iter</span>()
@@ -518,8 +518,8 @@
     <span class="kw">fn</span> <span class="ident">generate_item_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">self_ty_guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_item_impl_self_ty_guard</span>(<span class="ident">item_impl</span>);
         <span class="kw">let</span> <span class="ident">impl_block</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::generate_trait_item_impl</span>(<span class="ident">item_impl</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::generate_inherent_item_impl</span>(<span class="ident">item_impl</span>),
+            <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::generate_trait_item_impl</span>(<span class="ident">item_impl</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::generate_inherent_item_impl</span>(<span class="ident">item_impl</span>),
         };
         <span class="macro">quote!</span> {
             #<span class="ident">self_ty_guard</span>

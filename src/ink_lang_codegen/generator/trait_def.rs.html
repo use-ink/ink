@@ -130,7 +130,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">heck::CamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
@@ -206,12 +206,12 @@
             .<span class="ident">trait_def</span>
             .<span class="ident">iter_items</span>()
             .<span class="ident">flat_map</span>(<span class="ident">ir::InkTraitItem::filter_map_constructor</span>)
-            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::generate_for_constructor</span>);
+            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_for_constructor</span>);
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">trait_def</span>
             .<span class="ident">iter_items</span>()
             .<span class="ident">flat_map</span>(<span class="ident">ir::InkTraitItem::filter_map_message</span>)
-            .<span class="ident">map</span>(<span class="self">Self</span><span class="ident">::generate_for_message</span>);
+            .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_for_message</span>);
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="kw">pub</span> <span class="kw">trait</span> #<span class="ident">ident</span>: <span class="ident">::ink_lang::CheckedInkTrait</span><span class="op">&lt;</span>[(); #<span class="ident">verify_hash_id</span>]<span class="op">&gt;</span> {

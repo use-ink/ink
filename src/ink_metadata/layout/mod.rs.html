@@ -735,7 +735,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">CellLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">CellLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">CellLayout</span> {
             <span class="ident">key</span>: <span class="self">self</span>.<span class="ident">key</span>,
             <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
@@ -746,7 +746,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Layout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Layout::Cell</span>(<span class="ident">encoded_cell</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Layout::Cell</span>(<span class="ident">encoded_cell</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>))
@@ -802,7 +802,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">HashLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">HashLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">HashLayout</span> {
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
             <span class="ident">strategy</span>: <span class="self">self</span>.<span class="ident">strategy</span>,
@@ -973,7 +973,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ArrayLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ArrayLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">ArrayLayout</span> {
             <span class="ident">offset</span>: <span class="self">self</span>.<span class="ident">offset</span>,
             <span class="ident">len</span>: <span class="self">self</span>.<span class="ident">len</span>,
@@ -1019,7 +1019,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">StructLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">StructLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">StructLayout</span> {
             <span class="ident">fields</span>: <span class="self">self</span>
                 .<span class="ident">fields</span>
@@ -1085,7 +1085,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">FieldLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">FieldLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">FieldLayout</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>)),
             <span class="ident">layout</span>: <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
@@ -1156,7 +1156,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">EnumLayout</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">EnumLayout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">EnumLayout</span> {
             <span class="ident">dispatch_key</span>: <span class="self">self</span>.<span class="ident">dispatch_key</span>,
             <span class="ident">variants</span>: <span class="self">self</span>

@@ -423,7 +423,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::GenerateCode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">ir::Callable</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
@@ -546,7 +546,7 @@
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_ident</span>, <span class="ident">constructor</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
-                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="ident">attrs</span>);
+                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="ident">attrs</span>);
                 <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>();
                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
                 <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
@@ -554,7 +554,7 @@
                 <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
                 <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">constructor</span>
                     .<span class="ident">inputs</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_message_param</span>(<span class="ident">arg</span>));
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_message_param</span>(<span class="ident">arg</span>));
                 <span class="kw">let</span> <span class="ident">constr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trait_ident</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">trait_ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">trait_ident_lit</span> <span class="op">=</span> <span class="ident">trait_ident</span>.<span class="ident">to_string</span>();
@@ -585,7 +585,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;encountered unexpected non identifier in ink! parameter&quot;</span>),
         };
         <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">ty</span>);
+        <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="kw-2">&amp;</span><span class="ident">pat_type</span>.<span class="ident">ty</span>);
         <span class="macro">quote!</span> {
             <span class="ident">::ink_metadata::MessageParamSpec::new</span>(#<span class="ident">ident_lit</span>)
                 .<span class="ident">of_type</span>(#<span class="ident">type_spec</span>)
@@ -637,7 +637,7 @@
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_ident</span>, <span class="ident">message</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
-                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="ident">attrs</span>);
+                <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="ident">attrs</span>);
                 <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>();
                 <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
                 <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>();
@@ -647,8 +647,8 @@
                 <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
                 <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">message</span>
                     .<span class="ident">inputs</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">Self</span><span class="ident">::generate_message_param</span>(<span class="ident">arg</span>));
-                <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_message_param</span>(<span class="ident">arg</span>));
+                <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
                 <span class="kw">let</span> <span class="ident">constr</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trait_ident</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">trait_ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">trait_ident_lit</span> <span class="op">=</span> <span class="ident">trait_ident</span>.<span class="ident">to_string</span>();
@@ -684,7 +684,7 @@
                 }
             }
             <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_type_spec</span>(<span class="ident">ty</span>);
+                <span class="kw">let</span> <span class="ident">type_spec</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="ident">ty</span>);
                 <span class="macro">quote!</span> {
                     <span class="ident">::ink_metadata::ReturnTypeSpec::new</span>(#<span class="ident">type_spec</span>)
                 }
@@ -698,8 +698,8 @@
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">span</span>();
             <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">ident</span>();
             <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
-            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="ident">event</span>.<span class="ident">attrs</span>());
-            <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_event_args</span>(<span class="ident">event</span>);
+            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="ident">event</span>.<span class="ident">attrs</span>());
+            <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_event_args</span>(<span class="ident">event</span>);
             <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="ident">::ink_metadata::EventSpec::new</span>(#<span class="ident">ident_lit</span>)
                     .<span class="ident">args</span>(<span class="macro">vec!</span>[
@@ -721,8 +721,8 @@
             <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">map</span>(<span class="ident">ToString::to_string</span>);
             <span class="kw">let</span> <span class="ident">is_topic</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">is_topic</span>;
             <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">event_field</span>.<span class="ident">attrs</span>();
-            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="kw-2">&amp;</span><span class="ident">attrs</span>);
-            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::generate_type_spec</span>(<span class="ident">event_field</span>.<span class="ident">ty</span>());
+            <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="kw-2">&amp;</span><span class="ident">attrs</span>);
+            <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_type_spec</span>(<span class="ident">event_field</span>.<span class="ident">ty</span>());
             <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="ident">::ink_metadata::EventParamSpec::new</span>(#<span class="ident">ident_lit</span>)
                     .<span class="ident">of_type</span>(#<span class="ident">ty</span>)
@@ -737,7 +737,7 @@
 
     <span class="doccomment">/// Generates the documentation for the contract module.</span>
     <span class="kw">fn</span> <span class="ident">generate_docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
-        <span class="self">Self</span><span class="ident">::extract_doc_comments</span>(<span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">attrs</span>())
+        <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">attrs</span>())
     }
 }
 

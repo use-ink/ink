@@ -433,7 +433,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">super</span><span class="ident">::ValueEntry</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ValueEntry</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">collections</span>::{
         <span class="ident">extend_lifetime</span>,
@@ -513,7 +513,7 @@
         <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">count</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">query_value</span>(<span class="ident">key</span>))
     }
@@ -539,7 +539,7 @@
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
     <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next_back</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">query_value</span>(<span class="ident">key</span>))
     }
@@ -611,7 +611,7 @@
         <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">count</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">query_value</span>(<span class="ident">key</span>))
     }
@@ -637,7 +637,7 @@
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
     <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">keys_iter</span>.<span class="ident">next_back</span>()<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">query_value</span>(<span class="ident">key</span>))
     }
@@ -683,7 +683,7 @@
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">count</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
     }
 
@@ -708,7 +708,7 @@
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
     <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
     }
 }
@@ -753,7 +753,7 @@
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">count</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
     }
 
@@ -778,7 +778,7 @@
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
     <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>)
     }
 }
@@ -820,7 +820,7 @@
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">count</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>()
     }
 
@@ -835,7 +835,7 @@
 <span class="kw">where</span>
     <span class="ident">K</span>: <span class="ident">PackedLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="ident">::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_back</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next_back</span>()
     }
 }
