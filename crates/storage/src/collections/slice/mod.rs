@@ -12,10 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Slices provide (mutable) views into contiguous storage, akin to regular Rust slices.
+//! Slices provide (mutable) views into contiguous storage, akin to regular Rust [slices](core::slice).
+//!
+//! ```
+//! use ink_storage::collections::Vec as StorageVec;
+//!
+//! let mut vec: StorageVec<_> = vec![1, 2, 3, 4, 5].into_iter().collect();
+//! // We obtain two mutable slices from a single mutable vec. Normally not possible, but since the
+//! // slices are guaranteed to not overlap, this is possible.
+//! let (mut first, mut second) = vec.split_at_mut(2);
+//! assert_eq!(first.first_mut(), Some(&mut 1));
+//! assert_eq!(second.first_mut(), Some(&mut 3));
+//! ```
+//!
+//! Here are some of the things this module contains:
+//!
+//! # Structs
+//! Several useful structs such as [`Iter`](iter::Iter) and [`IterMut`](iter::IterMut) are exposed.
+//! In general you do not need these directly, but instead accept `impl Iterator` in your signatures.
+//!
+//! # Traits
+//!
+//! Implementations for common traits on slices are in this module, as well as the
+//! [`ContiguousStorage`](ContiguousStorage) trait, which can be used to create slices over custom
+//! storage containers.
 
 mod impls;
 mod iter;
+
+#[cfg(test)]
+mod tests;
 
 use crate::{
     collections::slice::iter::{
@@ -31,7 +57,8 @@ use crate::{
 use core::ops::Range;
 
 /// A view into contiguous storage.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
+#[must_use = "slices are views into underlying storage and do nothing unless consumed"]
 pub struct Slice<T> {
     /// The start and end indices inside the `storage`. Indexing the slice using `n` means that we
     /// access `range.start + n`.
@@ -44,27 +71,41 @@ impl<T> Slice<T>
 where
     T: ContiguousStorage,
 {
+    /// Creates a new `Slice`.
+    #[inline]
+    pub fn new(range: Range<u32>, backing_storage: T) -> Slice<T> {
+        Slice {
+            range,
+            backing_storage,
+        }
+    }
+
     /// Returns the number of elements in the slice.
+    #[inline]
     pub fn len(&self) -> u32 {
         self.range.end - self.range.start
     }
 
     /// Returns true if the slice has a length of 0.
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.range.end == self.range.start
     }
 
     /// Returns the first element of the slice, or None if it is empty.
+    #[inline]
     pub fn first(&self) -> Option<&T::Item> {
         self.get(0)
     }
 
     /// Returns the last element of the slice, or None if it is empty.
+    #[inline]
     pub fn last(&self) -> Option<&T::Item> {
         self.get(self.len())
     }
 
     /// Returns the first and all the rest of the elements of the slice, or None if it is empty.
+    #[inline]
     pub fn split_first(&self) -> Option<(&T::Item, Slice<&T>)> {
         let first = self.first()?;
         Some((
@@ -74,23 +115,17 @@ where
     }
 
     /// Returns the last and all the rest of the elements of the slice, or None if it is empty.
+    #[inline]
     pub fn split_last(&self) -> Option<(&T::Item, Slice<&T>)> {
-        let first = self.last()?;
+        let last = self.last()?;
         Some((
-            first,
+            last,
             Slice::new(self.range.start..self.range.end - 1, &self.backing_storage),
         ))
     }
 
-    /// Creates a new `Slice`.
-    pub fn new(range: Range<u32>, backing_storage: T) -> Slice<T> {
-        Slice {
-            range,
-            backing_storage,
-        }
-    }
-
     /// Returns a reference to an element or None if out of bounds.
+    #[inline]
     pub fn get(&self, index: u32) -> Option<&T::Item> {
         self.backing_storage.get(index + self.range.start)
     }
@@ -99,7 +134,6 @@ where
     #[inline]
     pub fn iter(&self) -> Iter<T> {
         Iter {
-            index: 0,
             range: self.range.clone(),
             backing_storage: &self.backing_storage,
         }
@@ -122,13 +156,15 @@ where
     }
 }
 
-/// A view into a storage `Vec`.
+/// A contiguous view into storage, providing mutable access to segments.
 #[derive(Clone, Debug)]
 #[must_use = "slices are views into underlying storage and do nothing unless consumed"]
 pub struct SliceMut<T> {
     /// The start and end indices inside the `index_map`. Indexing the slice using `n` means that we
     /// access `range.start + n`.
     range: Range<u32>,
+
+    /// The underlying storage structure, such as `LazyIndexMap` or `LazyArray`.
     backing_storage: T,
 }
 
@@ -136,6 +172,18 @@ impl<T> SliceMut<T>
 where
     T: ContiguousStorage,
 {
+    /// Creates a new `SliceMut`.
+    ///
+    /// # Safety
+    /// The caller must ensure that mutable slices do not overlap.
+    #[inline]
+    pub unsafe fn new(range: Range<u32>, backing_storage: T) -> SliceMut<T> {
+        SliceMut {
+            range,
+            backing_storage,
+        }
+    }
+
     /// Returns the number of elements in the slice.
     #[inline]
     pub fn len(&self) -> u32 {
@@ -232,19 +280,6 @@ where
         ))
     }
 
-    /// Creates a new `SliceMut`.
-    ///
-    /// # Safety:
-    ///
-    /// The caller must ensure that mutable slices do not overlap.
-    #[inline]
-    pub(crate) unsafe fn new(range: Range<u32>, backing_storage: T) -> SliceMut<T> {
-        SliceMut {
-            range,
-            backing_storage,
-        }
-    }
-
     /// Returns a reference to an element or None if out of bounds.
     #[inline]
     pub fn get(&self, index: u32) -> Option<&T::Item> {
@@ -254,7 +289,7 @@ where
     /// Returns a mutable reference to an element or `None` if the index is out of bounds.
     #[inline]
     pub fn get_mut(&mut self, index: u32) -> Option<&mut T::Item> {
-        unsafe { self.backing_storage.get_mut(index) }
+        unsafe { self.backing_storage.get_mut(index + self.range.start) }
     }
 
     /// Returns an iterator over the slice.
@@ -262,7 +297,6 @@ where
     #[must_use = "iterators are lazy and do nothing unless consumed"]
     pub fn iter(&self) -> Iter<T> {
         Iter {
-            index: 0,
             range: self.range.clone(),
             backing_storage: &self.backing_storage,
         }
@@ -272,7 +306,6 @@ where
     #[inline]
     pub fn iter_mut(&mut self) -> IterMut<T> {
         IterMut {
-            index: 0,
             range: self.range.clone(),
             backing_storage: &self.backing_storage,
         }
@@ -283,7 +316,6 @@ where
     /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
     /// second will contain all indices from [mid, len) (excluding the index len itself).
     #[inline]
-    #[must_use = "slices are views into underlying storage and do nothing unless consumed"]
     pub fn split_at<'a>(&'a self, mid: u32) -> (Slice<&T>, Slice<&T>)
     where
         &'a T: ContiguousStorage,
@@ -339,6 +371,7 @@ impl<T: ContiguousStorage> ContiguousStorage for &T {
     type Item = T::Item;
 
     unsafe fn get_mut(&self, index: u32) -> Option<&mut Self::Item> {
+        // SAFETY: `T::get_mut` must uphold the contract of `ContiguousStorage::get_mut`.
         T::get_mut(self, index)
     }
 
@@ -373,6 +406,9 @@ where
     type Item = T;
 
     unsafe fn get_mut(&self, index: u32) -> Option<&mut T> {
+        // SAFETY: get_entry_mut requires that only a single exclusive reference exist for each `index`.
+        // the contract of `ContiguousStorage::get_mut` puts the same restrictions to the caller,
+        // making this sound.
         self.cached_entries
             .get_entry_mut(index)
             .map(|i| i.value_mut().as_mut())

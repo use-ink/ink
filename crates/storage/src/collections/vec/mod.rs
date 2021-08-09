@@ -554,13 +554,13 @@ where
         &mut self,
         mid: u32,
     ) -> (SliceMut<&LazyIndexMap<T>>, SliceMut<&LazyIndexMap<T>>) {
-        assert!(mid <= *self.len);
+        assert!(mid <= self.len());
 
         // SAFETY: SliceMut::new requires that the ranges do not overlap.
         unsafe {
             (
                 SliceMut::new(0..mid, &self.elems),
-                SliceMut::new(mid..(*self.len), &self.elems),
+                SliceMut::new(mid..self.len(), &self.elems),
             )
         }
     }
