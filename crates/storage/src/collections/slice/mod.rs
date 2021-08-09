@@ -34,7 +34,7 @@ use core::ops::Range;
 #[derive(Clone, Debug)]
 pub struct Slice<T> {
     /// The start and end indices inside the `storage`. Indexing the slice using `n` means that we
-    /// access `n + range.start`.
+    /// access `range.start + n`.
     range: Range<u32>,
     /// The underlying storage structure, such as `LazyIndexMap` or `LazyArray`.
     backing_storage: T,
@@ -59,7 +59,7 @@ where
         self.get(0)
     }
 
-    /// Returns the first element of the slice, or None if it is empty.
+    /// Returns the last element of the slice, or None if it is empty.
     pub fn last(&self) -> Option<&T::Item> {
         self.get(self.len())
     }
@@ -127,7 +127,7 @@ where
 #[must_use = "slices are views into underlying storage and do nothing unless consumed"]
 pub struct SliceMut<T> {
     /// The start and end indices inside the `index_map`. Indexing the slice using `n` means that we
-    /// access `n + range.start`.
+    /// access `range.start + n`.
     range: Range<u32>,
     backing_storage: T,
 }
@@ -160,13 +160,13 @@ where
         self.get(self.len())
     }
 
-    /// Returns the first element of the slice, or None if it is empty.
+    /// Returns a mutable reference to the first element of the slice, or None if it is empty.
     #[inline]
     pub fn last_mut(&mut self) -> Option<&mut T::Item> {
         self.get_mut(self.len())
     }
 
-    /// Returns the first and all the rest of the elements of the slice, or None if it is empty.
+    /// Returns a mutable reference to the first and all the rest of the elements of the slice, or None if it is empty.
     #[inline]
     pub fn first_mut(&mut self) -> Option<&mut T::Item> {
         self.get_mut(0)
@@ -327,6 +327,7 @@ pub trait ContiguousStorage {
     /// Obtain a mutable reference through an immutable self.
     ///
     /// # Safety
+    ///
     /// Callers must ensure that only a single mutable reference per `index` exist at a given time.
     unsafe fn get_mut(&self, index: u32) -> Option<&mut Self::Item>;
 
