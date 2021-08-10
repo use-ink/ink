@@ -28,7 +28,7 @@
 //! Here are some of the things this module contains:
 //!
 //! # Structs
-//! Several useful structs such as [`Iter`](iter::Iter) and [`IterMut`](iter::IterMut) are exposed.
+//! Several useful structs such as `Iter` and `IterMut` are exposed.
 //! In general you do not need these directly, but instead accept `impl Iterator` in your signatures.
 //!
 //! # Traits
@@ -44,10 +44,6 @@ mod iter;
 mod tests;
 
 use crate::{
-    collections::slice::iter::{
-        Iter,
-        IterMut,
-    },
     lazy::{
         LazyArray,
         LazyIndexMap,
@@ -55,6 +51,11 @@ use crate::{
     traits::PackedLayout,
 };
 use core::ops::Range;
+
+pub use crate::collections::slice::iter::{
+    Iter,
+    IterMut,
+};
 
 /// A view into contiguous storage.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
@@ -133,10 +134,7 @@ where
     /// Returns an iterator over the slice.
     #[inline]
     pub fn iter(&self) -> Iter<T> {
-        Iter {
-            range: self.range.clone(),
-            backing_storage: &self.backing_storage,
-        }
+        Iter::new(self.range.clone(), &self.backing_storage)
     }
 
     /// Divides one slice into two at an index.
@@ -257,7 +255,7 @@ where
         // Safety: we have exclusive access to the slice through the &mut receiver, thus this
         // mutable borrow is guaranteed to be unique.
         unsafe {
-            self.backing_storage.get_mut(self.range.end)?
+            self.backing_storage.get_mut(self.range.end - 1)?
         };
         Some((
             last,
@@ -296,19 +294,15 @@ where
     #[inline]
     #[must_use = "iterators are lazy and do nothing unless consumed"]
     pub fn iter(&self) -> Iter<T> {
-        Iter {
-            range: self.range.clone(),
-            backing_storage: &self.backing_storage,
-        }
+        Iter::new(self.range.clone(), &self.backing_storage)
     }
 
     /// Returns an iterator that allows modifying each value.
     #[inline]
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        IterMut {
-            range: self.range.clone(),
-            backing_storage: &self.backing_storage,
-        }
+        // SAFETY: `IterMut` requires exclusive access to the backing_storage within the provided
+        // range, which is guaranteed by the `SliceMut` and the mutable receiver of `iter_mut`.
+        unsafe { IterMut::new(self.range.clone(), &self.backing_storage) }
     }
 
     /// Divides one slice into two at an index.
@@ -322,8 +316,8 @@ where
     {
         assert!(mid <= self.len());
         (
-            Slice::new(0..mid, &self.backing_storage),
-            Slice::new(mid..self.len(), &self.backing_storage),
+            Slice::new(self.range.start..self.range.start + mid, &self.backing_storage),
+            Slice::new(self.range.start + mid..self.range.end, &self.backing_storage),
         )
     }
 
@@ -341,8 +335,8 @@ where
         // SAFETY: SliceMut::new requires that the ranges do not overlap.
         unsafe {
             (
-                SliceMut::new(0..mid, &self.backing_storage),
-                SliceMut::new(mid..self.len(), &self.backing_storage),
+                SliceMut::new(self.range.start..self.range.start + mid, &self.backing_storage),
+                SliceMut::new(self.range.start + mid..self.range.end, &self.backing_storage),
             )
         }
     }
@@ -350,8 +344,10 @@ where
 
 /// Describes collections which can soundly provide multiple mutable references to its items. The
 /// canonical example is a slice, where it is sound to obtain a mutable reference to `slice[0]` and
-/// `slice[1]`. However `borrowck` has trouble with this through mutable methods such as `IndexMut`,
-/// since it cannot prove that there is no overlap.
+/// `slice[1]`.
+// We require this trait because `borrowck` has trouble with obtaining multiple mutable references from
+// a container, as it cannot prove that the mutable references do not overlap through mutable methods
+// such as `IndexMut`.
 pub trait ContiguousStorage {
     /// The storage item.
     type Item;
