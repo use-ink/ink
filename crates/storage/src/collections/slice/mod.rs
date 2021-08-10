@@ -316,8 +316,14 @@ where
     {
         assert!(mid <= self.len());
         (
-            Slice::new(self.range.start..self.range.start + mid, &self.backing_storage),
-            Slice::new(self.range.start + mid..self.range.end, &self.backing_storage),
+            Slice::new(
+                self.range.start..self.range.start + mid,
+                &self.backing_storage,
+            ),
+            Slice::new(
+                self.range.start + mid..self.range.end,
+                &self.backing_storage,
+            ),
         )
     }
 
@@ -335,8 +341,14 @@ where
         // SAFETY: SliceMut::new requires that the ranges do not overlap.
         unsafe {
             (
-                SliceMut::new(self.range.start..self.range.start + mid, &self.backing_storage),
-                SliceMut::new(self.range.start + mid..self.range.end, &self.backing_storage),
+                SliceMut::new(
+                    self.range.start..self.range.start + mid,
+                    &self.backing_storage,
+                ),
+                SliceMut::new(
+                    self.range.start + mid..self.range.end,
+                    &self.backing_storage,
+                ),
             )
         }
     }
