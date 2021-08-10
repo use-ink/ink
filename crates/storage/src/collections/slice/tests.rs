@@ -132,8 +132,8 @@ fn test_iterator_nth_mut() {
     }
     assert_eq!(v.iter_mut().nth(len), None);
 
-    let two = v[2].clone();
-    let four = v[4].clone();
+    let two = v[2];
+    let four = v[4];
     let mut iter = v.iter_mut();
     assert_eq!(iter.nth(2).unwrap().clone(), two);
     assert_eq!(iter.nth(1).unwrap().clone(), four);
@@ -151,8 +151,8 @@ fn test_iterator_nth_back_mut() {
     }
     assert_eq!(v.iter_mut().nth_back(len), None);
 
-    let two = v[2].clone();
-    let four = v[0].clone();
+    let two = v[2];
+    let four = v[0];
     let mut iter = v.iter_mut();
     assert_eq!(iter.nth_back(2).unwrap().clone(), two);
     assert_eq!(iter.nth_back(1).unwrap().clone(), four);
