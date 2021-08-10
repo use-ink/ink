@@ -357,7 +357,7 @@ impl InkTrait {
     ///     - associated constants (`const`)
     ///     - associated types (`type`)
     ///     - macros definitions or usages
-    ///     - unknown token sequences (`Verbatim`'s)
+    ///     - unknown token sequences (`Verbatim`s)
     ///     - methods with default implementations
     /// - If the trait contains methods which do not respect the ink! trait definition requirements:
     ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`

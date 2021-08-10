@@ -1,4 +1,4 @@
-80
+90
 
 ABI
 AST
@@ -7,6 +7,7 @@ DApp
 ERC
 FFI
 Gnosis
+GPL
 KECCAK
 Polkadot
 RPC
@@ -57,19 +58,25 @@ stdout
 tuple
 unordered
 untyped
+v3
 validator
 variadic
+versa
+Verbatim
 metadata
 timestamp
 prepend
 
 Django/S
 IP/S
+ink!/MS
 NFT/S
+SCALE/MS
 accessor/S
 allocator/S
 backend/S
 blockchain/S
+callable/MS
 defragment/SD
 encoding/S
 endian/P

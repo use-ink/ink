@@ -269,7 +269,7 @@ fn iter_nth_back_works() {
     assert_eq!(iter.count(), 0);
 }
 
-/// Asserts that the the given ordered storage vector elements are equal to the
+/// Asserts that the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
 fn assert_eq_slice(vec: &StorageVec<u8>, slice: &[u8]) {
     assert_eq!(vec.len() as usize, slice.len());
@@ -460,14 +460,7 @@ fn test_binary_search() {
     assert_eq!(b.binary_search(&0), Err(0));
     assert_eq!(b.binary_search(&1), Ok(0));
     assert_eq!(b.binary_search(&2), Err(1));
-    assert!(match b.binary_search(&3) {
-        Ok(1..=3) => true,
-        _ => false,
-    });
-    assert!(match b.binary_search(&3) {
-        Ok(1..=3) => true,
-        _ => false,
-    });
+    matches!(b.binary_search(&3), Ok(1..=3));
     assert_eq!(b.binary_search(&4), Err(4));
     assert_eq!(b.binary_search(&5), Err(4));
     assert_eq!(b.binary_search(&6), Err(4));

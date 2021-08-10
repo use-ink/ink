@@ -152,7 +152,7 @@ fn peek_works() {
 fn peek_and_pop_works() {
     let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1];
     let mut sorted = data.clone();
-    sorted.sort();
+    sorted.sort_unstable();
     let mut heap = heap_from_slice(&data);
     while !heap.is_empty() {
         assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
@@ -192,7 +192,7 @@ fn min_heap_works() {
         .map(|x| Reverse::new(*x))
         .collect::<Vec<_>>();
     let mut sorted = data.clone();
-    sorted.sort();
+    sorted.sort_unstable();
     let mut heap = heap_from_slice(&data);
     while !heap.is_empty() {
         assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
@@ -518,7 +518,7 @@ fn pop_complexity_big_o_log_n() -> ink_env::Result<()> {
 fn fuzz_pop_always_returns_largest_element(xs: Vec<i32>) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut sorted = xs.clone();
-        sorted.sort();
+        sorted.sort_unstable();
         let mut heap = heap_from_slice(&xs);
 
         for x in sorted.iter().rev() {

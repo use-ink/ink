@@ -212,7 +212,7 @@ where
     /// longer the largest value, in order to keep the heap in a consistent state.
     ///
     /// If the peeked value is consumed via `PeekMut::pop()` then this is set to false in order
-    /// to  prevent a redundant reorg which would already have happened via `BinaryHeap::pop()`.
+    /// to  prevent a redundant reorganization which would already have happened via `BinaryHeap::pop()`.
     sift: bool,
 }
 

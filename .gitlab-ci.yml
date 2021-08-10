@@ -24,7 +24,7 @@ variables:
   # this var is changed to "-:staging" when the CI image gets rebuilt
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
-  DELEGATOR_SUBCONTRACTS:           "accumulator adder subber"
+  DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
 
 workflow:
   rules:
@@ -44,6 +44,7 @@ workflow:
   - cargo --version
   - rustup +nightly show
   - cargo +nightly --version
+  - cargo spellcheck --version
   - bash --version
   - sccache -s
 
@@ -178,58 +179,8 @@ spellcheck:
   <<:                              *docker-env
   <<:                              *test-refs
   script:
-    - cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1
-    - for example in examples/*/; do
-        cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 ${example};
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo spellcheck check -vvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 examples/delegator/${contract}/;
-      done
-
-codecov:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  variables:
-    # For codecov it's sufficient to run the fuzz tests only once.
-    QUICKCHECK_TESTS:              1
-    # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
-    CARGO_INCREMENTAL:             0
-    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                      -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
-    # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
-    # produces better results for Rust codebases in general. However, unlike `grcov` it requires
-    # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
-  before_script:
-    - *rust-info-script
-    - unset "CARGO_TARGET_DIR"
-    - cargo clean
-  script:
-    # RUSTFLAGS are the cause target cache can't be used here
-    - cargo build --verbose --all-features --workspace
-    - cargo test --verbose --all-features --no-fail-fast --workspace
-
-    # Just needed as long as we have the `ink-experimental-engine` feature.
-    # We must additionally run the coverage without `--all-features` here -- this
-    # would imply the feature `ink-experimental-engine`. So in order to still run
-    # the tests without the experimental engine feature we need this command.
-    - cargo test --verbose --features std --no-fail-fast --workspace
-
-    # coverage with branches
-    - grcov . --source-dir . --output-type lcov --llvm --branch --ignore-not-existing
-        --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
-    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-    # We'd like to not use a remote bash script for uploading the coverage reports,
-    # however this job seems to be more tricky than we hoped.
-    - bash <(curl -s https://codecov.io/bash) -t "$CODECOV_P_TOKEN" -f lcov-w-branch-fixed.info
-    # lines coverage
-    - grcov . --source-dir . --output-type lcov --llvm --ignore-not-existing
-        --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
-    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
-    - bash <(curl -s https://codecov.io/bash) -f lcov-lines-fixed.info
+    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
 
 clippy-std:
   stage:                           workspace
@@ -240,7 +191,7 @@ clippy-std:
       artifacts:                   false
   script:
     - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
 clippy-wasm:
@@ -318,10 +269,10 @@ examples-clippy-std:
       artifacts:                   false
   script:
     - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
       done
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
 examples-clippy-wasm:
@@ -459,7 +410,7 @@ fuzz-tests:
   <<:                              *test-refs
   variables:
     # The QUICKCHECK_TESTS default is 100
-    QUICKCHECK_TESTS:              20000
+    QUICKCHECK_TESTS:              5000
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"

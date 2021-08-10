@@ -43,7 +43,7 @@ fn bench_key_add_assign_u64(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64)", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -57,7 +57,7 @@ fn bench_key_add_assign_u64_one_ofvl(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 1 ofvl", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -71,7 +71,7 @@ fn bench_key_add_assign_u64_two_ofvls(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 2 ofvls", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -85,7 +85,7 @@ fn bench_key_add_assign_u64_three_ofvls(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - 3 ofvls", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -95,7 +95,7 @@ fn bench_key_add_assign_u64_wrap(c: &mut Criterion) {
     c.bench_function("Key2::add_assign(u64) - wrap", |b| {
         b.iter(|| {
             let mut copy = black_box(key);
-            let _ = black_box(copy += 1u64);
+            let _ = black_box(|| copy += 1u64);
         })
     });
 }
@@ -104,7 +104,7 @@ fn bench_key_ptr_advance_by(c: &mut Criterion) {
     let key = Key::from([0x00; 32]);
     c.bench_function("KeyPtr2::advance_by copy", |b| {
         b.iter(|| {
-            let mut key_ptr = KeyPtr::from(key.clone());
+            let mut key_ptr = KeyPtr::from(key);
             let _ = black_box(key_ptr.advance_by(1));
         })
     });
@@ -112,7 +112,7 @@ fn bench_key_ptr_advance_by(c: &mut Criterion) {
 
 fn bench_key_ptr_advance_by_repeat(c: &mut Criterion) {
     let key = Key::from([0x00; 32]);
-    let mut key_ptr = KeyPtr::from(key.clone());
+    let mut key_ptr = KeyPtr::from(key);
     c.bench_function("KeyPtr2::advance_by reuse", |b| {
         b.iter(|| {
             let _ = black_box(key_ptr.advance_by(1));

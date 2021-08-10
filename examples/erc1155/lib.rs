@@ -100,7 +100,7 @@ pub trait Erc1155 {
 
     /// Perform a batch transfer of `token_ids` to the `to` account from the `from` account.
     ///
-    /// The number of `values` specified to be transfer must match the number of `token_ids`,
+    /// The number of `values` specified to be transferred must match the number of `token_ids`,
     /// otherwise this call will revert.
     ///
     /// Note that the call does not have to originate from the `from` account, and may originate
@@ -792,7 +792,7 @@ mod erc1155 {
             // Note: All of these tests are from the context of the owner who is either allowing or
             // disallowing an operator to control their funds.
             set_sender(owner);
-            assert!(erc.is_approved_for_all(owner, operator) == false);
+            assert!(!erc.is_approved_for_all(owner, operator));
 
             assert!(erc.set_approval_for_all(operator, true).is_ok());
             assert!(erc.is_approved_for_all(owner, operator));
@@ -801,7 +801,7 @@ mod erc1155 {
             assert!(erc.is_approved_for_all(owner, another_operator));
 
             assert!(erc.set_approval_for_all(operator, false).is_ok());
-            assert!(erc.is_approved_for_all(owner, operator) == false);
+            assert!(!erc.is_approved_for_all(owner, operator));
         }
 
         #[ink::test]
