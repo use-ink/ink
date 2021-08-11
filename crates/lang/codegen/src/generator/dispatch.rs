@@ -95,28 +95,24 @@ impl Dispatch<'_> {
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
-            fn deploy() -> u32 {
-                ::ink_lang::DispatchRetCode::from(
-                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ::ink_lang::DispatchMode::Instantiate,
-                    ),
+            fn deploy() {
+                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Instantiate,
                 )
-                .to_u32()
+                .unwrap()
             }
 
             #[cfg(not(test))]
             #[no_mangle]
-            fn call() -> u32 {
+            fn call() {
                 if #all_messages_deny_payment {
                     ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
                         .expect("caller transferred value even though all ink! message deny payments")
                 }
-                ::ink_lang::DispatchRetCode::from(
-                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ::ink_lang::DispatchMode::Call,
-                    ),
+                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Call,
                 )
-                .to_u32()
+                .unwrap()
             }
         }
     }
