@@ -99,7 +99,7 @@ impl Dispatch<'_> {
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Instantiate,
                 )
-                .unwrap()
+                .expect("failed to dispatch the constructor")
             }
 
             #[cfg(not(test))]
@@ -112,7 +112,7 @@ impl Dispatch<'_> {
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Call,
                 )
-                .unwrap()
+                .expect("failed to dispatch the call")
             }
         }
     }
