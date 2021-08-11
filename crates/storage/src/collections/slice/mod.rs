@@ -131,8 +131,8 @@ where
 
     /// Divides one slice into two at an index.
     ///
-    /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
-    /// second will contain all indices from [mid, len) (excluding the index len itself).
+    /// The first will contain all indices from `[0, mid)` (excluding the index `mid` itself) and the
+    /// second will contain all indices from `[mid, len)` (excluding the index `len` itself).
     #[inline]
     pub fn split_at<'a>(&'a self, mid: u32) -> (Slice<&T>, Slice<&T>)
     where
@@ -299,8 +299,8 @@ where
 
     /// Divides one slice into two at an index.
     ///
-    /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
-    /// second will contain all indices from [mid, len) (excluding the index len itself).
+    /// The first will contain all indices from `[0, mid)` (excluding the index `mid` itself) and the
+    /// second will contain all indices from `[mid, len)` (excluding the index `len` itself).
     #[inline]
     pub fn split_at<'a>(&'a self, mid: u32) -> (Slice<&T>, Slice<&T>)
     where
@@ -321,8 +321,8 @@ where
 
     /// Divides one mutable slice into two at an index.
     ///
-    /// The first will contain all indices from [0, mid) (excluding the index mid itself) and the
-    /// second will contain all indices from [mid, len) (excluding the index len itself).
+    /// The first will contain all indices from `[0, mid)` (excluding the index `mid` itself) and the
+    /// second will contain all indices from `[mid, len)` (excluding the index `len` itself).
     #[inline]
     pub fn split_at_mut<'a>(&'a mut self, mid: u32) -> (SliceMut<&T>, SliceMut<&T>)
     where
