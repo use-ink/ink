@@ -17,13 +17,16 @@ use super::{
     EntryState,
     StorageEntry,
 };
-use crate::traits::{
-    clear_packed_root,
-    pull_packed_root_opt,
-    ExtKeyPtr,
-    KeyPtr,
-    PackedLayout,
-    SpreadLayout,
+use crate::{
+    collections::slice::ContiguousStorage,
+    traits::{
+        clear_packed_root,
+        pull_packed_root_opt,
+        ExtKeyPtr,
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
 };
 use core::{
     fmt,
@@ -323,7 +326,7 @@ where
     /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
     /// within internal use only and should never be given outside the lazy entity
     /// for public `&self` methods.
-    pub(crate) unsafe fn lazily_load(&self, index: Index) -> NonNull<StorageEntry<V>> {
+    unsafe fn lazily_load(&self, index: Index) -> NonNull<StorageEntry<V>> {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
         //         trick here is that due to using `Box<T>` internally
@@ -443,6 +446,25 @@ where
         loaded_x.replace_state(EntryState::Mutated);
         loaded_y.replace_state(EntryState::Mutated);
         core::mem::swap(loaded_x.value_mut(), loaded_y.value_mut());
+    }
+}
+
+impl<T> ContiguousStorage for LazyIndexMap<T>
+where
+    T: PackedLayout,
+{
+    type Item = T;
+
+    unsafe fn get_mut(&self, index: u32) -> Option<&mut T> {
+        // SAFETY:
+        //  - lazily_load requires that there is exclusive access to the T. The contract of
+        //    ContiguousStorage ensures this variant.
+        //  - lazily_load always returns a valid pointer.
+        self.lazily_load(index).as_mut().value_mut().as_mut()
+    }
+
+    fn get(&self, index: u32) -> Option<&Self::Item> {
+        LazyIndexMap::get(self, index)
     }
 }
 

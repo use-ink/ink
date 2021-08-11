@@ -43,19 +43,11 @@ mod iter;
 #[cfg(test)]
 mod tests;
 
-use crate::{
-    lazy::{
-        LazyArray,
-        LazyIndexMap,
-    },
-    traits::PackedLayout,
-};
-use core::ops::Range;
-
 pub use crate::collections::slice::iter::{
     Iter,
     IterMut,
 };
+use core::ops::Range;
 
 /// A view into contiguous storage.
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
@@ -235,8 +227,8 @@ where
             // Safety: we have exclusive access to the slice through the &mut receiver, thus this
             // mutable borrow is guaranteed to be unique.
             unsafe {
-            self.backing_storage.get_mut(self.range.start)?
-        };
+                self.backing_storage.get_mut(self.range.start)?
+            };
         Some((
             first,
             // Safety: By taking &mut self, we ensure that other getters of items become cannot be
@@ -385,45 +377,5 @@ impl<T: ContiguousStorage> ContiguousStorage for &T {
 
     fn get(&self, index: u32) -> Option<&Self::Item> {
         T::get(self, index)
-    }
-}
-
-impl<T> ContiguousStorage for LazyIndexMap<T>
-where
-    T: PackedLayout,
-{
-    type Item = T;
-
-    unsafe fn get_mut(&self, index: u32) -> Option<&mut T> {
-        // SAFETY:
-        //  - lazily_load requires that there is exclusive access to the T. The contract of
-        //    ContiguousStorage ensures this variant.
-        //  - lazily_load always returns a valid pointer.
-        self.lazily_load(index).as_mut().value_mut().as_mut()
-    }
-
-    fn get(&self, index: u32) -> Option<&Self::Item> {
-        LazyIndexMap::get(self, index)
-    }
-}
-
-impl<T, const N: usize> ContiguousStorage for LazyArray<T, N>
-where
-    T: PackedLayout,
-{
-    type Item = T;
-
-    unsafe fn get_mut(&self, index: u32) -> Option<&mut T> {
-        // SAFETY: get_entry_mut requires that only a single exclusive reference exist for each `index`.
-        // the contract of `ContiguousStorage::get_mut` puts the same restrictions to the caller,
-        // making this sound.
-        self.cached_entries
-            .get_entry_mut(index)
-            .map(|i| i.value_mut().as_mut())
-            .flatten()
-    }
-
-    fn get(&self, index: u32) -> Option<&Self::Item> {
-        LazyArray::get(self, index)
     }
 }

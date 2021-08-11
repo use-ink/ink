@@ -17,13 +17,16 @@ use super::{
     EntryState,
     StorageEntry,
 };
-use crate::traits::{
-    clear_packed_root,
-    pull_packed_root_opt,
-    ExtKeyPtr,
-    KeyPtr,
-    PackedLayout,
-    SpreadLayout,
+use crate::{
+    collections::slice::ContiguousStorage,
+    traits::{
+        clear_packed_root,
+        pull_packed_root_opt,
+        ExtKeyPtr,
+        KeyPtr,
+        PackedLayout,
+        SpreadLayout,
+    },
 };
 use core::{
     fmt,
@@ -61,7 +64,7 @@ pub struct LazyArray<T, const N: usize> {
     /// The subset of currently cached entries of the lazy storage chunk.
     ///
     /// An entry is cached as soon as it is loaded or written.
-    pub(crate) cached_entries: EntryArray<T, N>,
+    cached_entries: EntryArray<T, N>,
 }
 
 #[cfg(feature = "std")]
@@ -260,7 +263,7 @@ impl<T, const N: usize> EntryArray<T, N> {
     }
 
     /// Returns an exclusive reference to the entry at the given index if any.
-    pub(crate) unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut StorageEntry<T>> {
+    unsafe fn get_entry_mut(&self, at: Index) -> Option<&mut StorageEntry<T>> {
         if at >= Self::capacity() {
             return None
         }
@@ -528,6 +531,27 @@ where
         loaded_a.replace_state(EntryState::Mutated);
         loaded_b.replace_state(EntryState::Mutated);
         core::mem::swap(loaded_a.value_mut(), loaded_b.value_mut());
+    }
+}
+
+impl<T, const N: usize> ContiguousStorage for LazyArray<T, N>
+where
+    T: PackedLayout,
+{
+    type Item = T;
+
+    unsafe fn get_mut(&self, index: u32) -> Option<&mut T> {
+        // SAFETY: get_entry_mut requires that only a single exclusive reference exist for each `index`.
+        // the contract of `ContiguousStorage::get_mut` puts the same restrictions to the caller,
+        // making this sound.
+        self.cached_entries
+            .get_entry_mut(index)
+            .map(|i| i.value_mut().as_mut())
+            .flatten()
+    }
+
+    fn get(&self, index: u32) -> Option<&Self::Item> {
+        LazyArray::get(self, index)
     }
 }
 
