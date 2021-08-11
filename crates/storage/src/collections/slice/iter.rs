@@ -60,11 +60,11 @@ where
     type Item = &'a mut <T as ContiguousStorage>::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(i) = self.next_index() {
-            unsafe { self.backing_storage.get_mut(i) }
-        } else {
-            None
-        }
+        let i = self.next_index()?;
+
+        // Safety: the iterator has exclusive access to the range of cells through the mutable receiver,
+        // and the contract of `IterMut::new`.
+        unsafe { self.backing_storage.get_mut(i) }
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -80,7 +80,7 @@ where
         if self.bounds.start >= self.bounds.end {
             return None
         }
-        // SAFETY: The iterator has exclusive access to the range in the underlying backing_storage,
+        // Safety: The iterator has exclusive access to the range in the underlying backing_storage,
         // and the above bounds check ensures that we aren't fetching an out-of-bounds but valid item,
         // even when iterating from the back.
         unsafe { self.backing_storage.get_mut(self.bounds.end - 1) }
