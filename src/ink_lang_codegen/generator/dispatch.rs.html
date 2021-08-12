@@ -695,10 +695,6 @@
 <span id="695">695</span>
 <span id="696">696</span>
 <span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
@@ -797,28 +793,24 @@
         <span class="macro">quote!</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
             <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-            <span class="kw">fn</span> <span class="ident">deploy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-                <span class="ident">::ink_lang::DispatchRetCode::from</span>(
-                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::DispatchUsingMode</span><span class="op">&gt;</span><span class="ident">::dispatch_using_mode</span>(
-                        <span class="ident">::ink_lang::DispatchMode::Instantiate</span>,
-                    ),
+            <span class="kw">fn</span> <span class="ident">deploy</span>() {
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::DispatchUsingMode</span><span class="op">&gt;</span><span class="ident">::dispatch_using_mode</span>(
+                    <span class="ident">::ink_lang::DispatchMode::Instantiate</span>,
                 )
-                .<span class="ident">to_u32</span>()
+                .<span class="ident">expect</span>(<span class="string">&quot;failed to dispatch the constructor&quot;</span>)
             }
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
             <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-            <span class="kw">fn</span> <span class="ident">call</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+            <span class="kw">fn</span> <span class="ident">call</span>() {
                 <span class="kw">if</span> #<span class="ident">all_messages_deny_payment</span> {
                     <span class="ident">::ink_lang::deny_payment</span>::<span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()
                         .<span class="ident">expect</span>(<span class="string">&quot;caller transferred value even though all ink! message deny payments&quot;</span>)
                 }
-                <span class="ident">::ink_lang::DispatchRetCode::from</span>(
-                    <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::DispatchUsingMode</span><span class="op">&gt;</span><span class="ident">::dispatch_using_mode</span>(
-                        <span class="ident">::ink_lang::DispatchMode::Call</span>,
-                    ),
+                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::DispatchUsingMode</span><span class="op">&gt;</span><span class="ident">::dispatch_using_mode</span>(
+                    <span class="ident">::ink_lang::DispatchMode::Call</span>,
                 )
-                .<span class="ident">to_u32</span>()
+                .<span class="ident">expect</span>(<span class="string">&quot;failed to dispatch the call&quot;</span>)
             }
         }
     }
