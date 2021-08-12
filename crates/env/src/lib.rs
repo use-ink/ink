@@ -44,8 +44,12 @@
 )]
 
 #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[allow(unused_variables)]
 #[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    // This code gets removed in release builds where the macro will expand into nothing.
+    debug_print!("{}\n", info);
+
     // SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.
     //         This is used in order to make any panic a direct abort avoiding Rust's general
     //         panic infrastructure.
