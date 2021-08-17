@@ -5,6 +5,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
+ink_prelude = { version = "3.0.0-rc4", path = "../../crates/prelude", default-features = false }
 ink_primitives = { version = "3.0.0-rc4", path = "../../crates/primitives", default-features = false }
 ink_metadata = { version = "3.0.0-rc4", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.0.0-rc4", path = "../../crates/env", default-features = false }

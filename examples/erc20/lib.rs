@@ -4,11 +4,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::{
-        collections::HashMap as StorageHashMap,
-        lazy::Lazy,
-    };
+    use ink_prelude::collections::BTreeMap;
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
@@ -16,10 +12,10 @@ mod erc20 {
         /// Total token supply.
         total_supply: Balance,
         /// Mapping from owner to number of owned token.
-        balances: StorageHashMap<AccountId, Balance>,
+        balances: BTreeMap<AccountId, Balance>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: StorageHashMap<(AccountId, AccountId), Balance>,
+        allowances: BTreeMap<(AccountId, AccountId), Balance>,
     }
 
     /// Event emitted when a token transfer occurs.
@@ -61,12 +57,12 @@ mod erc20 {
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
-            let mut balances = StorageHashMap::new();
+            let mut balances = BTreeMap::new();
             balances.insert(caller, initial_supply);
             let instance = Self {
-                total_supply: Lazy::new(initial_supply),
+                total_supply: initial_supply,
                 balances,
-                allowances: StorageHashMap::new(),
+                allowances: BTreeMap::new(),
             };
             Self::env().emit_event(Transfer {
                 from: None,
@@ -79,7 +75,7 @@ mod erc20 {
         /// Returns the total token supply.
         #[ink(message)]
         pub fn total_supply(&self) -> Balance {
-            *self.total_supply
+            self.total_supply
         }
 
         /// Returns the account balance for the specified `owner`.
