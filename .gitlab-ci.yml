@@ -25,6 +25,9 @@ variables:
   # read more https://github.com/paritytech/scripts/pull/244
   ALL_CRATES:                      "${PURELY_STD_CRATES} ${ALSO_WASM_CRATES}"
   DELEGATOR_SUBCONTRACTS:          "accumulator adder subber"
+  VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
+  VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
+  VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
 
 workflow:
   rules:
@@ -86,10 +89,6 @@ workflow:
 
 #### Vault secrets
 .vault-secrets:                    &vault-secrets
-  variables:
-    VAULT_SERVER_URL:                "https://vault.parity-mgmt-vault.parity.io"
-    VAULT_AUTH_PATH:                 "gitlab-parity-io-jwt"
-    VAULT_AUTH_ROLE:                 "cicd_gitlab_parity_${CI_PROJECT_NAME}"
   secrets:
     CODECOV_P_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/CODECOV_P_TOKEN@kv
@@ -364,12 +363,12 @@ ink-waterfall:
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
   <<:                              *test-refs
+  <<:                              *vault-secrets
   variables:
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
     # The `ink-waterfall` project id in GitLab
     DWNSTRM_ID:                    409
-  <<:                              *vault-secrets
   script:
     - ./scripts/.ci/trigger_pipeline.sh
   allow_failure:                   true
