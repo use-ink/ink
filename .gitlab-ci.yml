@@ -353,8 +353,8 @@ ink-waterfall:
 
 publish-docs:
   stage:                           publish
-  <<:                              *docker-env
-  <<:                              *test-refs
+  <<:                              *kubernetes-env
+  image:                           paritytech/tools:latest
   needs:
     - job:                         docs
       artifacts:                   true
@@ -365,10 +365,7 @@ publish-docs:
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_REF_NAME == "master"
     - if: $CI_COMMIT_REF_NAME == "tags"
-  # need to overwrite `before_script` from `*docker-env` here,
-  # this branch does not have a `./scripts/.ci/pre_cache.sh`
   before_script:
-    - *rust-info-script
     - unset CARGO_TARGET_DIR
   script:
     - rm -rf /tmp/*
