@@ -218,20 +218,15 @@ codecov:
   script:
     - cargo build --verbose --all-features --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace
-
     # Just needed as long as we have the `ink-experimental-engine` feature.
     # We must additionally run the coverage without `--all-features` here -- this
     # would imply the feature `ink-experimental-engine`. So in order to still run
     # the tests without the experimental engine feature we need this command.
     - cargo test --verbose --features std --no-fail-fast --workspace
-
     # coverage with branches
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch
         --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
     - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
-    # We'd like to not use a remote bash script for uploading the coverage reports,
-    # binary named `codecov` is already installed in the CI image, just doesn't work
-    # https://github.com/codecov/uploader/issues/217 https://github.com/codecov/uploader/issues/222
     - codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
     # lines coverage
     - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm
