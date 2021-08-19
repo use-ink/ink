@@ -478,7 +478,6 @@ publish-docs:
 fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
-  <<:                              *test-refs
   <<:                              *vault-secrets
   variables:
     # The QUICKCHECK_TESTS default is 100
