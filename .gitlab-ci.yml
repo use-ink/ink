@@ -182,6 +182,52 @@ spellcheck:
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
 
+codecov:
+  stage:                           workspace
+  <<:                              *docker-env
+  <<:                              *test-refs
+  needs:
+    - job:                         check-std
+      artifacts:                   false
+  variables:
+    # For codecov it's sufficient to run the fuzz tests only once.
+    QUICKCHECK_TESTS:              1
+    CARGO_INCREMENTAL:             0
+    # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
+    RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
+                                      -Copt-level=0 -Clink-dead-code -Coverflow-checks=off"
+    # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
+    # produces better results for Rust codebases in general. However, unlike `grcov` it requires
+    # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
+  before_script:
+    - *rust-info-script
+    # RUSTFLAGS are the cause target cache can't be used here
+    # FIXME: cust-covfix doesn't support the external target dir
+    # https://github.com/Kogia-sima/rust-covfix/issues/7
+    - unset "CARGO_TARGET_DIR"
+    - cargo clean
+    # make sure there's no stale coverage artifacts
+    - find . -name "*.profraw" -type f -delete
+  script:
+    # RUSTFLAGS are the cause target cache can't be used here
+    - cargo build --verbose --all-features --workspace
+    - cargo test --verbose --all-features --no-fail-fast --workspace
+    # Just needed as long as we have the `ink-experimental-engine` feature.
+    # We must additionally run the coverage without `--all-features` here -- this
+    # would imply the feature `ink-experimental-engine`. So in order to still run
+    # the tests without the experimental engine feature we need this command.
+    - cargo test --verbose --features std --no-fail-fast --workspace
+    # coverage with branches
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm --branch
+        --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-w-branch.info
+    - rust-covfix lcov-w-branch.info --output lcov-w-branch-fixed.info
+    - codecov --token "$CODECOV_P_TOKEN" --file lcov-w-branch-fixed.info --nonZero
+    # lines coverage
+    - grcov . --binary-path ./target/debug/ --source-dir . --output-type lcov --llvm
+        --ignore-not-existing --ignore "/*" --ignore "tests/*" --output-path lcov-lines.info
+    - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
+    - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
+
 clippy-std:
   stage:                           workspace
   <<:                              *docker-env
