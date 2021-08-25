@@ -2,16 +2,12 @@ error[E0271]: type mismatch resolving `<NonStorageStruct as non_storage_ink_impl
   --> $DIR/S-04-non-storage-ink-impls.rs:28:10
    |
 28 |     impl NonStorageStruct {
-   |          ^^^^^^^^^^^^^^^^ expected struct `StorageStruct`, found struct `NonStorageStruct`
-   |
-note: required by a bound in `non_storage_ink_impls::_::_::{closure#0}::assert_type_eq_all`
-  --> $DIR/S-04-non-storage-ink-impls.rs:28:10
-   |
-28 |     impl NonStorageStruct {
    |          ^^^^^^^^^^^^^^^^
    |          |
+   |          expected struct `StorageStruct`, found struct `NonStorageStruct`
    |          required by a bound in this
    |          required by this bound in `non_storage_ink_impls::_::_::{closure#0}::assert_type_eq_all`
+   |
    = note: this error originates in the macro `::ink_lang::static_assertions::assert_type_eq_all` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no function or associated item named `constructor2` found for struct `StorageStruct` in the current scope
