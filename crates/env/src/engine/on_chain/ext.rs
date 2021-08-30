@@ -331,6 +331,9 @@ mod sys {
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
+
+        #[cfg(feature = "ink-debug")]
+        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -345,9 +348,6 @@ mod sys {
 
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
-        #[cfg(feature = "ink-debug")]
-        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
-
         pub fn seal_rent_params(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
