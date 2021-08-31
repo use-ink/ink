@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod private {
+    /// Used to prevent external direct usage of `HexLiteral::hex_impl_`.
+    pub struct Sealed;
+}
+
 /// Used to convert literal values into their hex representations for code generation.
 pub trait HexLiteral {
     /// Shared implementation details.
@@ -20,7 +25,7 @@ pub trait HexLiteral {
     ///
     /// Users shall not use this trait method directly hence it is hidden.
     #[doc(hidden)]
-    fn hex_impl_(self, fmt: &str) -> syn::Lit;
+    fn hex_impl_(self, fmt: ::core::fmt::Arguments, sealed: private::Sealed) -> syn::Lit;
 
     /// Converts the given value into a hex represented literal with type suffix.
     fn hex_suffixed(self) -> syn::Lit;
@@ -43,29 +48,29 @@ macro_rules! generate_hex_literal_impls {
     ( $( ($ty:ty, $name:literal, $fmt_suffixed:literal, $fmt_unsuffixed:literal) ),* $(,)? ) => {
         $(
             impl HexLiteral for $ty {
-                #[inline]
-                fn hex_impl_(self, fmt: &str) -> syn::Lit {
+                fn hex_impl_(self, fmt: ::core::fmt::Arguments, _sealed: private::Sealed) -> syn::Lit {
+                    let formatted = ::std::format!("{}", fmt);
                     ::syn::Lit::new(
-                        <::proc_macro2::Literal as ::core::str::FromStr>::from_str(fmt).unwrap_or_else(
+                        <::proc_macro2::Literal as ::core::str::FromStr>::from_str(&formatted).unwrap_or_else(
                             |err| ::core::panic!("cannot parse {} into a {} hex represented literal: {}", self, $name, err),
                         )
                     )
                 }
 
                 fn hex_suffixed(self) -> syn::Lit {
-                    self.hex_impl_(&::std::format!("0x{:X}_{}", self, $name))
+                    self.hex_impl_(::core::format_args!("0x{:X}_{}", self, $name), private::Sealed)
                 }
 
                 fn hex_unsuffixed(self) -> syn::Lit {
-                    self.hex_impl_(&::std::format!("0x{:X}", self))
+                    self.hex_impl_(::core::format_args!("0x{:X}", self), private::Sealed)
                 }
 
                 fn hex_padded_suffixed(self) -> syn::Lit {
-                    self.hex_impl_(&::std::format!($fmt_suffixed, self, $name))
+                    self.hex_impl_(::core::format_args!($fmt_suffixed, self, $name), private::Sealed)
                 }
 
                 fn hex_padded_unsuffixed(self) -> syn::Lit {
-                    self.hex_impl_(&::std::format!($fmt_unsuffixed, self))
+                    self.hex_impl_(::core::format_args!($fmt_unsuffixed, self), private::Sealed)
                 }
             }
         )*
