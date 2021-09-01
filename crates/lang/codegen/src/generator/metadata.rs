@@ -68,8 +68,8 @@ impl Metadata<'_> {
         let contract_ident = self.contract.module().storage().ident();
         quote! {
             <#contract_ident as ::ink_storage::traits::StorageLayout>::layout(
-                &mut <::ink_primitives::KeyPtr as ::core::convert::From>::from(
-                    <::ink_primitives::Key as ::core::convert::From>::from([0x00_u8; 32])
+                &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
+                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32]>>::from([0x00_u8; 32])
                 )
             )
         }
