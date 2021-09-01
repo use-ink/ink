@@ -68,7 +68,9 @@ impl Metadata<'_> {
         let contract_ident = self.contract.module().storage().ident();
         quote! {
             <#contract_ident as ::ink_storage::traits::StorageLayout>::layout(
-                &mut ::ink_primitives::KeyPtr::from(::ink_primitives::Key::from([0x00; 32]))
+                &mut <::ink_primitives::KeyPtr as ::core::convert::From>::from(
+                    <::ink_primitives::Key as ::core::convert::From>::from([0x00_u8; 32])
+                )
             )
         }
     }
@@ -81,16 +83,16 @@ impl Metadata<'_> {
 
         quote! {
             ::ink_metadata::ContractSpec::new()
-                .constructors(vec![
+                .constructors([
                     #(#constructors ,)*
                 ])
-                .messages(vec![
+                .messages([
                     #(#messages ,)*
                 ])
-                .events(vec![
+                .events([
                     #(#events ,)*
                 ])
-                .docs(vec![
+                .docs([
                     #(#docs ,)*
                 ])
                 .done()
@@ -156,10 +158,10 @@ impl Metadata<'_> {
                 quote_spanned!(span =>
                     ::ink_metadata::ConstructorSpec::#constr
                         .selector([#(#selector_bytes),*])
-                        .args(vec![
+                        .args([
                             #(#args ,)*
                         ])
-                        .docs(vec![
+                        .docs([
                             #(#docs ,)*
                         ])
                         .done()
@@ -202,7 +204,8 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    vec![#(#segs),*].into_iter().map(AsRef::as_ref)
+                    ::core::iter::IntoIterator::into_iter([#(#segs),*])
+                        .map(::core::convert::AsRef::as_ref)
                 )
             }
         } else {
@@ -250,13 +253,13 @@ impl Metadata<'_> {
                 quote_spanned!(span =>
                     ::ink_metadata::MessageSpec::#constr
                         .selector([#(#selector_bytes),*])
-                        .args(vec![
+                        .args([
                             #(#args ,)*
                         ])
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
-                        .docs(vec![
+                        .docs([
                             #(#docs ,)*
                         ])
                         .done()
@@ -291,10 +294,10 @@ impl Metadata<'_> {
             let args = Self::generate_event_args(event);
             quote_spanned!(span =>
                 ::ink_metadata::EventSpec::new(#ident_lit)
-                    .args(vec![
+                    .args([
                         #( #args, )*
                     ])
-                    .docs(vec![
+                    .docs([
                         #( #docs, )*
                     ])
                     .done()
@@ -316,7 +319,7 @@ impl Metadata<'_> {
                 ::ink_metadata::EventParamSpec::new(#ident_lit)
                     .of_type(#ty)
                     .indexed(#is_topic)
-                    .docs(vec![
+                    .docs([
                         #( #docs, )*
                     ])
                     .done()
