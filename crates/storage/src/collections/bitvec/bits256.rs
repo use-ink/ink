@@ -300,7 +300,7 @@ mod tests {
         for i in 0..256 {
             let i = i as u8;
             bits256.set(i);
-            assert_eq!(bits256.get(i), true);
+            assert!(bits256.get(i));
         }
     }
 
@@ -310,7 +310,7 @@ mod tests {
         for i in 0..256 {
             let i = i as u8;
             bits256.reset(i);
-            assert_eq!(bits256.get(i), false);
+            assert!(!bits256.get(i));
         }
     }
 

@@ -233,7 +233,7 @@ impl<T, const N: usize> EntryArray<T, N> {
         array_capacity::<T, N>()
     }
 
-    /// Puts the the new value into the indexed slot and
+    /// Puts the new value into the indexed slot and
     /// returns the old value if any.
     fn put(&self, at: Index, new_value: Option<T>) -> Option<T> {
         mem::replace(
@@ -558,10 +558,7 @@ mod tests {
             .iter()
             .enumerate()
             .filter_map(|(index, entry)| {
-                match entry {
-                    Some(entry) => Some((index as u32, entry)),
-                    None => None,
-                }
+                entry.as_ref().map(|entry| (index as u32, entry))
             })
             .zip(expected.iter().map(|(index, entry)| (*index, entry)))
         {

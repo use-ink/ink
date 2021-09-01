@@ -90,7 +90,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> Result<T::Balance>
+pub fn gas_left<T>() -> Result<u64>
 where
     T: Environment,
 {
@@ -177,11 +177,11 @@ where
 ///
 /// # Parameters
 ///
-/// - `at_refcount`: The refcount assumed for the returned `custom_refcount_*` fields.
+/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
 ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
 ///
 ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-///   refcount made during the currently running call.
+///   `refcount` made during the currently running call.
 ///
 /// # Errors
 ///
@@ -415,7 +415,7 @@ where
 ///   in the restorer contract to not influence the hash calculations.
 /// - Does *not* perform restoration right away but defers it to the end of
 ///   the contract execution.
-/// - Restoration is cancelled if there is no tombstone in the destination
+/// - Restoration is canceled if there is no tombstone in the destination
 ///   address or if the hashes don't match. No changes are made in this case.
 pub fn restore_contract<T>(
     account_id: T::AccountId,
@@ -436,7 +436,8 @@ pub fn restore_contract<T>(
     })
 }
 
-/// Terminates the existence of the currently executed smart contract.
+/// Terminates the existence of the currently executed smart contract
+/// without creating a tombstone.
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
@@ -467,7 +468,7 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract doesn't have sufficient funds.
+/// - If the contract does not have sufficient funds.
 /// - If the transfer had brought the sender's total balance below the
 ///   subsistence threshold.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
@@ -561,6 +562,15 @@ pub fn debug_message(message: &str) {
 }
 
 /// Conducts the crypto hash of the given input and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// use ink_env::hash::{Sha2x256, HashOutput};
+/// let input: &[u8] = &[13, 14, 15];
+/// let mut output = <Sha2x256 as HashOutput>::Type::default(); // 256-bit buffer
+/// let hash  = ink_env::hash_bytes::<Sha2x256>(input, &mut output);
+/// ```
 pub fn hash_bytes<H>(input: &[u8], output: &mut <H as HashOutput>::Type)
 where
     H: CryptoHash,

@@ -75,7 +75,7 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
         let field_layouts = field_layout(variant);
         quote! {
             {
-                let mut __variant_key_ptr = __key_ptr.clone();
+                let mut __variant_key_ptr = *__key_ptr;
                 let mut __key_ptr = &mut __variant_key_ptr;
                 (
                     ::ink_metadata::layout::Discriminant::from(#discriminant),

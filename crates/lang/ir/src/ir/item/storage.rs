@@ -120,7 +120,7 @@ impl Storage {
         &self.ast.ident
     }
 
-    /// Returns an iter yielding all fields of the storage struct.
+    /// Returns an iterator yielding all fields of the storage struct.
     pub fn fields(&self) -> syn::punctuated::Iter<syn::Field> {
         self.ast.fields.iter()
     }

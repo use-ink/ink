@@ -49,7 +49,7 @@ use ink_primitives::Key;
 /// The capacity of the static buffer.
 /// This is the same size as the ink! on-chain environment. We chose to use the same size
 /// to be as close to the on-chain behavior as possible.
-const BUFFER_SIZE: usize = 1 << 14; // 16kB
+const BUFFER_SIZE: usize = 1 << 14; // 16 kB
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -102,7 +102,7 @@ impl CryptoHash for Keccak256 {
 impl From<ext::Error> for crate::Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
-            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::Unknown => Self::Unknown,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
@@ -284,8 +284,8 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(Engine::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(Engine::gas_left)
+    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
+        self.get_property::<u64>(Engine::gas_left)
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {

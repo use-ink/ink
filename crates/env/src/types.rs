@@ -77,7 +77,7 @@ pub trait Environment {
         + AsRef<[u8]>
         + AsMut<[u8]>;
 
-    /// The type of timestamps.
+    /// The type of a timestamp.
     type Timestamp: 'static
         + scale::Codec
         + Copy
@@ -294,7 +294,7 @@ pub struct RentParams<T: Environment> {
 
     /// The fraction of the deposit costs that should be used as rent per block.
     ///
-    /// When a contract doesn't have enough balance deposited to stay alive indefinitely
+    /// When a contract does not have enough balance deposited to stay alive indefinitely
     /// it needs to pay per block for the storage it consumes that is not covered by the
     /// deposit. This determines how high this rent payment is per block as a fraction
     /// of the deposit costs.
@@ -322,18 +322,18 @@ pub struct RentParams<T: Environment> {
 ///
 /// # Note
 ///
-/// The `current_*` fields do **not** consider changes to the code's refcount made during
-/// the currently running call.
+/// The `current_*` fields do **not** consider changes to the code's `refcount`
+/// made during the currently running call.
 #[derive(scale::Decode)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
 pub struct RentStatus<T: Environment> {
     /// Required deposit assuming that this contract is the only user of its code.
     pub max_deposit: T::Balance,
 
-    /// Required deposit assuming the code's current refcount.
+    /// Required deposit assuming the code's current `refcount`.
     pub current_deposit: T::Balance,
 
-    /// Required deposit assuming the specified refcount (`None` if `0` is supplied).
+    /// Required deposit assuming the specified `refcount` (`None` if `0` is supplied).
     pub custom_refcount_deposit: Option<T::Balance>,
 
     /// Rent that is paid assuming that the contract is the only user of its code.

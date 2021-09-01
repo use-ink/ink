@@ -120,7 +120,7 @@ fn clike_enum_works() {
                                 ::ink_metadata::layout::LayoutKey::from(dispatch_key),
                                 vec![
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
@@ -128,7 +128,7 @@ fn clike_enum_works() {
                                         )
                                     },
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
@@ -136,7 +136,7 @@ fn clike_enum_works() {
                                         )
                                     },
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),
@@ -177,7 +177,7 @@ fn mixed_enum_works() {
                                 ::ink_metadata::layout::LayoutKey::from(dispatch_key),
                                 vec![
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
@@ -185,7 +185,7 @@ fn mixed_enum_works() {
                                         )
                                     },
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
@@ -206,7 +206,7 @@ fn mixed_enum_works() {
                                         )
                                     },
                                     {
-                                        let mut __variant_key_ptr = __key_ptr.clone();
+                                        let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),

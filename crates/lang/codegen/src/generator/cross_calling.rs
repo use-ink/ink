@@ -639,7 +639,7 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                ::ink_env::call::build_create::<Environment, Salt, Self>()
+                ::ink_env::call::build_create::<Environment, Self>()
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])

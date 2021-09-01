@@ -198,14 +198,14 @@ impl EnvInstance {
         );
         // Initialize the execution context for the first contract execution.
         use crate::call::Selector;
-        // The below selector bytes are incorrect but since calling doesn't work
+        // The below selector bytes are incorrect but since calling does not work
         // yet we do not have to fix this now.
         let selector_bytes_for_call = [0x00; 4];
         self.exec_context.push(
             ExecContext::build::<T>()
                 .caller(default_accounts.alice)
                 .callee(contract_account_id)
-                .gas(T::Balance::from(500_000u32))
+                .gas(500_000u64)
                 .transferred_value(T::Balance::from(500u32))
                 .call_data(CallData::new(Selector::new(selector_bytes_for_call)))
                 .finish(),

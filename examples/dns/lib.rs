@@ -1,17 +1,3 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -58,8 +44,8 @@ mod dns {
         new_owner: AccountId,
     }
 
-    /// Domain name service contract inspired by ChainX's
-    /// [blog post](https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
+    /// Domain name service contract inspired by
+    /// [this blog post](https://medium.com/@chainx_org/secure-and-decentralized-polkadot-domain-name-system-e06c35c2a48d).
     ///
     /// # Note
     ///
@@ -185,7 +171,7 @@ mod dns {
 
         const DEFAULT_CALLEE_HASH: [u8; 32] = [0x07; 32];
         const DEFAULT_ENDOWMENT: Balance = 1_000_000;
-        const DEFAULT_GAS_LIMIT: Balance = 1_000_000;
+        const DEFAULT_GAS_LIMIT: u64 = 1_000_000;
 
         fn default_accounts(
         ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {

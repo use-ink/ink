@@ -33,7 +33,7 @@ use syn::spanned::Spanned as _;
 ///
 /// # Note
 ///
-/// Based on [`syn::ImplItem`] with special variants for ink! impl items.
+/// Based on [`syn::ImplItem`] with special variants for ink! `impl` items.
 #[derive(Debug, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
 pub enum ImplItem {
@@ -87,7 +87,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
                 }
             }
             other_item => {
-                // This is an error if the impl item contains any unexpected
+                // This is an error if the `impl` item contains any unexpected
                 // ink! attributes. Otherwise it is a normal Rust item.
                 if ir::contains_ink_attributes(other_item.attrs()) {
                     let (ink_attrs, _) =
@@ -108,7 +108,7 @@ impl TryFrom<syn::ImplItem> for ImplItem {
 }
 
 impl ImplItem {
-    /// Returns `true` if the impl block item is an ink! message.
+    /// Returns `true` if the `impl` block item is an ink! message.
     pub fn is_message(&self) -> bool {
         self.filter_map_message().is_some()
     }
@@ -123,7 +123,7 @@ impl ImplItem {
         }
     }
 
-    /// Returns `true` if the impl block item is an ink! message.
+    /// Returns `true` if the `impl` block item is an ink! message.
     pub fn is_constructor(&self) -> bool {
         self.filter_map_constructor().is_some()
     }
@@ -138,7 +138,7 @@ impl ImplItem {
         }
     }
 
-    /// Returns `true` if the impl block item is a non ink! specific item.
+    /// Returns `true` if the `impl` block item is a non ink! specific item.
     pub fn is_other_item(&self) -> bool {
         self.filter_map_other_item().is_some()
     }

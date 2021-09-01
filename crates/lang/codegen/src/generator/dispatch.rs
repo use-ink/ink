@@ -90,28 +90,24 @@ impl Dispatch<'_> {
         quote! {
             #[cfg(not(test))]
             #[no_mangle]
-            fn deploy() -> u32 {
-                ::ink_lang::DispatchRetCode::from(
-                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ::ink_lang::DispatchMode::Instantiate,
-                    ),
+            fn deploy() {
+                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Instantiate,
                 )
-                .to_u32()
+                .expect("failed to dispatch the constructor")
             }
 
             #[cfg(not(test))]
             #[no_mangle]
-            fn call() -> u32 {
+            fn call() {
                 if #all_messages_deny_payment {
                     ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
                         .expect("caller transferred value even though all ink! message deny payments")
                 }
-                ::ink_lang::DispatchRetCode::from(
-                    <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                        ::ink_lang::DispatchMode::Call,
-                    ),
+                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
+                    ::ink_lang::DispatchMode::Call,
                 )
-                .to_u32()
+                .expect("failed to dispatch the call")
             }
         }
     }
@@ -189,7 +185,7 @@ impl Dispatch<'_> {
         }
     }
 
-    /// Generates code for the dispatch trait impls for a generic ink! callable.
+    /// Generates code for the dispatch trait implementations for a generic ink! callable.
     fn generate_trait_impls_for_callable<C>(
         &self,
         cws: ir::CallableWithSelector<'_, C>,
@@ -242,7 +238,7 @@ impl Dispatch<'_> {
     /// Returns a tuple of:
     ///
     /// - Vector over the generated identifier bindings (`__ink_binding_N`) for all inputs.
-    /// - `TokenStream` representing the binding identifiers as tuple (for >=2 inputs),
+    /// - `TokenStream` representing the binding identifiers as tuple (for equal to two or more inputs),
     ///   as single identifier (for exactly one input) or as wildcard (`_`) if there are
     ///   no input bindings.
     ///
@@ -266,7 +262,7 @@ impl Dispatch<'_> {
     /// # ;
     /// ```
     ///
-    /// **Multiple (>=2) inputs:**
+    /// **Multiple (equal to two or more) inputs:**
     /// ```
     /// # use quote::quote;
     /// # let __ink_binding_0 = ();

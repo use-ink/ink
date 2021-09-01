@@ -41,14 +41,14 @@ pub struct TypedEncoded<T> {
     /// - If this is `None` it means that the instance is currently untyped
     /// and will take over any given type upon the first typed interaction.
     /// - This is needed since instances of `TypedEncoded` are going to be used
-    /// in static memory where it isn't possible to decide about the used types
+    /// in static memory where it is not possible to decide about the used types
     /// given by `Environment` at initialization.
     type_id: Option<TypeId>,
     /// Classification marker.
     ///
     /// # Note
     ///
-    /// - This shouldn't be the typed that is actually stored as encoded
+    /// - This should not be the typed that is actually stored as encoded
     ///   representation in `self.encoded` but should primarily be an
     ///   abstract marker type that may be used for classification.
     /// - The idea behind the marker is to say that whenever two instances
@@ -245,7 +245,7 @@ impl<M> TypedEncoded<M> {
         Ok(())
     }
 
-    /// Evaluates the given clousure on the given typed encoded instances.
+    /// Evaluates the given closure on the given typed encoded instances.
     pub fn eval<T, F, R>(&self, other: &Self, f: F) -> Result<R>
     where
         T: scale::Decode + 'static,
@@ -257,7 +257,7 @@ impl<M> TypedEncoded<M> {
         Ok(f(&decoded_self, &decoded_other))
     }
 
-    /// Evaluates the given clousure on the given typed decoded instances
+    /// Evaluates the given closure on the given typed decoded instances
     /// and writes back the result into the typed encoded instance.
     pub fn eval_mut<T, F, R>(&mut self, other: &Self, f: F) -> Result<R>
     where

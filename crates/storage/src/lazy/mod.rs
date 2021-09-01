@@ -59,7 +59,7 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// Use this if the storage field doesn't need to be loaded in some or most cases.
+/// Use this if the storage field does not need to be loaded in some or most cases.
 #[derive(Debug)]
 pub struct Lazy<T>
 where
@@ -118,7 +118,7 @@ where
 
     /// Creates a true lazy storage value for the given key.
     #[must_use]
-    pub(crate) fn lazy(key: Key) -> Self {
+    pub(crate) fn from_key(key: Key) -> Self {
         Self {
             cell: LazyCell::lazy(key),
         }

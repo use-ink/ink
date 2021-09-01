@@ -302,6 +302,7 @@ mod seal {
     impl Sealed for () {}
     impl<T> Sealed for super::ReturnType<T> {}
 }
+
 /// Types that can be used in [`CallBuilder::returns`] to signal return type.
 pub trait IndicateReturnType: Default + self::seal::Sealed {}
 impl IndicateReturnType for () {}

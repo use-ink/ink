@@ -1,26 +1,13 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_env::Environment;
 use ink_lang as ink;
 
-/// This is an example of how ink! contract should
-/// call substrate runtime `RandomnessCollectiveFlip::random_seed`.
-
-/// Define the operations to interact with the substrate runtime
+/// This is an example of how an ink! contract may call the Substrate
+/// runtime function `RandomnessCollectiveFlip::random_seed`. See the
+/// file `runtime/chain-extension-example.rs` for that implementation.
+///
+/// Here we define the operations to interact with the Substrate runtime.
 #[ink::chain_extension]
 pub trait FetchRandom {
     type ErrorCode = RandomReadErr;
@@ -69,8 +56,9 @@ impl Environment for CustomEnvironment {
 mod rand_extension {
     use super::RandomReadErr;
 
-    /// Defines the storage of your contract.
-    /// Here we store the random seed fetched from the chain
+    /// Defines the storage of our contract.
+    ///
+    /// Here we store the random seed fetched from the chain.
     #[ink(storage)]
     pub struct RandExtension {
         /// Stores a single `bool` value on the storage.
@@ -92,19 +80,19 @@ mod rand_extension {
 
         /// Constructor that initializes the `bool` value to `false`.
         ///
-        /// Constructors can delegate to other constructors.
+        /// Constructors may delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
             Self::new(Default::default())
         }
 
-        /// update the value from runtime random source
+        /// Update the value from the runtimes random source.
         #[ink(message)]
         pub fn update(&mut self) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed
             let new_random = self.env().extension().fetch_random()?;
             self.value = new_random;
-            // emit the RandomUpdated event when the random seed
+            // Emit the `RandomUpdated` event when the random seed
             // is successfully fetched.
             self.env().emit_event(RandomUpdated { new: new_random });
             Ok(())
@@ -129,6 +117,39 @@ mod rand_extension {
         fn default_works() {
             let rand_extension = RandExtension::default();
             assert_eq!(rand_extension.get(), [0; 32]);
+        }
+
+        #[ink::test]
+        fn chain_extension_works() {
+            // given
+            struct MockedExtension;
+            impl ink_env::test::ChainExtension for MockedExtension {
+                /// The static function id of the chain extension.
+                fn func_id(&self) -> u32 {
+                    1101
+                }
+
+                /// The chain extension is called with the given input.
+                ///
+                /// Returns an error code and may fill the `output` buffer with a
+                /// SCALE encoded result. The error code is taken from the
+                /// `ink_env::chain_extension::FromStatusCode` implementation for
+                /// `RandomReadErr`.
+                fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
+                    let ret: [u8; 32] = [1; 32];
+                    scale::Encode::encode_to(&ret, output);
+                    0
+                }
+            }
+            ink_env::test::register_chain_extension(MockedExtension);
+            let mut rand_extension = RandExtension::default();
+            assert_eq!(rand_extension.get(), [0; 32]);
+
+            // when
+            rand_extension.update().expect("update must work");
+
+            // then
+            assert_eq!(rand_extension.get(), [1; 32]);
         }
     }
 }

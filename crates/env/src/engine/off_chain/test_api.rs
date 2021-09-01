@@ -14,17 +14,17 @@
 
 //! Operations on the off-chain testing environment.
 
-use super::{
+pub use super::{
     chain_extension::ChainExtension,
+    db::ChainSpec,
+    CallData,
+    EmittedEvent,
+};
+use super::{
     db::ExecContext,
     AccountError,
     EnvInstance,
     OnInstance,
-};
-pub use super::{
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
 };
 use crate::{
     Environment,
@@ -44,7 +44,7 @@ use std::panic::UnwindSafe;
 pub fn push_execution_context<T>(
     caller: T::AccountId,
     callee: T::AccountId,
-    gas_limit: T::Balance,
+    gas_limit: u64,
     endowment: T::Balance,
     call_data: CallData,
 ) where
@@ -206,7 +206,7 @@ where
     .map_err(Into::into)
 }
 
-/// Update the [ChainSpec](`crate::test::ChainSpec`) for the test environment
+/// Update the [`ChainSpec`](`crate::test::ChainSpec`) for the test environment
 pub fn update_chain_spec<F>(f: F) -> Result<()>
 where
     F: FnOnce(&mut ChainSpec),
@@ -261,7 +261,7 @@ where
 ///
 /// # Note
 ///
-/// Useful for benchmarking because it ensures the initialized storage is maintained across runs,
+/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(disable: bool) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
@@ -321,7 +321,7 @@ where
     })
 }
 
-/// Runs the given closure test function with the default configuartion
+/// Runs the given closure test function with the default configuration
 /// for the off-chain environment.
 pub fn run_test<T, F>(f: F) -> Result<()>
 where

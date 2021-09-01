@@ -1,17 +1,3 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 //! # Plain Multisig Wallet
 //!
 //! This implements a plain multi owner wallet.
@@ -40,7 +26,7 @@
 //!
 //! ## Interface
 //!
-//! The interface is modelled after the popular gnosis multisig wallet. However, there
+//! The interface is modelled after the popular Gnosis multisig wallet. However, there
 //! are subtle variations from the interface. For example the `confirm_transaction`
 //! will never trigger the execution of a `Transaction` even if the threshold is reached.
 //! A call of `execute_transaction` is always required. This can be called by anyone.
@@ -107,7 +93,7 @@ mod multisig_plain {
 
     /// A wrapper that allows us to encode a blob of bytes.
     ///
-    /// We use this to pass the set of not typed (bytes) parameters to the `CallBuilder`.
+    /// We use this to pass the set of untyped (bytes) parameters to the `CallBuilder`.
     struct CallInput<'a>(&'a [u8]);
 
     impl<'a> scale::Encode for CallInput<'a> {
@@ -484,15 +470,20 @@ mod multisig_plain {
 
         /// Invoke a confirmed execution without getting its output.
         ///
+        /// If the transaction which is invoked transfers value, this value has
+        /// to be sent as payment with this call. The method will fail otherwise,
+        /// and the transaction would then be reverted.
+        ///
         /// Its return value indicates whether the called transaction was successful.
         /// This can be called by anyone.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn invoke_transaction(
             &mut self,
             trans_id: TransactionId,
         ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
+            assert!(self.env().transferred_balance() == t.transferred_value);
             let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)

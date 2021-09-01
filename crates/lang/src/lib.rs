@@ -58,7 +58,6 @@ pub use self::{
     error::{
         DispatchError,
         DispatchResult,
-        DispatchRetCode,
     },
     events::{
         BaseEvent,

@@ -36,7 +36,7 @@ pub struct AttributeArgs {
     args: Punctuated<MetaNameValue, Token![,]>,
 }
 
-/// A name-value pair within an attribute, like feature = "nightly".
+/// A name-value pair within an attribute, like `feature = "nightly"`.
 ///
 /// The only difference from `syn::MetaNameValue` is that this additionally
 /// allows the `value` to be a plain identifier or path.

@@ -101,7 +101,7 @@ impl CryptoHash for Keccak256 {
 impl From<ext::Error> for Error {
     fn from(ext_error: ext::Error) -> Self {
         match ext_error {
-            ext::Error::UnknownError => Self::UnknownError,
+            ext::Error::Unknown => Self::Unknown,
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
@@ -170,7 +170,7 @@ where
 }
 
 impl EnvInstance {
-    /// Returns a new scoped buffer for the entire scope of the static 16kB buffer.
+    /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
     }
@@ -309,8 +309,8 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::gas_left)
+    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
+        self.get_property::<u64>(ext::gas_left)
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {

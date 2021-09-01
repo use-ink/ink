@@ -23,7 +23,7 @@
 //!
 //! The ink! IR tries to stay close to the original Rust syntactic structure.
 //! All ink! definitions of an ink! smart contract are always defined within
-//! a so-called Rust inline modlue (`mod my_module { ... items ... }`).
+//! a so-called Rust inline module (`mod my_module { ... items ... }`).
 //! Therefore all ink! definition are found and accessed using the
 //! [`ItemMod`](`crate::ir::ItemMod`) data structure.
 

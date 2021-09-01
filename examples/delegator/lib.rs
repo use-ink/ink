@@ -1,17 +1,3 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -29,9 +15,9 @@ mod delegator {
     };
     use subber::Subber;
 
-    /// Specifies the state of the delegator.
+    /// Specifies the state of the `delegator` contract.
     ///
-    /// In `Adder` state the delegator will delegate to the `Adder` contract
+    /// In `Adder` state the `delegator` contract will delegate to the `Adder` contract
     /// and in `Subber` state will delegate to the `Subber` contract.
     ///
     /// The initial state is `Adder`.
@@ -58,11 +44,11 @@ mod delegator {
     /// Delegates calls to an `adder` or `subber` contract to mutate
     /// a value in an `accumulator` contract.
     ///
-    /// In order to deploy the delegator smart contract we first
+    /// In order to deploy the `delegator` smart contract we first
     /// have to manually put the code of the `accumulator`, `adder`
     /// and `subber` smart contracts, receive their code hashes from
     /// the signalled events and put their code hash into our
-    /// delegator smart contract.
+    /// `delegator` smart contract.
     #[ink(storage)]
     pub struct Delegator {
         /// Says which of `adder` or `subber` is currently in use.
@@ -76,7 +62,7 @@ mod delegator {
     }
 
     impl Delegator {
-        /// Instantiate a delegator with the given sub-contract codes.
+        /// Instantiate a `delegator` contract with the given sub-contract codes.
         #[ink(constructor)]
         pub fn new(
             init_value: i32,
@@ -128,7 +114,7 @@ mod delegator {
             }
         }
 
-        /// Switches the delegator.
+        /// Switches the `delegator` contract.
         #[ink(message)]
         pub fn switch(&mut self) {
             match self.which {

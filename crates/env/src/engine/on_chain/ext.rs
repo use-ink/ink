@@ -35,7 +35,7 @@ macro_rules! define_error_codes {
                 $name = $discr,
             )*
             /// Returns if an unknown error was received from the host module.
-            UnknownError,
+            Unknown,
         }
 
         impl From<ReturnCode> for Result {
@@ -46,7 +46,7 @@ macro_rules! define_error_codes {
                     $(
                         $discr => Err(Error::$name),
                     )*
-                    _ => Err(Error::UnknownError),
+                    _ => Err(Error::Unknown),
                 }
             }
         }
@@ -331,6 +331,9 @@ mod sys {
             input_len: u32,
             output_ptr: Ptr32Mut<[u8]>,
         );
+
+        #[cfg(feature = "ink-debug")]
+        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
     }
 
     #[link(wasm_import_module = "seal1")]
@@ -345,9 +348,6 @@ mod sys {
 
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
-        #[cfg(feature = "ink-debug")]
-        pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
-
         pub fn seal_rent_params(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
@@ -652,27 +652,35 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 #[cfg(feature = "ink-debug")]
 /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
 ///
-/// If debug message recording is disabled in the contracts pallet, the first call to will
-/// return LoggingDisabled error, and further calls will be a no-op to avoid the cost of calling
-/// into the supervisor.
+/// If debug message recording is disabled in the contracts pallet, the first call will
+/// return a `LoggingDisabled` error, and further calls will be a no-op to avoid the cost
+/// of calling into the supervisor.
 ///
 /// # Note
 ///
-/// This depends on the the `seal_debug_message` interface which requires the
+/// This depends on the `seal_debug_message` interface which requires the
 /// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
 pub fn debug_message(message: &str) {
-    static mut DEBUG_ENABLED: bool = true;
+    static mut DEBUG_ENABLED: bool = false;
+    static mut FIRST_RUN: bool = true;
 
     // SAFETY: safe because executing in a single threaded context
-    if unsafe { DEBUG_ENABLED } {
+    // We need those two variables in order to make sure that the assignment is performed
+    // in the "logging enabled" case. This is because during RPC execution logging might
+    // be enabled while it is disabled during the actual execution as part of a transaction.
+    // The gas estimation takes place during RPC execution. We want to overestimate instead
+    // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
+    if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
         let ret_code = unsafe {
             sys::seal_debug_message(Ptr32::from_slice(bytes), bytes.len() as u32)
         };
-        if let Err(Error::LoggingDisabled) = ret_code.into() {
+        if !matches!(ret_code.into(), Err(Error::LoggingDisabled)) {
             // SAFETY: safe because executing in a single threaded context
-            unsafe { DEBUG_ENABLED = false }
+            unsafe { DEBUG_ENABLED = true }
         }
+        // SAFETY: safe because executing in a single threaded context
+        unsafe { FIRST_RUN = false }
     }
 }
 

@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 use super::Vec as StorageVec;
 use crate::{
     collections::vec::IndexOutOfBounds,
     traits::{
         KeyPtr,
+        PackedLayout,
         SpreadLayout,
     },
     Lazy,
 };
+use core::cmp::Ordering;
 use ink_primitives::Key;
 
 #[test]
@@ -268,7 +269,7 @@ fn iter_nth_back_works() {
     assert_eq!(iter.count(), 0);
 }
 
-/// Asserts that the the given ordered storage vector elements are equal to the
+/// Asserts that the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
 fn assert_eq_slice(vec: &StorageVec<u8>, slice: &[u8]) {
     assert_eq!(vec.len() as usize, slice.len());
@@ -276,8 +277,8 @@ fn assert_eq_slice(vec: &StorageVec<u8>, slice: &[u8]) {
 }
 
 /// Creates a storage vector from the given slice.
-fn vec_from_slice(slice: &[u8]) -> StorageVec<u8> {
-    slice.iter().copied().collect::<StorageVec<u8>>()
+fn vec_from_slice<T: Copy + PackedLayout>(slice: &[T]) -> StorageVec<T> {
+    slice.iter().copied().collect::<StorageVec<T>>()
 }
 
 #[test]
@@ -422,9 +423,78 @@ fn clear_works_on_filled_vec() {
 
 #[test]
 fn clear_works_on_empty_vec() {
-    let mut vec = vec_from_slice(&[]);
+    let mut vec: StorageVec<()> = vec_from_slice(&[]);
     vec.clear();
     assert!(vec.is_empty());
+}
+
+#[test]
+fn test_binary_search() {
+    let b: StorageVec<i32> = StorageVec::new();
+    assert_eq!(b.binary_search(&5), Err(0));
+
+    let b = vec_from_slice(&[4]);
+    assert_eq!(b.binary_search(&3), Err(0));
+    assert_eq!(b.binary_search(&4), Ok(0));
+    assert_eq!(b.binary_search(&5), Err(1));
+
+    let b = vec_from_slice(&[1, 2, 4, 6, 8, 9]);
+    assert_eq!(b.binary_search(&5), Err(3));
+    assert_eq!(b.binary_search(&6), Ok(3));
+    assert_eq!(b.binary_search(&7), Err(4));
+    assert_eq!(b.binary_search(&8), Ok(4));
+
+    let b = vec_from_slice(&[1, 2, 4, 5, 6, 8]);
+    assert_eq!(b.binary_search(&9), Err(6));
+
+    let b = vec_from_slice(&[1, 2, 4, 6, 7, 8, 9]);
+    assert_eq!(b.binary_search(&6), Ok(3));
+    assert_eq!(b.binary_search(&5), Err(3));
+    assert_eq!(b.binary_search(&8), Ok(5));
+
+    let b = vec_from_slice(&[1, 2, 4, 5, 6, 8, 9]);
+    assert_eq!(b.binary_search(&7), Err(5));
+    assert_eq!(b.binary_search(&0), Err(0));
+
+    let b = vec_from_slice(&[1, 3, 3, 3, 7]);
+    assert_eq!(b.binary_search(&0), Err(0));
+    assert_eq!(b.binary_search(&1), Ok(0));
+    assert_eq!(b.binary_search(&2), Err(1));
+    matches!(b.binary_search(&3), Ok(1..=3));
+    assert_eq!(b.binary_search(&4), Err(4));
+    assert_eq!(b.binary_search(&5), Err(4));
+    assert_eq!(b.binary_search(&6), Err(4));
+    assert_eq!(b.binary_search(&7), Ok(4));
+    assert_eq!(b.binary_search(&8), Err(5));
+
+    let b = vec_from_slice(&[(); u8::MAX as usize]);
+    assert_eq!(b.binary_search(&()), Ok(u8::MAX as u32 / 2));
+}
+
+#[test]
+fn test_binary_search_by_overflow() {
+    let b = vec_from_slice(&[(); u8::MAX as usize]);
+    assert_eq!(
+        b.binary_search_by(|_| Ordering::Equal),
+        Ok(u8::MAX as u32 / 2)
+    );
+    assert_eq!(b.binary_search_by(|_| Ordering::Greater), Err(0));
+    assert_eq!(b.binary_search_by(|_| Ordering::Less), Err(u8::MAX as u32));
+}
+
+#[test]
+// Test implementation specific behavior when finding equivalent elements.
+fn test_binary_search_implementation_details() {
+    let b = vec_from_slice(&[1, 1, 2, 2, 3, 3, 3]);
+    assert_eq!(b.binary_search(&1), Ok(1));
+    assert_eq!(b.binary_search(&2), Ok(3));
+    assert_eq!(b.binary_search(&3), Ok(5));
+    let b = vec_from_slice(&[1, 1, 1, 1, 1, 3, 3, 3, 3]);
+    assert_eq!(b.binary_search(&1), Ok(4));
+    assert_eq!(b.binary_search(&3), Ok(7));
+    let b = vec_from_slice(&[1, 1, 1, 1, 3, 3, 3, 3, 3]);
+    assert_eq!(b.binary_search(&1), Ok(2));
+    assert_eq!(b.binary_search(&3), Ok(4));
 }
 
 #[test]

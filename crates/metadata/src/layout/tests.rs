@@ -189,7 +189,7 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
         vec![
             (Discriminant(0), StructLayout::new(vec![])),
             {
-                let mut variant_key_ptr = key_ptr.clone();
+                let mut variant_key_ptr = *key_ptr;
                 (
                     Discriminant(1),
                     StructLayout::new(vec![
@@ -209,7 +209,7 @@ fn mixed_enum_layout(key_ptr: &mut KeyPtr) -> Layout {
                 )
             },
             {
-                let mut variant_key_ptr = key_ptr.clone();
+                let mut variant_key_ptr = *key_ptr;
                 (
                     Discriminant(2),
                     StructLayout::new(vec![

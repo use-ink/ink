@@ -13,7 +13,7 @@ mod static_env {
         }
 
         #[ink(message)]
-        pub fn gas_left(&mut self) -> Balance {
+        pub fn gas_left(&mut self) -> u64 {
             Self::env().gas_left()
         }
     }

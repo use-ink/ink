@@ -67,26 +67,26 @@ mod populated_cache {
     use super::*;
 
     pub fn clear(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
-        black_box(vec.clear());
+        let mut vec = storage_vec_from_slice(test_values);
+        let _ = black_box(|| vec.clear());
     }
 
     pub fn pop_all(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         while let Some(ignored) = black_box(vec.pop()) {
             black_box(ignored);
         }
     }
 
     pub fn set(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         for (index, _value) in test_values.iter().enumerate() {
             let _ = black_box(vec.set(index as u32, b'X'));
         }
     }
 
     pub fn get_mut(test_values: &[u8]) {
-        let mut vec = storage_vec_from_slice(&test_values);
+        let mut vec = storage_vec_from_slice(test_values);
         for (index, _value) in test_values.iter().enumerate() {
             *black_box(vec.get_mut(index as u32).unwrap()) = b'X';
         }
@@ -124,7 +124,7 @@ mod empty_cache {
     pub fn clear() {
         push_storage_vec();
         let mut vec = pull_storage_vec();
-        black_box(vec.clear());
+        let _ = black_box(|| vec.clear());
     }
 
     /// In this case we lazily load the vec from storage using `pull_spread`.
@@ -167,8 +167,8 @@ mod empty_cache {
 fn bench_clear_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `clear` and `pop_all` (empty cache)");
-        group.bench_function("clear", |b| b.iter(|| empty_cache::clear()));
-        group.bench_function("pop_all", |b| b.iter(|| empty_cache::pop_all()));
+        group.bench_function("clear", |b| b.iter(empty_cache::clear));
+        group.bench_function("pop_all", |b| b.iter(empty_cache::pop_all));
         group.finish();
         Ok(())
     })
@@ -181,8 +181,8 @@ fn bench_clear_empty_cache(c: &mut Criterion) {
 fn bench_put_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `get_mut` (empty cache)");
-        group.bench_function("set", |b| b.iter(|| empty_cache::set()));
-        group.bench_function("get_mut", |b| b.iter(|| empty_cache::get_mut()));
+        group.bench_function("set", |b| b.iter(empty_cache::set));
+        group.bench_function("get_mut", |b| b.iter(empty_cache::get_mut));
         group.finish();
         Ok(())
     })

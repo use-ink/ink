@@ -152,7 +152,7 @@ fn peek_works() {
 fn peek_and_pop_works() {
     let data = vec![2, 4, 6, 2, 1, 8, 10, 3, 5, 7, 0, 9, 1];
     let mut sorted = data.clone();
-    sorted.sort();
+    sorted.sort_unstable();
     let mut heap = heap_from_slice(&data);
     while !heap.is_empty() {
         assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
@@ -192,7 +192,7 @@ fn min_heap_works() {
         .map(|x| Reverse::new(*x))
         .collect::<Vec<_>>();
     let mut sorted = data.clone();
-    sorted.sort();
+    sorted.sort_unstable();
     let mut heap = heap_from_slice(&data);
     while !heap.is_empty() {
         assert_eq!(heap.peek().unwrap(), sorted.last().unwrap());
@@ -446,7 +446,7 @@ fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
     const CONST_READS: usize = 5;
 
     // 1 elements.len + 1 cell which was pushed to
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const CONST_WRITES: usize = 2;
 
     for (n, log_n) in &[(2, 1), (4, 2), (8, 3), (16, 4), (32, 5), (64, 6)] {
@@ -472,7 +472,7 @@ fn push_smallest_value_complexity_big_o_1() -> ink_env::Result<()> {
     const EXPECTED_READS: usize = 6;
 
     // binary heap len + one cell
-    // vec.len doesn't get larger because no cell is added
+    // vec.len does not get larger because no cell is added
     const EXPECTED_WRITES: usize = 2;
 
     for n in &[2, 4, 8, 16, 32, 64] {
@@ -518,7 +518,7 @@ fn pop_complexity_big_o_log_n() -> ink_env::Result<()> {
 fn fuzz_pop_always_returns_largest_element(xs: Vec<i32>) {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut sorted = xs.clone();
-        sorted.sort();
+        sorted.sort_unstable();
         let mut heap = heap_from_slice(&xs);
 
         for x in sorted.iter().rev() {
