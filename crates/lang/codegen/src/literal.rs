@@ -89,6 +89,21 @@ generate_hex_literal_impls!(
     (::core::primitive::i128, "i128", "0x{:032X}_{}", "0x{:032X}"),
     (::core::primitive::u128, "u128", "0x{:032X}_{}", "0x{:032X}"),
 );
+#[cfg(target_pointer_width = "16")]
+generate_hex_literal_impls!(
+    (::core::primitive::usize , "usize",  "0x{:04X}_{}",  "0x{:04X}"),
+    (::core::primitive::isize , "isize",  "0x{:04X}_{}",  "0x{:04X}"),
+);
+#[cfg(target_pointer_width = "32")]
+generate_hex_literal_impls!(
+    (::core::primitive::usize , "usize",  "0x{:08X}_{}",  "0x{:08X}"),
+    (::core::primitive::isize , "isize",  "0x{:08X}_{}",  "0x{:08X}"),
+);
+#[cfg(target_pointer_width = "64")]
+generate_hex_literal_impls!(
+    (::core::primitive::usize , "usize",  "0x{:16X}_{}",  "0x{:16X}"),
+    (::core::primitive::isize , "isize",  "0x{:16X}_{}",  "0x{:16X}"),
+);
 
 #[cfg(test)]
 mod tests {
