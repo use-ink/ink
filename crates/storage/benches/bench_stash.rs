@@ -124,9 +124,9 @@ fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
             "Compare: `remove_occupied_all` and `take_all` (empty cache)",
         );
         group.bench_function("remove_occupied_all", |b| {
-            b.iter(|| empty_cache::remove_occupied_all())
+            b.iter(empty_cache::remove_occupied_all)
         });
-        group.bench_function("take_all", |b| b.iter(|| empty_cache::take_all()));
+        group.bench_function("take_all", |b| b.iter(empty_cache::take_all));
         group.finish();
         Ok(())
     })

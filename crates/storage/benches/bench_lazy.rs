@@ -39,23 +39,21 @@ mod populated_cache {
     pub fn set() {
         let mut lazy = <Lazy<i32>>::new(1);
         let lazy_mut = black_box(&mut lazy);
-        black_box(Lazy::set(lazy_mut, 17));
+        let _ = black_box(|| Lazy::set(lazy_mut, 17));
     }
 
     pub fn deref_mut() {
         let mut lazy = <Lazy<i32>>::new(1);
         let i32_mut = black_box(lazy.deref_mut());
-        black_box(*i32_mut = 17);
+        let _ = black_box(|| *i32_mut = 17);
     }
 }
 
 fn bench_set_populated_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (populated cache)");
-    group.bench_function(BenchmarkId::new("set", 0), |b| {
-        b.iter(|| populated_cache::set())
-    });
+    group.bench_function(BenchmarkId::new("set", 0), |b| b.iter(populated_cache::set));
     group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
-        b.iter(|| populated_cache::deref_mut())
+        b.iter(populated_cache::deref_mut)
     });
     group.finish();
 }
@@ -72,23 +70,21 @@ mod empty_cache {
 
     pub fn set() {
         let mut lazy = push_storage_lazy(1);
-        black_box(Lazy::set(&mut lazy, 13));
+        let _ = black_box(|| Lazy::set(&mut lazy, 13));
     }
 
     pub fn deref_mut() {
         let mut lazy = push_storage_lazy(1);
-        black_box(*lazy = 13);
+        let _ = black_box(|| *lazy = 13);
     }
 }
 
 fn bench_set_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `deref_mut` (empty cache)");
-        group.bench_function(BenchmarkId::new("set", 0), |b| {
-            b.iter(|| empty_cache::set())
-        });
+        group.bench_function(BenchmarkId::new("set", 0), |b| b.iter(empty_cache::set));
         group.bench_function(BenchmarkId::new("deref_mut", 0), |b| {
-            b.iter(|| empty_cache::deref_mut())
+            b.iter(empty_cache::deref_mut)
         });
         group.finish();
         Ok(())

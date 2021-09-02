@@ -71,7 +71,7 @@ fn from_iterator_works() {
         stash
     });
     assert_eq!(stash.len(), test_values.len() as u32);
-    assert_eq!(stash.is_empty(), false);
+    assert!(!stash.is_empty());
 }
 
 #[test]

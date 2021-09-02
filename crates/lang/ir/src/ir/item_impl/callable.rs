@@ -80,7 +80,7 @@ where
 }
 
 impl<'a, C> CallableWithSelector<'a, C> {
-    /// Returns the composed selector of the ink! callable the the `impl` block.
+    /// Returns the composed selector of the ink! callable the `impl` block.
     pub fn composed_selector(&self) -> ir::Selector {
         self.composed_selector
     }
@@ -415,6 +415,19 @@ pub(super) fn ensure_callable_invariants(
             method_item.sig.variadic,
             "ink! {}s must not be variadic",
             kind,
+        ))
+    }
+
+    if let Some(arg) = method_item.sig.inputs.iter().find(|input| {
+        match input {
+            syn::FnArg::Typed(pat) => !matches!(*pat.pat, syn::Pat::Ident(_)),
+            _ => false,
+        }
+    }) {
+        return Err(format_err_spanned!(
+            arg,
+            "ink! {} arguments must have an identifier",
+            kind
         ))
     }
     Ok(())

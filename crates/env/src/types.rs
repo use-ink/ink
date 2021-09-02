@@ -77,7 +77,7 @@ pub trait Environment {
         + AsRef<[u8]>
         + AsMut<[u8]>;
 
-    /// The type of timestamps.
+    /// The type of a timestamp.
     type Timestamp: 'static
         + scale::Codec
         + Copy

@@ -1,17 +1,3 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 //! # ERC-721
 //!
 //! This is an ERC-721 Token implementation.
@@ -525,7 +511,7 @@ mod erc721 {
             assert_eq!(erc721.owner_of(2), Some(accounts.alice));
             // Get contract address
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -557,7 +543,7 @@ mod erc721 {
             assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -601,13 +587,10 @@ mod erc721 {
             // Approve token Id 1 transfer for Bob on behalf of Alice.
             assert_eq!(erc721.set_approval_for_all(accounts.bob, true), Ok(()));
             // Bob is an approved operator for Alice
-            assert_eq!(
-                erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                true
-            );
+            assert!(erc721.is_approved_for_all(accounts.alice, accounts.bob));
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -643,10 +626,7 @@ mod erc721 {
             // Remove operator approval for Bob on behalf of Alice.
             assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
             // Bob is not an approved operator for Alice.
-            assert_eq!(
-                erc721.is_approved_for_all(accounts.alice, accounts.bob),
-                false
-            );
+            assert!(!erc721.is_approved_for_all(accounts.alice, accounts.bob));
         }
 
         #[ink::test]
@@ -666,7 +646,7 @@ mod erc721 {
             assert_eq!(erc721.balance_of(accounts.eve), 0);
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -737,7 +717,7 @@ mod erc721 {
 
         fn set_sender(sender: AccountId) {
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or([0x0; 32].into());
+                .unwrap_or_else(|_| [0x0; 32].into());
             test::push_execution_context::<Environment>(
                 sender,
                 callee,

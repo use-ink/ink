@@ -37,9 +37,9 @@ mod flipper {
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
-            assert_eq!(flipper.get(), false);
+            assert!(!flipper.get());
             flipper.flip();
-            assert_eq!(flipper.get(), true);
+            assert!(flipper.get());
         }
     }
 }

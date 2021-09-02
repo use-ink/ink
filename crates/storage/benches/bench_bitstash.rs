@@ -82,12 +82,10 @@ mod populated_cache {
 
 fn bench_populated_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("Bench: populated cache");
-    group.bench_function("fill_bitstash", |b| {
-        b.iter(|| populated_cache::fill_bitstash())
-    });
+    group.bench_function("fill_bitstash", |b| b.iter(populated_cache::fill_bitstash));
     group.bench_function("one_put", |b| {
         b.iter_batched_ref(
-            || create_large_stash(),
+            create_large_stash,
             |stash| one_put(stash),
             BatchSize::SmallInput,
         )
@@ -114,8 +112,7 @@ mod empty_cache {
 fn bench_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Bench: empty cache");
-        group
-            .bench_function("fill_bitstash", |b| b.iter(|| empty_cache::fill_bitstash()));
+        group.bench_function("fill_bitstash", |b| b.iter(empty_cache::fill_bitstash));
         group.bench_function("one_put", |b| {
             b.iter_batched_ref(
                 || {

@@ -25,4 +25,7 @@ The `.contract` file combines the Wasm and metadata into one file and can be use
 
 ## License
 
-The entire code within this repository is licensed under the [GPLv3](LICENSE). Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
+The examples in this folder are released into the public domain.
+We hope they help you build something great with ink!.
+
+See the [LICENSE file](LICENSE) in this folder for more details.

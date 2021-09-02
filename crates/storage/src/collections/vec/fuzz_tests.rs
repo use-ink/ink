@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// The fuzz tests are testing complex types.
+#![allow(clippy::type_complexity)]
+
 use super::Vec as StorageVec;
 use crate::{
     test_utils::FuzzCollection,
@@ -22,7 +25,7 @@ use crate::{
     },
     Pack,
 };
-
+use itertools::Itertools;
 use quickcheck::{
     Arbitrary,
     Gen,
@@ -74,7 +77,7 @@ where
     /// others intact.
     fn assign(&mut self, val: Self::Item) {
         if let Some(popped_val) = self.pop() {
-            *val = popped_val.clone();
+            *val = popped_val;
         }
     }
 }
@@ -83,3 +86,109 @@ crate::fuzz_storage!("vec_1", StorageVec<u32>);
 crate::fuzz_storage!("vec_2", StorageVec<Option<Pack<Option<u32>>>>);
 crate::fuzz_storage!("vec_3", StorageVec<(bool, (u32, u128))>);
 crate::fuzz_storage!("vec_4", StorageVec<(i128, u32, bool, Option<(u32, i128)>)>);
+
+#[quickcheck]
+fn fuzz_binary_search(mut std_vec: Vec<i32>) {
+    // given
+    if std_vec.is_empty() {
+        return
+    }
+    let original_std_vec = std_vec.clone();
+    std_vec.sort_unstable();
+    let ink_vec = StorageVec::from_iter(std_vec.clone());
+
+    for x in original_std_vec {
+        // when
+        let index = std_vec
+            .binary_search(&x)
+            .expect("`x` must be found in `Vec`") as u32;
+        let ink_index = ink_vec
+            .binary_search(&x)
+            .expect("`x` must be found in `StorageVec`");
+        let ink_index_by = ink_vec
+            .binary_search_by(|by_x| by_x.cmp(&x))
+            .expect("`x` must be found in `StorageVec`");
+
+        // then
+        assert_eq!(index, ink_index);
+        assert_eq!(index, ink_index_by);
+    }
+}
+
+#[quickcheck]
+fn fuzz_binary_search_nonexistent(std_vec: Vec<i32>) {
+    // given
+    if std_vec.is_empty() {
+        return
+    }
+    let mut unique_std_vec: Vec<i32> = std_vec.into_iter().unique().collect();
+    let removed_el = unique_std_vec
+        .pop()
+        .expect("length is non-zero, first element must exist");
+    unique_std_vec.sort_unstable();
+    let ink_vec = StorageVec::from_iter(unique_std_vec.clone());
+
+    // when
+    let std_err_index = unique_std_vec
+        .binary_search(&removed_el)
+        .expect_err("element must not be found") as u32;
+    let ink_err_index = ink_vec
+        .binary_search(&removed_el)
+        .expect_err("element must not be found");
+    let ink_search_by_err_index = ink_vec
+        .binary_search_by(|by_x| by_x.cmp(&removed_el))
+        .expect_err("element must not be found");
+
+    // then
+    assert_eq!(std_err_index, ink_err_index);
+    assert_eq!(std_err_index, ink_search_by_err_index);
+}
+
+#[quickcheck]
+fn fuzz_binary_search_by_key(mut std_vec: Vec<(i32, i32)>) {
+    // given
+    if std_vec.is_empty() {
+        return
+    }
+    let original_std_vec = std_vec.clone();
+    std_vec.sort_by_key(|&(_a, b)| b);
+    let ink_vec = StorageVec::from_iter(std_vec.clone());
+
+    for (_x, y) in original_std_vec {
+        // when
+        let std_index = std_vec
+            .binary_search_by_key(&y, |&(_a, b)| b)
+            .expect("`y` must be found in `Vec`") as u32;
+        let ink_index = ink_vec
+            .binary_search_by_key(&y, |&(_a, b)| b)
+            .expect("`y` must be found in `StorageVec`");
+
+        // then
+        assert_eq!(std_index, ink_index);
+    }
+}
+#[quickcheck]
+fn fuzz_binary_search_by_key_nonexistent(std_vec: Vec<(i32, i32)>) {
+    // given
+    if std_vec.is_empty() {
+        return
+    }
+    let mut unique_std_vec: Vec<(i32, i32)> =
+        std_vec.into_iter().unique_by(|&(_a, b)| b).collect();
+    let removed_el = unique_std_vec
+        .pop()
+        .expect("length is non-zero, first element must exist");
+    unique_std_vec.sort_by_key(|&(_a, b)| b);
+    let ink_vec = StorageVec::from_iter(unique_std_vec.clone());
+
+    // when
+    let std_err_index = unique_std_vec
+        .binary_search_by_key(&removed_el.1, |&(_a, b)| b)
+        .expect_err("element must not be found in `Vec`") as u32;
+    let ink_err_index = ink_vec
+        .binary_search_by_key(&removed_el.1, |&(_a, b)| b)
+        .expect_err("element must not be found in `StorageVec`");
+
+    // then
+    assert_eq!(std_err_index, ink_err_index);
+}

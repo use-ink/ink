@@ -135,7 +135,7 @@ fn vec_from_slice(slice: &[u8]) -> SmallVec<u8, 4> {
     slice.iter().copied().collect::<SmallVec<u8, 4>>()
 }
 
-/// Asserts that the the given ordered storage vector elements are equal to the
+/// Asserts that the given ordered storage vector elements are equal to the
 /// ordered elements of the given slice.
 fn assert_eq_slice(vec: &SmallVec<u8, 4>, slice: &[u8]) {
     assert_eq!(vec.len() as usize, slice.len());
