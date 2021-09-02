@@ -408,6 +408,9 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -478,7 +481,9 @@
         <span class="kw">let</span> <span class="ident">contract_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="macro">quote!</span> {
             <span class="op">&lt;</span>#<span class="ident">contract_ident</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_primitives::KeyPtr::from</span>(<span class="ident">::ink_primitives::Key::from</span>([<span class="number">0x00</span>; <span class="number">32</span>]))
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">::ink_primitives::KeyPtr</span> <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span><span class="ident">::ink_primitives::Key</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>(
+                    <span class="op">&lt;</span><span class="ident">::ink_primitives::Key</span> <span class="kw">as</span> <span class="ident">::core::convert::From</span><span class="op">&lt;</span>[<span class="ident">::core::primitive::u8</span>; <span class="number">32</span>]<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::from</span>([<span class="number">0x00_u8</span>; <span class="number">32</span>])
+                )
             )
         }
     }
@@ -491,16 +496,16 @@
 
         <span class="macro">quote!</span> {
             <span class="ident">::ink_metadata::ContractSpec::new</span>()
-                .<span class="ident">constructors</span>(<span class="macro">vec!</span>[
+                .<span class="ident">constructors</span>([
                     #(#<span class="ident">constructors</span> ,)<span class="op">*</span>
                 ])
-                .<span class="ident">messages</span>(<span class="macro">vec!</span>[
+                .<span class="ident">messages</span>([
                     #(#<span class="ident">messages</span> ,)<span class="op">*</span>
                 ])
-                .<span class="ident">events</span>(<span class="macro">vec!</span>[
+                .<span class="ident">events</span>([
                     #(#<span class="ident">events</span> ,)<span class="op">*</span>
                 ])
-                .<span class="ident">docs</span>(<span class="macro">vec!</span>[
+                .<span class="ident">docs</span>([
                     #(#<span class="ident">docs</span> ,)<span class="op">*</span>
                 ])
                 .<span class="ident">done</span>()
@@ -566,10 +571,10 @@
                 <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                     <span class="ident">::ink_metadata::ConstructorSpec</span>::#<span class="ident">constr</span>
                         .<span class="ident">selector</span>([#(#<span class="ident">selector_bytes</span>),<span class="kw-2">*</span>])
-                        .<span class="ident">args</span>(<span class="macro">vec!</span>[
+                        .<span class="ident">args</span>([
                             #(#<span class="ident">args</span> ,)<span class="op">*</span>
                         ])
-                        .<span class="ident">docs</span>(<span class="macro">vec!</span>[
+                        .<span class="ident">docs</span>([
                             #(#<span class="ident">docs</span> ,)<span class="op">*</span>
                         ])
                         .<span class="ident">done</span>()
@@ -612,7 +617,8 @@
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
             <span class="macro">quote!</span> {
                 <span class="ident">::ink_metadata::TypeSpec::with_name_segs</span>::<span class="op">&lt;</span>#<span class="ident">ty</span>, <span class="kw">_</span><span class="op">&gt;</span>(
-                    <span class="macro">vec!</span>[#(#<span class="ident">segs</span>),<span class="kw-2">*</span>].<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">AsRef::as_ref</span>)
+                    <span class="ident">::core::iter::IntoIterator::into_iter</span>([#(#<span class="ident">segs</span>),<span class="kw-2">*</span>])
+                        .<span class="ident">map</span>(<span class="ident">::core::convert::AsRef::as_ref</span>)
                 )
             }
         } <span class="kw">else</span> {
@@ -660,13 +666,13 @@
                 <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                     <span class="ident">::ink_metadata::MessageSpec</span>::#<span class="ident">constr</span>
                         .<span class="ident">selector</span>([#(#<span class="ident">selector_bytes</span>),<span class="kw-2">*</span>])
-                        .<span class="ident">args</span>(<span class="macro">vec!</span>[
+                        .<span class="ident">args</span>([
                             #(#<span class="ident">args</span> ,)<span class="op">*</span>
                         ])
                         .<span class="ident">returns</span>(#<span class="ident">ret_ty</span>)
                         .<span class="ident">mutates</span>(#<span class="ident">mutates</span>)
                         .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
-                        .<span class="ident">docs</span>(<span class="macro">vec!</span>[
+                        .<span class="ident">docs</span>([
                             #(#<span class="ident">docs</span> ,)<span class="op">*</span>
                         ])
                         .<span class="ident">done</span>()
@@ -701,10 +707,10 @@
             <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_event_args</span>(<span class="ident">event</span>);
             <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
                 <span class="ident">::ink_metadata::EventSpec::new</span>(#<span class="ident">ident_lit</span>)
-                    .<span class="ident">args</span>(<span class="macro">vec!</span>[
+                    .<span class="ident">args</span>([
                         #( #<span class="ident">args</span>, )<span class="op">*</span>
                     ])
-                    .<span class="ident">docs</span>(<span class="macro">vec!</span>[
+                    .<span class="ident">docs</span>([
                         #( #<span class="ident">docs</span>, )<span class="op">*</span>
                     ])
                     .<span class="ident">done</span>()
@@ -726,7 +732,7 @@
                 <span class="ident">::ink_metadata::EventParamSpec::new</span>(#<span class="ident">ident_lit</span>)
                     .<span class="ident">of_type</span>(#<span class="ident">ty</span>)
                     .<span class="ident">indexed</span>(#<span class="ident">is_topic</span>)
-                    .<span class="ident">docs</span>(<span class="macro">vec!</span>[
+                    .<span class="ident">docs</span>([
                         #( #<span class="ident">docs</span>, )<span class="op">*</span>
                     ])
                     .<span class="ident">done</span>()
