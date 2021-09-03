@@ -139,7 +139,7 @@ impl Metadata<'_> {
                 let attrs = constructor.attrs();
                 let docs = Self::extract_doc_comments(attrs);
                 let selector = constructor.composed_selector();
-                let selector_bytes = selector.as_bytes();
+                let selector_bytes = selector.hex_lits();
                 let constructor = constructor.callable();
                 let ident = constructor.ident();
                 let ident_lit = ident.to_string();
@@ -231,7 +231,7 @@ impl Metadata<'_> {
                 let attrs = message.attrs();
                 let docs = Self::extract_doc_comments(attrs);
                 let selector = message.composed_selector();
-                let selector_bytes = selector.as_bytes();
+                let selector_bytes = selector.hex_lits();
                 let is_payable = message.is_payable();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
@@ -272,7 +272,7 @@ impl Metadata<'_> {
         match ret_ty {
             None => {
                 quote! {
-                    ::ink_metadata::ReturnTypeSpec::new(None)
+                    ::ink_metadata::ReturnTypeSpec::new(::core::option::Option::None)
                 }
             }
             Some(ty) => {
