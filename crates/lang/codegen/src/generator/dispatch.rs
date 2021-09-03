@@ -672,7 +672,7 @@ impl Dispatch<'_> {
 
                 impl ::scale::Decode for __ink_ConstructorDispatchEnum {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
-                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                        match <[::core::primitive::u8; 4] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
                             _invalid => Err(::scale::Error::from("encountered unknown ink! constructor selector"))
                         }
