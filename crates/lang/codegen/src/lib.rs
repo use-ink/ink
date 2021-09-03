@@ -14,7 +14,6 @@
 
 mod generator;
 mod traits;
-mod literal;
 
 use self::traits::{
     GenerateCode,
