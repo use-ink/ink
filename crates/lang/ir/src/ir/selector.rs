@@ -54,7 +54,7 @@ impl<'a> TraitPrefix<'a> {
 
     /// Returns a shared reference to the Rust identifier of the trait.
     pub fn trait_ident(&self) -> &'a syn::Ident {
-        &self.trait_ident
+        self.trait_ident
     }
 }
 

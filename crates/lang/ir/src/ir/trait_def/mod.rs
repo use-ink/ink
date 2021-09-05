@@ -477,7 +477,7 @@ impl InkTrait {
             .as_ref()
             .map(InkAttribute::namespace)
             .flatten()
-            .unwrap_or_else(Default::default);
+            .unwrap_or_default();
         let ident = &item_trait.ident;
         let trait_prefix = TraitPrefix::new(ident, &namespace);
         for callable in IterInkTraitItemsRaw::from_raw(item_trait) {
