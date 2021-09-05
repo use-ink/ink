@@ -66,7 +66,7 @@ impl ItemImpls<'_> {
             ir::Visibility::Public(vis_public) => Some(vis_public),
         };
         let ident = constructor.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let inputs = constructor.inputs();
         let statements = constructor.statements();
         quote_spanned!(span =>
@@ -89,7 +89,7 @@ impl ItemImpls<'_> {
         };
         let receiver = message.receiver();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let inputs = message.inputs();
         let output = message
             .output()
