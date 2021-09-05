@@ -37,12 +37,11 @@ impl GenerateCode for Storage<'_> {
         let storage_span = self.contract.module().storage().span();
         let access_env_impls = self.generate_access_env_trait_impls();
         let storage_struct = self.generate_storage_struct();
-        let use_emit_event = if self.contract.module().events().next().is_some() {
-            // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-            Some(quote! { use ::ink_lang::EmitEvent as _; })
-        } else {
-            None
-        };
+        let use_emit_event =
+            self.contract.module().events().next().is_some().then(|| {
+                // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+                quote! { use ::ink_lang::EmitEvent as _; }
+            });
         let cfg = self.generate_code_using::<generator::NotAsDependencyCfg>();
         quote_spanned!(storage_span =>
             #access_env_impls

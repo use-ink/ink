@@ -87,10 +87,7 @@ impl ItemImpls<'_> {
             ir::Visibility::Inherited => None,
             ir::Visibility::Public(vis_public) => Some(vis_public),
         };
-        let receiver = match message.receiver() {
-            ir::Receiver::RefMut => quote! { &mut self },
-            ir::Receiver::Ref => quote! { &self },
-        };
+        let receiver = message.receiver();
         let ident = message.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let inputs = message.inputs();
@@ -188,10 +185,7 @@ impl ItemImpls<'_> {
             ir::Visibility::Inherited => None,
             ir::Visibility::Public(vis_public) => Some(vis_public),
         };
-        let receiver = match message.receiver() {
-            ir::Receiver::RefMut => quote! { &mut self },
-            ir::Receiver::Ref => quote! { &self },
-        };
+        let receiver = message.receiver();
         let ident = message.ident();
         let inputs = message.inputs();
         let output_arrow = message.output().map(|_| quote! { -> });

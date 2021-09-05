@@ -446,7 +446,7 @@ impl Dispatch<'_> {
         let variant_types = cws.callable().inputs().map(|arg| &arg.ty);
         quote! {
             [ #( #selector_bytes ),* ] => {
-                Ok(Self::#variant_ident(
+                ::core::result::Result::Ok(Self::#variant_ident(
                     #(
                         <#variant_types as ::scale::Decode>::decode(input)?
                     ),*
@@ -674,7 +674,7 @@ impl Dispatch<'_> {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
                         match <[::core::primitive::u8; 4] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
-                            _invalid => Err(::scale::Error::from("encountered unknown ink! constructor selector"))
+                            _invalid => ::core::result::Result::Err(::scale::Error::from("encountered unknown ink! constructor selector"))
                         }
                     }
                 }

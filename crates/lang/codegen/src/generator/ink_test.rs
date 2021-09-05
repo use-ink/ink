@@ -50,7 +50,7 @@ impl GenerateCode for InkTest<'_> {
                                 let _: () = {
                                     #fn_block
                                 };
-                                Ok(())
+                                ::core::result::Result::Ok(())
                             }
                         })
                         .expect(#expect_msg);
