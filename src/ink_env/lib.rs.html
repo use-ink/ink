@@ -156,8 +156,6 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -210,12 +208,10 @@
     <span class="comment">// This code gets removed in release builds where the macro will expand into nothing.</span>
     <span class="macro">debug_print!</span>(<span class="string">&quot;{}\n&quot;</span>, <span class="ident">info</span>);
 
-    <span class="comment">// SAFETY: We only use this operation if we are guaranteed to be in Wasm32 compilation.</span>
-    <span class="comment">//         This is used in order to make any panic a direct abort avoiding Rust&#39;s general</span>
-    <span class="comment">//         panic infrastructure.</span>
-    <span class="kw">unsafe</span> {
-        <span class="ident">core::arch::wasm32::unreachable</span>();
-    }
+    <span class="comment">// We only use this operation if we are guaranteed to be in Wasm32 compilation.</span>
+    <span class="comment">// This is used in order to make any panic a direct abort avoiding Rust&#39;s general</span>
+    <span class="comment">// panic infrastructure.</span>
+    <span class="ident">core::arch::wasm32::unreachable</span>();
 }
 
 <span class="comment">// This extern crate definition is required since otherwise rustc</span>
