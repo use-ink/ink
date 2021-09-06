@@ -196,7 +196,7 @@ impl Dispatch<'_> {
         let callable = cws.callable();
         let callable_span = callable.span();
         let selector = cws.composed_selector();
-        let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
+        let (selector_bytes, selector_id) = (selector.hex_lits(), selector.unique_id());
         let input_types = callable
             .inputs()
             .map(|pat_type| &pat_type.ty)
@@ -441,7 +441,7 @@ impl Dispatch<'_> {
     where
         C: ir::Callable,
     {
-        let selector_bytes = cws.composed_selector().as_bytes().to_owned();
+        let selector_bytes = cws.composed_selector().hex_lits();
         let variant_ident = self.generate_dispatch_variant_ident(cws);
         let variant_types = cws.callable().inputs().map(|arg| &arg.ty);
         quote! {
