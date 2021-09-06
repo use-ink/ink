@@ -579,9 +579,13 @@ impl Dispatch<'_> {
 
                 impl ::scale::Decode for __ink_MessageDispatchEnum {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
-                        match <[u8; 4] as ::scale::Decode>::decode(input)? {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
-                            _invalid => Err(::scale::Error::from("encountered unknown ink! message selector"))
+                            _invalid => ::core::result::Result::Err(
+                                <::scale::Error as ::core::convert::From<'static ::core::primtive::str>>::from(
+                                    "encountered unknown ink! message selector"
+                                )
+                            )
                         }
                     }
                 }
@@ -672,9 +676,13 @@ impl Dispatch<'_> {
 
                 impl ::scale::Decode for __ink_ConstructorDispatchEnum {
                     fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
-                        match <[::core::primitive::u8; 4] as ::scale::Decode>::decode(input)? {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
-                            _invalid => ::core::result::Result::Err(::scale::Error::from("encountered unknown ink! constructor selector"))
+                            _invalid => ::core::result::Result::Err(
+                                <::scale::Error as ::core::convert::From<&'static ::core::primtive::str>>::from(
+                                    "encountered unknown ink! constructor selector"
+                                )
+                            )
                         }
                     }
                 }
