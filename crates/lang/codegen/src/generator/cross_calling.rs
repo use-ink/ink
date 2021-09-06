@@ -45,12 +45,12 @@ impl GenerateCode for CrossCalling<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage = self.generate_storage();
         let standard_impls = self.generate_standard_impls();
-        let call_forwarder = self.generate_call_forwarders();
+        // let call_forwarder = self.generate_call_forwarders();
         let impl_blocks = self.generate_impl_blocks();
         quote! {
             #storage
             #standard_impls
-            #call_forwarder
+            // #call_forwarder
             #impl_blocks
         }
     }
@@ -150,9 +150,9 @@ impl CrossCalling<'_> {
         )
     }
 
-    /// Returns the identifier for the generated `Out*` assoc. type.
+    /// Returns the identifier for the generated `Output*` assoc. type.
     fn out_assoc_type_ident(method_ident: &Ident) -> syn::Ident {
-        format_ident!("{}Out", method_ident.to_string().to_camel_case())
+        format_ident!("{}Output", method_ident.to_string().to_camel_case())
     }
 
     fn generate_call_forwarder_trait_ghost_message(
@@ -305,7 +305,7 @@ impl CrossCalling<'_> {
         let span = constructor.span();
         let attrs = constructor.attrs();
         let ident = constructor.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let composed_selector = constructor.composed_selector().as_bytes().to_owned();
         let trait_ident = constructor
             .item_impl()
@@ -552,7 +552,7 @@ impl CrossCalling<'_> {
         let storage_ident_str = self.contract.module().storage().ident().to_string();
         let span = message.span();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let ident_str = ident.to_string();
         let trait_path = message
             .item_impl()
@@ -610,7 +610,7 @@ impl CrossCalling<'_> {
         let span = constructor.span();
         let attrs = constructor.attrs();
         let ident = constructor.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let composed_selector = constructor.composed_selector().as_bytes().to_owned();
         let input_bindings = constructor
             .inputs()
