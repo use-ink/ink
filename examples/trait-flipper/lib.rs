@@ -4,10 +4,6 @@ use ink_lang as ink;
 
 #[ink::trait_definition]
 pub trait Flip {
-    /// Creates a new flipper smart contract initialized with the given value.
-    #[ink(constructor)]
-    fn new(init_value: bool) -> Self;
-
     /// Flips the current value of the Flipper's boolean.
     #[ink(message)]
     fn flip(&mut self);
@@ -35,11 +31,6 @@ pub mod flipper {
     }
 
     impl Flip for Flipper {
-        #[ink(constructor)]
-        fn new(init_value: bool) -> Self {
-            Self { value: init_value }
-        }
-
         #[ink(message)]
         fn flip(&mut self) {
             self.value = !self.value;
