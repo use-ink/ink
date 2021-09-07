@@ -15,6 +15,7 @@
 use super::TraitDefinition;
 use crate::traits::GenerateCode;
 use derive_more::From;
+use ir::HexLiteral;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -336,7 +337,7 @@ impl CallForwarder<'_> {
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_ident = self.trait_def.trait_def.ident();
-        let trait_uid = self.trait_def.trait_def.unique_id();
+        let trait_uid = self.trait_def.trait_def.unique_id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();

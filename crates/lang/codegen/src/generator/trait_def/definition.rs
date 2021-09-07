@@ -16,6 +16,7 @@
 
 use super::TraitDefinition;
 use heck::CamelCase as _;
+use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -49,10 +50,8 @@ impl TraitDefinition<'_> {
     pub(super) fn generate_trait_definition(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let attrs = self.trait_def.attrs();
-        let hash = self.trait_def.verify_hash();
         let ident = self.trait_def.ident();
-        let unique_trait_id =
-            u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
+        let unique_trait_id = self.trait_def.unique_id().hex_padded_suffixed();
         let messages = self
             .trait_def
             .iter_items()
