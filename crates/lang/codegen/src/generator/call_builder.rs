@@ -210,18 +210,15 @@ impl CallBuilder<'_> {
                 }
 
                 #[inline(always)]
-                fn build(
-                    &self,
-                ) -> &<Self::Forwarder as ::ink_lang::TraitCallBuilder>::Builder {
+                fn build(&self) -> &<Self::Forwarder as ::ink_lang::TraitCallBuilder>::Builder {
                     <_ as ::ink_lang::TraitCallBuilder>::call(
                         <Self as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::forward(self)
                     )
                 }
 
                 #[inline(always)]
-                fn build_mut(
-                    &mut self,
-                ) -> &mut <Self::Forwarder as ::ink_lang::TraitCallBuilder>::Builder
+                fn build_mut(&mut self)
+                    -> &mut <Self::Forwarder as ::ink_lang::TraitCallBuilder>::Builder
                 {
                     <_ as ::ink_lang::TraitCallBuilder>::call_mut(
                         <Self as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::forward_mut(self)
