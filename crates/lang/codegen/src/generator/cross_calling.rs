@@ -48,12 +48,12 @@ impl GenerateCode for CrossCalling<'_> {
         let storage = self.generate_storage();
         let standard_impls = self.generate_standard_impls();
         // let call_forwarder = self.generate_call_forwarders();
-        let impl_blocks = self.generate_impl_blocks();
+        // let impl_blocks = self.generate_impl_blocks();
         quote! {
             #storage
             #standard_impls
             // #call_forwarder
-            #impl_blocks
+            // #impl_blocks
         }
     }
 }
