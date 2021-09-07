@@ -290,7 +290,7 @@ impl CallBuilder<'_> {
             {
                 #[inline]
                 fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
-                    self.account_id.clone()
+                    <<E as ::ink_env::Environment>::AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
             }
         )
