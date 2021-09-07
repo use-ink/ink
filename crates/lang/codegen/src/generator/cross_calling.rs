@@ -588,10 +588,11 @@ impl CrossCalling<'_> {
             ir::Receiver::Ref => None,
             ir::Receiver::RefMut => Some(quote! { mut }),
         };
-        let opt_pub = match message.item_impl().trait_path() {
-            None => Some(quote! { pub }),
-            Some(_) => None,
-        };
+        let opt_pub = message
+            .item_impl()
+            .trait_path()
+            .is_none()
+            .then(|| quote! { pub });
         quote_spanned!(span =>
             type #output_ident = #output_ty;
 
@@ -782,10 +783,11 @@ impl CrossCalling<'_> {
             ir::Receiver::Ref => None,
             ir::Receiver::RefMut => Some(quote! { mut }),
         };
-        let opt_pub = match message.item_impl().trait_path() {
-            None => Some(quote! { pub }),
-            Some(_) => None,
-        };
+        let opt_pub = message
+            .item_impl()
+            .trait_path()
+            .is_none()
+            .then(|| quote! { pub });
         quote_spanned!(span =>
             #[inline]
             #opt_pub fn #ident( #receiver #(, #inputs_sig )* ) #output_sig {
