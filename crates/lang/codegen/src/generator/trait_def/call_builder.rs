@@ -232,7 +232,6 @@ impl CallBuilder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
-        let call_builder_name = call_builder_ident.to_string();
         quote_spanned!(span=>
             /// We require this manual impl since the derive produces incorrect trait bounds.
             impl<E> ::core::clone::Clone for #call_builder_ident<E>
@@ -255,7 +254,7 @@ impl CallBuilder<'_> {
                 <E as ::ink_env::Environment>::AccountId: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-                    f.debug_struct(#call_builder_name)
+                    f.debug_struct(::core::stringify!(#call_builder_ident))
                         .field("account_id", &self.account_id)
                         .finish()
                 }

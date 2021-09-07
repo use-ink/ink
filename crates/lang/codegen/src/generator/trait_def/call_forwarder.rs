@@ -228,7 +228,6 @@ impl CallForwarder<'_> {
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
-        let call_forwarder_name = call_forwarder_ident.to_string();
         quote_spanned!(span=>
             impl<E> ::core::clone::Clone for #call_forwarder_ident<E>
             where
@@ -250,7 +249,7 @@ impl CallForwarder<'_> {
                 <E as ::ink_env::Environment>::AccountId: ::core::fmt::Debug,
             {
                 fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-                    f.debug_struct(#call_forwarder_name)
+                    f.debug_struct(::core::stringify!(#call_forwarder_ident))
                         .field("account_id", &self.builder.account_id)
                         .finish()
                 }
