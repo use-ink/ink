@@ -318,6 +318,10 @@ impl CallBuilder<'_> {
             .receiver()
             .is_ref_mut()
             .then(|| Some(quote! { mut }));
+        let build_cmd = match message.receiver() {
+            ir::Receiver::Ref => quote! { build },
+            ir::Receiver::RefMut => quote! { build_mut },
+        };
         let attrs = message.attrs();
         quote_spanned!(span=>
             type #output_ident = <<<
@@ -333,7 +337,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings: #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <Self as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::build_mut(self)
+                    <Self as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::#build_cmd(self)
                     #( , #input_bindings )*
                 )
             }
