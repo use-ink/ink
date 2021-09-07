@@ -579,7 +579,7 @@ impl Dispatch<'_> {
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
                             _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<'static ::core::primtive::str>>::from(
+                                <::scale::Error as ::core::convert::From<'static ::core::primitive::str>>::from(
                                     "encountered unknown ink! message selector"
                                 )
                             )
@@ -676,7 +676,7 @@ impl Dispatch<'_> {
                         match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
                             #( #decode_message )*
                             _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<&'static ::core::primtive::str>>::from(
+                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
                                     "encountered unknown ink! constructor selector"
                                 )
                             )
