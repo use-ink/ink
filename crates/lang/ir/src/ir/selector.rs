@@ -128,7 +128,12 @@ impl Selector {
 
     /// Returns a unique identifier as `usize`.
     pub fn unique_id(self) -> usize {
-        u32::from_le_bytes(self.bytes) as usize
+        self.into_be_u32() as usize
+    }
+
+    /// Returns the big-endian `u32` representation of the selector bytes.
+    pub fn into_be_u32(self) -> u32 {
+        u32::from_be_bytes(self.bytes)
     }
 
     /// Returns the 4 bytes that make up the selector as hex encoded bytes.

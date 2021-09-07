@@ -222,7 +222,7 @@ impl CrossCalling<'_> {
         let span = message.span();
         let ident = message.ident();
         let output_ident = Self::out_assoc_type_ident(ident);
-        let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let composed_selector = message.composed_selector().hex_lits();
         let attrs = message.attrs();
         let input_bindings = message
             .inputs()
@@ -409,7 +409,7 @@ impl CrossCalling<'_> {
     ) -> TokenStream2 {
         let span = message.span();
         let ident = message.ident();
-        let composed_selector = message.composed_selector().as_bytes().to_owned();
+        let composed_selector = message.composed_selector().hex_lits();
         let attrs = message.attrs();
         let input_bindings = message
             .inputs()
@@ -614,7 +614,7 @@ impl CrossCalling<'_> {
         let attrs = constructor.attrs();
         let ident = constructor.ident();
         let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
-        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let composed_selector = constructor.composed_selector().hex_lits();
         let input_bindings = constructor
             .inputs()
             .enumerate()
@@ -715,7 +715,7 @@ impl CrossCalling<'_> {
         let span = constructor.span();
         let attrs = constructor.attrs();
         let ident = constructor.ident();
-        let composed_selector = constructor.composed_selector().as_bytes().to_owned();
+        let composed_selector = constructor.composed_selector().hex_lits();
         let input_bindings = constructor
             .inputs()
             .enumerate()

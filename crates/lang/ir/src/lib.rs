@@ -34,6 +34,7 @@ mod ast;
 mod ir;
 mod literal;
 
+pub use self::literal::HexLiteral;
 pub use self::ir::{
     Callable,
     CallableKind,

@@ -364,7 +364,7 @@ impl CallBuilder<'_> {
             || quote! { () },
             |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
-        let selector_bytes = selector.as_bytes();
+        let selector_bytes = selector.hex_lits();
         let input_bindings = Self::input_bindings(message.inputs());
         let input_types = Self::input_types(message.inputs());
         let arg_list = Self::generate_argument_list_for(input_types.iter().cloned());

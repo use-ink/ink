@@ -25,6 +25,7 @@ use crate::{
     traits::GenerateCode,
 };
 use derive_more::From;
+use ir::HexLiteral;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -200,7 +201,7 @@ impl TraitRegistry<'_> {
     fn generate_trait_info_object(&self) -> TokenStream2 {
         let span = self.span();
         let trait_ident = self.trait_ident();
-        let unique_id = self.trait_def.trait_def.unique_id();
+        let unique_id = self.trait_def.trait_def.unique_id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
         quote_spanned!(span =>
