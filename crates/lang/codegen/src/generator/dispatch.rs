@@ -120,7 +120,7 @@ impl Dispatch<'_> {
                 #[allow(unused_parens)]
                 fn dispatch_using_mode(
                     mode: ::ink_lang::DispatchMode
-                ) -> core::result::Result<(), ::ink_lang::DispatchError> {
+                ) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                     match mode {
                         ::ink_lang::DispatchMode::Instantiate => {
                             <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
