@@ -42,7 +42,7 @@ More relevant links:
   on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
 * [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract deployment and interaction
-* [Canvas Node](https://github.com/paritytech/canvas-node) ‒ Simple Substrate blockchain which includes smart contract functionality
+* [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 
 
 ## Table of Contents
@@ -63,7 +63,7 @@ More relevant links:
 
 ## Play with It
 
-If you want to have a local setup you can use our [canvas-node](https://github.com/paritytech/canvas-node) for a quickstart.
+If you want to have a local setup you can use our [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) for a quickstart.
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can be used to deploy your contract to a chain and interact with it.
