@@ -244,6 +244,11 @@ impl CallBuilder<'_> {
         let span = impl_block.span();
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         quote_spanned!(span=>
+            // SAFETY:
+            //
+            // The trait is unsafe to implement in order to prevent users doing a manual
+            // implementation themselves. Generally it is safe to implement only by the ink!
+            // provided macros with correct unique trait ID.
             #[doc(hidden)]
             unsafe impl
                 ::ink_lang::TraitImplementer<#unique_trait_id> for CallBuilder
