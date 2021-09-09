@@ -12,8 +12,8 @@ ink! 3.0-rc4 is compatible with
   version `0.13.0` or newer.
     - Install the newest version using `cargo install --force cargo-contract`.
 - Substrate version `4.0.0-dev` including the `contracts-pallet` version `4.0.0-dev`.
-- [`canvas-node`](https://github.com/paritytech/canvas-node) version `0.19.0` or newer.
-    - Install the newest version using `cargo install canvas-node --git https://github.com/paritytech/canvas-node.git --force`.
+- [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) version `0.1.0` or newer.
+    - Install the newest version using `cargo install substrate-contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
 
 The documentation on our [Documentation Portal](https://paritytech.github.io/ink-docs)
 is up to date with this release candidate. Since the last release candidate we notabley
@@ -31,7 +31,7 @@ of key improvements to our testing setup:
 - We started our [`ink-waterfall`](https://github.com/paritytech/ink-waterfall) project,
   which runs End-to-End tests through our entire stack.
   All our examples are continuously built using the latest `cargo-contract`. They are
-  subsequently deployed on the latest `canvas-node` by emulating browser interactions with
+  subsequently deployed on the latest `substrate-contracts-node` by emulating browser interactions with
   both the [`canvas-ui`](https://paritytech.github.io/canvas-ui/#/) and the
   [`polkadot-js`](https://polkadot.js.org/apps/#/) UI.
   This testing setup enables us to detect bugs which only appear in the context of using
