@@ -1,3 +1,17 @@
+# Version 3.0-rc5 (2021-09-08)
+
+This is the 5th release candidate for ink! 3.0.
+
+The list below shows the additions, changes and fixes that are visible to users of ink!.
+
+## Added
+- Added example for mocking chain extensions in off-chain tests ‒ [#882](https://github.com/paritytech/ink/pull/882).
+- Panic messages are now printed to debug buffer ‒ [#894](https://github.com/paritytech/ink/pull/894).
+
+## Changed
+- Unlicensed smart contract examples ‒ [#888](https://github.com/paritytech/ink/pull/888).
+- Stabilized `seal_debug_message` ‒ [#902](https://github.com/paritytech/ink/pull/902).
+
 # Version 3.0-rc4 (2021-07-19)
 
 This is the 4th release candidate for ink! 3.0.
