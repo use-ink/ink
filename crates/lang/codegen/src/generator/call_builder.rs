@@ -59,8 +59,21 @@ impl GenerateCode for CallBuilder<'_> {
 }
 
 impl CallBuilder<'_> {
+    /// Returns the identifier of the generated ink! call builder struct.
+    ///
+    /// # Note
+    ///
+    /// This identifier must not be used outside of the generated `const`
+    /// block in which the call builder type is going to be defined.
+    /// In order to refer to the call builder of an ink! smart contract
+    /// use the [`ink_lang::TraitCallBuilder`] trait implementation.
+    fn call_builder_ident() -> syn::Ident {
+        format_ident!("CallBuilder")
+    }
+
     fn generate_struct(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
+        let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
             /// The ink! smart contract's call builder.
             ///
@@ -77,7 +90,7 @@ impl CallBuilder<'_> {
                 ::ink_storage::traits::SpreadLayout,
                 ::ink_storage::traits::PackedLayout,
             )]
-            pub struct CallBuilder {
+            pub struct #cb_ident {
                 account_id: AccountId,
             }
         )
@@ -113,15 +126,16 @@ impl CallBuilder<'_> {
     /// These are required to properly interoperate with the call builder.
     fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
+        let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
-            impl ::ink_env::call::FromAccountId<Environment> for CallBuilder {
+            impl ::ink_env::call::FromAccountId<Environment> for #cb_ident {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { account_id }
                 }
             }
 
-            impl ::ink_lang::ToAccountId<Environment> for CallBuilder {
+            impl ::ink_lang::ToAccountId<Environment> for #cb_ident {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
                     <AccountId as ::core::clone::Clone>::clone(&self.account_id)
@@ -177,10 +191,11 @@ impl CallBuilder<'_> {
         impl_block: &ir::ItemImpl,
     ) -> TokenStream2 {
         let span = impl_block.span();
+        let cb_ident = Self::call_builder_ident();
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         quote_spanned!(span=>
             #[doc(hidden)]
-            impl ::ink_lang::TraitCallForwarderFor<#unique_trait_id> for CallBuilder {
+            impl ::ink_lang::TraitCallForwarderFor<#unique_trait_id> for #cb_ident {
                 type Forwarder = <<Self as Increment>::__ink_TraitInfo as ::ink_lang::TraitCallForwarder>::Forwarder;
 
                 #[inline(always)]
@@ -239,6 +254,7 @@ impl CallBuilder<'_> {
         impl_block: &ir::ItemImpl,
     ) -> TokenStream2 {
         let span = impl_block.span();
+        let cb_ident = Self::call_builder_ident();
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         quote_spanned!(span=>
             // SAFETY:
@@ -248,7 +264,7 @@ impl CallBuilder<'_> {
             // provided macros with correct unique trait ID.
             #[doc(hidden)]
             unsafe impl
-                ::ink_lang::TraitImplementer<#unique_trait_id> for CallBuilder
+                ::ink_lang::TraitImplementer<#unique_trait_id> for #cb_ident
             {}
         )
     }
@@ -277,11 +293,12 @@ impl CallBuilder<'_> {
         impl_block: &ir::ItemImpl,
     ) -> TokenStream2 {
         let span = impl_block.span();
+        let cb_ident = Self::call_builder_ident();
         let messages = impl_block
             .iter_messages()
             .map(|message| self.generate_ink_trait_impl_for_message(trait_path, message));
         quote_spanned!(span=>
-            impl #trait_path for CallBuilder {
+            impl #trait_path for #cb_ident {
                 type Env = Environment;
 
                 type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
