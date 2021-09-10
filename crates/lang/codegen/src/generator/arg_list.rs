@@ -32,6 +32,11 @@ pub fn input_bindings(inputs: ir::InputsIter) -> Vec<syn::Ident> {
         .collect::<Vec<_>>()
 }
 
+/// Returns the sequence of input types for the message.
+pub fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
+    inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
+}
+
 /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
 pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
 where

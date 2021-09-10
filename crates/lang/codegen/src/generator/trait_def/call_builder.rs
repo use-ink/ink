@@ -374,7 +374,7 @@ impl CallBuilder<'_> {
         );
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
-        let input_types = Self::input_types(message.inputs());
+        let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
         quote_spanned!(span =>
@@ -407,10 +407,5 @@ impl CallBuilder<'_> {
                     .returns::<#output_sig>()
             }
         )
-    }
-
-    /// Returns the sequence of input types for the message.
-    fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
-        inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
     }
 }
