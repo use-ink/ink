@@ -9,7 +9,7 @@ The list below shows the additions, changes and fixes that are visible to users 
 Make sure to use a recent Rust nightly and `cargo-contract` with the current
 release: 
 ```
-cargo install --force cargo-contract && rustup update
+cargo install cargo-contract --vers ^0.14 --force --locked && rustup update
 ```
 
 In the past we recommended using our [`canvas-node`](https://github.com/paritytech/canvas)
