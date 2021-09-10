@@ -18,6 +18,12 @@ use quote::{
     quote,
     quote_spanned,
 };
+use heck::CamelCase;
+
+/// Returns the associated output type for an ink! trait message.
+pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
+    format_ident!("{}Output", message_name.to_string().to_camel_case())
+}
 
 /// Returns the sequence of artificial input parameter bindings for the message.
 ///

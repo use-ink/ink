@@ -366,7 +366,7 @@ impl CallBuilder<'_> {
         let span = message.span();
         let message_ident = message.ident();
         let attrs = message.attrs();
-        let output_ident = self.trait_def.output_ident(message.ident());
+        let output_ident = generator::output_ident(message_ident);
         let output = message.output();
         let output_sig = output.map_or_else(
             || quote! { () },

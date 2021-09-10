@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::{
+    generator,
+    GenerateCode,
+};
 use derive_more::From;
-use heck::CamelCase;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -319,7 +321,7 @@ impl CallBuilder<'_> {
         use ir::Callable as _;
         let span = message.span();
         let message_ident = message.ident();
-        let output_ident = self.output_ident(message_ident);
+        let output_ident = generator::output_ident(message_ident);
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         let input_bindings = message
             .callable()
@@ -444,7 +446,7 @@ impl CallBuilder<'_> {
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         let span = message.span();
         let message_ident = message.ident();
-        let output_ident = self.output_ident(message_ident);
+        let output_ident = generator::output_ident(message_ident);
         let call_operator = match message.receiver() {
             ir::Receiver::Ref => quote! { call },
             ir::Receiver::RefMut => quote! { call_mut },

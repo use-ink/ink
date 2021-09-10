@@ -17,7 +17,6 @@ mod trait_registry;
 mod call_builder;
 mod call_forwarder;
 
-use heck::CamelCase as _;
 use crate::GenerateCode;
 use derive_more::From;
 use proc_macro2::{Span, TokenStream as TokenStream2};
@@ -54,11 +53,6 @@ impl<'a> TraitDefinition<'a> {
     /// Returns the span of the underlying ink! trait definition.
     fn span(&self) -> Span {
         self.trait_def.span()
-    }
-
-    /// Returns the associated output type for an ink! trait message.
-    fn output_ident(&self, message_name: &syn::Ident) -> syn::Ident {
-        format_ident!("{}Output", message_name.to_string().to_camel_case())
     }
 }
 

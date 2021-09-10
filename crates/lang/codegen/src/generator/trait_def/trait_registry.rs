@@ -20,10 +20,7 @@
 //! types for the trait's respective call builder and call forwarder.
 
 use super::TraitDefinition;
-use crate::{
-    generator::enforced_error::EnforcedErrors,
-    traits::GenerateCode,
-};
+use crate::{generator::{self, enforced_error::EnforcedErrors}, traits::GenerateCode};
 use derive_more::From;
 use ir::HexLiteral;
 use proc_macro2::{
@@ -78,11 +75,6 @@ impl TraitRegistry<'_> {
     /// Returns the identifier of the ink! trait definition.
     fn trait_ident(&self) -> &syn::Ident {
         self.trait_def.trait_def.ident()
-    }
-
-    /// Returns the associated output type for an ink! trait message.
-    fn output_ident(&self, message_name: &syn::Ident) -> syn::Ident {
-        self.trait_def.output_ident(message_name)
     }
 
     /// Generates the global trait registry implementation for the ink! trait.
@@ -148,7 +140,7 @@ impl TraitRegistry<'_> {
         let span = message.span();
         let ident = message.ident();
         let attrs = message.attrs();
-        let output_ident = self.output_ident(message.ident());
+        let output_ident = generator::output_ident(message.ident());
         let (input_bindings, input_types) =
             Self::input_bindings_and_types(message.inputs());
         let linker_error_ident = EnforcedErrors::cannot_call_trait_message(
