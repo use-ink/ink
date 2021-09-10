@@ -13,15 +13,20 @@
 // limitations under the License.
 
 use super::TraitDefinition;
-use crate::traits::GenerateCode;
+use crate::{
+    generator,
+    traits::GenerateCode,
+};
 use derive_more::From;
 use ir::HexLiteral;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
 };
-use quote::{format_ident, quote, quote_spanned};
-use crate::generator;
+use quote::{
+    quote,
+    quote_spanned,
+};
 
 impl<'a> TraitDefinition<'a> {
     /// Generates code for the global trait call builder for an ink! trait.
@@ -367,7 +372,7 @@ impl CallBuilder<'_> {
             |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
         let selector_bytes = selector.hex_lits();
-        let input_bindings = Self::input_bindings(message.inputs());
+        let input_bindings = generator::input_bindings(message.inputs());
         let input_types = Self::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
@@ -401,19 +406,6 @@ impl CallBuilder<'_> {
                     .returns::<#output_sig>()
             }
         )
-    }
-
-    /// Returns the sequence of artificial input parameter bindings for the message.
-    ///
-    /// # Note
-    ///
-    /// This returns `__ink_binding_N` for every message input where `N` is the number
-    /// of the input from first to last.
-    fn input_bindings(inputs: ir::TraitItemInputsIter) -> Vec<syn::Ident> {
-        inputs
-            .enumerate()
-            .map(|(n, _)| format_ident!("__ink_binding_{}", n))
-            .collect::<Vec<_>>()
     }
 
     /// Returns the sequence of input types for the message.

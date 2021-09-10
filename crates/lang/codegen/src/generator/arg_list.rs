@@ -12,8 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use quote::{quote, quote_spanned};
 use proc_macro2::TokenStream as TokenStream2;
+use quote::{
+    format_ident,
+    quote,
+    quote_spanned,
+};
+
+/// Returns the sequence of artificial input parameter bindings for the message.
+///
+/// # Note
+///
+/// This returns `__ink_binding_N` for every message input where `N` is the number
+/// of the input from first to last.
+pub fn input_bindings(inputs: ir::InputsIter) -> Vec<syn::Ident> {
+    inputs
+        .enumerate()
+        .map(|(n, _)| format_ident!("__ink_binding_{}", n))
+        .collect::<Vec<_>>()
+}
 
 /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
 pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
