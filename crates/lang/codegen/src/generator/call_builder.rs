@@ -367,7 +367,6 @@ impl CallBuilder<'_> {
     }
 
     /// Generate call builder code for all ink! inherent ink! impl blocks.
-    /// Returns the associated output type for an ink! trait message.
     ///
     /// # Note
     ///
@@ -466,9 +465,6 @@ impl CallBuilder<'_> {
                     .returns::<#output_sig>()
             }
         )
-    /// TODO: Remove duplicated `output_ident` method before merging PR.
-    fn output_ident(&self, message_name: &syn::Ident) -> syn::Ident {
-        format_ident!("{}Output", message_name.to_string().to_camel_case())
     }
 
     /// Generates the code for all ink! trait implementations of the contract itself.
