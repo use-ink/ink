@@ -24,15 +24,17 @@ use ink_env::{
         HashOutput,
     },
     Environment,
+    Error,
     RentParams,
     RentStatus,
     Result,
-    Error,
 };
 use ink_primitives::Key;
 
-use crate::ChainExtensionInstance;
-use crate::traits::ECDSAPublicKey;
+use crate::{
+    traits::ECDSAPublicKey,
+    ChainExtensionInstance,
+};
 
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
@@ -1060,15 +1062,17 @@ where
     /// #     }
     /// # }
     /// ```
-    pub fn ecdsa_recover(self, signature: &[u8; 65], message_hash: &[u8; 32]) -> Result<ECDSAPublicKey>  {
+    pub fn ecdsa_recover(
+        self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+    ) -> Result<ECDSAPublicKey> {
         let mut output = [0; 33];
         let result = ink_env::ecdsa_recover(signature, message_hash, &mut output);
 
         match result.is_ok() {
-            true => Ok(ECDSAPublicKey {
-                0: output,
-            }),
-            false => Err(Error::EcdsaRecoverFailed)
+            true => Ok(ECDSAPublicKey { 0: output }),
+            false => Err(Error::EcdsaRecoverFailed),
         }
     }
 }

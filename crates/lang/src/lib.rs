@@ -66,6 +66,8 @@ pub use self::{
     traits::{
         CheckedInkTrait,
         Constructor,
+        ECDSAPublicKey,
+        EthereumAddress,
         FnInput,
         FnOutput,
         FnSelector,
@@ -74,8 +76,6 @@ pub use self::{
         MessageMut,
         MessageRef,
         True,
-        ECDSAPublicKey,
-        EthereumAddress,
     },
 };
 pub use ::static_assertions;

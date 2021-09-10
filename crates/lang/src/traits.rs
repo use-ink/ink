@@ -22,8 +22,8 @@ use ink_env::{
         ExecutionInput,
         Selector,
     },
-    Environment,
     DefaultEnvironment,
+    Environment,
 };
 use ink_storage::traits::SpreadLayout;
 
@@ -128,9 +128,7 @@ pub struct ECDSAPublicKey(pub [u8; 33]);
 
 impl Default for ECDSAPublicKey {
     fn default() -> Self {
-        Self {
-            0: [0; 33]
-        }
+        Self { 0: [0; 33] }
     }
 }
 
@@ -155,11 +153,12 @@ pub type EthereumAddress = [u8; 20];
 
 impl ECDSAPublicKey {
     pub fn to_eth_address(&self) -> EthereumAddress {
-        use secp256k1::PublicKey;
         use ink_env::hash;
+        use secp256k1::PublicKey;
 
         // Transform compressed public key into uncompressed.
-        let pub_key = PublicKey::parse_compressed(&self.0).expect("Unable to parse the compressed ecdsa public key");
+        let pub_key = PublicKey::parse_compressed(&self.0)
+            .expect("Unable to parse the compressed ecdsa public key");
         let uncompressed = pub_key.serialize();
 
         // Hash the uncompressed public key without first byte by Keccak256 algorithm.

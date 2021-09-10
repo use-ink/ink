@@ -249,10 +249,24 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
-    fn ecdsa_recover(&mut self, signature: &[u8; 65], message_hash: &[u8; 32], output: &mut [u8; 33]) -> Result<()> {
-        use secp256k1::{Signature, RecoveryId, Message, recover};
+    fn ecdsa_recover(
+        &mut self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+        output: &mut [u8; 33],
+    ) -> Result<()> {
+        use secp256k1::{
+            recover,
+            Message,
+            RecoveryId,
+            Signature,
+        };
 
-        let recovery_byte =  if signature[64] > 27 { signature[64] - 27 } else { signature[64] };
+        let recovery_byte = if signature[64] > 27 {
+            signature[64] - 27
+        } else {
+            signature[64]
+        };
         let message = Message::parse(message_hash);
         let signature = Signature::parse_slice(&signature[0..64]).unwrap();
 
@@ -263,8 +277,8 @@ impl EnvBackend for EnvInstance {
             Ok(pub_key) => {
                 *output = pub_key.serialize_compressed();
                 Ok(())
-            },
-            Err(_) => Err(crate::Error::EcdsaRecoverFailed)
+            }
+            Err(_) => Err(crate::Error::EcdsaRecoverFailed),
         }
     }
 

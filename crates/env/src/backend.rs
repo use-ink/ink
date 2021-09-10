@@ -141,7 +141,12 @@ pub trait EnvBackend {
         T: scale::Encode;
 
     /// Recovers the compressed ecdsa public key for given `signature` and `message_hash`, and stores the result in `output`.
-    fn ecdsa_recover(&mut self, signature: &[u8; 65], message_hash: &[u8; 32], output: &mut [u8; 33]) -> Result<()>;
+    fn ecdsa_recover(
+        &mut self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+        output: &mut [u8; 33],
+    ) -> Result<()>;
 
     /// Low-level interface to call a chain extension method.
     ///

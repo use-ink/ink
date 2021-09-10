@@ -630,7 +630,11 @@ where
 /// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
 /// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
 /// ```
-pub fn ecdsa_recover(signature: &[u8; 65], message_hash: &[u8; 32], output: &mut [u8; 33]) -> Result<()> {
+pub fn ecdsa_recover(
+    signature: &[u8; 65],
+    message_hash: &[u8; 32],
+    output: &mut [u8; 33],
+) -> Result<()> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.ecdsa_recover(signature, message_hash, output)
     })

@@ -278,7 +278,12 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
-    fn ecdsa_recover(&mut self, signature: &[u8; 65], message_hash: &[u8; 32], output: &mut [u8; 33]) -> Result<()> {
+    fn ecdsa_recover(
+        &mut self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+        output: &mut [u8; 33],
+    ) -> Result<()> {
         ext::ecdsa_recover(signature, message_hash, output).map_err(Into::into)
     }
 
