@@ -21,6 +21,7 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use quote::{format_ident, quote, quote_spanned};
+use crate::generator;
 
 impl<'a> TraitDefinition<'a> {
     /// Generates code for the global trait call builder for an ink! trait.
@@ -368,7 +369,7 @@ impl CallBuilder<'_> {
         let selector_bytes = selector.hex_lits();
         let input_bindings = Self::input_bindings(message.inputs());
         let input_types = Self::input_types(message.inputs());
-        let arg_list = Self::generate_argument_list_for(input_types.iter().cloned());
+        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = message.mutates().then(|| quote! { mut });
         quote_spanned!(span =>
             #[allow(clippy::type_complexity)]
@@ -418,23 +419,5 @@ impl CallBuilder<'_> {
     /// Returns the sequence of input types for the message.
     fn input_types(inputs: ir::TraitItemInputsIter) -> Vec<&syn::Type> {
         inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
-    }
-
-    /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
-    fn generate_argument_list_for<'b, Args>(args: Args) -> TokenStream2
-    where
-        Args: IntoIterator<Item = &'b syn::Type>,
-        <Args as IntoIterator>::IntoIter: DoubleEndedIterator,
-    {
-        use syn::spanned::Spanned as _;
-        args.into_iter().fold(
-            quote! { ::ink_env::call::utils::EmptyArgumentList },
-            |rest, arg| {
-                let span = arg.span();
-                quote_spanned!(span=>
-                    ::ink_env::call::utils::ArgumentList<::ink_env::call::utils::Argument<#arg>, #rest>
-                )
-            }
-        )
     }
 }

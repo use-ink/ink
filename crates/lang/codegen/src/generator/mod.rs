@@ -26,6 +26,7 @@ macro_rules! impl_as_ref_for_generator {
     };
 }
 
+mod arg_list;
 mod as_dependency;
 mod call_builder;
 mod chain_extension;
@@ -42,6 +43,7 @@ mod storage;
 mod trait_def;
 
 pub use self::{
+    arg_list::generate_argument_list,
     as_dependency::{
         NotAsDependencyCfg,
         OnlyAsDependencyCfg,
