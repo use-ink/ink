@@ -409,7 +409,7 @@ impl CallBuilder<'_> {
     }
 
     /// Returns the sequence of input types for the message.
-    fn input_types(inputs: ir::TraitItemInputsIter) -> Vec<&syn::Type> {
+    fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
         inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
     }
 }
