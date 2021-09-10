@@ -17,6 +17,7 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
+use ir::Callable;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -46,14 +47,16 @@ impl GenerateCode for CallBuilder<'_> {
         let call_builder_struct = self.generate_struct();
         let trait_impl = self.generate_trait_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
-        let call_forwarder_impls = self.generate_call_forwarder_impls();
+        let call_builder_impls = self.generate_call_forwarder_impls();
+        let call_builder_inherent_impls = self.generate_call_builder_inherent_impls();
         let contract_trait_impls = self.generate_contract_trait_impls();
         quote! {
             const _: () = {
                 #call_builder_struct
                 #trait_impl
                 #auxiliary_trait_impls
-                #call_forwarder_impls
+                #call_builder_impls
+                #call_builder_inherent_impls
             };
             #contract_trait_impls
         }
@@ -363,8 +366,106 @@ impl CallBuilder<'_> {
         )
     }
 
+    /// Generate call builder code for all ink! inherent ink! impl blocks.
     /// Returns the associated output type for an ink! trait message.
     ///
+    /// # Note
+    ///
+    /// This does not provide implementations for ink! constructors as they
+    /// do not have a short-hand notations as their messages counterparts.
+    fn generate_call_builder_inherent_impls(&self) -> TokenStream2 {
+        self.contract
+            .module()
+            .impls()
+            .filter_map(|impl_block| {
+                impl_block
+                    .trait_path()
+                    .is_none()
+                    .then(|| self.generate_call_builder_inherent_impl(impl_block))
+            })
+            .collect()
+    }
+
+    /// Generate call builder code for a single inherent ink! impl block.
+    ///
+    /// # Note
+    ///
+    /// Unlike as with ink! trait impl blocks we do not have to generate
+    /// associate `*Output` types, ink! trait validators impl blocks or
+    /// trait forwarder implementations. Instead we build the calls directly.
+    fn generate_call_builder_inherent_impl(
+        &self,
+        impl_block: &ir::ItemImpl,
+    ) -> TokenStream2 {
+        let span = impl_block.span();
+        let cb_ident = Self::call_builder_ident();
+        let messages = impl_block
+            .iter_messages()
+            .map(|message| self.generate_call_builder_inherent_impl_for_message(message));
+        quote_spanned!(span=>
+            impl #cb_ident {
+                #( #messages )*
+            }
+        )
+    }
+
+    /// Generate call builder code for a single inherent ink! message.
+    ///
+    /// # Note
+    ///
+    /// Unlike with ink! trait messages the call builder implements the call
+    /// building directly and does not forward to a trait call builder.
+    fn generate_call_builder_inherent_impl_for_message(
+        &self,
+        message: ir::CallableWithSelector<ir::Message>,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let callable = message.callable();
+        let message_ident = message.ident();
+        let attrs = message.attrs();
+        let output = message.output();
+        let output_sig = output.map_or_else(
+            || quote! { () },
+            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
+        );
+        let output_span = output.span();
+        let selector = message.composed_selector();
+        let selector_bytes = selector.hex_lits();
+        let input_bindings = generator::input_bindings(callable.inputs());
+        let input_types = generator::input_types(message.inputs());
+        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
+        let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
+        let output_type = quote_spanned!(output_span=>
+            ::ink_env::call::CallBuilder<
+                Self::Env,
+                ::ink_env::call::utils::Set< <Self::Env as ::ink_env::Environment>::AccountId >,
+                ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
+                ::ink_env::call::utils::Unset< <Self::Env as ::ink_env::Environment>::Balance >,
+                ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
+                ::ink_env::call::utils::Set<#output_sig>,
+            >
+        );
+        quote_spanned!(span=>
+            #( #attrs )*
+            #[allow(clippy::type_complexity)]
+            #[inline]
+            pub fn #message_ident(
+                & #mut_tok self
+                #( , #input_bindings : #input_types )*
+            ) -> #output_type {
+                ::ink_env::call::build_call::<Self::Env>()
+                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .exec_input(
+                        ::ink_env::call::ExecutionInput::new(
+                            ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
+                        )
+                        #(
+                            .push_arg(#input_bindings)
+                        )*
+                    )
+                    .returns::<#output_sig>()
+            }
+        )
     /// TODO: Remove duplicated `output_ident` method before merging PR.
     fn output_ident(&self, message_name: &syn::Ident) -> syn::Ident {
         format_ident!("{}Output", message_name.to_string().to_camel_case())
