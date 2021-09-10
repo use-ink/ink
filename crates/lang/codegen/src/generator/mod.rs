@@ -43,7 +43,7 @@ mod storage;
 mod trait_def;
 
 pub use self::{
-    arg_list::generate_argument_list,
+    arg_list::{input_bindings, generate_argument_list},
     as_dependency::{
         NotAsDependencyCfg,
         OnlyAsDependencyCfg,
