@@ -1018,7 +1018,7 @@ where
         output
     }
 
-    /// Recovers the compressed ecdsa public key for given `signature` and `message_hash`, and stores the result in `output`.
+    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`, and stores the result in `output`.
     ///
     /// # Example
     ///

@@ -148,7 +148,7 @@ impl core::ops::DerefMut for ECDSAPublicKey {
     }
 }
 
-/// Address of ethereum account
+/// Address of Ethereum account
 pub type EthereumAddress = [u8; 20];
 
 impl ECDSAPublicKey {
@@ -158,7 +158,7 @@ impl ECDSAPublicKey {
 
         // Transform compressed public key into uncompressed.
         let pub_key = PublicKey::parse_compressed(&self.0)
-            .expect("Unable to parse the compressed ecdsa public key");
+            .expect("Unable to parse the compressed ECDSA public key");
         let uncompressed = pub_key.serialize();
 
         // Hash the uncompressed public key without first byte by Keccak256 algorithm.
