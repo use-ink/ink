@@ -418,7 +418,7 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates the code for a all messages of a single ink! trait implementation of
+    /// Generates the code for all messages of a single ink! trait implementation of
     /// the ink! smart contract.
     fn generate_contract_trait_impl_messages(
         &self,
