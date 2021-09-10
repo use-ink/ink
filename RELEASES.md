@@ -6,6 +6,12 @@ The list below shows the additions, changes and fixes that are visible to users 
 
 ## Compatibility
 
+Make sure to use a recent Rust nightly and `cargo-contract` with the current
+release: 
+```
+cargo install cargo-contract --vers ^0.14 --force --locked && rustup update
+```
+
 In the past we recommended using our [`canvas-node`](https://github.com/paritytech/canvas)
 for local contract development and testing. We've now migrated this node to be run
 as a Parachain. This new setup comes with some additional overhead though (such as requiring
