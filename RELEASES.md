@@ -4,6 +4,24 @@ This is the 5th release candidate for ink! 3.0.
 
 The list below shows the additions, changes and fixes that are visible to users of ink!.
 
+## Compatibility
+
+In the past we recommended using our [`canvas-node`](https://github.com/paritytech/canvas)
+for local contract development and testing. We've now migrated this node to be run
+as a Parachain. This new setup comes with some additional overhead though (such as requiring
+a local Polkadot installation); for local development this is often unnecessary.
+
+We've therefore created a new project, the
+[`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node).
+It fulfills the same purpose the `canvas-node` did before ‒ it's a standalone node which is
+just Substrate's [`node-template`](https://github.com/paritytech/substrate/tree/master/bin/node-template)
+modified to include [the `contracts` pallet](https://github.com/paritytech/substrate/tree/master/frame/contracts).
+You can install the newest version like this:
+```
+cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force
+```
+After you've installed the node it can be run via `substrate-contracts-node --tmp --dev`.
+
 ## Added
 - Added example for mocking chain extensions in off-chain tests ‒ [#882](https://github.com/paritytech/ink/pull/882).
 - Panic messages are now printed to debug buffer ‒ [#894](https://github.com/paritytech/ink/pull/894).
@@ -27,10 +45,10 @@ ink! 3.0-rc4 is compatible with
     - Install the newest version using `cargo install --force cargo-contract`.
 - Substrate version `4.0.0-dev` including the `contracts-pallet` version `4.0.0-dev`.
 - [`substrate-contracts-node`](https://github.com/paritytech/substrate-contracts-node) version `0.1.0` or newer.
-    - Install the newest version using `cargo install substrate-contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
+    - Install the newest version using `cargo install contracts-node --git https://github.com/paritytech/substrate-contracts-node.git --force`.
 
 The documentation on our [Documentation Portal](https://paritytech.github.io/ink-docs)
-is up to date with this release candidate. Since the last release candidate we notabley
+is up-to-date with this release candidate. Since the last release candidate we notably
 added a number of [Frequently Asked Questions](https://paritytech.github.io/ink-docs/faq)
 there.
 
