@@ -343,14 +343,15 @@ impl CallBuilder<'_> {
 
     /// Generate the code for all ink! trait messages implemented by the trait call builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
-        let messages = self
-            .trait_def
-            .trait_def
-            .iter_items()
-            .filter_map(|(item, selector)| {
-                item.filter_map_message()
-                    .map(|message| self.generate_ink_trait_impl_for_message(&message, selector))
-            });
+        let messages =
+            self.trait_def
+                .trait_def
+                .iter_items()
+                .filter_map(|(item, selector)| {
+                    item.filter_map_message().map(|message| {
+                        self.generate_ink_trait_impl_for_message(&message, selector)
+                    })
+                });
         quote! {
             #( #messages )*
         }
