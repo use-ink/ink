@@ -23,6 +23,7 @@ use ink_env::{
         Selector,
     },
     Environment,
+    DefaultEnvironment,
 };
 use ink_storage::traits::SpreadLayout;
 
@@ -120,3 +121,64 @@ pub trait MessageMut: FnInput + FnOutput + FnSelector + FnState {
 /// Indicates that some compile time expression is expected to be `true`.
 #[doc(hidden)]
 pub trait True {}
+
+/// The ECDSA compressed public key.
+#[derive(Debug, Copy, Clone)]
+pub struct ECDSAPublicKey(pub [u8; 33]);
+
+impl Default for ECDSAPublicKey {
+    fn default() -> Self {
+        Self {
+            0: [0; 33]
+        }
+    }
+}
+
+impl core::ops::Deref for ECDSAPublicKey {
+    type Target = [u8; 33];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl core::ops::DerefMut for ECDSAPublicKey {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+/// Address of ethereum account
+pub type EthereumAddress = [u8; 20];
+
+impl ECDSAPublicKey {
+    pub fn to_eth_address(&self) -> EthereumAddress {
+        use secp256k1::PublicKey;
+        use ink_env::hash;
+
+        // Transform compressed public key into uncompressed.
+        let pub_key = PublicKey::parse_compressed(&self.0).expect("Unable to parse the compressed ecdsa public key");
+        let uncompressed = pub_key.serialize();
+
+        // Hash the uncompressed public key without first byte by Keccak256 algorithm.
+        let mut hash = <hash::Keccak256 as hash::HashOutput>::Type::default();
+        ink_env::hash_bytes::<hash::Keccak256>(&uncompressed[1..], &mut hash);
+
+        // Take the last 20 bytes as an Address
+        let mut result = EthereumAddress::default();
+        result.copy_from_slice(&hash[12..]);
+
+        result
+    }
+
+    pub fn to_account_id(&self) -> <DefaultEnvironment as Environment>::AccountId {
+        use ink_env::hash;
+
+        let mut output = <hash::Blake2x256 as hash::HashOutput>::Type::default();
+        ink_env::hash_bytes::<hash::Blake2x256>(&self.0[..], &mut output);
+
+        output.into()
+    }
+}

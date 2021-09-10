@@ -74,6 +74,8 @@ pub use self::{
         MessageMut,
         MessageRef,
         True,
+        ECDSAPublicKey,
+        EthereumAddress,
     },
 };
 pub use ::static_assertions;

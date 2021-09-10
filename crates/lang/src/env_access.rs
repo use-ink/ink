@@ -27,10 +27,12 @@ use ink_env::{
     RentParams,
     RentStatus,
     Result,
+    Error,
 };
 use ink_primitives::Key;
 
 use crate::ChainExtensionInstance;
+use crate::traits::ECDSAPublicKey;
 
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
@@ -1012,5 +1014,61 @@ where
         let mut output = <H as HashOutput>::Type::default();
         ink_env::hash_encoded::<H, V>(value, &mut output);
         output
+    }
+
+    /// Recovers the compressed ecdsa public key for given `signature` and `message_hash`, and stores the result in `output`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Recovery from pre-defined signature and message hash
+    /// #[ink(message)]
+    /// pub fn ecdsa_recover(&self) {
+    ///     const signature: [u8; 65] = [
+    ///         161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
+    ///         162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
+    ///          33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
+    ///         211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
+    ///          28,
+    ///     ];
+    ///     const message_hash: [u8; 32] = [
+    ///         162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
+    ///         239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+    ///     ];
+    ///     const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+    ///           2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+    ///           7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+    ///         152,
+    ///     ];
+    ///     let result = self.env().ecdsa_recover(&signature, &message_hash);
+    ///     assert!(result.is_ok());
+    ///     assert_eq!(*result.unwrap(), EXPECTED_COMPRESSED_PUBLIC_KEY);
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    pub fn ecdsa_recover(self, signature: &[u8; 65], message_hash: &[u8; 32]) -> Result<ECDSAPublicKey>  {
+        let mut output = [0; 33];
+        let result = ink_env::ecdsa_recover(signature, message_hash, &mut output);
+
+        match result.is_ok() {
+            true => Ok(ECDSAPublicKey {
+                0: output,
+            }),
+            false => Err(Error::EcdsaRecoverFailed)
+        }
     }
 }

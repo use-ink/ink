@@ -79,6 +79,8 @@ define_error_codes! {
      /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
+	/// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
+	EcdsaRecoverFailed = 11,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.
@@ -358,6 +360,14 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
+
+        pub fn seal_ecdsa_recover(
+            // 65 bytes of ecdsa signature
+            signature_ptr: Ptr32<[u8]>,
+            // 32 bytes hash of the message
+            message_hash_ptr: Ptr32<[u8]>,
+            output_ptr: Ptr32Mut<[u8]>,
+        ) -> ReturnCode;
     }
 }
 
@@ -707,3 +717,14 @@ impl_hash_fn!(sha2_256, 32);
 impl_hash_fn!(keccak_256, 32);
 impl_hash_fn!(blake2_256, 32);
 impl_hash_fn!(blake2_128, 16);
+
+pub fn ecdsa_recover(signature: &[u8; 65], message_hash: &[u8; 32], output: &mut [u8; 33]) -> Result {
+    let ret_code = unsafe {
+        sys::seal_ecdsa_recover(
+            Ptr32::from_slice(signature),
+            Ptr32::from_slice(message_hash),
+            Ptr32Mut::from_slice(output),
+        )
+    };
+    ret_code.into()
+}
