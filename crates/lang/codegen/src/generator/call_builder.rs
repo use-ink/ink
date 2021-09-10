@@ -379,7 +379,7 @@ impl CallBuilder<'_> {
         trait_path: &syn::Path,
         impl_block: &ir::ItemImpl,
     ) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
+        let span = impl_block.span();
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         let storage_ident = self.contract.module().storage().ident();
         let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
