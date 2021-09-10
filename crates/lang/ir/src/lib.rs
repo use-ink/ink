@@ -67,6 +67,5 @@ pub use self::ir::{
     Receiver,
     Selector,
     Storage,
-    TraitItemInputsIter,
     Visibility,
 };

@@ -15,6 +15,7 @@
 use super::super::InkAttribute;
 use crate::{
     ir,
+    InputsIter,
     Receiver,
 };
 use proc_macro2::Span;
@@ -258,39 +259,14 @@ impl<'a> InkTraitMessage<'a> {
     }
 }
 
-/// Iterator over the input parameters of an ink! message or constructor.
-///
-/// Does not yield the self receiver of ink! messages.
-pub struct InputsIter<'a> {
-    iter: syn::punctuated::Iter<'a, syn::FnArg>,
-}
-
 impl<'a> From<&'a InkTraitMessage<'a>> for InputsIter<'a> {
     fn from(message: &'a InkTraitMessage) -> Self {
-        Self {
-            iter: message.item.sig.inputs.iter(),
-        }
+        Self::new(&message.item.sig.inputs)
     }
 }
 
 impl<'a> From<&'a InkTraitConstructor<'a>> for InputsIter<'a> {
     fn from(constructor: &'a InkTraitConstructor) -> Self {
-        Self {
-            iter: constructor.item.sig.inputs.iter(),
-        }
-    }
-}
-
-impl<'a> Iterator for InputsIter<'a> {
-    type Item = &'a syn::PatType;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        'repeat: loop {
-            match self.iter.next() {
-                None => return None,
-                Some(syn::FnArg::Typed(pat_typed)) => return Some(pat_typed),
-                Some(syn::FnArg::Receiver(_)) => continue 'repeat,
-            }
-        }
+        Self::new(&constructor.item.sig.inputs)
     }
 }

@@ -475,19 +475,24 @@ pub struct InputsIter<'a> {
     iter: syn::punctuated::Iter<'a, syn::FnArg>,
 }
 
+impl<'a> InputsIter<'a> {
+    /// Creates a new inputs iterator over the given `syn` punctuation.
+    pub(crate) fn new<P>(inputs: &'a syn::punctuated::Punctuated<syn::FnArg, P>) -> Self {
+        Self {
+            iter: inputs.iter(),
+        }
+    }
+}
+
 impl<'a> From<&'a ir::Message> for InputsIter<'a> {
     fn from(message: &'a ir::Message) -> Self {
-        Self {
-            iter: message.item.sig.inputs.iter(),
-        }
+        Self::new(&message.item.sig.inputs)
     }
 }
 
 impl<'a> From<&'a ir::Constructor> for InputsIter<'a> {
     fn from(constructor: &'a ir::Constructor) -> Self {
-        Self {
-            iter: constructor.item.sig.inputs.iter(),
-        }
+        Self::new(&constructor.item.sig.inputs)
     }
 }
 

@@ -25,7 +25,6 @@ pub use self::{
         InkTraitConstructor,
         InkTraitItem,
         InkTraitMessage,
-        InputsIter,
     },
 };
 use super::attrs::InkAttribute;
