@@ -472,8 +472,8 @@ impl CallBuilder<'_> {
     ///
     /// # Note
     ///
-    /// Since those implementations must live outside of an artificial `const` block
-    /// we need to keep this in a separate expansion step.
+    /// The generated implementations must live outside of an artificial `const` block
+    /// in order to properly show their documentation using `rustdoc`.
     fn generate_contract_trait_impls(&self) -> TokenStream2 {
         self.contract
             .module()
