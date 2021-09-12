@@ -650,7 +650,7 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             #( #attrs )*
             #[inline]
-            fn #message_ident(
+            pub fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) #output_type {
