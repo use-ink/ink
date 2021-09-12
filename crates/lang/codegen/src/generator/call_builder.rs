@@ -496,6 +496,7 @@ impl CallBuilder<'_> {
         impl_block: &ir::ItemImpl,
     ) -> TokenStream2 {
         let span = impl_block.span();
+        let attrs = impl_block.attrs();
         let unique_trait_id = self.generate_unique_trait_id(trait_path);
         let storage_ident = self.contract.module().storage().ident();
         let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
@@ -505,6 +506,7 @@ impl CallBuilder<'_> {
                 ::ink_lang::TraitImplementer<#unique_trait_id> for #storage_ident
             {}
 
+            #( #attrs )*
             impl #trait_path for #storage_ident {
                 type Env = Environment;
 
