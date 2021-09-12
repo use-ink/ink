@@ -57,28 +57,6 @@ impl GenerateCode for ItemImpls<'_> {
 }
 
 impl ItemImpls<'_> {
-    /// Generates the code for the given ink! constructor within a trait implementation block.
-    fn generate_trait_constructor(constructor: &ir::Constructor) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let vis = match constructor.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
-        let ident = constructor.ident();
-        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
-        let inputs = constructor.inputs();
-        let statements = constructor.statements();
-        quote_spanned!(span =>
-            type #output_ident = Self;
-
-            #( #attrs )*
-            #vis fn #ident( #( #inputs ),* ) -> Self::#output_ident {
-                #( #statements )*
-            }
-        )
-    }
-
     /// Generates the code for the given ink! message within a trait implementation block.
     fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
@@ -113,47 +91,28 @@ impl ItemImpls<'_> {
         let messages = item_impl
             .iter_messages()
             .map(|cws| Self::generate_trait_message(cws.callable()));
-        let constructors = item_impl
-            .iter_constructors()
-            .map(|cws| Self::generate_trait_constructor(cws.callable()));
-        let other_items = item_impl
-            .items()
-            .iter()
-            .filter_map(ir::ImplItem::filter_map_other_item)
-            .map(ToTokens::to_token_stream);
         let trait_path = item_impl
             .trait_path()
             .expect("encountered missing trait path for trait impl block");
-        let trait_ident = item_impl
-            .trait_ident()
-            .expect("encountered missing trait identifier for trait impl block");
         let self_type = item_impl.self_type();
-        let hash = ir::InkTrait::compute_verify_hash(
-            trait_ident,
-            item_impl.iter_constructors().map(|constructor| {
-                let ident = constructor.ident().clone();
-                let len_inputs = constructor.inputs().count();
-                (ident, len_inputs)
-            }),
-            item_impl.iter_messages().map(|message| {
-                let ident = message.ident().clone();
-                let len_inputs = message.inputs().count() + 1;
-                let is_mut = message.receiver().is_ref_mut();
-                (ident, len_inputs, is_mut)
-            }),
+        let unique_trait_id = generator::generate_unique_trait_id(
+            span,
+            trait_path,
         );
-        let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         quote_spanned!(span =>
-            unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
+            #[doc(hidden)]
+            unsafe impl
+                ::ink_lang::TraitImplementer<#unique_trait_id> for #self_type
+            {}
 
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_Checksum = [(); #checksum];
-                type __ink_ConcreteImplementer = ::ink_lang::NoConcreteImplementer;
+                type Env = Environment;
 
-                #( #constructors )*
+                type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
+                    as #trait_path>::__ink_TraitInfo;
+
                 #( #messages )*
-                #( #other_items )*
             }
         )
     }
