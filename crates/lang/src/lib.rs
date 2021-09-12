@@ -22,8 +22,13 @@ mod env_access;
 mod error;
 mod events;
 mod traits;
+mod contract_ref;
 
 pub use self::{
+    contract_ref::{
+        ContractRef,
+        ContractName,
+    },
     chain_extension::{
         ChainExtensionInstance,
         IsResultType,
