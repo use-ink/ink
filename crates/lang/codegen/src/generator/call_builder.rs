@@ -422,10 +422,10 @@ impl CallBuilder<'_> {
         let output_span = output.span();
         let output_type = quote_spanned!(output_span=>
             ::ink_env::call::CallBuilder<
-                Self::Env,
-                ::ink_env::call::utils::Set< <Self::Env as ::ink_env::Environment>::AccountId >,
+                Environment,
+                ::ink_env::call::utils::Set< <Environment as ::ink_env::Environment>::AccountId >,
                 ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
-                ::ink_env::call::utils::Unset< <Self::Env as ::ink_env::Environment>::Balance >,
+                ::ink_env::call::utils::Unset< <Environment as ::ink_env::Environment>::Balance >,
                 ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
                 ::ink_env::call::utils::Set<#output_sig>,
             >
@@ -438,7 +438,7 @@ impl CallBuilder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
-                ::ink_env::call::build_call::<Self::Env>()
+                ::ink_env::call::build_call::<Environment>()
                     .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
