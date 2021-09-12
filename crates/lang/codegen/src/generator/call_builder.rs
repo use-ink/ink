@@ -200,7 +200,7 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let unique_trait_id = self.generate_unique_trait_id(trait_path);
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         quote_spanned!(span=>
             #[doc(hidden)]
             impl ::ink_lang::TraitCallForwarderFor<#unique_trait_id> for #cb_ident {
@@ -263,7 +263,7 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let unique_trait_id = self.generate_unique_trait_id(trait_path);
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         quote_spanned!(span=>
             // SAFETY:
             //
@@ -274,23 +274,6 @@ impl CallBuilder<'_> {
             unsafe impl
                 ::ink_lang::TraitImplementer<#unique_trait_id> for #cb_ident
             {}
-        )
-    }
-
-    /// Generates code to uniquely identify a trait by its unique ID given only its identifier.
-    ///
-    /// # Note
-    ///
-    /// As with all Rust macros identifiers can shadow each other so the given identifier
-    /// needs to be valid for the scope in which the returned code is generated.
-    fn generate_unique_trait_id(&self, trait_path: &syn::Path) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        quote_spanned!(span=>
-            {
-                <<::ink_lang::TraitCallForwarderRegistry<Environment>
-                    as #trait_path>::__ink_TraitInfo
-                    as ::ink_lang::TraitUniqueId>::ID
-            }
         )
     }
 
@@ -328,7 +311,7 @@ impl CallBuilder<'_> {
         let span = message.span();
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
-        let unique_trait_id = self.generate_unique_trait_id(trait_path);
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         let input_bindings = message
             .callable()
             .inputs()
@@ -500,7 +483,7 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
-        let unique_trait_id = self.generate_unique_trait_id(trait_path);
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         let storage_ident = self.contract.module().storage().ident();
         let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
         quote_spanned!(span=>
@@ -545,8 +528,8 @@ impl CallBuilder<'_> {
         message: ir::CallableWithSelector<ir::Message>,
     ) -> TokenStream2 {
         use ir::Callable as _;
-        let unique_trait_id = self.generate_unique_trait_id(trait_path);
         let span = message.span();
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
         let call_operator = match message.receiver() {
