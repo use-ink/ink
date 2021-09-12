@@ -72,7 +72,7 @@ impl Storage<'_> {
                     type EnvAccess = ::ink_lang::EnvAccess<'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
-                        <Self::EnvAccess as ::core::default::Default>::default()
+                        <<Self as ::ink_lang::Env>::EnvAccess as ::core::default::Default>::default()
                     }
                 }
 
@@ -80,7 +80,7 @@ impl Storage<'_> {
                     type EnvAccess = ::ink_lang::EnvAccess<'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
-                        <Self::EnvAccess as ::core::default::Default>::default()
+                        <<Self as ::ink_lang::Env>::EnvAccess as ::core::default::Default>::default()
                     }
                 }
             };
