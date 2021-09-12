@@ -107,10 +107,11 @@ impl CallBuilder<'_> {
     /// associated call builder.
     fn generate_trait_impl(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
-        let ident = self.contract.module().storage().ident();
+        let storage_ident = self.contract.module().storage().ident();
+        let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
-            impl ::ink_lang::TraitCallBuilder for #ident {
-                type Builder = CallBuilder;
+            impl ::ink_lang::TraitCallBuilder for #storage_ident {
+                type Builder = #cb_ident;
 
                 #[inline]
                 fn call(&self) -> &Self::Builder {
