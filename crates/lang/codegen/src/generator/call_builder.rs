@@ -422,18 +422,18 @@ impl CallBuilder<'_> {
         let callable = message.callable();
         let message_ident = message.ident();
         let attrs = message.attrs();
-        let output = message.output();
-        let output_sig = output.map_or_else(
-            || quote! { () },
-            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
-        );
-        let output_span = output.span();
         let selector = message.composed_selector();
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
         let input_types = generator::input_types(message.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
+        let output = message.output();
+        let output_sig = output.map_or_else(
+            || quote! { () },
+            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
+        );
+        let output_span = output.span();
         let output_type = quote_spanned!(output_span=>
             ::ink_env::call::CallBuilder<
                 Self::Env,
