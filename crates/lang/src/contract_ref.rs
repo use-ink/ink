@@ -20,15 +20,15 @@ pub trait ContractName {
     const NAME: &'static str;
 }
 
-/// A generic ink! smart contract reference.
+/// A generic ink! smart contract call builder.
 ///
 /// This utility struct is generic over the ink! environment `E`
-/// as well as over the concrete smart contract `T`.
+/// as well as over a `T`, usually a concrete smart contract.
 ///
 /// This is used by the ink! codegen in order to implement various
 /// implementations for calling smart contract instances of contract
 /// `T` using environment `E` on-chain.
-pub struct ContractRef<T, E>
+pub struct CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
 {
@@ -36,7 +36,7 @@ where
     __marker: PhantomData<fn() -> T>,
 }
 
-impl<T, E> core::fmt::Debug for ContractRef<T, E>
+impl<T, E> core::fmt::Debug for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::fmt::Debug,
@@ -51,14 +51,14 @@ where
     }
 }
 
-impl<T, E> Copy for ContractRef<T, E>
+impl<T, E> Copy for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Copy,
 {
 }
 
-impl<T, E> Clone for ContractRef<T, E>
+impl<T, E> Clone for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Clone,
@@ -72,7 +72,7 @@ where
     }
 }
 
-impl<T, E> scale::Encode for ContractRef<T, E>
+impl<T, E> scale::Encode for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: scale::Encode,
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<T, E> scale::Decode for ContractRef<T, E>
+impl<T, E> scale::Decode for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: scale::Decode,
@@ -105,7 +105,7 @@ where
     }
 }
 
-impl<T, E> ink_env::call::FromAccountId<E> for ContractRef<T, E>
+impl<T, E> ink_env::call::FromAccountId<E> for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
 {
@@ -118,7 +118,7 @@ where
     }
 }
 
-impl<T, E> crate::ToAccountId<E> for ContractRef<T, E>
+impl<T, E> crate::ToAccountId<E> for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Clone,
@@ -131,7 +131,7 @@ where
     }
 }
 
-impl<T, E> core::hash::Hash for ContractRef<T, E>
+impl<T, E> core::hash::Hash for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::hash::Hash,
@@ -148,7 +148,7 @@ where
     }
 }
 
-impl<T, E> core::cmp::PartialEq for ContractRef<T, E>
+impl<T, E> core::cmp::PartialEq for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::cmp::PartialEq,
@@ -159,14 +159,14 @@ where
     }
 }
 
-impl<T, E> core::cmp::Eq for ContractRef<T, E>
+impl<T, E> core::cmp::Eq for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Eq,
 {
 }
 
-impl<T, E> ink_storage::traits::SpreadLayout for ContractRef<T, E>
+impl<T, E> ink_storage::traits::SpreadLayout for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: ink_storage::traits::SpreadLayout,
@@ -196,7 +196,7 @@ where
     }
 }
 
-impl<T, E> ink_storage::traits::PackedLayout for ContractRef<T, E>
+impl<T, E> ink_storage::traits::PackedLayout for CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: ink_storage::traits::PackedLayout,
