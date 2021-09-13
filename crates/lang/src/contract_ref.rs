@@ -28,6 +28,7 @@ pub trait ContractName {
 /// This is used by the ink! codegen in order to implement various
 /// implementations for calling smart contract instances of contract
 /// `T` using environment `E` on-chain.
+#[repr(transparent)]
 pub struct CallBuilderBase<T, E>
 where
     E: ink_env::Environment,
