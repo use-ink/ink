@@ -217,6 +217,7 @@ codecov:
   variables:
     # For codecov it's sufficient to run the fuzz tests only once.
     QUICKCHECK_TESTS:              1
+    INK_COVERAGE_REPORTING:        true
     CARGO_INCREMENTAL:             0
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
