@@ -165,3 +165,48 @@ where
     <E as ink_env::Environment>::AccountId: Eq,
 {
 }
+
+impl<T, E> ink_storage::traits::SpreadLayout for ContractRef<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: ink_storage::traits::SpreadLayout,
+{
+    const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
+
+    #[inline]
+    fn pull_spread(ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+        Self {
+            account_id: <<E as ink_env::Environment>::AccountId
+                as ink_storage::traits::SpreadLayout>::pull_spread(ptr),
+            __marker: PhantomData,
+        }
+    }
+
+    #[inline]
+    fn push_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
+        <<E as ink_env::Environment>::AccountId
+            as ink_storage::traits::SpreadLayout>::push_spread(&self.account_id, ptr)
+    }
+
+    #[inline]
+    fn clear_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
+        <<E as ink_env::Environment>::AccountId
+            as ink_storage::traits::SpreadLayout>::clear_spread(&self.account_id, ptr)
+    }
+}
+
+impl<T, E> ink_storage::traits::PackedLayout for ContractRef<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: ink_storage::traits::PackedLayout,
+{
+    #[inline(always)]
+    fn pull_packed(&mut self, _at: &ink_primitives::Key) {}
+
+    #[inline(always)]
+    fn push_packed(&self, _at: &ink_primitives::Key) {}
+
+    #[inline(always)]
+    fn clear_packed(&self, _at: &ink_primitives::Key) {}
+}
