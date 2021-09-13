@@ -210,3 +210,192 @@ where
     #[inline(always)]
     fn clear_packed(&self, _at: &ink_primitives::Key) {}
 }
+
+/// A generic ink! smart contract call forwader.
+///
+/// A call forwarder is a thin wrapper arround a call builder
+/// that forwards the long-hand calls to the builder and directly
+/// serves as the interface for the short-hand calls and constructors.
+///
+/// This utility struct is generic over the ink! environment `E`
+/// as well as over a `T`, usually a concrete smart contract.
+///
+/// This is used by the ink! codegen in order to implement various
+/// implementations for calling smart contract instances of contract
+/// `T` using environment `E` on-chain.
+#[repr(transparent)]
+pub struct CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+{
+    call_builder: CallBuilderBase<T, E>,
+}
+
+impl<T, E> core::fmt::Debug for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: core::fmt::Debug,
+    T: ContractName,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CallForwarderBase")
+            .field("call_builder", &self.call_builder)
+            .finish()
+    }
+}
+
+impl<T, E> Copy for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: Copy,
+{
+}
+
+impl<T, E> Clone for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: Clone,
+{
+    #[inline]
+    fn clone(&self) -> Self {
+        Self {
+            call_builder: <CallBuilderBase<T, E> as Clone>::clone(&self.call_builder),
+        }
+    }
+}
+
+impl<T, E> scale::Encode for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: scale::Encode,
+{
+    #[inline]
+    fn size_hint(&self) -> usize {
+        <CallBuilderBase<T, E> as scale::Encode>::size_hint(&self.call_builder)
+    }
+
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
+        <CallBuilderBase<T, E> as scale::Encode>::encode_to(&self.call_builder, dest)
+    }
+}
+
+impl<T, E> scale::Decode for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: scale::Decode,
+{
+    #[inline]
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        <CallBuilderBase<T, E> as scale::Decode>::decode(input)
+            .map(|call_builder| Self { call_builder })
+    }
+}
+
+impl<T, E> ink_env::call::FromAccountId<E> for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+{
+    #[inline]
+    fn from_account_id(account_id: <E as ink_env::Environment>::AccountId) -> Self {
+        Self {
+            call_builder: <CallBuilderBase<T, E>
+                as ink_env::call::FromAccountId<E>>::from_account_id(account_id)
+        }
+    }
+}
+
+impl<T, E> crate::ToAccountId<E> for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: Clone,
+{
+    #[inline]
+    fn to_account_id(&self) -> <E as ink_env::Environment>::AccountId {
+        <CallBuilderBase<T, E> as crate::ToAccountId<E>>::to_account_id(
+            &self.call_builder,
+        )
+    }
+}
+
+impl<T, E> core::hash::Hash for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: core::hash::Hash,
+{
+    #[inline]
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: core::hash::Hasher,
+    {
+        <CallBuilderBase<T, E> as core::hash::Hash>::hash(&self.call_builder, state)
+    }
+}
+
+impl<T, E> core::cmp::PartialEq for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: core::cmp::PartialEq,
+{
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.call_builder == other.call_builder
+    }
+}
+
+impl<T, E> core::cmp::Eq for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: Eq,
+{
+}
+
+impl<T, E> ink_storage::traits::SpreadLayout for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: ink_storage::traits::SpreadLayout,
+{
+    const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
+
+    #[inline]
+    fn pull_spread(ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+        Self {
+            call_builder:
+                <CallBuilderBase<T, E> as ink_storage::traits::SpreadLayout>::pull_spread(
+                    ptr,
+                ),
+        }
+    }
+
+    #[inline]
+    fn push_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
+        <CallBuilderBase<T, E> as ink_storage::traits::SpreadLayout>::push_spread(
+            &self.call_builder,
+            ptr,
+        )
+    }
+
+    #[inline]
+    fn clear_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
+        <CallBuilderBase<T, E> as ink_storage::traits::SpreadLayout>::clear_spread(
+            &self.call_builder,
+            ptr,
+        )
+    }
+}
+
+impl<T, E> ink_storage::traits::PackedLayout for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+    <E as ink_env::Environment>::AccountId: ink_storage::traits::PackedLayout,
+{
+    #[inline(always)]
+    fn pull_packed(&mut self, _at: &ink_primitives::Key) {}
+
+    #[inline(always)]
+    fn push_packed(&self, _at: &ink_primitives::Key) {}
+
+    #[inline(always)]
+    fn clear_packed(&self, _at: &ink_primitives::Key) {}
+}
