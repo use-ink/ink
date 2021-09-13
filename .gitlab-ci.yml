@@ -211,6 +211,7 @@ codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
+  <<:                              *vault-secrets
   needs:
     - job:                         check-std
       artifacts:                   false
