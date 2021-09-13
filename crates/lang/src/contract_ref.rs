@@ -231,6 +231,24 @@ where
     call_builder: CallBuilderBase<T, E>,
 }
 
+impl<T, E> crate::TraitCallBuilder for CallForwarderBase<T, E>
+where
+    E: ink_env::Environment,
+{
+    type Builder = CallBuilderBase<T, E>;
+
+    #[inline]
+    fn call(&self) -> &Self::Builder {
+        &self.call_builder
+    }
+
+    #[inline]
+    fn call_mut(&mut self) -> &mut Self::Builder {
+        &mut self.call_builder
+    }
+
+}
+
 impl<T, E> core::fmt::Debug for CallForwarderBase<T, E>
 where
     E: ink_env::Environment,
