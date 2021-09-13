@@ -26,7 +26,8 @@ mod contract_ref;
 
 pub use self::{
     contract_ref::{
-        ContractRef,
+        CallBuilderBase,
+        CallForwarderBase,
         ContractName,
     },
     chain_extension::{
