@@ -262,7 +262,6 @@ where
     fn call_mut(&mut self) -> &mut Self::Builder {
         &mut self.call_builder
     }
-
 }
 
 impl<T, E> core::fmt::Debug for ContractRef<T, E>
