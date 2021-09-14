@@ -51,16 +51,22 @@ pub mod incrementer {
         pub fn new() -> Self {
             Self { value: Default::default() }
         }
+
+        /// Increases the value of the incrementer by the given delta.
+        #[ink(message)]
+        pub fn inc_by(&mut self, delta: u64) {
+            self.value += delta;
+        }
     }
 
     impl Increment for Incrementer {
         #[ink(message)]
         fn inc(&mut self) {
-            self.value += 1;
+            self.inc_by(1)
         }
 
         #[ink(message)]
-        fn get(&self) -> bool {
+        fn get(&self) -> u64 {
             self.value
         }
     }
@@ -72,24 +78,24 @@ pub mod incrementer {
         }
     }
 
-    // #[cfg(test)]
-    // mod tests {
-    //     use super::*;
+    #[cfg(test)]
+    mod tests {
+        use super::*;
 
-    //     #[test]
-    //     fn default_works() {
-    //         let flipper = Flipper::default();
-    //         assert_eq!(flipper.get(), false);
-    //     }
+        #[test]
+        fn default_works() {
+            let incrementer = Incrementer::new();
+            assert_eq!(incrementer.get(), 0);
+        }
 
-    //     #[test]
-    //     fn it_works() {
-    //         let mut flipper = Flipper::new(false);
-    //         // Can call using universal call syntax using the trait.
-    //         assert_eq!(<Flipper as Flip>::get(&flipper), false);
-    //         <Flipper as Flip>::flip(&mut flipper);
-    //         // Normal call syntax possible to as long as the trait is in scope.
-    //         assert_eq!(flipper.get(), true);
-    //     }
-    // }
+        #[test]
+        fn it_works() {
+            let mut incrementer = Incrementer::new();
+            // Can call using universal call syntax using the trait.
+            assert_eq!(<Incrementer as Increment>::get(&incrementer), 0);
+            <Incrementer as Increment>::inc(&mut incrementer);
+            // Normal call syntax possible to as long as the trait is in scope.
+            assert_eq!(incrementer.get(), 1);
+        }
+    }
 }
