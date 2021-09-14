@@ -418,7 +418,7 @@ impl CallForwarder<'_> {
                     ),*
                 )
                     .fire()
-                    .unwrap_or_else(|err| ::core::panic!("{}: {}", #panic_str, err))
+                    .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
             }
         )
     }

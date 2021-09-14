@@ -344,7 +344,7 @@ impl ContractRef<'_> {
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
                     .unwrap_or_else(|error| ::core::panic!(
-                        "encountered error while calling {}::{}: {}",
+                        "encountered error while calling {}::{}: {:?}",
                         ::core::stringify!(#storage_ident),
                         ::core::stringify!(#message_ident),
                         error,
