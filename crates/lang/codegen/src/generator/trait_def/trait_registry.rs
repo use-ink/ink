@@ -94,7 +94,7 @@ impl TraitRegistry<'_> {
     fn generate_registry_impl(&self) -> TokenStream2 {
         let span = self.span();
         let name = self.trait_ident();
-        let trait_info_ident = self.trait_def.call_forwarder_ident();
+        let trait_info_ident = self.trait_def.trait_info_ident();
         let messages = self.generate_registry_messages();
         quote_spanned!(span=>
             impl<E> #name for ::ink_lang::TraitCallForwarderRegistry<E>
