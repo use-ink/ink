@@ -72,7 +72,6 @@ pub use self::{
         EmitEvent,
     },
     traits::{
-        TraitImplementer,
         Constructor,
         FnInput,
         FnOutput,
@@ -84,10 +83,11 @@ pub use self::{
         NoConcreteImplementer,
         TraitCallBuilder,
         TraitCallForwarder,
-        TraitCallForwarderRegistry,
-        TraitUniqueId,
         TraitCallForwarderFor,
+        TraitCallForwarderRegistry,
+        TraitImplementer,
         TraitModulePath,
+        TraitUniqueId,
         True,
     },
 };
