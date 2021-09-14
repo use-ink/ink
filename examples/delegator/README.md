@@ -13,7 +13,7 @@ In order to test this bundle of smart contracts you need to execute the
 following steps.
 
 You can upload the contracts using our [Canvas UI](https://paritytech.github.io/canvas-ui/#/).
-If you want to test it locally, our [Canvas Node](https://paritytech.github.io/ink-docs/getting-started/setup#installing-the-canvas-node)
+If you want to test it locally, our [`substrate-contracts-node`](https://paritytech.github.io/ink-docs/getting-started/setup/#installing-the-substrate-smart-contracts-node)
 is an easy way to get a local smart contract chain running.
 
 1. Compile all contracts using the `./build-all.sh` script.
@@ -27,7 +27,7 @@ is an easy way to get a local smart contract chain running.
    copy the contract hashes [from the page of uploaded contracts](https://paritytech.github.io/canvas-ui/#/instantiate):<br/>
    [<img src="./.images/code-hashes.png" width="600" alt="Code Hashes Overview" />](https://paritytech.github.io/canvas-ui/#/instantiate)
 1. Instantiate the Delegator smart contract given all of the code hashes and a starting value.
-   Make sure the endowment is big enough (if you're using our `canvas-node` it's `1000000`).
+   Make sure the endowment is big enough (if you're using our `substrate-contracts-node` it's `1000000`).
    The Delegator smart contract will take over the work of instantiating the other smart contracts for you.
 1. Now you are able to run the operations provided by the Delegator smart contract.
    Namely `delegate` to delegate the call to either the Adder or the Subber to either increase or decrease
