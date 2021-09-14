@@ -20,6 +20,15 @@ pub trait ContractReference {
     type Type;
 }
 
+/// Used to refer to the generated contract call builder.
+///
+/// The generated contract call builder implements the long-hand calling API
+/// for all inherent or trait ink! messages.
+pub trait ContractCallBuilder {
+    /// The generated contract call builder type.
+    type Type;
+}
+
 /// Trait to inform about the name of an ink! smart contract.
 pub trait ContractName {
     /// The name of the ink! smart contract.

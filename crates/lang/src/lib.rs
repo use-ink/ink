@@ -16,21 +16,15 @@
 
 mod chain_extension;
 mod contract;
+mod contract_ref;
 mod cross_calling;
 mod dispatcher;
 mod env_access;
 mod error;
 mod events;
 mod traits;
-mod contract_ref;
 
 pub use self::{
-    contract_ref::{
-        CallBuilderBase,
-        ContractReference,
-        ContractRef,
-        ContractName,
-    },
     chain_extension::{
         ChainExtensionInstance,
         IsResultType,
@@ -38,6 +32,13 @@ pub use self::{
     contract::{
         DispatchMode,
         DispatchUsingMode,
+    },
+    contract_ref::{
+        CallBuilderBase,
+        ContractCallBuilder,
+        ContractName,
+        ContractRef,
+        ContractReference,
     },
     cross_calling::{
         ForwardCall,
