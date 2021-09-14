@@ -20,7 +20,13 @@
 //! types for the trait's respective call builder and call forwarder.
 
 use super::TraitDefinition;
-use crate::{generator::{self, enforced_error::EnforcedErrors}, traits::GenerateCode};
+use crate::{
+    generator::{
+        self,
+        enforced_error::EnforcedErrors,
+    },
+    traits::GenerateCode,
+};
 use derive_more::From;
 use ir::HexLiteral;
 use proc_macro2::{
@@ -32,6 +38,7 @@ use quote::{
     quote,
     quote_spanned,
 };
+use syn::parse_quote;
 
 impl<'a> TraitDefinition<'a> {
     /// Generates the code for the global trait registry implementation.
@@ -141,6 +148,11 @@ impl TraitRegistry<'_> {
         let ident = message.ident();
         let attrs = message.attrs();
         let output_ident = generator::output_ident(message.ident());
+        let output_type = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| parse_quote! { () });
+        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
         let (input_bindings, input_types) =
             Self::input_bindings_and_types(message.inputs());
         let linker_error_ident = EnforcedErrors::cannot_call_trait_message(
@@ -150,13 +162,14 @@ impl TraitRegistry<'_> {
             message.mutates(),
         );
         quote_spanned!(span =>
-            type #output_ident = ::ink_lang::NeverReturns;
+            type #output_ident = #output_type;
 
             #( #attrs )*
             #[cold]
             #[doc(hidden)]
             fn #ident(
-                #( #input_bindings : #input_types ),*
+                & #mut_token self
+                #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 /// We enforce linking errors in case this is ever actually called.
                 /// These linker errors are properly resolved by the cargo-contract tool.
