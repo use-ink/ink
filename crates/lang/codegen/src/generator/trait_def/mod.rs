@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod definition;
-mod trait_registry;
 mod call_builder;
 mod call_forwarder;
+mod definition;
+mod trait_registry;
 
 use crate::GenerateCode;
 use derive_more::From;
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use quote::{
     format_ident,
     quote_spanned,

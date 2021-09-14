@@ -193,7 +193,10 @@ impl Dispatch<'_> {
         let callable = cws.callable();
         let callable_span = callable.span();
         let selector = cws.composed_selector();
-        let (selector_bytes, selector_id) = (selector.hex_lits(), selector.into_be_u32().hex_padded_suffixed());
+        let (selector_bytes, selector_id) = (
+            selector.hex_lits(),
+            selector.into_be_u32().hex_padded_suffixed(),
+        );
         let input_types = callable
             .inputs()
             .map(|pat_type| &pat_type.ty)

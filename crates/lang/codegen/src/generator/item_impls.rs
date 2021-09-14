@@ -95,10 +95,7 @@ impl ItemImpls<'_> {
             .trait_path()
             .expect("encountered missing trait path for trait impl block");
         let self_type = item_impl.self_type();
-        let unique_trait_id = generator::generate_unique_trait_id(
-            span,
-            trait_path,
-        );
+        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         quote_spanned!(span =>
             #[doc(hidden)]
             unsafe impl

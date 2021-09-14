@@ -13,7 +13,10 @@
 // limitations under the License.
 
 use super::blake2::blake2b_256;
-use crate::{Namespace, literal::HexLiteral};
+use crate::{
+    literal::HexLiteral,
+    Namespace,
+};
 
 /// A function selector.
 ///

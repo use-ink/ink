@@ -47,7 +47,8 @@ impl GenerateCode for Contract<'_> {
         let dispatch = self.generate_code_using::<generator::Dispatch>();
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
         let metadata = self.generate_code_using::<generator::Metadata>();
-        let contract_reference = self.generate_code_using::<generator::ContractReference>();
+        let contract_reference =
+            self.generate_code_using::<generator::ContractReference>();
         let non_ink_items = self
             .contract
             .module()

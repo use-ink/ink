@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use proc_macro2::{Span, TokenStream as TokenStream2};
+use heck::CamelCase;
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
 use quote::{
     format_ident,
     quote,
     quote_spanned,
 };
-use heck::CamelCase;
 
 /// Returns the associated output type for an ink! trait message.
 pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
