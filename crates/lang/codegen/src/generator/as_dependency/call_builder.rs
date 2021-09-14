@@ -45,22 +45,16 @@ pub struct CallBuilder<'a> {
 impl GenerateCode for CallBuilder<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let call_builder_struct = self.generate_struct();
-        let trait_impl = self.generate_trait_impl();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         let call_builder_impls = self.generate_call_forwarder_impls();
         let call_builder_inherent_impls = self.generate_call_builder_inherent_impls();
-        let contract_trait_impls = self.generate_contract_trait_impls();
-        let contract_inherent_impls = self.generate_contract_inherent_impls();
         quote! {
             const _: () = {
                 #call_builder_struct
-                #trait_impl
                 #auxiliary_trait_impls
                 #call_builder_impls
                 #call_builder_inherent_impls
             };
-            #contract_trait_impls
-            #contract_inherent_impls
         }
     }
 }
@@ -80,6 +74,7 @@ impl CallBuilder<'_> {
 
     fn generate_struct(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
         let cb_ident = Self::call_builder_ident();
         quote_spanned!(span=>
             /// The ink! smart contract's call builder.
@@ -100,31 +95,12 @@ impl CallBuilder<'_> {
             pub struct #cb_ident {
                 account_id: AccountId,
             }
-        )
-    }
 
-    /// Generates the `CallBuilder` trait implementation for the ink! contract.
-    ///
-    /// This creates the bridge between the ink! smart contract type and the
-    /// associated call builder.
-    fn generate_trait_impl(&self) -> TokenStream2 {
-        let span = self.contract.module().storage().span();
-        let storage_ident = self.contract.module().storage().ident();
-        let cb_ident = Self::call_builder_ident();
-        quote_spanned!(span=>
-            impl ::ink_lang::TraitCallBuilder for #storage_ident {
-                type Builder = #cb_ident;
-
-                #[inline]
-                fn call(&self) -> &Self::Builder {
-                    &self.builder
+            const _: () = {
+                impl ::ink_lang::ContractCallBuilder for #storage_ident {
+                    type Type = #cb_ident;
                 }
-
-                #[inline]
-                fn call_mut(&mut self) -> &mut Self::Builder {
-                    &mut self.builder
-                }
-            }
+            };
         )
     }
 
@@ -204,7 +180,7 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             #[doc(hidden)]
             impl ::ink_lang::TraitCallForwarderFor<#unique_trait_id> for #cb_ident {
-                type Forwarder = <<Self as Increment>::__ink_TraitInfo as ::ink_lang::TraitCallForwarder>::Forwarder;
+                type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::TraitCallForwarder>::Forwarder;
 
                 #[inline(always)]
                 fn forward(&self) -> &Self::Forwarder {
@@ -449,249 +425,6 @@ impl CallBuilder<'_> {
                         )*
                     )
                     .returns::<#output_sig>()
-            }
-        )
-    }
-
-    /// Generates the code for all ink! trait implementations of the contract itself.
-    ///
-    /// # Note
-    ///
-    /// The generated implementations must live outside of an artificial `const` block
-    /// in order to properly show their documentation using `rustdoc`.
-    fn generate_contract_trait_impls(&self) -> TokenStream2 {
-        self.contract
-            .module()
-            .impls()
-            .filter_map(|impl_block| {
-                // We are only interested in ink! trait implementation block.
-                impl_block.trait_path().map(|trait_path| {
-                    self.generate_contract_trait_impl(trait_path, impl_block)
-                })
-            })
-            .collect()
-    }
-
-    /// Generates the code for a single ink! trait implementation of the contract itself.
-    ///
-    /// The generated implementation mainly forwards the calls to the previously generated
-    /// associated call builder that implements each respective ink! trait.
-    fn generate_contract_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let span = impl_block.span();
-        let attrs = impl_block.attrs();
-        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
-        let storage_ident = self.contract.module().storage().ident();
-        let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
-        quote_spanned!(span=>
-            #[doc(hidden)]
-            unsafe impl
-                ::ink_lang::TraitImplementer<#unique_trait_id> for #storage_ident
-            {}
-
-            #( #attrs )*
-            impl #trait_path for #storage_ident {
-                type Env = Environment;
-
-                #[doc(hidden)]
-                type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
-                    as #trait_path>::__ink_TraitInfo;
-
-                #messages
-            }
-        )
-    }
-
-    /// Generates the code for all messages of a single ink! trait implementation of
-    /// the ink! smart contract.
-    fn generate_contract_trait_impl_messages(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        impl_block
-            .iter_messages()
-            .map(|message| {
-                self.generate_contract_trait_impl_for_message(trait_path, message)
-            })
-            .collect()
-    }
-
-    /// Generates the code for a single message of a single ink! trait implementation
-    /// that is implemented by the ink! smart contract.
-    fn generate_contract_trait_impl_for_message(
-        &self,
-        trait_path: &syn::Path,
-        message: ir::CallableWithSelector<ir::Message>,
-    ) -> TokenStream2 {
-        use ir::Callable as _;
-        let span = message.span();
-        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
-        let message_ident = message.ident();
-        let output_ident = generator::output_ident(message_ident);
-        let call_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { call },
-            ir::Receiver::RefMut => quote! { call_mut },
-        };
-        let forward_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { forward },
-            ir::Receiver::RefMut => quote! { forward_mut },
-        };
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
-        let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        quote_spanned!(span=>
-            type #output_ident =
-                <<Self::__ink_TraitInfo as ::ink_lang::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
-
-            #[inline]
-            fn #message_ident(
-                & #mut_token self
-                #( , #input_bindings : #input_types )*
-            ) -> Self::#output_ident {
-                <_ as #trait_path>::#message_ident(
-                    <_ as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::#forward_operator(
-                        <Self as ::ink_lang::TraitCallBuilder>::#call_operator(self),
-                    )
-                    #( , #input_bindings )*
-                )
-            }
-        )
-    }
-
-    /// Generates the code for all ink! inherent implementations of the contract itself.
-    ///
-    /// # Note
-    ///
-    /// The generated implementations must live outside of an artificial `const` block
-    /// in order to properly show their documentation using `rustdoc`.
-    fn generate_contract_inherent_impls(&self) -> TokenStream2 {
-        self.contract
-            .module()
-            .impls()
-            .filter_map(|impl_block| {
-                // We are only interested in ink! trait implementation block.
-                impl_block
-                    .trait_path()
-                    .is_none()
-                    .then(|| self.generate_contract_inherent_impl(impl_block))
-            })
-            .collect()
-    }
-
-    /// Generates the code for a single ink! inherent implementation of the contract itself.
-    ///
-    /// # Note
-    ///
-    /// This produces the short-hand calling notation for the inherent contract implementation.
-    /// The generated code simply forwards its calling logic to the associated call builder.
-    fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
-        let span = impl_block.span();
-        let attrs = impl_block.attrs();
-        let storage_ident = self.contract.module().storage().ident();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_contract_inherent_impl_for_message(message));
-        let constructors = impl_block.iter_constructors().map(|constructor| {
-            self.generate_contract_inherent_impl_for_constructor(constructor)
-        });
-        quote_spanned!(span=>
-            #( #attrs )*
-            impl #storage_ident {
-                #( #constructors )*
-                #( #messages )*
-            }
-        )
-    }
-
-    /// Generates the code for a single ink! inherent message of the contract itself.
-    ///
-    /// # Note
-    ///
-    /// This produces the short-hand calling notation for the inherent contract message.
-    /// The generated code simply forwards its calling logic to the associated call builder.
-    fn generate_contract_inherent_impl_for_message(
-        &self,
-        message: ir::CallableWithSelector<ir::Message>,
-    ) -> TokenStream2 {
-        use ir::Callable as _;
-        let span = message.span();
-        let attrs = message.attrs();
-        let storage_ident = self.contract.module().storage().ident();
-        let message_ident = message.ident();
-        let call_operator = match message.receiver() {
-            ir::Receiver::Ref => quote! { call },
-            ir::Receiver::RefMut => quote! { call_mut },
-        };
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
-        let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let output_type = message.output().map(|ty| quote! { -> #ty });
-        quote_spanned!(span=>
-            #( #attrs )*
-            #[inline]
-            pub fn #message_ident(
-                & #mut_token self
-                #( , #input_bindings : #input_types )*
-            ) #output_type {
-                <Self as ::ink_lang::TraitCallBuilder>::#call_operator(self)
-                    .#message_ident( #( #input_bindings ),* )
-                    .fire()
-                    .unwrap_or_else(|error| ::core::panic!(
-                        "encountered error while calling {}::{}: {}",
-                        ::core::stringify!(#storage_ident),
-                        ::core::stringify!(#message_ident),
-                        error,
-                    ))
-            }
-        )
-    }
-
-    /// Generates the code for a single ink! inherent constructor of the contract itself.
-    ///
-    /// # Note
-    ///
-    /// Unlike with ink! messages this does not forward to the call builder since constructor
-    /// calls in ink! do not have a short-hand notation and therefore this implements the
-    /// long-hand calling notation code directly.
-    fn generate_contract_inherent_impl_for_constructor(
-        &self,
-        constructor: ir::CallableWithSelector<ir::Constructor>,
-    ) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let constructor_ident = constructor.ident();
-        let selector_bytes = constructor.composed_selector().hex_lits();
-        let input_bindings = generator::input_bindings(constructor.inputs());
-        let input_types = generator::input_types(constructor.inputs());
-        let arg_list = generator::generate_argument_list(input_types.iter().cloned());
-        quote_spanned!(span =>
-            #( #attrs )*
-            #[inline]
-            #[allow(clippy::type_complexity)]
-            pub fn #constructor_ident(
-                #( #input_bindings : #input_types ),*
-            ) -> ::ink_env::call::CreateBuilder<
-                Environment,
-                ::ink_env::call::utils::Unset<Hash>,
-                ::ink_env::call::utils::Unset<u64>,
-                ::ink_env::call::utils::Unset<Balance>,
-                ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
-                ::ink_env::call::utils::Unset<::ink_env::call::state::Salt>,
-                Self,
-            > {
-                ::ink_env::call::build_create::<Environment, Self>()
-                    .exec_input(
-                        ::ink_env::call::ExecutionInput::new(
-                            ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
-                        )
-                        #(
-                            .push_arg(#input_bindings)
-                        )*
-                    )
             }
         )
     }

@@ -12,7 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+mod call_builder;
+mod contract_ref;
+
+use self::{
+    call_builder::CallBuilder,
+    contract_ref::ContractRef,
+};
+use crate::{
+    traits::GenerateCodeUsing,
+    GenerateCode,
+};
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
@@ -55,6 +65,35 @@ impl GenerateCode for OnlyAsDependencyCfg<'_> {
         }
         quote! {
             #[cfg(feature = "ink-as-dependency")]
+        }
+    }
+}
+
+/// Generates code for generating a contract reference.
+///
+/// Contract references are used to dynamically depend on a smart contract.
+/// The contract reference is just a typed thin-wrapper around an `AccountId`
+/// that implements an API mirrored by the smart contract.
+#[derive(From)]
+pub struct ContractReference<'a> {
+    /// The contract to generate code for.
+    contract: &'a ir::Contract,
+}
+
+impl AsRef<ir::Contract> for ContractReference<'_> {
+    fn as_ref(&self) -> &ir::Contract {
+        self.contract
+    }
+}
+
+impl GenerateCode for ContractReference<'_> {
+    /// Generates ink! contract code.
+    fn generate_code(&self) -> TokenStream2 {
+        let call_builder = self.generate_code_using::<CallBuilder>();
+        let call_forwarder = self.generate_code_using::<ContractRef>();
+        quote! {
+            #call_builder
+            #call_forwarder
         }
     }
 }

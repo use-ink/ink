@@ -28,7 +28,6 @@ macro_rules! impl_as_ref_for_generator {
 
 mod arg_list;
 mod as_dependency;
-mod call_builder;
 mod chain_extension;
 mod contract;
 mod cross_calling;
@@ -53,8 +52,8 @@ pub use self::{
     as_dependency::{
         NotAsDependencyCfg,
         OnlyAsDependencyCfg,
+        ContractReference,
     },
-    call_builder::CallBuilder,
     chain_extension::ChainExtension,
     contract::Contract,
     cross_calling::CrossCalling,
