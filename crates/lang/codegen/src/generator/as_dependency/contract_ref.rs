@@ -47,11 +47,13 @@ impl GenerateCode for ContractRef<'_> {
         let contract_ref_trait_impls = self.generate_contract_trait_impls();
         let contract_ref_inherent_impls = self.generate_contract_inherent_impls();
         let call_builder_trait_impl = self.generate_call_builder_trait_impl();
+        let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
         quote! {
             #contract_ref
             #contract_ref_trait_impls
             #contract_ref_inherent_impls
             #call_builder_trait_impl
+            #auxiliary_trait_impls
         }
     }
 }
@@ -94,6 +96,35 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
             };
+        )
+    }
+
+    /// Generates some ink! specific auxiliary trait implementations for the
+    /// smart contract reference type.
+    ///
+    /// These are required to properly interoperate with the contract reference.
+    fn generate_auxiliary_trait_impls(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let ref_ident = self.generate_contract_ref_ident();
+        quote_spanned!(span=>
+            impl ::ink_env::call::FromAccountId<Environment> for #ref_ident {
+                #[inline]
+                fn from_account_id(account_id: AccountId) -> Self {
+                    Self { inner: <<#storage_ident
+                        as ::ink_lang::ContractCallBuilder>::Type
+                        as ::ink_env::call::FromAccountId<Environment>>::from_account_id(account_id)
+                    }
+                }
+            }
+
+            impl ::ink_lang::ToAccountId<Environment> for #ref_ident {
+                #[inline]
+                fn to_account_id(&self) -> AccountId {
+                    <<#storage_ident as ::ink_lang::ContractCallBuilder>::Type
+                        as ::ink_lang::ToAccountId<Environment>>::to_account_id(&self.inner)
+                }
+            }
         )
     }
 
