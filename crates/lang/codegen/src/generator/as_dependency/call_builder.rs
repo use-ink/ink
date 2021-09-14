@@ -87,10 +87,13 @@ impl CallBuilder<'_> {
                 ::ink_storage::traits::StorageLayout,
             ))]
             #[derive(
-                ::scale::Encode,
-                ::scale::Decode,
                 ::ink_storage::traits::SpreadLayout,
                 ::ink_storage::traits::PackedLayout,
+                ::scale::Encode,
+                ::scale::Decode,
+                ::core::hash::Hash,
+                ::core::cmp::PartialEq,
+                ::core::cmp::Eq,
             )]
             pub struct #cb_ident {
                 account_id: AccountId,
