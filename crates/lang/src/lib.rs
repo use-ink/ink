@@ -27,6 +27,7 @@ mod contract_ref;
 pub use self::{
     contract_ref::{
         CallBuilderBase,
+        ContractReference,
         ContractRef,
         ContractName,
     },

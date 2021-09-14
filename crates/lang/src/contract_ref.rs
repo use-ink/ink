@@ -14,6 +14,12 @@
 
 use core::marker::PhantomData;
 
+/// Used to refer to the generated contract reference from the given contract storage struct.
+pub trait ContractReference {
+    /// The generated contract reference type.
+    type Type;
+}
+
 /// Trait to inform about the name of an ink! smart contract.
 pub trait ContractName {
     /// The name of the ink! smart contract.
