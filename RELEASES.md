@@ -1,3 +1,8 @@
+# Unreleased
+
+## Changed
+- Update to scale-info 1.0 [#845](https://github.com/paritytech/ink/pull/845).
+
 # Version 3.0-rc5 (2021-09-08)
 
 This is the 5th release candidate for ink! 3.0.
