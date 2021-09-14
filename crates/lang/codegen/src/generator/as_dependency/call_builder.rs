@@ -415,7 +415,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
                 ::ink_env::call::build_call::<Environment>()
-                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .callee(self.account_id)
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
