@@ -38,7 +38,10 @@ pub trait Reset {
 
 #[ink::contract]
 pub mod incrementer {
-    use super::{Increment, Reset};
+    use super::{
+        Increment,
+        Reset,
+    };
 
     #[ink(storage)]
     pub struct Incrementer {
@@ -49,7 +52,9 @@ pub mod incrementer {
         /// Creates a new incrementer smart contract initialized with `0`.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self { value: Default::default() }
+            Self {
+                value: Default::default(),
+            }
         }
 
         /// Increases the value of the incrementer by the given delta.
