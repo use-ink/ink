@@ -31,10 +31,8 @@ use ink_env::{
 };
 use ink_primitives::Key;
 
-use crate::{
-    traits::ECDSAPublicKey,
-    ChainExtensionInstance,
-};
+use crate::ChainExtensionInstance;
+use ink_eth_compatibility::ECDSAPublicKey;
 
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {
@@ -1018,7 +1016,8 @@ where
         output
     }
 
-    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`, and stores the result in `output`.
+    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+    /// and stores the result in `output`.
     ///
     /// # Example
     ///
@@ -1057,6 +1056,13 @@ where
     ///     let result = self.env().ecdsa_recover(&signature, &message_hash);
     ///     assert!(result.is_ok());
     ///     assert_eq!(*result.unwrap(), EXPECTED_COMPRESSED_PUBLIC_KEY);
+    ///
+    ///     // Pass invalid zero message hash
+    ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
+    ///     assert!(failed_result.is_err());
+    ///     if let Err(e) = failed_result {
+    ///         assert_eq!(e, ink_env::Error::EcdsaRecoverFailed);
+    ///     }
     /// }
     /// #
     /// #     }

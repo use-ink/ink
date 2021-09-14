@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_lang::{
+use ink_eth_compatibility::{
     ECDSAPublicKey,
     EthereumAddress,
 };

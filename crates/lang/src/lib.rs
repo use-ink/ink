@@ -66,8 +66,6 @@ pub use self::{
     traits::{
         CheckedInkTrait,
         Constructor,
-        ECDSAPublicKey,
-        EthereumAddress,
         FnInput,
         FnOutput,
         FnSelector,

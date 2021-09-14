@@ -140,7 +140,8 @@ pub trait EnvBackend {
         H: CryptoHash,
         T: scale::Encode;
 
-    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`, and stores the result in `output`.
+    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+    /// and stores the result in `output`.
     fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],

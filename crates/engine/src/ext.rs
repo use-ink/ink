@@ -420,6 +420,8 @@ impl Engine {
         );
     }
 
+    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+    /// and stores the result in `output`.
     pub fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -433,15 +435,19 @@ impl Engine {
             Signature,
         };
 
+        // In most implementations, the v is just 0 or 1 internally, but 27 was added
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
         let recovery_byte = if signature[64] > 27 {
             signature[64] - 27
         } else {
             signature[64]
         };
         let message = Message::parse(message_hash);
-        let signature = Signature::parse_slice(&signature[0..64]).unwrap();
+        let signature = Signature::parse_slice(&signature[0..64])
+            .unwrap_or_else(|error| panic!("Unable to parse the signature: {}", error));
 
-        let recovery_id = RecoveryId::parse(recovery_byte).unwrap();
+        let recovery_id = RecoveryId::parse(recovery_byte)
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
 
         let pub_key = recover(&message, &signature, &recovery_id);
         match pub_key {
