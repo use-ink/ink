@@ -229,11 +229,11 @@ See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a m
 ### Trait Definitions
 
 Use `#[ink::trait_definition]` to define your very own trait definitions that are then implementable by ink! smart contracts.
-See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/master/examples/trait-erc20/lib.rs#L49-L51) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.trait_definition.html) for details.
+See e.g. the [`examples/trait-erc20`](https://github.com/paritytech/ink/blob/v3.0.0-rc5/examples/trait-erc20/lib.rs#L35-L37) contract on how to utilize it or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.trait_definition.html) for details.
 
 ### Off-chain Testing
 
-The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs#L278-L280) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
+The `#[ink::test]` procedural macro enables off-chain testing. See e.g. the [`examples/erc20`](https://github.com/paritytech/ink/blob/v3.0.0-rc5/examples/erc20/lib.rs#L248-L250) contract on how to utilize those or [the documentation](https://paritytech.github.io/ink/ink_lang/attr.test.html) for details.
 
 ## Developer Documentation
 
