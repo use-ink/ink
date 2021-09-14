@@ -43,7 +43,7 @@ where
     <E as ink_env::Environment>::AccountId: core::fmt::Debug,
     T: ContractName,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let name = <T as ContractName>::NAME;
         f.debug_struct("ContractRef")
             .field("name", &name)
@@ -225,14 +225,14 @@ where
 /// implementations for calling smart contract instances of contract
 /// `T` using environment `E` on-chain.
 #[repr(transparent)]
-pub struct CallForwarderBase<T, E>
+pub struct ContractRef<T, E>
 where
     E: ink_env::Environment,
 {
     call_builder: CallBuilderBase<T, E>,
 }
 
-impl<T, E> crate::TraitCallBuilder for CallForwarderBase<T, E>
+impl<T, E> crate::TraitCallBuilder for ContractRef<T, E>
 where
     E: ink_env::Environment,
 {
@@ -250,27 +250,27 @@ where
 
 }
 
-impl<T, E> core::fmt::Debug for CallForwarderBase<T, E>
+impl<T, E> core::fmt::Debug for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::fmt::Debug,
     T: ContractName,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("CallForwarderBase")
             .field("call_builder", &self.call_builder)
             .finish()
     }
 }
 
-impl<T, E> Copy for CallForwarderBase<T, E>
+impl<T, E> Copy for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Copy,
 {
 }
 
-impl<T, E> Clone for CallForwarderBase<T, E>
+impl<T, E> Clone for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Clone,
@@ -283,7 +283,7 @@ where
     }
 }
 
-impl<T, E> scale::Encode for CallForwarderBase<T, E>
+impl<T, E> scale::Encode for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: scale::Encode,
@@ -299,7 +299,7 @@ where
     }
 }
 
-impl<T, E> scale::Decode for CallForwarderBase<T, E>
+impl<T, E> scale::Decode for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: scale::Decode,
@@ -311,7 +311,7 @@ where
     }
 }
 
-impl<T, E> ink_env::call::FromAccountId<E> for CallForwarderBase<T, E>
+impl<T, E> ink_env::call::FromAccountId<E> for ContractRef<T, E>
 where
     E: ink_env::Environment,
 {
@@ -324,7 +324,7 @@ where
     }
 }
 
-impl<T, E> crate::ToAccountId<E> for CallForwarderBase<T, E>
+impl<T, E> crate::ToAccountId<E> for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Clone,
@@ -337,7 +337,7 @@ where
     }
 }
 
-impl<T, E> core::hash::Hash for CallForwarderBase<T, E>
+impl<T, E> core::hash::Hash for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::hash::Hash,
@@ -351,7 +351,7 @@ where
     }
 }
 
-impl<T, E> core::cmp::PartialEq for CallForwarderBase<T, E>
+impl<T, E> core::cmp::PartialEq for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: core::cmp::PartialEq,
@@ -362,14 +362,14 @@ where
     }
 }
 
-impl<T, E> core::cmp::Eq for CallForwarderBase<T, E>
+impl<T, E> core::cmp::Eq for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: Eq,
 {
 }
 
-impl<T, E> ink_storage::traits::SpreadLayout for CallForwarderBase<T, E>
+impl<T, E> ink_storage::traits::SpreadLayout for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: ink_storage::traits::SpreadLayout,
@@ -404,7 +404,7 @@ where
     }
 }
 
-impl<T, E> ink_storage::traits::PackedLayout for CallForwarderBase<T, E>
+impl<T, E> ink_storage::traits::PackedLayout for ContractRef<T, E>
 where
     E: ink_env::Environment,
     <E as ink_env::Environment>::AccountId: ink_storage::traits::PackedLayout,
