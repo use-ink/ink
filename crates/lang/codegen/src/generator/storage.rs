@@ -107,6 +107,12 @@ impl Storage<'_> {
             pub struct #ident {
                 #( #fields ),*
             }
+
+            const _: () = {
+                impl ::ink_lang::ContractName for #ident {
+                    const NAME: &'static str = ::core::stringify!(#ident);
+                }
+            };
         )
     }
 }
