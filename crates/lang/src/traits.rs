@@ -123,7 +123,7 @@ pub trait MessageMut: FnInput + FnOutput + FnSelector + FnState {
 pub trait True {}
 
 /// This type is known to ink! to implement all defined ink! trait definitions.
-/// This property can be guaranteed by `#[ink::trait_definition]` proc. macro.
+/// This property can be guaranteed by `#[ink::trait_definition]` procedural macro.
 ///
 /// By the introduction of an new internal and hidden associated type called
 /// `__ink_DynamicCallForwarder` for all ink! trait definitions it is possible
@@ -206,7 +206,7 @@ pub trait TraitModulePath {
     /// The module path of the ink! trait definition.
     ///
     /// This is equivalent to Rust's builtin `module_path!` macro
-    /// invokation at the definition site of the ink! trait.
+    /// invocation at the definition site of the ink! trait.
     const PATH: &'static str;
 
     /// The name of the ink! trait.

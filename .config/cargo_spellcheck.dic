@@ -1,4 +1,4 @@
-90
+100
 
 ABI
 AST
@@ -34,7 +34,7 @@ defrag
 defragmentation
 deploy
 dereferencing
-deserializes
+deserialize/S
 dispatchable
 encodable
 evaluable
@@ -91,3 +91,5 @@ runtime/S
 struct/S
 vec/S
 vector/S
+implementer/S
+deduplicated

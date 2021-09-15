@@ -331,7 +331,7 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate call builder code for all ink! inherent ink! impl blocks.
+    /// Generate call builder code for all ink! inherent ink! implementation blocks.
     ///
     /// # Note
     ///
@@ -350,12 +350,12 @@ impl CallBuilder<'_> {
             .collect()
     }
 
-    /// Generate call builder code for a single inherent ink! impl block.
+    /// Generate call builder code for a single inherent ink! implementation block.
     ///
     /// # Note
     ///
-    /// Unlike as with ink! trait impl blocks we do not have to generate
-    /// associate `*Output` types, ink! trait validators impl blocks or
+    /// Unlike as with ink! trait implementation blocks we do not have to generate
+    /// associate `*Output` types, ink! trait validating implementation blocks or
     /// trait forwarder implementations. Instead we build the calls directly.
     fn generate_call_builder_inherent_impl(
         &self,

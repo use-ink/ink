@@ -93,15 +93,15 @@ impl CallBuilder<'_> {
     /// Generates the struct type definition for the account wrapper type.
     ///
     /// This type is going to implement the trait so that invoking its trait
-    /// methods will perform contract calls via SEAL's contract execution
-    /// abstraction.
+    /// methods will perform contract calls via contract's pallet contract
+    /// execution abstraction.
     ///
     /// # Note
     ///
     /// Unlike the layout specific traits it is possible to derive the SCALE
     /// `Encode` and `Decode` traits since they generate trait bounds per field
     /// instead of per generic parameter which is exactly what we need here.
-    /// However, it should be noted that this is not Rust default behaviour.
+    /// However, it should be noted that this is not Rust default behavior.
     fn generate_struct_definition(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -168,7 +168,7 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            /// We require this manual impl since the derive produces incorrect trait bounds.
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::ink_storage::traits::SpreadLayout
                 for #call_builder_ident<E>
             where
@@ -211,7 +211,7 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            /// We require this manual impl since the derive produces incorrect trait bounds.
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::ink_storage::traits::PackedLayout
                 for #call_builder_ident<E>
             where
@@ -254,7 +254,7 @@ impl CallBuilder<'_> {
                 }
             }
 
-            /// We require this manual impl since the derive produces incorrect trait bounds.
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::fmt::Debug for #call_builder_ident<E>
             where
                 E: ::ink_env::Environment,

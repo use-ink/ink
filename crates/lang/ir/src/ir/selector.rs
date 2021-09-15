@@ -92,7 +92,7 @@ impl Selector {
     /// For inherent implementation blocks, when `trait_prefix` is `None` the composed
     /// selector is computed as follows:
     ///
-    /// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ascii representation of
+    /// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ASCII representation of
     ///   the `fn_ident` identifier.
     /// 1. The first 4 bytes of `H` make up the selector.
     ///
@@ -101,9 +101,9 @@ impl Selector {
     /// For trait implementation blocks, when `trait_prefix` is
     /// `Some((namespace, trait_ident))` the composed selector is computed as follows:
     ///
-    /// 1. Compute the ascii byte representation of `fn_ident` and call it `F`.
-    /// 1. Compute the ascii byte representation of `namespace` and call it `N`.
-    /// 1. Compute the ascii byte representation of `trait_ident` and call it `T`.
+    /// 1. Compute the ASCII byte representation of `fn_ident` and call it `F`.
+    /// 1. Compute the ASCII byte representation of `namespace` and call it `N`.
+    /// 1. Compute the ASCII byte representation of `trait_ident` and call it `T`.
     /// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.
     /// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.
     /// 1. The first 4 bytes of `H` make up the selector.

@@ -96,15 +96,15 @@ impl CallForwarder<'_> {
     /// Generates the struct type definition for the account wrapper type.
     ///
     /// This type is going to implement the trait so that invoking its trait
-    /// methods will perform contract calls via SEAL's contract execution
-    /// abstraction.
+    /// methods will perform contract calls via contract's pallet contract
+    /// execution abstraction.
     ///
     /// # Note
     ///
     /// Unlike the layout specific traits it is possible to derive the SCALE
     /// `Encode` and `Decode` traits since they generate trait bounds per field
     /// instead of per generic parameter which is exactly what we need here.
-    /// However, it should be noted that this is not Rust default behaviour.
+    /// However, it should be noted that this is not Rust default behavior.
     fn generate_struct_definition(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
@@ -296,7 +296,7 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generate the trait impl for `CallBuilder` for the ink! trait call forwarder.
+    /// Generate the trait implementation for `CallBuilder` for the ink! trait call forwarder.
     ///
     /// # Note
     ///

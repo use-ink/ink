@@ -229,7 +229,7 @@ where
 
 /// A generic ink! smart contract call forwader.
 ///
-/// A call forwarder is a thin wrapper arround a call builder
+/// A call forwarder is a thin wrapper around a call builder
 /// that forwards the long-hand calls to the builder and directly
 /// serves as the interface for the short-hand calls and constructors.
 ///
