@@ -35,10 +35,6 @@ mod erc20 {
     /// Trait implemented by all ERC-20 respecting smart contracts.
     #[ink::trait_definition]
     pub trait BaseErc20 {
-        /// Creates a new ERC-20 contract with the specified initial supply.
-        #[ink(constructor)]
-        fn new(initial_supply: Balance) -> Self;
-
         /// Returns the total token supply.
         #[ink(message)]
         fn total_supply(&self) -> Balance;
@@ -105,10 +101,10 @@ mod erc20 {
         value: Balance,
     }
 
-    impl BaseErc20 for Erc20 {
+    impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
-        fn new(initial_supply: Balance) -> Self {
+        pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
             let mut balances = StorageHashMap::new();
             balances.insert(caller, initial_supply);
@@ -124,7 +120,9 @@ mod erc20 {
             });
             instance
         }
+    }
 
+    impl BaseErc20 for Erc20 {
         /// Returns the total token supply.
         #[ink(message)]
         fn total_supply(&self) -> Balance {
