@@ -30,7 +30,6 @@ mod arg_list;
 mod as_dependency;
 mod chain_extension;
 mod contract;
-mod cross_calling;
 mod dispatch;
 mod enforced_error;
 mod env;
@@ -56,7 +55,6 @@ pub use self::{
     },
     chain_extension::ChainExtension,
     contract::Contract,
-    cross_calling::CrossCalling,
     dispatch::Dispatch,
     env::Env,
     events::Events,
