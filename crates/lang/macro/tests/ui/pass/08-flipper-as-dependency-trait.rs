@@ -18,7 +18,7 @@ mod flipper {
 
     impl Flipper {
         #[ink(constructor)]
-        fn new() -> Self {
+        pub fn new() -> Self {
             Self::default()
         }
     }
