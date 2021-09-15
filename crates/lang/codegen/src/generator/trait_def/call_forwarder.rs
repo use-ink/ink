@@ -420,8 +420,8 @@ impl CallForwarder<'_> {
                 <<Self as ::ink_lang::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
                     <Self as ::ink_lang::TraitCallBuilder>::#call_op(self)
                     #(
-                        , #input_bindings: #input_types
-                    ),*
+                        , #input_bindings
+                    )*
                 )
                     .fire()
                     .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
