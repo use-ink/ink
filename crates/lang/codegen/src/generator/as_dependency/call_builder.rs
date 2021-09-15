@@ -103,6 +103,10 @@ impl CallBuilder<'_> {
                 impl ::ink_lang::ContractCallBuilder for #storage_ident {
                     type Type = #cb_ident;
                 }
+
+                impl ::ink_lang::ContractEnv for #cb_ident {
+                    type Env = <#storage_ident as ::ink_lang::ContractEnv>::Env;
+                }
             };
         )
     }
@@ -269,8 +273,6 @@ impl CallBuilder<'_> {
             .map(|message| self.generate_ink_trait_impl_for_message(trait_path, message));
         quote_spanned!(span=>
             impl #trait_path for #cb_ident {
-                type Env = Environment;
-
                 type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 

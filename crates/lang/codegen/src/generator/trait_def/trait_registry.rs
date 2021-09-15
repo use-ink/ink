@@ -108,8 +108,6 @@ impl TraitRegistry<'_> {
             where
                 E: ::ink_env::Environment,
             {
-                type Env = E;
-
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]

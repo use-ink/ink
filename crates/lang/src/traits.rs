@@ -153,6 +153,13 @@ pub struct TraitCallForwarderRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
 
+impl<E> crate::ContractEnv for TraitCallForwarderRegistry<E>
+where
+    E: ink_env::Environment,
+{
+    type Env = E;
+}
+
 unsafe impl<E, const N: u32> TraitImplementer<N> for TraitCallForwarderRegistry<E> {}
 
 /// The default type that ink! trait definition implementations use for the

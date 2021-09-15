@@ -60,10 +60,10 @@ impl TraitDefinition<'_> {
             .map(Self::generate_for_message);
         quote_spanned!(span =>
             #(#attrs)*
-            pub trait #ident: ::ink_lang::TraitImplementer<#unique_trait_id> {
-                /// The contract environment.
-                type Env: ::ink_env::Environment;
-
+            pub trait #ident:
+                ::ink_lang::ContractEnv +
+                ::ink_lang::TraitImplementer<#unique_trait_id>
+            {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]

@@ -96,6 +96,10 @@ impl ContractRef<'_> {
                 impl ::ink_lang::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
+
+                impl ::ink_lang::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink_lang::ContractEnv>::Env;
+                }
             };
         )
     }
@@ -197,8 +201,6 @@ impl ContractRef<'_> {
 
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
-                type Env = Environment;
-
                 #[doc(hidden)]
                 type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;

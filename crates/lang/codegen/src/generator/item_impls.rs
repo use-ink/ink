@@ -100,8 +100,6 @@ impl ItemImpls<'_> {
 
             #( #attrs )*
             impl #trait_path for #self_type {
-                type Env = Environment;
-
                 type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 

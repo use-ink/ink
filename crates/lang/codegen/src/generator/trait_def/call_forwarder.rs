@@ -352,12 +352,17 @@ impl CallForwarder<'_> {
             {
             }
 
-            impl<E> #trait_ident for #forwarder_ident<E>
+            impl<E> ::ink_lang::ContractEnv for #forwarder_ident<E>
             where
                 E: ::ink_env::Environment,
             {
                 type Env = E;
+            }
 
+            impl<E> #trait_ident for #forwarder_ident<E>
+            where
+                E: ::ink_env::Environment,
+            {
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo = #trait_info_ident<E>;
