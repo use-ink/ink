@@ -240,7 +240,7 @@ impl CallBuilder<'_> {
         let span = self.span();
         let call_builder_ident = self.ident();
         quote_spanned!(span=>
-            /// We require this manual impl since the derive produces incorrect trait bounds.
+            /// We require this manual implementation since the derive produces incorrect trait bounds.
             impl<E> ::core::clone::Clone for #call_builder_ident<E>
             where
                 E: ::ink_env::Environment,
