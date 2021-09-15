@@ -15,7 +15,6 @@
 use crate::{
     generator,
     GenerateCode,
-    GenerateCodeUsing as _,
 };
 use derive_more::From;
 use heck::CamelCase as _;
@@ -43,10 +42,7 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         quote! {
-            #no_cross_calling_cfg
             const _: () = {
                 use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 

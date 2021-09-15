@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-    GenerateCodeUsing as _,
-};
+use crate::GenerateCode;
 use derive_more::From;
 use proc_macro2::{
     Span,
@@ -61,11 +57,8 @@ impl<'a> Events<'a> {
     /// them first into the automatically generated base trait of the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         quote! {
             const _: () = {
-                #no_cross_calling_cfg
                 impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
@@ -86,8 +79,6 @@ impl<'a> Events<'a> {
     /// serialized and emitted to apply their unique event discriminant (ID).
     fn generate_event_base(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         let event_idents = self
             .contract
             .module()
@@ -97,13 +88,11 @@ impl<'a> Events<'a> {
         let base_event_ident =
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
         quote! {
-            #no_cross_calling_cfg
             #[derive(::scale::Encode, ::scale::Decode)]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*
             }
 
-            #no_cross_calling_cfg
             const _: () = {
                 impl ::ink_lang::BaseEvent for #storage_ident {
                     type Type = #base_event_ident;
@@ -111,7 +100,6 @@ impl<'a> Events<'a> {
             };
 
             #(
-                #no_cross_calling_cfg
                 const _: () = {
                     impl From<#event_idents> for #base_event_ident {
                         fn from(event: #event_idents) -> Self {
@@ -127,7 +115,6 @@ impl<'a> Events<'a> {
                     const AMOUNT: usize = 0;
                 }
 
-                #no_cross_calling_cfg
                 impl ::ink_env::Topics for #base_event_ident {
                     type RemainingTopics = __ink_UndefinedAmountOfTopics;
 
@@ -196,13 +183,10 @@ impl<'a> Events<'a> {
 
     /// Generates the guard code that protects against having too many topics defined on an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let topics_guard = self.generate_topics_guard(event);
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 #topics_guard
             )
         })
@@ -210,8 +194,6 @@ impl<'a> Events<'a> {
 
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         let contract_ident = self.contract.module().storage().ident();
         self.contract.module().events().map(move |event| {
             let span = event.span();
@@ -258,7 +240,6 @@ impl<'a> Events<'a> {
                 n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
             };
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 const _: () = {
                     impl ::ink_env::Topics for #event_ident {
                         type RemainingTopics = #remaining_topics_ty;
@@ -287,8 +268,6 @@ impl<'a> Events<'a> {
 
     /// Generates all the user defined event struct definitions.
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let ident = event.ident();
@@ -305,7 +284,6 @@ impl<'a> Events<'a> {
                 )
             });
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 #( #attrs )*
                 #[derive(scale::Encode, scale::Decode)]
                 pub struct #ident {
