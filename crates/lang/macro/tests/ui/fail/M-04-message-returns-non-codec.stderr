@@ -6,7 +6,21 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
    |
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `ink_lang::FnOutput::Output`
-  --> $DIR/traits.rs:79:18
+  --> $DIR/traits.rs:80:18
    |
-79 |     type Output: scale::Encode + 'static;
+80 |     type Output: scale::Encode + 'static;
    |                  ^^^^^^^^^^^^^ required by this bound in `ink_lang::FnOutput::Output`
+
+error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
+  --> $DIR/M-04-message-returns-non-codec.rs:18:9
+   |
+6  |       pub struct NonCodec;
+   |       -------------------- doesn't satisfy `_: message_returns_non_codec::_::_parity_scale_codec::Decode`
+...
+18 | /         pub fn returns_non_codec_type(&self) -> NonCodec {
+19 | |             NonCodec
+20 | |         }
+   | |_________^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
+   |
+   = note: the following trait bounds were not satisfied:
+           `NonCodec: message_returns_non_codec::_::_parity_scale_codec::Decode`
