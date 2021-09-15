@@ -640,7 +640,7 @@ where
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}
     /// };
-    /// use other_contract::OtherContract;
+    /// use other_contract::OtherContractRef;
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -655,7 +655,7 @@ where
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, OtherContract>()
+    ///     let create_params = build_create::<DefaultEnvironment, OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)

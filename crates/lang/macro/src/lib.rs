@@ -529,18 +529,19 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 /// use ink_lang as ink;
 /// # type Balance = <ink_env::DefaultEnvironment as ink_env::Environment>::Balance;
+/// # type AccountId = <ink_env::DefaultEnvironment as ink_env::Environment>::AccountId;
 ///
 /// #[ink::trait_definition]
 /// pub trait Erc20 {
-///     /// Constructs a new ERC-20 compliant smart contract using the initial supply.
-///     #[ink(constructor)]
-///     fn new(initial_supply: Balance) -> Self;
-///
 ///     /// Returns the total supply of the ERC-20 smart contract.
 ///     #[ink(message)]
 ///     fn total_supply(&self) -> Balance;
 ///
-///     // etc.
+///     /// Transfers balance from the caller to the given address.
+///     #[ink(message)]
+///     fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
+///
+///     // etc ...
 /// }
 /// ```
 ///
@@ -556,34 +557,38 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// #    // We somehow cannot put the trait in the doc-test crate root due to bugs.
 /// #    #[ink_lang::trait_definition]
 /// #    pub trait Erc20 {
-/// #        /// Constructors a new ERC-20 compliant smart contract using the initial supply.
-/// #        #[ink(constructor)]
-/// #        fn new(initial_supply: Balance) -> Self;
+/// #       /// Returns the total supply of the ERC-20 smart contract.
+/// #       #[ink(message)]
+/// #       fn total_supply(&self) -> Balance;
 /// #
-/// #        /// Returns the total supply of the ERC-20 smart contract.
-/// #        #[ink(message)]
-/// #        fn total_supply(&self) -> Balance;
+/// #       /// Transfers balance from the caller to the given address.
+/// #       #[ink(message)]
+/// #       fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
 /// #    }
 /// #
 ///     #[ink(storage)]
 ///     pub struct BaseErc20 {
 ///         total_supply: Balance,
-///         // etc ..
+///     }
+///
+///     impl BaseErc20 {
+///         #[ink(constructor)]
+///         pub fn new(initial_supply: Balance) -> Self {
+///             Self { total_supply: initial_supply }
+///         }
 ///     }
 ///
 ///     impl Erc20 for BaseErc20 {
-///         #[ink(constructor)]
-///         fn new(initial_supply: Balance) -> Self {
-///             Self { total_supply: initial_supply }
-///         }
-///
 ///         /// Returns the total supply of the ERC-20 smart contract.
 ///         #[ink(message)]
 ///         fn total_supply(&self) -> Balance {
 ///             self.total_supply
 ///         }
 ///
-///         // etc ..
+///         #[ink(message)]
+///         fn transfer(&mut self, amount: Balance, to: AccountId) -> bool {
+///             todo!();
+///         }
 ///     }
 /// }
 /// ```
