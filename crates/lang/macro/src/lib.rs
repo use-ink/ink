@@ -587,7 +587,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 ///         #[ink(message)]
 ///         fn transfer(&mut self, amount: Balance, to: AccountId) -> bool {
-///             todo!();
+///             unimplemented!()
 ///         }
 ///     }
 /// }
