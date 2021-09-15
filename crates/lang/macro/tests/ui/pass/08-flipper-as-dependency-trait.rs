@@ -4,9 +4,6 @@ use ink_lang as ink;
 mod flipper {
     #[ink_lang::trait_definition]
     pub trait FlipperTrait {
-        #[ink(constructor)]
-        fn new() -> Self;
-
         #[ink(message)]
         fn flip(&mut self);
 
@@ -19,12 +16,14 @@ mod flipper {
         value: bool,
     }
 
-    impl FlipperTrait for Flipper {
+    impl Flipper {
         #[ink(constructor)]
         fn new() -> Self {
             Self::default()
         }
+    }
 
+    impl FlipperTrait for Flipper {
         #[ink(message)]
         fn flip(&mut self) {
             self.value = !self.value;
