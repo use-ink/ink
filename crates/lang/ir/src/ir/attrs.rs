@@ -794,6 +794,21 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                 match &meta {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
+                            if let syn::Lit::Int(lit_int) = &name_value.lit {
+                                let selector_u32 = lit_int.base10_parse::<u32>()
+                                    .map_err(|error| {
+                                        format_err_spanned!(
+                                            lit_int,
+                                            "selector value out of range. selector must be a valid `u32` integer: {}",
+                                            error
+                                        )
+                                    })?;
+                                let selector = Selector::from_bytes(selector_u32.to_be_bytes());
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::Selector(selector),
+                                })
+                            }
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let regex = Regex::new(r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})")
                                     .map_err(|_| {
