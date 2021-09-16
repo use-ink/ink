@@ -1,23 +1,24 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::subber::Subber;
+pub use self::subber::{Subber, SubberRef};
+
 use ink_lang as ink;
 
 #[ink::contract]
 mod subber {
-    use accumulator::Accumulator;
+    use accumulator::AccumulatorRef;
 
     /// Decreases the underlying `accumulator` value.
     #[ink(storage)]
     pub struct Subber {
         /// The `accumulator` to store the value.
-        accumulator: accumulator::Accumulator,
+        accumulator: AccumulatorRef,
     }
 
     impl Subber {
         /// Creates a new `subber` from the given `accumulator`.
         #[ink(constructor)]
-        pub fn new(accumulator: Accumulator) -> Self {
+        pub fn new(accumulator: AccumulatorRef) -> Self {
             Self { accumulator }
         }
 
