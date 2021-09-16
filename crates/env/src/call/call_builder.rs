@@ -30,6 +30,7 @@ use core::marker::PhantomData;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct CallParams<E, Args, R>
 where
     E: Environment,
