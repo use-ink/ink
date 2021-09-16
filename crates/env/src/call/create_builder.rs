@@ -52,7 +52,6 @@ where
 
 /// Builds up contract instantiations.
 #[derive(Debug)]
-#[allow(dead_code)]
 pub struct CreateParams<E, Args, Salt, R>
 where
     E: Environment,
