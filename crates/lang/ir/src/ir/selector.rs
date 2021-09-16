@@ -140,7 +140,7 @@ impl Selector {
     }
 
     /// Returns the 4 bytes that make up the selector as hex encoded bytes.
-    pub fn hex_lits(self) -> [syn::Lit; 4] {
+    pub fn hex_lits(self) -> [syn::LitInt; 4] {
         let selector_bytes = self.as_bytes();
         [
             selector_bytes[0].hex_padded_suffixed(),

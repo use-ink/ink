@@ -25,51 +25,52 @@ pub trait HexLiteral {
     ///
     /// Users shall not use this trait method directly hence it is hidden.
     #[doc(hidden)]
-    fn hex_impl_(self, fmt: ::core::fmt::Arguments, sealed: private::Sealed) -> syn::Lit;
+    fn hex_impl_(self, fmt: ::core::fmt::Arguments, sealed: private::Sealed) -> syn::LitInt;
 
     /// Converts the given value into a hex represented literal with type suffix.
-    fn hex_suffixed(self) -> syn::Lit;
+    fn hex_suffixed(self) -> syn::LitInt;
 
     /// Converts the given value into a hex represented literal without type suffix.
-    fn hex_unsuffixed(self) -> syn::Lit;
+    fn hex_unsuffixed(self) -> syn::LitInt;
 
     /// Converts the given value into a hex represented literal with type suffix.
     ///
     /// The resulting hex encoded literal is padded with zeros.
-    fn hex_padded_suffixed(self) -> syn::Lit;
+    fn hex_padded_suffixed(self) -> syn::LitInt;
 
     /// Converts the given value into a hex represented literal without type suffix.
     ///
     /// The resulting hex encoded literal is padded with zeros.
-    fn hex_padded_unsuffixed(self) -> syn::Lit;
+    fn hex_padded_unsuffixed(self) -> syn::LitInt;
 }
 
 macro_rules! generate_hex_literal_impls {
     ( $( ($ty:ty, $name:literal, $fmt_suffixed:literal, $fmt_unsuffixed:literal) ),* $(,)? ) => {
         $(
             impl HexLiteral for $ty {
-                fn hex_impl_(self, fmt: ::core::fmt::Arguments, _sealed: private::Sealed) -> syn::Lit {
+                fn hex_impl_(self, fmt: ::core::fmt::Arguments, _sealed: private::Sealed) -> syn::LitInt {
                     let formatted = ::std::format!("{}", fmt);
-                    ::syn::Lit::new(
-                        <::proc_macro2::Literal as ::core::str::FromStr>::from_str(&formatted).unwrap_or_else(
-                            |err| ::core::panic!("cannot parse {} into a {} hex represented literal: {}", self, $name, err),
-                        )
-                    )
+                    // ::syn::Lit::new(
+                    //     <::proc_macro2::Literal as ::core::str::FromStr>::from_str(&formatted).unwrap_or_else(
+                    //         |err| ::core::panic!("cannot parse {} into a {} hex represented literal: {}", self, $name, err),
+                    //     )
+                    // )
+                    ::syn::LitInt::new(&formatted, proc_macro2::Span::call_site())
                 }
 
-                fn hex_suffixed(self) -> syn::Lit {
+                fn hex_suffixed(self) -> syn::LitInt {
                     self.hex_impl_(::core::format_args!("0x{:X}_{}", self, $name), private::Sealed)
                 }
 
-                fn hex_unsuffixed(self) -> syn::Lit {
+                fn hex_unsuffixed(self) -> syn::LitInt {
                     self.hex_impl_(::core::format_args!("0x{:X}", self), private::Sealed)
                 }
 
-                fn hex_padded_suffixed(self) -> syn::Lit {
+                fn hex_padded_suffixed(self) -> syn::LitInt {
                     self.hex_impl_(::core::format_args!($fmt_suffixed, self, $name), private::Sealed)
                 }
 
-                fn hex_padded_unsuffixed(self) -> syn::Lit {
+                fn hex_padded_unsuffixed(self) -> syn::LitInt {
                     self.hex_impl_(::core::format_args!($fmt_unsuffixed, self), private::Sealed)
                 }
             }
@@ -110,7 +111,7 @@ mod tests {
     use super::HexLiteral as _;
     use quote::quote;
 
-    fn assert_quote(given: syn::Lit, expected: &str) {
+    fn assert_quote(given: syn::LitInt, expected: &str) {
         assert_eq!(quote!(#given).to_string(), expected);
     }
 
