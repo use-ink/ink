@@ -270,59 +270,6 @@ fn trait_def_containing_method_with_unsupported_ink_attribute_is_denied() {
 }
 
 #[test]
-fn trait_def_containing_invalid_constructor_is_denied() {
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must not have a `self` receiver",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn has_self_receiver(&self) -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must not have a `self` receiver",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn has_self_receiver(&mut self) -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must not have a `self` receiver",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn has_self_receiver(self) -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must not have a `self` receiver",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn has_self_receiver(self: &Self) -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must not have a `self` receiver",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn has_self_receiver(self: Self) -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must return Self",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn does_not_return_self();
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "ink! constructors must return Self",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn does_not_return_self() -> i32;
-        }
-    );
-}
-
-#[test]
 fn trait_def_containing_invalid_message_is_denied() {
     assert_ink_trait_eq_err!(
         error: "missing or malformed `&self` or `&mut self` receiver for ink! message",
@@ -343,34 +290,6 @@ fn trait_def_containing_invalid_message_is_denied() {
         pub trait MyTrait {
             #[ink(message)]
             fn does_not_return_self(self);
-        }
-    );
-}
-
-#[test]
-fn trait_def_containing_constructor_with_invalid_ink_attributes_is_denied() {
-    assert_ink_trait_eq_err!(
-        error: "encountered duplicate ink! attribute",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            #[ink(constructor)]
-            fn does_not_return_self() -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "encountered conflicting ink! attribute argument",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            #[ink(message)]
-            fn does_not_return_self() -> Self;
-        }
-    );
-    assert_ink_trait_eq_err!(
-        error: "encountered conflicting ink! attribute argument",
-        pub trait MyTrait {
-            #[ink(constructor)]
-            #[ink(payable)]
-            fn does_not_return_self() -> Self;
         }
     );
 }
@@ -408,8 +327,6 @@ fn trait_def_is_ok() {
     assert!(
         <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
-                #[ink(constructor)]
-                fn my_constructor() -> Self;
                 #[ink(message)]
                 fn my_message(&self);
                 #[ink(message)]
@@ -426,8 +343,6 @@ fn trait_def_with_namespace_is_ok() {
         <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             #[ink(namespace = "my_namespace")]
             pub trait MyTrait {
-                #[ink(constructor)]
-                fn my_constructor() -> Self;
                 #[ink(message)]
                 fn my_message(&self);
                 #[ink(message)]
@@ -443,11 +358,9 @@ fn trait_def_with_selectors_ok() {
     assert!(
         <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
-                #[ink(constructor, selector = "0xC0DECAFE")]
-                fn my_constructor() -> Self;
-                #[ink(message, selector = "0xDEADBEEF")]
+                #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message(&self);
-                #[ink(message, selector = "0xC0FEFEED")]
+                #[ink(message, selector = 0xC0FEFEED)]
                 fn my_message_mut(&mut self);
             }
         })
@@ -476,21 +389,17 @@ fn trait_def_with_everything_combined_ok() {
         <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             #[ink(namespace = "my_namespace")]
             pub trait MyTrait {
-                #[ink(constructor)]
-                fn my_constructor_1() -> Self;
-                #[ink(constructor, selector = "0xC0DECAFE")]
-                fn my_constructor_2() -> Self;
                 #[ink(message)]
                 fn my_message_1(&self);
                 #[ink(message, payable)]
                 fn my_message_2(&self);
-                #[ink(message, payable, selector = "0xDEADBEEF")]
+                #[ink(message, payable, selector = 0xDEADBEEF)]
                 fn my_message_3(&self);
                 #[ink(message)]
                 fn my_message_mut_1(&mut self);
                 #[ink(message, payable)]
                 fn my_message_mut_2(&mut self);
-                #[ink(message, payable, selector = "0xC0DEBEEF")]
+                #[ink(message, payable, selector = 0xC0DEBEEF)]
                 fn my_message_mut_3(&mut self);
             }
         })
@@ -504,51 +413,18 @@ fn trait_def_with_overlapping_selectors() {
         error: "encountered duplicate selector ([c0, de, ca, fe]) \
                 in the same ink! trait definition",
         pub trait MyTrait {
-            #[ink(constructor, selector = "0xC0DECAFE")]
-            fn my_constructor() -> Self;
-            #[ink(message, selector = "0xC0DECAFE")]
+            #[ink(message, selector = 0xC0DECAFE)]
             fn my_message(&self);
-            #[ink(message, selector = "0xC0DECAFE")]
+            #[ink(message, selector = 0xC0DECAFE)]
             fn my_message_mut(&mut self);
         }
     );
 }
 
 #[test]
-fn iter_constructors_works() {
-    let ink_trait = <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn constructor_1() -> Self;
-            #[ink(constructor)]
-            fn constructor_2() -> Self;
-            #[ink(message)]
-            fn message_1(&self);
-            #[ink(message)]
-            fn message_2(&mut self);
-         }
-    })
-    .unwrap();
-    let actual = ink_trait
-        .iter_items()
-        .map(|(item, _)| item)
-        .flat_map(|item| {
-            item.filter_map_constructor()
-                .map(|constructor| constructor.sig().ident.to_string())
-        })
-        .collect::<Vec<_>>();
-    let expected = vec!["constructor_1".to_string(), "constructor_2".to_string()];
-    assert_eq!(actual, expected);
-}
-
-#[test]
 fn iter_messages_works() {
     let ink_trait = <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
         pub trait MyTrait {
-            #[ink(constructor)]
-            fn constructor_1() -> Self;
-            #[ink(constructor)]
-            fn constructor_2() -> Self;
             #[ink(message)]
             fn message_1(&self);
             #[ink(message)]
@@ -593,10 +469,6 @@ macro_rules! ink_trait {
 fn verify_hash_works() {
     let ink_trait = ink_trait! {
         pub trait MyTrait {
-            #[ink(constructor)]
-            fn constructor_1() -> Self;
-            #[ink(constructor)]
-            fn constructor_2(a: i32, b: i32) -> Self;
             #[ink(message)]
             fn message_1(&self);
             #[ink(message)]
@@ -605,38 +477,6 @@ fn verify_hash_works() {
     };
     assert_verify_hash2_works_with(
         ink_trait,
-        "__ink_trait::MyTrait::constructor_1:0,constructor_2:2::message_1:1:r,message_2:3:w"
-    );
-}
-
-#[test]
-fn verify_hash_works_without_constructors() {
-    let ink_trait = ink_trait! {
-        pub trait MyTrait {
-            #[ink(message)]
-            fn message_1(&self);
-            #[ink(message)]
-            fn message_2(&mut self, a: i32, b: i32) -> i32;
-        }
-    };
-    assert_verify_hash2_works_with(
-        ink_trait,
-        "__ink_trait::MyTrait::message_1:1:r,message_2:3:w",
-    );
-}
-
-#[test]
-fn verify_hash_works_without_messages() {
-    let ink_trait = ink_trait! {
-        pub trait MyTrait {
-            #[ink(constructor)]
-            fn constructor_1() -> Self;
-            #[ink(constructor)]
-            fn constructor_2(a: i32, b: i32) -> Self;
-        }
-    };
-    assert_verify_hash2_works_with(
-        ink_trait,
-        "__ink_trait::MyTrait::constructor_1:0,constructor_2:2",
+        "__ink_trait::MyTrait::message_1:1:r,message_2:3:w"
     );
 }

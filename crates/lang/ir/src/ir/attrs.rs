@@ -1153,7 +1153,7 @@ mod tests {
     fn selector_invalid_type() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = 42)]
+                #[ink(selector = true)]
             },
             Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
