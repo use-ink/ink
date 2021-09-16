@@ -68,6 +68,12 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
             &mut message_selectors,
             &mut constructor_selectors,
         )?;
+        if message_selectors.is_empty() {
+            return Err(format_err!(
+                item_trait.span(),
+                "encountered invalid empty ink! trait definition"
+            ))
+        }
         Ok(Self {
             item: item_trait,
             message_selectors,
