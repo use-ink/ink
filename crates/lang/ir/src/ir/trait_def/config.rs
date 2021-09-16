@@ -75,6 +75,12 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                     return Err(duplicate_config_err(meta_name_value, arg, "namespace"))
                 }
                 if let ast::PathOrLit::Lit(syn::Lit::Str(lit_str)) = &arg.value {
+                    if syn::parse_str::<syn::Ident>(&lit_str.value()).is_err() {
+                        return Err(format_err_spanned!(
+                            lit_str,
+                            "encountered invalid Rust identifier for the ink! namespace configuration parameter"
+                        ))
+                    }
                     namespace = Some((lit_str.clone(), arg))
                 } else {
                     return Err(format_err_spanned!(
