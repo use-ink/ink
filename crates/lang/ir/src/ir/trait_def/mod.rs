@@ -51,7 +51,6 @@ use syn::{
 pub struct InkTrait {
     item: syn::ItemTrait,
     message_selectors: HashMap<syn::Ident, Selector>,
-    constructor_selectors: HashMap<syn::Ident, Selector>,
 }
 
 impl TryFrom<syn::ItemTrait> for InkTrait {
@@ -62,11 +61,9 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
         Self::analyse_properties(&item_trait)?;
         Self::analyse_items(&item_trait)?;
         let mut message_selectors = <HashMap<syn::Ident, Selector>>::new();
-        let mut constructor_selectors = <HashMap<syn::Ident, Selector>>::new();
         Self::extract_selectors(
             &item_trait,
             &mut message_selectors,
-            &mut constructor_selectors,
         )?;
         if message_selectors.is_empty() {
             return Err(format_err!(
@@ -77,7 +74,6 @@ impl TryFrom<syn::ItemTrait> for InkTrait {
         Ok(Self {
             item: item_trait,
             message_selectors,
-            constructor_selectors,
         })
     }
 }
@@ -428,9 +424,7 @@ impl InkTrait {
     fn extract_selectors(
         item_trait: &syn::ItemTrait,
         message_selectors: &mut HashMap<syn::Ident, Selector>,
-        constructor_selectors: &mut HashMap<syn::Ident, Selector>,
     ) -> Result<()> {
-        let mut seen_constructor_selectors = <HashMap<Selector, syn::Ident>>::new();
         let mut seen_message_selectors = <HashMap<Selector, syn::Ident>>::new();
         let (ink_attrs, _) = ir::sanitize_optional_attributes(
             item_trait.span(),
@@ -458,13 +452,6 @@ impl InkTrait {
                 None => Selector::compose(trait_prefix, ident),
             };
             let (duplicate_selector, duplicate_ident) = match callable {
-                InkTraitItem::Constructor(_) => {
-                    let duplicate_selector =
-                        seen_constructor_selectors.insert(selector, ident.clone());
-                    let duplicate_ident =
-                        constructor_selectors.insert(ident.clone(), selector);
-                    (duplicate_selector, duplicate_ident)
-                }
                 InkTraitItem::Message(_) => {
                     let duplicate_selector =
                         seen_message_selectors.insert(selector, ident.clone());

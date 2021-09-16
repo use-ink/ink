@@ -15,7 +15,6 @@
 use crate::{
     ir,
     InkTrait,
-    InkTraitConstructor,
     InkTraitItem,
     InkTraitMessage,
     Selector,
@@ -52,11 +51,6 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
                         .kind()
                         .clone();
                     match first_attr {
-                        ir::AttributeArg::Constructor => {
-                            return Some(InkTraitItem::Constructor(
-                                InkTraitConstructor::new(method),
-                            ))
-                        }
                         ir::AttributeArg::Message => {
                             return Some(InkTraitItem::Message(InkTraitMessage::new(
                                 method,
@@ -75,7 +69,6 @@ impl<'a> Iterator for IterInkTraitItemsRaw<'a> {
 pub struct IterInkTraitItems<'a> {
     iter: IterInkTraitItemsRaw<'a>,
     message_selectors: &'a HashMap<syn::Ident, Selector>,
-    constructor_selectors: &'a HashMap<syn::Ident, Selector>,
 }
 
 impl<'a> IterInkTraitItems<'a> {
@@ -84,7 +77,6 @@ impl<'a> IterInkTraitItems<'a> {
         Self {
             iter: IterInkTraitItemsRaw::from_raw(&item_trait.item),
             message_selectors: &item_trait.message_selectors,
-            constructor_selectors: &item_trait.constructor_selectors,
         }
     }
 }
@@ -95,10 +87,6 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         match self.iter.next() {
             None => None,
-            Some(item @ InkTraitItem::Constructor(_)) => {
-                let selector = self.constructor_selectors[item.ident()];
-                Some((item, selector))
-            }
             Some(item @ InkTraitItem::Message(_)) => {
                 let selector = self.message_selectors[item.ident()];
                 Some((item, selector))

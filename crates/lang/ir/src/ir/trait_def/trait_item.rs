@@ -27,7 +27,6 @@ use syn::{
 /// An ink! item within an ink! trait definition.
 #[derive(Debug, Clone)]
 pub enum InkTraitItem<'a> {
-    Constructor(InkTraitConstructor<'a>),
     Message(InkTraitMessage<'a>),
 }
 
@@ -35,7 +34,6 @@ impl<'a> InkTraitItem<'a> {
     /// Returns the Rust identifier of the ink! trait item.
     pub fn ident(&self) -> &syn::Ident {
         match self {
-            Self::Constructor(constructor) => constructor.ident(),
             Self::Message(message) => message.ident(),
         }
     }
@@ -43,16 +41,7 @@ impl<'a> InkTraitItem<'a> {
     /// Returns the ink! attributes of the ink! trait item.
     pub fn ink_attrs(&self) -> InkAttribute {
         match self {
-            Self::Constructor(constructor) => constructor.ink_attrs(),
             Self::Message(message) => message.ink_attrs(),
-        }
-    }
-
-    /// Returns `Some` if the ink! trait item is a constructor.
-    pub fn filter_map_constructor(self) -> Option<InkTraitConstructor<'a>> {
-        match self {
-            Self::Constructor(ink_trait_constructor) => Some(ink_trait_constructor),
-            _ => None,
         }
     }
 
@@ -60,7 +49,6 @@ impl<'a> InkTraitItem<'a> {
     pub fn filter_map_message(self) -> Option<InkTraitMessage<'a>> {
         match self {
             Self::Message(ink_trait_message) => Some(ink_trait_message),
-            _ => None,
         }
     }
 }
