@@ -46,12 +46,6 @@ where
     exec_input: ExecutionInput<Args>,
 }
 
-#[cfg(
-    // We do not currently support cross-contract calling in the off-chain
-    // environment so we do not have to provide these getters in case of
-    // off-chain environment compilation.
-    all(not(feature = "std"), target_arch = "wasm32")
-)]
 impl<E, Args, R> CallParams<E, Args, R>
 where
     E: Environment,
@@ -78,6 +72,12 @@ where
     #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
+    }
+
+    /// The expected return type.
+    #[inline]
+    pub(crate) fn return_type(&self) -> &ReturnType<R> {
+        &self.return_type
     }
 }
 

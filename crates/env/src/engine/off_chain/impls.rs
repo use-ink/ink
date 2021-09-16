@@ -442,14 +442,16 @@ impl TypedEnvBackend for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T, Args>(
-        &mut self,
-        _call_params: &CallParams<T, Args, ()>,
-    ) -> Result<()>
+    fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
     where
         T: Environment,
         Args: scale::Encode,
     {
+        let _gas_limit = params.gas_limit();
+        let _callee = params.callee();
+        let _transferred_value = params.transferred_value();
+        let _input = params.exec_input();
+        let _return_type = params.return_type();
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
@@ -467,12 +469,19 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        _params: &CreateParams<T, Args, Salt, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
         Args: scale::Encode,
+        Salt: AsRef<[u8]>,
     {
+        let _code_hash = params.code_hash();
+        let _gas_limit = params.gas_limit();
+        let _endowment = params.endowment();
+        let _input = params.exec_input();
+        let _salt_bytes = params.salt_bytes();
+        let _return_type = params.return_type();
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 
