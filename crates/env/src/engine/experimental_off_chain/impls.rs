@@ -379,7 +379,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn instantiate_contract<T, Args, Salt, C>(
         &mut self,
-        _params: &CreateParams<T, Args, Salt, C>,
+        params: &CreateParams<T, Args, Salt, C>,
     ) -> Result<T::AccountId>
     where
         T: Environment,
