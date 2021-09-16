@@ -477,6 +477,6 @@ fn verify_hash_works() {
     };
     assert_verify_hash2_works_with(
         ink_trait,
-        "__ink_trait::MyTrait::message_1:1:r,message_2:3:w"
+        "__ink_trait::MyTrait::message_1:1:r,message_2:3:w",
     );
 }
