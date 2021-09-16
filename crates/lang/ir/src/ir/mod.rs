@@ -82,8 +82,9 @@ pub use self::{
         TraitPrefix,
     },
     trait_def::{
-        InkTrait,
+        InkItemTrait,
         InkTraitConstructor,
+        InkTraitDefinition,
         InkTraitItem,
         InkTraitMessage,
         IterInkTraitItems,

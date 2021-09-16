@@ -31,7 +31,7 @@ impl<'a> CodeGenerator for &'a ir::Contract {
     type Generator = generator::Contract<'a>;
 }
 
-impl<'a> CodeGenerator for &'a ir::InkTrait {
+impl<'a> CodeGenerator for &'a ir::InkItemTrait {
     type Generator = generator::TraitDefinition<'a>;
 }
 

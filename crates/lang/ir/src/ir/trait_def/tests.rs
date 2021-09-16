@@ -18,7 +18,7 @@ use super::*;
 macro_rules! assert_ink_trait_eq_err {
     ( error: $err_str:literal, $($trait_def:tt)* ) => {
         assert_eq!(
-            <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+            <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
                 $( $trait_def )*
             })
             .map_err(|err| err.to_string()),
@@ -325,7 +325,7 @@ fn trait_def_containing_message_with_invalid_ink_attributes_is_denied() {
 #[test]
 fn trait_def_is_ok() {
     assert!(
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
                 #[ink(message)]
                 fn my_message(&self);
@@ -340,7 +340,7 @@ fn trait_def_is_ok() {
 #[test]
 fn trait_def_with_namespace_is_ok() {
     assert!(
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             #[ink(namespace = "my_namespace")]
             pub trait MyTrait {
                 #[ink(message)]
@@ -356,7 +356,7 @@ fn trait_def_with_namespace_is_ok() {
 #[test]
 fn trait_def_with_selectors_ok() {
     assert!(
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
                 #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message(&self);
@@ -371,7 +371,7 @@ fn trait_def_with_selectors_ok() {
 #[test]
 fn trait_def_with_payable_ok() {
     assert!(
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             pub trait MyTrait {
                 #[ink(message, payable)]
                 fn my_message(&self);
@@ -386,7 +386,7 @@ fn trait_def_with_payable_ok() {
 #[test]
 fn trait_def_with_everything_combined_ok() {
     assert!(
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             #[ink(namespace = "my_namespace")]
             pub trait MyTrait {
                 #[ink(message)]
@@ -423,15 +423,16 @@ fn trait_def_with_overlapping_selectors() {
 
 #[test]
 fn iter_messages_works() {
-    let ink_trait = <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
-        pub trait MyTrait {
-            #[ink(message)]
-            fn message_1(&self);
-            #[ink(message)]
-            fn message_2(&mut self);
-        }
-    })
-    .unwrap();
+    let ink_trait =
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+            pub trait MyTrait {
+                #[ink(message)]
+                fn message_1(&self);
+                #[ink(message)]
+                fn message_2(&mut self);
+            }
+        })
+        .unwrap();
     let actual = ink_trait
         .iter_items()
         .map(|(item, _)| item)
@@ -444,9 +445,14 @@ fn iter_messages_works() {
     assert_eq!(actual, expected);
 }
 
-fn assert_verify_hash2_works_with(ink_trait: InkTrait, expected: &str) {
+fn assert_verify_hash_works_with(
+    config: TraitDefinitionConfig,
+    ink_trait: InkItemTrait,
+    expected: &str,
+) {
     let expected = expected.to_string().into_bytes();
-    let actual = ink_trait.verify_hash();
+    let trait_definition = InkTraitDefinition::from_raw_parts(config, ink_trait);
+    let actual = trait_definition.verify_hash();
     let expected: [u8; 32] = {
         use blake2::digest::generic_array::sequence::Split as _;
         let (head_32, _rest) =
@@ -458,25 +464,41 @@ fn assert_verify_hash2_works_with(ink_trait: InkTrait, expected: &str) {
 
 macro_rules! ink_trait {
     ( $($tt:tt)* ) => {{
-        <InkTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
+        <InkItemTrait as TryFrom<syn::ItemTrait>>::try_from(syn::parse_quote! {
             $( $tt )*
         })
         .unwrap()
     }};
 }
 
-#[test]
-fn verify_hash_works() {
-    let ink_trait = ink_trait! {
+fn dummy_trait_definition() -> InkItemTrait {
+    ink_trait! {
         pub trait MyTrait {
             #[ink(message)]
             fn message_1(&self);
             #[ink(message)]
             fn message_2(&mut self, a: i32, b: i32) -> i32;
         }
-    };
-    assert_verify_hash2_works_with(
-        ink_trait,
-        "__ink_trait::MyTrait::message_1:1:r,message_2:3:w",
-    );
+    }
+}
+
+#[test]
+fn verify_hash_works() {
+    let ink_trait = dummy_trait_definition();
+    let config = TraitDefinitionConfig::default();
+    assert_verify_hash_works_with(config, ink_trait, "MyTrait");
+}
+
+#[test]
+fn verify_hash_works_with_empty_namespace() {
+    let ink_trait = dummy_trait_definition();
+    let config = TraitDefinitionConfig::default().with_namespace("");
+    assert_verify_hash_works_with(config, ink_trait, "::MyTrait");
+}
+
+#[test]
+fn verify_hash_works_with_namespace() {
+    let ink_trait = dummy_trait_definition();
+    let config = TraitDefinitionConfig::default().with_namespace("my_custom_namespace");
+    assert_verify_hash_works_with(config, ink_trait, "my_custom_namespace::MyTrait");
 }

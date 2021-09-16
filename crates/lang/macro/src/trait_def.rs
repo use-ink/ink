@@ -16,14 +16,14 @@ use ink_lang_codegen::generate_code;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::Result;
 
-pub fn analyze(attr: TokenStream2, input: TokenStream2) -> TokenStream2 {
-    match analyze_or_err(attr, input) {
+pub fn analyze(config: TokenStream2, input: TokenStream2) -> TokenStream2 {
+    match analyze_or_err(config, input) {
         Ok(tokens) => tokens,
         Err(err) => err.to_compile_error(),
     }
 }
 
-pub fn analyze_or_err(attr: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
-    let trait_definition = ink_lang_ir::InkTrait::new(attr, input)?;
-    Ok(generate_code(&trait_definition))
+pub fn analyze_or_err(config: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
+    let trait_definition = ink_lang_ir::InkTraitDefinition::new(config, input)?;
+    Ok(generate_code(trait_definition.item()))
 }

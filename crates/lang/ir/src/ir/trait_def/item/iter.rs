@@ -14,7 +14,7 @@
 
 use crate::{
     ir,
-    InkTrait,
+    InkItemTrait,
     InkTraitItem,
     InkTraitMessage,
     Selector,
@@ -73,7 +73,7 @@ pub struct IterInkTraitItems<'a> {
 
 impl<'a> IterInkTraitItems<'a> {
     /// Creates a new iterator yielding ink! trait items.
-    pub(super) fn new(item_trait: &'a InkTrait) -> Self {
+    pub(super) fn new(item_trait: &'a InkItemTrait) -> Self {
         Self {
             iter: IterInkTraitItemsRaw::from_raw(&item_trait.item),
             message_selectors: &item_trait.message_selectors,
