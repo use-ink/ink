@@ -38,7 +38,6 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/C-12-const-constructor.rs");
     t.compile_fail("tests/ui/fail/C-13-abi-constructor.rs");
     t.compile_fail("tests/ui/fail/C-14-payable-constructor.rs");
-    t.compile_fail("tests/ui/fail/C-15-payable-trait-constructor.rs");
     t.compile_fail("tests/ui/fail/C-16-function-arg-struct-destructuring.rs");
 
     t.compile_fail("tests/ui/fail/H-01-invalid-dyn-alloc.rs");
