@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::adder::{Adder, AdderRef};
+pub use self::adder::{
+    Adder,
+    AdderRef,
+};
 
 use ink_lang as ink;
 

@@ -79,7 +79,10 @@ mod delegator {
                 .salt_bytes(salt)
                 .instantiate()
                 .unwrap_or_else(|error| {
-                    panic!("failed at instantiating the Accumulator contract: {:?}", error)
+                    panic!(
+                        "failed at instantiating the Accumulator contract: {:?}",
+                        error
+                    )
                 });
             let adder = AdderRef::new(accumulator.clone())
                 .endowment(total_balance / 4)

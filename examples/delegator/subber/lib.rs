@@ -1,6 +1,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::subber::{Subber, SubberRef};
+pub use self::subber::{
+    Subber,
+    SubberRef,
+};
 
 use ink_lang as ink;
 
