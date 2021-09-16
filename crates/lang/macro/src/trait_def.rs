@@ -25,5 +25,5 @@ pub fn analyze(config: TokenStream2, input: TokenStream2) -> TokenStream2 {
 
 pub fn analyze_or_err(config: TokenStream2, input: TokenStream2) -> Result<TokenStream2> {
     let trait_definition = ink_lang_ir::InkTraitDefinition::new(config, input)?;
-    Ok(generate_code(trait_definition.item()))
+    Ok(generate_code(&trait_definition))
 }

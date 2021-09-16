@@ -31,7 +31,7 @@ use quote::{
 /// Generator to create the ink! storage struct and important trait impls.
 #[derive(From, Copy, Clone)]
 pub struct TraitDefinition<'a> {
-    trait_def: &'a ir::InkItemTrait,
+    trait_def: &'a ir::InkTraitDefinition,
 }
 
 impl<'a> TraitDefinition<'a> {
@@ -41,11 +41,11 @@ impl<'a> TraitDefinition<'a> {
     /// were `$NAME` is the non-unique name of the trait and `$TRAIT_ID`
     /// is the hex representation of the unique 4-byte trait identifier.
     fn append_trait_suffix(&self, prefix: &str) -> syn::Ident {
-        let unique_id = self.trait_def.unique_id().to_be_bytes();
+        let unique_id = self.trait_def.id().to_be_bytes();
         format_ident!(
             "__ink_{}_{}_0x{:X}{:X}{:X}{:X}",
             prefix,
-            self.trait_def.ident(),
+            self.trait_def.item().ident(),
             unique_id[0],
             unique_id[1],
             unique_id[2],
@@ -55,13 +55,13 @@ impl<'a> TraitDefinition<'a> {
 
     /// Returns the span of the underlying ink! trait definition.
     fn span(&self) -> Span {
-        self.trait_def.span()
+        self.trait_def.item().span()
     }
 }
 
 impl GenerateCode for TraitDefinition<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let span = self.trait_def.span();
+        let span = self.trait_def.item().span();
         let trait_definition = self.generate_trait_definition();
         let trait_registry = self.generate_trait_registry_impl();
         let trait_call_builder = self.generate_call_builder();

@@ -81,7 +81,7 @@ impl TraitRegistry<'_> {
 
     /// Returns the identifier of the ink! trait definition.
     fn trait_ident(&self) -> &syn::Ident {
-        self.trait_def.trait_def.ident()
+        self.trait_def.trait_def.item().ident()
     }
 
     /// Generates the global trait registry implementation for the ink! trait.
@@ -120,15 +120,12 @@ impl TraitRegistry<'_> {
 
     /// Generate the code for all ink! trait messages implemented by the trait registry.
     fn generate_registry_messages(&self) -> TokenStream2 {
-        let messages =
-            self.trait_def
-                .trait_def
-                .iter_items()
-                .filter_map(|(item, selector)| {
-                    item.filter_map_message().map(|message| {
-                        self.generate_registry_for_message(&message, selector)
-                    })
-                });
+        let messages = self.trait_def.trait_def.item().iter_items().filter_map(
+            |(item, selector)| {
+                item.filter_map_message()
+                    .map(|message| self.generate_registry_for_message(&message, selector))
+            },
+        );
         quote! {
             #( #messages )*
         }
@@ -203,7 +200,7 @@ impl TraitRegistry<'_> {
     fn generate_trait_info_object(&self) -> TokenStream2 {
         let span = self.span();
         let trait_ident = self.trait_ident();
-        let unique_id = self.trait_def.trait_def.unique_id().hex_padded_suffixed();
+        let unique_id = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
         quote_spanned!(span =>

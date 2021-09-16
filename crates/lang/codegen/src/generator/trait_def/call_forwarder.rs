@@ -339,8 +339,8 @@ impl CallForwarder<'_> {
     /// of the same ink! trait definition.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
-        let trait_ident = self.trait_def.trait_def.ident();
-        let trait_uid = self.trait_def.trait_def.unique_id().hex_padded_suffixed();
+        let trait_ident = self.trait_def.trait_def.item().ident();
+        let trait_uid = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let forwarder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
@@ -374,14 +374,15 @@ impl CallForwarder<'_> {
 
     /// Generate the code for all ink! trait messages implemented by the trait call forwarder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
-        let messages = self
-            .trait_def
-            .trait_def
-            .iter_items()
-            .filter_map(|(item, _)| {
-                item.filter_map_message()
-                    .map(|message| self.generate_ink_trait_impl_for_message(&message))
-            });
+        let messages =
+            self.trait_def
+                .trait_def
+                .item()
+                .iter_items()
+                .filter_map(|(item, _)| {
+                    item.filter_map_message()
+                        .map(|message| self.generate_ink_trait_impl_for_message(&message))
+                });
         quote! {
             #( #messages )*
         }
@@ -393,7 +394,7 @@ impl CallForwarder<'_> {
         message: &ir::InkTraitMessage,
     ) -> TokenStream2 {
         let span = message.span();
-        let trait_ident = self.trait_def.trait_def.ident();
+        let trait_ident = self.trait_def.trait_def.item().ident();
         let forwarder_ident = self.ident();
         let message_ident = message.ident();
         let attrs = message.attrs();

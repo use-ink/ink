@@ -313,8 +313,8 @@ impl CallBuilder<'_> {
     /// parameters such as gas limit and transferred balance.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
-        let trait_ident = self.trait_def.trait_def.ident();
-        let trait_uid = self.trait_def.trait_def.unique_id().hex_padded_suffixed();
+        let trait_ident = self.trait_def.trait_def.item().ident();
+        let trait_uid = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let builder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
@@ -348,15 +348,13 @@ impl CallBuilder<'_> {
 
     /// Generate the code for all ink! trait messages implemented by the trait call builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
-        let messages =
-            self.trait_def
-                .trait_def
-                .iter_items()
-                .filter_map(|(item, selector)| {
-                    item.filter_map_message().map(|message| {
-                        self.generate_ink_trait_impl_for_message(&message, selector)
-                    })
-                });
+        let messages = self.trait_def.trait_def.item().iter_items().filter_map(
+            |(item, selector)| {
+                item.filter_map_message().map(|message| {
+                    self.generate_ink_trait_impl_for_message(&message, selector)
+                })
+            },
+        );
         quote! {
             #( #messages )*
         }

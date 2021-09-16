@@ -48,12 +48,12 @@ impl<'a> TraitDefinition<'a> {
 
 impl TraitDefinition<'_> {
     pub(super) fn generate_trait_definition(&self) -> TokenStream2 {
-        let span = self.trait_def.span();
-        let attrs = self.trait_def.attrs();
-        let ident = self.trait_def.ident();
-        let unique_trait_id = self.trait_def.unique_id().hex_padded_suffixed();
-        let messages = self
-            .trait_def
+        let item = self.trait_def.item();
+        let span = item.span();
+        let attrs = item.attrs();
+        let ident = item.ident();
+        let unique_trait_id = self.trait_def.id().hex_padded_suffixed();
+        let messages = item
             .iter_items()
             .map(|(item, _)| item)
             .flat_map(ir::InkTraitItem::filter_map_message)

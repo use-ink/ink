@@ -25,7 +25,11 @@ pub trait HexLiteral {
     ///
     /// Users shall not use this trait method directly hence it is hidden.
     #[doc(hidden)]
-    fn hex_impl_(self, fmt: ::core::fmt::Arguments, sealed: private::Sealed) -> syn::LitInt;
+    fn hex_impl_(
+        self,
+        fmt: ::core::fmt::Arguments,
+        sealed: private::Sealed,
+    ) -> syn::LitInt;
 
     /// Converts the given value into a hex represented literal with type suffix.
     fn hex_suffixed(self) -> syn::LitInt;
