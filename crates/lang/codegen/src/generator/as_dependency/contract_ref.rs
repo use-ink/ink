@@ -76,6 +76,7 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
             #[cfg_attr(feature = "std", derive(
+                ::scale_info::TypeInfo,
                 ::ink_storage::traits::StorageLayout,
             ))]
             #[derive(
