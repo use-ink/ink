@@ -284,7 +284,7 @@ impl InkTrait {
                     ))
                 }
                 syn::TraitItem::Method(method_trait_item) => {
-                    Self::analyse_methods(method_trait_item)?;
+                    Self::analyse_trait_method(method_trait_item)?;
                 }
                 unknown => {
                     return Err(format_err_spanned!(
@@ -306,7 +306,7 @@ impl InkTrait {
     /// - If the method is variadic or has generic parameters.
     /// - If the method does not respect the properties of either an
     ///   ink! message or ink! constructor.
-    fn analyse_methods(method: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_method(method: &syn::TraitItemMethod) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
                 default_impl,
@@ -353,10 +353,10 @@ impl InkTrait {
             Ok(Some(ink_attr)) => {
                 match ink_attr.first().kind() {
                     ir::AttributeArg::Message => {
-                        Self::analyse_message(method)?;
+                        Self::analyse_trait_message(method)?;
                     }
                     ir::AttributeArg::Constructor => {
-                        Self::analyse_constructor(method)?;
+                        Self::analyse_trait_constructor(method)?;
                     }
                     _unsupported => {
                         return Err(format_err_spanned!(
@@ -377,47 +377,12 @@ impl InkTrait {
         Ok(())
     }
 
-    /// Analyses the properties of an ink! constructor.
-    ///
-    /// # Errors
-    ///
-    /// - If the constructor has a `self` receiver as first argument.
-    /// - If the constructor has no `Self` return type.
-    fn analyse_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
-        InkTraitConstructor::extract_attributes(constructor.span(), &constructor.attrs)?;
-        if let Some(receiver) = constructor.sig.receiver() {
-            return Err(format_err_spanned!(
-                receiver,
-                "ink! constructors must not have a `self` receiver",
-            ))
-        }
-        match &constructor.sig.output {
-            syn::ReturnType::Default => {
-                return Err(format_err_spanned!(
-                    constructor.sig,
-                    "ink! constructors must return Self"
-                ))
-            }
-            syn::ReturnType::Type(_, ty) => {
-                match &**ty {
-                    syn::Type::Path(type_path) => {
-                        if !type_path.path.is_ident("Self") {
-                            return Err(format_err_spanned!(
-                                type_path.path,
-                                "ink! constructors must return Self"
-                            ))
-                        }
-                    }
-                    unknown => {
-                        return Err(format_err_spanned!(
-                            unknown,
-                            "ink! constructors must return Self"
-                        ))
-                    }
-                }
-            }
-        }
-        Ok(())
+    /// Constructors are generally not allowed in ink! trait definitions.
+    fn analyse_trait_constructor(constructor: &syn::TraitItemMethod) -> Result<()> {
+        return Err(format_err!(
+            constructor.span(),
+            "ink! trait definitions must not have constructors",
+        ))
     }
 
     /// Analyses the properties of an ink! message.
@@ -425,7 +390,7 @@ impl InkTrait {
     /// # Errors
     ///
     /// - If the message has no `&self` or `&mut self` receiver.
-    fn analyse_message(message: &syn::TraitItemMethod) -> Result<()> {
+    fn analyse_trait_message(message: &syn::TraitItemMethod) -> Result<()> {
         InkTraitMessage::extract_attributes(message.span(), &message.attrs)?;
         match message.sig.receiver() {
             None | Some(syn::FnArg::Typed(_)) => {
