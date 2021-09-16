@@ -66,6 +66,7 @@ fn compile_tests() {
     t.pass("tests/ui/trait_def/pass/many_outputs.rs");
     t.pass("tests/ui/trait_def/pass/payable_message.rs");
     t.pass("tests/ui/trait_def/pass/custom_selector.rs");
+    t.pass("tests/ui/trait_def/pass/with_namespace.rs");
     t.compile_fail("tests/ui/trait_def/fail/empty_definition.rs");
     t.compile_fail("tests/ui/trait_def/fail/with_constructor.rs");
     t.compile_fail("tests/ui/trait_def/fail/overlapping_selectors.rs");
@@ -75,4 +76,8 @@ fn compile_tests() {
     t.compile_fail("tests/ui/trait_def/fail/invalid_payable_2.rs");
     t.compile_fail("tests/ui/trait_def/fail/with_assoc_type.rs");
     t.compile_fail("tests/ui/trait_def/fail/with_assoc_const.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_1.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_2.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_3.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_4.rs");
 }
