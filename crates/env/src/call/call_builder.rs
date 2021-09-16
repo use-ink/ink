@@ -30,6 +30,7 @@ use core::marker::PhantomData;
 
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct CallParams<E, Args, R>
 where
     E: Environment,
@@ -46,38 +47,38 @@ where
     exec_input: ExecutionInput<Args>,
 }
 
+#[cfg(
+    // We do not currently support cross-contract calling in the off-chain
+    // environment so we do not have to provide these getters in case of
+    // off-chain environment compilation.
+    all(not(feature = "std"), target_arch = "wasm32")
+)]
 impl<E, Args, R> CallParams<E, Args, R>
 where
     E: Environment,
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
-    pub fn callee(&self) -> &E::AccountId {
+    pub(crate) fn callee(&self) -> &E::AccountId {
         &self.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
     #[inline]
-    pub fn gas_limit(&self) -> u64 {
+    pub(crate) fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
     #[inline]
-    pub fn transferred_value(&self) -> &E::Balance {
+    pub(crate) fn transferred_value(&self) -> &E::Balance {
         &self.transferred_value
     }
 
     /// Returns the execution input.
     #[inline]
-    pub fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
-    }
-
-    /// The expected return type.
-    #[inline]
-    pub fn return_type(&self) -> &ReturnType<R> {
-        &self.return_type
     }
 }
 
