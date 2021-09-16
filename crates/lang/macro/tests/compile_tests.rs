@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #[test]
-fn compile_tests() {
+fn contract() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/pass/01-noop-contract.rs");
@@ -57,9 +57,17 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/S-04-non-storage-ink-impls.rs");
     t.compile_fail("tests/ui/fail/S-05-storage-as-event.rs");
     t.compile_fail("tests/ui/fail/S-06-event-as-storage.rs");
+}
 
+#[test]
+fn chain_extension() {
+    let t = trybuild::TestCases::new();
     t.pass("tests/ui/chain_extension/E-01-simple.rs");
+}
 
+#[test]
+fn trait_definition() {
+    let t = trybuild::TestCases::new();
     t.pass("tests/ui/trait_def/pass/simple_definition.rs");
     t.pass("tests/ui/trait_def/pass/many_inputs.rs");
     t.pass("tests/ui/trait_def/pass/many_outputs.rs");
