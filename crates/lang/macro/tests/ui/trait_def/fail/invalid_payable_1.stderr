@@ -1,0 +1,5 @@
+error: unknown ink! attribute argument (name = value)
+ --> $DIR/invalid_payable_1.rs:5:20
+  |
+5 |     #[ink(message, payable = false)]
+  |                    ^^^^^^^^^^^^^^^

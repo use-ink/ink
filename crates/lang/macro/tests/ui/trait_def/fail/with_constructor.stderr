@@ -1,0 +1,6 @@
+error: ink! trait definitions must not have constructors
+ --> $DIR/with_constructor.rs:5:5
+  |
+5 | /     #[ink(constructor)]
+6 | |     fn new() -> Self;
+  | |_____________________^

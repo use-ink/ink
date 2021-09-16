@@ -60,4 +60,19 @@ fn compile_tests() {
     t.compile_fail("tests/ui/fail/S-06-event-as-storage.rs");
 
     t.pass("tests/ui/chain_extension/E-01-simple.rs");
+
+    t.pass("tests/ui/trait_def/pass/simple_definition.rs");
+    t.pass("tests/ui/trait_def/pass/many_inputs.rs");
+    t.pass("tests/ui/trait_def/pass/many_outputs.rs");
+    t.pass("tests/ui/trait_def/pass/payable_message.rs");
+    t.pass("tests/ui/trait_def/pass/custom_selector.rs");
+    t.compile_fail("tests/ui/trait_def/fail/empty_definition.rs");
+    t.compile_fail("tests/ui/trait_def/fail/with_constructor.rs");
+    t.compile_fail("tests/ui/trait_def/fail/overlapping_selectors.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_selector_1.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_selector_2.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_payable_1.rs");
+    t.compile_fail("tests/ui/trait_def/fail/invalid_payable_2.rs");
+    t.compile_fail("tests/ui/trait_def/fail/with_assoc_type.rs");
+    t.compile_fail("tests/ui/trait_def/fail/with_assoc_const.rs");
 }

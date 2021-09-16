@@ -1,0 +1,5 @@
+error: associated constants in ink! trait definitions are not supported, yet
+ --> $DIR/with_assoc_const.rs:5:5
+  |
+5 |     const INVALID_CONST: bool;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^

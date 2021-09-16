@@ -1,0 +1,11 @@
+error: encountered duplicate selector ([0, 0, 0, 1]) in the same ink! trait definition
+ --> $DIR/overlapping_selectors.rs:8:8
+  |
+8 |     fn selector2(&self);
+  |        ^^^^^^^^^
+
+error: first ink! trait constructor or message with same selector found here
+ --> $DIR/overlapping_selectors.rs:6:8
+  |
+6 |     fn selector1(&self);
+  |        ^^^^^^^^^
