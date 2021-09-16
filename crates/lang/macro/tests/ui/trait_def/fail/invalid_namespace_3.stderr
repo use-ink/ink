@@ -1,7 +1,5 @@
-error: expected `=`
- --> $DIR/invalid_namespace_3.rs:3:1
+error: encountered invalid Rust identifier for the ink! namespace configuration parameter
+ --> $DIR/invalid_namespace_3.rs:3:37
   |
-3 | #[ink::trait_definition(namespace)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the attribute macro `ink::trait_definition` (in Nightly builds, run with -Z macro-backtrace for more info)
+3 | #[ink::trait_definition(namespace = "")]
+  |                                     ^^
