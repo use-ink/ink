@@ -33,14 +33,9 @@ use crate::{
 use ink_primitives::Key;
 
 /// The flags to indicate further information about the end of a contract execution.
+#[derive(Default)]
 pub struct ReturnFlags {
     value: u32,
-}
-
-impl Default for ReturnFlags {
-    fn default() -> Self {
-        Self { value: 0 }
-    }
 }
 
 impl ReturnFlags {
