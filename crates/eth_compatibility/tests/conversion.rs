@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_eth_compatibility::{
-    ECDSAPublicKey,
-};
+use ink_eth_compatibility::ECDSAPublicKey;
 
 #[test]
 fn correct_to_eth_address() {

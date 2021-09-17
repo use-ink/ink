@@ -1074,11 +1074,8 @@ where
         message_hash: &[u8; 32],
     ) -> Result<ECDSAPublicKey> {
         let mut output = [0; 33];
-        let result = ink_env::ecdsa_recover(signature, message_hash, &mut output);
-
-        match result.is_ok() {
-            true => Ok(ECDSAPublicKey { 0: output }),
-            false => Err(Error::EcdsaRecoverFailed),
-        }
+        ink_env::ecdsa_recover(signature, message_hash, &mut output)
+            .map(|_| ECDSAPublicKey { 0: output })
+            .map_err(|_| Error::EcdsaRecoverFailed)
     }
 }
