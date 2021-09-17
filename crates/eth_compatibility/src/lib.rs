@@ -50,9 +50,7 @@ pub struct EthereumAddress(pub [u8; 20]);
 
 impl Default for EthereumAddress {
     fn default() -> Self {
-        Self {
-            0: [0; 20]
-        }
+        Self { 0: [0; 20] }
     }
 }
 
