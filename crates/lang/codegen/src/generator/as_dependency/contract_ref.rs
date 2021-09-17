@@ -23,6 +23,7 @@ use quote::{
     quote,
     quote_spanned,
 };
+use ir::IsDocAttribute as _;
 use syn::spanned::Spanned as _;
 
 /// Generates code for the contract reference of the ink! smart contract.
@@ -72,6 +73,14 @@ impl ContractRef<'_> {
     /// API but is just a typed thin-wrapper around an `AccountId`.
     fn generate_struct(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
+        let doc_attrs = self
+            .contract
+            .module()
+            .storage()
+            .attrs()
+            .iter()
+            .cloned()
+            .filter(syn::Attribute::is_doc_attribute);
         let storage_ident = self.contract.module().storage().ident();
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
@@ -90,6 +99,7 @@ impl ContractRef<'_> {
                 ::core::cmp::Eq,
                 ::core::clone::Clone,
             )]
+            #( #doc_attrs )*
             pub struct #ref_ident {
                 inner: <#storage_ident as ::ink_lang::ContractCallBuilder>::Type,
             }
