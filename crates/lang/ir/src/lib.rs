@@ -55,6 +55,7 @@ pub use self::{
         InkTraitItem,
         InkTraitMessage,
         InputsIter,
+        IsDocAttribute,
         Item,
         ItemImpl,
         ItemMod,

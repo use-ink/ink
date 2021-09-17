@@ -43,7 +43,10 @@ use self::attrs::{
     InkAttribute,
 };
 pub use self::{
-    attrs::Namespace,
+    attrs::{
+        IsDocAttribute,
+        Namespace,
+    },
     chain_extension::{
         ChainExtension,
         ChainExtensionMethod,

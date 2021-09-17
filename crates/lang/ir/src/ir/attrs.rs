@@ -31,6 +31,18 @@ use proc_macro2::{
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
+/// An extension trait for [`syn::Attribute`] in order to query for documentation.
+pub trait IsDocAttribute {
+    /// Returns `true` if the attribute is a Rust documentation attribute.
+    fn is_doc_attribute(&self) -> bool;
+}
+
+impl IsDocAttribute for syn::Attribute {
+    fn is_doc_attribute(&self) -> bool {
+        self.path.is_ident("doc")
+    }
+}
+
 /// Either an ink! specific attribute, or another uninterpreted attribute.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Attribute {
