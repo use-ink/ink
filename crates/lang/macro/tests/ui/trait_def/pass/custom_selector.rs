@@ -2,20 +2,15 @@ use ink_lang as ink;
 
 #[ink::trait_definition]
 pub trait CustomSelector {
-    #[ink(message, selector = "0x00000001")]
+    #[ink(message, selector = 1)]
     fn selector1(&self);
-    #[ink(message, selector = "0x00000002")]
+    #[ink(message, selector = 2)]
     fn selector1_mut(&mut self);
 
-    #[ink(message, selector = 3)]
+    #[ink(message, selector = 0x0000_0003)]
     fn selector2(&self);
-    #[ink(message, selector = 4)]
+    #[ink(message, selector = 0x0000_0004)]
     fn selector2_mut(&mut self);
-
-    #[ink(message, selector = 0x0000_0005)]
-    fn selector3(&self);
-    #[ink(message, selector = 0x0000_0006)]
-    fn selector3_mut(&mut self);
 }
 
 fn main() {}

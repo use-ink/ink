@@ -713,12 +713,12 @@ mod tests {
                         #[ink(constructor)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = "0xDEADBEEF")]
+                        #[ink(message, selector = 0xDEADBEEF)]
                         pub fn my_message_1(&self) {}
                     }
 
                     impl MyStorage {
-                        #[ink(message, selector = "0xDEADBEEF")]
+                        #[ink(message, selector = 0xDEADBEEF)]
                         pub fn my_message_2(&self) {}
                     }
                 }
@@ -739,7 +739,7 @@ mod tests {
                     pub struct MyStorage {}
 
                     impl MyStorage {
-                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        #[ink(constructor, selector = 0xDEADBEEF)]
                         pub fn my_constructor_1() -> Self {}
 
                         #[ink(message)]
@@ -747,7 +747,7 @@ mod tests {
                     }
 
                     impl MyStorage {
-                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        #[ink(constructor, selector = 0xDEADBEEF)]
                         pub fn my_constructor_2() -> Self {}
                     }
                 }
@@ -824,10 +824,10 @@ mod tests {
                     pub struct MyStorage {}
 
                     impl MyStorage {
-                        #[ink(constructor, selector = "0xDEADBEEF")]
+                        #[ink(constructor, selector = 0xDEADBEEF)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = "0xDEADBEEF")]
+                        #[ink(message, selector = 0xDEADBEEF)]
                         pub fn my_message(&self) {}
                     }
                 }

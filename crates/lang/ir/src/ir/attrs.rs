@@ -28,7 +28,6 @@ use proc_macro2::{
     Ident,
     Span,
 };
-use regex::Regex;
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
@@ -772,19 +771,6 @@ impl InkAttribute {
     }
 }
 
-/// Returns an error to notify about non-hex digits at a position.
-fn err_non_hex(meta: &syn::Meta, pos: usize) -> syn::Error {
-    format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
-}
-
-/// Returns an error to notify about an invalid ink! selector.
-fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
-    format_err_spanned!(
-        meta,
-        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
-    )
-}
-
 impl TryFrom<syn::NestedMeta> for AttributeFrag {
     type Error = syn::Error;
 
@@ -807,46 +793,6 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Selector(selector),
-                                })
-                            }
-                            if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let regex = Regex::new(r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})")
-                                    .map_err(|_| {
-                                    invalid_selector_err_regex(&meta)
-                                })?;
-                                let str = lit_str.value();
-                                let cap =
-                                    regex.captures(&str).ok_or_else(|| {
-                                        invalid_selector_err_regex(&meta)
-                                    })?;
-                                if !regex.is_match(&str) {
-                                    return Err(invalid_selector_err_regex(
-                                        &meta,
-                                    ))
-                                }
-                                let len_digits = (str.as_bytes().len() - 2) / 2;
-                                if len_digits != 4 {
-                                    return Err(format_err!(
-                                            name_value,
-                                            "expected 4-digit hexcode for `selector` argument, found {} digits",
-                                            len_digits,
-                                        ))
-                                }
-                                let selector_bytes = [
-                                    u8::from_str_radix(&cap[1], 16)
-                                        .map_err(|_| err_non_hex(&meta, 0))?,
-                                    u8::from_str_radix(&cap[2], 16)
-                                        .map_err(|_| err_non_hex(&meta, 1))?,
-                                    u8::from_str_radix(&cap[3], 16)
-                                        .map_err(|_| err_non_hex(&meta, 2))?,
-                                    u8::from_str_radix(&cap[4], 16)
-                                        .map_err(|_| err_non_hex(&meta, 3))?,
-                                ];
-                                return Ok(AttributeFrag {
-                                    ast: meta,
-                                    arg: AttributeArg::Selector(Selector::from_bytes(
-                                        selector_bytes,
-                                    )),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
@@ -1121,7 +1067,15 @@ mod tests {
     fn selector_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xDEADBEEF")]
+                #[ink(selector = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
+                Selector::from_bytes([0, 0, 0, 42]),
+            )])),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
                 Selector::from_bytes([0xDE, 0xAD, 0xBE, 0xEF]),
@@ -1130,22 +1084,22 @@ mod tests {
     }
 
     #[test]
-    fn selector_non_hexcode() {
+    fn selector_negative_number() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xhelloworld")]
+                #[ink(selector = -1)]
             },
-            Err("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"),
+            Err("selector value out of range. selector must be a valid `u32` integer: invalid digit found in string"),
         );
     }
 
     #[test]
-    fn selector_too_long() {
+    fn selector_out_of_range() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xDEADBEEFC0FEBABE")]
+                #[ink(selector = 0xFFFF_FFFF_FFFF_FFFF)]
             },
-            Err("expected 4-digit hexcode for `selector` argument, found 8 digits"),
+            Err("selector value out of range. selector must be a valid `u32` integer: number too large to fit in target type"),
         );
     }
 
