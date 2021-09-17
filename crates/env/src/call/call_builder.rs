@@ -41,7 +41,7 @@ where
     /// The transferred value for the call.
     transferred_value: E::Balance,
     /// The expected return type.
-    return_type: ReturnType<R>,
+    _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
     exec_input: ExecutionInput<Args>,
 }
@@ -72,12 +72,6 @@ where
     #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
-    }
-
-    /// The expected return type.
-    #[inline]
-    pub(crate) fn return_type(&self) -> &ReturnType<R> {
-        &self.return_type
     }
 }
 
@@ -395,7 +389,7 @@ where
             transferred_value: self
                 .transferred_value
                 .unwrap_or_else(|| E::Balance::from(0u32)),
-            return_type: Default::default(),
+            _return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
     }

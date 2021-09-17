@@ -361,7 +361,6 @@ impl TypedEnvBackend for EnvInstance {
         let _callee = params.callee();
         let _transferred_value = params.transferred_value();
         let _input = params.exec_input();
-        let _return_type = params.return_type();
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
@@ -391,7 +390,6 @@ impl TypedEnvBackend for EnvInstance {
         let _endowment = params.endowment();
         let _input = params.exec_input();
         let _salt_bytes = params.salt_bytes();
-        let _return_type = params.return_type();
         unimplemented!("off-chain environment does not support contract instantiation")
     }
 

@@ -67,7 +67,7 @@ where
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Salt,
     /// The type of the instantiated contract.
-    return_type: ReturnType<R>,
+    _return_type: ReturnType<R>,
 }
 
 impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
@@ -96,12 +96,6 @@ where
     #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
-    }
-
-    /// The type of the instantiated contract.
-    #[inline]
-    pub(crate) fn return_type(&self) -> &ReturnType<R> {
-        &self.return_type
     }
 }
 
@@ -368,7 +362,7 @@ where
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
-            return_type: self.return_type,
+            _return_type: self.return_type,
         }
     }
 }
