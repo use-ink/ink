@@ -44,8 +44,33 @@ impl core::ops::DerefMut for ECDSAPublicKey {
     }
 }
 
-/// Address of Ethereum account
-pub type EthereumAddress = [u8; 20];
+/// The address of an Ethereum account.
+#[derive(Debug, Copy, Clone)]
+pub struct EthereumAddress(pub [u8; 20]);
+
+impl Default for EthereumAddress {
+    fn default() -> Self {
+        Self {
+            0: [0; 20]
+        }
+    }
+}
+
+impl core::ops::Deref for EthereumAddress {
+    type Target = [u8; 20];
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl core::ops::DerefMut for EthereumAddress {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
 impl ECDSAPublicKey {
     pub fn to_eth_address(&self) -> EthereumAddress {

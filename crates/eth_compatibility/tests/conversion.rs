@@ -14,7 +14,6 @@
 
 use ink_eth_compatibility::{
     ECDSAPublicKey,
-    EthereumAddress,
 };
 
 #[test]
@@ -29,11 +28,11 @@ fn correct_to_eth_address() {
     };
 
     #[rustfmt::skip]
-    const EXPECTED_ETH_ADDRESS: EthereumAddress = [
+    const EXPECTED_ETH_ADDRESS: [u8; 20] = [
         126, 95, 69, 82, 9, 26, 105, 18, 93, 93, 252, 183, 184, 194, 101, 144, 41, 57, 91, 223
     ];
 
-    assert_eq!(pub_key.to_eth_address(), EXPECTED_ETH_ADDRESS);
+    assert_eq!(*pub_key.to_eth_address(), EXPECTED_ETH_ADDRESS);
 }
 
 #[test]
