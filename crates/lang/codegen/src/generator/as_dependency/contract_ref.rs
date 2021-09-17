@@ -17,13 +17,15 @@ use crate::{
     GenerateCode,
 };
 use derive_more::From;
-use ir::Callable;
+use ir::{
+    Callable,
+    IsDocAttribute as _,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
     quote_spanned,
 };
-use ir::IsDocAttribute as _;
 use syn::spanned::Spanned as _;
 
 /// Generates code for the contract reference of the ink! smart contract.
