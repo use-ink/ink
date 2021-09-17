@@ -43,6 +43,7 @@ pub mod incrementer {
         Reset,
     };
 
+    /// A concrete incrementer smart contract.
     #[ink(storage)]
     pub struct Incrementer {
         value: u64,
