@@ -18,12 +18,11 @@ the methods provided by the chain extension.</p>
 <h1 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h1>
 <p>There are three different attributes with which the chain extension methods
 can be flagged:</p>
-<div><table><thead><tr><th align="left">Attribute</th><th align="center">Required</th><th align="left">Default Value</th><th align="center">Description</th></tr></thead><tbody>
+<table><thead><tr><th align="left">Attribute</th><th align="center">Required</th><th align="left">Default Value</th><th align="center">Description</th></tr></thead><tbody>
 <tr><td align="left"><code>ink(extension = N: u32)</code></td><td align="center">Yes</td><td align="left">-</td><td align="center">Determines the unique function ID of the chain extension method.</td></tr>
 <tr><td align="left"><code>ink(handle_status = flag: bool)</code></td><td align="center">Optional</td><td align="left"><code>true</code></td><td align="center">Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call.</td></tr>
 <tr><td align="left"><code>ink(returns_result = flag: bool)</code></td><td align="center">Optional</td><td align="left"><code>true</code></td><td align="center">By default chain extension methods are assumed to return a <code>Result&lt;T, E&gt;</code> in the output buffer. Using <code>returns_result = false</code> this check is disabled and the chain extension method may return any other type.</td></tr>
 </tbody></table>
-</div>
 <p>As with all ink! attributes multiple of them can either appear in a contiguous list:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
@@ -61,13 +60,13 @@ if a call to it may never fail and never returns a <code>Result</code> type.</p>
 <h1 id="combinations" class="section-header"><a href="#combinations">Combinations</a></h1>
 <p>Due to the possibility to flag a chain extension method with <code>handle_status</code> and <code>returns_result</code>
 there are 4 different cases with slightly varying semantics:</p>
-<div><table><thead><tr><th align="center"><code>handle_status</code></th><th align="center"><code>returns_result</code></th><th align="left">Effects</th></tr></thead><tbody>
+<table><thead><tr><th align="center"><code>handle_status</code></th><th align="center"><code>returns_result</code></th><th align="left">Effects</th></tr></thead><tbody>
 <tr><td align="center"><code>true</code></td><td align="center"><code>true</code></td><td align="left">The chain extension method is required to return a value of type <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer.</td></tr>
 <tr><td align="center"><code>true</code></td><td align="center"><code>false</code></td><td align="left">The chain extension method may return any non-<code>Result</code> type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still <code>Result&lt;T, Self::ErrorCode&gt;</code> when the chain extension method was defined to return a value of type <code>T</code>.</td></tr>
 <tr><td align="center"><code>false</code></td><td align="center"><code>true</code></td><td align="left">The chain extension method is required to return a value of type <code>Result&lt;T, E&gt;</code>. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly.</td></tr>
 <tr><td align="center"><code>false</code></td><td align="center"><code>false</code></td><td align="left">The chain extension method may return any non-<code>Result</code> type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly.</td></tr>
 </tbody></table>
-</div><h1 id="error-code" class="section-header"><a href="#error-code">Error Code</a></h1>
+<h1 id="error-code" class="section-header"><a href="#error-code">Error Code</a></h1>
 <p>Every chain extension defines exactly one <code>ErrorCode</code> using the following syntax:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
