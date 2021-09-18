@@ -287,7 +287,8 @@ fmt:
   script:
     - cargo fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/**.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/contract/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/trait_def/{pass,fail}/*.rs
 
 
 #### stage:                        examples
