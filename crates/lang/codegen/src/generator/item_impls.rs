@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-};
+use crate::GenerateCode;
 use derive_more::From;
 use heck::CamelCase as _;
 use ir::Callable as _;
@@ -91,13 +88,7 @@ impl ItemImpls<'_> {
             .trait_path()
             .expect("encountered missing trait path for trait impl block");
         let self_type = item_impl.self_type();
-        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         quote_spanned!(span =>
-            #[doc(hidden)]
-            unsafe impl
-                ::ink_lang::TraitImplementer<#unique_trait_id> for #self_type
-            {}
-
             #( #attrs )*
             impl #trait_path for #self_type {
                 type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>

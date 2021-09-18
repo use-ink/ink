@@ -18,7 +18,6 @@ use crate::{
     traits::GenerateCode,
 };
 use derive_more::From;
-use ir::HexLiteral;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -314,18 +313,10 @@ impl CallBuilder<'_> {
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_ident = self.trait_def.trait_def.item().ident();
-        let trait_uid = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let builder_ident = self.ident();
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            unsafe impl<E> ::ink_lang::TraitImplementer<#trait_uid>
-                for #builder_ident<E>
-            where
-                E: ::ink_env::Environment,
-            {
-            }
-
             impl<E> ::ink_lang::ContractEnv for #builder_ident<E>
             where
                 E: ::ink_env::Environment,

@@ -166,12 +166,9 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let call_forwarder_impl =
             self.generate_call_forwarder_for_trait_impl(trait_path, impl_block);
-        let implementation_marker =
-            self.generate_implementation_marker_for_trait_impl(trait_path, impl_block);
         let ink_trait_impl = self.generate_ink_trait_impl(trait_path, impl_block);
         quote! {
             #call_forwarder_impl
-            #implementation_marker
             #ink_trait_impl
         }
     }
@@ -233,32 +230,6 @@ impl CallBuilder<'_> {
                     )
                 }
             }
-        )
-    }
-
-    /// Unsafely implements the required trait implementation marker.
-    ///
-    /// This marker only states that the ink! trait definition has been properly implemented.
-    /// The marker trait is unsafe to make people think twice before manually implementing
-    /// ink! trait definitions.
-    fn generate_implementation_marker_for_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let span = impl_block.span();
-        let cb_ident = Self::call_builder_ident();
-        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
-        quote_spanned!(span=>
-            // SAFETY:
-            //
-            // The trait is unsafe to implement in order to prevent users doing a manual
-            // implementation themselves. Generally it is safe to implement only by the ink!
-            // provided macros with correct unique trait ID.
-            #[doc(hidden)]
-            unsafe impl
-                ::ink_lang::TraitImplementer<#unique_trait_id> for #cb_ident
-            {}
         )
     }
 

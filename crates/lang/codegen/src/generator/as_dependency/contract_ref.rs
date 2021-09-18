@@ -204,15 +204,9 @@ impl ContractRef<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
-        let unique_trait_id = generator::generate_unique_trait_id(span, trait_path);
         let forwarder_ident = self.generate_contract_ref_ident();
         let messages = self.generate_contract_trait_impl_messages(trait_path, impl_block);
         quote_spanned!(span=>
-            #[doc(hidden)]
-            unsafe impl
-                ::ink_lang::TraitImplementer<#unique_trait_id> for #forwarder_ident
-            {}
-
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
                 #[doc(hidden)]
