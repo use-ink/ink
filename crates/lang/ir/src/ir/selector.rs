@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use super::blake2::blake2b_256;
+use crate::literal::HexLiteral;
 
 /// A function selector.
 ///
@@ -45,6 +46,17 @@ impl Selector {
     /// Returns a unique identifier as `usize`.
     pub fn unique_id(self) -> usize {
         u32::from_le_bytes(self.bytes) as usize
+    }
+
+    /// Returns the 4 bytes that make up the selector as hex encoded bytes.
+    pub fn hex_lits(self) -> [syn::LitInt; 4] {
+        let selector_bytes = self.as_bytes();
+        [
+            selector_bytes[0].hex_padded_suffixed(),
+            selector_bytes[1].hex_padded_suffixed(),
+            selector_bytes[2].hex_padded_suffixed(),
+            selector_bytes[3].hex_padded_suffixed(),
+        ]
     }
 }
 
