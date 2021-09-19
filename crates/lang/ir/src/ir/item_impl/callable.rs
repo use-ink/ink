@@ -208,7 +208,7 @@ pub trait Callable {
 ///
 /// ```no_compile
 /// impl MyStorage {
-///     #[ink(message, selector = "0xDEADBEEF")]
+///     #[ink(message, selector = 0xDEADBEEF)]
 ///     fn my_message(&self) {}
 /// }
 /// ```
@@ -611,7 +611,7 @@ mod tests {
                 impl MyTrait for MyStorage {}
             },
             syn::parse_quote! {
-                #[ink(message, selector = "0xDEADBEEF")]
+                #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message(&self) {}
             },
             [0xDE, 0xAD, 0xBE, 0xEF],
