@@ -562,7 +562,7 @@ mod erc1155 {
     }
 
     impl super::Erc1155TokenReceiver for Contract {
-        #[ink(message, selector = "0xF23A6E61")]
+        #[ink(message, selector = 0xF23A6E61)]
         fn on_received(
             &mut self,
             _operator: AccountId,
@@ -582,7 +582,7 @@ mod erc1155 {
             unimplemented!("This smart contract does not accept token transfer.")
         }
 
-        #[ink(message, selector = "0xBC197C81")]
+        #[ink(message, selector = 0xBC197C81)]
         fn on_batch_received(
             &mut self,
             _operator: AccountId,
