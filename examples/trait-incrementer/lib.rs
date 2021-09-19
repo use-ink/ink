@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![allow(clippy::new_without_default)]
 
 use ink_lang as ink;
 
