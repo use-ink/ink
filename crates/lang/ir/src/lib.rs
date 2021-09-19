@@ -32,6 +32,7 @@ mod error;
 
 mod ast;
 mod ir;
+mod literal;
 
 pub use self::ir::{
     Callable,
