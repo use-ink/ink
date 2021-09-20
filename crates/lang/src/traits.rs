@@ -263,10 +263,10 @@ pub trait TraitCallForwarderFor<const ID: u32> {
     fn build_mut(&mut self) -> &mut <Self::Forwarder as TraitCallBuilder>::Builder;
 }
 
-/// Stores information per trait message.
+/// Stores information for every ink! trait message of an ink! trait definition.
 ///
-/// This information includes if the ink! trait message has been
-/// annotated with `#[ink(payable)]`.
+/// This information includes if the ink! trait message is payable
+/// as well as its derived or manually specified selector.
 ///
 /// In the future this info trait might be extended to contain
 /// more information about a single ink! trait message.
@@ -279,14 +279,25 @@ pub trait TraitCallForwarderFor<const ID: u32> {
 ///
 /// # Note
 ///
-/// - The `TRAIT_ID` is the `u32` identifier uniquely identifying the
-///   ink! trait.
-/// - The `MSG_ID` is the `u32` identifier derived from the selector
-///   that uniquely identifies the message.
-pub trait TraitMessageInfo<const TRAIT_ID: u32, const MSG_ID: u32> {
+/// - The `TraitMessageInfo<LOCAL_ID>` is implemented by the
+///   automatically generated ink! trait definition information object
+///   associated to the ink! trait definition at hand.
+/// - For every ink! trait message defined by the ink! trait definition
+///   the associated ink! trait definition information object implements
+///   this trait given the `TRAIT_LOCAL_MESSAGE_ID` of each ink! trait
+///   message respectively.
+/// - The local IDs uniquely identifying all the ink! trait messages
+///   of the ink! trait definition are computed solely using the Rust
+///   identifier of the ink! trait message which can be derived from
+///   ink! implementation blocks in order to query the information
+///   stored by this ink! trait information object trait implementation.
+pub trait TraitMessageInfo<const TRAIT_LOCAL_MESSAGE_ID: u32> {
     /// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.
     const PAYABLE: bool;
 
     /// The unique selector of the ink! trait message.
+    ///
+    /// This might have been adjusted using `#[ink(selector = N:u32)]` at the
+    /// ink! trait definition site.
     const SELECTOR: [u8; 4];
 }
