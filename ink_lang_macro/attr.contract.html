@@ -195,13 +195,13 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Flipper</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xDEADBEEF&quot;</span>)]</span> <span class="comment">// Works on constructors as well.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span> <span class="comment">// Works on constructors as well.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_value</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Flipper</span> { <span class="ident">value</span>: <span class="bool-val">false</span> }
     }
 
     <span class="doccomment">/// Returns the current value.</span>
-    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="string">&quot;0xFEEDBEEF&quot;</span>)]</span> <span class="comment">// ... or specify selector inline.</span>
+    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xFEEDBEEF</span>)]</span> <span class="comment">// ... or specify selector inline.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">value</span>
     }

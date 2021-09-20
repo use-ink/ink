@@ -1433,20 +1433,20 @@
 <span class="doccomment">///         # }</span>
 <span class="doccomment">///     impl Flipper {</span>
 <span class="doccomment">///         #[ink(constructor)]</span>
-<span class="doccomment">///         #[ink(selector = &quot;0xDEADBEEF&quot;)] // Works on constructors as well.</span>
+<span class="doccomment">///         #[ink(selector = 0xDEADBEEF)] // Works on constructors as well.</span>
 <span class="doccomment">///         pub fn new(initial_value: bool) -&gt; Self {</span>
 <span class="doccomment">///             Flipper { value: false }</span>
 <span class="doccomment">///         }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///         # /// Flips the current value.</span>
 <span class="doccomment">///         # #[ink(message)]</span>
-<span class="doccomment">///         # #[ink(selector = &quot;0xCAFEBABE&quot;)] // You can either specify selector out-of-line.</span>
+<span class="doccomment">///         # #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.</span>
 <span class="doccomment">///         # pub fn flip(&amp;mut self) {</span>
 <span class="doccomment">///         #     self.value = !self.value;</span>
 <span class="doccomment">///         # }</span>
 <span class="doccomment">///         #</span>
 <span class="doccomment">///         /// Returns the current value.</span>
-<span class="doccomment">///         #[ink(message, selector = &quot;0xFEEDBEEF&quot;)] // ... or specify selector inline.</span>
+<span class="doccomment">///         #[ink(message, selector = 0xFEEDBEEF)] // ... or specify selector inline.</span>
 <span class="doccomment">///         pub fn get(&amp;self) -&gt; bool {</span>
 <span class="doccomment">///             self.value</span>
 <span class="doccomment">///         }</span>
