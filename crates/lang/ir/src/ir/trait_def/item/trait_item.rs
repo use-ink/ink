@@ -144,6 +144,22 @@ impl<'a> InkTraitMessage<'a> {
         &self.item.sig.ident
     }
 
+    /// Returns a local ID unique to the ink! trait definition of the ink! trait message.
+    ///
+    /// # Note
+    ///
+    /// It is a compile error if two ink! trait messages share the same local ID.
+    /// Although the above scenario is very unlikely since the local ID is computed
+    /// solely by the identifier of the ink! message.
+    pub fn local_id(&self) -> u32 {
+        let buffer = format!("message::{}", self.ident()).into_bytes();
+        use blake2::digest::generic_array::sequence::Split as _;
+        let (head_32, _rest) =
+            <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
+        let head_32: [u8; 4] = head_32.into();
+        u32::from_be_bytes(head_32)
+    }
+
     /// Returns the span of the ink! message.
     pub fn span(&self) -> Span {
         self.item.span()
