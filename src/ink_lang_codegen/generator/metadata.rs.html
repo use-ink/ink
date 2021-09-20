@@ -409,8 +409,6 @@
 <span id="409">409</span>
 <span id="410">410</span>
 <span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -551,8 +549,7 @@
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
                 <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="ident">attrs</span>);
-                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>();
-                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
+                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
                 <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
                 <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
                 <span class="kw">let</span> <span class="ident">ident_lit</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">to_string</span>();
@@ -643,8 +640,7 @@
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
                 <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::extract_doc_comments</span>(<span class="ident">attrs</span>);
-                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>();
-                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">as_bytes</span>();
+                <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
                 <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>();
                 <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">callable</span>();
                 <span class="kw">let</span> <span class="ident">mutates</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
