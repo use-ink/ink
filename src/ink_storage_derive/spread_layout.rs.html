@@ -243,7 +243,7 @@
         <span class="prelude-val">Some</span>((<span class="ident">head</span>, <span class="ident">rest</span>)) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">rest</span> <span class="op">=</span> <span class="ident">max_n</span>(<span class="ident">rest</span>);
             <span class="macro">quote!</span> {
-                [#<span class="ident">head</span>, #<span class="ident">rest</span>][(#<span class="ident">head</span> <span class="op">&lt;</span> #<span class="ident">rest</span>) <span class="kw">as</span> <span class="ident">usize</span>]
+                [#<span class="ident">head</span>, #<span class="ident">rest</span>][(#<span class="ident">head</span> <span class="op">&lt;</span> #<span class="ident">rest</span>) <span class="kw">as</span> <span class="ident">::core::primitive::usize</span>]
             }
         }
         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> { <span class="number">0u64</span> },
@@ -315,8 +315,8 @@
     <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink_storage::traits::SpreadLayout</span> <span class="kw">for</span> @<span class="self">Self</span> {
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_comparisons</span>)]</span>
-            <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> #<span class="ident">footprint_body</span>;
-            <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
+            <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">::core::primitive::u64</span> <span class="op">=</span> #<span class="ident">footprint_body</span>;
+            <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
 
             <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 #<span class="ident">pull_body</span>
@@ -366,7 +366,7 @@
         });
         <span class="macro">quote!</span> {
             #<span class="ident">pat</span> <span class="op">=</span><span class="op">&gt;</span> {
-                { <span class="op">&lt;</span><span class="ident">u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="kw-2">&amp;</span>#<span class="ident">index</span>, <span class="ident">__key_ptr</span>); }
+                { <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="kw-2">&amp;</span>#<span class="ident">index</span>, <span class="ident">__key_ptr</span>); }
                 #(
                     { #<span class="ident">fields</span> }
                 )<span class="op">*</span>
@@ -381,12 +381,12 @@
     <span class="ident">s</span>.<span class="ident">gen_impl</span>(<span class="macro">quote!</span> {
         <span class="ident">gen</span> <span class="kw">impl</span> <span class="ident">::ink_storage::traits::SpreadLayout</span> <span class="kw">for</span> @<span class="self">Self</span> {
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_comparisons</span>)]</span>
-            <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> #<span class="ident">footprint_body</span>;
+            <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">::core::primitive::u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> #<span class="ident">footprint_body</span>;
 
-            <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
+            <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
 
             <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="ident">__key_ptr</span>) {
+                <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="ident">__key_ptr</span>) {
                     #<span class="ident">pull_body</span>
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid enum discriminant&quot;</span>),
                 }
