@@ -1,0 +1,5 @@
+error: expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]
+  --> $DIR/M-06-message-invalid-selector-type.rs:14:24
+   |
+14 |         #[ink(message, selector = true)]
+   |                        ^^^^^^^^^^^^^^^
