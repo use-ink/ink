@@ -22,7 +22,6 @@ pub use self::{
     config::TraitDefinitionConfig,
     item::{
         InkItemTrait,
-        InkTraitConstructor,
         InkTraitItem,
         InkTraitMessage,
         IterInkTraitItems,

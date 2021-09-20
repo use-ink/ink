@@ -53,78 +53,6 @@ impl<'a> InkTraitItem<'a> {
     }
 }
 
-/// A checked ink! constructor of an ink! trait definition.
-#[derive(Debug, Clone)]
-pub struct InkTraitConstructor<'a> {
-    item: &'a syn::TraitItemMethod,
-}
-
-impl<'a> InkTraitConstructor<'a> {
-    /// Panic message in case a user encounters invalid attributes.
-    const INVALID_ATTRIBUTES_ERRSTR: &'static str =
-        "encountered invalid attributes for ink! trait constructor";
-
-    /// Creates a new ink! trait definition constructor.
-    pub(super) fn new(item: &'a syn::TraitItemMethod) -> Self {
-        Self { item }
-    }
-
-    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait constructor.
-    pub(super) fn extract_attributes(
-        span: Span,
-        attrs: &[syn::Attribute],
-    ) -> Result<(InkAttribute, Vec<syn::Attribute>)> {
-        let (ink_attrs, non_ink_attrs) = ir::sanitize_attributes(
-            span,
-            attrs.iter().cloned(),
-            &ir::AttributeArgKind::Constructor,
-            |arg| {
-                match arg.kind() {
-                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
-                        Ok(())
-                    }
-                    _ => Err(None),
-                }
-            },
-        )?;
-        Ok((ink_attrs, non_ink_attrs))
-    }
-
-    /// Returns all non-ink! attributes.
-    pub fn attrs(&self) -> Vec<syn::Attribute> {
-        let (_, rust_attrs) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        rust_attrs
-    }
-
-    /// Returns all ink! attributes.
-    pub fn ink_attrs(&self) -> InkAttribute {
-        let (ink_attrs, _) = Self::extract_attributes(self.span(), &self.item.attrs)
-            .expect(Self::INVALID_ATTRIBUTES_ERRSTR);
-        ink_attrs
-    }
-
-    /// Returns the original signature of the ink! constructor.
-    pub fn sig(&self) -> &syn::Signature {
-        &self.item.sig
-    }
-
-    /// Returns an iterator over the inputs of the ink! trait message.
-    pub fn inputs(&self) -> InputsIter {
-        InputsIter::from(self)
-    }
-
-    /// Returns the Rust identifier of the ink! constructor.
-    pub fn ident(&self) -> &syn::Ident {
-        &self.item.sig.ident
-    }
-
-    /// Returns the span of the ink! constructor.
-    pub fn span(&self) -> Span {
-        self.item.span()
-    }
-}
-
 /// A checked ink! message of an ink! trait definition.
 #[derive(Debug, Clone)]
 pub struct InkTraitMessage<'a> {
@@ -250,11 +178,5 @@ impl<'a> InkTraitMessage<'a> {
 impl<'a> From<&'a InkTraitMessage<'a>> for InputsIter<'a> {
     fn from(message: &'a InkTraitMessage) -> Self {
         Self::new(&message.item.sig.inputs)
-    }
-}
-
-impl<'a> From<&'a InkTraitConstructor<'a>> for InputsIter<'a> {
-    fn from(constructor: &'a InkTraitConstructor) -> Self {
-        Self::new(&constructor.item.sig.inputs)
     }
 }

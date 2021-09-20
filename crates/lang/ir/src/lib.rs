@@ -50,7 +50,6 @@ pub use self::{
         InkItem,
         InkItemTrait,
         InkTest,
-        InkTraitConstructor,
         InkTraitDefinition,
         InkTraitItem,
         InkTraitMessage,

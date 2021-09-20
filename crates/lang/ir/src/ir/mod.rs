@@ -86,7 +86,6 @@ pub use self::{
     },
     trait_def::{
         InkItemTrait,
-        InkTraitConstructor,
         InkTraitDefinition,
         InkTraitItem,
         InkTraitMessage,
