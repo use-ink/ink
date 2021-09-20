@@ -41,17 +41,11 @@ where
     /// The transferred value for the call.
     transferred_value: E::Balance,
     /// The expected return type.
-    return_type: ReturnType<R>,
+    _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
     exec_input: ExecutionInput<Args>,
 }
 
-#[cfg(
-    // We do not currently support cross-contract calling in the off-chain
-    // environment so we do not have to provide these getters in case of
-    // off-chain environment compilation.
-    all(not(feature = "std"), target_arch = "wasm32")
-)]
 impl<E, Args, R> CallParams<E, Args, R>
 where
     E: Environment,
@@ -395,7 +389,7 @@ where
             transferred_value: self
                 .transferred_value
                 .unwrap_or_else(|| E::Balance::from(0u32)),
-            return_type: Default::default(),
+            _return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
     }

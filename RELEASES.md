@@ -1,3 +1,15 @@
+# Version 3.0-rc6 (UNRELEASED)
+
+This is the 6th release candidate for ink! 3.0.
+
+## Changed
+
+- Message and constructor selectors no longer take their inputs as string but as `u32` decodable integer. For example:
+
+    - It is no longer possible to specify a selector as `#[ink(selector = "0xC0DECAFE")]`.
+    - The newly allowed formats are `#[ink(selector = 0xC0DECAFE)]` and `#[ink(selector = 42)]`.
+    - Smart contract authors are required to update their smart contracts for this change.
+
 # Version 3.0-rc5 (2021-09-08)
 
 This is the 5th release candidate for ink! 3.0.

@@ -69,7 +69,7 @@ pub mod give_me {
         ///
         /// The method needs to be annotated with `payable`; only then it is
         /// allowed to receive value as part of the call.
-        #[ink(message, payable, selector = "0xCAFEBABE")]
+        #[ink(message, payable, selector = 0xCAFEBABE)]
         pub fn was_it_ten(&self) {
             ink_env::debug_println!(
                 "received payment: {}",
