@@ -68,54 +68,47 @@ where
     /// The salt for determining the hash for the contract account ID.
     salt_bytes: Salt,
     /// The type of the instantiated contract.
-    return_type: ReturnType<R>,
+    _return_type: ReturnType<R>,
 }
 
-cfg_if::cfg_if! {
-    // We do not currently support cross-contract instantiation in the off-chain
-    // environment so we do not have to provide these getters in case of
-    // off-chain environment compilation.
-    if #[cfg(all(not(feature = "std"), target_arch = "wasm32"))] {
-        impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
-        where
-            E: Environment,
-        {
-            /// The code hash of the contract.
-            #[inline]
-            pub(crate) fn code_hash(&self) -> &E::Hash {
-                &self.code_hash
-            }
+impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
+where
+    E: Environment,
+{
+    /// The code hash of the contract.
+    #[inline]
+    pub(crate) fn code_hash(&self) -> &E::Hash {
+        &self.code_hash
+    }
 
-            /// The gas limit for the contract instantiation.
-            #[inline]
-            pub(crate) fn gas_limit(&self) -> u64 {
-                self.gas_limit
-            }
+    /// The gas limit for the contract instantiation.
+    #[inline]
+    pub(crate) fn gas_limit(&self) -> u64 {
+        self.gas_limit
+    }
 
-            /// The endowment for the instantiated contract.
-            #[inline]
-            pub(crate) fn endowment(&self) -> &E::Balance {
-                &self.endowment
-            }
+    /// The endowment for the instantiated contract.
+    #[inline]
+    pub(crate) fn endowment(&self) -> &E::Balance {
+        &self.endowment
+    }
 
-            /// The raw encoded input data.
-            #[inline]
-            pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
-                &self.exec_input
-            }
-        }
+    /// The raw encoded input data.
+    #[inline]
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+        &self.exec_input
+    }
+}
 
-        impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
-        where
-            E: Environment,
-            Salt: AsRef<[u8]>,
-        {
-            /// The salt for determining the hash for the contract account ID.
-            #[inline]
-            pub(crate) fn salt_bytes(&self) -> &Salt {
-                &self.salt_bytes
-            }
-        }
+impl<E, Args, Salt, R> CreateParams<E, Args, Salt, R>
+where
+    E: Environment,
+    Salt: AsRef<[u8]>,
+{
+    /// The salt for determining the hash for the contract account ID.
+    #[inline]
+    pub(crate) fn salt_bytes(&self) -> &Salt {
+        &self.salt_bytes
     }
 }
 
@@ -370,7 +363,7 @@ where
             endowment: self.endowment.value(),
             exec_input: self.exec_input.value(),
             salt_bytes: self.salt.value(),
-            return_type: self.return_type,
+            _return_type: self.return_type,
         }
     }
 }

@@ -198,6 +198,8 @@ docs:
         -p ink_primitives -p ink_prelude
         -p ink_lang -p ink_lang_macro -p ink_lang_ir -p ink_lang_codegen
     - mv ${CARGO_TARGET_DIR}/doc ./crate-docs
+    # FIXME: remove me after CI image gets nonroot
+    - chown -R nonroot:nonroot ./crate-docs
 
 spellcheck:
   stage:                           workspace
@@ -211,6 +213,7 @@ codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
+  <<:                              *vault-secrets
   needs:
     - job:                         check-std
       artifacts:                   false

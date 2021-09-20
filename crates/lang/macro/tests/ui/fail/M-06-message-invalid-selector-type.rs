@@ -11,7 +11,7 @@ mod message_invalid_selector {
             Self {}
         }
 
-        #[ink(message, selector = "0xC0DECAFE")]
+        #[ink(message, selector = true)]
         pub fn invalid_selector(&self) {}
     }
 }
