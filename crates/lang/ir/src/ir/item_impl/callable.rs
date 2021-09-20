@@ -208,7 +208,7 @@ pub trait Callable {
 ///
 /// ```no_compile
 /// impl MyStorage {
-///     #[ink(message, selector = "0xDEADBEEF")]
+///     #[ink(message, selector = 0xDEADBEEF)]
 ///     fn my_message(&self) {}
 /// }
 /// ```

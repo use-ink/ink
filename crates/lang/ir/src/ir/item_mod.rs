@@ -192,8 +192,8 @@ impl ItemMod {
                 format_err!(
                     second_span,
                     "encountered ink! {}s with overlapping selectors (= {:02X?})\n\
-                     hint: use #[ink(selector = \"0x...\")] on the callable or \
-                     #[ink(namespace = \"...\")] on the implementation block to \
+                     hint: use #[ink(selector = S:u32)] on the callable or \
+                     #[ink(namespace = N:string)] on the implementation block to \
                      disambiguate overlapping selectors.",
                     kind,
                     selector.as_bytes(),
@@ -724,9 +724,8 @@ mod tests {
                 }
             },
             "encountered ink! messages with overlapping selectors (= [DE, AD, BE, EF])\n\
-                hint: use #[ink(selector = \"0x...\")] on the callable or \
-                #[ink(namespace = \"...\")] on the implementation block to \
-                disambiguate overlapping selectors.",
+            hint: use #[ink(selector = S:u32)] on the callable or #[ink(namespace = N:string)] \
+            on the implementation block to disambiguate overlapping selectors.",
         );
     }
 
@@ -753,9 +752,8 @@ mod tests {
                 }
             },
             "encountered ink! constructors with overlapping selectors (= [DE, AD, BE, EF])\n\
-                hint: use #[ink(selector = \"0x...\")] on the callable or \
-                #[ink(namespace = \"...\")] on the implementation block to \
-                disambiguate overlapping selectors.",
+            hint: use #[ink(selector = S:u32)] on the callable or #[ink(namespace = N:string)] \
+            on the implementation block to disambiguate overlapping selectors.",
         );
     }
 
@@ -782,9 +780,8 @@ mod tests {
                 }
             },
             "encountered ink! messages with overlapping selectors (= [04, C4, 94, 46])\n\
-                hint: use #[ink(selector = \"0x...\")] on the callable or \
-                #[ink(namespace = \"...\")] on the implementation block to \
-                disambiguate overlapping selectors.",
+            hint: use #[ink(selector = S:u32)] on the callable or #[ink(namespace = N:string)] \
+            on the implementation block to disambiguate overlapping selectors.",
         );
     }
 

@@ -141,18 +141,31 @@ impl Selector {
 
     /// Returns the 4 bytes that make up the selector as hex encoded bytes.
     pub fn hex_lits(self) -> [syn::LitInt; 4] {
-        let selector_bytes = self.as_bytes();
-        [
-            selector_bytes[0].hex_padded_suffixed(),
-            selector_bytes[1].hex_padded_suffixed(),
-            selector_bytes[2].hex_padded_suffixed(),
-            selector_bytes[3].hex_padded_suffixed(),
-        ]
+        self.bytes.map(<u8 as HexLiteral>::hex_padded_suffixed)
     }
 }
 
 impl From<[u8; 4]> for Selector {
     fn from(bytes: [u8; 4]) -> Self {
         Self::from_bytes(bytes)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hex_lits_works() {
+        let hex_lits = Selector::from_bytes([0xC0, 0xDE, 0xCA, 0xFE]).hex_lits();
+        assert_eq!(
+            hex_lits,
+            [
+                syn::parse_quote! { 0xC0_u8 },
+                syn::parse_quote! { 0xDE_u8 },
+                syn::parse_quote! { 0xCA_u8 },
+                syn::parse_quote! { 0xFE_u8 },
+            ]
+        )
     }
 }

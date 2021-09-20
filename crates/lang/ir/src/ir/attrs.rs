@@ -109,12 +109,12 @@ impl Attrs for syn::Item {
 ///
 /// An attribute with a parameterized flag:
 /// ```no_compile
-/// #[ink(selector = "0xDEADBEEF")]
+/// #[ink(selector = 0xDEADBEEF)]
 /// ```
 ///
 /// An attribute with multiple flags:
 /// ```no_compile
-/// #[ink(message, payable, selector = "0xDEADBEEF")]
+/// #[ink(message, payable, selector = 0xDEADBEEF)]
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
@@ -325,7 +325,7 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
-    /// `#[ink(selector = "0xDEADBEEF")]`
+    /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(extension = N: u32)]`
     Extension,
@@ -378,7 +378,7 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// `#[ink(selector = "0xDEADBEEF")]`
+    /// `#[ink(selector = 0xDEADBEEF)]`
     ///
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
@@ -807,6 +807,13 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::Selector(selector),
                                 })
                             }
+                            if let syn::Lit::Str(_) = &name_value.lit {
+                                return Err(format_err!(
+                                    name_value,
+                                    "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                                    use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                                ))
+                            }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
@@ -1101,7 +1108,10 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = -1)]
             },
-            Err("selector value out of range. selector must be a valid `u32` integer: invalid digit found in string"),
+            Err(
+                "selector value out of range. selector must be a valid `u32` integer: \
+                invalid digit found in string",
+            ),
         );
     }
 
@@ -1111,7 +1121,10 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = 0xFFFF_FFFF_FFFF_FFFF)]
             },
-            Err("selector value out of range. selector must be a valid `u32` integer: number too large to fit in target type"),
+            Err(
+                "selector value out of range. \
+                selector must be a valid `u32` integer: number too large to fit in target type"
+            ),
         );
     }
 

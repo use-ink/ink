@@ -53,13 +53,10 @@ macro_rules! generate_hex_literal_impls {
         $(
             impl HexLiteral for $ty {
                 fn hex_impl_(self, fmt: ::core::fmt::Arguments, _sealed: private::Sealed) -> syn::LitInt {
-                    let formatted = ::std::format!("{}", fmt);
-                    // ::syn::Lit::new(
-                    //     <::proc_macro2::Literal as ::core::str::FromStr>::from_str(&formatted).unwrap_or_else(
-                    //         |err| ::core::panic!("cannot parse {} into a {} hex represented literal: {}", self, $name, err),
-                    //     )
-                    // )
-                    ::syn::LitInt::new(&formatted, proc_macro2::Span::call_site())
+                    ::syn::LitInt::new(
+                        &::std::format!("{}", fmt),
+                        proc_macro2::Span::call_site()
+                    )
                 }
 
                 fn hex_suffixed(self) -> syn::LitInt {
