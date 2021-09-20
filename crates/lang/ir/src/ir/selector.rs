@@ -59,3 +59,22 @@ impl From<[u8; 4]> for Selector {
         Self::from_bytes(bytes)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hex_lits_works() {
+        let hex_lits = Selector::from_bytes([0xC0, 0xDE, 0xCA, 0xFE]).hex_lits();
+        assert_eq!(
+            hex_lits,
+            [
+                syn::parse_quote! { 0xC0_u8 },
+                syn::parse_quote! { 0xDE_u8 },
+                syn::parse_quote! { 0xCA_u8 },
+                syn::parse_quote! { 0xFE_u8 },
+            ]
+        )
+    }
+}
