@@ -201,12 +201,15 @@ impl TraitRegistry<'_> {
         let unique_id = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
+        let trait_message_info = self.generate_info_for_trait_messages();
         quote_spanned!(span =>
             #[doc(hidden)]
             #[allow(non_camel_case_types)]
             pub struct #trait_info_ident<E> {
                 marker: ::core::marker::PhantomData<fn() -> E>,
             }
+
+            #trait_message_info
 
             unsafe impl<E> ::ink_lang::TraitImplementer<#unique_id>
                 for #trait_info_ident<E>
@@ -236,6 +239,43 @@ impl TraitRegistry<'_> {
                 E: ::ink_env::Environment,
             {
                 type Forwarder = #trait_call_forwarder<E>;
+            }
+        )
+    }
+
+    /// Generates the [`::ink_lang::TraitMessageInfo`] implementations for all
+    /// ink! messages defined by the ink! trait definition.
+    fn generate_info_for_trait_messages(&self) -> TokenStream2 {
+        let span = self.span();
+        let message_impls = self.trait_def.trait_def.item().iter_items().filter_map(
+            |(trait_item, selector)| {
+                trait_item.filter_map_message().map(|message| {
+                    self.generate_info_for_trait_for_message(&message, selector)
+                })
+            },
+        );
+        quote_spanned!(span=>
+            #( #message_impls )*
+        )
+    }
+
+    /// Generates the [`::ink_lang::TraitMessageInfo`] implementation for a single
+    /// ink! message defined by the ink! trait definition.
+    fn generate_info_for_trait_for_message(
+        &self,
+        message: &ir::InkTraitMessage,
+        selector: ir::Selector,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let trait_info_ident = self.trait_def.trait_info_ident();
+        let local_id = message.local_id();
+        let selector_bytes = selector.hex_lits();
+        let is_payable = message.ink_attrs().is_payable();
+        quote_spanned!(span=>
+            impl<E> ::ink_lang::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
+                const PAYABLE: ::core::primitive::bool = #is_payable;
+
+                const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
             }
         )
     }
