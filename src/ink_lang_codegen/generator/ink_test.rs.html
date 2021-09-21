@@ -129,10 +129,10 @@
                                 <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> {
                                     #<span class="ident">fn_block</span>
                                 };
-                                <span class="prelude-val">Ok</span>(())
+                                <span class="ident">::core::result::Result::Ok</span>(())
                             }
                         })
-                        .<span class="ident">expect</span>(#<span class="ident">expect_msg</span>);
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">::core::panic!</span>(<span class="string">&quot;{}: {:?}&quot;</span>, #<span class="ident">expect_msg</span>, <span class="ident">error</span>));
                     }
                 }
             }

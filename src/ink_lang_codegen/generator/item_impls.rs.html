@@ -257,11 +257,6 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -298,12 +293,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
 }
-
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">ir::Contract</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ir::Contract</span> {
-        <span class="self">self</span>.<span class="ident">contract</span>
-    }
-}
+<span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">ItemImpls</span>);
 
 <span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
@@ -317,7 +307,7 @@
         <span class="macro">quote!</span> {
             #<span class="ident">no_cross_calling_cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">use</span> <span class="ident">::ink_lang</span>::{<span class="ident">Env</span>, <span class="ident">EmitEvent</span>, <span class="ident">StaticEnv</span>};
+                <span class="kw">use</span> <span class="ident">::ink_lang</span>::{<span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>};
 
                 #( #<span class="ident">item_impls</span> )<span class="op">*</span>
             };

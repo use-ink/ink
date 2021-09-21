@@ -1397,6 +1397,14 @@
 <span id="1397">1397</span>
 <span id="1398">1398</span>
 <span id="1399">1399</span>
+<span id="1400">1400</span>
+<span id="1401">1401</span>
+<span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -2436,6 +2444,14 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">selector_works</span>() {
+        <span class="ident">assert_attribute_try_from</span>(
+            <span class="macro">syn::parse_quote!</span> {
+                <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">42</span>)]</span>
+            },
+            <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Selector</span>(
+                <span class="ident">Selector::from_bytes</span>([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">42</span>]),
+            )])),
+        );
         <span class="ident">assert_attribute_try_from</span>(
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
