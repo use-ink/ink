@@ -57,3 +57,5 @@ for i in $(seq 1 360); do
     fi
 sleep 5;
 done
+
+exit 1
