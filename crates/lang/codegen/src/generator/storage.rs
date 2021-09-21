@@ -30,24 +30,18 @@ use syn::spanned::Spanned as _;
 pub struct Storage<'a> {
     contract: &'a ir::Contract,
 }
-
-impl<'a> AsRef<ir::Contract> for Storage<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(Storage);
 
 impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let access_env_impls = self.generate_access_env_trait_impls();
         let storage_struct = self.generate_storage_struct();
-        let use_emit_event = if self.contract.module().events().next().is_some() {
-            // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-            Some(quote! { use ::ink_lang::EmitEvent as _; })
-        } else {
-            None
-        };
+        let use_emit_event =
+            self.contract.module().events().next().is_some().then(|| {
+                // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+                quote! { use ::ink_lang::EmitEvent as _; }
+            });
         let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!(storage_span =>
             #access_env_impls
@@ -75,18 +69,22 @@ impl Storage<'_> {
             #cfg
             const _: () = {
                 impl<'a> ::ink_lang::Env for &'a #storage_ident {
-                    type EnvAccess = ::ink_lang::EnvAccess<'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                    type EnvAccess = ::ink_lang::EnvAccess<
+                        'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
-                        Default::default()
+                        <<Self as ::ink_lang::Env>::EnvAccess
+                            as ::core::default::Default>::default()
                     }
                 }
 
                 impl<'a> ::ink_lang::StaticEnv for #storage_ident {
-                    type EnvAccess = ::ink_lang::EnvAccess<'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                    type EnvAccess = ::ink_lang::EnvAccess<
+                        'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
-                        Default::default()
+                        <<Self as ::ink_lang::StaticEnv>::EnvAccess
+                            as ::core::default::Default>::default()
                     }
                 }
             };
@@ -97,8 +95,8 @@ impl Storage<'_> {
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();
-        let ident = &storage.ident();
-        let attrs = &storage.attrs();
+        let ident = storage.ident();
+        let attrs = storage.attrs();
         let fields = storage.fields();
         let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!( span =>
@@ -109,7 +107,7 @@ impl Storage<'_> {
                 derive(::ink_storage::traits::StorageLayout)
             )]
             #[derive(::ink_storage::traits::SpreadLayout)]
-            #[cfg_attr(test, derive(Debug))]
+            #[cfg_attr(test, derive(::core::fmt::Debug))]
             pub struct #ident {
                 #( #fields ),*
             }

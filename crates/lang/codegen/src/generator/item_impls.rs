@@ -34,12 +34,7 @@ use syn::spanned::Spanned as _;
 pub struct ItemImpls<'a> {
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for ItemImpls<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(ItemImpls);
 
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
@@ -53,7 +48,7 @@ impl GenerateCode for ItemImpls<'_> {
         quote! {
             #no_cross_calling_cfg
             const _: () = {
-                use ::ink_lang::{Env, EmitEvent, StaticEnv};
+                use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 
                 #( #item_impls )*
             };

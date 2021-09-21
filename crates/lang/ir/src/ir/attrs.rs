@@ -1039,6 +1039,14 @@ mod tests {
     fn selector_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
+                #[ink(selector = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
+                Selector::from_bytes([0, 0, 0, 42]),
+            )])),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(

@@ -33,12 +33,7 @@ use syn::spanned::Spanned as _;
 pub struct Events<'a> {
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for Events<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(Events);
 
 impl GenerateCode for Events<'_> {
     fn generate_code(&self) -> TokenStream2 {
