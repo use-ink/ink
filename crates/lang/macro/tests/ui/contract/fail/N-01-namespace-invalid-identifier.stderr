@@ -1,4 +1,4 @@
-error: encountered invalid non-Rust identifier for namespace argument
+error: encountered invalid Rust identifier for namespace argument
  --> $DIR/N-01-namespace-invalid-identifier.rs:8:23
   |
 8 |     #[ink(namespace = "::invalid_identifier")]
