@@ -48,7 +48,7 @@ impl GenerateCode for ItemImpls<'_> {
         quote! {
             #no_cross_calling_cfg
             const _: () = {
-                use ::ink_lang::{Env, EmitEvent, StaticEnv};
+                use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 
                 #( #item_impls )*
             };
