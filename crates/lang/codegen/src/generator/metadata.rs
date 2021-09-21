@@ -69,7 +69,7 @@ impl Metadata<'_> {
         quote! {
             <#contract_ident as ::ink_storage::traits::StorageLayout>::layout(
                 &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
-                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32]>>::from([0x00_u8; 32])
+                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from([0x00_u8; 32usize])
                 )
             )
         }
@@ -84,16 +84,16 @@ impl Metadata<'_> {
         quote! {
             ::ink_metadata::ContractSpec::new()
                 .constructors([
-                    #(#constructors ,)*
+                    #( #constructors ),*
                 ])
                 .messages([
-                    #(#messages ,)*
+                    #( #messages ),*
                 ])
                 .events([
-                    #(#events ,)*
+                    #( #events ),*
                 ])
                 .docs([
-                    #(#docs ,)*
+                    #( #docs ),*
                 ])
                 .done()
         }
@@ -141,27 +141,30 @@ impl Metadata<'_> {
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 let constructor = constructor.callable();
                 let ident = constructor.ident();
-                let ident_lit = ident.to_string();
                 let args = constructor
                     .inputs()
                     .map(|arg| Self::generate_message_param(arg));
                 let constr = match trait_ident {
                     Some(trait_ident) => {
-                        let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(
+                            ::core::stringify!(#trait_ident),
+                            ::core::stringify!(#ident)
+                        ))
                     }
                     None => {
-                        quote_spanned!(span => from_name(#ident_lit))
+                        quote_spanned!(span => from_name(::core::stringify!(#ident)))
                     }
                 };
                 quote_spanned!(span =>
                     ::ink_metadata::ConstructorSpec::#constr
-                        .selector([#(#selector_bytes),*])
+                        .selector([
+                            #( #selector_bytes ),*
+                        ])
                         .args([
-                            #(#args ,)*
+                            #( #args ),*
                         ])
                         .docs([
-                            #(#docs ,)*
+                            #( #docs ),*
                         ])
                         .done()
                 )
@@ -174,10 +177,9 @@ impl Metadata<'_> {
             syn::Pat::Ident(ident) => &ident.ident,
             _ => unreachable!("encountered unexpected non identifier in ink! parameter"),
         };
-        let ident_lit = ident.to_string();
         let type_spec = Self::generate_type_spec(&pat_type.ty);
         quote! {
-            ::ink_metadata::MessageParamSpec::new(#ident_lit)
+            ::ink_metadata::MessageParamSpec::new(::core::stringify!(#ident))
                 .of_type(#type_spec)
                 .done()
         }
@@ -203,7 +205,7 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([#(#segs),*])
+                    ::core::iter::IntoIterator::into_iter([ #( #segs ),* ])
                         .map(::core::convert::AsRef::as_ref)
                 )
             }
@@ -234,31 +236,34 @@ impl Metadata<'_> {
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
-                let ident_lit = ident.to_string();
                 let args = message
                     .inputs()
                     .map(|arg| Self::generate_message_param(arg));
                 let ret_ty = Self::generate_return_type(message.output());
                 let constr = match trait_ident {
                     Some(trait_ident) => {
-                        let trait_ident_lit = trait_ident.to_string();
-                        quote_spanned!(span => from_trait_and_name(#trait_ident_lit, #ident_lit))
+                        quote_spanned!(span => from_trait_and_name(
+                            ::core::stringify!(#trait_ident),
+                            ::core::stringify!(#ident),
+                        ))
                     }
                     None => {
-                        quote_spanned!(span => from_name(#ident_lit))
+                        quote_spanned!(span => from_name(::core::stringify!(#ident)))
                     }
                 };
                 quote_spanned!(span =>
                     ::ink_metadata::MessageSpec::#constr
-                        .selector([#(#selector_bytes),*])
+                        .selector([
+                            #( #selector_bytes ),*
+                        ])
                         .args([
-                            #(#args ,)*
+                            #( #args ),*
                         ])
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
                         .docs([
-                            #(#docs ,)*
+                            #( #docs ),*
                         ])
                         .done()
                 )
@@ -270,7 +275,7 @@ impl Metadata<'_> {
         match ret_ty {
             None => {
                 quote! {
-                    ::ink_metadata::ReturnTypeSpec::new(None)
+                    ::ink_metadata::ReturnTypeSpec::new(::core::option::Option::None)
                 }
             }
             Some(ty) => {
@@ -287,16 +292,15 @@ impl Metadata<'_> {
         self.contract.module().events().map(|event| {
             let span = event.span();
             let ident = event.ident();
-            let ident_lit = ident.to_string();
             let docs = Self::extract_doc_comments(event.attrs());
             let args = Self::generate_event_args(event);
             quote_spanned!(span =>
-                ::ink_metadata::EventSpec::new(#ident_lit)
+                ::ink_metadata::EventSpec::new(::core::stringify!(#ident))
                     .args([
-                        #( #args, )*
+                        #( #args ),*
                     ])
                     .docs([
-                        #( #docs, )*
+                        #( #docs ),*
                     ])
                     .done()
             )
@@ -308,17 +312,16 @@ impl Metadata<'_> {
         event.fields().map(|event_field| {
             let span = event_field.span();
             let ident = event_field.ident();
-            let ident_lit = ident.map(ToString::to_string);
             let is_topic = event_field.is_topic;
             let attrs = event_field.attrs();
             let docs = Self::extract_doc_comments(&attrs);
             let ty = Self::generate_type_spec(event_field.ty());
             quote_spanned!(span =>
-                ::ink_metadata::EventParamSpec::new(#ident_lit)
+                ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
                     .of_type(#ty)
                     .indexed(#is_topic)
                     .docs([
-                        #( #docs, )*
+                        #( #docs ),*
                     ])
                     .done()
             )
