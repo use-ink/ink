@@ -96,8 +96,9 @@ impl Dispatch<'_> {
             fn deploy() {
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Instantiate,
-                )
-                .expect("failed to dispatch the constructor")
+                ).unwrap_or_else(|error| {
+                    ::core::panic!("dispatching constructor failed: {}", error)
+                })
             }
 
             #[cfg(not(test))]
@@ -109,8 +110,9 @@ impl Dispatch<'_> {
                 }
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Call,
-                )
-                .expect("failed to dispatch the call")
+                ).unwrap_or_else(|error| {
+                    ::core::panic!("dispatching message failed: {}", error)
+                })
             }
         }
     }
@@ -160,23 +162,25 @@ impl Dispatch<'_> {
         let constructor_namespace =
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
-            // Namespace for messages.
+            // Selector namespace for ink! messages of the root smart contract.
             //
             // # Note
             //
-            // The `S` parameter is going to refer to array types `[(); N]`
-            // where `N` is the unique identifier of the associated message
-            // selector.
+            // - We have separate namespaces for ink! messages and constructors to
+            //   allow for overlapping selectors between them.
+            // - The `ID` const parameter uniquely identifies one of the ink! messages
+            //   implemented by the root smart contract.
             #[doc(hidden)]
             pub struct #message_namespace<const ID: u32> {}
 
-            // Namespace for constructors.
+            // Selector namespace for ink! constructors of the root smart contract.
             //
             // # Note
             //
-            // The `S` parameter is going to refer to array types `[(); N]`
-            // where `N` is the unique identifier of the associated constructor
-            // selector.
+            // - We have separate namespaces for ink! messages and constructors to
+            //   allow for overlapping selectors between them.
+            // - The `ID` const parameter uniquely identifies one of the ink! constructors
+            //   implemented by the root smart contract.
             #[doc(hidden)]
             pub struct #constructor_namespace<const ID: u32> {}
         }

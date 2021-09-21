@@ -20,7 +20,7 @@ use ink_lang as ink;
 /// Allows to increment and get the current value.
 #[ink::trait_definition]
 pub trait Increment {
-    /// Increments the current value of the implementer by 1.
+    /// Increments the current value of the implementer by one (1).
     #[ink(message)]
     fn inc(&mut self);
 
@@ -32,7 +32,7 @@ pub trait Increment {
 /// Allows to reset the current value.
 #[ink::trait_definition]
 pub trait Reset {
-    /// Increments the current value of the implementer by 1.
+    /// Resets the current value to zero.
     #[ink(message)]
     fn reset(&mut self);
 }
@@ -51,7 +51,7 @@ pub mod incrementer {
     }
 
     impl Incrementer {
-        /// Creates a new incrementer smart contract initialized with `0`.
+        /// Creates a new incrementer smart contract initialized with zero.
         #[ink(constructor)]
         pub fn new() -> Self {
             Self {
@@ -59,7 +59,7 @@ pub mod incrementer {
             }
         }
 
-        /// Increases the value of the incrementer by the given delta.
+        /// Increases the value of the incrementer by an amount.
         #[ink(message)]
         pub fn inc_by(&mut self, delta: u64) {
             self.value += delta;

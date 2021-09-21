@@ -49,6 +49,7 @@ fn contract() {
     t.compile_fail("tests/ui/contract/fail/M-03-message-returns-self.rs");
     t.compile_fail("tests/ui/contract/fail/M-04-message-returns-non-codec.rs");
     t.compile_fail("tests/ui/contract/fail/M-05-message-invalid-selector.rs");
+    t.compile_fail("tests/ui/contract/fail/M-06-message-invalid-selector-type.rs");
     t.compile_fail("tests/ui/contract/fail/M-10-method-unknown-ink-marker.rs");
 
     t.compile_fail("tests/ui/contract/fail/S-01-missing-storage-struct.rs");
