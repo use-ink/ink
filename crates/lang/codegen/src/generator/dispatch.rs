@@ -424,7 +424,7 @@ impl Dispatch<'_> {
             ir::CallableKind::Constructor => "Constructor",
         };
         quote::format_ident!(
-            "__ink_{}_0x{:02x}{:02x}{:02x}{:02x}",
+            "__ink_{}_0x{:02X}{:02X}{:02X}{:02X}",
             prefix,
             selector_bytes[0],
             selector_bytes[1],
