@@ -53,7 +53,7 @@ impl GenerateCode for InkTest<'_> {
                                 ::core::result::Result::Ok(())
                             }
                         })
-                        .expect(#expect_msg);
+                        .unwrap_or_else(|error| ::core::panic!("{}: {:?}", #expect_msg, error));
                     }
                 }
             }

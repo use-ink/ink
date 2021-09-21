@@ -61,18 +61,22 @@ impl Storage<'_> {
         quote! {
             const _: () = {
                 impl<'a> ::ink_lang::Env for &'a #storage_ident {
-                    type EnvAccess = ::ink_lang::EnvAccess<'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                    type EnvAccess = ::ink_lang::EnvAccess<
+                        'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
-                        <<Self as ::ink_lang::Env>::EnvAccess as ::core::default::Default>::default()
+                        <<Self as ::ink_lang::Env>::EnvAccess
+                            as ::core::default::Default>::default()
                     }
                 }
 
                 impl<'a> ::ink_lang::StaticEnv for #storage_ident {
-                    type EnvAccess = ::ink_lang::EnvAccess<'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                    type EnvAccess = ::ink_lang::EnvAccess<
+                        'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
-                        <<Self as ::ink_lang::StaticEnv>::EnvAccess as ::core::default::Default>::default()
+                        <<Self as ::ink_lang::StaticEnv>::EnvAccess
+                            as ::core::default::Default>::default()
                     }
                 }
             };

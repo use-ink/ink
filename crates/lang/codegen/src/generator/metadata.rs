@@ -69,7 +69,7 @@ impl Metadata<'_> {
         quote! {
             <#contract_ident as ::ink_storage::traits::StorageLayout>::layout(
                 &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
-                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32]>>::from([0x00_u8; 32])
+                    <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from([0x00_u8; 32usize])
                 )
             )
         }
@@ -84,16 +84,16 @@ impl Metadata<'_> {
         quote! {
             ::ink_metadata::ContractSpec::new()
                 .constructors([
-                    #(#constructors ,)*
+                    #( #constructors ),*
                 ])
                 .messages([
-                    #(#messages ,)*
+                    #( #messages ),*
                 ])
                 .events([
-                    #(#events ,)*
+                    #( #events ),*
                 ])
                 .docs([
-                    #(#docs ,)*
+                    #( #docs ),*
                 ])
                 .done()
         }
@@ -146,7 +146,10 @@ impl Metadata<'_> {
                     .map(|arg| Self::generate_message_param(arg));
                 let constr = match trait_ident {
                     Some(trait_ident) => {
-                        quote_spanned!(span => from_trait_and_name(::core::stringify!(#trait_ident), ::core::stringify!(#ident)))
+                        quote_spanned!(span => from_trait_and_name(
+                            ::core::stringify!(#trait_ident),
+                            ::core::stringify!(#ident)
+                        ))
                     }
                     None => {
                         quote_spanned!(span => from_name(::core::stringify!(#ident)))
@@ -154,12 +157,14 @@ impl Metadata<'_> {
                 };
                 quote_spanned!(span =>
                     ::ink_metadata::ConstructorSpec::#constr
-                        .selector([#(#selector_bytes),*])
+                        .selector([
+                            #( #selector_bytes ),*
+                        ])
                         .args([
-                            #(#args ,)*
+                            #( #args ),*
                         ])
                         .docs([
-                            #(#docs ,)*
+                            #( #docs ),*
                         ])
                         .done()
                 )
@@ -200,7 +205,7 @@ impl Metadata<'_> {
                 .collect::<Vec<_>>();
             quote! {
                 ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([#(#segs),*])
+                    ::core::iter::IntoIterator::into_iter([ #( #segs ),* ])
                         .map(::core::convert::AsRef::as_ref)
                 )
             }
@@ -237,7 +242,10 @@ impl Metadata<'_> {
                 let ret_ty = Self::generate_return_type(message.output());
                 let constr = match trait_ident {
                     Some(trait_ident) => {
-                        quote_spanned!(span => from_trait_and_name(::core::stringify!(#trait_ident), ::core::stringify!(#ident)))
+                        quote_spanned!(span => from_trait_and_name(
+                            ::core::stringify!(#trait_ident),
+                            ::core::stringify!(#ident),
+                        ))
                     }
                     None => {
                         quote_spanned!(span => from_name(::core::stringify!(#ident)))
@@ -245,15 +253,17 @@ impl Metadata<'_> {
                 };
                 quote_spanned!(span =>
                     ::ink_metadata::MessageSpec::#constr
-                        .selector([#(#selector_bytes),*])
+                        .selector([
+                            #( #selector_bytes ),*
+                        ])
                         .args([
-                            #(#args ,)*
+                            #( #args ),*
                         ])
                         .returns(#ret_ty)
                         .mutates(#mutates)
                         .payable(#is_payable)
                         .docs([
-                            #(#docs ,)*
+                            #( #docs ),*
                         ])
                         .done()
                 )
@@ -287,10 +297,10 @@ impl Metadata<'_> {
             quote_spanned!(span =>
                 ::ink_metadata::EventSpec::new(::core::stringify!(#ident))
                     .args([
-                        #( #args, )*
+                        #( #args ),*
                     ])
                     .docs([
-                        #( #docs, )*
+                        #( #docs ),*
                     ])
                     .done()
             )
@@ -311,7 +321,7 @@ impl Metadata<'_> {
                     .of_type(#ty)
                     .indexed(#is_topic)
                     .docs([
-                        #( #docs, )*
+                        #( #docs ),*
                     ])
                     .done()
             )
