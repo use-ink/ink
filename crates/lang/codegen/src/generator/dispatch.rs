@@ -50,12 +50,7 @@ use syn::spanned::Spanned as _;
 pub struct Dispatch<'a> {
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for Dispatch<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(Dispatch);
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {

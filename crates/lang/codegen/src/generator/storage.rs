@@ -30,12 +30,7 @@ use syn::spanned::Spanned as _;
 pub struct Storage<'a> {
     contract: &'a ir::Contract,
 }
-
-impl<'a> AsRef<ir::Contract> for Storage<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(Storage);
 
 impl GenerateCode for Storage<'_> {
     fn generate_code(&self) -> TokenStream2 {

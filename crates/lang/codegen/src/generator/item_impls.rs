@@ -34,12 +34,7 @@ use syn::spanned::Spanned as _;
 pub struct ItemImpls<'a> {
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for ItemImpls<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(ItemImpls);
 
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
