@@ -57,6 +57,10 @@ fn contract() {
     t.compile_fail("tests/ui/contract/fail/S-04-non-storage-ink-impls.rs");
     t.compile_fail("tests/ui/contract/fail/S-05-storage-as-event.rs");
     t.compile_fail("tests/ui/contract/fail/S-06-event-as-storage.rs");
+
+    t.compile_fail("tests/ui/contract/fail/N-01-namespace-invalid-identifier.rs");
+    t.compile_fail("tests/ui/contract/fail/N-02-namespace-invalid-type.rs");
+    t.compile_fail("tests/ui/contract/fail/N-03-namespace-missing-argument.rs");
 }
 
 #[test]
