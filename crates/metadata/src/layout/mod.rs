@@ -373,7 +373,7 @@ where
         self.len
     }
 
-    /// Returns he number of cells each element in the array layout consists of.
+    /// Returns the number of cells each element in the array layout consists of.
     pub fn cells_per_elem(&self) -> u64 {
         self.cells_per_elem
     }

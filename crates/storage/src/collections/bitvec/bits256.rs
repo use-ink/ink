@@ -21,18 +21,10 @@ use super::{
 };
 
 /// A chunk of 256 bits.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Bits256 {
     bits: [Bits64; 4],
-}
-
-impl Default for Bits256 {
-    fn default() -> Self {
-        Self {
-            bits: Default::default(),
-        }
-    }
 }
 
 /// Iterator over the valid bits of a pack of 256 bits.
