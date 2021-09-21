@@ -63,11 +63,6 @@ fn compile_tests() {
     t.compile_fail("tests/ui/contract/fail/N-01-namespace-invalid-identifier.rs");
     t.compile_fail("tests/ui/contract/fail/N-02-namespace-invalid-type.rs");
     t.compile_fail("tests/ui/contract/fail/N-03-namespace-missing-argument.rs");
-}
-
-#[test]
-fn chain_extension() {
-    let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }
