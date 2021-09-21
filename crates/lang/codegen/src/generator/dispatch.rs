@@ -98,8 +98,9 @@ impl Dispatch<'_> {
             fn deploy() {
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Instantiate,
-                )
-                .expect("failed to dispatch the constructor")
+                ).unwrap_or_else(|error| {
+                    ::core::panic!("dispatching constructor failed: {}", error)
+                })
             }
 
             #[cfg(not(test))]
@@ -111,8 +112,9 @@ impl Dispatch<'_> {
                 }
                 <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
                     ::ink_lang::DispatchMode::Call,
-                )
-                .expect("failed to dispatch the call")
+                ).unwrap_or_else(|error| {
+                    ::core::panic!("dispatching message failed: {}", error)
+                })
             }
         }
     }
