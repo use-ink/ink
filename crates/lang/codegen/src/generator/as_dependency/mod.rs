@@ -79,12 +79,7 @@ pub struct ContractReference<'a> {
     /// The contract to generate code for.
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for ContractReference<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(ContractReference);
 
 impl GenerateCode for ContractReference<'_> {
     /// Generates ink! contract code.
