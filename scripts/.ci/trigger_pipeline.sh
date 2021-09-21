@@ -65,4 +65,5 @@ for i in $(seq 1 $SEQ_END); do
 sleep 5;
 done
 
+echo "Timeout! The pipeline didn't return in time."
 exit 1
