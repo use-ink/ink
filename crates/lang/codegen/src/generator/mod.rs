@@ -31,7 +31,6 @@ mod as_dependency;
 mod chain_extension;
 mod contract;
 mod dispatch;
-mod enforced_error;
 mod env;
 mod events;
 mod ink_test;

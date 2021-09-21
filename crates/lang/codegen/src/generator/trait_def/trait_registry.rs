@@ -21,11 +21,9 @@
 
 use super::TraitDefinition;
 use crate::{
-    generator::{
-        self,
-        enforced_error::EnforcedErrors,
-    },
+    generator::{self,},
     traits::GenerateCode,
+    EnforcedErrors,
 };
 use derive_more::From;
 use ir::HexLiteral;
