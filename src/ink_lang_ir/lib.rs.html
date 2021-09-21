@@ -68,6 +68,9 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -104,39 +107,42 @@
 <span class="kw">mod</span> <span class="ident">ir</span>;
 <span class="kw">mod</span> <span class="ident">literal</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ir</span>::{
-    <span class="ident">Callable</span>,
-    <span class="ident">CallableKind</span>,
-    <span class="ident">CallableWithSelector</span>,
-    <span class="ident">ChainExtension</span>,
-    <span class="ident">ChainExtensionMethod</span>,
-    <span class="ident">Config</span>,
-    <span class="ident">Constructor</span>,
-    <span class="ident">Contract</span>,
-    <span class="ident">Event</span>,
-    <span class="ident">ExtensionId</span>,
-    <span class="ident">ImplItem</span>,
-    <span class="ident">InkItem</span>,
-    <span class="ident">InkTest</span>,
-    <span class="ident">InkTrait</span>,
-    <span class="ident">InkTraitConstructor</span>,
-    <span class="ident">InkTraitItem</span>,
-    <span class="ident">InkTraitMessage</span>,
-    <span class="ident">InputsIter</span>,
-    <span class="ident">Item</span>,
-    <span class="ident">ItemImpl</span>,
-    <span class="ident">ItemMod</span>,
-    <span class="ident">IterConstructors</span>,
-    <span class="ident">IterEvents</span>,
-    <span class="ident">IterInkTraitItems</span>,
-    <span class="ident">IterItemImpls</span>,
-    <span class="ident">IterMessages</span>,
-    <span class="ident">Message</span>,
-    <span class="ident">Namespace</span>,
-    <span class="ident">Receiver</span>,
-    <span class="ident">Selector</span>,
-    <span class="ident">Storage</span>,
-    <span class="ident">Visibility</span>,
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">ir</span>::{
+        <span class="ident">Callable</span>,
+        <span class="ident">CallableKind</span>,
+        <span class="ident">CallableWithSelector</span>,
+        <span class="ident">ChainExtension</span>,
+        <span class="ident">ChainExtensionMethod</span>,
+        <span class="ident">Config</span>,
+        <span class="ident">Constructor</span>,
+        <span class="ident">Contract</span>,
+        <span class="ident">Event</span>,
+        <span class="ident">ExtensionId</span>,
+        <span class="ident">ImplItem</span>,
+        <span class="ident">InkItem</span>,
+        <span class="ident">InkTest</span>,
+        <span class="ident">InkTrait</span>,
+        <span class="ident">InkTraitConstructor</span>,
+        <span class="ident">InkTraitItem</span>,
+        <span class="ident">InkTraitMessage</span>,
+        <span class="ident">InputsIter</span>,
+        <span class="ident">Item</span>,
+        <span class="ident">ItemImpl</span>,
+        <span class="ident">ItemMod</span>,
+        <span class="ident">IterConstructors</span>,
+        <span class="ident">IterEvents</span>,
+        <span class="ident">IterInkTraitItems</span>,
+        <span class="ident">IterItemImpls</span>,
+        <span class="ident">IterMessages</span>,
+        <span class="ident">Message</span>,
+        <span class="ident">Namespace</span>,
+        <span class="ident">Receiver</span>,
+        <span class="ident">Selector</span>,
+        <span class="ident">Storage</span>,
+        <span class="ident">Visibility</span>,
+    },
+    <span class="ident">literal::HexLiteral</span>,
 };
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_lang_ir" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>

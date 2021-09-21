@@ -78,6 +78,11 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -125,7 +130,12 @@
 
     <span class="doccomment">/// Returns a unique identifier as `usize`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unique_id</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="ident">u32::from_le_bytes</span>(<span class="self">self</span>.<span class="ident">bytes</span>) <span class="kw">as</span> <span class="ident">usize</span>
+        <span class="self">self</span>.<span class="ident">into_be_u32</span>() <span class="kw">as</span> <span class="ident">usize</span>
+    }
+
+    <span class="doccomment">/// Returns the big-endian `u32` representation of the selector bytes.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_be_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+        <span class="ident">u32::from_be_bytes</span>(<span class="self">self</span>.<span class="ident">bytes</span>)
     }
 
     <span class="doccomment">/// Returns the 4 bytes that make up the selector as hex encoded bytes.</span>
