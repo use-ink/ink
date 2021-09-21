@@ -770,7 +770,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 syn::parse_str::<syn::Ident>(&argument)
                                     .map_err(|_error| format_err!(
                                         lit_str,
-                                        "encountered invalid non-Rust identifier for namespace argument",
+                                        "encountered invalid Rust identifier for namespace argument",
                                     ))?;
                                 return Ok(AttributeFrag {
                                     ast: meta,
@@ -1101,7 +1101,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = "::invalid_identifier")]
             },
-            Err("encountered invalid non-Rust identifier for namespace argument"),
+            Err("encountered invalid Rust identifier for namespace argument"),
         );
     }
 
