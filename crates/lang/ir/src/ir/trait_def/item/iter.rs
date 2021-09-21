@@ -85,12 +85,9 @@ impl<'a> Iterator for IterInkTraitItems<'a> {
     type Item = (InkTraitItem<'a>, Selector);
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.iter.next() {
-            None => None,
-            Some(item @ InkTraitItem::Message(_)) => {
-                let selector = self.message_selectors[item.ident()];
-                Some((item, selector))
-            }
-        }
+        self.iter.next().map(|item| {
+            let selector = self.message_selectors[item.ident()];
+            (item, selector)
+        })
     }
 }
