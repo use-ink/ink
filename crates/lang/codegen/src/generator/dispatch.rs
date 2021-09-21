@@ -18,7 +18,10 @@ use crate::{
     GenerateCodeUsing as _,
 };
 use derive_more::From;
-use ir::Callable as _;
+use ir::{
+    Callable as _,
+    HexLiteral as _,
+};
 use proc_macro2::{
     Ident,
     TokenStream as TokenStream2,
@@ -150,8 +153,8 @@ impl Dispatch<'_> {
     /// Returns the generated ink! namespace identifier for the given callable kind.
     fn dispatch_trait_impl_namespace(kind: ir::CallableKind) -> Ident {
         match kind {
-            ir::CallableKind::Constructor => format_ident!("__ink_Constr"),
-            ir::CallableKind::Message => format_ident!("__ink_Msg"),
+            ir::CallableKind::Constructor => format_ident!("__ink_ConstructorInfo"),
+            ir::CallableKind::Message => format_ident!("__ink_MessageInfo"),
         }
     }
 
@@ -164,31 +167,27 @@ impl Dispatch<'_> {
         let constructor_namespace =
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         quote! {
-            // Namespace for messages.
+            // Selector namespace for ink! messages of the root smart contract.
             //
             // # Note
             //
-            // The `S` parameter is going to refer to array types `[(); N]`
-            // where `N` is the unique identifier of the associated message
-            // selector.
+            // - We have separate namespaces for ink! messages and constructors to
+            //   allow for overlapping selectors between them.
+            // - The `ID` const parameter uniquely identifies one of the ink! messages
+            //   implemented by the root smart contract.
             #[doc(hidden)]
-            pub struct #message_namespace<S> {
-                // We need to wrap inner because of Rust's orphan rules.
-                marker: core::marker::PhantomData<fn() -> S>,
-            }
+            pub struct #message_namespace<const ID: u32> {}
 
-            // Namespace for constructors.
+            // Selector namespace for ink! constructors of the root smart contract.
             //
             // # Note
             //
-            // The `S` parameter is going to refer to array types `[(); N]`
-            // where `N` is the unique identifier of the associated constructor
-            // selector.
+            // - We have separate namespaces for ink! messages and constructors to
+            //   allow for overlapping selectors between them.
+            // - The `ID` const parameter uniquely identifies one of the ink! constructors
+            //   implemented by the root smart contract.
             #[doc(hidden)]
-            pub struct #constructor_namespace<S> {
-                // We need to wrap inner because of Rust's orphan rules.
-                marker: core::marker::PhantomData<fn() -> S>,
-            }
+            pub struct #constructor_namespace<const ID: u32> {}
         }
     }
 
@@ -203,7 +202,10 @@ impl Dispatch<'_> {
         let callable = cws.callable();
         let callable_span = callable.span();
         let selector = cws.composed_selector();
-        let (selector_bytes, selector_id) = (selector.as_bytes(), selector.unique_id());
+        let (selector_bytes, selector_id) = (
+            selector.hex_lits(),
+            selector.into_be_u32().hex_padded_suffixed(),
+        );
         let input_types = callable
             .inputs()
             .map(|pat_type| &pat_type.ty)
@@ -219,19 +221,19 @@ impl Dispatch<'_> {
             quote! { #( #input_types )* }
         };
         let fn_input_impl = quote_spanned!(callable.inputs_span() =>
-            impl ::ink_lang::FnInput for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnInput for #namespace::<#selector_id> {
                 type Input = #input_types_tuple;
             }
         );
         let fn_selector_impl = quote_spanned!(callable_span =>
-            impl ::ink_lang::FnSelector for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnSelector for #namespace::<#selector_id> {
                 const SELECTOR: ::ink_env::call::Selector = ::ink_env::call::Selector::new([
                     #( #selector_bytes ),*
                 ]);
             }
         );
         let fn_state_impl = quote_spanned!(callable_span =>
-            impl ::ink_lang::FnState for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnState for #namespace::<#selector_id> {
                 type State = #storage_ident;
             }
         );
@@ -303,7 +305,7 @@ impl Dispatch<'_> {
         let message = cws.callable();
         let message_span = message.span();
         let selector = cws.composed_selector();
-        let selector_id = selector.unique_id();
+        let selector_id = selector.into_be_u32().hex_padded_suffixed();
         let output_tokens = message
             .output()
             .map(quote::ToTokens::to_token_stream)
@@ -313,7 +315,7 @@ impl Dispatch<'_> {
         let message_ident = message.ident();
         let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
         let fn_output_impl = quote_spanned!(message.output().span() =>
-            impl ::ink_lang::FnOutput for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::FnOutput for #namespace::<#selector_id> {
                 #[allow(unused_parens)]
                 type Output = #output_tokens;
             }
@@ -335,7 +337,7 @@ impl Dispatch<'_> {
             )
         });
         let message_impl = quote_spanned!(message_span =>
-            impl ::ink_lang::#message_trait_ident for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::#message_trait_ident for #namespace::<#selector_id> {
                 const CALLABLE: fn(
                     &#mut_token <Self as ::ink_lang::FnState>::State,
                     <Self as ::ink_lang::FnInput>::Input
@@ -359,7 +361,7 @@ impl Dispatch<'_> {
         let constructor = cws.callable();
         let constructor_span = constructor.span();
         let selector = cws.composed_selector();
-        let selector_id = selector.unique_id();
+        let selector_id = selector.into_be_u32().hex_padded_suffixed();
         let storage_ident = self.contract.module().storage().ident();
         let constructor_ident = constructor.ident();
         let namespace =
@@ -373,7 +375,7 @@ impl Dispatch<'_> {
             )
         });
         let constructor_impl = quote_spanned!(constructor_span =>
-            impl ::ink_lang::Constructor for #namespace<[(); #selector_id]> {
+            impl ::ink_lang::Constructor for #namespace::<#selector_id> {
                 const CALLABLE: fn(
                     <Self as ::ink_lang::FnInput>::Input
                 ) -> <Self as ::ink_lang::FnState>::State = |#inputs_as_tuple_or_wildcard| {
@@ -448,7 +450,7 @@ impl Dispatch<'_> {
     where
         C: ir::Callable,
     {
-        let selector_bytes = cws.composed_selector().as_bytes().to_owned();
+        let selector_bytes = cws.composed_selector().hex_lits();
         let variant_ident = self.generate_dispatch_variant_ident(cws);
         let variant_types = cws.callable().inputs().map(|arg| &arg.ty);
         quote! {
@@ -526,7 +528,7 @@ impl Dispatch<'_> {
                 (None, quote! { MessageRef }, quote! { execute_message })
             }
         };
-        let selector_id = cws.composed_selector().unique_id();
+        let selector_id = cws.composed_selector().into_be_u32().hex_padded_suffixed();
         let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
         // If all ink! messages deny payment we can move the payment check to before
         // the message dispatch which is more efficient.
@@ -537,11 +539,11 @@ impl Dispatch<'_> {
             .is_dynamic_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::#exec_fn::<<#storage_ident as ::ink_lang::ContractEnv>::Env, #namespace<[(); #selector_id]>, _>(
+                ::ink_lang::#exec_fn::<<#storage_ident as ::ink_lang::ContractEnv>::Env, #namespace::<#selector_id>, _>(
                     ::ink_lang::AcceptsPayments(#accepts_payments),
                     ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
                     move |state: &#mut_mod #storage_ident| {
-                        <#namespace<[(); #selector_id]> as ::ink_lang::#msg_trait>::CALLABLE(
+                        <#namespace::<#selector_id> as ::ink_lang::#msg_trait>::CALLABLE(
                             state, #arg_inputs
                         )
                     }
@@ -626,7 +628,7 @@ impl Dispatch<'_> {
         } else {
             quote! { ( #(#arg_pats),* ) }
         };
-        let selector_id = cws.composed_selector().unique_id();
+        let selector_id = cws.composed_selector().into_be_u32().hex_padded_suffixed();
         let namespace =
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         let is_dynamic_storage_allocation_enabled = self
@@ -635,10 +637,10 @@ impl Dispatch<'_> {
             .is_dynamic_storage_allocator_enabled();
         quote! {
             Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::execute_constructor::<#namespace<[(); #selector_id]>, _>(
+                ::ink_lang::execute_constructor::<#namespace::<#selector_id>, _>(
                     ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
                     move || {
-                        <#namespace<[(); #selector_id]> as ::ink_lang::Constructor>::CALLABLE(
+                        <#namespace::<#selector_id> as ::ink_lang::Constructor>::CALLABLE(
                             #arg_inputs
                         )
                     }
