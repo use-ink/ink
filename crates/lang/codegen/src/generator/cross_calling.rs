@@ -275,7 +275,7 @@ impl CrossCalling<'_> {
                     // hence we have to provide an `unreachable!` here. If
                     // the invalid implementation above is linked this results
                     // in a linker error.
-                    unreachable!("this is an invalid message call which should never be possible.");
+                    ::core::unreachable!("this is an invalid ink! message call which should never be possible.");
                 }
             )
         }
@@ -427,7 +427,7 @@ impl CrossCalling<'_> {
                     // hence we have to provide an `unreachable!` here. If
                     // the invalid implementation above is linked this results
                     // in a linker error.
-                    unreachable!("this is an invalid message call which should never be possible.");
+                    ::core::unreachable!("this is an invalid ink! constructor call which should never be possible.");
                 }
             )
         }
