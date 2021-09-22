@@ -171,7 +171,7 @@ impl Dispatch<'_> {
             // - The `ID` const parameter uniquely identifies one of the ink! messages
             //   implemented by the root smart contract.
             #[doc(hidden)]
-            pub struct #message_namespace<const ID: u32> {}
+            pub struct #message_namespace<const ID: ::core::primitive::u32> {}
 
             // Selector namespace for ink! constructors of the root smart contract.
             //
@@ -182,7 +182,7 @@ impl Dispatch<'_> {
             // - The `ID` const parameter uniquely identifies one of the ink! constructors
             //   implemented by the root smart contract.
             #[doc(hidden)]
-            pub struct #constructor_namespace<const ID: u32> {}
+            pub struct #constructor_namespace<const ID: ::core::primitive::u32> {}
         }
     }
 
