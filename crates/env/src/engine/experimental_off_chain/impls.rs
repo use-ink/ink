@@ -264,7 +264,7 @@ impl EnvBackend for EnvInstance {
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
         // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
-        let recovery_byte = if signature[64] > 27 {
+        let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {
             signature[64]
