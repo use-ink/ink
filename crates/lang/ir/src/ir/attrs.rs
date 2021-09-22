@@ -766,11 +766,16 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let bytes = lit_str.value().into_bytes();
+                                let argument = lit_str.value();
+                                syn::parse_str::<syn::Ident>(&argument)
+                                    .map_err(|_error| format_err!(
+                                        lit_str,
+                                        "encountered invalid Rust identifier for namespace argument",
+                                    ))?;
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Namespace(
-                                        Namespace::from(bytes),
+                                        Namespace::from(argument.into_bytes()),
                                     ),
                                 })
                             }
@@ -1034,6 +1039,14 @@ mod tests {
     fn selector_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
+                #[ink(selector = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
+                Selector::from_bytes([0, 0, 0, 42]),
+            )])),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
@@ -1087,6 +1100,16 @@ mod tests {
             Ok(test::Attribute::Ink(vec![AttributeArg::Namespace(
                 Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
+        );
+    }
+
+    #[test]
+    fn namespace_invalid_identifier() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace = "::invalid_identifier")]
+            },
+            Err("encountered invalid Rust identifier for namespace argument"),
         );
     }
 
