@@ -253,10 +253,18 @@ impl CrossCalling<'_> {
                 & #mut_tok self,
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                extern {
-                    fn #linker_error_ident() -> !;
+                if option_env!("INK_COVERAGE_REPORTING") != Some("true") {
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                } else {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    unreachable!("this is an invalid message call which should never be possible.");
                 }
-                unsafe { #linker_error_ident() }
             }
         )
     }
@@ -386,10 +394,18 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                extern {
-                    fn #linker_error_ident() -> !;
+                if option_env!("INK_COVERAGE_REPORTING") != Some("true") {
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                } else {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    unreachable!("this is an invalid message call which should never be possible.");
                 }
-                unsafe { #linker_error_ident() }
             }
         )
     }

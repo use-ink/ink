@@ -23,17 +23,7 @@ fn compile_tests() {
     t.pass("tests/ui/contract/pass/05-erc721-contract.rs");
     t.pass("tests/ui/contract/pass/06-non-ink-items.rs");
     t.pass("tests/ui/contract/pass/07-flipper-as-dependency.rs");
-    if option_env!("INK_COVERAGE_REPORTING") != Some("true") {
-        // The cross-calling implementation for traits provides
-        // an invalid implementation for non-valid message calls
-        // (e.g. cross-calling a `mut` message from a non-`mut` message).
-        // So calling those will result in a compiler or linker error.
-        //
-        // The coverage reporting CI stage though also links dead code,
-        // hence resulting in this invalid implementation being linked
-        // and thus a linker error.
-        t.pass("tests/ui/contract/pass/08-flipper-as-dependency-trait.rs");
-    }
+    t.pass("tests/ui/contract/pass/08-flipper-as-dependency-trait.rs");
     t.pass("tests/ui/contract/pass/09-static-env.rs");
     t.pass("tests/ui/contract/pass/10-derive-for-storage.rs");
     t.pass("tests/ui/contract/pass/11-alias-storage-struct-impl.rs");
