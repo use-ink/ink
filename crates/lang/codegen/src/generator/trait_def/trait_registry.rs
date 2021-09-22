@@ -154,7 +154,30 @@ impl TraitRegistry<'_> {
             selector,
             message.mutates(),
         );
-        quote_spanned!(span =>
+        let impl_body = match option_env!("INK_COVERAGE_REPORTING") {
+            Some("true") => {
+                quote! {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    ::core::unreachable!(
+                        "this is an invalid ink! message call which should never be possible."
+                    );
+                }
+            }
+            _ => {
+                quote! {
+                    /// We enforce linking errors in case this is ever actually called.
+                    /// These linker errors are properly resolved by the cargo-contract tool.
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                }
+            }
+        };
+        quote_spanned!(span=>
             type #output_ident = #output_type;
 
             #( #attrs )*
@@ -164,12 +187,7 @@ impl TraitRegistry<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                /// We enforce linking errors in case this is ever actually called.
-                /// These linker errors are properly resolved by the cargo-contract tool.
-                extern "C" {
-                    fn #linker_error_ident() -> !;
-                }
-                unsafe { #linker_error_ident() }
+                #impl_body
             }
         )
     }
