@@ -13,15 +13,6 @@ pub trait PayableDefinition {
     fn unpayable_mut(&mut self);
 }
 
-/// Mimics computation of ink! trait local message ID calculation.
-fn local_id(ident: &str) -> u32 {
-    let buffer = format!("message::{}", ident).into_bytes();
-    use blake2::digest::generic_array::sequence::Split as _;
-    let (head_32, _rest) = <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
-    let head_32: [u8; 4] = head_32.into();
-    u32::from_be_bytes(head_32)
-}
-
 /// Computed using `local_id("payable")`.
 const PAYABLE_ID: u32 = 0xFDDBE704;
 
@@ -35,6 +26,15 @@ const UNPAYABLE_ID: u32 = 0x511647A5;
 const UNPAYABLE_MUT_ID: u32 = 0x4A60F1E1;
 
 fn main() {
+    use ink_lang_ir as ir;
+    /// Returns the local ID for the given name.
+    #[allow(dead_code)]
+    fn local_id(name: &str) -> u32 {
+        ir::InkTraitMessage::compute_local_id(&syn::Ident::new(
+            name,
+            proc_macro2::Span::call_site(),
+        ))
+    }
     // Uncomment these in order to print out the local IDs of
     // all the ink! trait messages for this test.
     //

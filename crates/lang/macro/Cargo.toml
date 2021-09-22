@@ -30,7 +30,6 @@ ink_storage = { version = "3.0.0-rc5", path = "../../storage/" }
 ink_lang = { version = "3.0.0-rc5", path = ".." }
 ink_prelude = { version = "3.0.0-rc5", path = "../../prelude/" }
 
-blake2 = "0.9"
 
 trybuild = "1.0.24"
 scale-info = { version = "0.6", default-features = false, features = ["derive"] }
