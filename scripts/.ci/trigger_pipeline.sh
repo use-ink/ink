@@ -62,7 +62,7 @@ for i in $(seq 1 $SEQ_END); do
     else
         echo "Something else has happened in ${PIPELINE_URL}"; exit 1;
     fi
-sleep 5;
+    sleep $POLL_SLEEP;
 done
 
 echo "Timeout! The pipeline didn't return in time."

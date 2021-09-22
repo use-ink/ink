@@ -243,6 +243,25 @@ impl CrossCalling<'_> {
             ir::Receiver::Ref => None,
             ir::Receiver::RefMut => Some(quote! { mut }),
         };
+        let error_ident = match option_env!("INK_COVERAGE_REPORTING") {
+            Some("true") => {
+                quote! {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    ::core::unreachable!("this is an invalid ink! message call which should never be possible.");
+                }
+            }
+            _ => {
+                quote! {
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                }
+            }
+        };
         quote_spanned!(span=>
             type #output_ident = #output_ty;
 
@@ -253,10 +272,7 @@ impl CrossCalling<'_> {
                 & #mut_tok self,
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                extern {
-                    fn #linker_error_ident() -> !;
-                }
-                unsafe { #linker_error_ident() }
+                #error_ident
             }
         )
     }
@@ -377,6 +393,25 @@ impl CrossCalling<'_> {
             .inputs()
             .map(|pat_type| &*pat_type.ty)
             .collect::<Vec<_>>();
+        let error_ident = match option_env!("INK_COVERAGE_REPORTING") {
+            Some("true") => {
+                quote! {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    ::core::unreachable!("this is an invalid ink! message call which should never be possible.");
+                }
+            }
+            _ => {
+                quote! {
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                }
+            }
+        };
         quote_spanned!(span =>
             type #output_ident = ::ink_lang::NeverReturns;
 
@@ -386,10 +421,7 @@ impl CrossCalling<'_> {
             fn #ident(
                 #( #input_bindings : #input_types ),*
             ) -> Self::#output_ident {
-                extern {
-                    fn #linker_error_ident() -> !;
-                }
-                unsafe { #linker_error_ident() }
+                #error_ident
             }
         )
     }
