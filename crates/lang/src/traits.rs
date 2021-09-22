@@ -149,18 +149,18 @@ pub trait True {}
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
 #[doc(hidden)]
-pub struct TraitCallForwarderRegistry<E> {
+pub struct InkTraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
 
-impl<E> crate::ContractEnv for TraitCallForwarderRegistry<E>
+impl<E> crate::ContractEnv for InkTraitDefinitionRegistry<E>
 where
     E: ink_env::Environment,
 {
     type Env = E;
 }
 
-unsafe impl<E, const N: u32> TraitImplementer<N> for TraitCallForwarderRegistry<E> {}
+unsafe impl<E, const N: u32> TraitImplementer<N> for InkTraitDefinitionRegistry<E> {}
 
 /// The default type that ink! trait definition implementations use for the
 /// `__ink_DynamicCallForwarder` associated type.

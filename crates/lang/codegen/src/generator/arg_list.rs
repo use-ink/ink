@@ -73,7 +73,7 @@ where
 pub fn generate_unique_trait_id(span: Span, trait_path: &syn::Path) -> TokenStream2 {
     quote_spanned!(span=>
         {
-            <<::ink_lang::TraitCallForwarderRegistry<Environment>
+            <<::ink_lang::InkTraitDefinitionRegistry<Environment>
                 as #trait_path>::__ink_TraitInfo
                 as ::ink_lang::TraitUniqueId>::ID
         }

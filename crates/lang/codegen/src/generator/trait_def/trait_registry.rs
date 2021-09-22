@@ -94,7 +94,7 @@ impl TraitRegistry<'_> {
     /// call forwarder and call builder types as such for the ink! trait.
     ///
     /// This is done by the fact that ink! implements all ink! traits by the
-    /// [`ink_lang::TraitCallForwarderRegistry`] type and uses the `__ink_ConcreteImplementer`
+    /// [`ink_lang::InkTraitDefinitionRegistry`] type and uses the `__ink_ConcreteImplementer`
     /// associated type to refer back to the actual call forwarder and call builder types.
     fn generate_registry_impl(&self) -> TokenStream2 {
         let span = self.span();
@@ -102,7 +102,7 @@ impl TraitRegistry<'_> {
         let trait_info_ident = self.trait_def.trait_info_ident();
         let messages = self.generate_registry_messages();
         quote_spanned!(span=>
-            impl<E> #name for ::ink_lang::TraitCallForwarderRegistry<E>
+            impl<E> #name for ::ink_lang::InkTraitDefinitionRegistry<E>
             where
                 E: ::ink_env::Environment,
             {

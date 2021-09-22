@@ -91,7 +91,7 @@ impl ItemImpls<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_TraitInfo = <::ink_lang::TraitCallForwarderRegistry<Environment>
+                type __ink_TraitInfo = <::ink_lang::InkTraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #( #messages )*
