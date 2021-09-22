@@ -243,42 +243,38 @@ impl CrossCalling<'_> {
             ir::Receiver::Ref => None,
             ir::Receiver::RefMut => Some(quote! { mut }),
         };
-        if option_env!("INK_COVERAGE_REPORTING") != Some("true") {
-            quote_spanned!(span=>
-                type #output_ident = #output_ty;
-
-                #( #attrs )*
-                #[cold]
-                #[doc(hidden)]
-                #pub_tok fn #ident(
-                    & #mut_tok self,
-                    #( #input_bindings : #input_types ),*
-                ) -> Self::#output_ident {
-                    extern {
-                        fn #linker_error_ident() -> !;
-                    }
-                    unsafe { #linker_error_ident() }
-                }
-            )
-        } else {
-            quote_spanned!(span=>
-                type #output_ident = #output_ty;
-
-                #( #attrs )*
-                #[cold]
-                #[doc(hidden)]
-                #pub_tok fn #ident(
-                    & #mut_tok self,
-                    #( #input_bindings : #input_types ),*
-                ) -> Self::#output_ident {
+        let error_ident = match option_env!("INK_COVERAGE_REPORTING") {
+            Some("true") => {
+                quote! {
                     // The code coverage reporting CI stage links dead code,
                     // hence we have to provide an `unreachable!` here. If
                     // the invalid implementation above is linked this results
                     // in a linker error.
                     ::core::unreachable!("this is an invalid ink! message call which should never be possible.");
                 }
-            )
-        }
+            }
+            _ => {
+                quote! {
+                    extern {
+                        fn #linker_error_ident() -> !;
+                    }
+                    unsafe { #linker_error_ident() }
+                }
+            }
+        };
+        quote_spanned!(span=>
+            type #output_ident = #output_ty;
+
+            #( #attrs )*
+            #[cold]
+            #[doc(hidden)]
+            #pub_tok fn #ident(
+                & #mut_tok self,
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                #error_ident
+            }
+        )
     }
 
     fn generate_call_forwarder_trait_proper_message(
@@ -397,40 +393,37 @@ impl CrossCalling<'_> {
             .inputs()
             .map(|pat_type| &*pat_type.ty)
             .collect::<Vec<_>>();
-        if option_env!("INK_COVERAGE_REPORTING") != Some("true") {
-            quote_spanned!(span =>
-                type #output_ident = ::ink_lang::NeverReturns;
-
-                #( #attrs )*
-                #[cold]
-                #[doc(hidden)]
-                fn #ident(
-                    #( #input_bindings : #input_types ),*
-                ) -> Self::#output_ident {
+        let error_ident = match option_env!("INK_COVERAGE_REPORTING") {
+            Some("true") => {
+                quote! {
+                    // The code coverage reporting CI stage links dead code,
+                    // hence we have to provide an `unreachable!` here. If
+                    // the invalid implementation above is linked this results
+                    // in a linker error.
+                    ::core::unreachable!("this is an invalid ink! message call which should never be possible.");
+                }
+            }
+            _ => {
+                quote! {
                     extern {
                         fn #linker_error_ident() -> !;
                     }
                     unsafe { #linker_error_ident() }
                 }
-            )
-        } else {
-            quote_spanned!(span =>
-                type #output_ident = ::ink_lang::NeverReturns;
+            }
+        };
+        quote_spanned!(span =>
+            type #output_ident = ::ink_lang::NeverReturns;
 
-                #( #attrs )*
-                #[cold]
-                #[doc(hidden)]
-                fn #ident(
-                    #( #input_bindings : #input_types ),*
-                ) -> Self::#output_ident {
-                    // The code coverage reporting CI stage links dead code,
-                    // hence we have to provide an `unreachable!` here. If
-                    // the invalid implementation above is linked this results
-                    // in a linker error.
-                    ::core::unreachable!("this is an invalid ink! constructor call which should never be possible.");
-                }
-            )
-        }
+            #( #attrs )*
+            #[cold]
+            #[doc(hidden)]
+            fn #ident(
+                #( #input_bindings : #input_types ),*
+            ) -> Self::#output_ident {
+                #error_ident
+            }
+        )
     }
 
     /// Generates code for a single call forwarder trait implementation block.
