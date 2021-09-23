@@ -100,7 +100,7 @@ impl ItemImpls<'_> {
             type #output_ident = #output;
 
             #( #attrs )*
-            #vis fn #ident(#receiver #(, #inputs )* ) -> Self::#output_ident {
+            #vis fn #ident(#receiver #( , #inputs )* ) -> Self::#output_ident {
                 #( #statements )*
             }
         )
@@ -192,7 +192,7 @@ impl ItemImpls<'_> {
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver, #( #inputs ),* ) #output_arrow #output {
+            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
                 #( #statements )*
             }
         )
