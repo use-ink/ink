@@ -275,7 +275,7 @@ impl Dispatch<'_> {
     ///   quote! { (__ink_binding_0, __ink_binding_1, ..) } )
     /// # ;
     /// ```
-    fn generate_input_bindings<C>(callable: &C) -> (Vec<Ident>, TokenStream2)
+    fn generate_input_bindings_tuple<C>(callable: &C) -> (Vec<Ident>, TokenStream2)
     where
         C: ir::Callable,
     {
@@ -321,7 +321,7 @@ impl Dispatch<'_> {
             (None, format_ident!("MessageRef"))
         };
         let (input_bindings, inputs_as_tuple_or_wildcard) =
-            Self::generate_input_bindings(message);
+            Self::generate_input_bindings_tuple(message);
         let as_trait = cws.item_impl().trait_path().map(|trait_path| {
             quote_spanned!(message_span =>
                 as #trait_path
@@ -359,7 +359,7 @@ impl Dispatch<'_> {
             Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
         let callable_impl = self.generate_trait_impls_for_callable(cws);
         let (input_bindings, inputs_as_tuple_or_wildcard) =
-            Self::generate_input_bindings(constructor);
+            Self::generate_input_bindings_tuple(constructor);
         let as_trait = cws.item_impl().trait_path().map(|trait_path| {
             quote_spanned!(constructor_span =>
                 as #trait_path
