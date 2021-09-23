@@ -62,7 +62,7 @@ use serde::{
 /// # Note
 ///
 /// Represents the version of the serialized metadata *format*, which is distinct from the version
-/// of this crate for Rust semver compatibility.
+/// of this crate for Rust semantic versioning compatibility.
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MetadataVersioned {
     /// Version 0 placeholder. Represents the original non-versioned metadata format.
