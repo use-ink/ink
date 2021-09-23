@@ -13,6 +13,10 @@
 // limitations under the License.
 
 #![no_std]
+use ink_env::{
+    DefaultEnvironment,
+    Environment,
+};
 
 /// The ECDSA compressed public key.
 #[derive(Debug, Copy, Clone)]
@@ -106,12 +110,8 @@ impl ECDSAPublicKey {
         result
     }
 
-    /// Returns the `[u8; 32]` from the ECDSA compressed public key.
+    /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
     /// It hashes the compressed public key with the blake2b256 algorithm like in substrate.
-    ///
-    /// # Note
-    ///
-    /// `[u8; 32]` can be converted into default `AccountId` with `into()` method.
     ///
     /// # Example
     ///
@@ -130,13 +130,13 @@ impl ECDSAPublicKey {
     ///     53,  85,  62, 235, 126, 218, 160, 206, 162,  67, 193, 18, 140,  47, 231, 55,
     /// ];
     ///
-    /// assert_eq!(pub_key.to_account_id(), EXPECTED_ACCOUNT_ID);
-    pub fn to_account_id(&self) -> [u8; 32] {
+    /// assert_eq!(pub_key.to_default_account_id(), EXPECTED_ACCOUNT_ID);
+    pub fn to_default_account_id(&self) -> <DefaultEnvironment as Environment>::AccountId {
         use ink_env::hash;
 
         let mut output = <hash::Blake2x256 as hash::HashOutput>::Type::default();
         ink_env::hash_bytes::<hash::Blake2x256>(&self.0[..], &mut output);
 
-        output
+        output.into()
     }
 }
