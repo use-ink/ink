@@ -54,10 +54,7 @@ impl ItemImpls<'_> {
     fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
-        let vis = match message.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
+        let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
         let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
@@ -71,7 +68,7 @@ impl ItemImpls<'_> {
             type #output_ident = #output;
 
             #( #attrs )*
-            #vis fn #ident(#receiver #(, #inputs )* ) -> Self::#output_ident {
+            #vis fn #ident(#receiver #( , #inputs )* ) -> Self::#output_ident {
                 #( #statements )*
             }
         )
@@ -103,10 +100,7 @@ impl ItemImpls<'_> {
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
-        let vis = match constructor.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
+        let vis = constructor.visibility();
         let ident = constructor.ident();
         let inputs = constructor.inputs();
         let statements = constructor.statements();
@@ -122,10 +116,7 @@ impl ItemImpls<'_> {
     fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
-        let vis = match message.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
+        let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
         let inputs = message.inputs();
@@ -134,7 +125,7 @@ impl ItemImpls<'_> {
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver, #( #inputs ),* ) #output_arrow #output {
+            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
                 #( #statements )*
             }
         )
