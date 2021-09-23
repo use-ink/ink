@@ -130,8 +130,10 @@ impl ECDSAPublicKey {
     ///     53,  85,  62, 235, 126, 218, 160, 206, 162,  67, 193, 18, 140,  47, 231, 55,
     /// ];
     ///
-    /// assert_eq!(pub_key.to_default_account_id(), EXPECTED_ACCOUNT_ID);
-    pub fn to_default_account_id(&self) -> <DefaultEnvironment as Environment>::AccountId {
+    /// assert_eq!(pub_key.to_default_account_id(), EXPECTED_ACCOUNT_ID.into());
+    pub fn to_default_account_id(
+        &self,
+    ) -> <DefaultEnvironment as Environment>::AccountId {
         use ink_env::hash;
 
         let mut output = <hash::Blake2x256 as hash::HashOutput>::Type::default();
