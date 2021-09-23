@@ -279,11 +279,7 @@ impl Dispatch<'_> {
     where
         C: ir::Callable,
     {
-        let input_bindings = callable
-            .inputs()
-            .enumerate()
-            .map(|(n, _pat_type)| format_ident!("__ink_binding_{}", n))
-            .collect::<Vec<_>>();
+        let input_bindings = generator::input_bindings(callable.inputs());
         let inputs_as_tuple_or_wildcard = match input_bindings.len() {
             0 => quote! { _ },
             1 => quote! { #( #input_bindings ),* },
