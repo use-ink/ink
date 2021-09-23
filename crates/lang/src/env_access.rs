@@ -297,6 +297,10 @@ where
     ///
     /// # Note
     ///
+    /// The Substrate default for the timestamp type is the milliseconds since the
+    /// Unix epoch. However, this is not guaranteed: the specific timestamp is
+    /// defined by the chain environment on which this contract runs.
+    ///
     /// For more details visit: [`ink_env::block_timestamp`]
     pub fn block_timestamp(self) -> T::Timestamp {
         ink_env::block_timestamp::<T>().expect("couldn't decode block time stamp")
