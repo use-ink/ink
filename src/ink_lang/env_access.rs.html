@@ -1014,6 +1014,15 @@
 <span id="1014">1014</span>
 <span id="1015">1015</span>
 <span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1302,18 +1311,20 @@
     <span class="doccomment">///             }</span>
     <span class="doccomment">///         }</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">///         /// The function can be executed at most once every 100 blocks.</span>
+    <span class="doccomment">///         /// Records the last time the message was invoked.</span>
     <span class="doccomment">///         #[ink(message)]</span>
     <span class="doccomment">///         pub fn execute_me(&amp;mut self) {</span>
-    <span class="doccomment">///             let now = self.env().block_timestamp();</span>
-    <span class="doccomment">///             assert!(now - self.last_invocation &gt; 100);</span>
-    <span class="doccomment">///             self.last_invocation = now;</span>
+    <span class="doccomment">///             self.last_invocation = self.env().block_timestamp();</span>
     <span class="doccomment">///         }</span>
     <span class="doccomment">///     }</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The Substrate default for the timestamp type is the milliseconds since the</span>
+    <span class="doccomment">/// Unix epoch. However, this is not guaranteed: the specific timestamp is</span>
+    <span class="doccomment">/// defined by the chain environment on which this contract runs.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::block_timestamp`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_timestamp</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T::Timestamp</span> {
@@ -1531,25 +1542,32 @@
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use ink_lang as ink;</span>
-    <span class="doccomment">/// # #[ink::contract]</span>
-    <span class="doccomment">/// # pub mod my_contract {</span>
-    <span class="doccomment">/// #     #[ink(storage)]</span>
-    <span class="doccomment">/// #     pub struct MyContract { }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// #     impl MyContract {</span>
-    <span class="doccomment">/// #         #[ink(constructor)]</span>
-    <span class="doccomment">/// #         pub fn new() -&gt; Self {</span>
-    <span class="doccomment">/// #             Self {}</span>
-    <span class="doccomment">/// #         }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// #[ink(message)]</span>
-    <span class="doccomment">/// pub fn block_number(&amp;self) -&gt; BlockNumber {</span>
-    <span class="doccomment">///     self.env().block_number()</span>
+    <span class="doccomment">/// use ink_lang as ink;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[ink::contract]</span>
+    <span class="doccomment">/// pub mod my_contract {</span>
+    <span class="doccomment">///     #[ink(storage)]</span>
+    <span class="doccomment">///     pub struct MyContract {</span>
+    <span class="doccomment">///         last_invocation: BlockNumber</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     impl MyContract {</span>
+    <span class="doccomment">///         #[ink(constructor)]</span>
+    <span class="doccomment">///         pub fn new() -&gt; Self {</span>
+    <span class="doccomment">///             Self {</span>
+    <span class="doccomment">///                 last_invocation: Self::env().block_number()</span>
+    <span class="doccomment">///             }</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         /// The function can be executed at most once every 100 blocks.</span>
+    <span class="doccomment">///         #[ink(message)]</span>
+    <span class="doccomment">///         pub fn execute_me(&amp;mut self) {</span>
+    <span class="doccomment">///             let now = self.env().block_number();</span>
+    <span class="doccomment">///             assert!(now - self.last_invocation &gt; 100);</span>
+    <span class="doccomment">///             self.last_invocation = now;</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///     }</span>
     <span class="doccomment">/// }</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// #     }</span>
-    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
