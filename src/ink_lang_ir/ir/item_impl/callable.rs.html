@@ -629,6 +629,15 @@
 <span id="629">629</span>
 <span id="630">630</span>
 <span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1069,6 +1078,15 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Visibility</span> {
     <span class="ident">Public</span>(<span class="ident">syn::VisPublic</span>),
     <span class="ident">Inherited</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Visibility</span> {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vis_public</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Inherited</span> <span class="op">=</span><span class="op">&gt;</span> (),
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">Visibility</span> {
