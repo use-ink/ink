@@ -1,5 +1,5 @@
 [package]
-name = "erc721"
+name = "trait-incrementer"
 version = "3.0.0-rc5"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
@@ -15,7 +15,7 @@ scale = { package = "parity-scale-codec", version = "2", default-features = fals
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "erc721"
+name = "trait_incrementer"
 path = "lib.rs"
 crate-type = ["cdylib"]
 

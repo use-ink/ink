@@ -22,7 +22,7 @@ ink_metadata = { version = "3.0.0-rc5", path = "../metadata", default-features =
 ink_prelude = { version = "3.0.0-rc5", path = "../prelude", default-features = false }
 ink_lang_macro = { version = "3.0.0-rc5", path = "macro", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 static_assertions = "1.1"
 

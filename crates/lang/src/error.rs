@@ -12,22 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use derive_more::Display;
+
 /// A dispatch result.
 #[doc(hidden)]
 pub type DispatchResult = core::result::Result<(), DispatchError>;
 
 /// A dispatch error.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Display)]
 #[doc(hidden)]
 pub enum DispatchError {
+    #[display(fmt = "unknown selector")]
     UnknownSelector,
+    #[display(fmt = "unknown constructor selector")]
     UnknownInstantiateSelector,
+    #[display(fmt = "unknown message selector")]
     UnknownCallSelector,
 
+    #[display(fmt = "unable to decoded input parameter bytes")]
     InvalidParameters,
+    #[display(fmt = "unable to decoded input parameter bytes for constructor")]
     InvalidInstantiateParameters,
+    #[display(fmt = "unable to decoded input parameter bytes for message")]
     InvalidCallParameters,
 
+    #[display(fmt = "could not read input parameters")]
     CouldNotReadInput,
+    #[display(fmt = "paid an unpayable message")]
     PaidUnpayableMessage,
 }
