@@ -49,14 +49,14 @@ impl GenerateCode for Metadata<'_> {
             #no_cross_calling_cfg
             const _: () = {
                 #[no_mangle]
-                pub fn __ink_generate_metadata() -> ::ink_metadata::InkProject  {
+                pub fn __ink_generate_metadata() -> ::ink_metadata::MetadataVersioned  {
                     let contract: ::ink_metadata::ContractSpec = {
                         #contract
                     };
                     let layout: ::ink_metadata::layout::Layout = {
                         #layout
                     };
-                    ::ink_metadata::InkProject::new(layout, contract)
+                    ::ink_metadata::InkProject::new(layout, contract).into()
                 }
             };
         }

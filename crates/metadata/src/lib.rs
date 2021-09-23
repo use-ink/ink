@@ -57,6 +57,30 @@ use serde::{
     Serialize,
 };
 
+/// Versioned ink! project metadata.
+///
+/// # Note
+///
+/// Represents the version of the serialized metadata *format*, which is distinct from the version
+/// of this crate for Rust semver compatibility.
+#[derive(Debug, Serialize, Deserialize)]
+pub enum MetadataVersioned {
+    /// Version 0 placeholder. Represents the original non-versioned metadata format.
+    V0(MetadataVersionDeprecated),
+    /// Version 1 of the contract metadata.
+    V1(InkProject),
+}
+
+impl From<InkProject> for MetadataVersioned {
+    fn from(ink_project: InkProject) -> Self {
+        MetadataVersioned::V1(ink_project)
+    }
+}
+
+/// Enum to represent a deprecated metadata version that cannot be instantiated.
+#[derive(Debug, Serialize, Deserialize)]
+pub enum MetadataVersionDeprecated {}
+
 /// An entire ink! project for metadata file generation purposes.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InkProject {
