@@ -64,6 +64,7 @@ use serde::{
 /// Represents the version of the serialized metadata *format*, which is distinct from the version
 /// of this crate for Rust semver compatibility.
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(clippy::large_enum_variant)]
 pub enum MetadataVersioned {
     /// Version 0 placeholder. Represents the original non-versioned metadata format.
     V0(MetadataVersionDeprecated),
