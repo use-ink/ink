@@ -286,12 +286,10 @@ where
     ///             }
     ///         }
     ///
-    ///         /// The function can be executed at most once every 100 blocks.
+    ///         /// Records the last time the message was invoked.
     ///         #[ink(message)]
     ///         pub fn execute_me(&mut self) {
-    ///             let now = self.env().block_timestamp();
-    ///             assert!(now - self.last_invocation > 100);
-    ///             self.last_invocation = now;
+    ///             self.last_invocation = self.env().block_timestamp();
     ///         }
     ///     }
     /// }
