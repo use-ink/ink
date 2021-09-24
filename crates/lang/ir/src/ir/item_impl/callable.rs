@@ -519,6 +519,12 @@ impl<'a> Iterator for InputsIter<'a> {
     }
 }
 
+impl<'a> ExactSizeIterator for InputsIter<'a> {
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
