@@ -19,7 +19,10 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir::{self, utils};
+use crate::ir::{
+    self,
+    utils,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,

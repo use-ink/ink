@@ -13,7 +13,14 @@
 // limitations under the License.
 
 use super::super::InkAttribute;
-use crate::{InputsIter, Receiver, ir::{self, utils}};
+use crate::{
+    ir::{
+        self,
+        utils,
+    },
+    InputsIter,
+    Receiver,
+};
 use proc_macro2::Span;
 use syn::{
     spanned::Spanned as _,

@@ -51,8 +51,7 @@ pub fn ensure_pub_visibility(
 pub fn local_message_id(ident: &syn::Ident) -> u32 {
     let buffer = format!("message::{}", ident).into_bytes();
     use blake2::digest::generic_array::sequence::Split as _;
-    let (head_32, _rest) =
-        <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
+    let (head_32, _rest) = <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
     let head_32: [u8; 4] = head_32.into();
     u32::from_be_bytes(head_32)
 }
