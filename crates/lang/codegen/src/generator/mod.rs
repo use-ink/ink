@@ -45,7 +45,9 @@ pub use self::{
         generate_argument_list,
         generate_unique_trait_id,
         input_bindings,
+        input_bindings_tuple,
         input_types,
+        input_types_tuple,
         output_ident,
     },
     as_dependency::{

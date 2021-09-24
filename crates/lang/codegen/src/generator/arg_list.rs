@@ -46,6 +46,29 @@ pub fn input_types(inputs: ir::InputsIter) -> Vec<&syn::Type> {
     inputs.map(|pat_type| &*pat_type.ty).collect::<Vec<_>>()
 }
 
+/// Returns a tuple type representing the types yielded by the input types.
+pub fn input_types_tuple(inputs: ir::InputsIter) -> TokenStream2 {
+    let input_types = input_types(inputs);
+    if input_types.len() != 1 {
+        // Pack all types into a tuple if they are not exactly 1.
+        // This results in `()` for zero input types.
+        quote! { ( #( #input_types ),* ) }
+    } else {
+        // Return the single type without turning it into a tuple.
+        quote! { #( #input_types )* }
+    }
+}
+
+/// Returns a tuple expression representing the bindings yielded by the inputs.
+pub fn input_bindings_tuple(inputs: ir::InputsIter) -> TokenStream2 {
+    let input_bindings = input_bindings(inputs);
+    match input_bindings.len() {
+        0 => quote! { _ },
+        1 => quote! { #( #input_bindings ),* },
+        _ => quote! { ( #( #input_bindings ),* ) },
+    }
+}
+
 /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
 pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
 where
