@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::DispatchError;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -300,4 +301,106 @@ pub trait TraitMessageInfo<const TRAIT_LOCAL_MESSAGE_ID: u32> {
     /// This might have been adjusted using `#[ink(selector = N:u32)]` at the
     /// ink! trait definition site.
     const SELECTOR: [u8; 4];
+}
+
+/// Implemented by all ink! smart contracts.
+///
+/// Reflects the number of dispatchable ink! messages and constructors respectively.
+pub trait ContractAmountDispatchables {
+    /// The number of dispatchable ink! messages.
+    const MESSAGES: usize;
+    /// The number of dispatchable ink! constructors.
+    const CONSTRUCTORS: usize;
+}
+
+/// Implemented by all ink! smart contracts.
+///
+/// Stores a sequence of all dispatchable ink! message of the ink! smart contract.
+///
+/// # Note
+///
+/// Implemented for the amount of dispatchable ink! messages of the ink! smart contract.
+pub trait ContractDispatchableMessages<const AMOUNT: usize> {
+    /// The sequence stores selector IDs of all ink! messages dispatchable by the ink! smart contract.
+    const IDS: [u32; AMOUNT];
+}
+
+/// Implemented by all ink! smart contracts.
+///
+/// Stores a sequence of all dispatchable ink! constructors of the ink! smart contract.
+///
+/// # Note
+///
+/// Implemented for the amount of dispatchable ink! constructors of the ink! smart contract.
+pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
+    /// The sequence stores selector IDs of all ink! constructors dispatchable by the ink! smart contract.
+    const IDS: [u32; AMOUNT];
+}
+
+/// Implemented by the ink! message namespace type for every ink! message selector ID.
+///
+/// Stores various information properties of the respective dispatchable ink! message.
+pub trait DispatchableMessageInfo<const ID: u32> {
+    /// Reflects the input types of the dispatchable ink! message.
+    type Input;
+    /// Reflects the output type of the dispatchable ink! message.
+    type Output;
+    /// The ink! storage struct type.
+    type Storage;
+
+    /// The closure that can be used to dispatch into the dispatchable ink! message.
+    ///
+    /// # Note
+    ///
+    /// We unify `&self` and `&mut self` ink! messages here and always take a `&mut self`.
+    /// This is mainly done for simplification but also because we can easily convert from
+    /// `&mut self` to `&self` with our current dispatch codegen architecture.
+    const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
+
+    /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
+    const MUTATES: bool;
+    /// Yields `true` if the dispatchable ink! message is payable.
+    const PAYABLE: bool;
+    /// The selectors of the dispatchable ink! message.
+    const SELECTOR: [u8; 4];
+    /// The label of the dispatchable ink! message.
+    const LABEL: &'static str;
+}
+
+/// Implemented by the ink! constructor namespace type for every ink! constructor selector ID.
+///
+/// Stores various information of the respective dispatchable ink! constructor.
+pub trait DispatchableConstructorInfo<const ID: u32> {
+    /// Reflects the input types of the dispatchable ink! constructor.
+    type Input;
+    /// The ink! storage struct type.
+    type Storage;
+
+    /// The closure that can be used to dispatch into the dispatchable ink! constructor.
+    const CALLABLE: fn(Self::Input) -> Self::Storage;
+
+    /// The selectors of the dispatchable ink! constructor.
+    const SELECTOR: [u8; 4];
+    /// The label of the dispatchable ink! constructor.
+    const LABEL: &'static str;
+}
+
+/// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
+pub trait ContractMessageDecoder {
+    /// The ink! smart contract message decoder type.
+    type Type: scale::Decode;
+}
+
+/// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
+pub trait ContractConstructorDecoder {
+    /// The ink! smart contract constructor decoder type.
+    type Type: scale::Decode;
+}
+
+/// Implemented by the ink! smart contract message or constructor decoder.
+///
+/// Starts the execution of the respective ink! message or constructor call.
+pub trait ExecuteDispatchable {
+    /// Executes the ink! smart contract message or constructor.
+    fn execute_dispatchable(self) -> Result<(), DispatchError>;
 }
