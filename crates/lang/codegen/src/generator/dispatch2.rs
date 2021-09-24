@@ -62,6 +62,8 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_contract_dispatchable_constructors_trait_impl();
         let contract_dispatchable_constructor_infos =
             self.generate_dispatchable_constructor_infos();
+        let contract_dispatchable_messages_infos =
+            self.generate_dispatchable_message_infos();
         // let entry_points = self.generate_entry_points();
         // let dispatch_using_mode = self.generate_dispatch_using_mode();
         // let dispatch_trait_impl_namespaces = self.generate_trait_impl_namespaces();
@@ -79,6 +81,7 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_messages
                 #contract_dispatchable_constructors
                 #contract_dispatchable_constructor_infos
+                #contract_dispatchable_messages_infos
                 // #entry_points
                 // #dispatch_using_mode
                 // #dispatch_trait_impl_namespaces
@@ -253,6 +256,115 @@ impl Dispatch<'_> {
             });
         quote_spanned!(span=>
             #( #constructor_infos )*
+        )
+    }
+
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    ///
+    /// These trait implementations store relevant dispatch information for every
+    /// dispatchable ink! constructor of the ink! smart contract.
+    fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let inherent_message_infos = self
+            .contract
+            .module()
+            .impls()
+            .filter(|item_impl| item_impl.trait_path().is_none())
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
+                let message_span = message.span();
+                let message_ident = message.ident();
+                let payable = message.is_payable();
+                let mutates = message.receiver().is_ref_mut();
+                let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
+                let selector_bytes = message.composed_selector().hex_lits();
+                let output_tuple_type = message
+                    .output()
+                    .map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
+                let input_bindings = generator::input_bindings(message.inputs());
+                let input_tuple_type = generator::input_types_tuple(message.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                quote_spanned!(message_span=>
+                    impl ::ink_lang::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Output = #output_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                            |storage, #input_tuple_bindings| {
+                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                            };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                        const PAYABLE: ::core::primitive::bool = #payable;
+                        const MUTATES: ::core::primitive::bool = #mutates;
+                        const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                    }
+                )
+            });
+        let trait_message_infos = self
+            .contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| {
+                item_impl
+                    .trait_path()
+                    .map(|trait_path| {
+                        let trait_ident = item_impl.trait_ident().expect(
+                            "must have an ink! trait identifier if it is an ink! trait implementation"
+                        );
+                        iter::repeat((trait_ident, trait_path)).zip(item_impl.iter_messages())
+                    })
+            })
+            .flatten()
+            .map(|((trait_ident, trait_path), message)| {
+                let message_span = message.span();
+                let message_ident = message.ident();
+                let mutates = message.receiver().is_ref_mut();
+                let local_id = message.local_id().hex_padded_suffixed();
+                let payable = quote! {{
+                    <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::TraitMessageInfo<#local_id>>::PAYABLE
+                }};
+                let selector = quote! {{
+                    <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
+                }};
+                let selector_id = quote! {{
+                    ::core::primitive::u32::from_be_bytes(#selector)
+                }};
+                let output_tuple_type = message
+                    .output()
+                    .map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
+                let input_bindings = generator::input_bindings(message.inputs());
+                let input_tuple_type = generator::input_types_tuple(message.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                let label = format!("{}::{}", trait_ident, message_ident);
+                quote_spanned!(message_span=>
+                    impl ::ink_lang::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Output = #output_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                            |storage, #input_tuple_bindings| {
+                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                            };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
+                        const PAYABLE: ::core::primitive::bool = #payable;
+                        const MUTATES: ::core::primitive::bool = #mutates;
+                        const LABEL: &'static ::core::primitive::str = #label;
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            #( #inherent_message_infos )*
+            #( #trait_message_infos )*
         )
     }
 }
