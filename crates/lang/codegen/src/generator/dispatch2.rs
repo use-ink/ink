@@ -20,7 +20,10 @@ use crate::{
     GenerateCodeUsing as _,
 };
 use derive_more::From;
-use ir::HexLiteral as _;
+use ir::{
+    Callable,
+    HexLiteral as _,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -57,6 +60,8 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_contract_dispatchable_messages_trait_impl();
         let contract_dispatchable_constructors =
             self.generate_contract_dispatchable_constructors_trait_impl();
+        let contract_dispatchable_constructor_infos =
+            self.generate_dispatchable_constructor_infos();
         // let entry_points = self.generate_entry_points();
         // let dispatch_using_mode = self.generate_dispatch_using_mode();
         // let dispatch_trait_impl_namespaces = self.generate_trait_impl_namespaces();
@@ -73,6 +78,7 @@ impl GenerateCode for Dispatch<'_> {
                 #amount_dispatchables
                 #contract_dispatchable_messages
                 #contract_dispatchable_constructors
+                #contract_dispatchable_constructor_infos
                 // #entry_points
                 // #dispatch_using_mode
                 // #dispatch_trait_impl_namespaces
@@ -208,6 +214,45 @@ impl Dispatch<'_> {
                     #( #constructor_ids ),*
                 ];
             }
+        )
+    }
+
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    ///
+    /// These trait implementations store relevant dispatch information for every
+    /// dispatchable ink! constructor of the ink! smart contract.
+    fn generate_dispatchable_constructor_infos(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let constructor_infos = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| {
+                let constructor_span = constructor.span();
+                let constructor_ident = constructor.ident();
+                let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
+                let selector_bytes = constructor.composed_selector().hex_lits();
+                let input_bindings = generator::input_bindings(constructor.inputs());
+                let input_tuple_type = generator::input_types_tuple(constructor.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                quote_spanned!(constructor_span=>
+                    impl ::ink_lang::DispatchableConstructorInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
+                            #storage_ident::#constructor_ident( #( #input_bindings ),* )
+                        };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                        const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            #( #constructor_infos )*
         )
     }
 }
