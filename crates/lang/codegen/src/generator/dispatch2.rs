@@ -189,9 +189,9 @@ impl Dispatch<'_> {
             .impls()
             .map(|item_impl| item_impl.iter_constructors())
             .flatten()
-            .map(|message| {
-                let span = message.span();
-                let id = message
+            .map(|constructor| {
+                let span = constructor.span();
+                let id = constructor
                     .composed_selector()
                     .into_be_u32()
                     .hex_padded_suffixed();
