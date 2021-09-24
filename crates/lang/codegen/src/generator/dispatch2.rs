@@ -186,7 +186,6 @@ impl Dispatch<'_> {
             .contract
             .module()
             .impls()
-            .filter(|item_impl| item_impl.trait_path().is_none())
             .map(|item_impl| item_impl.iter_constructors())
             .flatten()
             .map(|message| {
