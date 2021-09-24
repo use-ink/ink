@@ -30,7 +30,7 @@ fn main() {
     /// Returns the local ID for the given name.
     #[allow(dead_code)]
     fn local_id(name: &str) -> u32 {
-        ir::InkTraitMessage::compute_local_id(&syn::Ident::new(
+        ir::utils::local_message_id(&syn::Ident::new(
             name,
             proc_macro2::Span::call_site(),
         ))

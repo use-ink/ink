@@ -36,6 +36,7 @@ mod literal;
 
 pub use self::{
     ir::{
+        utils,
         Callable,
         CallableKind,
         CallableWithSelector,
