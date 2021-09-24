@@ -6,9 +6,9 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
    |
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `ink_lang::FnOutput::Output`
-  --> $DIR/traits.rs:80:18
+  --> $DIR/traits.rs:81:18
    |
-80 |     type Output: scale::Encode + 'static;
+81 |     type Output: scale::Encode + 'static;
    |                  ^^^^^^^^^^^^^ required by this bound in `ink_lang::FnOutput::Output`
 
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
