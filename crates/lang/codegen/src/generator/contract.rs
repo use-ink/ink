@@ -40,6 +40,7 @@ impl GenerateCode for Contract<'_> {
         let storage = self.generate_code_using::<generator::Storage>();
         let events = self.generate_code_using::<generator::Events>();
         let dispatch = self.generate_code_using::<generator::Dispatch>();
+        let dispatch2 = self.generate_code_using::<generator::Dispatch2>();
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
         let metadata = self.generate_code_using::<generator::Metadata>();
         let contract_reference =
@@ -57,6 +58,7 @@ impl GenerateCode for Contract<'_> {
                 #storage
                 #events
                 #dispatch
+                #dispatch2
                 #item_impls
                 #contract_reference
                 #metadata
