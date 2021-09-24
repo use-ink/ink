@@ -154,7 +154,8 @@ impl Dispatch<'_> {
                 quote_spanned!(span=>
                     {
                         ::core::primitive::u32::from_be_bytes(
-                            <<::ink_lang::TraitDefinitionRegistry as #trait_path>::__ink_TraitInfo
+                            <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                                as #trait_path>::__ink_TraitInfo
                                 as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
                         )
                     }
