@@ -504,4 +504,35 @@ impl Dispatch<'_> {
             };
         )
     }
+
+    /// Generates code to express if any dispatchable ink! message accepts payment.
+    ///
+    /// This information can be used to speed-up dispatch since denying of payment
+    /// can be generalized to work before dispatch happens if none of the ink! messages
+    /// accept payment anyways.
+    fn any_message_accepts_payment_expr(
+        &self,
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(message_spans.len(), self.query_amount_messages());
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_messages = self.query_amount_messages();
+        let message_is_payable = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            quote_spanned!(message_span=>
+                {
+                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                        }>>::IDS[#index]
+                    }>>::PAYABLE
+                }
+            )
+        });
+        quote_spanned!(span=>
+            { false #( || #message_is_payable )* }
+        )
+    }
 }
