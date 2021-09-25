@@ -52,18 +52,25 @@ impl_as_ref_for_generator!(Dispatch);
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
+        let mut constructor_spans = Vec::new();
+        let mut message_spans = Vec::new();
+
         let cfg_not_as_dependency =
             self.generate_code_using::<generator::NotAsDependencyCfg>();
         let amount_dispatchables =
             self.generate_contract_amount_dispatchables_trait_impl();
         let contract_dispatchable_messages =
-            self.generate_contract_dispatchable_messages_trait_impl();
-        let contract_dispatchable_constructors =
-            self.generate_contract_dispatchable_constructors_trait_impl();
+            self.generate_contract_dispatchable_messages_trait_impl(&mut message_spans);
+        let contract_dispatchable_constructors = self
+            .generate_contract_dispatchable_constructors_trait_impl(
+                &mut constructor_spans,
+            );
         let contract_dispatchable_constructor_infos =
             self.generate_dispatchable_constructor_infos();
         let contract_dispatchable_messages_infos =
             self.generate_dispatchable_message_infos();
+        let constructor_decoder_type =
+            self.generate_constructor_decoder_type(&constructor_spans);
         quote! {
             #[cfg(not(test))]
             #cfg_not_as_dependency
@@ -73,6 +80,7 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_constructors
                 #contract_dispatchable_constructor_infos
                 #contract_dispatchable_messages_infos
+                #constructor_decoder_type
             };
         }
     }
@@ -122,7 +130,10 @@ impl Dispatch<'_> {
     ///
     /// This trait implementation stores the selector ID of each dispatchable
     /// ink! messages of the ink! smart contract.
-    fn generate_contract_dispatchable_messages_trait_impl(&self) -> TokenStream2 {
+    fn generate_contract_dispatchable_messages_trait_impl(
+        &self,
+        message_spans: &mut Vec<proc_macro2::Span>,
+    ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let inherent_ids = self
@@ -134,6 +145,7 @@ impl Dispatch<'_> {
             .flatten()
             .map(|message| {
                 let span = message.span();
+                message_spans.push(span);
                 let id = message
                     .composed_selector()
                     .into_be_u32()
@@ -184,7 +196,10 @@ impl Dispatch<'_> {
     ///
     /// This trait implementation stores the selector ID of each dispatchable
     /// ink! constructor of the ink! smart contract.
-    fn generate_contract_dispatchable_constructors_trait_impl(&self) -> TokenStream2 {
+    fn generate_contract_dispatchable_constructors_trait_impl(
+        &self,
+        constructor_spans: &mut Vec<proc_macro2::Span>,
+    ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let constructor_ids = self
@@ -195,6 +210,7 @@ impl Dispatch<'_> {
             .flatten()
             .map(|constructor| {
                 let span = constructor.span();
+                constructor_spans.push(span);
                 let id = constructor
                     .composed_selector()
                     .into_be_u32()
@@ -360,6 +376,99 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             #( #inherent_message_infos )*
             #( #trait_message_infos )*
+        )
+    }
+
+    /// Generates code for the ink! constructor decoder type of the ink! smart contract.
+    ///
+    /// This type can be used in order to decode the input bytes received by a call to `deploy`
+    /// into one of the available dispatchable ink! constructors and their arguments.
+    fn generate_constructor_decoder_type(
+        &self,
+        constructor_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(constructor_spans.len(), self.query_amount_constructors());
+
+        /// Expands into the token sequence to represent the
+        /// input type of the ink! constructor at the given index.
+        fn expand_constructor_input(
+            span: proc_macro2::Span,
+            storage_ident: &syn::Ident,
+            constructor_index: usize,
+        ) -> TokenStream2 {
+            quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#constructor_index]
+                }>>::Input
+            )
+        }
+
+        /// Returns the n-th constructor identifier for the decoder type.
+        fn constructor_variant_ident(n: usize) -> syn::Ident {
+            quote::format_ident!("Constructor{}", n)
+        }
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_constructors = self.query_amount_constructors();
+        let constructors_variants = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_input =
+                expand_constructor_input(constructor_span, storage_ident, index);
+            quote_spanned!(constructor_span=>
+                #constructor_ident(#constructor_input)
+            )
+        });
+        let constructor_match = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_selector = quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
+            quote_spanned!(constructor_span=>
+                #constructor_selector => {
+                    ::core::result::Result::Ok(Self::#constructor_ident(
+                        <#constructor_input as ::scale::Decode>::decode(input)?
+                    ))
+                }
+            )
+        });
+        quote_spanned!(span=>
+            const _: () = {
+                #[derive(::core::fmt::Debug)]
+                #[allow(non_camel_case_types)]
+                pub enum __ink_ConstructorDecoder {
+                    #( #constructors_variants ),*
+                }
+
+                impl ::scale::Decode for __ink_ConstructorDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
+                            #( #constructor_match , )*
+                            _invalid => ::core::result::Result::Err(
+                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
+                                    "encountered unknown ink! constructor selector"
+                                )
+                            )
+                        }
+                    }
+                }
+
+                impl ::ink_lang::ContractConstructorDecoder for #storage_ident {
+                    type Type = __ink_ConstructorDecoder;
+                }
+            };
         )
     }
 }
