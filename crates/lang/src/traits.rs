@@ -388,13 +388,13 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 /// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
 pub trait ContractMessageDecoder {
     /// The ink! smart contract message decoder type.
-    type Type: scale::Decode;
+    type Type: scale::Decode + ExecuteDispatchable;
 }
 
 /// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
 pub trait ContractConstructorDecoder {
     /// The ink! smart contract constructor decoder type.
-    type Type: scale::Decode;
+    type Type: scale::Decode + ExecuteDispatchable;
 }
 
 /// Implemented by the ink! smart contract message or constructor decoder.
