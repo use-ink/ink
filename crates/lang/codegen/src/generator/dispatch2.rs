@@ -457,7 +457,7 @@ impl Dispatch<'_> {
             )
         }
 
-        /// Returns the n-th constructor identifier for the decoder type.
+        /// Returns the n-th ink! constructor identifier for the decoder type.
         fn constructor_variant_ident(n: usize) -> syn::Ident {
             quote::format_ident!("Constructor{}", n)
         }
