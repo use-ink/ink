@@ -1,15 +1,17 @@
 error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
-  --> $DIR/M-04-message-returns-non-codec.rs:18:49
-   |
-18 |         pub fn returns_non_codec_type(&self) -> NonCodec {
-   |                                                 ^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
-   |
-   = note: required because of the requirements on the impl of `Encode` for `NonCodec`
-note: required by a bound in `ink_lang::FnOutput::Output`
-  --> $DIR/traits.rs:81:18
-   |
-81 |     type Output: scale::Encode + 'static;
-   |                  ^^^^^^^^^^^^^ required by this bound in `ink_lang::FnOutput::Output`
+   --> $DIR/M-04-message-returns-non-codec.rs:18:9
+    |
+18  | /         pub fn returns_non_codec_type(&self) -> NonCodec {
+19  | |             NonCodec
+20  | |         }
+    | |_________^ the trait `WrapperTypeEncode` is not implemented for `NonCodec`
+    |
+    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
+note: required by a bound in `execute_message_2`
+   --> $DIR/dispatcher.rs:282:13
+    |
+282 |     Output: scale::Encode + 'static,
+    |             ^^^^^^^^^^^^^ required by this bound in `execute_message_2`
 
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
   --> $DIR/M-04-message-returns-non-codec.rs:18:9
