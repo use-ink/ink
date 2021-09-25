@@ -443,6 +443,29 @@ impl Dispatch<'_> {
                 }
             )
         });
+        let constructor_execute = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_callable = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::CALLABLE
+            );
+            let is_dynamic_storage_allocation_enabled = self
+                .contract
+                .config()
+                .is_dynamic_storage_allocator_enabled();
+            quote_spanned!(constructor_span=>
+                Self::#constructor_ident(input) => {
+                    ::ink_lang::execute_constructor_2::<#storage_ident, _>(
+                        ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
+                        move || { #constructor_callable(input) }
+                    )
+                }
+            )
+        });
         quote_spanned!(span=>
             const _: () = {
                 #[derive(::core::fmt::Debug)]
@@ -463,6 +486,14 @@ impl Dispatch<'_> {
                                     "encountered unknown ink! constructor selector"
                                 )
                             )
+                        }
+                    }
+                }
+
+                impl ::ink_lang::ExecuteDispatchable for __ink_ConstructorDecoder {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #( #constructor_execute ),*
                         }
                     }
                 }
