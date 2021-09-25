@@ -243,14 +243,13 @@ where
 #[inline]
 #[doc(hidden)]
 pub fn execute_constructor_2<S, F>(
-    uses_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
+    EnablesDynamicStorageAllocator(uses_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
     f: F,
 ) -> Result<()>
 where
     S: ink_storage::traits::SpreadLayout,
     F: FnOnce() -> S,
 {
-    let uses_dynamic_storage_allocator: bool = uses_dynamic_storage_allocator.value();
     if uses_dynamic_storage_allocator {
         alloc::initialize(ContractPhase::Deploy);
     }
