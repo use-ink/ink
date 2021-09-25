@@ -72,7 +72,7 @@ impl GenerateCode for Dispatch<'_> {
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructor_spans);
         let message_decoder_type = self.generate_message_decoder_type(&message_spans);
-        let _entry_points = self.generate_entry_points(&message_spans);
+        let entry_points = self.generate_entry_points(&message_spans);
         quote! {
             #[cfg(not(test))]
             #cfg_not_as_dependency
@@ -84,7 +84,7 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_messages_infos
                 #constructor_decoder_type
                 #message_decoder_type
-                // #entry_points
+                #entry_points
             };
         }
     }
