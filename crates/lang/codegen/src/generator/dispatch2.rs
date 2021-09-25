@@ -71,6 +71,7 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_dispatchable_message_infos();
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructor_spans);
+        let _entry_points = self.generate_entry_points(&message_spans);
         quote! {
             #[cfg(not(test))]
             #cfg_not_as_dependency
@@ -81,6 +82,7 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_constructor_infos
                 #contract_dispatchable_messages_infos
                 #constructor_decoder_type
+                // #entry_points
             };
         }
     }
@@ -378,6 +380,51 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             #( #inherent_message_infos )*
             #( #trait_message_infos )*
+        )
+    }
+
+    /// Generates code for the entry points of the root ink! smart contract.
+    ///
+    /// This generates the `deploy` and `call` functions with which the smart
+    /// contract runtime mainly interacts with the ink! smart contract.
+    fn generate_entry_points(&self, message_spans: &[proc_macro2::Span]) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let any_message_accept_payment = self.any_message_accepts_payment_expr(message_spans);
+        quote_spanned!(span=>
+            #[cfg(not(test))]
+            #[no_mangle]
+            fn deploy() {
+                ::ink_env::decode_input::<
+                        <#storage_ident as ::ink_lang::ContractConstructorDecoder>::Type>()
+                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
+                    .and_then(|decoder| {
+                        <<#storage_ident as ::ink_lang::ContractConstructorDecoder>::Type
+                            as ::ink_lang::ExecuteDispatchable>::execute_dispatchable(decoder)
+                    })
+                    .unwrap_or_else(|error| {
+                        ::core::panic!("dispatching ink! constructor failed: {}", error)
+                    })
+            }
+
+            #[cfg(not(test))]
+            #[no_mangle]
+            fn call() {
+                if !#any_message_accept_payment {
+                    ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+                ::ink_env::decode_input::<
+                        <#storage_ident as ::ink_lang::ContractMessageDecoder>::Type>()
+                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
+                    .and_then(|decoder| {
+                        <<#storage_ident as ::ink_lang::ContractMessageDecoder>::Type
+                            as ::ink_lang::ExecuteDispatchable>::execute_dispatchable(decoder)
+                    })
+                    .unwrap_or_else(|error| {
+                        ::core::panic!("dispatching ink! message failed: {}", error)
+                    })
+            }
         )
     }
 
