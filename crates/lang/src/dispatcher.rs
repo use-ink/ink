@@ -236,8 +236,7 @@ where
     S: ink_storage::traits::SpreadLayout,
     F: FnOnce() -> S,
 {
-    let uses_dynamic_storage_allocator: bool =
-    uses_dynamic_storage_allocator.value();
+    let uses_dynamic_storage_allocator: bool = uses_dynamic_storage_allocator.value();
     if uses_dynamic_storage_allocator {
         alloc::initialize(ContractPhase::Deploy);
     }

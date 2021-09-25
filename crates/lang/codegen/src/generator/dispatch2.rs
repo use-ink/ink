@@ -390,7 +390,8 @@ impl Dispatch<'_> {
     fn generate_entry_points(&self, message_spans: &[proc_macro2::Span]) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let any_message_accept_payment = self.any_message_accepts_payment_expr(message_spans);
+        let any_message_accept_payment =
+            self.any_message_accepts_payment_expr(message_spans);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
