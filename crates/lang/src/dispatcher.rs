@@ -14,6 +14,7 @@
 
 use crate::{
     Constructor,
+    ContractEnv,
     DispatchError,
     FnOutput,
     FnState,
@@ -35,6 +36,7 @@ use ink_storage::{
     traits::{
         pull_spread_root,
         push_spread_root,
+        SpreadLayout,
     },
 };
 
@@ -73,6 +75,18 @@ pub trait Execute {
 pub struct AcceptsPayments(pub bool);
 
 impl AcceptsPayments {
+    /// Returns the value of the property.
+    pub const fn value(self) -> bool {
+        self.0
+    }
+}
+
+/// Yields `true` if the associated ink! message may mutate contract storage.
+#[derive(Copy, Clone)]
+#[doc(hidden)]
+pub struct MutatesStorage(pub bool);
+
+impl MutatesStorage {
     /// Returns the value of the property.
     pub const fn value(self) -> bool {
         self.0
@@ -245,6 +259,46 @@ where
     push_spread_root::<S>(&storage, &root_key);
     if uses_dynamic_storage_allocator {
         alloc::finalize();
+    }
+    Ok(())
+}
+
+/// Executes the given `&mut self` message closure.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// message requires and forwards them.
+#[inline]
+#[doc(hidden)]
+pub fn execute_message_2<Storage, Output, F>(
+    AcceptsPayments(accepts_payments): AcceptsPayments,
+    MutatesStorage(mutates_storage): MutatesStorage,
+    EnablesDynamicStorageAllocator(enables_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
+    f: F,
+) -> Result<()>
+where
+    Storage: SpreadLayout + ContractEnv,
+    Output: scale::Encode + 'static,
+    F: FnOnce(&mut Storage) -> Output,
+{
+    if !accepts_payments {
+        deny_payment::<<Storage as ContractEnv>::Env>()?;
+    }
+    if enables_dynamic_storage_allocator {
+        alloc::initialize(ContractPhase::Call);
+    }
+    let root_key = Key::from([0x00; 32]);
+    let mut storage = ManuallyDrop::new(pull_spread_root::<Storage>(&root_key));
+    let result = f(&mut storage);
+    if mutates_storage {
+        push_spread_root::<Storage>(&storage, &root_key);
+    }
+    if enables_dynamic_storage_allocator {
+        alloc::finalize();
+    }
+    if TypeId::of::<Output>() != TypeId::of::<()>() {
+        ink_env::return_value::<Output>(ReturnFlags::default(), &result)
     }
     Ok(())
 }

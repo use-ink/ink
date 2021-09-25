@@ -71,6 +71,7 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_dispatchable_message_infos();
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructor_spans);
+        let message_decoder_type = self.generate_message_decoder_type(&message_spans);
         let _entry_points = self.generate_entry_points(&message_spans);
         quote! {
             #[cfg(not(test))]
@@ -82,6 +83,7 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_constructor_infos
                 #contract_dispatchable_messages_infos
                 #constructor_decoder_type
+                #message_decoder_type
                 // #entry_points
             };
         }
@@ -548,6 +550,164 @@ impl Dispatch<'_> {
 
                 impl ::ink_lang::ContractConstructorDecoder for #storage_ident {
                     type Type = __ink_ConstructorDecoder;
+                }
+            };
+        )
+    }
+
+    /// Generates code for the ink! message decoder type of the ink! smart contract.
+    ///
+    /// This type can be used in order to decode the input bytes received by a call to `call`
+    /// into one of the available dispatchable ink! messages and their arguments.
+    fn generate_message_decoder_type(
+        &self,
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(message_spans.len(), self.query_amount_messages());
+
+        /// Expands into the token sequence to represent the
+        /// input type of the ink! message at the given index.
+        fn expand_message_input(
+            span: proc_macro2::Span,
+            storage_ident: &syn::Ident,
+            message_index: usize,
+        ) -> TokenStream2 {
+            quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#message_index]
+                }>>::Input
+            )
+        }
+
+        /// Returns the n-th ink! message identifier for the decoder type.
+        fn message_variant_ident(n: usize) -> syn::Ident {
+            quote::format_ident!("Message{}", n)
+        }
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_messages = self.query_amount_messages();
+        let message_variants = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_input = expand_message_input(message_span, storage_ident, index);
+            quote_spanned!(message_span=>
+                #message_ident(#message_input)
+            )
+        });
+        let message_match = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_selector = quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let message_input = expand_message_input(message_span, storage_ident, index);
+            quote_spanned!(message_span=>
+                #message_selector => {
+                    ::core::result::Result::Ok(Self::#message_ident(
+                        <#message_input as ::scale::Decode>::decode(input)?
+                    ))
+                }
+            )
+        });
+        let any_message_accept_payment = self.any_message_accepts_payment_expr(message_spans);
+        let message_execute = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_callable = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::CALLABLE
+            );
+            let message_output = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::Output
+            );
+            let accepts_payment = quote_spanned!(message_span=>
+                {
+                    true &&
+                    #any_message_accept_payment &&
+                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                        }>>::IDS[#index]
+                    }>>::PAYABLE
+                }
+            );
+            let mutates_storage = quote_spanned!(message_span=>
+                {
+                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                        }>>::IDS[#index]
+                    }>>::MUTATES
+                }
+            );
+            let is_dynamic_storage_allocation_enabled = self
+                .contract
+                .config()
+                .is_dynamic_storage_allocator_enabled();
+            quote_spanned!(message_span=>
+                Self::#message_ident(input) => {
+                    ::ink_lang::execute_message_2::<
+                        #storage_ident,
+                        #message_output,
+                        _
+                    >(
+                        ::ink_lang::AcceptsPayments(#accepts_payment),
+                        ::ink_lang::MutatesStorage(#mutates_storage),
+                        ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
+                        move |storage: &mut #storage_ident| { #message_callable(storage, input) }
+                    )
+                }
+            )
+        });
+
+        quote_spanned!(span=>
+            const _: () = {
+                #[derive(::core::fmt::Debug)]
+                #[allow(non_camel_case_types)]
+                pub enum __ink_MessageDecoder {
+                    #( #message_variants ),*
+                }
+
+                impl ::scale::Decode for __ink_MessageDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
+                            #( #message_match , )*
+                            _invalid => ::core::result::Result::Err(
+                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
+                                    "encountered unknown ink! message selector"
+                                )
+                            )
+                        }
+                    }
+                }
+
+                impl ::ink_lang::ExecuteDispatchable for __ink_MessageDecoder {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                        match self {
+                            #( #message_execute ),*
+                        }
+                    }
+                }
+
+                impl ::ink_lang::ContractMessageDecoder for #storage_ident {
+                    type Type = __ink_MessageDecoder;
                 }
             };
         )
