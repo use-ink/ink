@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -29,8 +30,6 @@ use ink_env::{
     Result,
 };
 use ink_primitives::Key;
-
-use crate::ChainExtensionInstance;
 
 /// The environment of the compiled ink! smart contract.
 pub trait ContractEnv {

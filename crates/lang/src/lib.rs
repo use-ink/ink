@@ -15,9 +15,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod chain_extension;
-mod contract;
 mod contract_ref;
-mod cross_calling;
 mod dispatcher;
 mod env_access;
 mod error;
@@ -29,35 +27,18 @@ pub use self::{
         ChainExtensionInstance,
         IsResultType,
     },
-    contract::{
-        DispatchMode,
-        DispatchUsingMode,
-    },
     contract_ref::{
-        CallBuilderBase,
         ContractCallBuilder,
         ContractName,
-        ContractRef,
         ContractReference,
-    },
-    cross_calling::{
-        ForwardCall,
-        ForwardCallMut,
-        NeverReturns,
         ToAccountId,
     },
     dispatcher::{
         deny_payment,
-        execute_constructor,
         execute_constructor_2,
-        execute_message,
         execute_message_2,
-        execute_message_mut,
         AcceptsPayments,
-        ConstructorDispatcher,
         EnablesDynamicStorageAllocator,
-        Execute,
-        MessageDispatcher,
         MutatesStorage,
     },
     env_access::{
@@ -75,7 +56,6 @@ pub use self::{
         EmitEvent,
     },
     traits::{
-        Constructor,
         ContractAmountDispatchables,
         ContractConstructorDecoder,
         ContractDispatchableConstructors,
@@ -84,15 +64,8 @@ pub use self::{
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        FnState,
         ImpliesReturn,
         InkTraitDefinitionRegistry,
-        MessageMut,
-        MessageRef,
-        NoConcreteImplementer,
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,

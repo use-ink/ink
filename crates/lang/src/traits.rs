@@ -22,11 +22,9 @@ use ink_env::{
         },
         CallBuilder,
         ExecutionInput,
-        Selector,
     },
     Environment,
 };
-use ink_storage::traits::SpreadLayout;
 
 /// Trait used to indicate that an ink! trait definition has been checked
 /// by the `#[ink::trait_definition]` procedural macro.
@@ -65,58 +63,6 @@ impl<E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<()>
 where
     E: Environment,
 {
-}
-
-/// Dispatchable functions that have inputs.
-#[doc(hidden)]
-pub trait FnInput {
-    /// The tuple-type of all inputs.
-    type Input: scale::Decode + 'static;
-}
-
-/// Dispatchable functions that have an output.
-#[doc(hidden)]
-pub trait FnOutput {
-    /// The output type.
-    type Output: scale::Encode + 'static;
-}
-
-/// The selector of dispatchable functions.
-#[doc(hidden)]
-pub trait FnSelector {
-    /// The selector.
-    const SELECTOR: Selector;
-}
-
-/// The storage state that the dispatchable function acts on.
-#[doc(hidden)]
-pub trait FnState {
-    /// The storage state.
-    type State: SpreadLayout + Sized;
-}
-
-/// A dispatchable contract constructor message.
-#[doc(hidden)]
-pub trait Constructor: FnInput + FnSelector + FnState {
-    const CALLABLE: fn(<Self as FnInput>::Input) -> <Self as FnState>::State;
-}
-
-/// A `&self` dispatchable contract message.
-#[doc(hidden)]
-pub trait MessageRef: FnInput + FnOutput + FnSelector + FnState {
-    const CALLABLE: fn(
-        &<Self as FnState>::State,
-        <Self as FnInput>::Input,
-    ) -> <Self as FnOutput>::Output;
-}
-
-/// A `&mut self` dispatchable contract message.
-#[doc(hidden)]
-pub trait MessageMut: FnInput + FnOutput + FnSelector + FnState {
-    const CALLABLE: fn(
-        &mut <Self as FnState>::State,
-        <Self as FnInput>::Input,
-    ) -> <Self as FnOutput>::Output;
 }
 
 /// Indicates that some compile time expression is expected to be `true`.
@@ -162,13 +108,6 @@ where
 }
 
 unsafe impl<E, const N: u32> TraitImplementer<N> for InkTraitDefinitionRegistry<E> {}
-
-/// The default type that ink! trait definition implementations use for the
-/// `__ink_DynamicCallForwarder` associated type.
-///
-/// Read more about its use [here][TraitDefinitionRegistry].
-#[doc(hidden)]
-pub enum NoConcreteImplementer {}
 
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {
