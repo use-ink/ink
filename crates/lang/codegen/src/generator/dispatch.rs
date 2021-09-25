@@ -519,7 +519,6 @@ impl Dispatch<'_> {
         });
         quote_spanned!(span=>
             const _: () = {
-                #[derive(::core::fmt::Debug)]
                 #[allow(non_camel_case_types)]
                 pub enum __ink_ConstructorDecoder {
                     #( #constructors_variants ),*
@@ -674,7 +673,6 @@ impl Dispatch<'_> {
 
         quote_spanned!(span=>
             const _: () = {
-                #[derive(::core::fmt::Debug)]
                 #[allow(non_camel_case_types)]
                 pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
