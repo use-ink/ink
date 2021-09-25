@@ -616,7 +616,8 @@ impl Dispatch<'_> {
                 }
             )
         });
-        let any_message_accept_payment = self.any_message_accepts_payment_expr(message_spans);
+        let any_message_accept_payment =
+            self.any_message_accepts_payment_expr(message_spans);
         let message_execute = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
