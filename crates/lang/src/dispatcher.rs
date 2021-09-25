@@ -219,3 +219,33 @@ where
     }
     Ok(())
 }
+
+/// Executes the given ink! constructor.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// constructor message requires and forwards them.
+#[inline]
+#[doc(hidden)]
+pub fn execute_constructor_2<S, F>(
+    uses_dynamic_storage_allocator: EnablesDynamicStorageAllocator,
+    f: F,
+) -> Result<()>
+where
+    S: ink_storage::traits::SpreadLayout,
+    F: FnOnce() -> S,
+{
+    let uses_dynamic_storage_allocator: bool =
+    uses_dynamic_storage_allocator.value();
+    if uses_dynamic_storage_allocator {
+        alloc::initialize(ContractPhase::Deploy);
+    }
+    let storage = ManuallyDrop::new(f());
+    let root_key = Key::from([0x00; 32]);
+    push_spread_root::<S>(&storage, &root_key);
+    if uses_dynamic_storage_allocator {
+        alloc::finalize();
+    }
+    Ok(())
+}
