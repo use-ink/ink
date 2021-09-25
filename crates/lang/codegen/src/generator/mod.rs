@@ -30,7 +30,7 @@ mod arg_list;
 mod as_dependency;
 mod chain_extension;
 mod contract;
-mod dispatch2;
+mod dispatch;
 mod env;
 mod events;
 mod ink_test;
@@ -56,7 +56,7 @@ pub use self::{
     },
     chain_extension::ChainExtension,
     contract::Contract,
-    dispatch2::Dispatch as Dispatch2,
+    dispatch::Dispatch,
     env::Env,
     events::Events,
     ink_test::InkTest,
