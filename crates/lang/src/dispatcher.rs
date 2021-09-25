@@ -72,10 +72,10 @@ pub trait Execute {
 #[doc(hidden)]
 pub struct AcceptsPayments(pub bool);
 
-impl From<AcceptsPayments> for bool {
-    #[inline]
-    fn from(accepts_payments: AcceptsPayments) -> Self {
-        accepts_payments.0
+impl AcceptsPayments {
+    /// Returns the value of the property.
+    pub const fn value(self) -> bool {
+        self.0
     }
 }
 
@@ -84,10 +84,10 @@ impl From<AcceptsPayments> for bool {
 #[doc(hidden)]
 pub struct EnablesDynamicStorageAllocator(pub bool);
 
-impl From<EnablesDynamicStorageAllocator> for bool {
-    #[inline]
-    fn from(enables_dynamic_storage_allocator: EnablesDynamicStorageAllocator) -> Self {
-        enables_dynamic_storage_allocator.0
+impl EnablesDynamicStorageAllocator {
+    /// Returns the value of the property.
+    pub const fn value(self) -> bool {
+        self.0
     }
 }
 
@@ -109,9 +109,9 @@ where
     M: MessageRef,
     F: FnOnce(&<M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    let accepts_payments: bool = accepts_payments.into();
+    let accepts_payments: bool = accepts_payments.value();
     let enables_dynamic_storage_allocator: bool =
-        enables_dynamic_storage_allocator.into();
+        enables_dynamic_storage_allocator.value();
     if !accepts_payments {
         deny_payment::<E>()?;
     }
@@ -167,9 +167,9 @@ where
     M: MessageMut,
     F: FnOnce(&mut <M as FnState>::State) -> <M as FnOutput>::Output,
 {
-    let accepts_payments: bool = accepts_payments.into();
+    let accepts_payments: bool = accepts_payments.value();
     let enables_dynamic_storage_allocator: bool =
-        enables_dynamic_storage_allocator.into();
+        enables_dynamic_storage_allocator.value();
     if !accepts_payments {
         deny_payment::<E>()?;
     }
@@ -207,7 +207,7 @@ where
     F: FnOnce() -> <C as FnState>::State,
 {
     let enables_dynamic_storage_allocator: bool =
-        enables_dynamic_storage_allocator.into();
+        enables_dynamic_storage_allocator.value();
     if enables_dynamic_storage_allocator {
         alloc::initialize(ContractPhase::Deploy);
     }
