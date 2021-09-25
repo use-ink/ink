@@ -30,7 +30,6 @@ mod arg_list;
 mod as_dependency;
 mod chain_extension;
 mod contract;
-mod dispatch;
 mod dispatch2;
 mod env;
 mod events;
@@ -57,7 +56,6 @@ pub use self::{
     },
     chain_extension::ChainExtension,
     contract::Contract,
-    dispatch::Dispatch,
     dispatch2::Dispatch as Dispatch2,
     env::Env,
     events::Events,
