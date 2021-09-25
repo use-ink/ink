@@ -74,16 +74,17 @@ impl GenerateCode for Dispatch<'_> {
         let message_decoder_type = self.generate_message_decoder_type(&message_spans);
         let entry_points = self.generate_entry_points(&message_spans);
         quote! {
+            #amount_dispatchables
+            #contract_dispatchable_messages
+            #contract_dispatchable_constructors
+            #contract_dispatchable_constructor_infos
+            #contract_dispatchable_messages_infos
+            #constructor_decoder_type
+            #message_decoder_type
+
             #[cfg(not(test))]
             #cfg_not_as_dependency
             const _: () = {
-                #amount_dispatchables
-                #contract_dispatchable_messages
-                #contract_dispatchable_constructors
-                #contract_dispatchable_constructor_infos
-                #contract_dispatchable_messages_infos
-                #constructor_decoder_type
-                #message_decoder_type
                 #entry_points
             };
         }
@@ -731,13 +732,11 @@ impl Dispatch<'_> {
         let message_is_payable = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             quote_spanned!(message_span=>
-                {
-                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
-                        }>>::IDS[#index]
-                    }>>::PAYABLE
-                }
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::PAYABLE
             )
         });
         quote_spanned!(span=>
