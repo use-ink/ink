@@ -283,7 +283,7 @@ impl Message {
         }
     }
 
-    /// Returns a local ID unique to the ink! message with respect to its impl block.
+    /// Returns a local ID unique to the ink! message with respect to its implementation block.
     ///
     /// # Note
     ///
