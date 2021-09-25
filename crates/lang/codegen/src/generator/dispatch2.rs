@@ -79,6 +79,28 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
+    /// Returns the number of dispatchable ink! constructors of the ink! smart contract.
+    fn query_amount_constructors(&self) -> usize {
+        self.contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .count()
+    }
+
+    /// Returns the number of dispatchable ink! messages of the ink! smart contract.
+    ///
+    /// This includes inherent ink! messages as well as trait ink! messages.
+    fn query_amount_messages(&self) -> usize {
+        self.contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .count()
+    }
+
     /// Generates code for the [`ink_lang::ContractDispatchables`] trait implementation.
     ///
     /// This trait implementation stores information of how many dispatchable
@@ -86,20 +108,8 @@ impl Dispatch<'_> {
     fn generate_contract_amount_dispatchables_trait_impl(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let count_messages = self
-            .contract
-            .module()
-            .impls()
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
-            .count();
-        let count_constructors = self
-            .contract
-            .module()
-            .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
-            .count();
+        let count_messages = self.query_amount_messages();
+        let count_constructors = self.query_amount_constructors();
         quote_spanned!(span=>
             impl ::ink_lang::ContractAmountDispatchables for #storage_ident {
                 const MESSAGES: ::core::primitive::usize = #count_messages;
