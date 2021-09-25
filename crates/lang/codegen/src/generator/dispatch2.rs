@@ -64,16 +64,7 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_dispatchable_constructor_infos();
         let contract_dispatchable_messages_infos =
             self.generate_dispatchable_message_infos();
-        // let entry_points = self.generate_entry_points();
-        // let dispatch_using_mode = self.generate_dispatch_using_mode();
-        // let dispatch_trait_impl_namespaces = self.generate_trait_impl_namespaces();
-        // let dispatch_trait_impls = self.generate_dispatch_trait_impls();
-        // let message_dispatch_enum = self.generate_message_dispatch_enum();
-        // let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
         quote! {
-            // We do not generate contract dispatch code while the contract
-            // is being tested or the contract is a dependency of another
-            // since both resulting compilations do not require dispatching.
             #[cfg(not(test))]
             #cfg_not_as_dependency
             const _: () = {
@@ -82,12 +73,6 @@ impl GenerateCode for Dispatch<'_> {
                 #contract_dispatchable_constructors
                 #contract_dispatchable_constructor_infos
                 #contract_dispatchable_messages_infos
-                // #entry_points
-                // #dispatch_using_mode
-                // #dispatch_trait_impl_namespaces
-                // #dispatch_trait_impls
-                // #message_dispatch_enum
-                // #constructor_dispatch_enum
             };
         }
     }
