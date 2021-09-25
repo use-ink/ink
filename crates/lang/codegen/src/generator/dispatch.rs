@@ -695,6 +695,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::ExecuteDispatchable for __ink_MessageDecoder {
+                    #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
                             #( #message_execute ),*
