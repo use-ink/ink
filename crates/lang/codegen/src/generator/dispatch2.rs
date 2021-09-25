@@ -151,7 +151,8 @@ impl Dispatch<'_> {
                     .into_be_u32()
                     .hex_padded_suffixed();
                 quote_spanned!(span=> #id)
-            });
+            })
+            .collect::<Vec<_>>();
         let trait_ids = self
             .contract
             .module()
@@ -167,6 +168,7 @@ impl Dispatch<'_> {
             .map(|(trait_path, message)| {
                 let local_id = message.local_id().hex_padded_suffixed();
                 let span = message.span();
+                message_spans.push(span);
                 quote_spanned!(span=>
                     {
                         ::core::primitive::u32::from_be_bytes(
