@@ -637,24 +637,20 @@ impl Dispatch<'_> {
                 }>>::Output
             );
             let accepts_payment = quote_spanned!(message_span=>
-                {
-                    true &&
-                    #any_message_accept_payment &&
-                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
-                        }>>::IDS[#index]
-                    }>>::PAYABLE
-                }
+                true &&
+                #any_message_accept_payment &&
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::PAYABLE
             );
             let mutates_storage = quote_spanned!(message_span=>
-                {
-                    <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                        <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                            <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
-                        }>>::IDS[#index]
-                    }>>::MUTATES
-                }
+                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::MUTATES
             );
             let is_dynamic_storage_allocation_enabled = self
                 .contract
