@@ -189,7 +189,7 @@ collection.</p>
 contents by-value. This is great when the collection itself is no longer
 needed, and the values are needed elsewhere. Using <code>extend</code> with <code>into_iter</code>
 is the main way that contents of one collection are moved into another.
-<code>extend</code> automatically calls <code>into_iter</code>, and takes any <code>T: </code><a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html"><code>IntoIterator</code></a>.
+<code>extend</code> automatically calls <code>into_iter</code>, and takes any <code>T: <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html" title="iter::IntoIterator">IntoIterator</a></code>.
 Calling <code>collect</code> on an iterator itself is also a great way to convert one
 collection into another. Both of these methods should internally use the
 capacity management tools discussed in the previous section to do this as
