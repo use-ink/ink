@@ -636,8 +636,8 @@ impl Dispatch<'_> {
                 }>>::Output
             );
             let accepts_payment = quote_spanned!(message_span=>
-                true &&
-                #any_message_accept_payment &&
+                false ||
+                !#any_message_accept_payment ||
                 <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
