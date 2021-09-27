@@ -1,4 +1,5 @@
 use ink_lang as ink;
+use incrementer::Incrementer;
 
 #[ink::contract]
 mod incrementer {
@@ -7,32 +8,17 @@ mod incrementer {
         value: i64,
     }
 
-    #[ink(event)]
-    pub struct Incremented {
-        #[ink(topic)]
-        caller: AccountId,
-        #[ink(topic)]
-        by: i32,
-    }
-
     impl Incrementer {
         #[ink(constructor)]
-        pub fn new(init_value: i32) -> Self {
+        pub fn new(init_value: i64) -> Self {
             Self {
-                value: init_value as i64,
+                value: init_value,
             }
         }
 
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(0)
-        }
-
         #[ink(message)]
-        pub fn inc_by(&mut self, by: i32) {
-            let caller = self.env().caller();
-            self.env().emit_event(Incremented { caller, by });
-            self.value += by as i64;
+        pub fn inc_by(&mut self, delta: i64) {
+            self.value += delta;
         }
 
         #[ink(message)]
@@ -42,4 +28,11 @@ mod incrementer {
     }
 }
 
-fn main() {}
+fn main() {
+    let mut incrementer = Incrementer::new(0);
+    assert_eq!(incrementer.get(), 0);
+    incrementer.inc_by(1);
+    assert_eq!(incrementer.get(), 1);
+    incrementer.inc_by(-1);
+    assert_eq!(incrementer.get(), 0);
+}
