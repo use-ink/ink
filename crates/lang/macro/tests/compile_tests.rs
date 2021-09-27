@@ -31,6 +31,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-many-definitions.rs");
     t.pass("tests/ui/contract/pass/event-topics.rs");
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
+    t.pass("tests/ui/contract/pass/impl-with-property.rs");
     // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/example-flipper-works.rs");
     t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
