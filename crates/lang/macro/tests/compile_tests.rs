@@ -41,6 +41,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-false.rs");
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-true.rs");
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-false.rs");
+    t.pass("tests/ui/contract/pass/config-custom-env.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
     t.pass("tests/ui/contract/pass/05-erc721-contract.rs");
     t.pass("tests/ui/contract/pass/06-non-ink-items.rs");
