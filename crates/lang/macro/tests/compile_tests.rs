@@ -42,10 +42,10 @@ fn contract() {
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-true.rs");
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-false.rs");
     t.pass("tests/ui/contract/pass/config-custom-env.rs");
+    t.pass("tests/ui/contract/pass/env-access.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
     t.pass("tests/ui/contract/pass/05-erc721-contract.rs");
     t.pass("tests/ui/contract/pass/06-non-ink-items.rs");
-    t.pass("tests/ui/contract/pass/09-static-env.rs");
 
     t.compile_fail("tests/ui/contract/fail/C-00-constructor-self-ref.rs");
     t.compile_fail("tests/ui/contract/fail/C-01-constructor-self-mut.rs");
