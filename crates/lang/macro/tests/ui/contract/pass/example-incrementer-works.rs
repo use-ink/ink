@@ -1,5 +1,5 @@
-use ink_lang as ink;
 use incrementer::Incrementer;
+use ink_lang as ink;
 
 #[ink::contract]
 mod incrementer {
@@ -11,9 +11,7 @@ mod incrementer {
     impl Incrementer {
         #[ink(constructor)]
         pub fn new(init_value: i64) -> Self {
-            Self {
-                value: init_value,
-            }
+            Self { value: init_value }
         }
 
         #[ink(message)]
