@@ -18,7 +18,10 @@ pub trait Reset {
 
 #[ink::contract]
 mod incrementer {
-    use super::{Increment, Reset};
+    use super::{
+        Increment,
+        Reset,
+    };
 
     #[ink(storage)]
     pub struct Incrementer {
