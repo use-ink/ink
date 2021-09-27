@@ -29,6 +29,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-single-definition.rs");
     t.pass("tests/ui/contract/pass/event-many-definitions.rs");
     t.pass("tests/ui/contract/pass/event-topics.rs");
+    t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
@@ -39,7 +40,6 @@ fn contract() {
     t.pass("tests/ui/contract/pass/08-flipper-as-dependency-trait.rs");
     t.pass("tests/ui/contract/pass/09-static-env.rs");
     t.pass("tests/ui/contract/pass/10-derive-for-storage.rs");
-    t.pass("tests/ui/contract/pass/11-alias-storage-struct-impl.rs");
 
     t.compile_fail("tests/ui/contract/fail/C-00-constructor-self-ref.rs");
     t.compile_fail("tests/ui/contract/fail/C-01-constructor-self-mut.rs");
