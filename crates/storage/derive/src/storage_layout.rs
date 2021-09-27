@@ -51,7 +51,7 @@ fn storage_layout_struct(s: &synstructure::Structure) -> TokenStream2 {
         gen impl ::ink_storage::traits::StorageLayout for @Self {
             fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                 ::ink_metadata::layout::Layout::Struct(
-                    ::ink_metadata::layout::StructLayout::new(::ink_prelude::vec![
+                    ::ink_metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ])
                 )
@@ -79,7 +79,7 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
                 let mut __key_ptr = &mut __variant_key_ptr;
                 (
                     ::ink_metadata::layout::Discriminant::from(#discriminant),
-                    ::ink_metadata::layout::StructLayout::new(::ink_prelude::vec![
+                    ::ink_metadata::layout::StructLayout::new([
                         #(#field_layouts ,)*
                     ]),
                 )
@@ -93,7 +93,7 @@ fn storage_layout_enum(s: &synstructure::Structure) -> TokenStream2 {
                 ::ink_metadata::layout::Layout::Enum(
                     ::ink_metadata::layout::EnumLayout::new(
                         ::ink_metadata::layout::LayoutKey::from(dispatch_key),
-                        ::ink_prelude::vec![
+                        [
                             #(#variant_layouts ,)*
                         ]
                     )
