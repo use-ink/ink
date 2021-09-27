@@ -19,7 +19,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/constructor-many-inputs.rs");
     t.pass("tests/ui/contract/pass/message-many-inputs.rs");
     t.pass("tests/ui/contract/pass/message-many-outputs.rs");
-    t.pass("tests/ui/contract/pass/01-noop-contract.rs");
+    t.pass("tests/ui/contract/pass/minimal-contract.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
