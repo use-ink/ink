@@ -23,6 +23,8 @@ fn contract() {
     t.pass("tests/ui/contract/pass/message-payable.rs");
     t.pass("tests/ui/contract/pass/message-selector.rs");
     t.pass("tests/ui/contract/pass/minimal-contract.rs");
+    t.pass("tests/ui/contract/pass/storage-single-field.rs");
+    t.pass("tests/ui/contract/pass/storage-many-fields.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
