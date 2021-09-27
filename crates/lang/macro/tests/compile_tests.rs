@@ -16,6 +16,9 @@
 fn contract() {
     let t = trybuild::TestCases::new();
 
+    t.pass("tests/ui/contract/pass/constructor-many-inputs.rs");
+    t.pass("tests/ui/contract/pass/message-many-inputs.rs");
+    t.pass("tests/ui/contract/pass/message-many-outputs.rs");
     t.pass("tests/ui/contract/pass/01-noop-contract.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
