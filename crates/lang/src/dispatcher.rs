@@ -81,7 +81,7 @@ where
 /// constructor message requires and forwards them.
 #[inline]
 #[doc(hidden)]
-pub fn execute_constructor_2<S, F>(
+pub fn execute_constructor<S, F>(
     EnablesDynamicStorageAllocator(uses_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
     f: F,
 ) -> Result<()>
@@ -109,7 +109,7 @@ where
 /// message requires and forwards them.
 #[inline]
 #[doc(hidden)]
-pub fn execute_message_2<Storage, Output, F>(
+pub fn execute_message<Storage, Output, F>(
     AcceptsPayments(accepts_payments): AcceptsPayments,
     MutatesStorage(mutates_storage): MutatesStorage,
     EnablesDynamicStorageAllocator(enables_dynamic_storage_allocator): EnablesDynamicStorageAllocator,

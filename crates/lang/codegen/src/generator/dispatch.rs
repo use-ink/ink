@@ -510,7 +510,7 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
-                    ::ink_lang::execute_constructor_2::<#storage_ident, _>(
+                    ::ink_lang::execute_constructor::<#storage_ident, _>(
                         ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
                         move || { #constructor_callable(input) }
                     )
@@ -657,7 +657,7 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    ::ink_lang::execute_message_2::<
+                    ::ink_lang::execute_message::<
                         #storage_ident,
                         #message_output,
                         _

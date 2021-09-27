@@ -35,8 +35,8 @@ pub use self::{
     },
     dispatcher::{
         deny_payment,
-        execute_constructor_2,
-        execute_message_2,
+        execute_constructor,
+        execute_message,
         AcceptsPayments,
         EnablesDynamicStorageAllocator,
         MutatesStorage,
