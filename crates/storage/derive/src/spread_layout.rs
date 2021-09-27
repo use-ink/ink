@@ -121,7 +121,7 @@ fn spread_layout_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
 
 /// `SpreadLayout` derive implementation for `enum` types.
 fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
-    assert!(s.variants().len() >= 2, "can only operate on enums");
+    assert!(s.variants().len() >= 1, "can only operate on enums");
     let footprint_body = footprint(s);
     let requires_deep_clean_up_body = requires_deep_clean_up(s);
     let pull_body = s
