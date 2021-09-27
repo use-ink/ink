@@ -35,11 +35,28 @@ use syn::spanned::Spanned;
 pub trait IsDocAttribute {
     /// Returns `true` if the attribute is a Rust documentation attribute.
     fn is_doc_attribute(&self) -> bool;
+
+    /// Returns the contents of the Rust documentation attribute or `None`.
+    fn extract_docs(&self) -> Option<String>;
 }
 
 impl IsDocAttribute for syn::Attribute {
     fn is_doc_attribute(&self) -> bool {
         self.path.is_ident("doc")
+    }
+
+    fn extract_docs(&self) -> Option<String> {
+        if !self.is_doc_attribute() {
+            return None
+        }
+        if let Ok(syn::Meta::NameValue(syn::MetaNameValue {
+            lit: syn::Lit::Str(lit_str),
+            ..
+        })) = self.parse_meta()
+        {
+            return Some(lit_str.value())
+        }
+        None
     }
 }
 
