@@ -101,6 +101,7 @@ impl Metadata<'_> {
     }
 
     /// Generates ink! metadata for all ink! smart contract constructors.
+    #[allow(clippy::redundant_closure)] // We are getting arcane lifetime errors otherwise.
     fn generate_constructors(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract
             .module()
