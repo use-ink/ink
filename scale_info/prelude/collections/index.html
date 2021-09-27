@@ -92,9 +92,9 @@ deterministically equal the given cost.</p>
 It is theoretically possible, though very unlikely, for <a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a> to
 experience worse performance.</p>
 <h2 id="sequences" class="section-header"><a href="#sequences">Sequences</a></h2><div><table><thead><tr><th></th><th>get(i)</th><th>insert(i)</th><th>remove(i)</th><th>append</th><th>split_off(i)</th></tr></thead><tbody>
-<tr><td><a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a></td><td>O(1)</td><td>O(n-i)*</td><td>O(n-i)</td><td>O(m)*</td><td>O(n-i)</td></tr>
-<tr><td><a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a></td><td>O(1)</td><td>O(min(i, n-i))*</td><td>O(min(i, n-i))</td><td>O(m)*</td><td>O(min(i, n-i))</td></tr>
-<tr><td><a href="struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(min(i, n-i))</td><td>O(1)</td><td>O(min(i, n-i))</td></tr>
+<tr><td><a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a></td><td><em>O</em>(1)</td><td><em>O</em>(<em>n</em>-<em>i</em>)*</td><td><em>O</em>(<em>n</em>-<em>i</em>)</td><td><em>O</em>(<em>m</em>)*</td><td><em>O</em>(<em>n</em>-<em>i</em>)</td></tr>
+<tr><td><a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a></td><td><em>O</em>(1)</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))*</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td><td><em>O</em>(<em>m</em>)*</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td></tr>
+<tr><td><a href="struct.LinkedList.html" title="LinkedList"><code>LinkedList</code></a></td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td><td><em>O</em>(1)</td><td><em>O</em>(min(<em>i</em>, <em>n</em>-<em>i</em>))</td></tr>
 </tbody></table>
 </div>
 <p>Note that where ties occur, <a href="../vec/struct.Vec.html" title="Vec"><code>Vec</code></a> is generally going to be faster than <a href="struct.VecDeque.html" title="VecDeque"><code>VecDeque</code></a>, and
@@ -102,8 +102,8 @@ experience worse performance.</p>
 <h2 id="maps" class="section-header"><a href="#maps">Maps</a></h2>
 <p>For Sets, all operations have the cost of the equivalent Map operation.</p>
 <div><table><thead><tr><th></th><th>get</th><th>insert</th><th>remove</th><th>range</th><th>append</th></tr></thead><tbody>
-<tr><td><a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a></td><td>O(1)~</td><td>O(1)~*</td><td>O(1)~</td><td>N/A</td><td>N/A</td></tr>
-<tr><td><a href="struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(log(n))</td><td>O(n+m)</td></tr>
+<tr><td><a href="struct.HashMap.html" title="HashMap"><code>HashMap</code></a></td><td><em>O</em>(1)~</td><td><em>O</em>(1)~*</td><td><em>O</em>(1)~</td><td>N/A</td><td>N/A</td></tr>
+<tr><td><a href="struct.BTreeMap.html" title="BTreeMap"><code>BTreeMap</code></a></td><td><em>O</em>(log(<em>n</em>))</td><td><em>O</em>(log(<em>n</em>))</td><td><em>O</em>(log(<em>n</em>))</td><td><em>O</em>(log(<em>n</em>))</td><td><em>O</em>(<em>n</em>+<em>m</em>)</td></tr>
 </tbody></table>
 </div><h1 id="correct-and-efficient-usage-of-collections" class="section-header"><a href="#correct-and-efficient-usage-of-collections">Correct and Efficient Usage of Collections</a></h1>
 <p>Of course, knowing which collection is the right one for the job doesn’t
