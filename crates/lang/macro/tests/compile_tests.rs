@@ -33,6 +33,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/example-flipper-works.rs");
+    t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
     t.pass("tests/ui/contract/pass/05-erc721-contract.rs");
