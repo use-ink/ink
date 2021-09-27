@@ -44,6 +44,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/config-custom-env.rs");
     t.pass("tests/ui/contract/pass/env-access.rs");
     t.pass("tests/ui/contract/pass/module-non-ink-items.rs");
+    t.pass("tests/ui/contract/pass/module-env-types.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
     t.pass("tests/ui/contract/pass/05-erc721-contract.rs");
 
