@@ -29,6 +29,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-single-definition.rs");
     t.pass("tests/ui/contract/pass/event-many-definitions.rs");
     t.pass("tests/ui/contract/pass/event-topics.rs");
+    // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");
     t.pass("tests/ui/contract/pass/04-erc20-contract.rs");
