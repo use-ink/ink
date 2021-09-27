@@ -49,6 +49,11 @@ pub struct AcceptsPayments(pub bool);
 #[doc(hidden)]
 pub struct MutatesStorage(pub bool);
 
+/// Yields `true` if the associated ink! message may revert execution.
+#[derive(Copy, Clone)]
+#[doc(hidden)]
+pub struct MayRevert(pub bool);
+
 /// Yields `true` if the dynamic storage allocator is enabled for the given call.
 #[derive(Copy, Clone)]
 #[doc(hidden)]
@@ -112,6 +117,7 @@ where
 pub fn execute_message<Storage, Output, F>(
     AcceptsPayments(accepts_payments): AcceptsPayments,
     MutatesStorage(mutates_storage): MutatesStorage,
+    MayRevert(may_revert): MayRevert,
     EnablesDynamicStorageAllocator(enables_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
     f: F,
 ) -> Result<()>
@@ -136,7 +142,12 @@ where
         alloc::finalize();
     }
     if TypeId::of::<Output>() != TypeId::of::<()>() {
-        ink_env::return_value::<Output>(ReturnFlags::default(), &result)
+        let revert_state =
+            may_revert && is_result_type!(Output) && is_result_err!(&result);
+        ink_env::return_value::<Output>(
+            ReturnFlags::default().set_reverted(revert_state),
+            &result,
+        )
     }
     Ok(())
 }

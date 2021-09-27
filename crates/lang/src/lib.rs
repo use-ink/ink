@@ -14,6 +14,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[macro_use]
+#[doc(hidden)]
+mod result_info;
+
 mod chain_extension;
 mod contract_ref;
 mod dispatcher;
@@ -39,6 +43,7 @@ pub use self::{
         execute_message,
         AcceptsPayments,
         EnablesDynamicStorageAllocator,
+        MayRevert,
         MutatesStorage,
     },
     env_access::{
