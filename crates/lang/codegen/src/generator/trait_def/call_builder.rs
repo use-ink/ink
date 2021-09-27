@@ -144,7 +144,7 @@ impl CallBuilder<'_> {
                     ::ink_metadata::layout::Layout::Struct(
                         ::ink_metadata::layout::StructLayout::new([
                             ::ink_metadata::layout::FieldLayout::new(
-                                Some("account_id"),
+                                ::core::option::Option::Some("account_id"),
                                 <<E as ::ink_env::Environment>::AccountId
                                     as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
                             )
