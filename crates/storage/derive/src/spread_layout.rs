@@ -121,7 +121,10 @@ fn spread_layout_struct_derive(s: &synstructure::Structure) -> TokenStream2 {
 
 /// `SpreadLayout` derive implementation for `enum` types.
 fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
-    assert!(!s.variants().is_empty(), "encountered invalid empty enum type deriving SpreadLayout trait");
+    assert!(
+        !s.variants().is_empty(),
+        "encountered invalid empty enum type deriving SpreadLayout trait"
+    );
     let footprint_body = footprint(s);
     let requires_deep_clean_up_body = requires_deep_clean_up(s);
     let pull_body = s
