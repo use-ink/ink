@@ -17,6 +17,7 @@ fn contract() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/contract/pass/constructor-many-inputs.rs");
+    t.pass("tests/ui/contract/pass/constructor-selector.rs");
     t.pass("tests/ui/contract/pass/message-many-inputs.rs");
     t.pass("tests/ui/contract/pass/message-many-outputs.rs");
     t.pass("tests/ui/contract/pass/message-payable.rs");
