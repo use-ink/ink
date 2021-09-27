@@ -77,19 +77,33 @@ macro_rules! is_result_err {
 mod tests {
     #[test]
     fn is_result_type_works() {
-        assert_eq!(is_result_type!(bool), false);
-        assert_eq!(is_result_type!(String), false);
-        assert_eq!(is_result_type!(Option<i32>), false);
-        assert_eq!(is_result_type!(Result<(), i32>), true);
+        assert!(!is_result_type!(bool));
+        assert!(!is_result_type!(String));
+        assert!(!is_result_type!(Option<i32>));
+
+        assert!(is_result_type!(Result<(), ()>));
+        assert!(is_result_type!(Result<i32, u32>));
+        assert!(is_result_type!(Result<(), String>));
+        assert!(is_result_type!(Result<String, ()>));
+
+        assert!(is_result_type!(Result<Result<(), ()>, ()>));
+        assert!(is_result_type!(Result<(), Result<(), ()>>));
+        assert!(is_result_type!(Result<Result<(), ()>, Result<(), ()>>));
     }
 
     #[test]
     fn is_result_err_works() {
-        assert_eq!(is_result_err!(true), false);
-        assert_eq!(is_result_err!(42), false);
-        assert_eq!(is_result_err!(Ok::<_, String>(())), false);
-        assert_eq!(is_result_err!(Err::<i32, bool>(false)), true);
-        assert_eq!(is_result_err!(Err::<(), i32>(5)), true);
-        assert_eq!(is_result_err!("Hello, World!"), false);
+        assert!(!is_result_err!(true));
+        assert!(!is_result_err!(42));
+        assert!(!is_result_err!("Hello, World!"));
+
+        assert!(!is_result_err!(Ok::<(), ()>(())));
+        assert!(!is_result_err!(Ok::<i32, ()>(5)));
+        assert!(!is_result_err!(Ok::<bool, String>(true)));
+
+        assert!(is_result_err!(Err::<(), ()>(())));
+        assert!(is_result_err!(Err::<(), i32>(5)));
+        assert!(is_result_err!(Err::<i32, bool>(false)));
+        assert!(is_result_err!(Err::<i32, Result::<i32, String>>(Ok(42))));
     }
 }
