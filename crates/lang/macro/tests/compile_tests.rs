@@ -16,6 +16,7 @@
 fn contract() {
     let t = trybuild::TestCases::new();
 
+    // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/constructor-many-inputs.rs");
     t.pass("tests/ui/contract/pass/constructor-selector.rs");
     t.pass("tests/ui/contract/pass/message-many-inputs.rs");
@@ -32,7 +33,6 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-topics.rs");
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     t.pass("tests/ui/contract/pass/impl-with-property.rs");
-    // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/contract/pass/example-flipper-works.rs");
     t.pass("tests/ui/contract/pass/example-incrementer-works.rs");
     t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
