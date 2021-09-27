@@ -18,6 +18,9 @@
 #[doc(hidden)]
 mod result_info;
 
+#[doc(hidden)]
+pub mod type_check;
+
 mod chain_extension;
 mod contract_ref;
 mod dispatcher;

@@ -38,6 +38,7 @@ fn contract() {
     t.compile_fail("tests/ui/contract/fail/C-12-const-constructor.rs");
     t.compile_fail("tests/ui/contract/fail/C-13-abi-constructor.rs");
     t.compile_fail("tests/ui/contract/fail/C-14-payable-constructor.rs");
+    t.compile_fail("tests/ui/contract/fail/C-15-non-codec-input.rs");
     t.compile_fail("tests/ui/contract/fail/C-16-function-arg-struct-destructuring.rs");
 
     t.compile_fail("tests/ui/contract/fail/H-01-invalid-dyn-alloc.rs");
@@ -50,6 +51,7 @@ fn contract() {
     t.compile_fail("tests/ui/contract/fail/M-04-message-returns-non-codec.rs");
     t.compile_fail("tests/ui/contract/fail/M-05-message-invalid-selector.rs");
     t.compile_fail("tests/ui/contract/fail/M-06-message-invalid-selector-type.rs");
+    t.compile_fail("tests/ui/contract/fail/M-07-message-input-non-codec.rs");
     t.compile_fail("tests/ui/contract/fail/M-10-method-unknown-ink-marker.rs");
 
     t.compile_fail("tests/ui/contract/fail/S-01-missing-storage-struct.rs");

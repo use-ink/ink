@@ -15,9 +15,7 @@ mod contract {
         }
 
         #[ink(message)]
-        pub fn message(&self) -> NonCodecType {
-            NonCodecType
-        }
+        pub fn message(&self, _input: NonCodecType) {}
     }
 }
 

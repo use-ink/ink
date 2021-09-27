@@ -10,14 +10,12 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn constructor() -> Self {
+        pub fn constructor(_input: NonCodecType) -> Self {
             Self {}
         }
 
         #[ink(message)]
-        pub fn message(&self) -> NonCodecType {
-            NonCodecType
-        }
+        pub fn message(&self) {}
     }
 }
 

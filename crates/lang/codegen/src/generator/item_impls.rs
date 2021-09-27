@@ -39,17 +39,81 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
+        let inout_guards = self.generate_input_output_guards();
         quote! {
             const _: () = {
                 use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 
                 #( #item_impls )*
+                #inout_guards
             };
         }
     }
 }
 
 impl ItemImpls<'_> {
+    /// Generates code to assert that ink! input and output types meet certain properties.
+    fn generate_input_output_guards(&self) -> TokenStream2 {
+        let storage_span = self.contract.module().storage().span();
+        let constructor_input_guards = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| {
+                let constructor_span = constructor.span();
+                let constructor_inputs = constructor.inputs().map(|input| {
+                    let span = input.span();
+                    let input_type = &*input.ty;
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::type_check::identity_type::<
+                            ::ink_lang::type_check::DispatchInput<#input_type>
+                        >();
+                    )
+                });
+                quote_spanned!(constructor_span=>
+                    #( #constructor_inputs )*
+                )
+            });
+        let message_inout_guards = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
+                let message_span = message.span();
+                let message_inputs = message.inputs().map(|input| {
+                    let span = input.span();
+                    let input_type = &*input.ty;
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::type_check::identity_type::<
+                            ::ink_lang::type_check::DispatchInput<#input_type>
+                        >();
+                    )
+                });
+                let message_output = message.output().map(|output_type| {
+                    let span = output_type.span();
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::type_check::identity_type::<
+                            ::ink_lang::type_check::DispatchOutput<#output_type>
+                        >();
+                    )
+                });
+                quote_spanned!(message_span=>
+                    #( #message_inputs )*
+                    #message_output
+                )
+            });
+        quote_spanned!(storage_span=>
+            const _: () = {
+                #( #constructor_input_guards )*
+                #( #message_inout_guards )*
+            };
+        )
+    }
+
     /// Generates the code for the given ink! message within a trait implementation block.
     fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
