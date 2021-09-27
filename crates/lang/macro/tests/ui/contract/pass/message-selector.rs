@@ -32,7 +32,7 @@ fn main() {
                 >>::IDS[0]
             },
         >>::SELECTOR,
-        [90, 106, 193, 93],
+        [0x5A, 0x6A, 0xC1, 0x5D],
     );
     assert_eq!(
         <Contract as ::ink_lang::DispatchableMessageInfo<
