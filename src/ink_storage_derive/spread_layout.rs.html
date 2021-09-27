@@ -210,6 +210,9 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -333,7 +336,10 @@
 
 <span class="doccomment">/// `SpreadLayout` derive implementation for `enum` types.</span>
 <span class="kw">fn</span> <span class="ident">spread_layout_enum_derive</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">synstructure::Structure</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
-    <span class="macro">assert!</span>(<span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>, <span class="string">&quot;can only operate on enums&quot;</span>);
+    <span class="macro">assert!</span>(
+        <span class="op">!</span><span class="ident">s</span>.<span class="ident">variants</span>().<span class="ident">is_empty</span>(),
+        <span class="string">&quot;encountered invalid empty enum type deriving SpreadLayout trait&quot;</span>
+    );
     <span class="kw">let</span> <span class="ident">footprint_body</span> <span class="op">=</span> <span class="ident">footprint</span>(<span class="ident">s</span>);
     <span class="kw">let</span> <span class="ident">requires_deep_clean_up_body</span> <span class="op">=</span> <span class="ident">requires_deep_clean_up</span>(<span class="ident">s</span>);
     <span class="kw">let</span> <span class="ident">pull_body</span> <span class="op">=</span> <span class="ident">s</span>
