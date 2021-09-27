@@ -142,15 +142,13 @@ impl CallBuilder<'_> {
                     __key_ptr: &mut ::ink_storage::traits::KeyPtr,
                 ) -> ::ink_metadata::layout::Layout {
                     ::ink_metadata::layout::Layout::Struct(
-                        ::ink_metadata::layout::StructLayout::new(
-                            <[_]>::into_vec(::std::vec![
-                                ::ink_metadata::layout::FieldLayout::new(
-                                    Some("account_id"),
-                                    <<E as ::ink_env::Environment>::AccountId
-                                        as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
-                                )
-                            ].into_boxed_slice())
-                        )
+                        ::ink_metadata::layout::StructLayout::new([
+                            ::ink_metadata::layout::FieldLayout::new(
+                                Some("account_id"),
+                                <<E as ::ink_env::Environment>::AccountId
+                                    as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
+                            )
+                        ])
                     )
                 }
             }

@@ -39,7 +39,7 @@ const _: () = {
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![FieldLayout::new(
+            Layout::Struct(StructLayout::new([FieldLayout::new(
                 "elements",
                 <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
             )]))

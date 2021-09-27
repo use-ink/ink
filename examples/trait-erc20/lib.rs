@@ -291,7 +291,7 @@ mod erc20 {
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
                 result
             }
-            let expected_topics = vec![
+            let expected_topics = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
                     value: b"Erc20::Transfer",

@@ -56,7 +56,7 @@ const _: () = {
         fn type_info() -> scale_info::Type {
             scale_info::Type::builder()
                 .path(
-                    scale_info::Path::from_segments(vec!["ink_storage", "alloc", "Box"])
+                    scale_info::Path::from_segments(["ink_storage", "alloc", "Box"])
                         .expect("encountered invalid Rust path"),
                 )
                 // Unfortunately we cannot encode the type parameters of the box since they
