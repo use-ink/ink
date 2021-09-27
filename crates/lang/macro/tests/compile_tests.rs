@@ -33,12 +33,6 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-topics.rs");
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     t.pass("tests/ui/contract/pass/impl-with-property.rs");
-    t.pass("tests/ui/contract/pass/example-flipper-works.rs");
-    t.pass("tests/ui/contract/pass/example-incrementer-works.rs");
-    t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
-    t.pass("tests/ui/contract/pass/example-trait-incrementer-works.rs");
-    t.pass("tests/ui/contract/pass/example-erc20-works.rs");
-    t.pass("tests/ui/contract/pass/example-erc721-works.rs");
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-true.rs");
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-false.rs");
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-true.rs");
@@ -47,6 +41,12 @@ fn contract() {
     t.pass("tests/ui/contract/pass/env-access.rs");
     t.pass("tests/ui/contract/pass/module-non-ink-items.rs");
     t.pass("tests/ui/contract/pass/module-env-types.rs");
+    t.pass("tests/ui/contract/pass/example-flipper-works.rs");
+    t.pass("tests/ui/contract/pass/example-incrementer-works.rs");
+    t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
+    t.pass("tests/ui/contract/pass/example-trait-incrementer-works.rs");
+    t.pass("tests/ui/contract/pass/example-erc20-works.rs");
+    t.pass("tests/ui/contract/pass/example-erc721-works.rs");
 
     t.compile_fail("tests/ui/contract/fail/C-00-constructor-self-ref.rs");
     t.compile_fail("tests/ui/contract/fail/C-01-constructor-self-mut.rs");
