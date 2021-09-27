@@ -1,18 +1,18 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod noop {
+mod contract {
     #[ink(storage)]
-    pub struct Noop {}
+    pub struct Contract {}
 
-    impl Noop {
+    impl Contract {
         #[ink(constructor)]
-        pub fn new() -> Self {
+        pub fn constructor() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        pub fn noop(&self) {}
+        pub fn message(&self) {}
     }
 }
 
