@@ -25,6 +25,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/minimal-contract.rs");
     t.pass("tests/ui/contract/pass/storage-single-field.rs");
     t.pass("tests/ui/contract/pass/storage-many-fields.rs");
+    t.pass("tests/ui/contract/pass/storage-packed-fields.rs");
     t.pass("tests/ui/contract/pass/event-single-definition.rs");
     t.pass("tests/ui/contract/pass/event-many-definitions.rs");
     t.pass("tests/ui/contract/pass/event-topics.rs");
