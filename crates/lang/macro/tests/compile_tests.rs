@@ -17,13 +17,13 @@ fn contract() {
     let t = trybuild::TestCases::new();
 
     // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs");
+    t.pass("tests/ui/contract/pass/minimal-contract.rs");
     t.pass("tests/ui/contract/pass/constructor-many-inputs.rs");
     t.pass("tests/ui/contract/pass/constructor-selector.rs");
     t.pass("tests/ui/contract/pass/message-many-inputs.rs");
     t.pass("tests/ui/contract/pass/message-many-outputs.rs");
     t.pass("tests/ui/contract/pass/message-payable.rs");
     t.pass("tests/ui/contract/pass/message-selector.rs");
-    t.pass("tests/ui/contract/pass/minimal-contract.rs");
     t.pass("tests/ui/contract/pass/storage-single-field.rs");
     t.pass("tests/ui/contract/pass/storage-many-fields.rs");
     t.pass("tests/ui/contract/pass/storage-packed-fields.rs");
