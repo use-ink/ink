@@ -1,0 +1,5 @@
+error: generic ink! trait methods are not supported
+ --> $DIR/message_generic_invalid.rs:6:20
+  |
+6 |     fn message_ref<T>(&self);
+  |                    ^

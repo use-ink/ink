@@ -1,0 +1,5 @@
+error: ink! trait methods with non default ABI are not supported
+ --> $DIR/message_abi_invalid.rs:6:5
+  |
+6 |     extern fn message_ref(&self);
+  |     ^^^^^^
