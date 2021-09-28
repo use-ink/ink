@@ -786,33 +786,6 @@ mod tests {
     }
 
     #[test]
-    fn namespaced_overlapping_trait_impls_works() {
-        assert!(
-            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
-
-                    #[ink(namespace = "first")]
-                    impl first::MyTrait for MyStorage {
-                        #[ink(constructor)]
-                        fn my_constructor() -> Self {}
-
-                        #[ink(message)]
-                        fn my_message(&self) {}
-                    }
-
-                    impl second::MyTrait for MyStorage {
-                        #[ink(message)]
-                        fn my_message(&self) {}
-                    }
-                }
-            })
-            .is_ok()
-        );
-    }
-
-    #[test]
     fn allow_overlap_between_messages_and_constructors() {
         assert!(
             <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {

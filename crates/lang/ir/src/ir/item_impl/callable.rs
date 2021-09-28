@@ -617,13 +617,13 @@ mod tests {
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl, namespace = "my_namespace")]
-                impl MyTrait for MyStorage {}
+                impl MyStorage {}
             },
             syn::parse_quote! {
                 #[ink(message)]
                 fn my_message(&self) {}
             },
-            b"my_namespace::MyTrait::my_message".to_vec(),
+            b"my_namespace::my_message".to_vec(),
         );
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
