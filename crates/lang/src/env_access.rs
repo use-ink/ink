@@ -1075,7 +1075,7 @@ where
     ) -> Result<ECDSAPublicKey> {
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
-            .map(|_| ECDSAPublicKey { 0: output })
+            .map(|_| output.into())
             .map_err(|_| Error::EcdsaRecoverFailed)
     }
 }

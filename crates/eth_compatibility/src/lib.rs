@@ -20,7 +20,7 @@ use ink_env::{
 
 /// The ECDSA compressed public key.
 #[derive(Debug, Copy, Clone)]
-pub struct ECDSAPublicKey(pub [u8; 33]);
+pub struct ECDSAPublicKey([u8; 33]);
 
 impl Default for ECDSAPublicKey {
     fn default() -> Self {
@@ -31,39 +31,43 @@ impl Default for ECDSAPublicKey {
     }
 }
 
-impl core::ops::Deref for ECDSAPublicKey {
-    type Target = [u8; 33];
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
+impl AsRef<[u8; 33]> for ECDSAPublicKey {
+    fn as_ref(&self) -> &[u8; 33] {
         &self.0
     }
 }
 
-impl core::ops::DerefMut for ECDSAPublicKey {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
+impl AsMut<[u8; 33]> for ECDSAPublicKey {
+    fn as_mut(&mut self) -> &mut [u8; 33] {
         &mut self.0
+    }
+}
+
+impl From<[u8; 33]> for ECDSAPublicKey {
+    fn from(bytes: [u8; 33]) -> Self {
+        Self { 0: bytes }
     }
 }
 
 /// The address of an Ethereum account.
 #[derive(Debug, Default, Copy, Clone)]
-pub struct EthereumAddress(pub [u8; 20]);
+pub struct EthereumAddress([u8; 20]);
 
-impl core::ops::Deref for EthereumAddress {
-    type Target = [u8; 20];
-
-    #[inline]
-    fn deref(&self) -> &Self::Target {
+impl AsRef<[u8; 20]> for EthereumAddress {
+    fn as_ref(&self) -> &[u8; 20] {
         &self.0
     }
 }
 
-impl core::ops::DerefMut for EthereumAddress {
-    #[inline]
-    fn deref_mut(&mut self) -> &mut Self::Target {
+impl AsMut<[u8; 20]> for EthereumAddress {
+    fn as_mut(&mut self) -> &mut [u8; 20] {
         &mut self.0
+    }
+}
+
+impl From<[u8; 20]> for EthereumAddress {
+    fn from(bytes: [u8; 20]) -> Self {
+        Self { 0: bytes }
     }
 }
 
@@ -73,20 +77,18 @@ impl ECDSAPublicKey {
     /// # Example
     ///
     /// ```
-    /// use ink_eth_compatibility::ECDSAPublicKey;
-    /// let pub_key: ECDSAPublicKey = ECDSAPublicKey {
-    ///     0: [
-    ///         2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-    ///         7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
-    ///         152,
-    ///     ]
-    /// };
+    /// use ink_eth_compatibility::{ECDSAPublicKey, EthereumAddress};
+    /// let pub_key: ECDSAPublicKey = [
+    ///     2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+    ///     7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+    ///     152,
+    /// ].into();
     ///
-    /// const EXPECTED_ETH_ADDRESS: [u8; 20] = [
+    /// let EXPECTED_ETH_ADDRESS: EthereumAddress = [
     ///     126, 95, 69, 82, 9, 26, 105, 18, 93, 93, 252, 183, 184, 194, 101, 144, 41, 57, 91, 223
-    /// ];
+    /// ].into();
     ///
-    /// assert_eq!(*pub_key.to_eth_address(), EXPECTED_ETH_ADDRESS);
+    /// assert_eq!(pub_key.to_eth_address().as_ref(), EXPECTED_ETH_ADDRESS.as_ref());
     /// ```
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
@@ -105,7 +107,7 @@ impl ECDSAPublicKey {
 
         // Take the last 20 bytes as an Address
         let mut result = EthereumAddress::default();
-        result.copy_from_slice(&hash[12..]);
+        result.as_mut().copy_from_slice(&hash[12..]);
 
         result
     }
@@ -117,13 +119,11 @@ impl ECDSAPublicKey {
     ///
     /// ```
     /// use ink_eth_compatibility::ECDSAPublicKey;
-    /// let pub_key: ECDSAPublicKey = ECDSAPublicKey {
-    ///     0: [
-    ///         2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-    ///         7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
-    ///         152,
-    ///     ]
-    /// };
+    /// let pub_key: ECDSAPublicKey = [
+    ///     2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+    ///     7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+    ///     152,
+    /// ].into();
     ///
     /// const EXPECTED_ACCOUNT_ID: [u8; 32] = [
     ///     41, 117, 241, 210, 139, 146, 182, 232,  68, 153, 184, 59,   7, 151, 239, 82,
