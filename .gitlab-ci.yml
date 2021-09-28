@@ -237,6 +237,7 @@ codecov:
     - cargo clean
     # make sure there's no stale coverage artifacts
     - find . -name "*.profraw" -type f -delete
+    - find . -name "*.gcda" -type f -delete
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
