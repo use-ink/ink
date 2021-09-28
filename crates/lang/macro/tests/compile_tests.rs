@@ -133,6 +133,8 @@ fn trait_definition() {
     t.compile_fail("tests/ui/trait_def/fail/message_abi_invalid.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_generic_invalid.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_input_pattern_invalid.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_input_non_codec.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_output_non_codec.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_default_impl.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_constructor_conflict.rs");
 }
