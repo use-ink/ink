@@ -1,0 +1,5 @@
+error: ink! trait definitions with supertraits are not supported, yet
+ --> $DIR/definition_super_trait_invalid_1.rs:6:28
+  |
+6 | pub trait TraitDefinition: SuperTraitDefinition {
+  |                            ^^^^^^^^^^^^^^^^^^^^

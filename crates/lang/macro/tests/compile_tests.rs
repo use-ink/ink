@@ -109,6 +109,8 @@ fn trait_definition() {
     t.compile_fail("tests/ui/trait_def/fail/definition_rust_method.rs");
     t.compile_fail("tests/ui/trait_def/fail/definition_assoc_type.rs");
     t.compile_fail("tests/ui/trait_def/fail/definition_assoc_const.rs");
+    t.compile_fail("tests/ui/trait_def/fail/definition_super_trait_invalid_1.rs");
+    t.compile_fail("tests/ui/trait_def/fail/definition_super_trait_invalid_2.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_1.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_2.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_3.rs");
