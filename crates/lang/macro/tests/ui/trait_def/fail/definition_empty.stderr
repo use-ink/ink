@@ -1,5 +1,5 @@
 error: encountered invalid empty ink! trait definition
- --> $DIR/empty_definition.rs:4:1
+ --> $DIR/definition_empty.rs:4:1
   |
 4 | pub trait EmptyDefinition {}
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

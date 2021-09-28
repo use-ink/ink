@@ -1,5 +1,5 @@
 error: unknown ink! attribute (path)
- --> $DIR/invalid_selector_2.rs:5:20
+ --> $DIR/message_selector_invalid_2.rs:5:20
   |
 5 |     #[ink(message, selector)]
   |                    ^^^^^^^^
