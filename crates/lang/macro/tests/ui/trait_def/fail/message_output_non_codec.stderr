@@ -15,11 +15,11 @@ error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<<E as Envi
  --> $DIR/message_output_non_codec.rs:7:5
   |
 3 |   pub struct NonCodec;
-  |   -------------------- doesn't satisfy `NonCodec: _::_::_parity_scale_codec::Decode`
+  |   -------------------- doesn't satisfy `NonCodec: parity_scale_codec::Decode`
 ...
 7 | /     #[ink(message)]
 8 | |     fn message(&self) -> NonCodec;
   | |__________________________________^ method cannot be called on `CallBuilder<E, Set<<E as Environment>::AccountId>, Unset<u64>, Unset<<E as Environment>::Balance>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
   |
   = note: the following trait bounds were not satisfied:
-          `NonCodec: _::_::_parity_scale_codec::Decode`
+          `NonCodec: parity_scale_codec::Decode`

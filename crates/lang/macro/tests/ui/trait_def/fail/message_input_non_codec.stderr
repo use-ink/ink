@@ -4,7 +4,7 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
 8  |     fn message(&self, input: NonCodec);
    |                       ^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodec`
    |
-   = note: required because of the requirements on the impl of `_::_::_parity_scale_codec::Decode` for `NonCodec`
+   = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodec`
 note: required by a bound in `DispatchInput`
   --> $DIR/type_check.rs:23:8
    |

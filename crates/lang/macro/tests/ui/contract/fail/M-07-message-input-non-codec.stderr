@@ -4,7 +4,7 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
 18 |         pub fn message(&self, _input: NonCodecType) {}
    |                               ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
-   = note: required because of the requirements on the impl of `contract::_::_parity_scale_codec::Decode` for `NonCodecType`
+   = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
 note: required by a bound in `DispatchInput`
   --> $DIR/type_check.rs:23:8
    |
@@ -17,12 +17,12 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
 18  |         pub fn message(&self, _input: NonCodecType) {}
     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
     |
-    = note: required because of the requirements on the impl of `contract::_::_parity_scale_codec::Decode` for `NonCodecType`
-note: required by a bound in `contract::_::_parity_scale_codec::Decode::decode`
+    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
+note: required by a bound in `parity_scale_codec::Decode::decode`
    --> $DIR/codec.rs:284:15
     |
 284 |     fn decode<I: Input>(input: &mut I) -> Result<Self, Error>;
-    |                  ^^^^^ required by this bound in `contract::_::_parity_scale_codec::Decode::decode`
+    |                  ^^^^^ required by this bound in `parity_scale_codec::Decode::decode`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
   --> $DIR/M-07-message-input-non-codec.rs:3:1
