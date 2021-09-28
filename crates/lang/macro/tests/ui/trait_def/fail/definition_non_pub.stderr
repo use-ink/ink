@@ -1,0 +1,7 @@
+error: ink! trait definitions must have public visibility
+ --> $DIR/definition_non_pub.rs:3:1
+  |
+3 | #[ink::trait_definition]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `ink::trait_definition` (in Nightly builds, run with -Z macro-backtrace for more info)

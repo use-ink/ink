@@ -111,6 +111,9 @@ fn trait_definition() {
     t.compile_fail("tests/ui/trait_def/fail/definition_assoc_const.rs");
     t.compile_fail("tests/ui/trait_def/fail/definition_super_trait_invalid_1.rs");
     t.compile_fail("tests/ui/trait_def/fail/definition_super_trait_invalid_2.rs");
+    t.compile_fail("tests/ui/trait_def/fail/definition_non_pub.rs");
+    t.compile_fail("tests/ui/trait_def/fail/definition_unsafe.rs");
+    t.compile_fail("tests/ui/trait_def/fail/definition_generic.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_1.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_2.rs");
     t.compile_fail("tests/ui/trait_def/fail/config_namespace_invalid_3.rs");
