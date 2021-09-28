@@ -124,4 +124,6 @@ fn trait_definition() {
     t.compile_fail("tests/ui/trait_def/fail/message_receiver_invalid_3.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_async_invalid.rs");
     t.compile_fail("tests/ui/trait_def/fail/message_const_invalid.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_default_impl.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_constructor_conflict.rs");
 }
