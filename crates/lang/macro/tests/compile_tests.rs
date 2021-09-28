@@ -98,6 +98,7 @@ fn chain_extension() {
 fn trait_definition() {
     let t = trybuild::TestCases::new();
     t.pass("tests/ui/trait_def/pass/simple_definition.rs");
+    // t.pass("tests/ui/trait_def/pass/no-implicit-prelude.rs");
     t.pass("tests/ui/trait_def/pass/many_inputs.rs");
     t.pass("tests/ui/trait_def/pass/many_outputs.rs");
     t.pass("tests/ui/trait_def/pass/payable_message.rs");
