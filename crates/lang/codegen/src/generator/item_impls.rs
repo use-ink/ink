@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::iter;
+
 use crate::GenerateCode;
 use derive_more::From;
 use heck::CamelCase as _;
-use ir::Callable as _;
+use ir::{
+    Callable as _,
+    HexLiteral,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -40,18 +45,73 @@ impl GenerateCode for ItemImpls<'_> {
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
         let inout_guards = self.generate_input_output_guards();
+        let trait_message_property_guards = self.generate_trait_message_property_guards();
         quote! {
             const _: () = {
                 use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 
                 #( #item_impls )*
                 #inout_guards
+                #trait_message_property_guards
             };
         }
     }
 }
 
 impl ItemImpls<'_> {
+    /// Generates code to guard annotated ink! trait message properties.
+    ///
+    /// These guarded properties include `selector` and `payable`.
+    /// If an ink! trait message is annotated with `#[ink(payable)]`
+    /// or `#[ink(selector = ..)]` then code is generated to guard that
+    /// the given argument to `payable` or `selector` is equal to
+    /// what the associated ink! trait definition defines for the same
+    /// ink! message.
+    fn generate_trait_message_property_guards(&self) -> TokenStream2 {
+        let storage_span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let trait_message_guards = self
+            .contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| item_impl.trait_path().map(|trait_path| {
+                iter::repeat(trait_path).zip(item_impl.iter_messages())
+            }))
+            .flatten()
+            .map(|(trait_path, message)| {
+                let message_span = message.span();
+                let message_local_id = message.local_id().hex_padded_suffixed();
+                let message_guard_payable = message.is_payable().then(|| {
+                    quote_spanned!(message_span=>
+                        const _: ::ink_lang::TraitMessagePayable<{
+                            <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                                as #trait_path>::__ink_TraitInfo
+                                as ::ink_lang::TraitMessageInfo<#message_local_id>>::PAYABLE
+                        }> = ::ink_lang::TraitMessagePayable::<true>;
+                    )
+                });
+                let message_guard_selector = message.user_provided_selector().map(|selector| {
+                    let given_selector = selector.into_be_u32().hex_padded_suffixed();
+                    quote_spanned!(message_span=>
+                        const _: ::ink_lang::TraitMessageSelector<{
+                            ::core::primitive::u32::from_be_bytes(
+                                <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                                    as #trait_path>::__ink_TraitInfo
+                                    as ::ink_lang::TraitMessageInfo<#message_local_id>>::SELECTOR
+                            )
+                        }> = ::ink_lang::TraitMessageSelector::<#given_selector>;
+                    )
+                });
+                quote_spanned!(message_span=>
+                    #message_guard_payable
+                    #message_guard_selector
+                )
+            });
+        quote_spanned!(storage_span=>
+            #( #trait_message_guards )*
+        )
+    }
+
     /// Generates code to assert that ink! input and output types meet certain properties.
     fn generate_input_output_guards(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();

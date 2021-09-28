@@ -79,6 +79,8 @@ pub use self::{
         TraitCallForwarderFor,
         TraitImplementer,
         TraitMessageInfo,
+        TraitMessagePayable,
+        TraitMessageSelector,
         TraitModulePath,
         TraitUniqueId,
         True,
