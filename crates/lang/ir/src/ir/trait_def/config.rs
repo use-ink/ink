@@ -26,7 +26,7 @@ pub struct TraitDefinitionConfig {
     ///
     /// # Note
     ///
-    /// The namespace config parameter is used to influence the generated
+    /// The namespace configuration parameter is used to influence the generated
     /// selectors of the ink! trait messages. This is useful to disambiguate
     /// ink! trait definitions with equal names.
     namespace: Option<syn::LitStr>,

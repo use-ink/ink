@@ -308,7 +308,7 @@ impl InkItemTrait {
     /// Extract selectors for ink! trait constructors and messages.
     ///
     /// The composed or manually specified selectors are stored into the provided
-    /// hashtables for later look-up when querying ink! constructors or messages.
+    /// hash tables for later look-up when querying ink! constructors or messages.
     /// This way we are more flexible with regard to the underlying structures of the IR.
     ///
     /// In this step we assume that all sanitation checks have taken place prior so
