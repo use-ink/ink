@@ -27,6 +27,7 @@ use quote::{
     format_ident,
     quote_spanned,
 };
+use syn::spanned::Spanned as _;
 
 /// Generator to create the ink! storage struct and important trait impls.
 #[derive(From, Copy, Clone)]
@@ -66,13 +67,54 @@ impl GenerateCode for TraitDefinition<'_> {
         let trait_registry = self.generate_trait_registry_impl();
         let trait_call_builder = self.generate_call_builder();
         let trait_call_forwarder = self.generate_call_forwarder();
+        let input_output_guards = self.generate_input_output_guards();
         quote_spanned!(span =>
             #trait_definition
             const _: () = {
                 #trait_registry
                 #trait_call_builder
                 #trait_call_forwarder
+                #input_output_guards
             };
+        )
+    }
+}
+
+impl TraitDefinition<'_> {
+    /// Generates code to assert that ink! input and output types meet certain properties.
+    fn generate_input_output_guards(&self) -> TokenStream2 {
+        let storage_span = self.trait_def.item().span();
+        let message_inout_guards = self
+            .trait_def
+            .item()
+            .iter_items()
+            .filter_map(|(impl_item, _)| impl_item.filter_map_message())
+            .map(|message| {
+                let message_span = message.span();
+                let message_inputs = message.inputs().map(|input| {
+                    let input_span = input.span();
+                    let input_type = &*input.ty;
+                    quote_spanned!(input_span=>
+                        let _: () = ::ink_lang::type_check::identity_type::<
+                            ::ink_lang::type_check::DispatchInput<#input_type>
+                        >();
+                    )
+                });
+                let message_output = message.output().map(|output_type| {
+                    let output_span = output_type.span();
+                    quote_spanned!(output_span=>
+                        let _: () = ::ink_lang::type_check::identity_type::<
+                            ::ink_lang::type_check::DispatchOutput<#output_type>
+                        >();
+                    )
+                });
+                quote_spanned!(message_span=>
+                    #( #message_inputs )*
+                    #message_output
+                )
+            });
+        quote_spanned!(storage_span=>
+            #( #message_inout_guards )*
         )
     }
 }
