@@ -43,6 +43,8 @@ fn contract() {
     t.pass("tests/ui/contract/pass/env-access.rs");
     t.pass("tests/ui/contract/pass/module-non-ink-items.rs");
     t.pass("tests/ui/contract/pass/module-env-types.rs");
+    t.pass("tests/ui/contract/pass/trait-message-payable-guard.rs");
+    t.pass("tests/ui/contract/pass/trait-message-selector-guard.rs");
     t.pass("tests/ui/contract/pass/example-flipper-works.rs");
     t.pass("tests/ui/contract/pass/example-incrementer-works.rs");
     t.pass("tests/ui/contract/pass/example-trait-flipper-works.rs");
