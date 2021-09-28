@@ -35,6 +35,7 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-config-more-topics.rs");
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     t.pass("tests/ui/contract/pass/impl-with-property.rs");
+    t.pass("tests/ui/contract/pass/impl-block-namespace.rs");
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-true.rs");
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-false.rs");
     t.pass("tests/ui/contract/pass/config-dynamic-storage-allocator-true.rs");
@@ -91,6 +92,7 @@ fn contract() {
 
     t.compile_fail("tests/ui/contract/fail/trait-message-selector-mismatch.rs");
     t.compile_fail("tests/ui/contract/fail/trait-message-payable-mismatch.rs");
+    t.compile_fail("tests/ui/contract/fail/trait-impl-namespace-invalid.rs");
 }
 
 #[test]
