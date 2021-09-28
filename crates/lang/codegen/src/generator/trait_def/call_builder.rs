@@ -266,7 +266,7 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate trait impls for `FromAccountId` and `ToAccountId` for the account wrapper.
+    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the account wrapper.
     ///
     /// # Note
     ///
