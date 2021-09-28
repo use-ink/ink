@@ -1,0 +1,5 @@
+error: missing or malformed `&self` or `&mut self` receiver for ink! message
+ --> $DIR/message_invalid_receiver_2.rs:6:5
+  |
+6 |     fn message(this: Self);
+  |     ^^^^^^^^^^^^^^^^^^^^^^

@@ -117,4 +117,9 @@ fn trait_definition() {
     t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_2.rs");
     t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_3.rs");
     t.compile_fail("tests/ui/trait_def/fail/invalid_namespace_4.rs");
+    t.compile_fail("tests/ui/trait_def/fail/rust_method.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_missing_receiver.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_invalid_receiver_1.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_invalid_receiver_2.rs");
+    t.compile_fail("tests/ui/trait_def/fail/message_invalid_receiver_3.rs");
 }

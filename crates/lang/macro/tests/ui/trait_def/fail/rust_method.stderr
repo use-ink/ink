@@ -1,0 +1,5 @@
+error: missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method
+ --> $DIR/rust_method.rs:5:5
+  |
+5 |     fn rust_method(&self);
+  |     ^^^^^^^^^^^^^^^^^^^^^^
