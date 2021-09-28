@@ -1048,14 +1048,14 @@ where
     ///         162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
     ///         239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
     ///     ];
-    ///     const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+    ///     let EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
     ///           2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
     ///           7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
     ///         152,
-    ///     ];
+    ///     ].into();
     ///     let result = self.env().ecdsa_recover(&signature, &message_hash);
     ///     assert!(result.is_ok());
-    ///     assert_eq!(*result.unwrap(), EXPECTED_COMPRESSED_PUBLIC_KEY);
+    ///     assert_eq!(result.unwrap().as_ref(), EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref());
     ///
     ///     // Pass invalid zero message hash
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
