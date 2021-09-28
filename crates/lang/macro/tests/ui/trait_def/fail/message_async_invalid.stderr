@@ -1,0 +1,5 @@
+error: async ink! trait methods are not supported
+ --> $DIR/message_async_invalid.rs:6:5
+  |
+6 |     async fn message_ref(&self);
+  |     ^^^^^
