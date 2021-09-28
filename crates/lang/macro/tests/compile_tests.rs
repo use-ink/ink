@@ -31,6 +31,8 @@ fn contract() {
     t.pass("tests/ui/contract/pass/event-single-definition.rs");
     t.pass("tests/ui/contract/pass/event-many-definitions.rs");
     t.pass("tests/ui/contract/pass/event-topics.rs");
+    t.pass("tests/ui/contract/pass/event-anonymous.rs");
+    t.pass("tests/ui/contract/pass/event-config-more-topics.rs");
     t.pass("tests/ui/contract/pass/impl-alias-storage.rs");
     t.pass("tests/ui/contract/pass/impl-with-property.rs");
     t.pass("tests/ui/contract/pass/config-compile-as-dependency-true.rs");
