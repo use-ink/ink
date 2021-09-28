@@ -1,11 +1,11 @@
 use ink_lang as ink;
 
 #[ink::trait_definition]
-pub trait SimpleDefinition {
+pub trait TraitDefinition {
     #[ink(message)]
-    fn simple(&self);
+    fn message(&self);
     #[ink(message)]
-    fn simple_mut(&mut self);
+    fn message_mut(&mut self);
 }
 
 fn main() {}
