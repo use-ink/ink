@@ -1,5 +1,5 @@
 error: associated types in ink! trait definitions are not supported, yet
  --> $DIR/definition_assoc_type.rs:5:5
   |
-5 |     type InvalidAssocType;
-  |     ^^^^^^^^^^^^^^^^^^^^^^
+5 |     type Type;
+  |     ^^^^^^^^^^

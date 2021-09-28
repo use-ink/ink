@@ -1,9 +1,9 @@
 use ink_lang as ink;
 
 #[ink::trait_definition]
-pub trait InvalidSelector {
+pub trait TraitDefinition {
     #[ink(message, selector = true)]
-    fn invalid_selector(&self);
+    fn message(&self);
 }
 
 fn main() {}

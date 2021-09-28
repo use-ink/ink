@@ -1,8 +1,8 @@
 use ink_lang as ink;
 
 #[ink::trait_definition]
-pub trait WithAssocType {
-    const INVALID_CONST: bool;
+pub trait TraitDefinition {
+    const CONST: bool;
 
     #[ink(message)]
     fn message(&self);

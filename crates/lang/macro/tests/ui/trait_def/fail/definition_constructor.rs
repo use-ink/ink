@@ -1,9 +1,9 @@
 use ink_lang as ink;
 
 #[ink::trait_definition]
-pub trait WithConstructor {
+pub trait TraitDefinition {
     #[ink(constructor)]
-    fn new() -> Self;
+    fn constructor() -> Self;
 }
 
 fn main() {}

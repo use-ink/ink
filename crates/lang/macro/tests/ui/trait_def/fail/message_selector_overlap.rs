@@ -1,11 +1,12 @@
 use ink_lang as ink;
 
 #[ink::trait_definition]
-pub trait OverlappingSelectors {
+pub trait TraitDefinition {
     #[ink(message, selector = 1)]
-    fn selector1(&self);
+    fn message_1(&self);
+
     #[ink(message, selector = 1)]
-    fn selector2(&self);
+    fn message_2(&self);
 }
 
 fn main() {}
