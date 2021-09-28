@@ -4,11 +4,13 @@ use ink_lang as ink;
 pub trait PayableDefinition {
     #[ink(message, payable)]
     fn payable(&self);
+
     #[ink(message, payable)]
     fn payable_mut(&mut self);
 
     #[ink(message)]
     fn unpayable(&self);
+
     #[ink(message)]
     fn unpayable_mut(&mut self);
 }
