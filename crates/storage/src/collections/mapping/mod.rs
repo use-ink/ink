@@ -15,9 +15,11 @@
 //! A simple mapping to contract storage.
 
 use crate::traits::{
+    push_spread_root,
+    pull_spread_root,
+    clear_spread_root,
     ExtKeyPtr,
     KeyPtr,
-    PackedLayout,
     SpreadLayout,
 };
 use ink_env::hash::{
@@ -33,7 +35,7 @@ use core::marker::PhantomData;
 /// If a key does not exist the `Default` value for the `value` will be returned.
 pub struct Mapping<K, V> {
     key: Key,
-    mapping: (PhantomData<K>, PhantomData<V>),
+    _phatom_mapping: (PhantomData<K>, PhantomData<V>),
 }
 
 impl<K, V> Mapping<K, V>
@@ -58,6 +60,29 @@ where
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
         output.into()
+    }
+}
+
+impl<K, V> SpreadLayout for Mapping<K, V> {
+    const FOOTPRINT: u64 = 1;
+    const REQUIRES_DEEP_CLEAN_UP: bool = false;
+
+    #[inline]
+    fn pull_spread(ptr: &mut KeyPtr) -> Self {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
+        pull_spread_root::<Self>(&root_key)
+    }
+
+    #[inline]
+    fn push_spread(&self, ptr: &mut KeyPtr) {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
+        push_spread_root::<Self>(self, &root_key);
+    }
+
+    #[inline]
+    fn clear_spread(&self, ptr: &mut KeyPtr) {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
+        clear_spread_root::<Self>(self, &root_key);
     }
 }
 
