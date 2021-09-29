@@ -43,6 +43,16 @@ where
     K: scale::Encode,
     V: scale::Encode + scale::Decode + Default,
 {
+    /// Creates a new empty `Mapping`.
+    ///
+    /// Not sure how this should be exposed/initialize irl.
+    pub fn new(key: Key) -> Self {
+        Self {
+            key,
+            _phantom_mapping: (Default::default(), Default::default()),
+        }
+    }
+
     /// Insert the given `value` to the contract storage.
     pub fn insert(&mut self, key: K, value: V) {
         ink_env::set_contract_storage(&self.key(key), &value);
@@ -91,9 +101,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn write_to_storage_works() {
-        let mut m1 = Mapping::new();
-        m1.insert("Hello", "World");
-        assert_eq!(m1.get("Hello"), "World");
+    fn insert_and_get_work() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping = Mapping::new([0u8; 32].into());
+            mapping.insert(1, 2);
+            assert_eq!(mapping.get(1), 2);
+
+            Ok(())
+        }).unwrap()
+    }
+
+    #[test]
+    fn gets_default_if_no_key_set() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            assert_eq!(m1.get(1), u8::default());
+
+            Ok(())
+        }).unwrap()
     }
 }
