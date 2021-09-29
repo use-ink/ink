@@ -35,7 +35,7 @@ use core::marker::PhantomData;
 /// If a key does not exist the `Default` value for the `value` will be returned.
 pub struct Mapping<K, V> {
     key: Key,
-    _phatom_mapping: (PhantomData<K>, PhantomData<V>),
+    _phantom_mapping: (PhantomData<K>, PhantomData<V>),
 }
 
 impl<K, V> Mapping<K, V>
