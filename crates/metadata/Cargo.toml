@@ -24,7 +24,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 scale-info = { version = "1.0", default-features = false, features = ["derive", "serde", "decode"] }
 
 [dev-dependencies]
-pretty_assertions = "0.7.1"
+pretty_assertions = "1.0.0"
 serde_json = "1.0"
 
 [features]
