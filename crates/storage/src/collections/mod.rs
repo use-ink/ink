@@ -22,6 +22,7 @@ pub mod binary_heap;
 pub mod bitstash;
 pub mod bitvec;
 pub mod hashmap;
+pub mod mapping;
 pub mod smallvec;
 pub mod stash;
 pub mod vec;
@@ -32,6 +33,7 @@ pub use self::{
     bitstash::BitStash,
     bitvec::Bitvec,
     hashmap::HashMap,
+    mapping::Mapping,
     stash::Stash,
     vec::Vec,
 };
