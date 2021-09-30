@@ -5,7 +5,7 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     use ink_storage::{
-        collections::HashMap as StorageHashMap,
+        collections::mapping::Mapping,
         lazy::Lazy,
     };
 
@@ -15,10 +15,10 @@ mod erc20 {
         /// Total token supply.
         total_supply: Lazy<Balance>,
         /// Mapping from owner to number of owned token.
-        balances: StorageHashMap<AccountId, Balance>,
+        balances: Mapping<AccountId, Balance>,
         /// Mapping of the token amount which an account is allowed to withdraw
         /// from another account.
-        allowances: StorageHashMap<(AccountId, AccountId), Balance>,
+        allowances: Mapping<(AccountId, AccountId), Balance>,
     }
 
     /// Event emitted when a token transfer occurs.
@@ -60,12 +60,12 @@ mod erc20 {
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
-            let mut balances = StorageHashMap::new();
+            let mut balances = Mapping::new([1u8; 32].into());
             balances.insert(caller, initial_supply);
             let instance = Self {
                 total_supply: Lazy::new(initial_supply),
                 balances,
-                allowances: StorageHashMap::new(),
+                allowances: Mapping::new([1u8; 32].into()),
             };
             Self::env().emit_event(Transfer {
                 from: None,
@@ -86,7 +86,7 @@ mod erc20 {
         /// Returns `0` if the account is non-existent.
         #[ink(message)]
         pub fn balance_of(&self, owner: AccountId) -> Balance {
-            self.balances.get(&owner).copied().unwrap_or(0)
+            self.balances.get(&owner) //.copied().unwrap_or(0)
         }
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
@@ -94,7 +94,7 @@ mod erc20 {
         /// Returns `0` if no allowance has been set `0`.
         #[ink(message)]
         pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowances.get(&(owner, spender)).copied().unwrap_or(0)
+            self.allowances.get(&(owner, spender)) //.copied().unwrap_or(0)
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
