@@ -7,24 +7,24 @@ mod contract {
 
     impl Contract {
         #[ink(constructor)]
-        pub fn constructor() -> Self {
+        pub fn constructor_1() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        pub fn message(&self) {}
+        pub fn message_1(&self) {}
     }
 
     pub struct NonContract {}
 
     impl NonContract {
         #[ink(constructor)]
-        pub fn constructor() -> Self {
+        pub fn constructor_2() -> Self {
             Self {}
         }
 
         #[ink(message)]
-        pub fn message(&self) {}
+        pub fn message_2(&self) {}
     }
 }
 

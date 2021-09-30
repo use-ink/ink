@@ -288,10 +288,8 @@ impl ItemImpls<'_> {
         let span = self_ty.span();
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
-            ::ink_lang::static_assertions::assert_type_eq_all!(
-                #self_ty,
-                #storage_ident,
-            );
+            const _: ::ink_lang::codegen::IsSameType<#storage_ident> =
+                ::ink_lang::codegen::IsSameType::<#self_ty>::new();
         )
     }
 

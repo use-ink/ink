@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod dispatch;
-mod is_same_type;
+use core::marker::PhantomData;
 
-pub use self::dispatch::{
-    DispatchInput,
-    DispatchOutput,
-};
-pub use self::is_same_type::IsSameType;
-
-/// Takes a generic type as input and does nothing.
+/// Used to check if `T` is allowed as ink! input parameter type.
 ///
 /// # Note
 ///
-/// Used to trigger some compile time checks.
-pub const fn identity_type<T>() {}
+/// An ink! input parameter type must implement [`scale::Decode`]
+/// and must have a `'static` lifetime.
+pub struct IsSameType<T> {
+    _marker: PhantomData<T>,
+}
+
+impl<T> IsSameType<T> {
+    /// Creates a new const instance.
+    pub const fn new() -> Self {
+        Self { _marker: PhantomData }
+    }
+}
