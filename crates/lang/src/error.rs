@@ -14,13 +14,8 @@
 
 use derive_more::Display;
 
-/// A dispatch result.
-#[doc(hidden)]
-pub type DispatchResult = core::result::Result<(), DispatchError>;
-
 /// A dispatch error.
 #[derive(Debug, Copy, Clone, Display)]
-#[doc(hidden)]
 pub enum DispatchError {
     #[display(fmt = "unknown selector")]
     UnknownSelector,

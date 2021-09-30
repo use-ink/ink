@@ -35,23 +35,13 @@ use ink_storage::{
     },
 };
 
-/// Results of message handling operations.
-#[doc(hidden)]
-pub type Result<T> = core::result::Result<T, DispatchError>;
-
-/// Yields `true` if the dynamic storage allocator is enabled for the given call.
-#[derive(Copy, Clone)]
-#[doc(hidden)]
-pub struct EnablesDynamicStorageAllocator(pub bool);
-
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
 /// # Errors
 ///
 /// If the caller did send some amount of transferred value to the callee.
 #[inline]
-#[doc(hidden)]
-pub fn deny_payment<E>() -> Result<()>
+pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,
 {
@@ -63,6 +53,17 @@ where
     Ok(())
 }
 
+/// Configuration for execution of ink! constructor.
+#[derive(Debug, Copy, Clone)]
+pub struct ExecuteConstructorConfig {
+    /// Yields `true` if the dynamic storage allocator has been enabled.
+    ///
+    /// # Note
+    ///
+    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
+    pub dynamic_storage_alloc: bool,
+}
+
 /// Executes the given ink! constructor.
 ///
 /// # Note
@@ -70,22 +71,21 @@ where
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
 #[inline]
-#[doc(hidden)]
 pub fn execute_constructor<S, F>(
-    EnablesDynamicStorageAllocator(uses_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
+    config: ExecuteConstructorConfig,
     f: F,
-) -> Result<()>
+) -> Result<(), DispatchError>
 where
     S: ink_storage::traits::SpreadLayout,
     F: FnOnce() -> S,
 {
-    if uses_dynamic_storage_allocator {
+    if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Deploy);
     }
     let storage = ManuallyDrop::new(f());
     let root_key = Key::from([0x00; 32]);
     push_spread_root::<S>(&storage, &root_key);
-    if uses_dynamic_storage_allocator {
+    if config.dynamic_storage_alloc {
         alloc::finalize();
     }
     Ok(())
@@ -130,11 +130,10 @@ pub struct ExecuteMessageConfig {
 /// The closure is supposed to already contain all the arguments that the real
 /// message requires and forwards them.
 #[inline]
-#[doc(hidden)]
 pub fn execute_message<Storage, Output, F>(
     config: ExecuteMessageConfig,
     f: F,
-) -> Result<()>
+) -> Result<(), DispatchError>
 where
     Storage: SpreadLayout + ContractEnv,
     Output: scale::Encode + 'static,

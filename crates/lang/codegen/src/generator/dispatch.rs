@@ -415,7 +415,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn call() {
                 if !#any_message_accept_payment {
-                    ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
+                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
                 ::ink_env::decode_input::<
@@ -510,8 +510,10 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
-                    ::ink_lang::execute_constructor::<#storage_ident, _>(
-                        ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
+                    ::ink_lang::codegen::execute_constructor::<#storage_ident, _>(
+                        ::ink_lang::codegen::ExecuteConstructorConfig {
+                            dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
+                        },
                         move || { #constructor_callable(input) }
                     )
                 }
@@ -658,12 +660,12 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    ::ink_lang::execute_message::<
+                    ::ink_lang::codegen::execute_message::<
                         #storage_ident,
                         #message_output,
                         _
                     >(
-                        ::ink_lang::ExecuteMessageConfig {
+                        ::ink_lang::codegen::ExecuteMessageConfig {
                             payable: #accepts_payment,
                             mutates: #mutates_storage,
                             may_revert: #may_revert,

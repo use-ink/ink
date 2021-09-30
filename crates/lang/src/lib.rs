@@ -23,7 +23,6 @@ pub mod codegen;
 
 mod chain_extension;
 mod contract_ref;
-mod dispatcher;
 mod env_access;
 mod error;
 mod events;
@@ -40,23 +39,13 @@ pub use self::{
         ContractReference,
         ToAccountId,
     },
-    dispatcher::{
-        deny_payment,
-        execute_constructor,
-        execute_message,
-        EnablesDynamicStorageAllocator,
-        ExecuteMessageConfig,
-    },
     env_access::{
         ContractEnv,
         Env,
         EnvAccess,
         StaticEnv,
     },
-    error::{
-        DispatchError,
-        DispatchResult,
-    },
+    error::DispatchError,
     events::{
         ContractEventBase,
         EmitEvent,

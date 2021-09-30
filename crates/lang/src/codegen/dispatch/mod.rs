@@ -12,30 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod dispatch;
-mod is_same_type;
-mod trait_message;
+mod execution;
+mod type_check;
 
 pub use self::{
-    dispatch::{
+    execution::{
         deny_payment,
         execute_constructor,
         execute_message,
-        DispatchInput,
-        DispatchOutput,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
     },
-    is_same_type::IsSameType,
-    trait_message::{
-        TraitMessagePayable,
-        TraitMessageSelector,
+    type_check::{
+        DispatchInput,
+        DispatchOutput,
     },
 };
-
-/// Takes a generic type as input and does nothing.
-///
-/// # Note
-///
-/// Used to trigger some compile time checks.
-pub const fn identity_type<T>() {}
