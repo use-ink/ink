@@ -12,27 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Used to check if `T` is allowed as ink! input parameter type.
-///
-/// # Note
-///
-/// An ink! input parameter type must implement [`scale::Decode`]
-/// and must have a `'static` lifetime.
-pub struct DispatchInput<T>(T)
-where
-    T: scale::Decode + 'static;
+mod dispatch;
 
-/// Used to check if `T` is allowed as ink! output parameter type.
-///
-/// # Note
-///
-/// An ink! input parameter type must implement [`scale::Encode`]
-/// and must have a `'static` lifetime.
-pub struct DispatchOutput<T>(T)
-where
-    T: scale::Encode + 'static;
+pub use self::dispatch::{
+    DispatchInput,
+    DispatchOutput,
+};
 
-/// Does nothing but takes a generic type as input.
+/// Takes a generic type as input and does nothing.
 ///
 /// # Note
 ///

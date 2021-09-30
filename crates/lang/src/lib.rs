@@ -19,7 +19,7 @@
 mod result_info;
 
 #[doc(hidden)]
-pub mod type_check;
+pub mod codegen;
 
 mod chain_extension;
 mod contract_ref;

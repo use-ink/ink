@@ -95,16 +95,16 @@ impl TraitDefinition<'_> {
                     let input_span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(input_span=>
-                        let _: () = ::ink_lang::type_check::identity_type::<
-                            ::ink_lang::type_check::DispatchInput<#input_type>
+                        let _: () = ::ink_lang::codegen::identity_type::<
+                            ::ink_lang::codegen::DispatchInput<#input_type>
                         >();
                     )
                 });
                 let message_output = message.output().map(|output_type| {
                     let output_span = output_type.span();
                     quote_spanned!(output_span=>
-                        let _: () = ::ink_lang::type_check::identity_type::<
-                            ::ink_lang::type_check::DispatchOutput<#output_type>
+                        let _: () = ::ink_lang::codegen::identity_type::<
+                            ::ink_lang::codegen::DispatchOutput<#output_type>
                         >();
                     )
                 });

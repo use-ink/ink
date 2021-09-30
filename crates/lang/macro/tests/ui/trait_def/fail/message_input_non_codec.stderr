@@ -6,7 +6,7 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeDecode` is not satisfied
    |
    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodec`
 note: required by a bound in `DispatchInput`
-  --> $DIR/type_check.rs:23:8
+  --> $DIR/dispatch.rs:23:8
    |
 23 |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
