@@ -15,6 +15,8 @@
 //! A simple mapping to contract storage.
 
 use crate::traits::{
+    push_packed_root,
+    pull_packed_root_opt,
     push_spread_root,
     pull_spread_root,
     clear_spread_root,
@@ -56,14 +58,12 @@ where
 
     /// Insert the given `value` to the contract storage.
     pub fn insert(&mut self, key: K, value: V) {
-        ink_env::set_contract_storage(&self.key(key), &value);
+        push_packed_root(&value, &self.key(key));
     }
 
     /// Get the `value` at `key` from the contract storage.
     pub fn get(&self, key: K) -> V {
-        ink_env::get_contract_storage(&self.key(key))
-            .unwrap_or_default()
-            .unwrap_or_default()
+        pull_packed_root_opt(&self.key(key)).unwrap_or_default()
     }
 
     fn key(&self, key: K) -> Key {
@@ -116,7 +116,7 @@ mod tests {
     fn gets_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            assert_eq!(m1.get(1), u8::default());
+            assert_eq!(mapping.get(1), u8::default());
 
             Ok(())
         }).unwrap()
