@@ -21,9 +21,9 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
     |
     = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
 note: required by a bound in `execute_message`
-   --> $DIR/dispatcher.rs:126:13
+   --> $DIR/dispatcher.rs:140:13
     |
-126 |     Output: scale::Encode + 'static,
+140 |     Output: scale::Encode + 'static,
     |             ^^^^^^^^^^^^^ required by this bound in `execute_message`
 
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied

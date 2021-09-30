@@ -44,10 +44,8 @@ pub use self::{
         deny_payment,
         execute_constructor,
         execute_message,
-        AcceptsPayments,
         EnablesDynamicStorageAllocator,
-        MayRevert,
-        MutatesStorage,
+        ExecuteMessageConfig,
     },
     env_access::{
         ContractEnv,

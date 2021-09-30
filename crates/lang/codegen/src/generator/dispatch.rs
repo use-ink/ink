@@ -663,10 +663,12 @@ impl Dispatch<'_> {
                         #message_output,
                         _
                     >(
-                        ::ink_lang::AcceptsPayments(#accepts_payment),
-                        ::ink_lang::MutatesStorage(#mutates_storage),
-                        ::ink_lang::MayRevert(#may_revert),
-                        ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
+                        ::ink_lang::ExecuteMessageConfig {
+                            payable: #accepts_payment,
+                            mutates: #mutates_storage,
+                            may_revert: #may_revert,
+                            dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
+                        },
                         move |storage: &mut #storage_ident| { #message_callable(storage, input) }
                     )
                 }

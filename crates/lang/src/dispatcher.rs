@@ -39,21 +39,6 @@ use ink_storage::{
 #[doc(hidden)]
 pub type Result<T> = core::result::Result<T, DispatchError>;
 
-/// Yields `true` if the message accepts payments.
-#[derive(Copy, Clone)]
-#[doc(hidden)]
-pub struct AcceptsPayments(pub bool);
-
-/// Yields `true` if the associated ink! message may mutate contract storage.
-#[derive(Copy, Clone)]
-#[doc(hidden)]
-pub struct MutatesStorage(pub bool);
-
-/// Yields `true` if the associated ink! message may revert execution.
-#[derive(Copy, Clone)]
-#[doc(hidden)]
-pub struct MayRevert(pub bool);
-
 /// Yields `true` if the dynamic storage allocator is enabled for the given call.
 #[derive(Copy, Clone)]
 #[doc(hidden)]
@@ -106,6 +91,38 @@ where
     Ok(())
 }
 
+/// Configuration for execution of ink! messages.
+#[derive(Debug, Copy, Clone)]
+pub struct ExecuteMessageConfig {
+    /// Yields `true` if the ink! message accepts payment.
+    ///
+    /// # Note
+    ///
+    /// If no ink! message within the same ink! smart contract
+    /// is payable then this flag will be `true` since the check
+    /// then is moved before the message dispatch as an optimization.
+    pub payable: bool,
+    /// Yields `true` if the ink! message might mutate contract storage.
+    ///
+    /// # Note
+    ///
+    /// This is usually true for `&mut self` ink! messages.
+    pub mutates: bool,
+    /// Yields `true` if the ink! message execution might revert execution.
+    ///
+    /// # Note
+    ///
+    /// In ink! this is usually `true` for root ink! smart contracts and
+    /// `false` for dependency ink! smart contracts.
+    pub may_revert: bool,
+    /// Yields `true` if the dynamic storage allocator has been enabled.
+    ///
+    /// # Note
+    ///
+    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
+    pub dynamic_storage_alloc: bool,
+}
+
 /// Executes the given `&mut self` message closure.
 ///
 /// # Note
@@ -115,10 +132,7 @@ where
 #[inline]
 #[doc(hidden)]
 pub fn execute_message<Storage, Output, F>(
-    AcceptsPayments(accepts_payments): AcceptsPayments,
-    MutatesStorage(mutates_storage): MutatesStorage,
-    MayRevert(may_revert): MayRevert,
-    EnablesDynamicStorageAllocator(enables_dynamic_storage_allocator): EnablesDynamicStorageAllocator,
+    config: ExecuteMessageConfig,
     f: F,
 ) -> Result<()>
 where
@@ -126,24 +140,24 @@ where
     Output: scale::Encode + 'static,
     F: FnOnce(&mut Storage) -> Output,
 {
-    if !accepts_payments {
+    if !config.payable {
         deny_payment::<<Storage as ContractEnv>::Env>()?;
     }
-    if enables_dynamic_storage_allocator {
+    if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Call);
     }
     let root_key = Key::from([0x00; 32]);
     let mut storage = ManuallyDrop::new(pull_spread_root::<Storage>(&root_key));
     let result = f(&mut storage);
-    if mutates_storage {
+    if config.mutates {
         push_spread_root::<Storage>(&storage, &root_key);
     }
-    if enables_dynamic_storage_allocator {
+    if config.dynamic_storage_alloc {
         alloc::finalize();
     }
     if TypeId::of::<Output>() != TypeId::of::<()>() {
         let revert_state =
-            may_revert && is_result_type!(Output) && is_result_err!(&result);
+            config.may_revert && is_result_type!(Output) && is_result_err!(&result);
         ink_env::return_value::<Output>(
             ReturnFlags::default().set_reverted(revert_state),
             &result,
