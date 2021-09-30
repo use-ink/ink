@@ -22,18 +22,18 @@
 /// define this trait here.
 pub trait EmitEvent<C>
 where
-    C: BaseEvent,
+    C: ContractEventBase,
 {
     /// Emits an event that can be trivially converted into the base event.
     fn emit_event<E>(self, event: E)
     where
-        E: Into<<C as BaseEvent>::Type>;
+        E: Into<<C as ContractEventBase>::Type>;
 }
 
 /// Defines a base event type for the contract.
 ///
 /// This is usually the event enum that comprises all defined event types.
-pub trait BaseEvent {
+pub trait ContractEventBase {
     /// The generated base event enum.
     type Type;
 }

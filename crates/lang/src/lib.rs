@@ -60,7 +60,7 @@ pub use self::{
         DispatchResult,
     },
     events::{
-        BaseEvent,
+        ContractEventBase,
         EmitEvent,
     },
     traits::{

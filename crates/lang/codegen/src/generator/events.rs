@@ -62,11 +62,11 @@ impl<'a> Events<'a> {
                 impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink_lang::BaseEvent>::Type>,
+                        E: Into<<#storage_ident as ::ink_lang::ContractEventBase>::Type>,
                     {
                         ::ink_env::emit_event::<
                             Environment,
-                            <#storage_ident as ::ink_lang::BaseEvent>::Type
+                            <#storage_ident as ::ink_lang::ContractEventBase>::Type
                         >(event.into());
                     }
                 }
@@ -94,7 +94,7 @@ impl<'a> Events<'a> {
             }
 
             const _: () = {
-                impl ::ink_lang::BaseEvent for #storage_ident {
+                impl ::ink_lang::ContractEventBase for #storage_ident {
                     type Type = #base_event_ident;
                 }
             };
