@@ -18,7 +18,7 @@
 #[doc(hidden)]
 mod result_info;
 
-#[doc(hidden)]
+#[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
 
 mod chain_extension;

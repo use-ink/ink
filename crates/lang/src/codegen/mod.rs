@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Definitions and facilities mainly used by the ink! codegen.
+
 mod dispatch;
 mod is_same_type;
 mod trait_message;
