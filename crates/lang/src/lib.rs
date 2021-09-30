@@ -73,7 +73,7 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
         ImpliesReturn,
-        InkTraitDefinitionRegistry,
+        TraitDefinitionRegistry,
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,

@@ -96,18 +96,18 @@ pub trait True {}
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
 #[doc(hidden)]
-pub struct InkTraitDefinitionRegistry<E> {
+pub struct TraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
 
-impl<E> crate::ContractEnv for InkTraitDefinitionRegistry<E>
+impl<E> crate::ContractEnv for TraitDefinitionRegistry<E>
 where
     E: ink_env::Environment,
 {
     type Env = E;
 }
 
-unsafe impl<E, const N: u32> TraitImplementer<N> for InkTraitDefinitionRegistry<E> {}
+unsafe impl<E, const N: u32> TraitImplementer<N> for TraitDefinitionRegistry<E> {}
 
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {

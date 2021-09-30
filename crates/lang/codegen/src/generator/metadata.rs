@@ -267,12 +267,12 @@ impl Metadata<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{
-                    <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                    <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink_lang::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
-                    <<::ink_lang::InkTraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                    <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
