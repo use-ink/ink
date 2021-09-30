@@ -1,4 +1,4 @@
-error: ink! constructors must have explicit ABI
+error: ink! constructors must not have explicit ABI
   --> $DIR/constructor-abi.rs:10:13
    |
 10 |         pub extern "C" fn constructor() -> Self {

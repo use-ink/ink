@@ -783,7 +783,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?",
+            error: "encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = id: u32)] ?",
             pub trait MyChainExtension {
                 #[ink(extension)]
                 fn has_self_receiver();

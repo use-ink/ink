@@ -1261,7 +1261,7 @@ mod tests {
             },
             Err(
                 "encountered #[ink(extension)] that is missing its N parameter. \
-                Did you mean #[ink(extension = N: u32)] ?",
+                Did you mean #[ink(extension = id: u32)] ?",
             ),
         );
     }

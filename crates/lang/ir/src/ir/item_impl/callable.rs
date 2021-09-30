@@ -406,7 +406,7 @@ pub(super) fn ensure_callable_invariants(
     if method_item.sig.abi.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.abi,
-            "ink! {}s must have explicit ABI",
+            "ink! {}s must not have explicit ABI",
             kind,
         ))
     }
