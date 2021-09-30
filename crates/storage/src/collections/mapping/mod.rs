@@ -21,6 +21,7 @@ use crate::traits::{
     ExtKeyPtr,
     KeyPtr,
     SpreadLayout,
+    PackedLayout,
 };
 use ink_env::hash::{
     Blake2x256,
@@ -40,8 +41,8 @@ pub struct Mapping<K, V> {
 
 impl<K, V> Mapping<K, V>
 where
-    K: scale::Encode,
-    V: scale::Encode + scale::Decode + Default,
+    K: PackedLayout,
+    V: PackedLayout + Default,
 {
     /// Creates a new empty `Mapping`.
     ///
