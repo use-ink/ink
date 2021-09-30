@@ -24,7 +24,6 @@ ink_lang_macro = { version = "3.0.0-rc5", path = "macro", default-features = fal
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-static_assertions = "1.1"
 
 [dev-dependencies]
 # required for the doctest of `env_access::EnvAccess::instantiate_contract`
