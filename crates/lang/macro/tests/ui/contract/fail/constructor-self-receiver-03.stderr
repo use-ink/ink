@@ -1,0 +1,18 @@
+error[E0411]: cannot find type `Self` in this scope
+  --> $DIR/constructor-self-receiver-03.rs:10:35
+   |
+10 |         pub fn constructor(this: &Self) -> Self {
+   |                                   ^^^^ `Self` is only available in impls, traits, and type definitions
+
+error[E0106]: missing lifetime specifier
+  --> $DIR/constructor-self-receiver-03.rs:10:34
+   |
+10 |         pub fn constructor(this: &Self) -> Self {
+   |                                  ^ expected named lifetime parameter
+   |
+help: consider introducing a named lifetime parameter
+   |
+10 ~         pub fn constructor(this: &'a Self) -> Self {
+11 |             Self {}
+12 ~         }<'a>
+   |

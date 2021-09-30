@@ -1,0 +1,11 @@
+error: missing ink! constructor
+  --> $DIR/module-missing-constructor.rs:4:1
+   |
+4  | / mod contact {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
+7  | |
+...  |
+11 | |     }
+12 | | }
+   | |_^

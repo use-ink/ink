@@ -1,0 +1,11 @@
+error: missing ink! storage struct
+  --> $DIR/module-missing-storage.rs:4:1
+   |
+4  | / mod contract {
+5  | |     // #[ink(storage)]
+6  | |     pub struct Contract {}
+7  | |
+...  |
+14 | |     }
+15 | | }
+   | |_^

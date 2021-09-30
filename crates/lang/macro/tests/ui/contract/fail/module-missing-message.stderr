@@ -1,0 +1,11 @@
+error: missing ink! message
+  --> $DIR/module-missing-message.rs:4:1
+   |
+4  | / mod contract {
+5  | |     #[ink(storage)]
+6  | |     pub struct Contract {}
+7  | |
+...  |
+13 | |     }
+14 | | }
+   | |_^

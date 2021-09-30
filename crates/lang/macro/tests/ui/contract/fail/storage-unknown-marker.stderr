@@ -1,0 +1,5 @@
+error: unknown ink! attribute (path)
+ --> $DIR/storage-unknown-marker.rs:6:11
+  |
+6 |     #[ink(unknown_or_unsupported)]
+  |           ^^^^^^^^^^^^^^^^^^^^^^
