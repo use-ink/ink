@@ -1,4 +1,4 @@
-error: unknown ink! attribute (path)
+error: encountered #[ink(selector)] that is missing its u32 parameter. Did you mean #[ink(selector = value: u32)] ?
  --> $DIR/message_selector_invalid_2.rs:5:20
   |
 5 |     #[ink(message, selector)]
