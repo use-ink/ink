@@ -38,7 +38,7 @@ use core::marker::PhantomData;
 /// If a key does not exist the `Default` value for the `value` will be returned.
 pub struct Mapping<K, V> {
     key: Key,
-    _phantom_mapping: (PhantomData<K>, PhantomData<V>),
+    _marker: PhantomData<(K, V)>,
 }
 
 impl<K, V> Mapping<K, V>
@@ -52,7 +52,7 @@ where
     pub fn new(key: Key) -> Self {
         Self {
             key,
-            _phantom_mapping: (Default::default(), Default::default()),
+            _marker: Default::default(),
         }
     }
 
