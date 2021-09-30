@@ -81,19 +81,19 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
     #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        pull_spread_root::<Self>(&root_key)
+        pull_spread_root::<Self>(root_key)
     }
 
     #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        push_spread_root::<Self>(self, &root_key);
+        push_spread_root::<Self>(self, root_key);
     }
 
     #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        clear_spread_root::<Self>(self, &root_key);
+        clear_spread_root::<Self>(self, root_key);
     }
 }
 
