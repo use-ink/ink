@@ -150,7 +150,6 @@ impl<'a> Events<'a> {
                 #[allow(non_camel_case_types)]
                 pub enum __ink_CheckSatisfied {}
                 pub enum EventTopicsWithinBounds {}
-                impl ::ink_lang::True for __ink_CheckSatisfied {}
                 #[doc(hidden)]
                 pub trait CompliesWithTopicLimit {}
                 impl CompliesWithTopicLimit for __ink_CheckSatisfied {}

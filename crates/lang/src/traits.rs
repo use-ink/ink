@@ -65,10 +65,6 @@ where
 {
 }
 
-/// Indicates that some compile time expression is expected to be `true`.
-#[doc(hidden)]
-pub trait True {}
-
 /// This type is known to ink! to implement all defined ink! trait definitions.
 /// This property can be guaranteed by `#[ink::trait_definition]` procedural macro.
 ///

@@ -81,7 +81,6 @@ pub use self::{
         TraitMessageInfo,
         TraitModulePath,
         TraitUniqueId,
-        True,
     },
 };
 pub use ink_lang_macro::{
