@@ -27,6 +27,8 @@ pub struct IsSameType<T> {
 impl<T> IsSameType<T> {
     /// Creates a new const instance.
     pub const fn new() -> Self {
-        Self { _marker: PhantomData }
+        Self {
+            _marker: PhantomData,
+        }
     }
 }

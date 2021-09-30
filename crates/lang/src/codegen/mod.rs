@@ -15,11 +15,13 @@
 mod dispatch;
 mod is_same_type;
 
-pub use self::dispatch::{
-    DispatchInput,
-    DispatchOutput,
+pub use self::{
+    dispatch::{
+        DispatchInput,
+        DispatchOutput,
+    },
+    is_same_type::IsSameType,
 };
-pub use self::is_same_type::IsSameType;
 
 /// Takes a generic type as input and does nothing.
 ///
