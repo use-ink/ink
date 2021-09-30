@@ -24,7 +24,6 @@ use crate::traits::{
     KeyPtr,
     PackedLayout,
     SpreadLayout,
-    StorageLayout,
 };
 
 use core::marker::PhantomData;
@@ -34,17 +33,11 @@ use ink_env::hash::{
     HashOutput,
 };
 use ink_primitives::Key;
-use ink_metadata::layout::{
-    CellLayout,
-    Layout,
-    LayoutKey,
-};
-
 
 /// A mapping of key-value pairs directly into contract storage.
 ///
 /// If a key does not exist the `Default` value for the `value` will be returned.
-#[derive(scale_info::TypeInfo)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V> {
     key: Key,
     _marker: PhantomData<(K, V)>,
@@ -106,18 +99,27 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
     }
 }
 
+#[cfg(feature = "std")]
+const _: () = {
+    use crate::traits::StorageLayout;
+    use ink_metadata::layout::{
+        CellLayout,
+        Layout,
+        LayoutKey,
+    };
 
-impl<K, V> StorageLayout for Mapping<K, V>
-where
-    K: scale_info::TypeInfo + 'static,
-    V: scale_info::TypeInfo + 'static,
-{
-       fn layout(key_ptr: &mut KeyPtr) -> Layout {
+    impl<K, V> StorageLayout for Mapping<K, V>
+    where
+        K: scale_info::TypeInfo + 'static,
+        V: scale_info::TypeInfo + 'static,
+    {
+        fn layout(key_ptr: &mut KeyPtr) -> Layout {
             Layout::Cell(CellLayout::new::<Self>(LayoutKey::from(
                 key_ptr.advance_by(1),
             )))
-       }
-}
+        }
+    }
+};
 
 #[cfg(test)]
 mod tests {
