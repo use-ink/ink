@@ -848,7 +848,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     ),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
+                            return Err(format_err!(name_value, "expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
                         }
                         if name_value.path.is_ident("extension") {
                             if let syn::Lit::Int(lit_int) = &name_value.lit {
@@ -906,6 +906,11 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
+                                "selector" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(selector)] that is missing its u32 parameter. \
+                                    Did you mean #[ink(selector = value: u32)] ?"
+                                )),
                                 "namespace" => Err(format_err!(
                                     meta,
                                     "encountered #[ink(namespace)] that is missing its string parameter. \
@@ -914,7 +919,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "extension" => Err(format_err!(
                                     meta,
                                     "encountered #[ink(extension)] that is missing its N parameter. \
-                                    Did you mean #[ink(extension = N: u32)] ?"
+                                    Did you mean #[ink(extension = id: u32)] ?"
                                 )),
                                 "handle_status" => Err(format_err!(
                                     meta,
@@ -1188,7 +1193,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = 42)]
             },
-            Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+            Err("expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
         );
     }
 
