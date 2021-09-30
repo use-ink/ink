@@ -689,7 +689,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(item_method, "ink! messages must have explicit ABI")
+            assert_try_from_fails(item_method, "ink! messages must not have explicit ABI")
         }
     }
 
