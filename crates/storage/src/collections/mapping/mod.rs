@@ -15,15 +15,15 @@
 //! A simple mapping to contract storage.
 
 use crate::traits::{
-    push_packed_root,
-    pull_packed_root_opt,
-    push_spread_root,
-    pull_spread_root,
     clear_spread_root,
+    pull_packed_root_opt,
+    pull_spread_root,
+    push_packed_root,
+    push_spread_root,
     ExtKeyPtr,
     KeyPtr,
-    SpreadLayout,
     PackedLayout,
+    SpreadLayout,
 };
 use ink_env::hash::{
     Blake2x256,
@@ -109,7 +109,8 @@ mod tests {
             assert_eq!(mapping.get(1), 2);
 
             Ok(())
-        }).unwrap()
+        })
+        .unwrap()
     }
 
     #[test]
@@ -119,6 +120,7 @@ mod tests {
             assert_eq!(mapping.get(1), u8::default());
 
             Ok(())
-        }).unwrap()
+        })
+        .unwrap()
     }
 }
