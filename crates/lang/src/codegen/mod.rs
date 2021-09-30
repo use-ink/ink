@@ -14,6 +14,7 @@
 
 mod dispatch;
 mod is_same_type;
+mod trait_message;
 
 pub use self::{
     dispatch::{
@@ -21,6 +22,10 @@ pub use self::{
         DispatchOutput,
     },
     is_same_type::IsSameType,
+    trait_message::{
+        TraitMessagePayable,
+        TraitMessageSelector,
+    },
 };
 
 /// Takes a generic type as input and does nothing.

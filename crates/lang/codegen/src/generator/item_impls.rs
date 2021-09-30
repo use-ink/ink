@@ -83,23 +83,23 @@ impl ItemImpls<'_> {
                 let message_local_id = message.local_id().hex_padded_suffixed();
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
-                        const _: ::ink_lang::TraitMessagePayable<{
+                        const _: ::ink_lang::codegen::TraitMessagePayable<{
                             <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
                                 as ::ink_lang::TraitMessageInfo<#message_local_id>>::PAYABLE
-                        }> = ::ink_lang::TraitMessagePayable::<true>;
+                        }> = ::ink_lang::codegen::TraitMessagePayable::<true>;
                     )
                 });
                 let message_guard_selector = message.user_provided_selector().map(|selector| {
                     let given_selector = selector.into_be_u32().hex_padded_suffixed();
                     quote_spanned!(message_span=>
-                        const _: ::ink_lang::TraitMessageSelector<{
+                        const _: ::ink_lang::codegen::TraitMessageSelector<{
                             ::core::primitive::u32::from_be_bytes(
                                 <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
                                     as ::ink_lang::TraitMessageInfo<#message_local_id>>::SELECTOR
                             )
-                        }> = ::ink_lang::TraitMessageSelector::<#given_selector>;
+                        }> = ::ink_lang::codegen::TraitMessageSelector::<#given_selector>;
                     )
                 });
                 quote_spanned!(message_span=>

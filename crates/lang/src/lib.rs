@@ -79,8 +79,6 @@ pub use self::{
         TraitDefinitionRegistry,
         TraitImplementer,
         TraitMessageInfo,
-        TraitMessagePayable,
-        TraitMessageSelector,
         TraitModulePath,
         TraitUniqueId,
         True,
