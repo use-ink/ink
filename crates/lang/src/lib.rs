@@ -59,7 +59,6 @@ pub use self::{
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,
-        ImpliesReturn,
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,
