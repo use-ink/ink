@@ -21,7 +21,7 @@
 ///
 /// # Example
 ///
-/// This compiles since `i32` fullfills the requirements of an ink! input.
+/// This compiles since `i32` fulfills the requirements of an ink! input.
 ///
 /// ```
 /// # use ink_lang::codegen::DispatchInput;
@@ -49,7 +49,7 @@ where
 ///
 /// # Example
 ///
-/// This compiles since `i32` fullfills the requirements of an ink! output.
+/// This compiles since `i32` fulfills the requirements of an ink! output.
 ///
 /// ```
 /// # use ink_lang::codegen::DispatchOutput;
