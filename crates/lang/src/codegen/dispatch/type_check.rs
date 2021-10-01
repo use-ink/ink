@@ -28,7 +28,7 @@
 /// const _: () = ink_lang::codegen::identity_type::<DispatchInput<i32>>();
 /// ```
 ///
-/// This fails to compile since `Foo` does not fullfil all requirements.
+/// This fails to compile since `Foo` does not fulfill all requirements.
 ///
 /// ```compile_fail
 /// # use ink_lang::codegen::DispatchInput;
@@ -56,7 +56,7 @@ where
 /// const _: () = ink_lang::codegen::identity_type::<DispatchOutput<i32>>();
 /// ```
 ///
-/// This fails to compile since `Foo` does not fullfil all requirements.
+/// This fails to compile since `Foo` does not fulfill all requirements.
 ///
 /// ```compile_fail
 /// # use ink_lang::codegen::DispatchOutput;
