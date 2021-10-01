@@ -208,7 +208,7 @@ impl TraitRegistry<'_> {
 
     /// Phantom type that implements the following traits for every ink! trait:
     ///
-    /// - `ink_lang::TraitImplementer` (unsafe implementation)
+    /// - `ink_lang::codegen::TraitImplementedById` (unsafe implementation)
     /// - `ink_lang::TraitUniqueId`
     /// - `ink_lang::TraitCallForwarder`
     ///
@@ -229,7 +229,7 @@ impl TraitRegistry<'_> {
 
             #trait_message_info
 
-            unsafe impl<E> ::ink_lang::TraitImplementer<#unique_id>
+            unsafe impl<E> ::ink_lang::codegen::TraitImplementedById<#unique_id>
                 for #trait_info_ident<E>
             where
                 E: ::ink_env::Environment,

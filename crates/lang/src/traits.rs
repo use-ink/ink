@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::DispatchError;
+use crate::{
+    codegen::TraitImplementedById,
+    DispatchError,
+};
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -25,11 +28,6 @@ use ink_env::{
     },
     Environment,
 };
-
-/// Trait used to indicate that an ink! trait definition has been checked
-/// by the `#[ink::trait_definition]` procedural macro.
-#[doc(hidden)]
-pub unsafe trait TraitImplementer<const TRAIT_ID: u32> {}
 
 /// Trait used by `#[ink::trait_definition]` to ensure that the associated
 /// return type for each trait message is correct.
@@ -103,7 +101,7 @@ where
     type Env = E;
 }
 
-unsafe impl<E, const N: u32> TraitImplementer<N> for TraitDefinitionRegistry<E> {}
+unsafe impl<E, const N: u32> TraitImplementedById<N> for TraitDefinitionRegistry<E> {}
 
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {

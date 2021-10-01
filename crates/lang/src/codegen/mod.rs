@@ -17,8 +17,10 @@
 mod dispatch;
 mod is_same_type;
 mod trait_message;
+mod trait_def;
 
 pub use self::{
+    trait_def::TraitImplementedById,
     dispatch::{
         deny_payment,
         execute_constructor,

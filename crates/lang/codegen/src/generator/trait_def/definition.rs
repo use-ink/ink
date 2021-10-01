@@ -66,7 +66,7 @@ impl TraitDefinition<'_> {
                 #[allow(non_camel_case_types)]
                 type __ink_TraitInfo: ::ink_lang::TraitUniqueId
                     + ::ink_lang::TraitCallForwarder
-                    + ::ink_lang::TraitImplementer<#unique_trait_id>;
+                    + ::ink_lang::codegen::TraitImplementedById<#unique_trait_id>;
 
                 #(#messages)*
             }
