@@ -17,51 +17,6 @@ use crate::{
     DispatchError,
 };
 use core::marker::PhantomData;
-use ink_env::{
-    call::{
-        utils::{
-            ReturnType,
-            Set,
-        },
-        CallBuilder,
-        ExecutionInput,
-    },
-    Environment,
-};
-
-/// Trait used by `#[ink::trait_definition]` to ensure that the associated
-/// return type for each trait message is correct.
-#[doc(hidden)]
-pub trait ImpliesReturn<T> {}
-
-impl<T> ImpliesReturn<T> for T {}
-impl<T, E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<T>
-    for CallBuilder<
-        E,
-        Callee,
-        GasCost,
-        TransferredValue,
-        Set<ExecutionInput<Args>>,
-        Set<ReturnType<T>>,
-    >
-where
-    E: Environment,
-{
-}
-
-impl<E, Callee, GasCost, TransferredValue, Args> ImpliesReturn<()>
-    for CallBuilder<
-        E,
-        Callee,
-        GasCost,
-        TransferredValue,
-        Set<ExecutionInput<Args>>,
-        Set<()>,
-    >
-where
-    E: Environment,
-{
-}
 
 /// This type is known to ink! to implement all defined ink! trait definitions.
 /// This property can be guaranteed by `#[ink::trait_definition]` procedural macro.

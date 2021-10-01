@@ -15,6 +15,7 @@
 //! Definitions and facilities mainly used by the ink! codegen.
 
 mod dispatch;
+mod implies_return;
 mod is_same_type;
 mod trait_def;
 mod trait_message;
@@ -29,6 +30,7 @@ pub use self::{
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
     },
+    implies_return::ImpliesReturn,
     is_same_type::IsSameType,
     trait_def::TraitImplementedById,
     trait_message::{

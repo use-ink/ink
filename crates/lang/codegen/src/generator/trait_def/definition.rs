@@ -38,7 +38,7 @@ impl<'a> TraitDefinition<'a> {
         let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
-            type #output_ident: ::ink_lang::ImpliesReturn<#output>;
+            type #output_ident: ::ink_lang::codegen::ImpliesReturn<#output>;
 
             #(#attrs)*
             fn #ident(#inputs) -> Self::#output_ident;
