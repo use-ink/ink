@@ -29,11 +29,11 @@ mod contract {
 
 fn main() {
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableConstructorInfo<
+        <Contract as ::ink_lang::reflect::DispatchableConstructorInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableConstructors<
+                <Contract as ::ink_lang::reflect::ContractDispatchableConstructors<
                     {
-                        <Contract as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     },
                 >>::IDS[0]
             },
@@ -41,11 +41,11 @@ fn main() {
         [0x5C, 0x5D, 0x42, 0x89],
     );
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableConstructorInfo<
+        <Contract as ::ink_lang::reflect::DispatchableConstructorInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableConstructors<
+                <Contract as ::ink_lang::reflect::ContractDispatchableConstructors<
                     {
-                        <Contract as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     },
                 >>::IDS[1]
             },
@@ -53,11 +53,11 @@ fn main() {
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableConstructorInfo<
+        <Contract as ::ink_lang::reflect::DispatchableConstructorInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableConstructors<
+                <Contract as ::ink_lang::reflect::ContractDispatchableConstructors<
                     {
-                        <Contract as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     },
                 >>::IDS[2]
             },

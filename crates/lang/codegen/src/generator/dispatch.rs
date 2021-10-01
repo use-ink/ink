@@ -124,7 +124,7 @@ impl Dispatch<'_> {
         let count_messages = self.query_amount_messages();
         let count_constructors = self.query_amount_constructors();
         quote_spanned!(span=>
-            impl ::ink_lang::ContractAmountDispatchables for #storage_ident {
+            impl ::ink_lang::reflect::ContractAmountDispatchables for #storage_ident {
                 const MESSAGES: ::core::primitive::usize = #count_messages;
                 const CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
             }
@@ -185,12 +185,12 @@ impl Dispatch<'_> {
                 )
             });
         quote_spanned!(span=>
-            impl ::ink_lang::ContractDispatchableMessages<{
-                <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+            impl ::ink_lang::reflect::ContractDispatchableMessages<{
+                <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
             }> for #storage_ident {
                 const IDS: [
                     ::core::primitive::u32;
-                    <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                    <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                 ] = [
                     #( #inherent_ids , )*
                     #( #trait_ids ),*
@@ -225,12 +225,12 @@ impl Dispatch<'_> {
                 quote_spanned!(span=> #id)
             });
         quote_spanned!(span=>
-            impl ::ink_lang::ContractDispatchableConstructors<{
-                <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+            impl ::ink_lang::reflect::ContractDispatchableConstructors<{
+                <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
             }> for #storage_ident {
                 const IDS: [
                     ::core::primitive::u32;
-                    <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                    <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                 ] = [
                     #( #constructor_ids ),*
                 ];
@@ -260,7 +260,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
                 quote_spanned!(constructor_span=>
-                    impl ::ink_lang::DispatchableConstructorInfo<#selector_id> for #storage_ident {
+                    impl ::ink_lang::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Storage = #storage_ident;
 
@@ -306,7 +306,7 @@ impl Dispatch<'_> {
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 quote_spanned!(message_span=>
-                    impl ::ink_lang::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                    impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
@@ -364,7 +364,7 @@ impl Dispatch<'_> {
                 let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let label = format!("{}::{}", trait_ident, message_ident);
                 quote_spanned!(message_span=>
-                    impl ::ink_lang::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                    impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
@@ -400,11 +400,11 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn deploy() {
                 ::ink_env::decode_input::<
-                        <#storage_ident as ::ink_lang::ContractConstructorDecoder>::Type>()
+                        <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
                     .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
-                        <<#storage_ident as ::ink_lang::ContractConstructorDecoder>::Type
-                            as ::ink_lang::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        <<#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type
+                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
                     })
                     .unwrap_or_else(|error| {
                         ::core::panic!("dispatching ink! constructor failed: {}", error)
@@ -419,11 +419,11 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
                 ::ink_env::decode_input::<
-                        <#storage_ident as ::ink_lang::ContractMessageDecoder>::Type>()
+                        <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
                     .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
-                        <<#storage_ident as ::ink_lang::ContractMessageDecoder>::Type
-                            as ::ink_lang::ExecuteDispatchable>::execute_dispatchable(decoder)
+                        <<#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type
+                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
                     })
                     .unwrap_or_else(|error| {
                         ::core::panic!("dispatching ink! message failed: {}", error)
@@ -450,9 +450,9 @@ impl Dispatch<'_> {
             constructor_index: usize,
         ) -> TokenStream2 {
             quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#constructor_index]
                 }>>::Input
             )
@@ -479,9 +479,9 @@ impl Dispatch<'_> {
             let constructor_span = constructor_spans[index];
             let constructor_ident = constructor_variant_ident(index);
             let constructor_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::SELECTOR
             );
@@ -498,9 +498,9 @@ impl Dispatch<'_> {
             let constructor_span = constructor_spans[index];
             let constructor_ident = constructor_variant_ident(index);
             let constructor_callable = quote_spanned!(constructor_span=>
-                <#storage_ident as ::ink_lang::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::CONSTRUCTORS
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
@@ -542,7 +542,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::ExecuteDispatchable for __ink_ConstructorDecoder {
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
@@ -550,7 +550,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::ContractConstructorDecoder for #storage_ident {
+                impl ::ink_lang::reflect::ContractConstructorDecoder for #storage_ident {
                     type Type = __ink_ConstructorDecoder;
                 }
             };
@@ -575,9 +575,9 @@ impl Dispatch<'_> {
             message_index: usize,
         ) -> TokenStream2 {
             quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#message_index]
                 }>>::Input
             )
@@ -603,9 +603,9 @@ impl Dispatch<'_> {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
             let message_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::SELECTOR
             );
@@ -624,32 +624,32 @@ impl Dispatch<'_> {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
             let message_callable = quote_spanned!(message_span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
             let message_output = quote_spanned!(message_span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::Output
             );
             let accepts_payment = quote_spanned!(message_span=>
                 false ||
                 !#any_message_accept_payment ||
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
             let mutates_storage = quote_spanned!(message_span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
@@ -700,7 +700,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::ExecuteDispatchable for __ink_MessageDecoder {
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
                         match self {
@@ -709,7 +709,7 @@ impl Dispatch<'_> {
                     }
                 }
 
-                impl ::ink_lang::ContractMessageDecoder for #storage_ident {
+                impl ::ink_lang::reflect::ContractMessageDecoder for #storage_ident {
                     type Type = __ink_MessageDecoder;
                 }
             };
@@ -733,9 +733,9 @@ impl Dispatch<'_> {
         let message_is_payable = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             quote_spanned!(message_span=>
-                <#storage_ident as ::ink_lang::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::ContractAmountDispatchables>::MESSAGES
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
                 }>>::PAYABLE
             )

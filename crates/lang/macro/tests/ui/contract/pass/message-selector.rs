@@ -25,30 +25,30 @@ mod contract {
 
 fn main() {
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableMessageInfo<
+        <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::ContractAmountDispatchables>::MESSAGES },
+                <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
+                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
                 >>::IDS[0]
             },
         >>::SELECTOR,
         [0x5A, 0x6A, 0xC1, 0x5D],
     );
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableMessageInfo<
+        <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::ContractAmountDispatchables>::MESSAGES },
+                <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
+                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
                 >>::IDS[1]
             },
         >>::SELECTOR,
         1_u32.to_be_bytes(),
     );
     assert_eq!(
-        <Contract as ::ink_lang::DispatchableMessageInfo<
+        <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
-                <Contract as ::ink_lang::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::ContractAmountDispatchables>::MESSAGES },
+                <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
+                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
                 >>::IDS[2]
             },
         >>::SELECTOR,
