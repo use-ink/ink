@@ -93,7 +93,7 @@ pub trait ContractAmountDispatchables {
 ///         #[ink(message, selector = 0xC0DECAFE)]
 ///         pub fn message2(&self) {}
 ///
-///         #[ink(message, selector = 42)]
+///         #[ink(message)]
 ///         pub fn message3(&self) {}
 ///     }
 /// }
@@ -105,7 +105,7 @@ pub trait ContractAmountDispatchables {
 ///         <Contract as ContractDispatchableMessages<{
 ///             <Contract as ContractAmountDispatchables>::MESSAGES
 ///         }>>::IDS,
-///         [1234, 0xC0DECAFE, 42],
+///         [1234, 0xC0DECAFE, 606597556],
 ///     );
 /// }
 /// ```
