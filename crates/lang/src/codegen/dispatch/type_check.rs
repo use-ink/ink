@@ -18,6 +18,24 @@
 ///
 /// An ink! input parameter type must implement [`scale::Decode`]
 /// and must have a `'static` lifetime.
+///
+/// # Example
+///
+/// This compiles since `i32` fullfills the requirements of an ink! input.
+///
+/// ```
+/// # use ink_lang::codegen::DispatchInput;
+/// const _: () = ink_lang::codegen::identity_type::<DispatchInput<i32>>();
+/// ```
+///
+/// This fails to compile since `Foo` does not fullfil all requirements.
+///
+/// ```compile_fail
+/// # use ink_lang::codegen::DispatchInput;
+/// // Foo is missing scale codec implementations.
+/// struct Foo {}
+/// const _: () = ink_lang::codegen::identity_type::<DispatchInput<Foo>>();
+/// ```
 pub struct DispatchInput<T>(T)
 where
     T: scale::Decode + 'static;
@@ -28,6 +46,24 @@ where
 ///
 /// An ink! input parameter type must implement [`scale::Encode`]
 /// and must have a `'static` lifetime.
+///
+/// # Example
+///
+/// This compiles since `i32` fullfills the requirements of an ink! output.
+///
+/// ```
+/// # use ink_lang::codegen::DispatchOutput;
+/// const _: () = ink_lang::codegen::identity_type::<DispatchOutput<i32>>();
+/// ```
+///
+/// This fails to compile since `Foo` does not fullfil all requirements.
+///
+/// ```compile_fail
+/// # use ink_lang::codegen::DispatchOutput;
+/// // Foo is missing scale codec implementations.
+/// struct Foo {}
+/// const _: () = ink_lang::codegen::identity_type::<DispatchOutput<Foo>>();
+/// ```
 pub struct DispatchOutput<T>(T)
 where
     T: scale::Encode + 'static;
