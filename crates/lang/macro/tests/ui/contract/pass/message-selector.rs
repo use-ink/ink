@@ -28,7 +28,9 @@ fn main() {
         <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
                 <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
+                    {
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    },
                 >>::IDS[0]
             },
         >>::SELECTOR,
@@ -38,7 +40,9 @@ fn main() {
         <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
                 <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
+                    {
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    },
                 >>::IDS[1]
             },
         >>::SELECTOR,
@@ -48,7 +52,9 @@ fn main() {
         <Contract as ::ink_lang::reflect::DispatchableMessageInfo<
             {
                 <Contract as ::ink_lang::reflect::ContractDispatchableMessages<
-                    { <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES },
+                    {
+                        <Contract as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    },
                 >>::IDS[2]
             },
         >>::SELECTOR,
