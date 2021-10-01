@@ -12,35 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Definitions and facilities mainly used by the ink! codegen.
-
-mod dispatch;
-mod implies_return;
-mod is_same_type;
-mod trait_def;
+mod implemented_by;
+mod trait_message;
 
 pub use self::{
-    dispatch::{
-        deny_payment,
-        execute_constructor,
-        execute_message,
-        DispatchInput,
-        DispatchOutput,
-        ExecuteConstructorConfig,
-        ExecuteMessageConfig,
-    },
-    implies_return::ImpliesReturn,
-    is_same_type::IsSameType,
-    trait_def::{
-        TraitImplementedById,
+    implemented_by::TraitImplementedById,
+    trait_message::{
         TraitMessagePayable,
         TraitMessageSelector,
     },
 };
-
-/// Takes a generic type as input and does nothing.
-///
-/// # Note
-///
-/// Used to trigger some compile time checks.
-pub const fn identity_type<T>() {}
