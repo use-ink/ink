@@ -16,11 +16,10 @@
 
 mod dispatch;
 mod is_same_type;
-mod trait_message;
 mod trait_def;
+mod trait_message;
 
 pub use self::{
-    trait_def::TraitImplementedById,
     dispatch::{
         deny_payment,
         execute_constructor,
@@ -31,6 +30,7 @@ pub use self::{
         ExecuteMessageConfig,
     },
     is_same_type::IsSameType,
+    trait_def::TraitImplementedById,
     trait_message::{
         TraitMessagePayable,
         TraitMessageSelector,
