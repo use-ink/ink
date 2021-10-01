@@ -208,7 +208,7 @@ pub trait Callable {
 ///
 /// ```no_compile
 /// impl MyStorage {
-///     #[ink(message, selector = "0xDEADBEEF")]
+///     #[ink(message, selector = 0xDEADBEEF)]
 ///     fn my_message(&self) {}
 /// }
 /// ```
@@ -440,6 +440,15 @@ pub enum Visibility {
     Inherited,
 }
 
+impl quote::ToTokens for Visibility {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self {
+            Self::Public(vis_public) => vis_public.to_tokens(tokens),
+            Self::Inherited => (),
+        }
+    }
+}
+
 impl Visibility {
     /// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
     ///
@@ -611,7 +620,7 @@ mod tests {
                 impl MyTrait for MyStorage {}
             },
             syn::parse_quote! {
-                #[ink(message, selector = "0xDEADBEEF")]
+                #[ink(message, selector = 0xDEADBEEF)]
                 fn my_message(&self) {}
             },
             [0xDE, 0xAD, 0xBE, 0xEF],

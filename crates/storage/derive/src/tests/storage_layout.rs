@@ -47,15 +47,15 @@ fn tuple_struct_works() {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(vec![
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    None,
+                                    ::core::option::Option::None,
                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    None,
+                                    ::core::option::Option::None,
                                     <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    None,
+                                    ::core::option::Option::None,
                                     <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
@@ -84,15 +84,15 @@ fn named_fields_struct_works() {
                         ::ink_metadata::layout::Layout::Struct(
                             ::ink_metadata::layout::StructLayout::new(vec![
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    Some("a"),
+                                    ::core::option::Option::Some("a"),
                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    Some("b"),
+                                    ::core::option::Option::Some("b"),
                                     <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                                 ::ink_metadata::layout::FieldLayout::new(
-                                    Some("c"),
+                                    ::core::option::Option::Some("c"),
                                     <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                 ),
                             ])
@@ -191,15 +191,15 @@ fn mixed_enum_works() {
                                             ::ink_metadata::layout::Discriminant::from(1usize),
                                             ::ink_metadata::layout::StructLayout::new(vec![
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    None,
+                                                    ::core::option::Option::None,
                                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    None,
+                                                    ::core::option::Option::None,
                                                     <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    None,
+                                                    ::core::option::Option::None,
                                                     <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),
@@ -212,15 +212,15 @@ fn mixed_enum_works() {
                                             ::ink_metadata::layout::Discriminant::from(2usize),
                                             ::ink_metadata::layout::StructLayout::new(vec![
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    Some("a"),
+                                                    ::core::option::Option::Some("a"),
                                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    Some("b"),
+                                                    ::core::option::Option::Some("b"),
                                                     <u32 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                                 ::ink_metadata::layout::FieldLayout::new(
-                                                    Some("c"),
+                                                    ::core::option::Option::Some("c"),
                                                     <i64 as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
                                                 ),
                                             ]),

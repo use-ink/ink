@@ -28,7 +28,6 @@ use proc_macro2::{
     Ident,
     Span,
 };
-use regex::Regex;
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
@@ -98,12 +97,12 @@ impl Attrs for syn::Item {
 ///
 /// An attribute with a parameterized flag:
 /// ```no_compile
-/// #[ink(selector = "0xDEADBEEF")]
+/// #[ink(selector = 0xDEADBEEF)]
 /// ```
 ///
 /// An attribute with multiple flags:
 /// ```no_compile
-/// #[ink(message, payable, selector = "0xDEADBEEF")]
+/// #[ink(message, payable, selector = 0xDEADBEEF)]
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct InkAttribute {
@@ -314,7 +313,7 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
-    /// `#[ink(selector = "0xDEADBEEF")]`
+    /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(extension = N: u32)]`
     Extension,
@@ -367,7 +366,7 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// `#[ink(selector = "0xDEADBEEF")]`
+    /// `#[ink(selector = 0xDEADBEEF)]`
     ///
     /// Applied on ink! constructors or messages to manually control their
     /// selectors.
@@ -732,19 +731,6 @@ impl InkAttribute {
     }
 }
 
-/// Returns an error to notify about non-hex digits at a position.
-fn err_non_hex(meta: &syn::Meta, pos: usize) -> syn::Error {
-    format_err_spanned!(meta, "encountered non-hex digit at position {}", pos)
-}
-
-/// Returns an error to notify about an invalid ink! selector.
-fn invalid_selector_err_regex(meta: &syn::Meta) -> syn::Error {
-    format_err_spanned!(
-        meta,
-        "invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"
-    )
-}
-
 impl TryFrom<syn::NestedMeta> for AttributeFrag {
     type Error = syn::Error;
 
@@ -754,55 +740,42 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                 match &meta {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
-                            if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let regex = Regex::new(r"0x([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})")
-                                    .map_err(|_| {
-                                    invalid_selector_err_regex(&meta)
-                                })?;
-                                let str = lit_str.value();
-                                let cap =
-                                    regex.captures(&str).ok_or_else(|| {
-                                        invalid_selector_err_regex(&meta)
+                            if let syn::Lit::Int(lit_int) = &name_value.lit {
+                                let selector_u32 = lit_int.base10_parse::<u32>()
+                                    .map_err(|error| {
+                                        format_err_spanned!(
+                                            lit_int,
+                                            "selector value out of range. selector must be a valid `u32` integer: {}",
+                                            error
+                                        )
                                     })?;
-                                if !regex.is_match(&str) {
-                                    return Err(invalid_selector_err_regex(
-                                        &meta,
-                                    ))
-                                }
-                                let len_digits = (str.as_bytes().len() - 2) / 2;
-                                if len_digits != 4 {
-                                    return Err(format_err!(
-                                            name_value,
-                                            "expected 4-digit hexcode for `selector` argument, found {} digits",
-                                            len_digits,
-                                        ))
-                                }
-                                let selector_bytes = [
-                                    u8::from_str_radix(&cap[1], 16)
-                                        .map_err(|_| err_non_hex(&meta, 0))?,
-                                    u8::from_str_radix(&cap[2], 16)
-                                        .map_err(|_| err_non_hex(&meta, 1))?,
-                                    u8::from_str_radix(&cap[3], 16)
-                                        .map_err(|_| err_non_hex(&meta, 2))?,
-                                    u8::from_str_radix(&cap[4], 16)
-                                        .map_err(|_| err_non_hex(&meta, 3))?,
-                                ];
+                                let selector = Selector::from_bytes(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(Selector::from_bytes(
-                                        selector_bytes,
-                                    )),
+                                    arg: AttributeArg::Selector(selector),
                                 })
+                            }
+                            if let syn::Lit::Str(_) = &name_value.lit {
+                                return Err(format_err!(
+                                    name_value,
+                                    "#[ink(selector = ..)] attributes with string inputs are deprecated. \
+                                    use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                                ))
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
-                                let bytes = lit_str.value().into_bytes();
+                                let argument = lit_str.value();
+                                syn::parse_str::<syn::Ident>(&argument)
+                                    .map_err(|_error| format_err!(
+                                        lit_str,
+                                        "encountered invalid Rust identifier for namespace argument",
+                                    ))?;
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Namespace(
-                                        Namespace::from(bytes),
+                                        Namespace::from(argument.into_bytes()),
                                     ),
                                 })
                             }
@@ -1066,7 +1039,15 @@ mod tests {
     fn selector_works() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xDEADBEEF")]
+                #[ink(selector = 42)]
+            },
+            Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
+                Selector::from_bytes([0, 0, 0, 42]),
+            )])),
+        );
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
                 Selector::from_bytes([0xDE, 0xAD, 0xBE, 0xEF]),
@@ -1075,22 +1056,28 @@ mod tests {
     }
 
     #[test]
-    fn selector_non_hexcode() {
+    fn selector_negative_number() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xhelloworld")]
+                #[ink(selector = -1)]
             },
-            Err("invalid selector - a selector must consist of four bytes in hex (e.g. `selector = \"0xCAFEBABE\"`)"),
+            Err(
+                "selector value out of range. selector must be a valid `u32` integer: \
+                invalid digit found in string",
+            ),
         );
     }
 
     #[test]
-    fn selector_too_long() {
+    fn selector_out_of_range() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = "0xDEADBEEFC0FEBABE")]
+                #[ink(selector = 0xFFFF_FFFF_FFFF_FFFF)]
             },
-            Err("expected 4-digit hexcode for `selector` argument, found 8 digits"),
+            Err(
+                "selector value out of range. \
+                selector must be a valid `u32` integer: number too large to fit in target type"
+            ),
         );
     }
 
@@ -1098,7 +1085,7 @@ mod tests {
     fn selector_invalid_type() {
         assert_attribute_try_from(
             syn::parse_quote! {
-                #[ink(selector = 42)]
+                #[ink(selector = true)]
             },
             Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
@@ -1113,6 +1100,16 @@ mod tests {
             Ok(test::Attribute::Ink(vec![AttributeArg::Namespace(
                 Namespace::from("my_namespace".to_string().into_bytes()),
             )])),
+        );
+    }
+
+    #[test]
+    fn namespace_invalid_identifier() {
+        assert_attribute_try_from(
+            syn::parse_quote! {
+                #[ink(namespace = "::invalid_identifier")]
+            },
+            Err("encountered invalid Rust identifier for namespace argument"),
         );
     }
 

@@ -50,10 +50,10 @@ impl GenerateCode for InkTest<'_> {
                                 let _: () = {
                                     #fn_block
                                 };
-                                Ok(())
+                                ::core::result::Result::Ok(())
                             }
                         })
-                        .expect(#expect_msg);
+                        .unwrap_or_else(|error| ::core::panic!("{}: {:?}", #expect_msg, error));
                     }
                 }
             }

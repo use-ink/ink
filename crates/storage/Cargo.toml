@@ -1,6 +1,6 @@
 [package]
 name = "ink_storage"
-version = "3.0.0-rc4"
+version = "3.0.0-rc5"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -15,13 +15,13 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "3.0.0-rc4", path = "../env/", default-features = false }
-ink_metadata = { version = "3.0.0-rc4", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "3.0.0-rc4", path = "../primitives/", default-features = false }
-ink_storage_derive = { version = "3.0.0-rc4", path = "derive", default-features = false }
-ink_prelude = { version = "3.0.0-rc4", path = "../prelude/", default-features = false }
+ink_env = { version = "3.0.0-rc5", path = "../env/", default-features = false }
+ink_metadata = { version = "3.0.0-rc5", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_primitives = { version = "3.0.0-rc5", path = "../primitives/", default-features = false }
+ink_storage_derive = { version = "3.0.0-rc5", path = "derive", default-features = false }
+ink_prelude = { version = "3.0.0-rc5", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"

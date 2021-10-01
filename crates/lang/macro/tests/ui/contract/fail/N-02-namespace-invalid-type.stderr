@@ -1,0 +1,5 @@
+error: expecteded string type for `namespace` argument, e.g. #[ink(namespace = "hello")]
+ --> $DIR/N-02-namespace-invalid-type.rs:8:11
+  |
+8 |     #[ink(namespace = true)]
+  |           ^^^^^^^^^^^^^^^^

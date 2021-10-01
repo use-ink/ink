@@ -405,7 +405,7 @@ mod tests {
                 true,
                 syn::parse_quote! {
                     #[ink(message)]
-                    #[ink(selector = "0xDEADBEEF", payable)]
+                    #[ink(selector = 0xDEADBEEF, payable)]
                     pub fn my_message(&self) {}
                 },
             ),

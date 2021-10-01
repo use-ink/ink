@@ -99,7 +99,7 @@ where
     /// The internal Wasm32 raw pointer value.
     ///
     /// Must not be readable or directly usable by any safe Rust code.
-    value: u32,
+    _value: u32,
     /// We handle types like these as if the associated lifetime was exclusive.
     marker: PhantomData<fn() -> &'a T>,
 }
@@ -111,7 +111,7 @@ where
     /// Creates a new Wasm32 pointer for the given raw pointer value.
     fn new(value: u32) -> Self {
         Self {
-            value,
+            _value: value,
             marker: Default::default(),
         }
     }
@@ -142,7 +142,7 @@ where
     /// The internal Wasm32 raw pointer value.
     ///
     /// Must not be readable or directly usable by any safe Rust code.
-    value: u32,
+    _value: u32,
     /// We handle types like these as if the associated lifetime was exclusive.
     marker: PhantomData<fn() -> &'a mut T>,
 }
@@ -154,7 +154,7 @@ where
     /// Creates a new Wasm32 pointer for the given raw pointer value.
     fn new(value: u32) -> Self {
         Self {
-            value,
+            _value: value,
             marker: Default::default(),
         }
     }

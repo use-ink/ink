@@ -43,7 +43,14 @@ function get_status() {
 
 echo "Waiting on ${PIPELINE_ID} status..."
 
-for i in $(seq 1 360); do
+# How long to sleep in between polling the pipeline status.
+POLL_SLEEP=5
+
+# Time until the script exits with 1, if the pipeline isn't finished until then.
+TIMEOUT_MINUTES=60
+
+SEQ_END=$(( (TIMEOUT_MINUTES * 60) / POLL_SLEEP ))
+for i in $(seq 1 $SEQ_END); do
     STATUS=$(get_status);
     echo "Triggered pipeline status is ${STATUS}";
     if [[ ${STATUS} =~ ^(pending|running|created)$ ]]; then
@@ -55,5 +62,8 @@ for i in $(seq 1 360); do
     else
         echo "Something else has happened in ${PIPELINE_URL}"; exit 1;
     fi
-sleep 5;
+    sleep $POLL_SLEEP;
 done
+
+echo "Timeout! The pipeline didn't return in time."
+exit 1

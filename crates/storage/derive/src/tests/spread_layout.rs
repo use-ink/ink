@@ -32,9 +32,9 @@ fn unit_struct_works() {
             const _: () = {
                 impl ::ink_storage::traits::SpreadLayout for UnitStruct {
                     #[allow(unused_comparisons)]
-                    const FOOTPRINT: u64 = [0u64, 0u64][(0u64 < 0u64) as usize];
+                    const FOOTPRINT: ::core::primitive::u64 = [0u64, 0u64][(0u64 < 0u64) as ::core::primitive::usize];
 
-                    const REQUIRES_DEEP_CLEAN_UP : bool = (false || false );
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (false || false );
 
                     fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
                         UnitStruct
@@ -71,7 +71,7 @@ fn struct_works() {
             const _: () = {
                 impl ::ink_storage::traits::SpreadLayout for NamedFields {
                     #[allow(unused_comparisons)]
-                    const FOOTPRINT: u64 = [
+                    const FOOTPRINT: ::core::primitive::u64 = [
                         (((0u64 + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <Box<i32> as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
@@ -80,10 +80,10 @@ fn struct_works() {
                         + <i32 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                         + <[u8; 32] as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                         + <Box<i32> as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        < 0u64) as usize
+                        < 0u64) as ::core::primitive::usize
                     ];
 
-                    const REQUIRES_DEEP_CLEAN_UP : bool = (
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
                         false || (
                             (
                                 (
@@ -168,6 +168,54 @@ fn struct_works() {
 }
 
 #[test]
+fn one_variant_enum_works() {
+    synstructure::test_derive! {
+        spread_layout_derive {
+            enum OneVariantEnum {
+                A,
+            }
+        }
+        expands to {
+            const _: () = {
+                impl ::ink_storage::traits::SpreadLayout for OneVariantEnum {
+                    #[allow(unused_comparisons)]
+                    const FOOTPRINT : ::core::primitive::u64 = 1 + [0u64, 0u64][(0u64 < 0u64) as ::core::primitive::usize];
+
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (false || false);
+
+                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
+                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+                        {
+                            0u8 => OneVariantEnum::A,
+                            _ => unreachable!("encountered invalid enum discriminant"),
+                        }
+                    }
+
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                        match self {
+                            OneVariantEnum::A => {
+                                {
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                        &0u8,
+                                        __key_ptr
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                        match self {
+                            OneVariantEnum::A => {}
+                        }
+                    }
+                }
+            };
+        }
+    }
+}
+
+#[test]
 fn enum_works() {
     synstructure::test_derive! {
         spread_layout_derive {
@@ -181,7 +229,7 @@ fn enum_works() {
             const _: () = {
                 impl ::ink_storage::traits::SpreadLayout for MixedEnum {
                     #[allow(unused_comparisons)]
-                    const FOOTPRINT : u64 = 1 + [
+                    const FOOTPRINT : ::core::primitive::u64 = 1 + [
                         0u64 ,
                         [
                             (
@@ -211,7 +259,7 @@ fn enum_works() {
                                         + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
                                     )
                                     < 0u64
-                                ) as usize
+                                ) as ::core::primitive::usize
                             ]
                         ][
                             (
@@ -241,9 +289,9 @@ fn enum_works() {
                                             + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
                                         )
                                         < 0u64
-                                    ) as usize
+                                    ) as ::core::primitive::usize
                                 ]
-                            ) as usize
+                            ) as ::core::primitive::usize
                         ]
                     ][
                         (
@@ -274,7 +322,7 @@ fn enum_works() {
                                             + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
                                         )
                                         < 0u64
-                                    ) as usize
+                                    ) as ::core::primitive::usize
                                 ]
                             ][
                                 (
@@ -304,14 +352,14 @@ fn enum_works() {
                                                 + <(bool, i32) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT
                                             )
                                             < 0u64
-                                        ) as usize
+                                        ) as ::core::primitive::usize
                                     ]
-                                ) as usize
+                                ) as ::core::primitive::usize
                             ]
-                        ) as usize
+                        ) as ::core::primitive::usize
                     ];
 
-                    const REQUIRES_DEEP_CLEAN_UP : bool = (
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
                         (
                             (false || false)
                             || (
@@ -332,7 +380,7 @@ fn enum_works() {
                     );
 
                     fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        match <u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
                         {
                             0u8 => MixedEnum::A,
                             1u8 => MixedEnum::B(
@@ -350,7 +398,7 @@ fn enum_works() {
                         match self {
                             MixedEnum::A => {
                                 {
-                                    <u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
                                         &0u8,
                                         __key_ptr
                                     );
@@ -358,7 +406,7 @@ fn enum_works() {
                             }
                             MixedEnum::B(__binding_0, __binding_1,) => {
                                 {
-                                    <u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
                                         &1u8,
                                         __key_ptr
                                     );
@@ -381,7 +429,7 @@ fn enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
                                         &2u8, __key_ptr
                                     );
                                 }
@@ -459,16 +507,16 @@ fn generic_struct_works() {
                     T2: ::ink_storage::traits::SpreadLayout
                 {
                     #[allow(unused_comparisons)]
-                    const FOOTPRINT: u64 = [
+                    const FOOTPRINT: ::core::primitive::u64 = [
                         ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <(T1, T2) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
                         0u64
                     ][(((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                         + <(T1, T2) as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                        < 0u64) as usize
+                        < 0u64) as ::core::primitive::usize
                     ];
 
-                    const REQUIRES_DEEP_CLEAN_UP : bool = (
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
                         false || (
                             (
                                 false
@@ -555,7 +603,7 @@ fn generic_enum_works() {
                     T2: ::ink_storage::traits::SpreadLayout
                 {
                     #[allow(unused_comparisons)]
-                    const FOOTPRINT: u64 = 1 + [
+                    const FOOTPRINT: ::core::primitive::u64 = 1 + [
                         ((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT),
                         [
@@ -565,7 +613,7 @@ fn generic_enum_works() {
                         ][(((0u64
                             + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            < 0u64) as usize]
+                            < 0u64) as ::core::primitive::usize]
                     ][(((0u64 + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                         + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                         < [
@@ -575,10 +623,10 @@ fn generic_enum_works() {
                         ][(((0u64
                             + <T1 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
                             + <T2 as ::ink_storage::traits::SpreadLayout>::FOOTPRINT)
-                            < 0u64) as usize]) as usize
+                            < 0u64) as ::core::primitive::usize]) as ::core::primitive::usize
                     ];
 
-                    const REQUIRES_DEEP_CLEAN_UP : bool = (
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (
                         (
                             false || (
                                 (
@@ -598,7 +646,7 @@ fn generic_enum_works() {
                     );
 
                     fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
-                        match <u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
                         {
                             0u8 => GenericEnum::Tuple(
                                 <T1 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr),
@@ -616,7 +664,7 @@ fn generic_enum_works() {
                         match self {
                             GenericEnum::Tuple(__binding_0, __binding_1,) => {
                                 {
-                                    <u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&0u8, __key_ptr);
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&0u8, __key_ptr);
                                 }
                                 {
                                     ::ink_storage::traits::SpreadLayout::push_spread(
@@ -636,7 +684,7 @@ fn generic_enum_works() {
                                 b: __binding_1,
                             } => {
                                 {
-                                    <u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&1u8, __key_ptr);
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(&1u8, __key_ptr);
                                 }
                                 {
                                     ::ink_storage::traits::SpreadLayout::push_spread(

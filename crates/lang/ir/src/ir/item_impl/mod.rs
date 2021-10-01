@@ -218,7 +218,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
         if !Self::is_ink_impl_block(&item_impl)? {
             return Err(format_err_spanned!(
                 item_impl,
-                "missing ink! annotations on 16 kB block or on any of its items"
+                "missing ink! annotations on implementation block or on any of its items"
             ))
         }
         if let Some(defaultness) = item_impl.defaultness {
