@@ -65,13 +65,50 @@ pub trait ContractAmountDispatchables {
     const CONSTRUCTORS: usize;
 }
 
-/// Implemented by all ink! smart contracts.
-///
-/// Stores a sequence of all dispatchable ink! message of the ink! smart contract.
+/// Reflects the sequence of all dispatchable ink! messages of the ink! smart contract.
 ///
 /// # Note
 ///
-/// Implemented for the amount of dispatchable ink! messages of the ink! smart contract.
+/// This is automatically implemented by all ink! smart contracts.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+/// # use ink_lang::reflect::ContractAmountDispatchables;
+/// # use ink_lang::reflect::ContractDispatchableMessages;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -> Self { Contract {} }
+///
+///         #[ink(message, selector = 1234)]
+///         pub fn message1(&self) {}
+///
+///         #[ink(message, selector = 0xC0DECAFE)]
+///         pub fn message2(&self) {}
+///
+///         #[ink(message, selector = 42)]
+///         pub fn message3(&self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     assert_eq!(
+///         <Contract as ContractDispatchableMessages<{
+///             <Contract as ContractAmountDispatchables>::MESSAGES
+///         }>>::IDS,
+///         [1234, 0xC0DECAFE, 42],
+///     );
+/// }
+/// ```
 pub trait ContractDispatchableMessages<const AMOUNT: usize> {
     /// The sequence stores selector IDs of all ink! messages dispatchable by the ink! smart contract.
     const IDS: [u32; AMOUNT];
