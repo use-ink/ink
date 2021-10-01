@@ -45,23 +45,23 @@ fn main() {
     // println!("local_id(\"unpayable\")     = {:X}", local_id("unpayable"));
     // println!("local_id(\"unpayable_mut\") = {:X}", local_id("unpayable_mut"));
     assert!(
-        <<::ink_lang::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
+        <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
             as ::ink_lang::TraitMessageInfo<PAYABLE_ID>>::PAYABLE,
     );
     assert!(
-        <<::ink_lang::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
+        <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
             as ::ink_lang::TraitMessageInfo<PAYABLE_MUT_ID>>::PAYABLE,
     );
     assert_eq!(
-        <<::ink_lang::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
+        <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
             as ::ink_lang::TraitMessageInfo<UNPAYABLE_ID>>::PAYABLE,
         false
     );
     assert_eq!(
-        <<::ink_lang::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
+        <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
             as ::ink_lang::TraitMessageInfo<UNPAYABLE_MUT_ID>>::PAYABLE,
         false

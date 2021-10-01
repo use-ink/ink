@@ -12,51 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    codegen::TraitImplementedById,
-    DispatchError,
-};
-use core::marker::PhantomData;
-
-/// This type is known to ink! to implement all defined ink! trait definitions.
-/// This property can be guaranteed by `#[ink::trait_definition]` procedural macro.
-///
-/// By the introduction of an new internal and hidden associated type called
-/// `__ink_DynamicCallForwarder` for all ink! trait definitions it is possible
-/// for ink! to map from any given ink! trait definition back to a concrete
-/// Rust type.
-/// Whenever the `ChainExtensionRegistry` implements an ink! trait definition
-/// all calls are defaulted to produce linker errors (ideally compiler errors
-/// if that was possible) and the only relevant implementation is the new
-/// `__ink_DynamicCallForwarder` associated type that links to a concrete
-/// type implementing `FromAccountId` and the ink! trait definition with
-/// proper implementations.
-///
-/// Then ink! can map from the ink! trait definition `MyTrait` to this concrete
-/// dynamic call forwarder type by:
-/// ```no_compile
-/// <::ink_lang::TraitDefinitionRegistry as MyTrait>::__ink_DynamicCallForwarder
-/// ```
-/// Normal implementations of ink! trait definitions default the new
-/// `__ink_DynamicCallForwarder` associated type to `::ink_lang::NoDynamicCallForwarder`.
-///
-/// This is the technique used by ink! to resolve `&dyn MyTrait`, `&mut dyn MyTrait`
-/// in message parameters or `dyn MyTrait` in ink! storage fields to concrete types
-/// that ink! can serialize and deserialize as if it was an `AccountId` and call
-/// ink! messages on it according to the ink! trait definition interface.
-#[doc(hidden)]
-pub struct TraitDefinitionRegistry<E> {
-    marker: PhantomData<fn() -> E>,
-}
-
-impl<E> crate::ContractEnv for TraitDefinitionRegistry<E>
-where
-    E: ink_env::Environment,
-{
-    type Env = E;
-}
-
-unsafe impl<E, const N: u32> TraitImplementedById<N> for TraitDefinitionRegistry<E> {}
+use crate::DispatchError;
 
 /// The global call builder type for an ink! trait definition.
 pub trait TraitCallBuilder {

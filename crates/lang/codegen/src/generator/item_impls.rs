@@ -84,7 +84,7 @@ impl ItemImpls<'_> {
                 let message_guard_payable = message.is_payable().then(|| {
                     quote_spanned!(message_span=>
                         const _: ::ink_lang::codegen::TraitMessagePayable<{
-                            <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
                                 as ::ink_lang::TraitMessageInfo<#message_local_id>>::PAYABLE
                         }> = ::ink_lang::codegen::TraitMessagePayable::<true>;
@@ -95,7 +95,7 @@ impl ItemImpls<'_> {
                     quote_spanned!(message_span=>
                         const _: ::ink_lang::codegen::TraitMessageSelector<{
                             ::core::primitive::u32::from_be_bytes(
-                                <<::ink_lang::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                                <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
                                     as ::ink_lang::TraitMessageInfo<#message_local_id>>::SELECTOR
                             )
@@ -212,7 +212,7 @@ impl ItemImpls<'_> {
         quote_spanned!(span =>
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_TraitInfo = <::ink_lang::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #( #messages )*

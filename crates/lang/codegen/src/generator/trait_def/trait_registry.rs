@@ -102,7 +102,7 @@ impl TraitRegistry<'_> {
         let trait_info_ident = self.trait_def.trait_info_ident();
         let messages = self.generate_registry_messages();
         quote_spanned!(span=>
-            impl<E> #name for ::ink_lang::TraitDefinitionRegistry<E>
+            impl<E> #name for ::ink_lang::reflect::TraitDefinitionRegistry<E>
             where
                 E: ::ink_env::Environment,
             {

@@ -210,7 +210,7 @@ impl ContractRef<'_> {
             #( #attrs )*
             impl #trait_path for #forwarder_ident {
                 #[doc(hidden)]
-                type __ink_TraitInfo = <::ink_lang::TraitDefinitionRegistry<Environment>
+                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
                     as #trait_path>::__ink_TraitInfo;
 
                 #messages
