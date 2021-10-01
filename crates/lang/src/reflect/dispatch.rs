@@ -20,7 +20,7 @@ use crate::DispatchError;
 ///
 /// # Note
 ///
-/// All ink! constructors and ink! messages of an ink! smart contract are dispatchables.
+/// All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  
 /// This explicitly includes ink! messages from ink! trait implementations.
 ///
 /// # Usage
