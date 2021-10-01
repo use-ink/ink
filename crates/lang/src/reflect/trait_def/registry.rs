@@ -41,7 +41,6 @@ use core::marker::PhantomData;
 /// in message parameters or `dyn MyTrait` in ink! storage fields to concrete types
 /// that ink! can serialize and deserialize as if it was an `AccountId` and call
 /// ink! messages on it according to the ink! trait definition interface.
-#[doc(hidden)]
 pub struct TraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
