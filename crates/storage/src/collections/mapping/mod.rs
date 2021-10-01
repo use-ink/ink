@@ -64,6 +64,8 @@ where
     }
 
     /// Get the `value` at `key` from the contract storage.
+    ///
+    /// Returns `None` if no `value` exists at the given `key`.
     pub fn get(&self, key: &K) -> Option<V> {
         pull_packed_root_opt(&self.key(key))
     }

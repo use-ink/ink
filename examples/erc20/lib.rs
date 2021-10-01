@@ -87,7 +87,7 @@ mod erc20 {
         /// Returns `0` if the account is non-existent.
         #[ink(message)]
         pub fn balance_of(&self, owner: AccountId) -> Balance {
-            self.balances.get(&owner) //.copied().unwrap_or(0)
+            self.balances.get(&owner).unwrap_or_default() // .copied().unwrap_or(0)
         }
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
@@ -95,7 +95,7 @@ mod erc20 {
         /// Returns `0` if no allowance has been set `0`.
         #[ink(message)]
         pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
-            self.allowances.get(&(owner, spender)) //.copied().unwrap_or(0)
+            self.allowances.get(&(owner, spender)).unwrap_or_default() //.copied().unwrap_or(0)
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
