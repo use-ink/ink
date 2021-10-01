@@ -46,7 +46,7 @@ pub struct Mapping<K, V> {
 impl<K, V> Mapping<K, V>
 where
     K: PackedLayout,
-    V: PackedLayout + Default,
+    V: PackedLayout,
 {
     /// Creates a new empty `Mapping`.
     ///
@@ -64,8 +64,8 @@ where
     }
 
     /// Get the `value` at `key` from the contract storage.
-    pub fn get(&self, key: &K) -> V {
-        pull_packed_root_opt(&self.key(key)).unwrap_or_default()
+    pub fn get(&self, key: &K) -> Option<V> {
+        pull_packed_root_opt(&self.key(key))
     }
 
     fn key(&self, key: &K) -> Key {
@@ -130,7 +130,7 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mut mapping = Mapping::new([0u8; 32].into());
             mapping.insert(1, 2);
-            assert_eq!(mapping.get(&1), 2);
+            assert_eq!(mapping.get(&1), Some(2));
 
             Ok(())
         })
@@ -141,7 +141,7 @@ mod tests {
     fn gets_default_if_no_key_set() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            assert_eq!(mapping.get(&1), u8::default());
+            assert_eq!(mapping.get(&1), None);
 
             Ok(())
         })
