@@ -14,14 +14,13 @@
 
 use crate::DispatchError;
 
-/// Implemented by all ink! smart contracts.
-///
 /// Reflects the number of dispatchable ink! messages and constructors respectively.
 ///
 /// # Note
 ///
-/// All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  
-/// This explicitly includes ink! messages from ink! trait implementations.
+/// - This is automatically implemented by all ink! smart contracts.
+/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  
+///   This explicitly includes ink! messages from ink! trait implementations.
 ///
 /// # Usage
 ///
