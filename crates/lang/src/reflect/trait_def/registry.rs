@@ -15,32 +15,42 @@
 use crate::codegen::TraitImplementedById;
 use core::marker::PhantomData;
 
-/// This type is known to ink! to implement all defined ink! trait definitions.
-/// This property can be guaranteed by `#[ink::trait_definition]` procedural macro.
+/// Type that is guaranteed by ink! to implement all ink! trait definitions.
 ///
-/// By the introduction of an new internal and hidden associated type called
-/// `__ink_DynamicCallForwarder` for all ink! trait definitions it is possible
-/// for ink! to map from any given ink! trait definition back to a concrete
-/// Rust type.
-/// Whenever the `ChainExtensionRegistry` implements an ink! trait definition
-/// all calls are defaulted to produce linker errors (ideally compiler errors
-/// if that was possible) and the only relevant implementation is the new
-/// `__ink_DynamicCallForwarder` associated type that links to a concrete
-/// type implementing `FromAccountId` and the ink! trait definition with
-/// proper implementations.
+/// This guarantee is used by ink! itself and can be used by ink! smart contract
+/// authors to query static information about known ink! trait definitions.
 ///
-/// Then ink! can map from the ink! trait definition `MyTrait` to this concrete
-/// dynamic call forwarder type by:
-/// ```no_compile
-/// <::ink_lang::reflect::TraitDefinitionRegistry as MyTrait>::__ink_DynamicCallForwarder
+/// # Codegen
+///
+/// - The `#[ink::trait_definition]` procedural macro generates an associated type
+///   called `__ink_TraitInfo` for each ink! trait definition.
+/// - Furthermore the ink! codegen implements the ink! trait definition for the
+///   `TraitDefinitionRegistry` with stub implementations for all methods that
+///   guarantee that they are never called.
+/// - For every implemented ink! trait definition an ink! trait info object type
+///   is generated that is linked to the global `TraitDefinitionRegistry` through
+///   the aforementioned `__ink_TraitInfo` associated type.
+/// - This trait info object type itself implements various traits each providing
+///   useful static reflection information to the rest of the codegen about the ink!
+///   trait definition.
+///
+/// # Usage
+///
 /// ```
-/// Normal implementations of ink! trait definitions default the new
-/// `__ink_DynamicCallForwarder` associated type to `::ink_lang::NoDynamicCallForwarder`.
+/// # use ink_lang as ink;
+/// # use ink_lang::reflect::TraitDefinitionRegistry;
+/// use ink_env::DefaultEnvironment;
 ///
-/// This is the technique used by ink! to resolve `&dyn MyTrait`, `&mut dyn MyTrait`
-/// in message parameters or `dyn MyTrait` in ink! storage fields to concrete types
-/// that ink! can serialize and deserialize as if it was an `AccountId` and call
-/// ink! messages on it according to the ink! trait definition interface.
+/// #[ink::trait_definition]
+/// pub trait TraitDefinition {
+///     #[ink(message)]
+///     fn message(&self);
+/// }
+///
+/// /// Access the generated ink! trait info object type like this:
+/// type TraitInfo = <TraitDefinitionRegistry<DefaultEnvironment>
+///     as TraitDefinition>::__ink_TraitInfo;
+/// ```
 pub struct TraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
