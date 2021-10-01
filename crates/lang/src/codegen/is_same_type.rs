@@ -14,12 +14,23 @@
 
 use core::marker::PhantomData;
 
-/// Used to check if `T` is allowed as ink! input parameter type.
+/// Can be used to check equality of types.
 ///
-/// # Note
+/// # Example
 ///
-/// An ink! input parameter type must implement [`scale::Decode`]
-/// and must have a `'static` lifetime.
+/// This code compiles:
+///
+/// ```
+/// # use ink_lang::codegen::IsSameType;
+/// const _: IsSameType<i32> = IsSameType::<i32>::new();
+/// ```
+///
+/// While this code does not:
+///
+/// ```compile_fail
+/// # use ink_lang::codegen::IsSameType;
+/// const _: IsSameType<i32> = IsSameType::<i64>::new();
+/// ```
 pub struct IsSameType<T> {
     _marker: PhantomData<T>,
 }
