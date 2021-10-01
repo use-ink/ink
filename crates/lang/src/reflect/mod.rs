@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Definitions and utilities for ink! smart contract static reflection.
+//!
+//! # Note
+//!
+//! The ink! smart contract codegen uses these reflections in order to
+//! structure, solidify and manage the generated code.
+//!
+//! However, the definitions in this module might be useful to ink! smart
+//! contract authors as well as they allow to inspect compile time information
+//! about the ink! smart contract at hand.
+
 mod trait_def;
 
 pub use self::trait_def::TraitDefinitionRegistry;
