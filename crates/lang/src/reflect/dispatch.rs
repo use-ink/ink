@@ -17,6 +17,43 @@ use crate::DispatchError;
 /// Implemented by all ink! smart contracts.
 ///
 /// Reflects the number of dispatchable ink! messages and constructors respectively.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+/// # use ink_lang::reflect::ContractAmountDispatchables;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -> Self { Contract {} }
+///
+///         #[ink(constructor)]
+///         pub fn constructor2() -> Self { Contract {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&self) {}
+///
+///         #[ink(message)]
+///         pub fn message2(&self) {}
+///
+///         #[ink(message)]
+///         pub fn message3(&self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     assert_eq!(<Contract as ContractAmountDispatchables>::CONSTRUCTORS, 2);
+///     assert_eq!(<Contract as ContractAmountDispatchables>::MESSAGES, 3);
+/// }
+/// ```
 pub trait ContractAmountDispatchables {
     /// The number of dispatchable ink! messages.
     const MESSAGES: usize;
