@@ -51,6 +51,10 @@ use self::attrs::{
 };
 pub use self::{
     attrs::Namespace,
+    blake2::{
+        blake2b_256,
+        Blake2x256Macro,
+    },
     chain_extension::{
         ChainExtension,
         ChainExtensionMethod,

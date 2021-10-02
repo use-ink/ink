@@ -51,6 +51,10 @@ impl<'a> CodeGenerator for &'a ir::SelectorMacro<ir::marker::SelectorBytes> {
     type Generator = generator::SelectorBytes<'a>;
 }
 
+impl<'a> CodeGenerator for &'a ir::Blake2x256Macro {
+    type Generator = generator::Blake2x256<'a>;
+}
+
 /// Generates the entire code for the given ink! contract.
 pub fn generate_code<T>(entity: T) -> TokenStream2
 where

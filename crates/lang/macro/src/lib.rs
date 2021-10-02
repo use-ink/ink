@@ -14,6 +14,7 @@
 
 extern crate proc_macro;
 
+mod blake2b;
 mod chain_extension;
 mod contract;
 mod ink_test;
@@ -21,6 +22,32 @@ mod selector;
 mod trait_def;
 
 use proc_macro::TokenStream;
+
+/// Computes and expands into the BLAKE2b 256-bit hash of the string input.
+///
+/// # Note
+///
+/// - The computation takes place at compilation time of the crate.
+/// - The returned value is of type `[u8; 32]`.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::blake2x256;
+/// # use ink_lang_ir::blake2b_256;
+/// assert_eq!(
+///     blake2x256!("hello"),
+///     {
+///         let mut output = [0u8; 32];
+///         blake2b_256(b"hello", &mut output);
+///         output
+///     }
+/// );
+/// ```
+#[proc_macro]
+pub fn blake2x256(input: TokenStream) -> TokenStream {
+    blake2b::generate_blake2x256_hash(input.into()).into()
+}
 
 /// Computes the ink! selector of the string and expands into its `u32` representation.
 ///

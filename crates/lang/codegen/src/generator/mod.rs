@@ -26,6 +26,7 @@ macro_rules! impl_as_ref_for_generator {
     };
 }
 
+mod blake2b;
 mod chain_extension;
 mod contract;
 mod cross_calling;
@@ -40,6 +41,7 @@ mod storage;
 mod trait_def;
 
 pub use self::{
+    blake2b::Blake2x256,
     chain_extension::ChainExtension,
     contract::Contract,
     cross_calling::{
