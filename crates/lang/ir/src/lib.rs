@@ -36,6 +36,7 @@ mod literal;
 
 pub use self::{
     ir::{
+        marker,
         Callable,
         CallableKind,
         CallableWithSelector,
@@ -66,6 +67,7 @@ pub use self::{
         Namespace,
         Receiver,
         Selector,
+        SelectorMacro,
         Storage,
         Visibility,
     },

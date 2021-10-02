@@ -17,9 +17,50 @@ extern crate proc_macro;
 mod chain_extension;
 mod contract;
 mod ink_test;
+mod selector;
 mod trait_def;
 
 use proc_macro::TokenStream;
+
+/// Computes the ink! selector of the string and expands into its `u32` representation.
+///
+/// # Note
+///
+/// The computation takes place at compilation time of the crate.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::selector_id;
+/// assert_eq!(
+///     selector_id!("hello"),
+///     843960066,
+/// );
+/// ```
+#[proc_macro]
+pub fn selector_id(input: TokenStream) -> TokenStream {
+    selector::generate_selector_id(input.into()).into()
+}
+
+/// Computes the ink! selector of the string and expands into its byte representation.
+///
+/// # Note
+///
+/// The computation takes place at compilation time of the crate.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::selector_bytes;
+/// assert_eq!(
+///     selector_bytes!("hello"),
+///     [50, 77, 207, 2],
+/// );
+/// ```
+#[proc_macro]
+pub fn selector_bytes(input: TokenStream) -> TokenStream {
+    selector::generate_selector_bytes(input.into()).into()
+}
 
 /// Entry point for writing ink! smart contracts.
 ///

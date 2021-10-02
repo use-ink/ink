@@ -14,8 +14,14 @@
 
 use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
+use core::convert::TryFrom;
+use proc_macro2::{
+    Span,
+    TokenStream as TokenStream2,
+};
+use std::marker::PhantomData;
 
-/// A function selector.
+/// The selector of an ink! dispatchable.
 ///
 /// # Note
 ///
@@ -62,6 +68,67 @@ impl Selector {
 impl From<[u8; 4]> for Selector {
     fn from(bytes: [u8; 4]) -> Self {
         Self::from_bytes(bytes)
+    }
+}
+
+/// Used as generic parameter for the `selector_id!` macro.
+pub enum SelectorId {}
+
+/// Used as generic parameter for the `selector_bytes!` macro.
+pub enum SelectorBytes {}
+
+/// The selector ID of an ink! dispatchable.
+///
+/// # Note
+///
+/// This is mainly used for analysis and codegen of the `selector_id!` macro.
+#[derive(Debug)]
+pub struct SelectorMacro<T> {
+    selector: Selector,
+    input: syn::Lit,
+    _marker: PhantomData<fn() -> T>,
+}
+
+impl<T> SelectorMacro<T> {
+    /// Returns the underlying selector.
+    pub fn selector(&self) -> Selector {
+        self.selector
+    }
+
+    /// Returns the literal input of the selector ID.
+    pub fn input(&self) -> &syn::Lit {
+        &self.input
+    }
+}
+
+impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
+    type Error = syn::Error;
+
+    fn try_from(input: TokenStream2) -> Result<Self, Self::Error> {
+        let lit = syn::parse2::<syn::Lit>(input).map_err(|error| {
+            format_err!(
+                Span::call_site(),
+                "expected string or byte string literal as input: {}",
+                error
+            )
+        })?;
+        let input_bytes = match lit {
+            syn::Lit::Str(ref lit_str) => lit_str.value().into_bytes(),
+            syn::Lit::ByteStr(ref byte_str) => byte_str.value(),
+            invalid => {
+                return Err(format_err!(
+                    invalid.span(),
+                    "expected string or byte string literal as input. found {:?}",
+                    invalid,
+                ))
+            }
+        };
+        let selector = Selector::new(&input_bytes);
+        Ok(Self {
+            selector,
+            input: lit,
+            _marker: PhantomData,
+        })
     }
 }
 

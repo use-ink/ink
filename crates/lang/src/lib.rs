@@ -80,6 +80,8 @@ pub use ::static_assertions;
 pub use ink_lang_macro::{
     chain_extension,
     contract,
+    selector_bytes,
+    selector_id,
     test,
     trait_definition,
 };

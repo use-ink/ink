@@ -35,6 +35,7 @@ mod events;
 mod ink_test;
 mod item_impls;
 mod metadata;
+mod selector;
 mod storage;
 mod trait_def;
 
@@ -51,6 +52,10 @@ pub use self::{
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::Metadata,
+    selector::{
+        SelectorBytes,
+        SelectorId,
+    },
     storage::Storage,
     trait_def::TraitDefinition,
 };
