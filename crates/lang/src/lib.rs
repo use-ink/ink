@@ -84,4 +84,5 @@ pub use ink_lang_macro::{
     selector_id,
     test,
     trait_definition,
+    blake2x256,
 };
