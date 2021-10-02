@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #[test]
-fn blake2x256() {
+fn blake2x256_macro() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/blake2b/pass/*.rs");
