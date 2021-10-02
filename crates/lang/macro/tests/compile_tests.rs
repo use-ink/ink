@@ -13,24 +13,14 @@
 // limitations under the License.
 
 #[test]
-fn contract() {
+fn ui_tests() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/contract/pass/*.rs");
     t.compile_fail("tests/ui/contract/fail/*.rs");
-}
-
-#[test]
-fn chain_extension() {
-    let t = trybuild::TestCases::new();
-
-    t.pass("tests/ui/chain_extension/E-01-simple.rs");
-}
-
-#[test]
-fn trait_definition() {
-    let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/trait_def/pass/*.rs");
     t.compile_fail("tests/ui/trait_def/fail/*.rs");
+
+    t.pass("tests/ui/chain_extension/E-01-simple.rs");
 }
