@@ -21,6 +21,14 @@ fn blake2x256_macro() {
 }
 
 #[test]
+fn selector_id_macro() {
+    let t = trybuild::TestCases::new();
+
+    t.pass("tests/ui/selector_id/pass/*.rs");
+    t.compile_fail("tests/ui/selector_id/fail/*.rs");
+}
+
+#[test]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
 
