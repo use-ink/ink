@@ -15,11 +15,9 @@
 use super::blake2::blake2b_256;
 use crate::literal::HexLiteral;
 use core::convert::TryFrom;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use std::marker::PhantomData;
+use syn::spanned::Spanned as _;
 
 /// The selector of an ink! dispatchable.
 ///
@@ -105,9 +103,10 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
     type Error = syn::Error;
 
     fn try_from(input: TokenStream2) -> Result<Self, Self::Error> {
+        let input_span = input.span();
         let lit = syn::parse2::<syn::Lit>(input).map_err(|error| {
             format_err!(
-                Span::call_site(),
+                input_span,
                 "expected string or byte string literal as input: {}",
                 error
             )
