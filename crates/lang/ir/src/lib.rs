@@ -36,7 +36,9 @@ mod literal;
 
 pub use self::{
     ir::{
+        blake2b_256,
         marker,
+        Blake2x256Macro,
         Callable,
         CallableKind,
         CallableWithSelector,
@@ -61,8 +63,6 @@ pub use self::{
         IterConstructors,
         IterEvents,
         IterInkTraitItems,
-        Blake2x256Macro,
-        blake2b_256,
         IterItemImpls,
         IterMessages,
         Message,
