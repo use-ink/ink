@@ -13,6 +13,14 @@
 // limitations under the License.
 
 #[test]
+fn blake2x256() {
+    let t = trybuild::TestCases::new();
+
+    t.pass("tests/ui/blake2b/pass/*.rs");
+    t.compile_fail("tests/ui/blake2b/fail/*.rs");
+}
+
+#[test]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
 
