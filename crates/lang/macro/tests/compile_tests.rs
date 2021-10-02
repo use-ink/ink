@@ -13,32 +13,17 @@
 // limitations under the License.
 
 #[test]
-fn blake2x256_macro() {
+fn compile_tests() {
     let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/blake2b/pass/*.rs");
     t.compile_fail("tests/ui/blake2b/fail/*.rs");
-}
-
-#[test]
-fn selector_id_macro() {
-    let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/selector_id/pass/*.rs");
     t.compile_fail("tests/ui/selector_id/fail/*.rs");
-}
-
-#[test]
-fn selector_bytes_macro() {
-    let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/selector_bytes/pass/*.rs");
     t.compile_fail("tests/ui/selector_bytes/fail/*.rs");
-}
-
-#[test]
-fn compile_tests() {
-    let t = trybuild::TestCases::new();
 
     t.pass("tests/ui/contract/pass/01-noop-contract.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
