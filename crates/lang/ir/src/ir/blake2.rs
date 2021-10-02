@@ -13,10 +13,8 @@
 // limitations under the License.
 
 use core::convert::TryFrom;
-use proc_macro2::{
-    Span,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
+use syn::spanned::Spanned as _;
 
 /// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
 pub fn blake2b_256(input: &[u8], output: &mut [u8]) {
@@ -56,9 +54,10 @@ impl TryFrom<TokenStream2> for Blake2x256Macro {
     type Error = syn::Error;
 
     fn try_from(input: TokenStream2) -> Result<Self, Self::Error> {
+        let input_span = input.span();
         let lit = syn::parse2::<syn::Lit>(input).map_err(|error| {
             format_err!(
-                Span::call_site(),
+                input_span,
                 "expected string or byte string literal as input: {}",
                 error
             )
