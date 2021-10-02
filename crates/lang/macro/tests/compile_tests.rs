@@ -16,10 +16,6 @@
 fn contract() {
     let t = trybuild::TestCases::new();
 
-    // Optional test cases:
-    //
-    // t.pass("tests/ui/contract/pass/no-implicit-prelude.rs.disabled");
-
     t.pass("tests/ui/contract/pass/*.rs");
     t.compile_fail("tests/ui/contract/fail/*.rs");
 }
