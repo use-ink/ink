@@ -29,6 +29,14 @@ fn selector_id_macro() {
 }
 
 #[test]
+fn selector_bytes_macro() {
+    let t = trybuild::TestCases::new();
+
+    t.pass("tests/ui/selector_bytes/pass/*.rs");
+    t.compile_fail("tests/ui/selector_bytes/fail/*.rs");
+}
+
+#[test]
 fn compile_tests() {
     let t = trybuild::TestCases::new();
 
