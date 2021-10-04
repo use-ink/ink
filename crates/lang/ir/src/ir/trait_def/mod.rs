@@ -45,7 +45,7 @@ impl InkTraitDefinition {
         let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let parsed_item = syn::parse2::<syn::ItemTrait>(input)?;
         let config = TraitDefinitionConfig::try_from(parsed_config)?;
-        let item = InkItemTrait::try_from(parsed_item)?;
+        let item = InkItemTrait::new(&config, parsed_item)?;
         Ok(Self { config, item })
     }
 

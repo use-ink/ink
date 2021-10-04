@@ -23,12 +23,13 @@ pub use self::{
         InkTraitMessage,
     },
 };
-use super::InkAttribute;
+use super::TraitDefinitionConfig;
 use crate::{
     ir,
     ir::idents_lint,
     Selector,
 };
+#[cfg(test)]
 use core::convert::TryFrom;
 use ir::TraitPrefix;
 use proc_macro2::{
@@ -48,15 +49,27 @@ pub struct InkItemTrait {
     message_selectors: HashMap<syn::Ident, Selector>,
 }
 
+#[cfg(test)]
 impl TryFrom<syn::ItemTrait> for InkItemTrait {
     type Error = syn::Error;
 
     fn try_from(item_trait: syn::ItemTrait) -> core::result::Result<Self, Self::Error> {
+        let config = TraitDefinitionConfig::default();
+        Self::new(&config, item_trait)
+    }
+}
+
+impl InkItemTrait {
+    /// Creates a new ink! item trait from the given config and trait definition.
+    pub fn new(
+        config: &TraitDefinitionConfig,
+        item_trait: syn::ItemTrait,
+    ) -> Result<Self> {
         idents_lint::ensure_no_ink_identifiers(&item_trait)?;
         Self::analyse_properties(&item_trait)?;
         Self::analyse_items(&item_trait)?;
         let mut message_selectors = <HashMap<syn::Ident, Selector>>::new();
-        Self::extract_selectors(&item_trait, &mut message_selectors)?;
+        Self::extract_selectors(config, &item_trait, &mut message_selectors)?;
         if message_selectors.is_empty() {
             return Err(format_err!(
                 item_trait.span(),
@@ -320,11 +333,12 @@ impl InkItemTrait {
     /// or ink! messages. Note that overlaps between ink! constructor and message
     /// selectors are allowed.
     fn extract_selectors(
+        config: &TraitDefinitionConfig,
         item_trait: &syn::ItemTrait,
         message_selectors: &mut HashMap<syn::Ident, Selector>,
     ) -> Result<()> {
         let mut seen_message_selectors = <HashMap<Selector, syn::Ident>>::new();
-        let (ink_attrs, _) = ir::sanitize_optional_attributes(
+        let (_ink_attrs, _) = ir::sanitize_optional_attributes(
             item_trait.span(),
             item_trait.attrs.iter().cloned(),
             |arg| {
@@ -335,13 +349,9 @@ impl InkItemTrait {
             },
         )
         .expect("encountered unexpected invalid attributes on ink! trait definition");
-        let namespace = ink_attrs
-            .as_ref()
-            .map(InkAttribute::namespace)
-            .flatten()
-            .unwrap_or_default();
+        let namespace = config.namespace();
         let ident = &item_trait.ident;
-        let trait_prefix = TraitPrefix::new(ident, &namespace);
+        let trait_prefix = TraitPrefix::new(ident, namespace);
         for callable in IterInkTraitItemsRaw::from_raw(item_trait) {
             let ident = callable.ident();
             let ink_attrs = callable.ink_attrs();

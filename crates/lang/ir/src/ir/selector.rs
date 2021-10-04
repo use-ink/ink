@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use super::blake2::blake2b_256;
-use crate::{
-    literal::HexLiteral,
-    Namespace,
-};
+use crate::literal::HexLiteral;
 use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use std::marker::PhantomData;
@@ -40,14 +37,14 @@ pub struct TraitPrefix<'a> {
     /// By default this is equal to the `module_path!` at the ink! trait definition site.
     /// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`
     /// ink! attribute.
-    namespace: &'a Namespace,
+    namespace: Option<&'a syn::LitStr>,
     /// The Rust identifier of the ink! trait definition.
     trait_ident: &'a syn::Ident,
 }
 
 impl<'a> TraitPrefix<'a> {
     /// Creates a new trait prefix.
-    pub fn new(trait_ident: &'a syn::Ident, namespace: &'a Namespace) -> Self {
+    pub fn new(trait_ident: &'a syn::Ident, namespace: Option<&'a syn::LitStr>) -> Self {
         Self {
             namespace,
             trait_ident,
@@ -55,8 +52,10 @@ impl<'a> TraitPrefix<'a> {
     }
 
     /// Returns a shared slice over the bytes of the namespace.
-    pub fn namespace_bytes(&self) -> &[u8] {
-        self.namespace.as_bytes()
+    pub fn namespace_bytes(&self) -> Vec<u8> {
+        self.namespace
+            .map(|namespace| namespace.value().into_bytes())
+            .unwrap_or_default()
     }
 
     /// Returns a shared reference to the Rust identifier of the trait.
@@ -124,7 +123,7 @@ impl Selector {
                 if namespace.is_empty() {
                     [&trait_ident[..], &fn_ident[..]].join(separator)
                 } else {
-                    [namespace, &trait_ident[..], &fn_ident[..]].join(separator)
+                    [&namespace[..], &trait_ident[..], &fn_ident[..]].join(separator)
                 }
             }
             None => fn_ident.to_vec(),
