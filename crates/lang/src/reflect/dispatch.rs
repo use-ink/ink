@@ -168,6 +168,65 @@ pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
 /// Implemented by the ink! message namespace type for every ink! message selector ID.
 ///
 /// Stores various information properties of the respective dispatchable ink! message.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+/// # use ink_lang::reflect::DispatchableMessageInfo;
+/// # use ink_lang::{selector_id, selector_bytes};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Self { Contract {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&self) {}
+///
+///         #[ink(message, payable, selector = 0xC0DECAFE)]
+///         pub fn message2(&mut self, input1: i32, input2: i64) -> (bool, i32) {
+///             unimplemented!()
+///         }
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn assert_message_info<In, Out, const ID: u32>(
+///     mutates: bool,
+///     payable: bool,
+///     selector: [u8; 4],
+///     label: &str,
+/// )
+/// where
+///     Contract: DispatchableMessageInfo<{ID}, Input = In, Output = Out>,
+/// {
+///     assert_eq!(<Contract as DispatchableMessageInfo<{ID}>>::MUTATES, mutates);
+///     assert_eq!(<Contract as DispatchableMessageInfo<{ID}>>::PAYABLE, payable);
+///     assert_eq!(
+///         <Contract as DispatchableMessageInfo<{ID}>>::SELECTOR,
+///         selector,
+///     );
+///     assert_eq!(
+///         <Contract as DispatchableMessageInfo<{ID}>>::LABEL,
+///         label,
+///     );
+/// }
+///
+/// fn main() {
+///     assert_message_info::<(), (), {selector_id!("message1")}>(
+///         false, false, selector_bytes!("message1"), "message1"
+///     );
+///     assert_message_info::<(i32, i64), (bool, i32), 0xC0DECAFE_u32>(
+///         true, true, [0xC0, 0xDE, 0xCA, 0xFE], "message2"
+///     );
+/// }
+/// ```
 pub trait DispatchableMessageInfo<const ID: u32> {
     /// Reflects the input types of the dispatchable ink! message.
     type Input;
