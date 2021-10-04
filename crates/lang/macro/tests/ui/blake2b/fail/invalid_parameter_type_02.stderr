@@ -1,0 +1,5 @@
+error: expected string or byte string literal as input. found Int(LitInt { token: 42 })
+ --> $DIR/invalid_parameter_type_02.rs:3:38
+  |
+3 | const _: [u8; 32] = ink::blake2x256!(42);
+  |                                      ^^
