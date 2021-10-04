@@ -121,7 +121,11 @@ impl Selector {
                 let namespace = trait_prefix.namespace_bytes();
                 let trait_ident = trait_prefix.trait_ident().to_string().into_bytes();
                 let separator = &b"::"[..];
-                [namespace, &trait_ident, &fn_ident].join(separator)
+                if namespace.is_empty() {
+                    [&trait_ident[..], &fn_ident[..]].join(separator)
+                } else {
+                    [namespace, &trait_ident[..], &fn_ident[..]].join(separator)
+                }
             }
             None => fn_ident.to_vec(),
         };
