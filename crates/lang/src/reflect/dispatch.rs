@@ -262,6 +262,66 @@ pub trait DispatchableMessageInfo<const ID: u32> {
 /// Implemented by the ink! constructor namespace type for every ink! constructor selector ID.
 ///
 /// Stores various information of the respective dispatchable ink! constructor.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+/// # use ink_lang::reflect::DispatchableConstructorInfo;
+/// # use ink_lang::{selector_id, selector_bytes};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor1() -> Self { Contract {} }
+///
+///         #[ink(constructor, selector = 0xC0DECAFE)]
+///         pub fn constructor2(input1: i32, input2: i64) -> Self {
+///             Contract {}
+///         }
+///
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// /// Asserts that the constructor with the selector `ID` has the following properties.
+/// ///
+/// /// # Note
+/// ///
+/// /// The `In` and `Out` generic parameters describe the input and output types.
+/// fn assert_constructor_info<In, const ID: u32>(
+///     selector: [u8; 4],
+///     label: &str,
+/// )
+/// where
+///     Contract: DispatchableConstructorInfo<{ID}, Input = In>,
+/// {
+///     assert_eq!(
+///         <Contract as DispatchableConstructorInfo<{ID}>>::SELECTOR,
+///         selector,
+///     );
+///     assert_eq!(
+///         <Contract as DispatchableConstructorInfo<{ID}>>::LABEL,
+///         label,
+///     );
+/// }
+///
+/// fn main() {
+///     assert_constructor_info::<(), {selector_id!("constructor1")}>(
+///         selector_bytes!("constructor1"), "constructor1"
+///     );
+///     assert_constructor_info::<(i32, i64), 0xC0DECAFE_u32>(
+///         [0xC0, 0xDE, 0xCA, 0xFE], "constructor2"
+///     );
+/// }
+/// ```
 pub trait DispatchableConstructorInfo<const ID: u32> {
     /// Reflects the input types of the dispatchable ink! constructor.
     type Input;
