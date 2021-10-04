@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::format_err;
+use super::Selector;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
@@ -47,11 +48,10 @@ pub fn ensure_pub_visibility(
 ///
 /// # Note
 ///
-/// Used from within ink! trait definitions as well as ink! trait implementation blocks.
+/// - The returned value is equal to the selector of the message identifier.
+/// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
 pub fn local_message_id(ident: &syn::Ident) -> u32 {
-    let buffer = format!("message::{}", ident).into_bytes();
-    use blake2::digest::generic_array::sequence::Split as _;
-    let (head_32, _rest) = <blake2::Blake2b as blake2::Digest>::digest(&buffer).split();
-    let head_32: [u8; 4] = head_32.into();
-    u32::from_be_bytes(head_32)
+    let input = ident.to_string().into_bytes();
+    let selector = Selector::new(&input);
+    selector.into_be_u32()
 }
