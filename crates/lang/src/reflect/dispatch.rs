@@ -165,9 +165,13 @@ pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
     const IDS: [u32; AMOUNT];
 }
 
-/// Implemented by the ink! message namespace type for every ink! message selector ID.
+/// Stores various information of the respective dispatchable ink! message.
 ///
-/// Stores various information properties of the respective dispatchable ink! message.
+/// # Note
+///
+/// This trait is implemented by ink! for every dispatchable ink! message
+/// of the root ink! smart contract. The `ID` used in the trait reflects the
+/// chosen or derived selector of the dispatchable ink! message.
 ///
 /// # Usage
 ///
@@ -259,9 +263,13 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     const LABEL: &'static str;
 }
 
-/// Implemented by the ink! constructor namespace type for every ink! constructor selector ID.
-///
 /// Stores various information of the respective dispatchable ink! constructor.
+///
+/// # Note
+///
+/// This trait is implemented by ink! for every dispatchable ink! constructor
+/// of the root ink! smart contract. The `ID` used in the trait reflects the
+/// chosen or derived selector of the dispatchable ink! constructor.
 ///
 /// # Usage
 ///
