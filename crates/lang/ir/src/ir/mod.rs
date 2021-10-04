@@ -28,6 +28,14 @@ mod selector;
 mod trait_def;
 pub mod utils;
 
+/// Marker types and definitions.
+pub mod marker {
+    pub use super::selector::{
+        SelectorBytes,
+        SelectorId,
+    };
+}
+
 #[cfg(test)]
 use self::attrs::Attribute;
 
@@ -46,6 +54,10 @@ pub use self::{
     attrs::{
         IsDocAttribute,
         Namespace,
+    },
+    blake2::{
+        blake2b_256,
+        Blake2x256Macro,
     },
     chain_extension::{
         ChainExtension,
@@ -82,6 +94,7 @@ pub use self::{
     },
     selector::{
         Selector,
+        SelectorMacro,
         TraitPrefix,
     },
     trait_def::{

@@ -14,12 +14,80 @@
 
 extern crate proc_macro;
 
+mod blake2b;
 mod chain_extension;
 mod contract;
 mod ink_test;
+mod selector;
 mod trait_def;
 
 use proc_macro::TokenStream;
+
+/// Computes and expands into the BLAKE2b 256-bit hash of the string input.
+///
+/// # Note
+///
+/// - The computation takes place at compilation time of the crate.
+/// - The returned value is of type `[u8; 32]`.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::blake2x256;
+/// # use ink_lang_ir::blake2b_256;
+/// assert_eq!(
+///     blake2x256!("hello"),
+///     {
+///         let mut output = [0u8; 32];
+///         blake2b_256(b"hello", &mut output);
+///         output
+///     }
+/// );
+/// ```
+#[proc_macro]
+pub fn blake2x256(input: TokenStream) -> TokenStream {
+    blake2b::generate_blake2x256_hash(input.into()).into()
+}
+
+/// Computes the ink! selector of the string and expands into its `u32` representation.
+///
+/// # Note
+///
+/// The computation takes place at compilation time of the crate.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::selector_id;
+/// assert_eq!(
+///     selector_id!("hello"),
+///     843960066,
+/// );
+/// ```
+#[proc_macro]
+pub fn selector_id(input: TokenStream) -> TokenStream {
+    selector::generate_selector_id(input.into()).into()
+}
+
+/// Computes the ink! selector of the string and expands into its byte representation.
+///
+/// # Note
+///
+/// The computation takes place at compilation time of the crate.
+///
+/// # Example
+///
+/// ```
+/// # use ink_lang_macro::selector_bytes;
+/// assert_eq!(
+///     selector_bytes!("hello"),
+///     [50, 77, 207, 2],
+/// );
+/// ```
+#[proc_macro]
+pub fn selector_bytes(input: TokenStream) -> TokenStream {
+    selector::generate_selector_bytes(input.into()).into()
+}
 
 /// Entry point for writing ink! smart contracts.
 ///

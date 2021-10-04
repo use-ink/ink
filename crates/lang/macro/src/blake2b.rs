@@ -12,24 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[test]
-fn ui_tests() {
-    let t = trybuild::TestCases::new();
+use core::convert::TryFrom as _;
+use ink_lang_codegen::generate_code;
+use ink_lang_ir::Blake2x256Macro;
+use proc_macro2::TokenStream as TokenStream2;
+use syn::Result;
 
-    t.pass("tests/ui/blake2b/pass/*.rs");
-    t.compile_fail("tests/ui/blake2b/fail/*.rs");
+pub fn generate_blake2x256_hash(input: TokenStream2) -> TokenStream2 {
+    match generate_blake2x256_hash_or_err(input) {
+        Ok(tokens) => tokens,
+        Err(err) => err.to_compile_error(),
+    }
+}
 
-    t.pass("tests/ui/selector_id/pass/*.rs");
-    t.compile_fail("tests/ui/selector_id/fail/*.rs");
-
-    t.pass("tests/ui/selector_bytes/pass/*.rs");
-    t.compile_fail("tests/ui/selector_bytes/fail/*.rs");
-
-    t.pass("tests/ui/contract/pass/*.rs");
-    t.compile_fail("tests/ui/contract/fail/*.rs");
-
-    t.pass("tests/ui/trait_def/pass/*.rs");
-    t.compile_fail("tests/ui/trait_def/fail/*.rs");
-
-    t.pass("tests/ui/chain_extension/E-01-simple.rs");
+pub fn generate_blake2x256_hash_or_err(input: TokenStream2) -> Result<TokenStream2> {
+    let hash = Blake2x256Macro::try_from(input)?;
+    Ok(generate_code(&hash))
 }

@@ -28,6 +28,7 @@ macro_rules! impl_as_ref_for_generator {
 
 mod arg_list;
 mod as_dependency;
+mod blake2b;
 mod chain_extension;
 mod contract;
 mod dispatch;
@@ -36,6 +37,7 @@ mod events;
 mod ink_test;
 mod item_impls;
 mod metadata;
+mod selector;
 mod storage;
 mod trait_def;
 
@@ -54,6 +56,7 @@ pub use self::{
         NotAsDependencyCfg,
         OnlyAsDependencyCfg,
     },
+    blake2b::Blake2x256,
     chain_extension::ChainExtension,
     contract::Contract,
     dispatch::Dispatch,
@@ -62,6 +65,10 @@ pub use self::{
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::Metadata,
+    selector::{
+        SelectorBytes,
+        SelectorId,
+    },
     storage::Storage,
     trait_def::TraitDefinition,
 };
