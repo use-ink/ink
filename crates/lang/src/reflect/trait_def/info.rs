@@ -55,9 +55,15 @@
 ///     fn trait_message_2(&mut self);
 /// }
 ///
+/// #[ink::trait_definition(namespace = "foo")]
+/// pub trait InkTrait2 {
+///     #[ink(message)]
+///     fn trait_message(&self);
+/// }
+///
 /// #[ink::contract]
 /// pub mod contract {
-///     use super::InkTrait;
+///     use super::{InkTrait, InkTrait2};
 ///
 ///     #[ink(storage)]
 ///     pub struct Contract {}
@@ -73,6 +79,11 @@
 ///
 ///         #[ink(message)]
 ///         fn trait_message_2(&mut self) {}
+///     }
+///
+///     impl InkTrait2 for Contract {
+///         #[ink(message)]
+///         fn trait_message(&self) {}
 ///     }
 /// }
 ///
@@ -93,6 +104,11 @@
 ///         true,
 ///     );
 ///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait2>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message")}>>::PAYABLE,
+///         false,
+///     );
+///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
 ///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::SELECTOR,
 ///         selector_bytes!("InkTrait::trait_message_1")
@@ -101,6 +117,11 @@
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
 ///             as TraitMessageInfo<{selector_id!("trait_message_2")}>>::SELECTOR,
 ///         [0xC0, 0xDE, 0xCA, 0xFE]
+///     );
+///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait2>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message")}>>::SELECTOR,
+///         selector_bytes!("foo::InkTrait2::trait_message")
 ///     );
 /// }
 /// ```
