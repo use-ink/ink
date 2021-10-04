@@ -77,6 +77,7 @@ pub trait ContractAmountDispatchables {
 /// use ink_lang as ink;
 /// # use ink_lang::reflect::ContractAmountDispatchables;
 /// # use ink_lang::reflect::ContractDispatchableMessages;
+/// # use ink_lang::selector_id;
 ///
 /// #[ink::contract]
 /// pub mod contract {
@@ -105,7 +106,7 @@ pub trait ContractAmountDispatchables {
 ///         <Contract as ContractDispatchableMessages<{
 ///             <Contract as ContractAmountDispatchables>::MESSAGES
 ///         }>>::IDS,
-///         [1234, 0xC0DECAFE, 606597556],
+///         [1234, 0xC0DECAFE, selector_id!("message3")],
 ///     );
 /// }
 /// ```
@@ -126,6 +127,7 @@ pub trait ContractDispatchableMessages<const AMOUNT: usize> {
 /// use ink_lang as ink;
 /// # use ink_lang::reflect::ContractAmountDispatchables;
 /// # use ink_lang::reflect::ContractDispatchableConstructors;
+/// # use ink_lang::selector_id;
 ///
 /// #[ink::contract]
 /// pub mod contract {
@@ -154,7 +156,7 @@ pub trait ContractDispatchableMessages<const AMOUNT: usize> {
 ///         <Contract as ContractDispatchableConstructors<{
 ///             <Contract as ContractAmountDispatchables>::CONSTRUCTORS
 ///         }>>::IDS,
-///         [1234, 0xC0DECAFE, 1555172939],
+///         [1234, 0xC0DECAFE, selector_id!("constructor3")],
 ///     );
 /// }
 /// ```
