@@ -86,7 +86,7 @@ impl ItemImpls<'_> {
                         const _: ::ink_lang::codegen::TraitMessagePayable<{
                             <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
-                                as ::ink_lang::TraitMessageInfo<#message_local_id>>::PAYABLE
+                                as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::PAYABLE
                         }> = ::ink_lang::codegen::TraitMessagePayable::<true>;
                     )
                 });
@@ -97,7 +97,7 @@ impl ItemImpls<'_> {
                             ::core::primitive::u32::from_be_bytes(
                                 <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                     as #trait_path>::__ink_TraitInfo
-                                    as ::ink_lang::TraitMessageInfo<#message_local_id>>::SELECTOR
+                                    as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::SELECTOR
                             )
                         }> = ::ink_lang::codegen::TraitMessageSelector::<#given_selector>;
                     )

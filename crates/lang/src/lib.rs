@@ -56,7 +56,6 @@ pub use self::{
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,
-        TraitMessageInfo,
         TraitModulePath,
         TraitUniqueId,
     },

@@ -261,7 +261,7 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink_lang::TraitMessageInfo`] implementations for all
+    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementations for all
     /// ink! messages defined by the ink! trait definition.
     fn generate_info_for_trait_messages(&self) -> TokenStream2 {
         let span = self.span();
@@ -277,7 +277,7 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink_lang::TraitMessageInfo`] implementation for a single
+    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementation for a single
     /// ink! message defined by the ink! trait definition.
     fn generate_info_for_trait_for_message(
         &self,
@@ -290,7 +290,7 @@ impl TraitRegistry<'_> {
         let selector_bytes = selector.hex_lits();
         let is_payable = message.ink_attrs().is_payable();
         quote_spanned!(span=>
-            impl<E> ::ink_lang::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
+            impl<E> ::ink_lang::reflect::TraitMessageInfo<#local_id> for #trait_info_ident<E> {
                 const PAYABLE: ::core::primitive::bool = #is_payable;
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];

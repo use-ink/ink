@@ -47,23 +47,23 @@ fn main() {
     assert!(
         <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
-            as ::ink_lang::TraitMessageInfo<PAYABLE_ID>>::PAYABLE,
+            as ::ink_lang::reflect::TraitMessageInfo<PAYABLE_ID>>::PAYABLE,
     );
     assert!(
         <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
-            as ::ink_lang::TraitMessageInfo<PAYABLE_MUT_ID>>::PAYABLE,
+            as ::ink_lang::reflect::TraitMessageInfo<PAYABLE_MUT_ID>>::PAYABLE,
     );
     assert_eq!(
         <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
-            as ::ink_lang::TraitMessageInfo<UNPAYABLE_ID>>::PAYABLE,
+            as ::ink_lang::reflect::TraitMessageInfo<UNPAYABLE_ID>>::PAYABLE,
         false
     );
     assert_eq!(
         <<::ink_lang::reflect::TraitDefinitionRegistry<::ink_env::DefaultEnvironment>
             as PayableDefinition>::__ink_TraitInfo
-            as ::ink_lang::TraitMessageInfo<UNPAYABLE_MUT_ID>>::PAYABLE,
+            as ::ink_lang::reflect::TraitMessageInfo<UNPAYABLE_MUT_ID>>::PAYABLE,
         false
     );
 }

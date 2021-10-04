@@ -37,5 +37,8 @@ pub use self::{
         DispatchableMessageInfo,
         ExecuteDispatchable,
     },
-    trait_def::TraitDefinitionRegistry,
+    trait_def::{
+        TraitDefinitionRegistry,
+        TraitMessageInfo,
+    },
 };

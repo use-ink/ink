@@ -269,12 +269,12 @@ impl Metadata<'_> {
                 let is_payable = quote! {{
                     <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::TraitMessageInfo<#local_id>>::PAYABLE
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
                     <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_return_type(message.output());
                 quote_spanned!(message_span=>

@@ -179,7 +179,7 @@ impl Dispatch<'_> {
                         ::core::primitive::u32::from_be_bytes(
                             <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
-                                as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
+                                as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                         )
                     }
                 )
@@ -345,12 +345,12 @@ impl Dispatch<'_> {
                 let payable = quote! {{
                     <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::TraitMessageInfo<#local_id>>::PAYABLE
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
                     <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
-                        as ::ink_lang::TraitMessageInfo<#local_id>>::SELECTOR
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let selector_id = quote! {{
                     ::core::primitive::u32::from_be_bytes(#selector)
