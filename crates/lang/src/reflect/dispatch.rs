@@ -197,6 +197,11 @@ pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
 ///
 /// use contract::Contract;
 ///
+/// /// Asserts that the message with the selector `ID` has the following properties.
+/// ///
+/// /// # Note
+/// ///
+/// /// The `In` and `Out` generic parameters describe the input and output types.
 /// fn assert_message_info<In, Out, const ID: u32>(
 ///     mutates: bool,
 ///     payable: bool,
