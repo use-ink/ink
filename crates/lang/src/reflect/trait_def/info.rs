@@ -40,6 +40,55 @@
 ///   identifier of the ink! trait message which can be derived from
 ///   ink! implementation blocks in order to query the information
 ///   stored by this ink! trait information object trait implementation.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+///
+/// #[ink::trait_definition]
+/// pub trait InkTrait {
+///     #[ink(message)]
+///     fn trait_message_1(&self);
+///
+///     #[ink(message, payable, selector = 0xC0DECAFE)]
+///     fn trait_message_2(&mut self);
+/// }
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     use super::InkTrait;
+///
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Self { Contract {} }
+///     }
+///
+///     impl InkTrait for Contract {
+///         #[ink(message)]
+///         fn trait_message_1(&self) {}
+///
+///         #[ink(message)]
+///         fn trait_message_2(&mut self) {}
+///     }
+/// }
+///
+/// # use ink_lang::reflect::TraitDefinitionRegistry;
+/// # use ink_lang::reflect::TraitMessageInfo;
+/// # use ink_env::DefaultEnvironment;
+/// # use ink_lang::selector_id;
+///
+/// fn main() {
+///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::PAYABLE,
+///         false,
+///     );
+/// }
+/// ```
 pub trait TraitMessageInfo<const TRAIT_LOCAL_MESSAGE_ID: u32> {
     /// Is `true` if the ink! trait message has been annotated with `#[ink(payable)]`.
     const PAYABLE: bool;
