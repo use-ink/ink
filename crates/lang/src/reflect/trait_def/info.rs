@@ -79,13 +79,28 @@
 /// # use ink_lang::reflect::TraitDefinitionRegistry;
 /// # use ink_lang::reflect::TraitMessageInfo;
 /// # use ink_env::DefaultEnvironment;
-/// # use ink_lang::selector_id;
+/// # use ink_lang::{selector_id, selector_bytes};
 ///
 /// fn main() {
 ///     assert_eq!(
 ///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
 ///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::PAYABLE,
 ///         false,
+///     );
+///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message_2")}>>::PAYABLE,
+///         true,
+///     );
+///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message_1")}>>::SELECTOR,
+///         selector_bytes!("InkTrait::trait_message_1")
+///     );
+///     assert_eq!(
+///         <<TraitDefinitionRegistry<DefaultEnvironment> as InkTrait>::__ink_TraitInfo
+///             as TraitMessageInfo<{selector_id!("trait_message_2")}>>::SELECTOR,
+///         [0xC0, 0xDE, 0xCA, 0xFE]
 ///     );
 /// }
 /// ```
