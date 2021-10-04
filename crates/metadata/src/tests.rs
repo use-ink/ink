@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use super::*;
-use pretty_assertions::assert_eq;
 use scale_info::{
     IntoPortable,
     Registry,

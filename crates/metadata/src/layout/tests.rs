@@ -14,7 +14,6 @@
 
 use super::*;
 use ink_primitives::KeyPtr;
-use pretty_assertions::assert_eq;
 
 #[test]
 fn layout_key_works() {
