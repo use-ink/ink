@@ -83,6 +83,9 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -163,8 +166,11 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::static_assertions</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_lang_macro</span>::{
+    <span class="ident">blake2x256</span>,
     <span class="ident">chain_extension</span>,
     <span class="ident">contract</span>,
+    <span class="ident">selector_bytes</span>,
+    <span class="ident">selector_id</span>,
     <span class="ident">test</span>,
     <span class="ident">trait_definition</span>,
 };

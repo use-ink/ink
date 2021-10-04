@@ -71,6 +71,10 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -109,6 +113,9 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">ir</span>::{
+        <span class="ident">blake2b_256</span>,
+        <span class="ident">marker</span>,
+        <span class="ident">Blake2x256Macro</span>,
         <span class="ident">Callable</span>,
         <span class="ident">CallableKind</span>,
         <span class="ident">CallableWithSelector</span>,
@@ -139,6 +146,7 @@
         <span class="ident">Namespace</span>,
         <span class="ident">Receiver</span>,
         <span class="ident">Selector</span>,
+        <span class="ident">SelectorMacro</span>,
         <span class="ident">Storage</span>,
         <span class="ident">Visibility</span>,
     },

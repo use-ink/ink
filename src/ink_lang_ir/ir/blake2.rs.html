@@ -22,6 +22,65 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -36,6 +95,10 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
+<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
+<span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
+
 <span class="doccomment">/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
     <span class="kw">use</span> <span class="ident">::blake2::digest</span>::{
@@ -45,6 +108,61 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blake2</span> <span class="op">=</span> <span class="ident">blake2::VarBlake2b::new_keyed</span>(<span class="kw-2">&amp;</span>[], <span class="number">32</span>);
     <span class="ident">blake2</span>.<span class="ident">update</span>(<span class="ident">input</span>);
     <span class="ident">blake2</span>.<span class="ident">finalize_variable</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">copy_from_slice</span>(<span class="ident">result</span>));
+}
+
+<span class="doccomment">/// Computes the BLAKE2b-256 bit hash of a string or byte string literal.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is mainly used for analysis and codegen of the `blake2x256!` macro.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Blake2x256Macro</span> {
+    <span class="ident">hash</span>: [<span class="ident">u8</span>; <span class="number">32</span>],
+    <span class="ident">input</span>: <span class="ident">syn::Lit</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Blake2x256Macro</span> {
+    <span class="doccomment">/// Returns the underlying selector.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
+        <span class="self">self</span>.<span class="ident">hash</span>
+    }
+
+    <span class="doccomment">/// Returns the literal input of the BLAKE-2b hash.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">syn::Lit</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">TokenStream2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Blake2x256Macro</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
+
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: <span class="ident">TokenStream2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">input_span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">lit</span> <span class="op">=</span> <span class="ident">syn::parse2</span>::<span class="op">&lt;</span><span class="ident">syn::Lit</span><span class="op">&gt;</span>(<span class="ident">input</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="macro">format_err!</span>(
+                <span class="ident">input_span</span>,
+                <span class="string">&quot;expected string or byte string literal as input: {}&quot;</span>,
+                <span class="ident">error</span>
+            )
+        })<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">input_bytes</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lit</span> {
+            <span class="ident">syn::Lit::Str</span>(<span class="kw-2">ref</span> <span class="ident">lit_str</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lit_str</span>.<span class="ident">value</span>().<span class="ident">into_bytes</span>(),
+            <span class="ident">syn::Lit::ByteStr</span>(<span class="kw-2">ref</span> <span class="ident">byte_str</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">byte_str</span>.<span class="ident">value</span>(),
+            <span class="ident">invalid</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                    <span class="ident">invalid</span>.<span class="ident">span</span>(),
+                    <span class="string">&quot;expected string or byte string literal as input. found {:?}&quot;</span>,
+                    <span class="ident">invalid</span>,
+                ))
+            }
+        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">32</span>];
+        <span class="ident">blake2b_256</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
+            <span class="ident">hash</span>: <span class="ident">output</span>,
+            <span class="ident">input</span>: <span class="ident">lit</span>,
+        })
+    }
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_lang_ir" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
