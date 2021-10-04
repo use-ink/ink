@@ -338,12 +338,91 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
 }
 
 /// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
+///
+/// # Note
+///
+/// The decoder follows the ink! calling ABI where all ink! message calls start with
+/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded parameters.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+/// # use ink_lang::reflect::ContractMessageDecoder;
+/// # use ink_lang::selector_bytes;
+/// # use scale::{Encode, Decode};
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message1(&self) {}
+///
+///         #[ink(message)]
+///         pub fn message2(&self, input1: bool, input2: i32) {}
+///     }
+/// }
+///
+/// use contract::Contract;
+///
+/// fn main() {
+///     // Call to `message1` without input parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!("message1"));
+///         assert!(
+///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///                 &mut &input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call to `message2` with 2 parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!("message2"));
+///         input_bytes.extend(true.encode());
+///         input_bytes.extend(42i32.encode());
+///         assert!(
+///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///                 &mut &input_bytes[..]).is_ok()
+///         );
+///     }
+///     // Call with invalid ink! message selector.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!("non_existing_message"));
+///         assert!(
+///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///                 &mut &input_bytes[..]).is_err()
+///         );
+///     }
+///     // Call with invalid ink! message parameters.
+///     {
+///         let mut input_bytes = Vec::new();
+///         input_bytes.extend(selector_bytes!("message2"));
+///         assert!(
+///             <<Contract as ContractMessageDecoder>::Type as Decode>::decode(
+///                 &mut &input_bytes[..]).is_err()
+///         );
+///     }
+/// }
+/// ```
 pub trait ContractMessageDecoder {
     /// The ink! smart contract message decoder type.
     type Type: scale::Decode + ExecuteDispatchable;
 }
 
 /// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
+///
+/// # Note
+///
+/// The decoder follows the ink! calling ABI where all ink! constructor calls start with
+/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded parameters.
 pub trait ContractConstructorDecoder {
     /// The ink! smart contract constructor decoder type.
     type Type: scale::Decode + ExecuteDispatchable;
