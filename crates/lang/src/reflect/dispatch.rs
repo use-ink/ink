@@ -505,9 +505,11 @@ pub trait ContractConstructorDecoder {
     type Type: scale::Decode + ExecuteDispatchable;
 }
 
-/// Implemented by the ink! smart contract message or constructor decoder.
-///
 /// Starts the execution of the respective ink! message or constructor call.
+///
+/// # Note
+///
+/// Implemented by the ink! smart contract message or constructor decoder.
 pub trait ExecuteDispatchable {
     /// Executes the ink! smart contract message or constructor.
     fn execute_dispatchable(self) -> Result<(), DispatchError>;
