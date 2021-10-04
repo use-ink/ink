@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::format_err;
 use super::Selector;
+use crate::format_err;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
