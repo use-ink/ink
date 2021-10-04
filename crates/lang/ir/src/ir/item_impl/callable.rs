@@ -182,8 +182,9 @@ pub trait Callable {
 /// # Details
 ///
 /// Given
-/// - the callable's identifier `i`
-/// - the optionally set callable's selector `s`
+///
+/// - the identifier `i` of the callable
+/// - the optionally set selector `s` of the callable
 /// - the `impl` blocks trait path in case it implements a trait, `P`
 /// - 16 kB blocks optional user provided namespace `S`
 ///
