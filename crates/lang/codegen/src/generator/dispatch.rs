@@ -177,7 +177,7 @@ impl Dispatch<'_> {
                 quote_spanned!(span=>
                     {
                         ::core::primitive::u32::from_be_bytes(
-                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
                                 as #trait_path>::__ink_TraitInfo
                                 as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                         )
@@ -343,12 +343,12 @@ impl Dispatch<'_> {
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let payable = quote! {{
-                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
                 }};
                 let selector = quote! {{
-                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::ContractEnv>::Env>
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
                         as #trait_path>::__ink_TraitInfo
                         as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
@@ -415,7 +415,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             fn call() {
                 if !#any_message_accept_payment {
-                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
+                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
                 ::ink_env::decode_input::<

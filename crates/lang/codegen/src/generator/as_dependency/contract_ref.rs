@@ -111,8 +111,8 @@ impl ContractRef<'_> {
                     type Type = #ref_ident;
                 }
 
-                impl ::ink_lang::ContractEnv for #ref_ident {
-                    type Env = <#storage_ident as ::ink_lang::ContractEnv>::Env;
+                impl ::ink_lang::reflect::ContractEnv for #ref_ident {
+                    type Env = <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env;
                 }
             };
         )

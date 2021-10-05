@@ -28,7 +28,10 @@ mod dispatch;
 mod trait_def;
 
 pub use self::{
-    contract::ContractName,
+    contract::{
+        ContractEnv,
+        ContractName,
+    },
     dispatch::{
         ContractAmountDispatchables,
         ContractConstructorDecoder,

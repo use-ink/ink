@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{
-    ContractEnv,
+    reflect::ContractEnv,
     DispatchError,
 };
 use core::{

@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::codegen::TraitImplementedById;
+use crate::{
+    codegen::TraitImplementedById,
+    reflect::ContractEnv,
+};
 use core::marker::PhantomData;
 
 /// Type that is guaranteed by ink! to implement all ink! trait definitions.
@@ -55,7 +58,7 @@ pub struct TraitDefinitionRegistry<E> {
     marker: PhantomData<fn() -> E>,
 }
 
-impl<E> crate::ContractEnv for TraitDefinitionRegistry<E>
+impl<E> ContractEnv for TraitDefinitionRegistry<E>
 where
     E: ink_env::Environment,
 {

@@ -167,7 +167,7 @@ impl<'a> Events<'a> {
 
                 #[allow(non_upper_case_globals)]
                 const __ink_MAX_EVENT_TOPICS: usize = <
-                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment
+                    <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env as ::ink_env::Environment
                 >::MAX_EVENT_TOPICS;
 
                 fn __ink_ensure_max_event_topics<T>(_: T)

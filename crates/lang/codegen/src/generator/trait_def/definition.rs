@@ -60,7 +60,7 @@ impl TraitDefinition<'_> {
             .map(Self::generate_for_message);
         quote_spanned!(span =>
             #(#attrs)*
-            pub trait #ident: ::ink_lang::ContractEnv {
+            pub trait #ident: ::ink_lang::reflect::ContractEnv {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]

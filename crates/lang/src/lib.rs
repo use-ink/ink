@@ -41,7 +41,6 @@ pub use self::{
         ToAccountId,
     },
     env_access::{
-        ContractEnv,
         Env,
         EnvAccess,
         StaticEnv,
