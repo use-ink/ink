@@ -59,7 +59,7 @@ pub trait ContractName {
 /// wanted to use an environment type definition called `MyEnvironment` they
 /// issue the ink! smart contract as follows:
 ///
-/// ```
+/// ```no_compile
 /// #[ink::contract(env = MyEnvironment)]
 /// ```
 ///
@@ -85,17 +85,20 @@ pub trait ContractName {
 /// use contract::Contract;
 ///
 /// # use ink_lang::reflect::ContractEnv;
-/// assert_eq!(
-///     <Contract as ContractEnv>::Env,
-///     ink_env::DefaultEnvironment,
-/// );
+/// # use ink_lang::codegen::IsSameType;
+///
+/// // The following line only compiles successfully if both
+/// // `ink_env::DefaultEnvironment` and `<Contract as ContractEnv>::Env`
+/// // are of the same type.
+/// const _: IsSameType<<Contract as ContractEnv>::Env> =
+///     <IsSameType<ink_env::DefaultEnvironment>>::new();
 /// ```
 ///
 /// # Usage: Custom Environment
 ///
 /// ```
 /// use ink_lang as ink;
-/// # use ink_env::Environment;
+/// # use ink_env::{Environment, DefaultEnvironment};
 ///
 /// pub struct CustomEnvironment {}
 ///
@@ -126,12 +129,16 @@ pub trait ContractName {
 /// }
 ///
 /// use contract::Contract;
-///
 /// # use ink_lang::reflect::ContractEnv;
-/// assert_eq!(
-///     <Contract as ContractEnv>::Env,
-///     CustomEnvironment
-/// );
+/// # use ink_lang::codegen::IsSameType;
+///
+/// // The following line only compiles successfully if both
+/// // `CustomEnvironment` and `<Contract as ContractEnv>::Env`
+/// // are of the same type.
+/// const _: IsSameType<<Contract as ContractEnv>::Env> =
+///     <IsSameType<CustomEnvironment>>::new();
+///
+/// fn main() {}
 /// ```
 pub trait ContractEnv {
     /// The environment type.
