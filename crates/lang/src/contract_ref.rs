@@ -25,12 +25,6 @@ where
     fn to_account_id(&self) -> <T as Environment>::AccountId;
 }
 
-/// Used to refer to the generated contract reference from the given contract storage struct.
-pub trait ContractReference {
-    /// The generated contract reference type.
-    type Type;
-}
-
 /// Used to refer to the generated contract call builder.
 ///
 /// The generated contract call builder implements the long-hand calling API

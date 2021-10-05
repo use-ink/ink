@@ -31,6 +31,7 @@ pub use self::{
     contract::{
         ContractEnv,
         ContractName,
+        ContractReference,
     },
     dispatch::{
         ContractAmountDispatchables,

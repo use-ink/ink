@@ -137,3 +137,9 @@ pub trait ContractEnv {
     /// The environment type.
     type Env: ::ink_env::Environment;
 }
+
+/// Used to refer to the generated contract reference from the given contract storage struct.
+pub trait ContractReference {
+    /// The generated contract reference type.
+    type Type;
+}

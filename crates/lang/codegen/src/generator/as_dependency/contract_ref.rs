@@ -107,7 +107,7 @@ impl ContractRef<'_> {
             }
 
             const _: () = {
-                impl ::ink_lang::ContractReference for #storage_ident {
+                impl ::ink_lang::reflect::ContractReference for #storage_ident {
                     type Type = #ref_ident;
                 }
 
