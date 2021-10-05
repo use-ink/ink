@@ -123,9 +123,7 @@ impl Metadata<'_> {
         let selector_bytes = constructor.composed_selector().hex_lits();
         let constructor = constructor.callable();
         let ident = constructor.ident();
-        let args = constructor
-            .inputs()
-            .map(Self::generate_dispatch_argument);
+        let args = constructor.inputs().map(Self::generate_dispatch_argument);
         quote_spanned!(span=>
             ::ink_metadata::ConstructorSpec::from_name(::core::stringify!(#ident))
                 .selector([
