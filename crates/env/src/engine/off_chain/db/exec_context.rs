@@ -148,9 +148,7 @@ where
     ///
     /// If there has already been set a caller.
     pub fn caller(mut self, caller: T::AccountId) -> Self {
-        if self.caller.is_some() {
-            panic!("already has a caller");
-        }
+        assert!(self.caller.is_none(), "already has a caller");
         self.caller = Some(caller);
         self
     }
@@ -161,9 +159,7 @@ where
     ///
     /// If there has already been set a callee.
     pub fn callee(mut self, callee: T::AccountId) -> Self {
-        if self.callee.is_some() {
-            panic!("already has a callee");
-        }
+        assert!(self.caller.is_none(), "already has a caller");
         self.callee = Some(callee);
         self
     }
@@ -174,9 +170,7 @@ where
     ///
     /// If there has already been set provided gas.
     pub fn gas(mut self, gas: u64) -> Self {
-        if self.gas.is_some() {
-            panic!("already has provided gas");
-        }
+        assert!(self.gas.is_none(), "already has provided gas");
         self.gas = Some(gas);
         self
     }
@@ -187,9 +181,10 @@ where
     ///
     /// If there has already been set transferred value (endowment).
     pub fn transferred_value(mut self, transferred_value: T::Balance) -> Self {
-        if self.transferred_value.is_some() {
-            panic!("already has set transferred value (endowment)");
-        }
+        assert!(
+            self.transferred_value.is_none(),
+            "already has set transferred value (endowment)"
+        );
         self.transferred_value = Some(transferred_value);
         self
     }
@@ -200,9 +195,7 @@ where
     ///
     /// If there has already been set call data.
     pub fn call_data(mut self, call_data: CallData) -> Self {
-        if self.call_data.is_some() {
-            panic!("already has set call data");
-        }
+        assert!(self.call_data.is_none(), "already has set call data");
         self.call_data = Some(call_data);
         self
     }
