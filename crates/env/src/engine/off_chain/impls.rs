@@ -157,7 +157,7 @@ impl EnvBackend for EnvInstance {
     {
         self.exec_context()
             .map(|exec_ctx| &exec_ctx.call_data)
-            .map(|call_data| scale::Encode::encode(call_data))
+            .map(scale::Encode::encode)
             .map_err(Into::into)
             .and_then(|encoded| {
                 <T as scale::Decode>::decode(&mut &encoded[..])
