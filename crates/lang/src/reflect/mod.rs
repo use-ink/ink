@@ -23,10 +23,12 @@
 //! contract authors as well as they allow to inspect compile time information
 //! about the ink! smart contract at hand.
 
+mod contract;
 mod dispatch;
 mod trait_def;
 
 pub use self::{
+    contract::ContractName,
     dispatch::{
         ContractAmountDispatchables,
         ContractConstructorDecoder,

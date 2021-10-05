@@ -37,7 +37,6 @@ pub use self::{
     },
     contract_ref::{
         ContractCallBuilder,
-        ContractName,
         ContractReference,
         ToAccountId,
     },

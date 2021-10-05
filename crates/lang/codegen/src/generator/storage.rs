@@ -103,7 +103,7 @@ impl Storage<'_> {
             }
 
             const _: () = {
-                impl ::ink_lang::ContractName for #ident {
+                impl ::ink_lang::reflect::ContractName for #ident {
                     const NAME: &'static str = ::core::stringify!(#ident);
                 }
             };
