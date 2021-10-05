@@ -145,7 +145,45 @@ pub trait ContractEnv {
     type Env: ::ink_env::Environment;
 }
 
-/// Used to refer to the generated contract reference from the given contract storage struct.
+/// Refers to the generated ink! smart contract reference type.
+///
+/// # Note
+///
+/// Given an ink! storage struct with identifier `Contract` the ink! codegen produces
+/// the ink! root type `Contract` and the ink! reference type `ContractRef`.
+///
+/// This trait exists so that users can avoid using a generated identifier to refer to
+/// the generated reference type of the ink! smart contract.
+///
+/// # Usage
+///
+/// ```
+/// use ink_lang as ink;
+///
+/// #[ink::contract]
+/// pub mod contract {
+///     #[ink(storage)]
+///     pub struct Contract {}
+///
+///     impl Contract {
+///         #[ink(constructor)]
+///         pub fn constructor() -> Self { Self {} }
+///
+///         #[ink(message)]
+///         pub fn message(&self) {}
+///     }
+/// }
+///
+/// use contract::{Contract, ContractRef};
+/// # use ink_lang::codegen::IsSameType;
+/// # use ink_lang::reflect::ContractReference;
+///
+/// // The following line only compiles successfully if both
+/// // `ContractReference` and `<Contract as ContractReference>::Type`
+/// // are of the same type.
+/// const _: IsSameType<<Contract as ContractReference>::Type> =
+///     <IsSameType<ContractRef>>::new();
+/// ```
 pub trait ContractReference {
     /// The generated contract reference type.
     type Type;
