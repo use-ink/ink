@@ -159,7 +159,7 @@ where
     ///
     /// If there has already been set a callee.
     pub fn callee(mut self, callee: T::AccountId) -> Self {
-        assert!(self.caller.is_none(), "already has a caller");
+        assert!(self.callee.is_none(), "already has a callee");
         self.callee = Some(callee);
         self
     }
