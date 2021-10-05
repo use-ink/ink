@@ -213,9 +213,7 @@ impl Metadata<'_> {
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
-                let args = message
-                    .inputs()
-                    .map(|arg| Self::generate_dispatch_argument(arg));
+                let args = message.inputs().map(Self::generate_dispatch_argument);
                 let ret_ty = Self::generate_return_type(message.output());
                 quote_spanned!(span =>
                     ::ink_metadata::MessageSpec::from_name(::core::stringify!(#ident))
@@ -263,7 +261,7 @@ impl Metadata<'_> {
                     .filter_map(|attr| attr.extract_docs());
                 let message_args = message
                     .inputs()
-                    .map(|arg| Self::generate_dispatch_argument(arg));
+                    .map(Self::generate_dispatch_argument);
                 let mutates = message.receiver().is_ref_mut();
                 let local_id = message.local_id().hex_padded_suffixed();
                 let is_payable = quote! {{

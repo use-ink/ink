@@ -157,7 +157,7 @@ impl EnvBackend for EnvInstance {
     {
         self.exec_context()
             .map(|exec_ctx| &exec_ctx.call_data)
-            .map(|call_data| scale::Encode::encode(call_data))
+            .map(scale::Encode::encode)
             .map_err(Into::into)
             .and_then(|encoded| {
                 <T as scale::Decode>::decode(&mut &encoded[..])
@@ -210,12 +210,12 @@ impl EnvBackend for EnvInstance {
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
         let encoded_input = input.encode();
-        let (status_code, mut output) = self
+        let (status_code, output) = self
             .chain_extension_handler
             .eval(func_id, &encoded_input)
             .expect("encountered unexpected missing chain extension method");
         status_to_result(status_code)?;
-        let decoded = decode_to_result(&mut output)?;
+        let decoded = decode_to_result(output)?;
         Ok(decoded)
     }
 }
