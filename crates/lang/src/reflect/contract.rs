@@ -39,13 +39,11 @@
 ///
 /// use contract::Contract;
 ///
-/// fn main() {
-///     # use ink_lang::reflect::ContractName;
-///     assert_eq!(
-///         <Contract as ContractName>::NAME,
-///         "Contract",
-///     );
-/// }
+/// # use ink_lang::reflect::ContractName;
+/// assert_eq!(
+///     <Contract as ContractName>::NAME,
+///     "Contract",
+/// );
 /// ```
 pub trait ContractName {
     /// The name of the ink! smart contract.
@@ -86,13 +84,11 @@ pub trait ContractName {
 ///
 /// use contract::Contract;
 ///
-/// fn main() {
-///     # use ink_lang::reflect::ContractEnv;
-///     assert_eq!(
-///         <Contract as ContractEnv>::Env,
-///         ink_env::DefaultEnvironment,
-///     );
-/// }
+/// # use ink_lang::reflect::ContractEnv;
+/// assert_eq!(
+///     <Contract as ContractEnv>::Env,
+///     ink_env::DefaultEnvironment,
+/// );
 /// ```
 ///
 /// # Usage: Custom Environment
@@ -131,13 +127,11 @@ pub trait ContractName {
 ///
 /// use contract::Contract;
 ///
-/// fn main() {
-///     # use ink_lang::reflect::ContractEnv;
-///     assert_eq!(
-///         <Contract as ContractEnv>::Env,
-///         CustomEnvironment
-///     );
-/// }
+/// # use ink_lang::reflect::ContractEnv;
+/// assert_eq!(
+///     <Contract as ContractEnv>::Env,
+///     CustomEnvironment
+/// );
 /// ```
 pub trait ContractEnv {
     /// The environment type.

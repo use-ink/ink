@@ -661,7 +661,7 @@ where
 pub fn sanitize_optional_attributes<I, C>(
     parent_span: Span,
     attrs: I,
-    mut is_conflicting_attr: C,
+    is_conflicting_attr: C,
 ) -> Result<(Option<InkAttribute>, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
@@ -674,7 +674,7 @@ where
     let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
         err.into_combine(format_err!(parent_span, "at this invocation",))
     })?;
-    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg))?;
+    normalized.ensure_no_conflicts(is_conflicting_attr)?;
     Ok((Some(normalized), rust_attrs))
 }
 

@@ -125,7 +125,7 @@ impl Metadata<'_> {
         let ident = constructor.ident();
         let args = constructor
             .inputs()
-            .map(|arg| Self::generate_dispatch_argument(arg));
+            .map(Self::generate_dispatch_argument);
         quote_spanned!(span=>
             ::ink_metadata::ConstructorSpec::from_name(::core::stringify!(#ident))
                 .selector([
