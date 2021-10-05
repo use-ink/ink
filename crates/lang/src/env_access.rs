@@ -61,7 +61,7 @@ pub trait StaticEnv {
     fn env() -> Self::EnvAccess;
 }
 
-/// The API behind the `self.env()` syntax in ink!.
+/// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
