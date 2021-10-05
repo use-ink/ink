@@ -26,7 +26,6 @@ pub mod reflect;
 mod chain_extension;
 mod contract_ref;
 mod env_access;
-mod error;
 mod events;
 mod traits;
 
@@ -44,7 +43,6 @@ pub use self::{
         EnvAccess,
         StaticEnv,
     },
-    error::DispatchError,
     events::{
         ContractEventBase,
         EmitEvent,

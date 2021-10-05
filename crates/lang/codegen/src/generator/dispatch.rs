@@ -401,7 +401,7 @@ impl Dispatch<'_> {
             fn deploy() {
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
-                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
+                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
                         <<#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type
                             as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
@@ -420,7 +420,7 @@ impl Dispatch<'_> {
                 }
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)
+                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
                     .and_then(|decoder| {
                         <<#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type
                             as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
@@ -543,7 +543,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
                         }
@@ -702,7 +702,7 @@ impl Dispatch<'_> {
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match self {
                             #( #message_execute ),*
                         }

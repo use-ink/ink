@@ -39,6 +39,7 @@ pub use self::{
         ContractDispatchableConstructors,
         ContractDispatchableMessages,
         ContractMessageDecoder,
+        DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,

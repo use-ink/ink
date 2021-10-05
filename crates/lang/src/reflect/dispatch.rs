@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::DispatchError;
+use derive_more::Display;
 
 /// Reflects the number of dispatchable ink! messages and constructors respectively.
 ///
@@ -513,4 +513,27 @@ pub trait ContractConstructorDecoder {
 pub trait ExecuteDispatchable {
     /// Executes the ink! smart contract message or constructor.
     fn execute_dispatchable(self) -> Result<(), DispatchError>;
+}
+
+/// An error that can occur during dispatch of ink! dispatchables.
+#[derive(Debug, Copy, Clone, Display)]
+pub enum DispatchError {
+    #[display(fmt = "unknown selector")]
+    UnknownSelector,
+    #[display(fmt = "unknown constructor selector")]
+    UnknownInstantiateSelector,
+    #[display(fmt = "unknown message selector")]
+    UnknownCallSelector,
+
+    #[display(fmt = "unable to decoded input parameter bytes")]
+    InvalidParameters,
+    #[display(fmt = "unable to decoded input parameter bytes for constructor")]
+    InvalidInstantiateParameters,
+    #[display(fmt = "unable to decoded input parameter bytes for message")]
+    InvalidCallParameters,
+
+    #[display(fmt = "could not read input parameters")]
+    CouldNotReadInput,
+    #[display(fmt = "paid an unpayable message")]
+    PaidUnpayableMessage,
 }
