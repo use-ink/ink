@@ -4,16 +4,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang as ink;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
-
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
@@ -209,6 +200,7 @@ mod erc20 {
         }
     }
 
+    #[ink(impl)]
     impl Erc20 {
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
         ///
