@@ -818,7 +818,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                             error
                                         )
                                     })?;
-                                let selector = Selector::from_bytes(selector_u32.to_be_bytes());
+                                let selector = Selector::from(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Selector(selector),
@@ -1116,7 +1116,7 @@ mod tests {
                 #[ink(selector = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from_bytes([0, 0, 0, 42]),
+                Selector::from([0, 0, 0, 42]),
             )])),
         );
         assert_attribute_try_from(
@@ -1124,7 +1124,7 @@ mod tests {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from_bytes([0xDE, 0xAD, 0xBE, 0xEF]),
+                Selector::from([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
     }

@@ -65,16 +65,11 @@ impl<'a> TraitPrefix<'a> {
 }
 
 impl Selector {
-    /// Creates a new selector from the given raw bytes.
-    pub fn from_bytes(bytes: [u8; 4]) -> Self {
-        Self { bytes }
-    }
-
     /// Computes the BLAKE-2 256-bit based selector from the given input bytes.
     pub fn new(input: &[u8]) -> Self {
         let mut output = [0; 32];
         blake2b_256(input, &mut output);
-        Self::from_bytes([output[0], output[1], output[2], output[3]])
+        Self::from([output[0], output[1], output[2], output[3]])
     }
 
     /// # Note
@@ -149,7 +144,7 @@ impl Selector {
 
 impl From<[u8; 4]> for Selector {
     fn from(bytes: [u8; 4]) -> Self {
-        Self::from_bytes(bytes)
+        Self { bytes }
     }
 }
 
@@ -221,7 +216,7 @@ mod tests {
 
     #[test]
     fn hex_lits_works() {
-        let hex_lits = Selector::from_bytes([0xC0, 0xDE, 0xCA, 0xFE]).hex_lits();
+        let hex_lits = Selector::from([0xC0, 0xDE, 0xCA, 0xFE]).hex_lits();
         assert_eq!(
             hex_lits,
             [
