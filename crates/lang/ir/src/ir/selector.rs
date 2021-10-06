@@ -66,7 +66,7 @@ impl<'a> TraitPrefix<'a> {
 
 impl Selector {
     /// Computes the BLAKE-2 256-bit based selector from the given input bytes.
-    pub fn new(input: &[u8]) -> Self {
+    pub fn compute(input: &[u8]) -> Self {
         let mut output = [0; 32];
         blake2b_256(input, &mut output);
         Self::from([output[0], output[1], output[2], output[3]])
@@ -123,7 +123,7 @@ impl Selector {
             }
             None => fn_ident.to_vec(),
         };
-        Self::new(&input_bytes)
+        Self::compute(&input_bytes)
     }
 
     /// Returns the underlying four bytes.
@@ -201,7 +201,7 @@ impl<T> TryFrom<TokenStream2> for SelectorMacro<T> {
                 ))
             }
         };
-        let selector = Selector::new(&input_bytes);
+        let selector = Selector::compute(&input_bytes);
         Ok(Self {
             selector,
             input: lit,

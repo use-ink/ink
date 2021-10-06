@@ -344,7 +344,7 @@ where
             }
         }
     };
-    ir::Selector::new(&joined)
+    ir::Selector::compute(&joined)
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
@@ -555,7 +555,7 @@ mod tests {
         pub fn expected_selector(self) -> ir::Selector {
             match self {
                 Self::Raw(raw_selector) => ir::Selector::from(raw_selector),
-                Self::Blake2(blake2_input) => ir::Selector::new(&blake2_input),
+                Self::Blake2(blake2_input) => ir::Selector::compute(&blake2_input),
             }
         }
     }

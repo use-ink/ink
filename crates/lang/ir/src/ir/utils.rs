@@ -52,6 +52,6 @@ pub fn ensure_pub_visibility(
 /// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
 pub fn local_message_id(ident: &syn::Ident) -> u32 {
     let input = ident.to_string().into_bytes();
-    let selector = Selector::new(&input);
+    let selector = Selector::compute(&input);
     selector.into_be_u32()
 }
