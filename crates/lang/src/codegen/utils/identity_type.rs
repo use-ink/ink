@@ -12,9 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Takes a generic type as input and does nothing.
+/// Takes a generic type as input and just consumes it while doing nothing.
 ///
 /// # Note
 ///
-/// Used to trigger some compile time checks.
-pub const fn identity_type<T>() {}
+/// This can be used to trigger some compile time checks due to the fact
+/// that the type consumed this way is type checked. We usually use this
+/// to make the Rust compiler check the trait bounds in particular.
+///
+/// # Usage: Compiles
+///
+/// ```
+/// # use ink_lang::codegen::utils::consume_type;
+/// # use core::marker::PhantomData;
+/// #
+/// pub struct RequiresCopy<T: Copy>(PhantomData<T>);
+///
+/// // The following line of code works because `i32: Copy`.
+/// let _: () = consume_type::<RequiresCopy<i32>>();
+/// ```
+///
+/// # Usage: Compile Error
+///
+/// ```compile_fail
+/// # use ink_lang::codegen::utils::consume_type;
+/// # use core::marker::PhantomData;
+/// #
+/// pub struct RequiresCopy<T: Copy>(PhantomData<T>);
+///
+/// // The following line of code fails to compile because
+/// // `String` does not implement `Copy`.
+/// let _: () = consume_type::<RequiresCopy<String>>();
+/// ```
+pub const fn consume_type<T>() {}
