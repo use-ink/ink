@@ -18,8 +18,8 @@ mod dispatch;
 mod env;
 mod event;
 mod implies_return;
-mod is_same_type;
 mod trait_def;
+pub mod utils;
 
 pub use self::{
     dispatch::{
@@ -44,7 +44,6 @@ pub use self::{
         RespectTopicLimit,
     },
     implies_return::ImpliesReturn,
-    is_same_type::IsSameType,
     trait_def::{
         TraitCallBuilder,
         TraitCallForwarder,
@@ -55,10 +54,3 @@ pub use self::{
         TraitUniqueId,
     },
 };
-
-/// Takes a generic type as input and does nothing.
-///
-/// # Note
-///
-/// Used to trigger some compile time checks.
-pub const fn identity_type<T>() {}

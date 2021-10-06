@@ -25,7 +25,7 @@
 ///
 /// ```
 /// # use ink_lang::codegen::DispatchInput;
-/// const _: () = ink_lang::codegen::identity_type::<DispatchInput<i32>>();
+/// const _: () = ink_lang::codegen::utils::identity_type::<DispatchInput<i32>>();
 /// ```
 ///
 /// This fails to compile since `Foo` does not fulfill all requirements.
@@ -34,7 +34,7 @@
 /// # use ink_lang::codegen::DispatchInput;
 /// // Foo is missing scale codec implementations.
 /// struct Foo {}
-/// const _: () = ink_lang::codegen::identity_type::<DispatchInput<Foo>>();
+/// const _: () = ink_lang::codegen::utils::identity_type::<DispatchInput<Foo>>();
 /// ```
 pub struct DispatchInput<T>(T)
 where
@@ -53,7 +53,7 @@ where
 ///
 /// ```
 /// # use ink_lang::codegen::DispatchOutput;
-/// const _: () = ink_lang::codegen::identity_type::<DispatchOutput<i32>>();
+/// const _: () = ink_lang::codegen::utils::identity_type::<DispatchOutput<i32>>();
 /// ```
 ///
 /// This fails to compile since `Foo` does not fulfill all requirements.
@@ -62,7 +62,7 @@ where
 /// # use ink_lang::codegen::DispatchOutput;
 /// // Foo is missing scale codec implementations.
 /// struct Foo {}
-/// const _: () = ink_lang::codegen::identity_type::<DispatchOutput<Foo>>();
+/// const _: () = ink_lang::codegen::utils::identity_type::<DispatchOutput<Foo>>();
 /// ```
 pub struct DispatchOutput<T>(T)
 where

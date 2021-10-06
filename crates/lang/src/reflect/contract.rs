@@ -85,7 +85,7 @@ pub trait ContractName {
 /// use contract::Contract;
 ///
 /// # use ink_lang::reflect::ContractEnv;
-/// # use ink_lang::codegen::IsSameType;
+/// # use ink_lang::codegen::utils::IsSameType;
 ///
 /// // The following line only compiles successfully if both
 /// // `ink_env::DefaultEnvironment` and `<Contract as ContractEnv>::Env`
@@ -130,7 +130,7 @@ pub trait ContractName {
 ///
 /// use contract::Contract;
 /// # use ink_lang::reflect::ContractEnv;
-/// # use ink_lang::codegen::IsSameType;
+/// # use ink_lang::codegen::utils::IsSameType;
 ///
 /// // The following line only compiles successfully if both
 /// // `CustomEnvironment` and `<Contract as ContractEnv>::Env`
@@ -175,7 +175,7 @@ pub trait ContractEnv {
 /// }
 ///
 /// use contract::{Contract, ContractRef};
-/// # use ink_lang::codegen::IsSameType;
+/// # use ink_lang::codegen::utils::IsSameType;
 /// # use ink_lang::reflect::ContractReference;
 ///
 /// // The following line only compiles successfully if both

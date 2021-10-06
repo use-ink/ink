@@ -134,7 +134,7 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::identity_type::<
+                        let _: () = ::ink_lang::codegen::utils::identity_type::<
                             ::ink_lang::codegen::DispatchInput<#input_type>
                         >();
                     )
@@ -155,7 +155,7 @@ impl ItemImpls<'_> {
                     let span = input.span();
                     let input_type = &*input.ty;
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::identity_type::<
+                        let _: () = ::ink_lang::codegen::utils::identity_type::<
                             ::ink_lang::codegen::DispatchInput<#input_type>
                         >();
                     )
@@ -163,7 +163,7 @@ impl ItemImpls<'_> {
                 let message_output = message.output().map(|output_type| {
                     let span = output_type.span();
                     quote_spanned!(span=>
-                        let _: () = ::ink_lang::codegen::identity_type::<
+                        let _: () = ::ink_lang::codegen::utils::identity_type::<
                             ::ink_lang::codegen::DispatchOutput<#output_type>
                         >();
                     )
@@ -295,8 +295,8 @@ impl ItemImpls<'_> {
         let span = self_ty.span();
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
-            const _: ::ink_lang::codegen::IsSameType<#storage_ident> =
-                ::ink_lang::codegen::IsSameType::<#self_ty>::new();
+            const _: ::ink_lang::codegen::utils::IsSameType<#storage_ident> =
+                ::ink_lang::codegen::utils::IsSameType::<#self_ty>::new();
         )
     }
 
