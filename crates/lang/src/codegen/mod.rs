@@ -15,6 +15,7 @@
 //! Definitions and facilities mainly used by the ink! codegen.
 
 mod dispatch;
+mod event;
 mod implies_return;
 mod is_same_type;
 mod trait_def;
@@ -28,6 +29,11 @@ pub use self::{
         DispatchOutput,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
+    },
+    event::{
+        EventRespectsTopicLimit,
+        EventTopics,
+        EventLenTopics,
     },
     implies_return::ImpliesReturn,
     is_same_type::IsSameType,

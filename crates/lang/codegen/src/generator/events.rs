@@ -141,42 +141,25 @@ impl<'a> Events<'a> {
 
     /// Generate checks to guard against too many topics in event definitions.
     fn generate_topics_guard(&self, event: &ir::Event) -> TokenStream2 {
+        let span = event.span();
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
-        let span = event.span();
+        let max_len_topics = quote_spanned!(span=>
+            <<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env
+                as ::ink_env::Environment>::MAX_EVENT_TOPICS
+        );
         quote_spanned!(span=>
-            const _: () = {
-                #[allow(non_camel_case_types)]
-                pub enum __ink_CheckSatisfied {}
-                pub enum EventTopicsWithinBounds {}
-                #[doc(hidden)]
-                pub trait CompliesWithTopicLimit {}
-                impl CompliesWithTopicLimit for __ink_CheckSatisfied {}
+            impl ::ink_lang::codegen::EventLenTopics for #event_ident {
+                type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
+            }
 
-                #[allow(non_camel_case_types)]
-                pub trait __ink_RenameBool {
-                    type Type;
-                }
-                impl __ink_RenameBool for [(); true as usize] {
-                    type Type = __ink_CheckSatisfied;
-                }
-                impl __ink_RenameBool for [(); false as usize] {
-                    type Type = #event_ident;
-                }
-
-                #[allow(non_upper_case_globals)]
-                const __ink_MAX_EVENT_TOPICS: usize = <
-                    <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env as ::ink_env::Environment
-                >::MAX_EVENT_TOPICS;
-
-                fn __ink_ensure_max_event_topics<T>(_: T)
-                where
-                    T: __ink_RenameBool,
-                    <T as __ink_RenameBool>::Type: CompliesWithTopicLimit,
-                {}
-                let _ = __ink_ensure_max_event_topics::<[(); (#len_topics <= __ink_MAX_EVENT_TOPICS) as usize]>;
-            };
+            const _: () = ::ink_lang::codegen::identity_type::<
+                ::ink_lang::codegen::EventRespectsTopicLimit<
+                    #event_ident,
+                    { #max_len_topics },
+                >
+            >();
         )
     }
 
