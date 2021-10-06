@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_builder;
 mod implemented_by;
 mod trait_message;
 
 pub use self::{
+    call_builder::{
+        TraitCallBuilder,
+        TraitCallForwarder,
+        TraitCallForwarderFor,
+        TraitUniqueId,
+    },
     implemented_by::TraitImplementedById,
     trait_message::{
         TraitMessagePayable,

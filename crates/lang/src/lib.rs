@@ -26,7 +26,6 @@ pub mod reflect;
 mod chain_extension;
 mod contract_ref;
 mod env_access;
-mod traits;
 
 pub use self::{
     chain_extension::{
@@ -38,12 +37,6 @@ pub use self::{
         ToAccountId,
     },
     env_access::EnvAccess,
-    traits::{
-        TraitCallBuilder,
-        TraitCallForwarder,
-        TraitCallForwarderFor,
-        TraitUniqueId,
-    },
 };
 pub use ink_lang_macro::{
     blake2x256,

@@ -98,7 +98,7 @@ pub fn generate_unique_trait_id(span: Span, trait_path: &syn::Path) -> TokenStre
         {
             <<::ink_lang::reflect::TraitDefinitionRegistry<Environment>
                 as #trait_path>::__ink_TraitInfo
-                as ::ink_lang::TraitUniqueId>::ID
+                as ::ink_lang::codegen::TraitUniqueId>::ID
         }
     )
 }

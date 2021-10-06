@@ -120,7 +120,7 @@ impl CallForwarder<'_> {
             where
                 E: ::ink_env::Environment,
             {
-                builder: <Self as ::ink_lang::TraitCallBuilder>::Builder,
+                builder: <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder,
             }
         )
     }
@@ -145,7 +145,7 @@ impl CallForwarder<'_> {
                 fn layout(
                     __key_ptr: &mut ::ink_storage::traits::KeyPtr,
                 ) -> ::ink_metadata::layout::Layout {
-                    <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::StorageLayout>::layout(__key_ptr)
                 }
             }
@@ -174,20 +174,20 @@ impl CallForwarder<'_> {
                 #[inline]
                 fn pull_spread(ptr: &mut ::ink_primitives::KeyPtr) -> Self {
                     Self {
-                        builder: <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                        builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                             as ::ink_storage::traits::SpreadLayout>::pull_spread(ptr)
                     }
                 }
 
                 #[inline]
                 fn push_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
-                    <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::SpreadLayout>::push_spread(&self.builder, ptr)
                 }
 
                 #[inline]
                 fn clear_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
-                    <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::SpreadLayout>::clear_spread(&self.builder, ptr)
                 }
             }
@@ -240,7 +240,7 @@ impl CallForwarder<'_> {
                 #[inline]
                 fn clone(&self) -> Self {
                     Self {
-                        builder: <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                        builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                             as ::core::clone::Clone>::clone(&self.builder),
                     }
                 }
@@ -277,7 +277,7 @@ impl CallForwarder<'_> {
             {
                 #[inline]
                 fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
-                    Self { builder: <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                    Self { builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_env::call::FromAccountId<E>>::from_account_id(account_id) }
                 }
             }
@@ -288,7 +288,7 @@ impl CallForwarder<'_> {
             {
                 #[inline]
                 fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
-                    <<Self as ::ink_lang::TraitCallBuilder>::Builder
+                    <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_lang::ToAccountId<E>>::to_account_id(&self.builder)
                 }
             }
@@ -311,19 +311,19 @@ impl CallForwarder<'_> {
             /// Also this explains why we designed the generated code so that we have
             /// both types and why the forwarder is a thin-wrapper around the builder
             /// as this allows to perform this operation safely.
-            impl<E> ::ink_lang::TraitCallBuilder for #call_forwarder_ident<E>
+            impl<E> ::ink_lang::codegen::TraitCallBuilder for #call_forwarder_ident<E>
             where
                 E: ::ink_env::Environment,
             {
                 type Builder = #call_builder_ident<E>;
 
                 #[inline]
-                fn call(&self) -> &<Self as ::ink_lang::TraitCallBuilder>::Builder {
+                fn call(&self) -> &<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &self.builder
                 }
 
                 #[inline]
-                fn call_mut(&mut self) -> &mut <Self as ::ink_lang::TraitCallBuilder>::Builder {
+                fn call_mut(&mut self) -> &mut <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &mut self.builder
                 }
             }
@@ -414,8 +414,8 @@ impl CallForwarder<'_> {
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
-                <<Self as ::ink_lang::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
-                    <Self as ::ink_lang::TraitCallBuilder>::#call_op(self)
+                <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
+                    <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_op(self)
                     #(
                         , #input_bindings
                     )*

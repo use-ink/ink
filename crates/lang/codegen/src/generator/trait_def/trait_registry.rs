@@ -236,7 +236,7 @@ impl TraitRegistry<'_> {
             {
             }
 
-            impl<E> ::ink_lang::TraitUniqueId for #trait_info_ident<E>
+            impl<E> ::ink_lang::codegen::TraitUniqueId for #trait_info_ident<E>
             where
                 E: ::ink_env::Environment,
             {
@@ -252,7 +252,7 @@ impl TraitRegistry<'_> {
                 const NAME: &'static ::core::primitive::str = ::core::stringify!(#trait_ident);
             }
 
-            impl<E> ::ink_lang::TraitCallForwarder for #trait_info_ident<E>
+            impl<E> ::ink_lang::codegen::TraitCallForwarder for #trait_info_ident<E>
             where
                 E: ::ink_env::Environment,
             {

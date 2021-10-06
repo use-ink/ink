@@ -157,7 +157,7 @@ impl ContractRef<'_> {
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span=>
             const _: () = {
-                impl ::ink_lang::TraitCallBuilder for #ref_ident {
+                impl ::ink_lang::codegen::TraitCallBuilder for #ref_ident {
                     type Builder = <#storage_ident as ::ink_lang::ContractCallBuilder>::Type;
 
                     #[inline]
@@ -258,7 +258,7 @@ impl ContractRef<'_> {
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         quote_spanned!(span=>
             type #output_ident =
-                <<Self::__ink_TraitInfo as ::ink_lang::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
+                <<Self::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
             #[inline]
             fn #message_ident(
@@ -266,8 +266,8 @@ impl ContractRef<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <_ as ::ink_lang::TraitCallForwarderFor<#unique_trait_id>>::#forward_operator(
-                        <Self as ::ink_lang::TraitCallBuilder>::#call_operator(self),
+                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<#unique_trait_id>>::#forward_operator(
+                        <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self),
                     )
                     #( , #input_bindings )*
                 )
@@ -350,7 +350,7 @@ impl ContractRef<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) #output_type {
-                <Self as ::ink_lang::TraitCallBuilder>::#call_operator(self)
+                <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self)
                     .#message_ident( #( #input_bindings ),* )
                     .fire()
                     .unwrap_or_else(|error| ::core::panic!(

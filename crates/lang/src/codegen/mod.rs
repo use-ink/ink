@@ -45,9 +45,13 @@ pub use self::{
     implies_return::ImpliesReturn,
     is_same_type::IsSameType,
     trait_def::{
+        TraitCallBuilder,
+        TraitCallForwarder,
+        TraitCallForwarderFor,
         TraitImplementedById,
         TraitMessagePayable,
         TraitMessageSelector,
+        TraitUniqueId,
     },
 };
 
