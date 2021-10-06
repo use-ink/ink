@@ -34,6 +34,7 @@ pub use self::{
         EventLenTopics,
         EventRespectsTopicLimit,
         EventTopics,
+        RespectTopicLimit,
     },
     implies_return::ImpliesReturn,
     is_same_type::IsSameType,
