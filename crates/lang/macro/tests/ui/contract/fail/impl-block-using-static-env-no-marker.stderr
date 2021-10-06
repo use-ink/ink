@@ -1,0 +1,14 @@
+error[E0599]: no function or associated item named `env` found for struct `Contract` in the current scope
+  --> $DIR/impl-block-using-static-env-no-marker.rs:22:27
+   |
+6  |     pub struct Contract {}
+   |     ------------------- function or associated item `env` not found for this
+...
+22 |             let _ = Self::env().caller();
+   |                           ^^^ function or associated item not found in `Contract`
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: the following trait is implemented but not in scope; perhaps add a `use` for it:
+   |
+6  |     use ink_lang::codegen::StaticEnv;
+   |

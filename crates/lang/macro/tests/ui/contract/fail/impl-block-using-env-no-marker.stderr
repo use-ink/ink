@@ -1,0 +1,11 @@
+error[E0599]: no method named `env` found for reference `&Contract` in the current scope
+  --> $DIR/impl-block-using-env-no-marker.rs:24:26
+   |
+24 |             let _ = self.env().caller();
+   |                          ^^^ method not found in `&Contract`
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: the following trait is implemented but not in scope; perhaps add a `use` for it:
+   |
+6  |     use ink_lang::codegen::Env;
+   |
