@@ -14,10 +14,10 @@
 
 //! Utility types and definitions used by the ink! codegen.
 
-mod same_type;
 mod identity_type;
+mod same_type;
 
 pub use self::{
-    same_type::IsSameType,
     identity_type::consume_type,
+    same_type::IsSameType,
 };
