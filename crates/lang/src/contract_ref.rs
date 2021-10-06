@@ -24,12 +24,3 @@ where
     /// Returns the underlying account identifier of the instantiated contract.
     fn to_account_id(&self) -> <T as Environment>::AccountId;
 }
-
-/// Used to refer to the generated contract call builder.
-///
-/// The generated contract call builder implements the long-hand calling API
-/// for all inherent or trait ink! messages.
-pub trait ContractCallBuilder {
-    /// The generated contract call builder type.
-    type Type;
-}

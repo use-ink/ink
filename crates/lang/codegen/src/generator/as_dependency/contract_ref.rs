@@ -103,7 +103,7 @@ impl ContractRef<'_> {
             )]
             #( #doc_attrs )*
             pub struct #ref_ident {
-                inner: <#storage_ident as ::ink_lang::ContractCallBuilder>::Type,
+                inner: <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type,
             }
 
             const _: () = {
@@ -131,7 +131,7 @@ impl ContractRef<'_> {
                 #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { inner: <<#storage_ident
-                        as ::ink_lang::ContractCallBuilder>::Type
+                        as ::ink_lang::codegen::ContractCallBuilder>::Type
                         as ::ink_env::call::FromAccountId<Environment>>::from_account_id(account_id)
                     }
                 }
@@ -140,7 +140,7 @@ impl ContractRef<'_> {
             impl ::ink_lang::ToAccountId<Environment> for #ref_ident {
                 #[inline]
                 fn to_account_id(&self) -> AccountId {
-                    <<#storage_ident as ::ink_lang::ContractCallBuilder>::Type
+                    <<#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type
                         as ::ink_lang::ToAccountId<Environment>>::to_account_id(&self.inner)
                 }
             }
@@ -158,7 +158,7 @@ impl ContractRef<'_> {
         quote_spanned!(span=>
             const _: () = {
                 impl ::ink_lang::codegen::TraitCallBuilder for #ref_ident {
-                    type Builder = <#storage_ident as ::ink_lang::ContractCallBuilder>::Type;
+                    type Builder = <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type;
 
                     #[inline]
                     fn call(&self) -> &Self::Builder {

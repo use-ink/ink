@@ -102,7 +102,7 @@ impl CallBuilder<'_> {
             }
 
             const _: () = {
-                impl ::ink_lang::ContractCallBuilder for #storage_ident {
+                impl ::ink_lang::codegen::ContractCallBuilder for #storage_ident {
                     type Type = #cb_ident;
                 }
 

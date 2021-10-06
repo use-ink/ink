@@ -12,35 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
-#[macro_use]
-#[doc(hidden)]
-mod result_info;
-
-#[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
-pub mod codegen;
-
-pub mod reflect;
-
-mod chain_extension;
-mod contract_ref;
-mod env_access;
-
-pub use self::{
-    chain_extension::{
-        ChainExtensionInstance,
-        IsResultType,
-    },
-    contract_ref::ToAccountId,
-    env_access::EnvAccess,
-};
-pub use ink_lang_macro::{
-    blake2x256,
-    chain_extension,
-    contract,
-    selector_bytes,
-    selector_id,
-    test,
-    trait_definition,
-};
+/// Used to refer to the generated contract call builder.
+///
+/// The generated contract call builder implements the long-hand calling API
+/// for all inherent or trait ink! messages.
+pub trait ContractCallBuilder {
+    /// The generated contract call builder type.
+    type Type;
+}

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 mod execution;
+mod info;
 mod type_check;
 
 pub use self::{
@@ -23,6 +24,7 @@ pub use self::{
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
     },
+    info::ContractCallBuilder,
     type_check::{
         DispatchInput,
         DispatchOutput,
