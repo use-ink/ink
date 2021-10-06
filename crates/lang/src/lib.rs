@@ -39,10 +39,7 @@ pub use self::{
         ToAccountId,
     },
     env_access::EnvAccess,
-    events::{
-        ContractEventBase,
-        EmitEvent,
-    },
+    events::ContractEventBase,
     traits::{
         TraitCallBuilder,
         TraitCallForwarder,

@@ -36,6 +36,7 @@ pub use self::{
         StaticEnv,
     },
     event::{
+        EmitEvent,
         EventLenTopics,
         EventRespectsTopicLimit,
         EventTopics,

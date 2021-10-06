@@ -59,7 +59,7 @@ impl<'a> Events<'a> {
         let storage_ident = &self.contract.module().storage().ident();
         quote! {
             const _: () = {
-                impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
+                impl<'a> ::ink_lang::codegen::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
                         E: Into<<#storage_ident as ::ink_lang::ContractEventBase>::Type>,

@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Defines a base event type for the contract.
-///
-/// This is usually the event enum that comprises all defined event types.
-pub trait ContractEventBase {
-    /// The generated base event enum.
-    type Type;
-}
+mod emit;
+mod topics;
+
+pub use self::{
+    emit::EmitEvent,
+    topics::{
+        EventLenTopics,
+        EventRespectsTopicLimit,
+        EventTopics,
+        RespectTopicLimit,
+    },
+};

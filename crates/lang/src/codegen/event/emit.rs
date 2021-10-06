@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Defines a base event type for the contract.
-///
-/// This is usually the event enum that comprises all defined event types.
-pub trait ContractEventBase {
-    /// The generated base event enum.
-    type Type;
+use crate::ContractEventBase;
+
+/// Allows for `self.env().emit_event(..)` syntax in ink! implementation blocks.
+pub trait EmitEvent<C>
+where
+    C: ContractEventBase,
+{
+    /// Emits an event that can be trivially converted into the base event.
+    fn emit_event<E>(self, event: E)
+    where
+        E: Into<<C as ContractEventBase>::Type>;
 }

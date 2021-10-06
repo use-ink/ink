@@ -36,7 +36,7 @@ impl GenerateCode for Storage<'_> {
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
                 // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-                quote! { use ::ink_lang::EmitEvent as _; }
+                quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
         quote_spanned!(storage_span =>
             #access_env_impls
