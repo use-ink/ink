@@ -133,9 +133,7 @@ impl TraitRegistry<'_> {
     }
 
     /// Generates code to assert that ink! input and output types meet certain properties.
-    fn generate_inout_guards_for_message(
-        message: &ir::InkTraitMessage,
-    ) -> TokenStream2 {
+    fn generate_inout_guards_for_message(message: &ir::InkTraitMessage) -> TokenStream2 {
         let message_span = message.span();
         let message_inputs = message.inputs().map(|input| {
             let input_span = input.span();
