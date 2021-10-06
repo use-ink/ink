@@ -36,7 +36,10 @@ use quote::{
     quote,
     quote_spanned,
 };
-use syn::parse_quote;
+use syn::{
+    parse_quote,
+    spanned::Spanned,
+};
 
 impl<'a> TraitDefinition<'a> {
     /// Generates the code for the global trait registry implementation.
@@ -129,6 +132,34 @@ impl TraitRegistry<'_> {
         }
     }
 
+    /// Generates code to assert that ink! input and output types meet certain properties.
+    fn generate_inout_guards_for_message(
+        message: &ir::InkTraitMessage,
+    ) -> TokenStream2 {
+        let message_span = message.span();
+        let message_inputs = message.inputs().map(|input| {
+            let input_span = input.span();
+            let input_type = &*input.ty;
+            quote_spanned!(input_span=>
+                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                    ::ink_lang::codegen::DispatchInput<#input_type>
+                >();
+            )
+        });
+        let message_output = message.output().map(|output_type| {
+            let output_span = output_type.span();
+            quote_spanned!(output_span=>
+                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                    ::ink_lang::codegen::DispatchOutput<#output_type>
+                >();
+            )
+        });
+        quote_spanned!(message_span=>
+            #( #message_inputs )*
+            #message_output
+        )
+    }
+
     /// Generate the code for a single ink! trait message implemented by the trait registry.
     ///
     /// Generally the implementation of any ink! trait of the ink! trait registry
@@ -154,6 +185,7 @@ impl TraitRegistry<'_> {
             selector,
             message.mutates(),
         );
+        let inout_guards = Self::generate_inout_guards_for_message(message);
         let impl_body = match option_env!("INK_COVERAGE_REPORTING") {
             Some("true") => {
                 quote! {
@@ -187,6 +219,7 @@ impl TraitRegistry<'_> {
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
+                #inout_guards
                 #impl_body
             }
         )
