@@ -15,6 +15,7 @@
 //! Definitions and facilities mainly used by the ink! codegen.
 
 mod dispatch;
+mod env;
 mod event;
 mod implies_return;
 mod is_same_type;
@@ -29,6 +30,10 @@ pub use self::{
         DispatchOutput,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
+    },
+    env::{
+        Env,
+        StaticEnv,
     },
     event::{
         EventLenTopics,

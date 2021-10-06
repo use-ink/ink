@@ -43,9 +43,9 @@ impl GenerateCode for Storage<'_> {
             #storage_struct
 
             const _: () = {
-                // Used to make `self.env()` available in message code.
+                // Used to make `self.env()` and `Self::env()` available in message code.
                 #[allow(unused_imports)]
-                use ::ink_lang::{
+                use ::ink_lang::codegen::{
                     Env as _,
                     StaticEnv as _,
                 };
@@ -60,22 +60,22 @@ impl Storage<'_> {
         let storage_ident = &self.contract.module().storage().ident();
         quote! {
             const _: () = {
-                impl<'a> ::ink_lang::Env for &'a #storage_ident {
+                impl<'a> ::ink_lang::codegen::Env for &'a #storage_ident {
                     type EnvAccess = ::ink_lang::EnvAccess<
                         'a, <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
-                        <<Self as ::ink_lang::Env>::EnvAccess
+                        <<Self as ::ink_lang::codegen::Env>::EnvAccess
                             as ::core::default::Default>::default()
                     }
                 }
 
-                impl<'a> ::ink_lang::StaticEnv for #storage_ident {
+                impl<'a> ::ink_lang::codegen::StaticEnv for #storage_ident {
                     type EnvAccess = ::ink_lang::EnvAccess<
                         'static, <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
-                        <<Self as ::ink_lang::StaticEnv>::EnvAccess
+                        <<Self as ::ink_lang::codegen::StaticEnv>::EnvAccess
                             as ::core::default::Default>::default()
                     }
                 }

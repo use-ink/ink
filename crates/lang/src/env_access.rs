@@ -31,36 +31,6 @@ use ink_env::{
 };
 use ink_primitives::Key;
 
-/// Simplifies interaction with the host environment via `self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait Env {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env(self) -> Self::EnvAccess;
-}
-
-/// Simplifies interaction with the host environment via `Self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait StaticEnv {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env() -> Self::EnvAccess;
-}
-
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently

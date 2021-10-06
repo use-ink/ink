@@ -48,7 +48,8 @@ impl GenerateCode for ItemImpls<'_> {
         let trait_message_property_guards = self.generate_trait_message_property_guards();
         quote! {
             const _: () = {
-                use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
+                // Required to make `self.env()` and `Self::env()` syntax available.
+                use ::ink_lang::codegen::{Env as _, StaticEnv as _};
 
                 #( #item_impls )*
                 #inout_guards

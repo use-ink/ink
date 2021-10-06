@@ -38,11 +38,7 @@ pub use self::{
         ContractCallBuilder,
         ToAccountId,
     },
-    env_access::{
-        Env,
-        EnvAccess,
-        StaticEnv,
-    },
+    env_access::EnvAccess,
     events::{
         ContractEventBase,
         EmitEvent,
