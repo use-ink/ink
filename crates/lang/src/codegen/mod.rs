@@ -31,9 +31,9 @@ pub use self::{
         ExecuteMessageConfig,
     },
     event::{
+        EventLenTopics,
         EventRespectsTopicLimit,
         EventTopics,
-        EventLenTopics,
     },
     implies_return::ImpliesReturn,
     is_same_type::IsSameType,
