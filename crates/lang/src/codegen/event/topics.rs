@@ -35,7 +35,7 @@ use core::marker::PhantomData;
 /// // The below code only compiles successfully if the example ink! event
 /// // definitions respects the topic limitation: it must have an amount of
 /// // topics less than or equal to the topic limit.
-/// const _: () = ::ink_lang::codegen::utils::identity_type::<
+/// const _: () = ::ink_lang::codegen::utils::consume_type::<
 ///     ::ink_lang::codegen::EventRespectsTopicLimit<
 ///         ExampleEvent,
 ///         TOPICS_LIMIT,

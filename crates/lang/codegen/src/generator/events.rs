@@ -154,7 +154,7 @@ impl<'a> Events<'a> {
                 type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
             }
 
-            const _: () = ::ink_lang::codegen::utils::identity_type::<
+            const _: () = ::ink_lang::codegen::utils::consume_type::<
                 ::ink_lang::codegen::EventRespectsTopicLimit<
                     #event_ident,
                     { #max_len_topics },

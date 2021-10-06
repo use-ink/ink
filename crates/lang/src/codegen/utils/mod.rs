@@ -19,5 +19,5 @@ mod identity_type;
 
 pub use self::{
     same_type::IsSameType,
-    identity_type::identity_type,
+    identity_type::consume_type,
 };
