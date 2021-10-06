@@ -74,7 +74,7 @@ impl EnforcedErrors {
         Self::CannotCallTraitMessage {
             trait_ident: trait_ident.to_string(),
             message_ident: message_ident.to_string(),
-            message_selector: *message_selector.as_bytes(),
+            message_selector: message_selector.to_bytes(),
             message_is_mut,
         }
         .into_ident()

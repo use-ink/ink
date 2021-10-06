@@ -373,7 +373,7 @@ impl InkItemTrait {
                 return Err(format_err_spanned!(
                     ident,
                     "encountered duplicate selector ({:x?}) in the same ink! trait definition",
-                    selector.as_bytes(),
+                    selector.to_bytes(),
                 ).into_combine(format_err_spanned!(
                     duplicate_selector,
                     "first ink! trait constructor or message with same selector found here",

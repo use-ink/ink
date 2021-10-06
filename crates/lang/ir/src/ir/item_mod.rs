@@ -196,7 +196,7 @@ impl ItemMod {
                      #[ink(namespace = N:string)] on the implementation block to \
                      disambiguate overlapping selectors.",
                     kind,
-                    selector.as_bytes(),
+                    selector.to_bytes(),
                 )
                 .into_combine(format_err!(
                     first_span,

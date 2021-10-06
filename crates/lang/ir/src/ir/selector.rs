@@ -127,8 +127,8 @@ impl Selector {
     }
 
     /// Returns the underlying four bytes.
-    pub fn as_bytes(&self) -> &[u8; 4] {
-        &self.bytes
+    pub fn to_bytes(&self) -> [u8; 4] {
+        self.bytes
     }
 
     /// Returns the big-endian `u32` representation of the selector bytes.

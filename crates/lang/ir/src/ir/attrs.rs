@@ -496,7 +496,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => {
-                write!(f, "selector = {:?}", selector.as_bytes())
+                write!(f, "selector = {:?}", selector.to_bytes())
             }
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
