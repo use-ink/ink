@@ -26,8 +26,10 @@
 mod contract;
 mod dispatch;
 mod trait_def;
+mod event;
 
 pub use self::{
+    event::ContractEventBase,
     contract::{
         ContractEnv,
         ContractName,

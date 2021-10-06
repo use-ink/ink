@@ -26,7 +26,6 @@ pub mod reflect;
 mod chain_extension;
 mod contract_ref;
 mod env_access;
-mod events;
 mod traits;
 
 pub use self::{
@@ -39,7 +38,6 @@ pub use self::{
         ToAccountId,
     },
     env_access::EnvAccess,
-    events::ContractEventBase,
     traits::{
         TraitCallBuilder,
         TraitCallForwarder,

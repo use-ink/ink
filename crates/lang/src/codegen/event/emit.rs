@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ContractEventBase;
+use crate::reflect::ContractEventBase;
 
 /// Allows for `self.env().emit_event(..)` syntax in ink! implementation blocks.
 pub trait EmitEvent<C>
