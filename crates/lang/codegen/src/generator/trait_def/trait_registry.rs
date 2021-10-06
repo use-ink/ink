@@ -243,7 +243,7 @@ impl TraitRegistry<'_> {
                 const ID: ::core::primitive::u32 = #unique_id;
             }
 
-            impl<E> ::ink_lang::TraitModulePath for #trait_info_ident<E>
+            impl<E> ::ink_lang::reflect::TraitModulePath for #trait_info_ident<E>
             where
                 E: ::ink_env::Environment,
             {

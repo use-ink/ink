@@ -49,5 +49,6 @@ pub use self::{
     trait_def::{
         TraitDefinitionRegistry,
         TraitMessageInfo,
+        TraitModulePath,
     },
 };

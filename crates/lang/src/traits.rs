@@ -48,23 +48,6 @@ pub trait TraitCallForwarder {
     type Forwarder: TraitCallBuilder;
 }
 
-/// Captures the module path of the ink! trait definition.
-///
-/// This can be used to differentiate between two equally named
-/// ink! trait definitions and also for metadata.
-pub trait TraitModulePath {
-    /// The module path of the ink! trait definition.
-    ///
-    /// This is equivalent to Rust's builtin `module_path!` macro
-    /// invocation at the definition site of the ink! trait.
-    const PATH: &'static str;
-
-    /// The name of the ink! trait.
-    ///
-    /// This is just for convenience.
-    const NAME: &'static str;
-}
-
 /// Implemented by call builders of smart contracts.
 ///
 /// These might be implementing multiple different ink! traits.
