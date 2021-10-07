@@ -13,7 +13,6 @@
 // limitations under the License.
 
 mod call_builder;
-mod implemented_by;
 mod trait_message;
 
 pub use self::{
@@ -22,7 +21,6 @@ pub use self::{
         TraitCallForwarder,
         TraitCallForwarderFor,
     },
-    implemented_by::TraitImplementedById,
     trait_message::{
         TraitMessagePayable,
         TraitMessageSelector,

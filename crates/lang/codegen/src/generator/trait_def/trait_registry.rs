@@ -26,7 +26,6 @@ use crate::{
     EnforcedErrors,
 };
 use derive_more::From;
-use ir::HexLiteral;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -239,14 +238,12 @@ impl TraitRegistry<'_> {
 
     /// Phantom type that implements the following traits for every ink! trait:
     ///
-    /// - `ink_lang::codegen::TraitImplementedById` (unsafe implementation)
     /// - `ink_lang::TraitCallForwarder`
     ///
     /// It is mainly used to access global information about the ink! trait.
     fn generate_trait_info_object(&self) -> TokenStream2 {
         let span = self.span();
         let trait_ident = self.trait_ident();
-        let unique_id = self.trait_def.trait_def.id().hex_padded_suffixed();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
         let trait_message_info = self.generate_info_for_trait_messages();
@@ -258,13 +255,6 @@ impl TraitRegistry<'_> {
             }
 
             #trait_message_info
-
-            unsafe impl<E> ::ink_lang::codegen::TraitImplementedById<#unique_id>
-                for #trait_info_ident<E>
-            where
-                E: ::ink_env::Environment,
-            {
-            }
 
             impl<E> ::ink_lang::reflect::TraitModulePath for #trait_info_ident<E>
             where

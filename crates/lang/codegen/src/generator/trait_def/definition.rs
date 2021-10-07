@@ -16,7 +16,6 @@
 
 use super::TraitDefinition;
 use heck::CamelCase as _;
-use ir::HexLiteral;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -52,7 +51,6 @@ impl TraitDefinition<'_> {
         let span = item.span();
         let attrs = item.attrs();
         let ident = item.ident();
-        let unique_trait_id = self.trait_def.id().hex_padded_suffixed();
         let messages = item
             .iter_items()
             .map(|(item, _)| item)
@@ -64,8 +62,7 @@ impl TraitDefinition<'_> {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                type __ink_TraitInfo: ::ink_lang::codegen::TraitCallForwarder
-                    + ::ink_lang::codegen::TraitImplementedById<#unique_trait_id>;
+                type __ink_TraitInfo: ::ink_lang::codegen::TraitCallForwarder;
 
                 #(#messages)*
             }

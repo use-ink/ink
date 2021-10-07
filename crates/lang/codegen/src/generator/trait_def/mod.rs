@@ -41,16 +41,7 @@ impl<'a> TraitDefinition<'a> {
     /// were `$NAME` is the non-unique name of the trait and `$TRAIT_ID`
     /// is the hex representation of the unique 4-byte trait identifier.
     fn append_trait_suffix(&self, prefix: &str) -> syn::Ident {
-        let unique_id = self.trait_def.id().to_be_bytes();
-        format_ident!(
-            "__ink_{}_{}_0x{:X}{:X}{:X}{:X}",
-            prefix,
-            self.trait_def.item().ident(),
-            unique_id[0],
-            unique_id[1],
-            unique_id[2],
-            unique_id[3]
-        )
+        format_ident!("__ink_{}{}", prefix, self.trait_def.item().ident(),)
     }
 
     /// Returns the span of the underlying ink! trait definition.
