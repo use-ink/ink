@@ -240,7 +240,6 @@ impl TraitRegistry<'_> {
     /// Phantom type that implements the following traits for every ink! trait:
     ///
     /// - `ink_lang::codegen::TraitImplementedById` (unsafe implementation)
-    /// - `ink_lang::TraitUniqueId`
     /// - `ink_lang::TraitCallForwarder`
     ///
     /// It is mainly used to access global information about the ink! trait.
@@ -265,13 +264,6 @@ impl TraitRegistry<'_> {
             where
                 E: ::ink_env::Environment,
             {
-            }
-
-            impl<E> ::ink_lang::codegen::TraitUniqueId for #trait_info_ident<E>
-            where
-                E: ::ink_env::Environment,
-            {
-                const ID: ::core::primitive::u32 = #unique_id;
             }
 
             impl<E> ::ink_lang::reflect::TraitModulePath for #trait_info_ident<E>

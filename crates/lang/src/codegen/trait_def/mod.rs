@@ -21,7 +21,6 @@ pub use self::{
         TraitCallBuilder,
         TraitCallForwarder,
         TraitCallForwarderFor,
-        TraitUniqueId,
     },
     implemented_by::TraitImplementedById,
     trait_message::{

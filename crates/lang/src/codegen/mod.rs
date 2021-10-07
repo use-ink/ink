@@ -51,6 +51,5 @@ pub use self::{
         TraitImplementedById,
         TraitMessagePayable,
         TraitMessageSelector,
-        TraitUniqueId,
     },
 };

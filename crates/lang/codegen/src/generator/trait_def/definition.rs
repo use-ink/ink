@@ -64,8 +64,7 @@ impl TraitDefinition<'_> {
                 /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                type __ink_TraitInfo: ::ink_lang::codegen::TraitUniqueId
-                    + ::ink_lang::codegen::TraitCallForwarder
+                type __ink_TraitInfo: ::ink_lang::codegen::TraitCallForwarder
                     + ::ink_lang::codegen::TraitImplementedById<#unique_trait_id>;
 
                 #(#messages)*

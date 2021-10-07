@@ -30,15 +30,6 @@ pub trait TraitCallBuilder {
 
 /// Implemented by the global trait info provider.
 ///
-/// This communicates the `u32` number that uniquely identifies
-/// the ink! trait definition.
-pub trait TraitUniqueId {
-    /// The unique trait `u32` identifier.
-    const ID: u32;
-}
-
-/// Implemented by the global trait info provider.
-///
 /// It is used to query the global trait call forwarder.
 /// There is one global trait call forwarder that implements
 /// the call forwarding (short- and long-form) for all calls
