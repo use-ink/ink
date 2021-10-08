@@ -440,6 +440,15 @@ pub enum Visibility {
     Inherited,
 }
 
+impl quote::ToTokens for Visibility {
+    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+        match self {
+            Self::Public(vis_public) => vis_public.to_tokens(tokens),
+            Self::Inherited => (),
+        }
+    }
+}
+
 impl Visibility {
     /// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
     ///

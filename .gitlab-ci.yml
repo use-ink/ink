@@ -220,10 +220,11 @@ codecov:
   variables:
     # For codecov it's sufficient to run the fuzz tests only once.
     QUICKCHECK_TESTS:              1
+    INK_COVERAGE_REPORTING:        "true"
     CARGO_INCREMENTAL:             0
     # Variables partly came from https://github.com/mozilla/grcov/blob/master/README.md
     RUSTFLAGS:                     "-Zprofile -Zmir-opt-level=0 -Ccodegen-units=1
-                                      -Copt-level=0 -Coverflow-checks=off"
+                                    -Clink-dead-code -Copt-level=0 -Coverflow-checks=off"
     # The `cargo-taurpalin` coverage reporting tool seems to have better code instrumentation and thus
     # produces better results for Rust codebases in general. However, unlike `grcov` it requires
     # running docker with `--security-opt seccomp=unconfined` which is why we use `grcov` instead.
@@ -236,6 +237,7 @@ codecov:
     - cargo clean
     # make sure there's no stale coverage artifacts
     - find . -name "*.profraw" -type f -delete
+    - find . -name "*.gcda" -type f -delete
   script:
     # RUSTFLAGS are the cause target cache can't be used here
     - cargo build --verbose --all-features --workspace
@@ -287,7 +289,7 @@ fmt:
   script:
     - cargo fmt --verbose --all -- --check
     # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/macro/tests/ui/contract/{pass,fail}/*.rs
 
 
 #### stage:                        examples

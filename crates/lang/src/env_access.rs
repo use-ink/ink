@@ -288,18 +288,20 @@ where
     ///             }
     ///         }
     ///
-    ///         /// The function can be executed at most once every 100 blocks.
+    ///         /// Records the last time the message was invoked.
     ///         #[ink(message)]
     ///         pub fn execute_me(&mut self) {
-    ///             let now = self.env().block_timestamp();
-    ///             assert!(now - self.last_invocation > 100);
-    ///             self.last_invocation = now;
+    ///             self.last_invocation = self.env().block_timestamp();
     ///         }
     ///     }
     /// }
     /// ```
     ///
     /// # Note
+    ///
+    /// The Substrate default for the timestamp type is the milliseconds since the
+    /// Unix epoch. However, this is not guaranteed: the specific timestamp is
+    /// defined by the chain environment on which this contract runs.
     ///
     /// For more details visit: [`ink_env::block_timestamp`]
     pub fn block_timestamp(self) -> T::Timestamp {
@@ -517,25 +519,32 @@ where
     /// # Example
     ///
     /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn block_number(&self) -> BlockNumber {
-    ///     self.env().block_number()
+    /// use ink_lang as ink;
+    ///
+    /// #[ink::contract]
+    /// pub mod my_contract {
+    ///     #[ink(storage)]
+    ///     pub struct MyContract {
+    ///         last_invocation: BlockNumber
+    ///     }
+    ///
+    ///     impl MyContract {
+    ///         #[ink(constructor)]
+    ///         pub fn new() -> Self {
+    ///             Self {
+    ///                 last_invocation: Self::env().block_number()
+    ///             }
+    ///         }
+    ///
+    ///         /// The function can be executed at most once every 100 blocks.
+    ///         #[ink(message)]
+    ///         pub fn execute_me(&mut self) {
+    ///             let now = self.env().block_number();
+    ///             assert!(now - self.last_invocation > 100);
+    ///             self.last_invocation = now;
+    ///         }
+    ///     }
     /// }
-    /// #
-    /// #     }
-    /// # }
     /// ```
     ///
     /// # Note

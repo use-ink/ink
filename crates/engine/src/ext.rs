@@ -464,13 +464,12 @@ impl Engine {
 ///
 /// Panics if the slice is too large and does not fit.
 fn set_output(output: &mut &mut [u8], slice: &[u8]) {
-    if slice.len() > output.len() {
-        panic!(
-            "the output buffer is too small! the decoded storage is of size {} bytes, \
-            but the output buffer has only room for {}.",
-            slice.len(),
-            output.len()
-        );
-    }
+    assert!(
+        slice.len() <= output.len(),
+        "the output buffer is too small! the decoded storage is of size {} bytes, \
+        but the output buffer has only room for {}.",
+        slice.len(),
+        output.len(),
+    );
     output[..slice.len()].copy_from_slice(slice);
 }

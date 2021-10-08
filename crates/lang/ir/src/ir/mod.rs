@@ -28,6 +28,14 @@ mod selector;
 mod trait_def;
 pub mod utils;
 
+/// Marker types and definitions.
+pub mod marker {
+    pub use super::selector::{
+        SelectorBytes,
+        SelectorId,
+    };
+}
+
 #[cfg(test)]
 use self::attrs::Attribute;
 
@@ -43,6 +51,10 @@ use self::attrs::{
 };
 pub use self::{
     attrs::Namespace,
+    blake2::{
+        blake2b_256,
+        Blake2x256Macro,
+    },
     chain_extension::{
         ChainExtension,
         ChainExtensionMethod,
@@ -76,7 +88,10 @@ pub use self::{
         IterEvents,
         IterItemImpls,
     },
-    selector::Selector,
+    selector::{
+        Selector,
+        SelectorMacro,
+    },
     trait_def::{
         InkTrait,
         InkTraitConstructor,

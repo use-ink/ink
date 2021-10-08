@@ -168,6 +168,54 @@ fn struct_works() {
 }
 
 #[test]
+fn one_variant_enum_works() {
+    synstructure::test_derive! {
+        spread_layout_derive {
+            enum OneVariantEnum {
+                A,
+            }
+        }
+        expands to {
+            const _: () = {
+                impl ::ink_storage::traits::SpreadLayout for OneVariantEnum {
+                    #[allow(unused_comparisons)]
+                    const FOOTPRINT : ::core::primitive::u64 = 1 + [0u64, 0u64][(0u64 < 0u64) as ::core::primitive::usize];
+
+                    const REQUIRES_DEEP_CLEAN_UP : ::core::primitive::bool = (false || false);
+
+                    fn pull_spread(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> Self {
+                        match <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::pull_spread(__key_ptr)
+                        {
+                            0u8 => OneVariantEnum::A,
+                            _ => unreachable!("encountered invalid enum discriminant"),
+                        }
+                    }
+
+                    fn push_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                        match self {
+                            OneVariantEnum::A => {
+                                {
+                                    <::core::primitive::u8 as ::ink_storage::traits::SpreadLayout>::push_spread(
+                                        &0u8,
+                                        __key_ptr
+                                    );
+                                }
+                            }
+                        }
+                    }
+
+                    fn clear_spread(&self, __key_ptr: &mut ::ink_storage::traits::KeyPtr) {
+                        match self {
+                            OneVariantEnum::A => {}
+                        }
+                    }
+                }
+            };
+        }
+    }
+}
+
+#[test]
 fn enum_works() {
     synstructure::test_derive! {
         spread_layout_derive {

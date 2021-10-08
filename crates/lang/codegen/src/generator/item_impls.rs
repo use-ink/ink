@@ -34,12 +34,7 @@ use syn::spanned::Spanned as _;
 pub struct ItemImpls<'a> {
     contract: &'a ir::Contract,
 }
-
-impl AsRef<ir::Contract> for ItemImpls<'_> {
-    fn as_ref(&self) -> &ir::Contract {
-        self.contract
-    }
-}
+impl_as_ref_for_generator!(ItemImpls);
 
 impl GenerateCode for ItemImpls<'_> {
     fn generate_code(&self) -> TokenStream2 {
@@ -53,7 +48,7 @@ impl GenerateCode for ItemImpls<'_> {
         quote! {
             #no_cross_calling_cfg
             const _: () = {
-                use ::ink_lang::{Env, EmitEvent, StaticEnv};
+                use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
 
                 #( #item_impls )*
             };
@@ -66,10 +61,7 @@ impl ItemImpls<'_> {
     fn generate_trait_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
-        let vis = match constructor.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
+        let vis = constructor.visibility();
         let ident = constructor.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let inputs = constructor.inputs();
@@ -88,14 +80,8 @@ impl ItemImpls<'_> {
     fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
-        let vis = match message.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
-        let receiver = match message.receiver() {
-            ir::Receiver::RefMut => quote! { &mut self },
-            ir::Receiver::Ref => quote! { &self },
-        };
+        let vis = message.visibility();
+        let receiver = message.receiver();
         let ident = message.ident();
         let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
         let inputs = message.inputs();
@@ -108,7 +94,7 @@ impl ItemImpls<'_> {
             type #output_ident = #output;
 
             #( #attrs )*
-            #vis fn #ident(#receiver #(, #inputs )* ) -> Self::#output_ident {
+            #vis fn #ident(#receiver #( , #inputs )* ) -> Self::#output_ident {
                 #( #statements )*
             }
         )
@@ -169,10 +155,7 @@ impl ItemImpls<'_> {
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
-        let vis = match constructor.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
+        let vis = constructor.visibility();
         let ident = constructor.ident();
         let inputs = constructor.inputs();
         let statements = constructor.statements();
@@ -188,14 +171,8 @@ impl ItemImpls<'_> {
     fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
-        let vis = match message.visibility() {
-            ir::Visibility::Inherited => None,
-            ir::Visibility::Public(vis_public) => Some(vis_public),
-        };
-        let receiver = match message.receiver() {
-            ir::Receiver::RefMut => quote! { &mut self },
-            ir::Receiver::Ref => quote! { &self },
-        };
+        let vis = message.visibility();
+        let receiver = message.receiver();
         let ident = message.ident();
         let inputs = message.inputs();
         let output_arrow = message.output().map(|_| quote! { -> });
@@ -203,7 +180,7 @@ impl ItemImpls<'_> {
         let statements = message.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #vis fn #ident(#receiver, #( #inputs ),* ) #output_arrow #output {
+            #vis fn #ident(#receiver #( , #inputs )* ) #output_arrow #output {
                 #( #statements )*
             }
         )
