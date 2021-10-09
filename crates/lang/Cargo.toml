@@ -27,7 +27,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 
 [dev-dependencies]
 ink_lang_ir = { version = "3.0.0-rc5", path = "ir" }
-ink_metadata = { version = "3.0.0-rc5", path = "../metadata" }
+ink_metadata = { version = "3.0.0-rc5", default-features = false, path = "../metadata" }
 
 trybuild = { version = "1.0.49", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
