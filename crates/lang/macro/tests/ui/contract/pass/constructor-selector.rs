@@ -1,5 +1,6 @@
 use contract::Contract;
 use ink_lang as ink;
+use ink_lang::selector_bytes;
 
 #[ink::contract]
 mod contract {
@@ -38,7 +39,7 @@ fn main() {
                 >>::IDS[0]
             },
         >>::SELECTOR,
-        [0x5C, 0x5D, 0x42, 0x89],
+        selector_bytes!("constructor_0")
     );
     assert_eq!(
         <Contract as ::ink_lang::reflect::DispatchableConstructorInfo<
