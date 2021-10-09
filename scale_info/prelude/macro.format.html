@@ -12,11 +12,11 @@ The same convention is used with <a href="../std/macro.print.html"><code>print!<
 depending on the intended destination of the string.</p>
 <p>To convert a single value to a string, use the <a href="string/trait.ToString.html"><code>to_string</code></a> method. This
 will use the <a href="fmt/trait.Display.html"><code>Display</code></a> formatting trait.</p>
-<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<h2 id="panics" class="section-header"><a href="#panics">Panics</a></h2>
 <p><code>format!</code> panics if a formatting trait implementation returns an error.
 This indicates an incorrect implementation
 since <code>fmt::Write for String</code> never returns an error itself.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">format!</span>(<span class="string">&quot;test&quot;</span>);
 <span class="macro">format!</span>(<span class="string">&quot;hello {}&quot;</span>, <span class="string">&quot;world!&quot;</span>);
 <span class="macro">format!</span>(<span class="string">&quot;x = {}, y = {y}&quot;</span>, <span class="number">10</span>, <span class="ident">y</span> <span class="op">=</span> <span class="number">30</span>);</code></pre></div>

@@ -2,7 +2,7 @@
 They are designed to allow only construction of valid definitions.</p>
 <p>In most cases we recommend using the <code>scale-info-derive</code> crate to auto generate the builder
 constructions.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="generic-struct" class="section-header"><a href="#generic-struct">Generic struct</a></h2>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="generic-struct" class="section-header"><a href="#generic-struct">Generic struct</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">bar</span>: <span class="ident">T</span>,
     <span class="ident">data</span>: <span class="ident">u64</span>,
@@ -24,7 +24,7 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h2 id="tuple-struct" class="section-header"><a href="#tuple-struct">Tuple struct</a></h2>
+<h3 id="tuple-struct" class="section-header"><a href="#tuple-struct">Tuple struct</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">u32</span>, <span class="ident">bool</span>);
 
 <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span> {
@@ -39,7 +39,7 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h2 id="enum-with-fields" class="section-header"><a href="#enum-with-fields">Enum with fields</a></h2>
+<h3 id="enum-with-fields" class="section-header"><a href="#enum-with-fields">Enum with fields</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">enum</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>{
     <span class="ident">A</span>(<span class="ident">T</span>),
     <span class="ident">B</span> { <span class="ident">f</span>: <span class="ident">u32</span> },
@@ -64,7 +64,7 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h2 id="enum-without-fields" class="section-header"><a href="#enum-without-fields">Enum without fields</a></h2>
+<h3 id="enum-without-fields" class="section-header"><a href="#enum-without-fields">Enum without fields</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">enum</span> <span class="ident">Foo</span> {
     <span class="ident">A</span>,
     <span class="ident">B</span>,

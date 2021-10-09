@@ -3,14 +3,14 @@
 }</code></pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.80/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
 <a href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/quote/1.0.10/quote/to_tokens/trait.ToTokens.html"><code>ToTokens</code></a>.</p>
-<h1 id="parameters" class="section-header"><a href="#parameters">Parameters</a></h1>
+<h2 id="parameters" class="section-header"><a href="#parameters">Parameters</a></h2>
 <ul>
 <li>The first argument must implement <a href="https://docs.rs/quote/1.0.10/quote/to_tokens/trait.ToTokens.html" title="quote::ToTokens"><code>quote::ToTokens</code></a> in order to
 infer a <a href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.Span.html"><code>Span</code></a>.</li>
 <li>The second argument is a format string.</li>
 <li>The rest are format string arguments.</li>
 </ul>
-<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
+<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
 <p>On stable Rust this might yield higher quality error span information to the user
 than <a href="macro.format_err.html" title="format_err"><code>format_err</code></a>.</p>
 <ul>

@@ -3,7 +3,7 @@
 this macro checks. Also ink! trait definitions are required to have specialized
 structure so that the main <a href="attr.contract.html"><code>#[ink::contract]</code></a> macro can
 properly generate code for its implementations.</p>
-<h1 id="example-definition" class="section-header"><a href="#example-definition">Example: Definition</a></h1>
+<h2 id="example-definition" class="section-header"><a href="#example-definition">Example: Definition</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
 
 <span class="attribute">#[<span class="ident">ink::trait_definition</span>]</span>
@@ -18,7 +18,7 @@ properly generate code for its implementations.</p>
 
     <span class="comment">// etc.</span>
 }</code></pre></div>
-<h1 id="example-implementation" class="section-header"><a href="#example-implementation">Example: Implementation</a></h1>
+<h2 id="example-implementation" class="section-header"><a href="#example-implementation">Example: Implementation</a></h2>
 <p>Given the above trait definition you can implement it as shown below:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>]</span>

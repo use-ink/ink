@@ -4,12 +4,12 @@ type acts as though it stores a value of type <code>T</code>, even though it doe
 really. This information is used when computing certain safety properties.</p>
 <p>For a more in-depth explanation of how to use <code>PhantomData&lt;T&gt;</code>, please see
 <a href="../../nomicon/phantom-data.html">the Nomicon</a>.</p>
-<h1 id="a-ghastly-note-" class="section-header"><a href="#a-ghastly-note-">A ghastly note 👻👻👻</a></h1>
+<h2 id="a-ghastly-note-" class="section-header"><a href="#a-ghastly-note-">A ghastly note 👻👻👻</a></h2>
 <p>Though they both have scary names, <code>PhantomData</code> and ‘phantom types’ are
 related, but not identical. A phantom type parameter is simply a type
 parameter which is never used. In Rust, this often causes the compiler to
 complain, and the solution is to add a “dummy” use by way of <code>PhantomData</code>.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="unused-lifetime-parameters" class="section-header"><a href="#unused-lifetime-parameters">Unused lifetime parameters</a></h2>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="unused-lifetime-parameters" class="section-header"><a href="#unused-lifetime-parameters">Unused lifetime parameters</a></h3>
 <p>Perhaps the most common use case for <code>PhantomData</code> is a struct that has an
 unused lifetime parameter, typically as part of some unsafe code. For
 example, here is a struct <code>Slice</code> that has two pointers of type <code>*const T</code>,
@@ -46,7 +46,7 @@ that any references in <code>T</code> are valid over the lifetime <code>'a</code
         <span class="ident">phantom</span>: <span class="ident">PhantomData</span>,
     }
 }</code></pre></div>
-<h2 id="unused-type-parameters" class="section-header"><a href="#unused-type-parameters">Unused type parameters</a></h2>
+<h3 id="unused-type-parameters" class="section-header"><a href="#unused-type-parameters">Unused type parameters</a></h3>
 <p>It sometimes happens that you have unused type parameters which
 indicate what type of data a struct is “tied” to, even though that
 data is not actually found in the struct itself. Here is an
@@ -77,7 +77,7 @@ the struct <code>ExternalResource</code> which wraps a handle.</p>
         <span class="ident">foreign_lib::do_stuff</span>(<span class="self">self</span>.<span class="ident">resource_handle</span>, <span class="ident">foreign_params</span>);
     }
 }</code></pre></div>
-<h2 id="ownership-and-the-drop-check" class="section-header"><a href="#ownership-and-the-drop-check">Ownership and the drop check</a></h2>
+<h3 id="ownership-and-the-drop-check" class="section-header"><a href="#ownership-and-the-drop-check">Ownership and the drop check</a></h3>
 <p>Adding a field of type <code>PhantomData&lt;T&gt;</code> indicates that your
 type owns data of type <code>T</code>. This in turn implies that when your
 type is dropped, it may drop one or more instances of the type

@@ -4,7 +4,7 @@ our extensive <a href="https://substrate.dev/substrate-contracts-workshop/#/">in
 <p><strong>Note:</strong> In all below examples we will be using <code>ink_lang</code> crate aliased as just <code>ink</code>.
 You can do this yourself by adding the following line to your code:
 <code>use ink_lang as ink;</code></p>
-<h1 id="description" class="section-header"><a href="#description">Description</a></h1>
+<h2 id="description" class="section-header"><a href="#description">Description</a></h2>
 <p>The macro does analysis on the provided smart contract code and generates
 proper code.</p>
 <p>ink! smart contracts can compile in several different modes.
@@ -16,7 +16,7 @@ There are two main compilation models using either</p>
 <p>We generally use the on-chain mode for actual smart contract deployment
 whereas we use the off-chain mode for smart contract testing using the
 off-chain environment provided by the <code>ink_env</code> crate.</p>
-<h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1><h2 id="header-arguments" class="section-header"><a href="#header-arguments">Header Arguments</a></h2>
+<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2><h3 id="header-arguments" class="section-header"><a href="#header-arguments">Header Arguments</a></h3>
 <p>The <code>#[ink::contract]</code> macro can be provided with some additional comma-separated
 header arguments:</p>
 <ul>
@@ -100,7 +100,7 @@ implementation as demonstrated below:</p>
 <p><strong>Default value:</strong> <code>DefaultEnvironment</code> defined in <code>ink_env</code> crate.</p>
 </li>
 </ul>
-<h2 id="analysis" class="section-header"><a href="#analysis">Analysis</a></h2>
+<h3 id="analysis" class="section-header"><a href="#analysis">Analysis</a></h3>
 <p>The <code>#[ink::contract]</code> macro fully analyses its input smart contract
 against invalid arguments and structure.</p>
 <p>Some example rules include but are not limited to:</p>
@@ -208,7 +208,7 @@ constructor using the <code>selector</code> flag. An example is shown below:</p>
 }</code></pre></div>
 </li>
 </ul>
-<h2 id="interacting-with-the-contract-executor" class="section-header"><a href="#interacting-with-the-contract-executor">Interacting with the Contract Executor</a></h2>
+<h3 id="interacting-with-the-contract-executor" class="section-header"><a href="#interacting-with-the-contract-executor">Interacting with the Contract Executor</a></h3>
 <p>The <code>ink_env</code> crate provides facilities to interact with the contract executor that
 connects ink! smart contracts with the outer world.</p>
 <p>For example it is possible to query the current call’s caller via:</p>
@@ -240,7 +240,7 @@ via its environment accessor. An example below:</p>
         }
     }
 }</code></pre></div>
-<h2 id="events" class="section-header"><a href="#events">Events</a></h2>
+<h3 id="events" class="section-header"><a href="#events">Events</a></h3>
 <p>An ink! smart contract may define events that it can emit during contract execution.
 Emitting events can be used by third party tools to query information about a contract’s
 execution and state.</p>
@@ -281,7 +281,7 @@ emitted in the <code>#[ink(constructor)]</code>.</p>
         }
     }
 }</code></pre></div>
-<h2 id="example-flipper" class="section-header"><a href="#example-flipper">Example: Flipper</a></h2>
+<h3 id="example-flipper" class="section-header"><a href="#example-flipper">Example: Flipper</a></h3>
 <p>The below code shows the complete implementation of the so-called Flipper
 ink! smart contract.
 For us it acts as the “Hello, World!” of the ink! smart contracts because

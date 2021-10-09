@@ -25,7 +25,7 @@ instances are used in conjunction with the <a href="trait.Hash.html" title="Hash
 defined and implementations of <a href="trait.Hash.html" title="Hash"><code>Hash</code></a> should not assume that they work one
 way or another. You cannot assume, for example, that a <a href="trait.Hasher.html#method.write_u32"><code>write_u32</code></a> call is
 equivalent to four calls of <a href="trait.Hasher.html#method.write_u8"><code>write_u8</code></a>.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
 
@@ -42,7 +42,7 @@ equivalent to four calls of <a href="trait.Hasher.html#method.write_u8"><code>wr
 state. Additional <a href="trait.Hasher.html#tymethod.write"><code>write</code></a>s will continue from the current value.
 If you need to start a fresh hash value, you will have to create
 a new hasher.</p>
-<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
 
@@ -51,7 +51,7 @@ a new hasher.</p>
 
 <span class="macro">println!</span>(<span class="string">&quot;Hash is {:x}!&quot;</span>, <span class="ident">hasher</span>.<span class="ident">finish</span>());</code></pre></div>
 </div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.write" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/hash/mod.rs.html#312" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#tymethod.write" class="fnname">write</a>(&amp;mut self, bytes: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>)</h4></div></summary><div class="docblock"><p>Writes some data into this <code>Hasher</code>.</p>
-<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
 

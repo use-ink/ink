@@ -17,7 +17,7 @@ the absolute last resort.</p>
 Any attempt to use the resulting value for integer operations will abort const-evaluation.</p>
 <p>The <a href="../../nomicon/transmutes.html">nomicon</a> has additional
 documentation.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <p>There are a few things that <code>transmute</code> is really useful for.</p>
 <p>Turning a pointer into a function pointer. This is <em>not</em> portable to
 machines where function pointers and data pointers have different sizes.</p>
@@ -42,7 +42,7 @@ advanced, very unsafe Rust!</p>
                                              <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">R</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
     <span class="ident">std::mem::transmute</span>::<span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">R</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">R</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">r</span>)
 }</code></pre></div>
-<h1 id="alternatives" class="section-header"><a href="#alternatives">Alternatives</a></h1>
+<h2 id="alternatives" class="section-header"><a href="#alternatives">Alternatives</a></h2>
 <p>Don’t despair: many uses of <code>transmute</code> can be achieved through other means.
 Below are common applications of <code>transmute</code> which can be replaced with safer
 constructs.</p>
