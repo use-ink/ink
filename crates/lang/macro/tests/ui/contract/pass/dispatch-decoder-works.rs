@@ -47,7 +47,7 @@ fn constructor_decoder_works() {
     }
     // Invalid call with invalid selector (or empty input).
     {
-        let mut input_bytes = Vec::new();
+        let input_bytes = Vec::new();
         assert_eq!(
             <<Contract as ContractConstructorDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
@@ -96,7 +96,7 @@ fn message_decoder_works() {
     }
     // Invalid call with invalid selector (or empty input).
     {
-        let mut input_bytes = Vec::new();
+        let input_bytes = Vec::new();
         assert_eq!(
             <<Contract as ContractMessageDecoder>::Type
                 as DecodeDispatch>::decode_dispatch(&mut &input_bytes[..])
