@@ -155,6 +155,11 @@ where
         alloc::finalize();
     }
     if TypeId::of::<Output>() != TypeId::of::<()>() {
+        // We include a check for `is_result_type!(Output)` despite the fact that this
+        // is indirectly covered by `is_result_err!(&result)` because the Rust compiler
+        // will have more opportunities to optimize the whole conditional away. This is
+        // due to the fact that `is_result_type!` relies on constant information whereas
+        // is_result_err!` requires `&self`.
         let revert_state =
             config.may_revert && is_result_type!(Output) && is_result_err!(&result);
         ink_env::return_value::<Output>(
