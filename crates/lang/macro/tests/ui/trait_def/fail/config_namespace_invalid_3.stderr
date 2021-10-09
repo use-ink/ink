@@ -1,5 +1,5 @@
 error: encountered invalid Rust identifier for the ink! namespace configuration parameter
- --> $DIR/config_namespace_invalid_3.rs:3:37
+ --> tests/ui/trait_def/fail/config_namespace_invalid_3.rs:3:37
   |
 3 | #[ink::trait_definition(namespace = "")]
   |                                     ^^

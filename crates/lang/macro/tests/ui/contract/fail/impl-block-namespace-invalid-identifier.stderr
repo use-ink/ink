@@ -1,5 +1,5 @@
 error: encountered invalid Rust identifier for namespace argument
- --> $DIR/impl-block-namespace-invalid-identifier.rs:8:23
+ --> tests/ui/contract/fail/impl-block-namespace-invalid-identifier.rs:8:23
   |
 8 |     #[ink(namespace = "::invalid_identifier")]
   |                       ^^^^^^^^^^^^^^^^^^^^^^

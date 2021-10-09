@@ -1,5 +1,5 @@
 error[E0308]: mismatched types
-  --> $DIR/trait-message-payable-mismatch.rs:25:9
+  --> tests/ui/contract/fail/trait-message-payable-mismatch.rs:25:9
    |
 25 |         fn message(&self) {}
    |         ^^^^^^^^^^^^^^^^^^^^ expected `false`, found `true`

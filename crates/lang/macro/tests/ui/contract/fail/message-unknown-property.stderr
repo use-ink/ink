@@ -1,5 +1,5 @@
 error: unknown ink! attribute (path)
-  --> $DIR/message-unknown-property.rs:15:15
+  --> tests/ui/contract/fail/message-unknown-property.rs:15:15
    |
 15 |         #[ink(unknown_marker)]
    |               ^^^^^^^^^^^^^^

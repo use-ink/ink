@@ -1,5 +1,5 @@
 error: encountered #[ink(namespace)] that is missing its string parameter. Did you mean #[ink(namespace = name: str)] ?
- --> $DIR/impl-block-namespace-missing-argument.rs:8:11
+ --> tests/ui/contract/fail/impl-block-namespace-missing-argument.rs:8:11
   |
 8 |     #[ink(namespace)]
   |           ^^^^^^^^^

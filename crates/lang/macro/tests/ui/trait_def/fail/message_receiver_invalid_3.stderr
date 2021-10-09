@@ -1,5 +1,5 @@
 error: missing or malformed `&self` or `&mut self` receiver for ink! message
- --> $DIR/message_receiver_invalid_3.rs:6:5
+ --> tests/ui/trait_def/fail/message_receiver_invalid_3.rs:6:5
   |
 6 |     fn message(this: &Self);
   |     ^^^^^^^^^^^^^^^^^^^^^^^

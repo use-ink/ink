@@ -1,5 +1,5 @@
 error: ink! trait methods with non default ABI are not supported
- --> $DIR/message_abi_invalid.rs:6:5
+ --> tests/ui/trait_def/fail/message_abi_invalid.rs:6:5
   |
 6 |     extern "C" fn message_ref(&self);
   |     ^^^^^^^^^^

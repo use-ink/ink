@@ -1,5 +1,5 @@
 error[E0119]: conflicting implementations of trait `ink_lang::reflect::DispatchableMessageInfo<1083895717_u32>` for type `contract::Contract`
-  --> $DIR/trait-message-selector-overlap-1.rs:47:9
+  --> tests/ui/contract/fail/trait-message-selector-overlap-1.rs:47:9
    |
 42 |         fn message(&self) {}
    |         ----------------- first implementation here

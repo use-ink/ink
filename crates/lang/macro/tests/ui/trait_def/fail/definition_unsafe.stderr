@@ -1,5 +1,5 @@
 error: ink! trait definitions cannot be unsafe
- --> $DIR/definition_unsafe.rs:4:5
+ --> tests/ui/trait_def/fail/definition_unsafe.rs:4:5
   |
 4 | pub unsafe trait TraitDefinition {
   |     ^^^^^^

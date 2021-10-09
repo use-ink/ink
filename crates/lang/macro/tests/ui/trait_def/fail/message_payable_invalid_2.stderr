@@ -1,5 +1,5 @@
 error: unknown ink! attribute argument (name = value)
- --> $DIR/message_payable_invalid_2.rs:5:20
+ --> tests/ui/trait_def/fail/message_payable_invalid_2.rs:5:20
   |
 5 |     #[ink(message, payable = true)]
   |                    ^^^^^^^^^^^^^^

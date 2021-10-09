@@ -1,5 +1,5 @@
 error: expected string or byte string literal as input: unexpected end of input, expected literal
- --> $DIR/missing_parameter.rs:3:21
+ --> tests/ui/blake2b/fail/missing_parameter.rs:3:21
   |
 3 | const _: [u8; 32] = ink::blake2x256!();
   |                     ^^^^^^^^^^^^^^^^^^

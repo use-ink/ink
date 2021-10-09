@@ -1,5 +1,5 @@
 error: expected a string literal for `namespace` ink! trait definition configuration argument
- --> $DIR/config_namespace_invalid_4.rs:3:25
+ --> tests/ui/trait_def/fail/config_namespace_invalid_4.rs:3:25
   |
 3 | #[ink::trait_definition(namespace = true)]
   |                         ^^^^^^^^^^^^^^^^

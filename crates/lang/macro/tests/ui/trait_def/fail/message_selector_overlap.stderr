@@ -1,11 +1,11 @@
 error: encountered duplicate selector ([0, 0, 0, 1]) in the same ink! trait definition
- --> $DIR/message_selector_overlap.rs:9:8
+ --> tests/ui/trait_def/fail/message_selector_overlap.rs:9:8
   |
 9 |     fn message_2(&self);
   |        ^^^^^^^^^
 
 error: first ink! trait constructor or message with same selector found here
- --> $DIR/message_selector_overlap.rs:6:8
+ --> tests/ui/trait_def/fail/message_selector_overlap.rs:6:8
   |
 6 |     fn message_1(&self);
   |        ^^^^^^^^^

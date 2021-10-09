@@ -1,5 +1,5 @@
 error: #[ink(selector = ..)] attributes with string inputs are deprecated. use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].
-  --> $DIR/message-selector-invalid-type-01.rs:14:24
+  --> tests/ui/contract/fail/message-selector-invalid-type-01.rs:14:24
    |
 14 |         #[ink(message, selector = "0xC0DECAFE")]
    |                        ^^^^^^^^^^^^^^^^^^^^^^^

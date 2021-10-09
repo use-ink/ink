@@ -1,31 +1,31 @@
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
-  --> $DIR/message-input-non-codec.rs:18:31
+  --> tests/ui/contract/fail/message-input-non-codec.rs:18:31
    |
 18 |         pub fn message(&self, _input: NonCodecType) {}
    |                               ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
    |
    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
 note: required by a bound in `DispatchInput`
-  --> $DIR/type_check.rs:41:8
+  --> $WORKSPACE/crates/lang/src/codegen/dispatch/type_check.rs
    |
-41 |     T: scale::Decode + 'static;
+   |     T: scale::Decode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
-   --> $DIR/message-input-non-codec.rs:18:9
+   --> tests/ui/contract/fail/message-input-non-codec.rs:18:9
     |
 18  |         pub fn message(&self, _input: NonCodecType) {}
     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
     |
     = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
 note: required by a bound in `parity_scale_codec::Decode::decode`
-   --> $DIR/codec.rs:284:15
+   --> $CARGO/parity-scale-codec-2.3.1/src/codec.rs
     |
-284 |     fn decode<I: Input>(input: &mut I) -> Result<Self, Error>;
+    |     fn decode<I: Input>(input: &mut I) -> Result<Self, Error>;
     |                  ^^^^^ required by this bound in `parity_scale_codec::Decode::decode`
 
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
-  --> $DIR/message-input-non-codec.rs:3:1
+  --> tests/ui/contract/fail/message-input-non-codec.rs:3:1
    |
 3  | #[ink::contract]
    | ^^^^^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
@@ -37,7 +37,7 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
    = note: this error originates in the attribute macro `ink::contract` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>`, but its trait bounds were not satisfied
-  --> $DIR/message-input-non-codec.rs:18:9
+  --> tests/ui/contract/fail/message-input-non-codec.rs:18:9
    |
 18 |         pub fn message(&self, _input: NonCodecType) {}
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodecType>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>` due to unsatisfied trait bounds

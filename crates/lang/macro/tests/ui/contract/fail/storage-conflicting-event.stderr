@@ -1,5 +1,5 @@
 error: encountered conflicting ink! attribute argument
- --> $DIR/storage-conflicting-event.rs:6:11
+ --> tests/ui/contract/fail/storage-conflicting-event.rs:6:11
   |
 6 |     #[ink(event)]
   |           ^^^^^

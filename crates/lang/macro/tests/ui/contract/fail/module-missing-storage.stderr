@@ -1,5 +1,5 @@
 error: missing ink! storage struct
-  --> $DIR/module-missing-storage.rs:4:1
+  --> tests/ui/contract/fail/module-missing-storage.rs:4:1
    |
 4  | / mod contract {
 5  | |     // #[ink(storage)]

@@ -1,5 +1,5 @@
 error: ink! config options require an argument separated by '='
- --> $DIR/config-compile-as-dependency-missing-arg.rs:3:17
+ --> tests/ui/contract/fail/config-compile-as-dependency-missing-arg.rs:3:17
   |
 3 | #[ink::contract(compile_as_dependency)]
   |                 ^^^^^^^^^^^^^^^^^^^^^

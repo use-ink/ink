@@ -1,5 +1,5 @@
 error: missing ink! constructor
-  --> $DIR/module-missing-constructor.rs:4:1
+  --> tests/ui/contract/fail/module-missing-constructor.rs:4:1
    |
 4  | / mod contact {
 5  | |     #[ink(storage)]

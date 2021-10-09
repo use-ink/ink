@@ -1,5 +1,5 @@
 error: ink! messages must have `&self` or `&mut self` receiver
-  --> $DIR/message-self-receiver-invalid-03.rs:15:24
+  --> tests/ui/contract/fail/message-self-receiver-invalid-03.rs:15:24
    |
 15 |         pub fn message(self) {}
    |                        ^^^^

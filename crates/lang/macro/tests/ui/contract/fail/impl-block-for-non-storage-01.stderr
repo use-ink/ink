@@ -1,5 +1,5 @@
 error[E0308]: mismatched types
-  --> $DIR/impl-block-for-non-storage-01.rs:20:10
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:20:10
    |
 20 |     impl NonContract {
    |          ^^^^^^^^^^^ expected struct `Contract`, found struct `NonContract`
@@ -8,7 +8,7 @@ error[E0308]: mismatched types
               found struct `IsSameType<NonContract>`
 
 error[E0599]: no function or associated item named `constructor_2` found for struct `Contract` in the current scope
-  --> $DIR/impl-block-for-non-storage-01.rs:22:16
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:22:16
    |
 6  |     pub struct Contract {}
    |     ------------------- function or associated item `constructor_2` not found for this
@@ -20,7 +20,7 @@ error[E0599]: no function or associated item named `constructor_2` found for str
    |                help: there is an associated function with a similar name: `constructor_1`
 
 error[E0599]: no function or associated item named `message_2` found for struct `Contract` in the current scope
-  --> $DIR/impl-block-for-non-storage-01.rs:27:16
+  --> tests/ui/contract/fail/impl-block-for-non-storage-01.rs:27:16
    |
 6  |     pub struct Contract {}
    |     ------------------- function or associated item `message_2` not found for this

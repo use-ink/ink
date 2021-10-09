@@ -1,5 +1,5 @@
 error[E0599]: no method named `env` found for reference `&Contract` in the current scope
-  --> $DIR/impl-block-using-env-no-marker.rs:24:26
+  --> tests/ui/contract/fail/impl-block-using-env-no-marker.rs:24:26
    |
 24 |             let _ = self.env().caller();
    |                          ^^^ method not found in `&Contract`

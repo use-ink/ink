@@ -1,5 +1,5 @@
 error[E0599]: no function or associated item named `env` found for struct `Contract` in the current scope
-  --> $DIR/impl-block-using-static-env-no-marker.rs:22:27
+  --> tests/ui/contract/fail/impl-block-using-static-env-no-marker.rs:22:27
    |
 6  |     pub struct Contract {}
    |     ------------------- function or associated item `env` not found for this

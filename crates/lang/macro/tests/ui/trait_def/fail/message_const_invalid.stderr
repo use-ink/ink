@@ -1,5 +1,5 @@
 error: const ink! trait methods are not supported
- --> $DIR/message_const_invalid.rs:6:5
+ --> tests/ui/trait_def/fail/message_const_invalid.rs:6:5
   |
 6 |     const fn message_ref(&self);
   |     ^^^^^

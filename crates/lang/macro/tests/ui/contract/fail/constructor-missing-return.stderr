@@ -1,5 +1,5 @@
 error: missing return for ink! constructor
-  --> $DIR/constructor-missing-return.rs:10:13
+  --> tests/ui/contract/fail/constructor-missing-return.rs:10:13
    |
 10 |         pub fn constructor() {}
    |             ^^^^^^^^^^^^^^^^
