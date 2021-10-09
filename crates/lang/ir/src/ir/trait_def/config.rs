@@ -102,7 +102,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
 }
 
 impl TraitDefinitionConfig {
-    /// Returns the namespace config argument if any as string.
+    /// Returns the namespace configuration argument if any as string.
     pub fn namespace(&self) -> Option<&syn::LitStr> {
         self.namespace.as_ref()
     }

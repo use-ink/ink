@@ -60,7 +60,7 @@ impl TryFrom<syn::ItemTrait> for InkItemTrait {
 }
 
 impl InkItemTrait {
-    /// Creates a new ink! item trait from the given config and trait definition.
+    /// Creates a new ink! item trait from the given configuration and trait definition.
     pub fn new(
         config: &TraitDefinitionConfig,
         item_trait: syn::ItemTrait,
