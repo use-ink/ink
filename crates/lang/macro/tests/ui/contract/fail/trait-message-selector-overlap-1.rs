@@ -1,4 +1,4 @@
-mod foo {
+mod foo1 {
     use ink_lang as ink;
 
     #[ink::trait_definition]
@@ -8,7 +8,7 @@ mod foo {
     }
 }
 
-mod bar {
+mod foo2 {
     use ink_lang as ink;
 
     #[ink::trait_definition]
@@ -23,8 +23,8 @@ use ink_lang as ink;
 #[ink::contract]
 pub mod contract {
     use super::{
-        bar::TraitDefinition as TraitDefinition2,
-        foo::TraitDefinition as TraitDefinition1,
+        foo1::TraitDefinition as TraitDefinition1,
+        foo2::TraitDefinition as TraitDefinition2,
     };
 
     #[ink(storage)]
