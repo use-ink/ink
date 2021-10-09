@@ -3,7 +3,7 @@
 a normal Rust module annotated with
 <code>#[ink::contract( /* optional configuration */ )]</code> attribute.</p>
 <p>It contains ink! specific items as well as normal Rust items.</p>
-<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// #[ink::contract] &lt;-- this line belongs to the ink! configuration!</span>
 <span class="kw">mod</span> <span class="ident">my_contract</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
@@ -28,10 +28,10 @@ a normal Rust module annotated with
         }
     }
 }</code></pre></div>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>This type has been named after <a href="https://docs.rs/syn/1.0.80/syn/item/struct.ItemMod.html" title="syn::ItemMod"><code>syn::ItemMod</code></a> and inherits all of the
 fields that are required for inline module definitions.</p>
-<h2 id="developer-note" class="section-header"><a href="#developer-note">Developer Note</a></h2>
+<h1 id="developer-note" class="section-header"><a href="#developer-note">Developer Note</a></h1>
 <p>Structurally the ink! <code>Module</code> mirrors an inline Rust module, for example:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">mod</span> <span class="ident">rust_module</span> {
@@ -40,18 +40,18 @@ fields that are required for inline module definitions.</p>
 <p>If the capabilities of an inline Rust module change we have to adjust for that.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/item_mod.rs.html#315-438" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="struct" href="struct.ItemMod.html" title="struct ink_lang_ir::ItemMod">ItemMod</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.ident" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/item_mod.rs.html#317-319" title="goto source code">[src]</a></div><a href="#method.ident" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.ident" class="fnname">ident</a>(&amp;self) -&gt; &amp;<a class="struct" href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.Ident.html" title="struct proc_macro2::Ident">Ident</a></h4></div></summary><div class="docblock"><p>Returns the identifier of the ink! module.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.storage" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/item_mod.rs.html#335-346" title="goto source code">[src]</a></div><a href="#method.storage" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.storage" class="fnname">storage</a>(&amp;self) -&gt; &amp;<a class="struct" href="struct.Storage.html" title="struct ink_lang_ir::Storage">Storage</a></h4></div></summary><div class="docblock"><p>Returns the storage struct definition for this ink! module.</p>
-<h5 id="note-1" class="section-header"><a href="#note-1">Note</a></h5>
+<h1 id="note-1" class="section-header"><a href="#note-1">Note</a></h1>
 <p>The storage definition is the struct that has been annotated with
 <code>#[ink(storage)]</code>. This struct is required to be defined in the root
 of the ink! inline module.</p>
-<h5 id="panics" class="section-header"><a href="#panics">Panics</a></h5>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
 <p>If zero or multiple <code>#[ink(storage)]</code> annotated structs were found in
 the ink! module. This can be expected to never happen since upon
 construction of an ink! module it is asserted that exactly one
 <code>#[ink(storage)]</code> struct exists.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.items" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/item_mod.rs.html#349-351" title="goto source code">[src]</a></div><a href="#method.items" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.items" class="fnname">items</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="enum" href="enum.Item.html" title="enum ink_lang_ir::Item">Item</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></h4></div></summary><div class="docblock"><p>Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.impls" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/item_mod.rs.html#420-422" title="goto source code">[src]</a></div><a href="#method.impls" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.impls" class="fnname">impls</a>(&amp;self) -&gt; <a class="struct" href="struct.IterItemImpls.html" title="struct ink_lang_ir::IterItemImpls">IterItemImpls</a>&lt;'_&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="struct.IterItemImpls.html" title="struct ink_lang_ir::IterItemImpls">IterItemImpls</a>&lt;'a&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="struct.IterItemImpls.html" title="struct ink_lang_ir::IterItemImpls">IterItemImpls</a>&lt;'a&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = &amp;'a <a class="struct" href="struct.ItemImpl.html" title="struct ink_lang_ir::ItemImpl">ItemImpl</a>;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Returns an iterator yielding all ink! implementation blocks.</p>
-<h5 id="note-2" class="section-header"><a href="#note-2">Note</a></h5>
+<h1 id="note-2" class="section-header"><a href="#note-2">Note</a></h1>
 <p>An ink! implementation block can be either an inherent <code>impl</code> block
 directly defined for the contract’s storage struct if it includes at
 least one <code>#[ink(message)]</code> or <code>#[ink(constructor)]</code> annotation, e.g.:</p>

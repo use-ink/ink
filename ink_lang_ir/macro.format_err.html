@@ -3,13 +3,13 @@
 }</code></pre></div>
 </div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Creates a <a href="https://docs.rs/syn/1.0.80/syn/error/struct.Error.html" title="syn::Error"><code>syn::Error</code></a> with the format message and infers the
 <a href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.Span.html"><code>Span</code></a> using <a href="https://docs.rs/syn/1.0.80/syn/spanned/trait.Spanned.html"><code>Spanned</code></a>.</p>
-<h2 id="parameters" class="section-header"><a href="#parameters">Parameters</a></h2>
+<h1 id="parameters" class="section-header"><a href="#parameters">Parameters</a></h1>
 <ul>
 <li>The first argument must be a type that implements <a href="https://docs.rs/syn/1.0.80/syn/spanned/trait.Spanned.html" title="syn::spanned::Spanned"><code>syn::spanned::Spanned</code></a>.</li>
 <li>The second argument is a format string.</li>
 <li>The rest are format string arguments.</li>
 </ul>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>On stable Rust this might yield worse error span information to the user
 than <a href="macro.format_err_spanned.html" title="format_err_spanned"><code>format_err_spanned</code></a>.</p>
 <ul>

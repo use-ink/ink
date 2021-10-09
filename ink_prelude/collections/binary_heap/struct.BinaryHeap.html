@@ -7,7 +7,7 @@ through <a href="https://doc.rust-lang.org/nightly/core/cell/struct.Cell.html"><
 behavior resulting from such a logic error is not specified, but will
 not result in undefined behavior. This could include panics, incorrect
 results, aborts, memory leaks, and non-termination.</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
 
 <span class="comment">// Type inference lets us omit an explicit type signature (which</span>
@@ -51,7 +51,7 @@ results, aborts, memory leaks, and non-termination.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
 
 <span class="kw">let</span> <span class="ident">heap</span> <span class="op">=</span> <span class="ident">BinaryHeap::from</span>([<span class="number">1</span>, <span class="number">5</span>, <span class="number">2</span>]);</code></pre></div>
-<h3 id="min-heap" class="section-header"><a href="#min-heap">Min-heap</a></h3>
+<h2 id="min-heap" class="section-header"><a href="#min-heap">Min-heap</a></h2>
 <p>Either <a href="https://doc.rust-lang.org/nightly/core/cmp/struct.Reverse.html"><code>core::cmp::Reverse</code></a> or a custom <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html"><code>Ord</code></a> implementation can be used to
 make <code>BinaryHeap</code> a min-heap. This makes <code>heap.pop()</code> return the smallest
 value instead of the greatest one.</p>
@@ -71,14 +71,14 @@ value instead of the greatest one.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">Some</span>(<span class="ident">Reverse</span>(<span class="number">2</span>)));
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">Some</span>(<span class="ident">Reverse</span>(<span class="number">5</span>)));
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">None</span>);</code></pre></div>
-<h2 id="time-complexity" class="section-header"><a href="#time-complexity">Time complexity</a></h2><div><table><thead><tr><th><a href="../struct.BinaryHeap.html#method.push">push</a></th><th><a href="../struct.BinaryHeap.html#method.pop">pop</a></th><th><a href="../struct.BinaryHeap.html#method.peek">peek</a>/<a href="../struct.BinaryHeap.html#method.peek_mut">peek_mut</a></th></tr></thead><tbody>
+<h1 id="time-complexity" class="section-header"><a href="#time-complexity">Time complexity</a></h1><div><table><thead><tr><th><a href="../struct.BinaryHeap.html#method.push">push</a></th><th><a href="../struct.BinaryHeap.html#method.pop">pop</a></th><th><a href="../struct.BinaryHeap.html#method.peek">peek</a>/<a href="../struct.BinaryHeap.html#method.peek_mut">peek_mut</a></th></tr></thead><tbody>
 <tr><td><em>O</em>(1)~</td><td><em>O</em>(log(<em>n</em>))</td><td><em>O</em>(1)</td></tr>
 </tbody></table>
 </div>
 <p>The value for <code>push</code> is an expected cost; the method documentation gives a
 more detailed analysis.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#354-813" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl&lt;T&gt; <a class="struct" href="../struct.BinaryHeap.html" title="struct ink_prelude::collections::BinaryHeap">BinaryHeap</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a>,&nbsp;</span></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#367" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.new" class="fnname">new</a>() -&gt; <a class="struct" href="../struct.BinaryHeap.html" title="struct ink_prelude::collections::BinaryHeap">BinaryHeap</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Creates an empty <code>BinaryHeap</code> as a max-heap.</p>
-<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -88,7 +88,7 @@ more detailed analysis.</p>
 This preallocates enough memory for <code>capacity</code> elements,
 so that the <code>BinaryHeap</code> does not have to be reallocated
 until it contains at least that many values.</p>
-<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
+<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -98,7 +98,7 @@ until it contains at least that many values.</p>
 <code>None</code> if it is empty.</p>
 <p>Note: If the <code>PeekMut</code> value is leaked, the heap may be in an
 inconsistent state.</p>
-<h5 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h5>
+<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -113,12 +113,12 @@ inconsistent state.</p>
     <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> <span class="number">0</span>;
 }
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">peek</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">2</span>));</code></pre></div>
-<h5 id="time-complexity-1" class="section-header"><a href="#time-complexity-1">Time complexity</a></h5>
+<h1 id="time-complexity-1" class="section-header"><a href="#time-complexity-1">Time complexity</a></h1>
 <p>If the item is modified then the worst case time complexity is <em>O</em>(log(<em>n</em>)),
 otherwise it’s <em>O</em>(1).</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.pop" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#444" title="goto source code">[src]</a></div><a href="#method.pop" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.pop" class="fnname">pop</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Removes the greatest item from the binary heap and returns it, or <code>None</code> if it
 is empty.</p>
-<h5 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h5>
+<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -127,10 +127,10 @@ is empty.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">Some</span>(<span class="number">3</span>));
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">Some</span>(<span class="number">1</span>));
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">pop</span>(), <span class="prelude-val">None</span>);</code></pre></div>
-<h5 id="time-complexity-2" class="section-header"><a href="#time-complexity-2">Time complexity</a></h5>
+<h1 id="time-complexity-2" class="section-header"><a href="#time-complexity-2">Time complexity</a></h1>
 <p>The worst case cost of <code>pop</code> on a heap containing <em>n</em> elements is <em>O</em>(log(<em>n</em>)).</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.push" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#488" title="goto source code">[src]</a></div><a href="#method.push" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.push" class="fnname">push</a>(&amp;mut self, item: T)</h4></div></summary><div class="docblock"><p>Pushes an item onto the binary heap.</p>
-<h5 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h5>
+<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -141,7 +141,7 @@ is empty.</p>
 
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">len</span>(), <span class="number">3</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">peek</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5</span>));</code></pre></div>
-<h5 id="time-complexity-3" class="section-header"><a href="#time-complexity-3">Time complexity</a></h5>
+<h1 id="time-complexity-3" class="section-header"><a href="#time-complexity-3">Time complexity</a></h1>
 <p>The expected cost of <code>push</code>, averaged over every possible ordering of
 the elements being pushed, and over a sufficiently large number of
 pushes, is <em>O</em>(1). This is the most meaningful cost metric when pushing
@@ -155,7 +155,7 @@ occurs when capacity is exhausted and needs a resize. The resize cost
 has been amortized in the previous figures.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into_sorted_vec" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.5.0">1.5.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#514" title="goto source code">[src]</a></div><a href="#method.into_sorted_vec" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.into_sorted_vec" class="fnname">into_sorted_vec</a>(self) -&gt; <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;T, <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/alloc/struct.Global.html" title="struct alloc::alloc::Global">Global</a>&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, A&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;A&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a> for <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, A&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;A: <a class="trait" href="https://doc.rust-lang.org/nightly/core/alloc/trait.Allocator.html" title="trait core::alloc::Allocator">Allocator</a>,&nbsp;</span></span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Consumes the <code>BinaryHeap</code> and returns a vector in sorted
 (ascending) order.</p>
-<h5 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h5>
+<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -167,7 +167,7 @@ has been amortized in the previous figures.</p>
 <span class="kw">let</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">heap</span>.<span class="ident">into_sorted_vec</span>();
 <span class="macro">assert_eq!</span>(<span class="ident">vec</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.append" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.11.0">1.11.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#736" title="goto source code">[src]</a></div><a href="#method.append" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.append" class="fnname">append</a>(&amp;mut self, other: &amp;mut <a class="struct" href="../struct.BinaryHeap.html" title="struct ink_prelude::collections::BinaryHeap">BinaryHeap</a>&lt;T&gt;)</h4></div></summary><div class="docblock"><p>Moves all the elements of <code>other</code> into <code>self</code>, leaving <code>other</code> empty.</p>
-<h5 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h5>
+<h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -190,7 +190,7 @@ The remaining elements will be removed on drop in heap order.</p>
 <li><code>.drain_sorted()</code> is <em>O</em>(<em>n</em> * log(<em>n</em>)); much slower than <code>.drain()</code>.
 You should use the latter for most cases.</li>
 </ul>
-<h5 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h5>
+<h1 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">binary_heap_drain_sorted</span>)]</span>
@@ -204,7 +204,7 @@ You should use the latter for most cases.</li>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.retain" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#796-798" title="goto source code">[src]</a></div><a href="#method.retain" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.retain" class="fnname">retain</a>&lt;F&gt;(&amp;mut self, f: F) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,&nbsp;</span></h4></div><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>binary_heap_retain</code>)</div></div></summary><div class="docblock"><p>Retains only the elements specified by the predicate.</p>
 <p>In other words, remove all elements <code>e</code> such that <code>f(&amp;e)</code> returns
 <code>false</code>. The elements are visited in unsorted (and unspecified) order.</p>
-<h5 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h5>
+<h1 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">binary_heap_retain</span>)]</span>
@@ -217,7 +217,7 @@ You should use the latter for most cases.</li>
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">into_sorted_vec</span>(), [<span class="op">-</span><span class="number">10</span>, <span class="number">2</span>, <span class="number">4</span>])</code></pre></div>
 </div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-1" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#815-1122" title="goto source code">[src]</a></div><a href="#impl-1" class="anchor"></a><h3 class="code-header in-band">impl&lt;T&gt; <a class="struct" href="../struct.BinaryHeap.html" title="struct ink_prelude::collections::BinaryHeap">BinaryHeap</a>&lt;T&gt;</h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.iter" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#833" title="goto source code">[src]</a></div><a href="#method.iter" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.iter" class="fnname">iter</a>(&amp;self) -&gt; <a class="struct" href="struct.Iter.html" title="struct ink_prelude::collections::binary_heap::Iter">Iter</a>&lt;'_, T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="struct.Iter.html" title="struct ink_prelude::collections::binary_heap::Iter">Iter</a>&lt;'a, T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;'a, T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="struct.Iter.html" title="struct ink_prelude::collections::binary_heap::Iter">Iter</a>&lt;'a, T&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a </a>T;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Returns an iterator visiting all values in the underlying vector, in
 arbitrary order.</p>
-<h5 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h5>
+<h1 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -229,7 +229,7 @@ arbitrary order.</p>
 }</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into_iter_sorted" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#852" title="goto source code">[src]</a></div><a href="#method.into_iter_sorted" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.into_iter_sorted" class="fnname">into_iter_sorted</a>(self) -&gt; <a class="struct" href="struct.IntoIterSorted.html" title="struct ink_prelude::collections::binary_heap::IntoIterSorted">IntoIterSorted</a>&lt;T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="struct.IntoIterSorted.html" title="struct ink_prelude::collections::binary_heap::IntoIterSorted">IntoIterSorted</a>&lt;T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="struct.IntoIterSorted.html" title="struct ink_prelude::collections::binary_heap::IntoIterSorted">IntoIterSorted</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a>,&nbsp;</span></span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = T;</span></code></span></div></span></span></h4></div><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>binary_heap_into_iter_sorted</code>)</div></div></summary><div class="docblock"><p>Returns an iterator which retrieves elements in heap order.
 This method consumes the original heap.</p>
-<h5 id="examples-11" class="section-header"><a href="#examples-11">Examples</a></h5>
+<h1 id="examples-11" class="section-header"><a href="#examples-11">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">binary_heap_into_iter_sorted</span>)]</span>
@@ -238,7 +238,7 @@ This method consumes the original heap.</p>
 
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">into_iter_sorted</span>().<span class="ident">take</span>(<span class="number">2</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(), <span class="macro">vec!</span>[<span class="number">5</span>, <span class="number">4</span>]);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.peek" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#878" title="goto source code">[src]</a></div><a href="#method.peek" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.peek" class="fnname">peek</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T&gt;</h4></div></summary><div class="docblock"><p>Returns the greatest item in the binary heap, or <code>None</code> if it is empty.</p>
-<h5 id="examples-12" class="section-header"><a href="#examples-12">Examples</a></h5>
+<h1 id="examples-12" class="section-header"><a href="#examples-12">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -250,10 +250,10 @@ This method consumes the original heap.</p>
 <span class="ident">heap</span>.<span class="ident">push</span>(<span class="number">2</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">peek</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5</span>));
 </code></pre></div>
-<h5 id="time-complexity-4" class="section-header"><a href="#time-complexity-4">Time complexity</a></h5>
+<h1 id="time-complexity-4" class="section-header"><a href="#time-complexity-4">Time complexity</a></h1>
 <p>Cost is <em>O</em>(1) in the worst case.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.capacity" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#895" title="goto source code">[src]</a></div><a href="#method.capacity" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.capacity" class="fnname">capacity</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></div></summary><div class="docblock"><p>Returns the number of elements the binary heap can hold without reallocating.</p>
-<h5 id="examples-13" class="section-header"><a href="#examples-13">Examples</a></h5>
+<h1 id="examples-13" class="section-header"><a href="#examples-13">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -265,9 +265,9 @@ given <code>BinaryHeap</code>. Does nothing if the capacity is already sufficien
 <p>Note that the allocator may give the collection more space than it requests. Therefore
 capacity can not be relied upon to be precisely minimal. Prefer <a href="../struct.BinaryHeap.html#method.reserve"><code>reserve</code></a> if future
 insertions are expected.</p>
-<h5 id="panics" class="section-header"><a href="#panics">Panics</a></h5>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
 <p>Panics if the new capacity overflows <code>usize</code>.</p>
-<h5 id="examples-14" class="section-header"><a href="#examples-14">Examples</a></h5>
+<h1 id="examples-14" class="section-header"><a href="#examples-14">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -277,9 +277,9 @@ insertions are expected.</p>
 <span class="ident">heap</span>.<span class="ident">push</span>(<span class="number">4</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.reserve" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#947" title="goto source code">[src]</a></div><a href="#method.reserve" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.reserve" class="fnname">reserve</a>(&amp;mut self, additional: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>)</h4></div></summary><div class="docblock"><p>Reserves capacity for at least <code>additional</code> more elements to be inserted in the
 <code>BinaryHeap</code>. The collection may reserve more space to avoid frequent reallocations.</p>
-<h5 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h5>
+<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
 <p>Panics if the new capacity overflows <code>usize</code>.</p>
-<h5 id="examples-15" class="section-header"><a href="#examples-15">Examples</a></h5>
+<h1 id="examples-15" class="section-header"><a href="#examples-15">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -288,7 +288,7 @@ insertions are expected.</p>
 <span class="macro">assert!</span>(<span class="ident">heap</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">100</span>);
 <span class="ident">heap</span>.<span class="ident">push</span>(<span class="number">4</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.shrink_to_fit" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#966" title="goto source code">[src]</a></div><a href="#method.shrink_to_fit" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.shrink_to_fit" class="fnname">shrink_to_fit</a>(&amp;mut self)</h4></div></summary><div class="docblock"><p>Discards as much additional capacity as possible.</p>
-<h5 id="examples-16" class="section-header"><a href="#examples-16">Examples</a></h5>
+<h1 id="examples-16" class="section-header"><a href="#examples-16">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -301,16 +301,16 @@ insertions are expected.</p>
 <p>The capacity will remain at least as large as both the length
 and the supplied value.</p>
 <p>If the current capacity is less than the lower limit, this is a no-op.</p>
-<h5 id="examples-17" class="section-header"><a href="#examples-17">Examples</a></h5>
+<h1 id="examples-17" class="section-header"><a href="#examples-17">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">heap</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap::with_capacity</span>(<span class="number">100</span>);
 
 <span class="macro">assert!</span>(<span class="ident">heap</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">100</span>);
 <span class="ident">heap</span>.<span class="ident">shrink_to</span>(<span class="number">10</span>);
 <span class="macro">assert!</span>(<span class="ident">heap</span>.<span class="ident">capacity</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">10</span>);</code></pre></div>
-</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.as_slice" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1010" title="goto source code">[src]</a></div><a href="#method.as_slice" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.as_slice" class="fnname">as_slice</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[T]</a><span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ mut [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></div><code class="content"><span class="where fmt-newline">impl&lt;'_&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ mut [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></span><span class="where fmt-newline">impl&lt;'_&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></span></code></span></div></span></span></h4></div><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>binary_heap_as_slice</code>)</div></div></summary><div class="docblock"><p>Returns a slice of all values in the underlying vector, in arbitrary
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.as_slice" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1010" title="goto source code">[src]</a></div><a href="#method.as_slice" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.as_slice" class="fnname">as_slice</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[T]</a><span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></div><code class="content"><span class="where fmt-newline">impl&lt;'_&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></span><span class="where fmt-newline">impl&lt;'_&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;'_ mut [</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></span></code></span></div></span></span></h4></div><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>binary_heap_as_slice</code>)</div></div></summary><div class="docblock"><p>Returns a slice of all values in the underlying vector, in arbitrary
 order.</p>
-<h5 id="examples-18" class="section-header"><a href="#examples-18">Examples</a></h5>
+<h1 id="examples-18" class="section-header"><a href="#examples-18">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">binary_heap_as_slice</span>)]</span>
@@ -322,7 +322,7 @@ order.</p>
 <span class="ident">io::sink</span>().<span class="ident">write</span>(<span class="ident">heap</span>.<span class="ident">as_slice</span>()).<span class="ident">unwrap</span>();</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into_vec" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.5.0">1.5.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1032" title="goto source code">[src]</a></div><a href="#method.into_vec" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.into_vec" class="fnname">into_vec</a>(self) -&gt; <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;T, <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/alloc/struct.Global.html" title="struct alloc::alloc::Global">Global</a>&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, A&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;A&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html" title="trait std::io::Write">Write</a> for <a class="struct" href="../../vec/struct.Vec.html" title="struct ink_prelude::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>, A&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;A: <a class="trait" href="https://doc.rust-lang.org/nightly/core/alloc/trait.Allocator.html" title="trait core::alloc::Allocator">Allocator</a>,&nbsp;</span></span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Consumes the <code>BinaryHeap</code> and returns the underlying vector
 in arbitrary order.</p>
-<h5 id="examples-19" class="section-header"><a href="#examples-19">Examples</a></h5>
+<h1 id="examples-19" class="section-header"><a href="#examples-19">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -334,7 +334,7 @@ in arbitrary order.</p>
     <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>);
 }</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.len" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1049" title="goto source code">[src]</a></div><a href="#method.len" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.len" class="fnname">len</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></div></summary><div class="docblock"><p>Returns the length of the binary heap.</p>
-<h5 id="examples-20" class="section-header"><a href="#examples-20">Examples</a></h5>
+<h1 id="examples-20" class="section-header"><a href="#examples-20">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -342,7 +342,7 @@ in arbitrary order.</p>
 
 <span class="macro">assert_eq!</span>(<span class="ident">heap</span>.<span class="ident">len</span>(), <span class="number">2</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_empty" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1072" title="goto source code">[src]</a></div><a href="#method.is_empty" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.is_empty" class="fnname">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Checks if the binary heap is empty.</p>
-<h5 id="examples-21" class="section-header"><a href="#examples-21">Examples</a></h5>
+<h1 id="examples-21" class="section-header"><a href="#examples-21">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -357,7 +357,7 @@ in arbitrary order.</p>
 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">heap</span>.<span class="ident">is_empty</span>());</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.drain" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.6.0">1.6.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1098" title="goto source code">[src]</a></div><a href="#method.drain" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.drain" class="fnname">drain</a>(&amp;mut self) -&gt; <a class="struct" href="struct.Drain.html" title="struct ink_prelude::collections::binary_heap::Drain">Drain</a>&lt;'_, T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="struct.Drain.html" title="struct ink_prelude::collections::binary_heap::Drain">Drain</a>&lt;'_, T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;'_, T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="struct.Drain.html" title="struct ink_prelude::collections::binary_heap::Drain">Drain</a>&lt;'_, T&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = T;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Clears the binary heap, returning an iterator over the removed elements.</p>
 <p>The elements are removed in arbitrary order.</p>
-<h5 id="examples-22" class="section-header"><a href="#examples-22">Examples</a></h5>
+<h1 id="examples-22" class="section-header"><a href="#examples-22">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -371,7 +371,7 @@ in arbitrary order.</p>
 
 <span class="macro">assert!</span>(<span class="ident">heap</span>.<span class="ident">is_empty</span>());</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.clear" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1119" title="goto source code">[src]</a></div><a href="#method.clear" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.clear" class="fnname">clear</a>(&amp;mut self)</h4></div></summary><div class="docblock"><p>Drops all items from the binary heap.</p>
-<h5 id="examples-23" class="section-header"><a href="#examples-23">Examples</a></h5>
+<h1 id="examples-23" class="section-header"><a href="#examples-23">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;
@@ -412,7 +412,7 @@ constant time complexity.</p>
 </div></details></div></details><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl-IntoIterator-1" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1515-1540" title="goto source code">[src]</a></div><a href="#impl-IntoIterator-1" class="anchor"></a><h3 class="code-header in-band">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html" title="trait core::iter::traits::collect::IntoIterator">IntoIterator</a> for <a class="struct" href="../struct.BinaryHeap.html" title="struct ink_prelude::collections::BinaryHeap">BinaryHeap</a>&lt;T&gt;</h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into_iter-1" class="method trait-impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/binary_heap.rs.html#1537" title="goto source code">[src]</a></div><a href="#method.into_iter-1" class="anchor"></a><h4 class="code-header">pub fn <a href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html#tymethod.into_iter" class="fnname">into_iter</a>(self) -&gt; <a class="struct" href="struct.IntoIter.html" title="struct ink_prelude::collections::binary_heap::IntoIter">IntoIter</a>&lt;T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="struct.IntoIter.html" title="struct ink_prelude::collections::binary_heap::IntoIter">IntoIter</a>&lt;T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="struct.IntoIter.html" title="struct ink_prelude::collections::binary_heap::IntoIter">IntoIter</a>&lt;T&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = T;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Creates a consuming iterator, that is, one that moves each value out of
 the binary heap in arbitrary order. The binary heap cannot be used
 after calling this.</p>
-<h5 id="examples-24" class="section-header"><a href="#examples-24">Examples</a></h5>
+<h1 id="examples-24" class="section-header"><a href="#examples-24">Examples</a></h1>
 <p>Basic usage:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::BinaryHeap</span>;

@@ -4,13 +4,13 @@ definitions.</p>
 <p>When adding a type to  the registry, all of its sub-types are registered
 recursively as well. A type is considered a sub-type of another type if it
 is used by its identifier or structure.</p>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>A type can be a sub-type of itself. In this case the registry has a builtin
 mechanism to stop recursion and avoid going into an infinite loop.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/scale_info/registry.rs.html#102-165" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="struct" href="struct.Registry.html" title="struct scale_info::Registry">Registry</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/scale_info/registry.rs.html#104-109" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.new" class="fnname">new</a>() -&gt; Self</h4></div></summary><div class="docblock"><p>Creates a new empty registry.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.register_type" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/scale_info/registry.rs.html#135-142" title="goto source code">[src]</a></div><a href="#method.register_type" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.register_type" class="fnname">register_type</a>(&amp;mut self, ty: &amp;<a class="struct" href="struct.MetaType.html" title="struct scale_info::MetaType">MetaType</a>) -&gt; <a class="struct" href="interner/struct.UntrackedSymbol.html" title="struct scale_info::interner::UntrackedSymbol">UntrackedSymbol</a>&lt;<a class="struct" href="prelude/any/struct.TypeId.html" title="struct scale_info::prelude::any::TypeId">TypeId</a>&gt;</h4></div></summary><div class="docblock"><p>Registers the given type into the registry and returns
 its associated type ID symbol.</p>
-<h5 id="note-1" class="section-header"><a href="#note-1">Note</a></h5>
+<h1 id="note-1" class="section-header"><a href="#note-1">Note</a></h1>
 <p>Due to safety requirements the returns type ID symbol cannot
 be used later to resolve back to the associated type definition.
 However, since this facility is going to be used for serialization

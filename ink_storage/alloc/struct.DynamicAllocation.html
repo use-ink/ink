@@ -4,7 +4,7 @@ It has been created by a dynamic storage allocator.
 The initiator of the allocation has to make sure to deallocate
 this dynamic allocation again using the same dynamic allocator
 if it is no longer in use.</p>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>Normally instances of this type are not used directly and instead
 a <a href="struct.Box.html"><code>storage::Box</code></a> is used instead.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_storage/alloc/allocation.rs.html#105-153" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="struct" href="struct.DynamicAllocation.html" title="struct ink_storage::alloc::DynamicAllocation">DynamicAllocation</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.key" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_storage/alloc/allocation.rs.html#112-152" title="goto source code">[src]</a></div><a href="#method.key" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.key" class="fnname">key</a>(self) -&gt; <a class="struct" href="../../ink_primitives/key/struct.Key.html" title="struct ink_primitives::key::Key">Key</a></h4></div></summary><div class="docblock"><p>Returns the storage key associated with this dynamic allocation.</p>

@@ -10,7 +10,7 @@ in constant time.</p>
 array-based containers are generally faster,
 more memory efficient, and make better use of CPU cache.</p>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#407-989" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl&lt;T&gt; <a class="struct" href="struct.LinkedList.html" title="struct ink_prelude::collections::LinkedList">LinkedList</a>&lt;T&gt;</h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.0.0, const since 1.32.0">1.0.0 (const: 1.32.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#420" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.new" class="fnname">new</a>() -&gt; <a class="struct" href="struct.LinkedList.html" title="struct ink_prelude::collections::LinkedList">LinkedList</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Creates an empty <code>LinkedList</code>.</p>
-<h5 id="examples" class="section-header"><a href="#examples">Examples</a></h5>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();</code></pre></div>
@@ -18,7 +18,7 @@ more memory efficient, and make better use of CPU cache.</p>
 <p>This reuses all the nodes from <code>other</code> and moves them into <code>self</code>. After
 this operation, <code>other</code> becomes empty.</p>
 <p>This operation should compute in <em>O</em>(1) time and <em>O</em>(1) memory.</p>
-<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list1</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -38,7 +38,7 @@ this operation, <code>other</code> becomes empty.</p>
 
 <span class="macro">assert!</span>(<span class="ident">list2</span>.<span class="ident">is_empty</span>());</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.iter" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#494" title="goto source code">[src]</a></div><a href="#method.iter" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.iter" class="fnname">iter</a>(&amp;self) -&gt; <a class="struct" href="linked_list/struct.Iter.html" title="struct ink_prelude::collections::linked_list::Iter">Iter</a>&lt;'_, T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="linked_list/struct.Iter.html" title="struct ink_prelude::collections::linked_list::Iter">Iter</a>&lt;'a, T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;'a, T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="linked_list/struct.Iter.html" title="struct ink_prelude::collections::linked_list::Iter">Iter</a>&lt;'a, T&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a </a>T;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Provides a forward iterator.</p>
-<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
+<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -53,7 +53,7 @@ this operation, <code>other</code> becomes empty.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">2</span>));
 <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>(), <span class="prelude-val">None</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.iter_mut" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#523" title="goto source code">[src]</a></div><a href="#method.iter_mut" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.iter_mut" class="fnname">iter_mut</a>(&amp;mut self) -&gt; <a class="struct" href="linked_list/struct.IterMut.html" title="struct ink_prelude::collections::linked_list::IterMut">IterMut</a>&lt;'_, T&gt;<span class="notable-traits"><span class="notable-traits-tooltip">ⓘ<div class="notable-traits-tooltiptext"><span class="docblock"><div class="notable">Notable traits for <a class="struct" href="linked_list/struct.IterMut.html" title="struct ink_prelude::collections::linked_list::IterMut">IterMut</a>&lt;'a, T&gt;</div><code class="content"><span class="where fmt-newline">impl&lt;'a, T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html" title="trait core::iter::traits::iterator::Iterator">Iterator</a> for <a class="struct" href="linked_list/struct.IterMut.html" title="struct ink_prelude::collections::linked_list::IterMut">IterMut</a>&lt;'a, T&gt;</span><span class="where fmt-newline">    type <a href="https://doc.rust-lang.org/nightly/core/iter/traits/iterator/trait.Iterator.html#associatedtype.Item" class="type">Item</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;'a mut </a>T;</span></code></span></div></span></span></h4></div></summary><div class="docblock"><p>Provides a forward iterator with mutable references.</p>
-<h5 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h5>
+<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -81,7 +81,7 @@ this operation, <code>other</code> becomes empty.</p>
 <p>The cursor is pointing to the “ghost” non-element if the list is empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_empty" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#580" title="goto source code">[src]</a></div><a href="#method.is_empty" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.is_empty" class="fnname">is_empty</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the <code>LinkedList</code> is empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h5>
+<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -91,7 +91,7 @@ this operation, <code>other</code> becomes empty.</p>
 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">dl</span>.<span class="ident">is_empty</span>());</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.len" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#606" title="goto source code">[src]</a></div><a href="#method.len" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.len" class="fnname">len</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></h4></div></summary><div class="docblock"><p>Returns the length of the <code>LinkedList</code>.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h5>
+<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -106,7 +106,7 @@ this operation, <code>other</code> becomes empty.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">dl</span>.<span class="ident">len</span>(), <span class="number">3</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.clear" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#632" title="goto source code">[src]</a></div><a href="#method.clear" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.clear" class="fnname">clear</a>(&amp;mut self)</h4></div></summary><div class="docblock"><p>Removes all elements from the <code>LinkedList</code>.</p>
 <p>This operation should compute in <em>O</em>(<em>n</em>) time.</p>
-<h5 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h5>
+<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -122,7 +122,7 @@ this operation, <code>other</code> becomes empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.contains" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.12.0">1.12.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#656-658" title="goto source code">[src]</a></div><a href="#method.contains" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.contains" class="fnname">contains</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;T&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the <code>LinkedList</code> contains an element equal to the
 given value.</p>
 <p>This operation should compute in <em>O</em>(<em>n</em>) time.</p>
-<h5 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h5>
+<h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">LinkedList</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -136,7 +136,7 @@ given value.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.front" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#681" title="goto source code">[src]</a></div><a href="#method.front" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.front" class="fnname">front</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T&gt;</h4></div></summary><div class="docblock"><p>Provides a reference to the front element, or <code>None</code> if the list is
 empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h5>
+<h1 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -147,7 +147,7 @@ empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.front_mut" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#709" title="goto source code">[src]</a></div><a href="#method.front_mut" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.front_mut" class="fnname">front_mut</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>T&gt;</h4></div></summary><div class="docblock"><p>Provides a mutable reference to the front element, or <code>None</code> if the list
 is empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h5>
+<h1 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -164,7 +164,7 @@ is empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.back" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#731" title="goto source code">[src]</a></div><a href="#method.back" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.back" class="fnname">back</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>T&gt;</h4></div></summary><div class="docblock"><p>Provides a reference to the back element, or <code>None</code> if the list is
 empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h5>
+<h1 id="examples-10" class="section-header"><a href="#examples-10">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -175,7 +175,7 @@ empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.back_mut" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#759" title="goto source code">[src]</a></div><a href="#method.back_mut" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.back_mut" class="fnname">back_mut</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>T&gt;</h4></div></summary><div class="docblock"><p>Provides a mutable reference to the back element, or <code>None</code> if the list
 is empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-11" class="section-header"><a href="#examples-11">Examples</a></h5>
+<h1 id="examples-11" class="section-header"><a href="#examples-11">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -191,7 +191,7 @@ is empty.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">dl</span>.<span class="ident">back</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="number">5</span>));</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.push_front" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#781" title="goto source code">[src]</a></div><a href="#method.push_front" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.push_front" class="fnname">push_front</a>(&amp;mut self, elt: T)</h4></div></summary><div class="docblock"><p>Adds an element first in the list.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-12" class="section-header"><a href="#examples-12">Examples</a></h5>
+<h1 id="examples-12" class="section-header"><a href="#examples-12">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dl</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -204,7 +204,7 @@ is empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.pop_front" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#805" title="goto source code">[src]</a></div><a href="#method.pop_front" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.pop_front" class="fnname">pop_front</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Removes the first element and returns it, or <code>None</code> if the list is
 empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-13" class="section-header"><a href="#examples-13">Examples</a></h5>
+<h1 id="examples-13" class="section-header"><a href="#examples-13">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -217,7 +217,7 @@ empty.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">d</span>.<span class="ident">pop_front</span>(), <span class="prelude-val">None</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.push_back" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#824" title="goto source code">[src]</a></div><a href="#method.push_back" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.push_back" class="fnname">push_back</a>(&amp;mut self, elt: T)</h4></div></summary><div class="docblock"><p>Appends an element to the back of a list.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-14" class="section-header"><a href="#examples-14">Examples</a></h5>
+<h1 id="examples-14" class="section-header"><a href="#examples-14">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -227,7 +227,7 @@ empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.pop_back" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#845" title="goto source code">[src]</a></div><a href="#method.pop_back" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.pop_back" class="fnname">pop_back</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Removes the last element from a list and returns it, or <code>None</code> if
 it is empty.</p>
 <p>This operation should compute in <em>O</em>(1) time.</p>
-<h5 id="examples-15" class="section-header"><a href="#examples-15">Examples</a></h5>
+<h1 id="examples-15" class="section-header"><a href="#examples-15">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -238,9 +238,9 @@ it is empty.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.split_off" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#875" title="goto source code">[src]</a></div><a href="#method.split_off" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.split_off" class="fnname">split_off</a>(&amp;mut self, at: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.LinkedList.html" title="struct ink_prelude::collections::LinkedList">LinkedList</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Splits the list into two at the given index. Returns everything after the given index,
 including the index.</p>
 <p>This operation should compute in <em>O</em>(<em>n</em>) time.</p>
-<h5 id="panics" class="section-header"><a href="#panics">Panics</a></h5>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
 <p>Panics if <code>at &gt; len</code>.</p>
-<h5 id="examples-16" class="section-header"><a href="#examples-16">Examples</a></h5>
+<h1 id="examples-16" class="section-header"><a href="#examples-16">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">LinkedList::new</span>();
@@ -255,9 +255,9 @@ including the index.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">split</span>.<span class="ident">pop_front</span>(), <span class="prelude-val">None</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.remove" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/alloc/collections/linked_list.rs.html#930" title="goto source code">[src]</a></div><a href="#method.remove" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.remove" class="fnname">remove</a>(&amp;mut self, at: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; T</h4></div><div class="item-info"><div class="stab unstable"><span class="emoji">🔬</span> This is a nightly-only experimental API. (<code>linked_list_remove</code>)</div></div></summary><div class="docblock"><p>Removes the element at the given index and returns it.</p>
 <p>This operation should compute in <em>O</em>(<em>n</em>) time.</p>
-<h5 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h5>
+<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
 <p>Panics if at &gt;= len</p>
-<h5 id="examples-17" class="section-header"><a href="#examples-17">Examples</a></h5>
+<h1 id="examples-17" class="section-header"><a href="#examples-17">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">linked_list_remove</span>)]</span>
 <span class="kw">use</span> <span class="ident">std::collections::LinkedList</span>;
 
@@ -277,7 +277,7 @@ If the closure returns false, the element will remain in the list and will not b
 by the iterator.</p>
 <p>Note that <code>drain_filter</code> lets you mutate every element in the filter closure, regardless of
 whether you choose to keep or remove it.</p>
-<h5 id="examples-18" class="section-header"><a href="#examples-18">Examples</a></h5>
+<h1 id="examples-18" class="section-header"><a href="#examples-18">Examples</a></h1>
 <p>Splitting a list into evens and odds, reusing the original list:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#![<span class="ident">feature</span>(<span class="ident">drain_filter</span>)]</span>

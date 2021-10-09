@@ -3,11 +3,11 @@
 it is fine to not use this macro since it bears some overhead with the test.</p>
 <p>Note that this macro is not required to run unit tests that require ink!’s
 off-chain testing capabilities but merely improves code readability.</p>
-<h3 id="how-do-you-find-out-if-your-test-requires-the-off-chain-environment" class="section-header"><a href="#how-do-you-find-out-if-your-test-requires-the-off-chain-environment">How do you find out if your test requires the off-chain environment?</a></h3>
+<h2 id="how-do-you-find-out-if-your-test-requires-the-off-chain-environment" class="section-header"><a href="#how-do-you-find-out-if-your-test-requires-the-off-chain-environment">How do you find out if your test requires the off-chain environment?</a></h2>
 <p>Normally if the test recursively uses or invokes some contract methods that
 call a method defined in <code>self.env()</code> or <code>Self::env()</code>.</p>
 <p>An examples is the following:</p>
-<div class="example-wrap"><pre class="language-no_compile"><code>let caller: AccountId = self.env().caller();</code></pre></div><h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="language-no_compile"><code>let caller: AccountId = self.env().caller();</code></pre></div><h1 id="example" class="section-header"><a href="#example">Example</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
