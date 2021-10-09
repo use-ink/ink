@@ -38,20 +38,6 @@ pub enum EnforcedErrors {
         /// Is `true` if the `self` receiver of the ink! message is `&mut self`.
         message_is_mut: bool,
     },
-    /// The below error represents calling a constructor in a context that does
-    /// not allow calling it. This may happen when the constructor defined in a
-    /// trait is cross-called in another contract.
-    /// This is not allowed since the contract to which a call is forwarded must
-    /// already exist at the point when the call to it is made.
-    #[codec(index = 2)]
-    CannotCallTraitConstructor {
-        /// The trait that defines the called constructor.
-        trait_ident: String,
-        /// The name of the called constructor.
-        constructor_ident: String,
-        /// The selector of the called constructor.
-        constructor_selector: [u8; 4],
-    },
 }
 
 impl EnforcedErrors {
