@@ -46,3 +46,10 @@ std = [
     "scale/std",
 ]
 show-codegen-docs = []
+
+# Due to https://github.com/rust-lang/cargo/issues/6915 features that affect a dev-dependency
+# currently can't be enabled by a parent crate, hence `["ink_env/ink-experimental-engine"]` does
+# not work.
+# After we switch to the new off-chain environment with https://github.com/paritytech/ink/issues/565
+# we can remove the feature altogether.
+ink-experimental-engine = []
