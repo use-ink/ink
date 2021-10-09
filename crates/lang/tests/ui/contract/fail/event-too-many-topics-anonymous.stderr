@@ -17,7 +17,7 @@ error[E0277]: the trait bound `EventTopics<4_usize>: RespectTopicLimit<2_usize>`
              <EventTopics<0_usize> as RespectTopicLimit<12_usize>>
            and 87 others
 note: required by a bound in `EventRespectsTopicLimit`
-  --> $WORKSPACE/crates/lang/src/codegen/event/topics.rs
+  --> src/codegen/event/topics.rs:48:43
    |
-   |     <Event as EventLenTopics>::LenTopics: RespectTopicLimit<LEN_MAX_TOPICS>,
+48 |     <Event as EventLenTopics>::LenTopics: RespectTopicLimit<LEN_MAX_TOPICS>,
    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `EventRespectsTopicLimit`
