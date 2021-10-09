@@ -489,7 +489,8 @@ impl Dispatch<'_> {
             quote_spanned!(constructor_span=>
                 #constructor_selector => {
                     ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)?
+                        <#constructor_input as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
                     ))
                 }
             )
@@ -522,8 +523,26 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
+                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
                 pub enum __ink_ConstructorDecoder {
                     #( #constructors_variants ),*
+                }
+
+                impl ::ink_lang::reflect::DecodeDispatch for __ink_ConstructorDecoder {
+                    fn decode_dispatch<I>(input: &mut I)
+                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
+                        {
+                            #( #constructor_match , )*
+                            _invalid => ::core::result::Result::Err(
+                                ::ink_lang::reflect::DispatchError::UnknownSelector
+                            )
+                        }
+                    }
                 }
 
                 impl ::scale::Decode for __ink_ConstructorDecoder {
@@ -531,14 +550,8 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
-                            #( #constructor_match , )*
-                            _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
-                                    "encountered unknown ink! constructor selector"
-                                )
-                            )
-                        }
+                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
+                            .map_err(::core::convert::Into::into)
                     }
                 }
 
@@ -613,7 +626,8 @@ impl Dispatch<'_> {
             quote_spanned!(message_span=>
                 #message_selector => {
                     ::core::result::Result::Ok(Self::#message_ident(
-                        <#message_input as ::scale::Decode>::decode(input)?
+                        <#message_input as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
                     ))
                 }
             )
@@ -680,8 +694,26 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
+                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
                 pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
+                }
+
+                impl ::ink_lang::reflect::DecodeDispatch for __ink_MessageDecoder {
+                    fn decode_dispatch<I>(input: &mut I)
+                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
+                        {
+                            #( #message_match , )*
+                            _invalid => ::core::result::Result::Err(
+                                ::ink_lang::reflect::DispatchError::UnknownSelector
+                            )
+                        }
+                    }
                 }
 
                 impl ::scale::Decode for __ink_MessageDecoder {
@@ -689,14 +721,8 @@ impl Dispatch<'_> {
                     where
                         I: ::scale::Input,
                     {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
-                            #( #message_match , )*
-                            _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
-                                    "encountered unknown ink! message selector"
-                                )
-                            )
-                        }
+                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
+                            .map_err(::core::convert::Into::into)
                     }
                 }
 
