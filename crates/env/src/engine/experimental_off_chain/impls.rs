@@ -270,7 +270,7 @@ impl EnvBackend for EnvInstance {
             enc_input,
             &mut &mut output[..],
         ))?;
-        let decoded = decode_to_result(&mut &output[..])?;
+        let decoded = decode_to_result(&output[..])?;
         Ok(decoded)
     }
 }
