@@ -17,7 +17,6 @@
 // lint until the fixing PR has been merged:
 // PR: https://github.com/mystor/synstructure/pull/50
 #![allow(clippy::if_then_panic)]
-
 // These tests are partly testing if code is expanded correctly.
 // Hence the syntax contains a number of verbose statements which
 // are not properly cleaned up.
