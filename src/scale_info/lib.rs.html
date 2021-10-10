@@ -242,7 +242,7 @@
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">tuple_meta_type</span> {
-    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> ) =&gt; {
+    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         {
             <span class="macro-nonterminal">$</span><span class="macro">crate::prelude::vec!</span>[
                 $(
@@ -292,11 +292,11 @@
     <span class="kw">type</span> <span class="ident">Identity</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>;
 
     <span class="doccomment">/// Returns the static type identifier for `Self`.</span>
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span>;
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span>;
 }
 
 <span class="doccomment">/// Returns the runtime bridge to the types compile-time type information.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meta_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">MetaType</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meta_type</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MetaType</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {

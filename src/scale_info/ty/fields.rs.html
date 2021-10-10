@@ -250,7 +250,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Field</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Field</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">Field</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>)),
             <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
@@ -267,7 +267,7 @@
         <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">ty</span>: <span class="ident">MetaType</span>,
         <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) -&gt; <span class="self">Self</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">name</span>,
             <span class="ident">ty</span>,
@@ -279,7 +279,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use this constructor if you want to instantiate from a given</span>
     <span class="doccomment">/// compile-time type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Field</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -290,7 +290,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use this constructor if you want to instantiate an unnamed field from a</span>
     <span class="doccomment">/// given compile-time type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Field</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -298,7 +298,7 @@
     }
 
     <span class="doccomment">/// Creates a new [`Compact`] field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Field</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">HasCompact</span>,
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">HasCompact</span><span class="op">&gt;</span><span class="ident">::Type</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -312,12 +312,12 @@
     <span class="ident">T</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the name of the field. None for unnamed fields.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T::String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T::String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>()
     }
 
     <span class="doccomment">/// Returns the type of the field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::Type</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T::Type</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
     }
 
@@ -326,7 +326,7 @@
     <span class="doccomment">/// name are not specified, but in practice will be the name of any valid</span>
     <span class="doccomment">/// type for a field. This is intended for informational and diagnostic</span>
     <span class="doccomment">/// purposes only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">T::String</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_name</span>
     }
 }

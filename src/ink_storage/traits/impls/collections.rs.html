@@ -252,7 +252,7 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
@@ -303,7 +303,7 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
@@ -348,7 +348,7 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
@@ -386,7 +386,7 @@
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_push_at_for_collection</span> {
-    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">collection</span>:<span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
+    ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">collection</span>:<span class="ident">ident</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         $(
             <span class="macro">impl_always_packed_layout!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">collection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">deep</span>: <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>);
 

@@ -219,7 +219,7 @@
 };
 
 <span class="doccomment">/// Returns a new dynamic storage allocation.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>() -&gt; <span class="ident">DynamicAllocation</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DynamicAllocation</span> {
     <span class="ident">init::on_instance</span>(<span class="ident">DynamicAllocator::alloc</span>)
 }
 

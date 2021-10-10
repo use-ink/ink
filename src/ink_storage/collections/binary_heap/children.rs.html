@@ -261,8 +261,8 @@
 
 <span class="doccomment">/// Returns the index of the `Children` object in which the nth element of</span>
 <span class="doccomment">/// the heap is stored.</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_children_storage_index</span>(<span class="ident">n</span>: <span class="ident">u32</span>) -&gt; <span class="ident">u32</span> {
-    <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_children_storage_index</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">if</span> <span class="ident">n</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
         <span class="kw">return</span> <span class="number">0</span>
     }
     <span class="comment">// The first `Children` object only ever contains the root element:</span>
@@ -276,17 +276,17 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// For example, the element `3` is found at the child position `0`</span>
 <span class="doccomment">/// (within the `Children` object at storage index `2`).</span>
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_child_pos</span>(<span class="ident">n</span>: <span class="ident">u32</span>) -&gt; <span class="ident">ChildPosition</span> {
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_child_pos</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChildPosition</span> {
     <span class="kw">let</span> <span class="ident">storage_index</span> <span class="op">=</span> <span class="ident">get_children_storage_index</span>(<span class="ident">n</span>);
     <span class="kw">match</span> (<span class="ident">storage_index</span>, <span class="ident">n</span>) {
-        (<span class="number">0</span>, <span class="number">0</span>) =&gt; <span class="ident">ChildPosition::Left</span>,
-        (<span class="number">0</span>, <span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;first children object contains only the root element&quot;</span>),
-        (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+        (<span class="number">0</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChildPosition::Left</span>,
+        (<span class="number">0</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;first children object contains only the root element&quot;</span>),
+        (<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">child_pos</span> <span class="op">=</span> (<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">%</span> <span class="ident">CHILDREN_PER_NODE</span>;
             <span class="kw">match</span> <span class="ident">child_pos</span> {
-                <span class="number">0</span> =&gt; <span class="ident">ChildPosition::Left</span>,
-                <span class="number">1</span> =&gt; <span class="ident">ChildPosition::Right</span>,
-                <span class="kw">_</span> =&gt; {
+                <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChildPosition::Left</span>,
+                <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ChildPosition::Right</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="macro">unreachable!</span>(
                         <span class="string">&quot;CHILDREN_PER_NODE is 2, following the modulo op index must be 0 or 1&quot;</span>
                     )
@@ -301,28 +301,28 @@
     <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
     <span class="doccomment">/// Creates a new `Children` object with a left and right element.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">left</span>, <span class="ident">right</span> }
     }
 
     <span class="doccomment">/// Returns the number of existent children in this object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">left</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">usize</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">right</span>.<span class="ident">is_some</span>() <span class="kw">as</span> <span class="ident">usize</span>
     }
 
     <span class="doccomment">/// Returns a shared reference to the element at `which`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">child</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">which</span>: <span class="ident">ChildPosition</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">child</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">which</span>: <span class="ident">ChildPosition</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">which</span> {
-            <span class="ident">ChildPosition::Left</span> =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">left</span>,
-            <span class="ident">ChildPosition::Right</span> =&gt; <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">right</span>,
+            <span class="ident">ChildPosition::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">left</span>,
+            <span class="ident">ChildPosition::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">right</span>,
         }
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the element at `which`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">child_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">which</span>: <span class="ident">ChildPosition</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">child_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">which</span>: <span class="ident">ChildPosition</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">which</span> {
-            <span class="ident">ChildPosition::Left</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">left</span>,
-            <span class="ident">ChildPosition::Right</span> =&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">right</span>,
+            <span class="ident">ChildPosition::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">left</span>,
+            <span class="ident">ChildPosition::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">right</span>,
         }
     }
 }
@@ -340,7 +340,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
-        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
             <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="ident">Children</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
                 <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
             )))
@@ -355,7 +355,7 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 

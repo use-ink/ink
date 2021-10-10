@@ -6,7 +6,7 @@ pub enum IntErrorKind {
     NegOverflow,
     Zero,
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Enum to store the various types of errors that can cause parsing an integer to fail.</p>
-<h2 id="example" class="section-header"><a href="#example">Example</a></h2>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">i32::from_str_radix</span>(<span class="string">&quot;a12&quot;</span>, <span class="number">10</span>) {
     <span class="macro">println!</span>(<span class="string">&quot;Failed conversion to i32: {:?}&quot;</span>, <span class="ident">e</span>.<span class="ident">kind</span>());
 }</code></pre></div>

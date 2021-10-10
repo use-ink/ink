@@ -275,7 +275,7 @@
 <span class="kw">impl</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">EmptyArgumentList</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new execution input with the given selector.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">selector</span>: <span class="ident">Selector</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">selector</span>: <span class="ident">Selector</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">selector</span>,
             <span class="ident">args</span>: <span class="ident">ArgumentList::empty</span>(),
@@ -287,7 +287,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">arg</span>: <span class="ident">T</span>,
-    ) -&gt; <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">EmptyArgumentList</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
@@ -301,7 +301,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Pushes an argument to the execution input.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ArgsList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
@@ -342,7 +342,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new argument.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arg</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">arg</span> }
     }
 }
@@ -357,7 +357,7 @@
 <span class="kw">impl</span> <span class="ident">EmptyArgumentList</span> {
     <span class="doccomment">/// Creates a new empty argument list.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">EmptyArgumentList</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EmptyArgumentList</span> {
         <span class="ident">ArgumentList</span> {
             <span class="ident">head</span>: <span class="ident">ArgumentListEnd</span>,
             <span class="ident">rest</span>: <span class="ident">ArgumentListEnd</span>,
@@ -366,7 +366,7 @@
 
     <span class="doccomment">/// Pushes the first argument to the empty argument list.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
@@ -380,7 +380,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Pushes another argument to the argument list.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) -&gt; <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_arg</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arg</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="self">Self</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
     {
@@ -396,7 +396,7 @@
     <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arg</span>)
     }
 
@@ -408,7 +408,7 @@
 
 <span class="kw">impl</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">EmptyArgumentList</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="number">0</span>
     }
 
@@ -422,7 +422,7 @@
     <span class="ident">Rest</span>: <span class="ident">scale::Encode</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>) <span class="op">+</span> <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">rest</span>)
     }
 
@@ -442,7 +442,7 @@
     <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>) <span class="op">+</span> <span class="ident">scale::Encode::size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>)
     }
 

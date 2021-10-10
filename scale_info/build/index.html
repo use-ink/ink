@@ -2,7 +2,7 @@
 They are designed to allow only construction of valid definitions.</p>
 <p>In most cases we recommend using the <code>scale-info-derive</code> crate to auto generate the builder
 constructions.</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="generic-struct" class="section-header"><a href="#generic-struct">Generic struct</a></h3>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1><h2 id="generic-struct" class="section-header"><a href="#generic-struct">Generic struct</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">bar</span>: <span class="ident">T</span>,
     <span class="ident">data</span>: <span class="ident">u64</span>,
@@ -14,7 +14,7 @@ constructions.</p>
 {
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
             .<span class="ident">type_params</span>(<span class="macro">vec!</span>[<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()])
@@ -24,13 +24,13 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h3 id="tuple-struct" class="section-header"><a href="#tuple-struct">Tuple struct</a></h3>
+<h2 id="tuple-struct" class="section-header"><a href="#tuple-struct">Tuple struct</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">u32</span>, <span class="ident">bool</span>);
 
 <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span> {
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
             .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>()
@@ -39,7 +39,7 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h3 id="enum-with-fields" class="section-header"><a href="#enum-with-fields">Enum with fields</a></h3>
+<h2 id="enum-with-fields" class="section-header"><a href="#enum-with-fields">Enum with fields</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">enum</span> <span class="ident">Foo</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>{
     <span class="ident">A</span>(<span class="ident">T</span>),
     <span class="ident">B</span> { <span class="ident">f</span>: <span class="ident">u32</span> },
@@ -52,7 +52,7 @@ constructions.</p>
 {
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
                .<span class="ident">type_params</span>(<span class="macro">vec!</span>[<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()])
@@ -64,7 +64,7 @@ constructions.</p>
             )
     }
 }</code></pre></div>
-<h3 id="enum-without-fields" class="section-header"><a href="#enum-without-fields">Enum without fields</a></h3>
+<h2 id="enum-without-fields" class="section-header"><a href="#enum-without-fields">Enum without fields</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">enum</span> <span class="ident">Foo</span> {
     <span class="ident">A</span>,
     <span class="ident">B</span>,
@@ -74,7 +74,7 @@ constructions.</p>
 <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Foo</span> {
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+    <span class="kw">fn</span> <span class="ident">type_info</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Foo&quot;</span>, <span class="macro">module_path!</span>()))
             .<span class="ident">variant</span>(
@@ -86,21 +86,21 @@ constructions.</p>
     }
 }</code></pre></div>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="state/index.html" title="scale_info::build::state mod">state</a></div><div class="item-right docblock-short"><p>State types for type builders which require a Path</p>
-</div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.FieldsBuilder.html" title="scale_info::build::FieldsBuilder struct">FieldsBuilder</a></div><div class="item-right docblock-short"><p>Build a set of either all named (e.g. for a struct) or all unnamed (e.g. for a tuple struct)</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeBuilder.html" title="scale_info::build::TypeBuilder struct">TypeBuilder</a></div><div class="item-right docblock-short"><p>Builds a <a href="../struct.Type.html"><code>Type</code></a></p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.VariantsBuilder.html" title="scale_info::build::VariantsBuilder struct">VariantsBuilder</a></div><div class="item-right docblock-short"><p>Builds a definition of a variant type i.e an <code>enum</code></p>
-</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Fieldless.html" title="scale_info::build::Fieldless enum">Fieldless</a></div><div class="item-right docblock-short"><p>Build a type where <em>all</em> variants have no fields and the discriminant can
+<div class="item-table"><div class="item-left module-item"><a class="mod" href="state/index.html" title="scale_info::build::state mod">state</a></div><div class="item-right docblock-short"><p>State types for type builders which require a Path</p>
+</div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.FieldsBuilder.html" title="scale_info::build::FieldsBuilder struct">FieldsBuilder</a></div><div class="item-right docblock-short"><p>Build a set of either all named (e.g. for a struct) or all unnamed (e.g. for a tuple struct)</p>
+</div><div class="item-left module-item"><a class="struct" href="struct.TypeBuilder.html" title="scale_info::build::TypeBuilder struct">TypeBuilder</a></div><div class="item-right docblock-short"><p>Builds a <a href="../struct.Type.html"><code>Type</code></a></p>
+</div><div class="item-left module-item"><a class="struct" href="struct.VariantsBuilder.html" title="scale_info::build::VariantsBuilder struct">VariantsBuilder</a></div><div class="item-right docblock-short"><p>Builds a definition of a variant type i.e an <code>enum</code></p>
+</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.Fieldless.html" title="scale_info::build::Fieldless enum">Fieldless</a></div><div class="item-right docblock-short"><p>Build a type where <em>all</em> variants have no fields and the discriminant can
 be directly chosen or accessed</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Fields.html" title="scale_info::build::Fields enum">Fields</a></div><div class="item-right docblock-short"><p>Provides FieldsBuilder constructors</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.NamedFields.html" title="scale_info::build::NamedFields enum">NamedFields</a></div><div class="item-right docblock-short"><p>A fields builder only allows named fields (e.g. a struct)</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.NoFields.html" title="scale_info::build::NoFields enum">NoFields</a></div><div class="item-right docblock-short"><p>A fields builder has no fields (e.g. a unit struct)</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.NoVariants.html" title="scale_info::build::NoVariants enum">NoVariants</a></div><div class="item-right docblock-short"><p>Build a type with no variants.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.UnnamedFields.html" title="scale_info::build::UnnamedFields enum">UnnamedFields</a></div><div class="item-right docblock-short"><p>A fields builder only allows unnamed fields (e.g. a tuple)</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.VariantFields.html" title="scale_info::build::VariantFields enum">VariantFields</a></div><div class="item-right docblock-short"><p>Build a type where at least one variant has fields.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.Variants.html" title="scale_info::build::Variants enum">Variants</a></div><div class="item-right docblock-short"><p>Empty enum for VariantsBuilder constructors for the type builder DSL.</p>
-</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+</div><div class="item-left module-item"><a class="enum" href="enum.Fields.html" title="scale_info::build::Fields enum">Fields</a></div><div class="item-right docblock-short"><p>Provides FieldsBuilder constructors</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.NamedFields.html" title="scale_info::build::NamedFields enum">NamedFields</a></div><div class="item-right docblock-short"><p>A fields builder only allows named fields (e.g. a struct)</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.NoFields.html" title="scale_info::build::NoFields enum">NoFields</a></div><div class="item-right docblock-short"><p>A fields builder has no fields (e.g. a unit struct)</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.NoVariants.html" title="scale_info::build::NoVariants enum">NoVariants</a></div><div class="item-right docblock-short"><p>Build a type with no variants.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.UnnamedFields.html" title="scale_info::build::UnnamedFields enum">UnnamedFields</a></div><div class="item-right docblock-short"><p>A fields builder only allows unnamed fields (e.g. a tuple)</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.VariantFields.html" title="scale_info::build::VariantFields enum">VariantFields</a></div><div class="item-right docblock-short"><p>Build a type where at least one variant has fields.</p>
+</div><div class="item-left module-item"><a class="enum" href="enum.Variants.html" title="scale_info::build::Variants enum">Variants</a></div><div class="item-right docblock-short"><p>Empty enum for VariantsBuilder constructors for the type builder DSL.</p>
+</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="scale_info" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>

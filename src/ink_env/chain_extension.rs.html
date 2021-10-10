@@ -485,7 +485,7 @@
     <span class="doccomment">/// every other value represents one error code. By convention this mapping should</span>
     <span class="doccomment">/// never panic and therefore every `raw` value must map to either `Ok` or to a proper</span>
     <span class="doccomment">/// `ErrorCode` variant.</span>
-    <span class="kw">fn</span> <span class="ident">from_status_code</span>(<span class="ident">status_code</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">from_status_code</span>(<span class="ident">status_code</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="self">Self</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// A concrete instance of a chain extension method.</span>
@@ -518,13 +518,13 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
     <span class="ident">func_id</span>: <span class="ident">u32</span>,
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-    <span class="ident">state</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span>)<span class="op">&gt;</span>,
+    <span class="ident">state</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span>(), (), ()<span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new chain extension method instance.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">func_id</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="ident">func_id</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">func_id</span>,
             <span class="ident">state</span>: <span class="ident">Default::default</span>(),
@@ -541,7 +541,7 @@
     <span class="doccomment">/// All tuple types that may act as input parameters for the chain extension method are valid.</span>
     <span class="doccomment">/// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">scale::Encode</span>,
     {
@@ -559,7 +559,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This indicates that the chain extension method return value might represent a failure.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>: <span class="ident">scale::Decode</span>,
         <span class="ident">E</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">scale::Error</span><span class="op">&gt;</span>,
@@ -579,7 +579,7 @@
     <span class="doccomment">/// this chain extension method the above constraint is enforced at</span>
     <span class="doccomment">/// compile time.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">state::NoResult</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">state::NoResult</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">O</span>: <span class="ident">scale::Decode</span>,
     {
@@ -601,7 +601,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The output of the chain extension method call is always decoded and returned in this case.</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ignore_error_code</span>(<span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::IgnoreErrorCode</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ignore_error_code</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::IgnoreErrorCode</span><span class="op">&gt;</span> {
         <span class="ident">ChainExtensionMethod</span> {
             <span class="ident">func_id</span>: <span class="self">self</span>.<span class="ident">func_id</span>,
             <span class="ident">state</span>: <span class="ident">Default::default</span>(),
@@ -617,7 +617,7 @@
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_error_code</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
-    ) -&gt; <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::HandleErrorCode</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethod</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">state::HandleErrorCode</span><span class="op">&lt;</span><span class="ident">ErrorCode</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">ErrorCode</span>: <span class="ident">FromStatusCode</span>,
     {
@@ -639,7 +639,7 @@
     <span class="doccomment">/// Type state meaning that the chain extension method uses the chain extension&#39;s error code.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HandleErrorCode</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">error_code</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">error_code</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>,
     }
 
     <span class="doccomment">/// Type state meaning that the chain extension method deliberately does not return a `Result` type.</span>
@@ -647,7 +647,7 @@
     <span class="doccomment">/// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NoResult</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">no_result</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">no_result</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>,
     }
 }
 
@@ -702,7 +702,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
             <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">ErrorCode</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                 <span class="ident">instance</span>,
@@ -756,7 +756,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
             <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">E</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                 <span class="ident">instance</span>,
@@ -813,7 +813,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">ErrorCode</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
             <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, <span class="ident">ErrorCode</span>, <span class="ident">ErrorCode</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                 <span class="ident">instance</span>,
@@ -862,7 +862,7 @@
     <span class="doccomment">///     .call(&amp;(true, 42));</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) -&gt; <span class="ident">O</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call</span>(<span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">O</span> {
         <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
             <span class="ident">EnvBackend::call_chain_extension</span>::<span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span>, (), (), <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                 <span class="ident">instance</span>,

@@ -1152,7 +1152,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InkTrait</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">idents_lint::ensure_no_ink_identifiers</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
         <span class="ident"><span class="self">Self</span>::analyse_properties</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
         <span class="ident"><span class="self">Self</span>::analyse_items</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
@@ -1166,7 +1166,7 @@
         <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="ident">Ident</span>,
         <span class="ident">constructors</span>: <span class="ident">C</span>,
         <span class="ident">messages</span>: <span class="ident">M</span>,
-    ) -&gt; [<span class="ident">u8</span>; <span class="number">32</span>]
+    ) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>]
     <span class="kw">where</span>
         <span class="comment">// Name and number of inputs.</span>
         <span class="ident">C</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="ident">Ident</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
@@ -1181,8 +1181,8 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">messages</span>
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">len_inputs</span>, <span class="ident">mutability</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">mutability</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mutability</span> {
-                    <span class="bool-val">true</span> =&gt; <span class="string">&quot;w&quot;</span>,
-                    <span class="bool-val">false</span> =&gt; <span class="string">&quot;r&quot;</span>,
+                    <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;w&quot;</span>,
+                    <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;r&quot;</span>,
                 };
                 [
                     <span class="ident">name</span>.<span class="ident">to_string</span>(),
@@ -1211,7 +1211,7 @@
     }
 
     <span class="doccomment">/// Returns the hash to verify that the trait definition has been checked.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="number">32</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_hash</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
         <span class="kw">let</span> <span class="ident">trait_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
         <span class="ident"><span class="self">Self</span>::compute_verify_hash</span>(
             <span class="ident">trait_name</span>,
@@ -1241,7 +1241,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IterInkTraitItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new iterator yielding ink! trait items.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">InkTrait</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">InkTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">item_trait</span>.<span class="ident">item</span>.<span class="ident">items</span>.<span class="ident">iter</span>(),
         }
@@ -1251,11 +1251,11 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">IterInkTraitItems</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">InkTraitItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="lifetime">&#39;outer</span>: <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">syn::TraitItem::Method</span>(<span class="ident">method</span>)) =&gt; {
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">syn::TraitItem::Method</span>(<span class="ident">method</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">first_attr</span> <span class="op">=</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>)
                         .<span class="ident">ok</span>()
                         .<span class="ident">flatten</span>()
@@ -1264,20 +1264,20 @@
                         .<span class="ident">kind</span>()
                         .<span class="ident">clone</span>();
                     <span class="kw">match</span> <span class="ident">first_attr</span> {
-                        <span class="ident">ir::AttributeArg::Constructor</span> =&gt; {
+                        <span class="ident">ir::AttributeArg::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">InkTraitItem::Constructor</span>(<span class="ident">InkTraitConstructor</span> {
                                 <span class="ident">item</span>: <span class="ident">method</span>,
                             }))
                         }
-                        <span class="ident">ir::AttributeArg::Message</span> =&gt; {
+                        <span class="ident">ir::AttributeArg::Message</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">InkTraitItem::Message</span>(<span class="ident">InkTraitMessage</span> {
                                 <span class="ident">item</span>: <span class="ident">method</span>,
                             }))
                         }
-                        <span class="kw">_</span> =&gt; <span class="kw">continue</span> <span class="lifetime">&#39;outer</span>,
+                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span> <span class="lifetime">&#39;outer</span>,
                     }
                 }
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span> <span class="lifetime">&#39;outer</span>,
+                <span class="prelude-val">Some</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span> <span class="lifetime">&#39;outer</span>,
             }
         }
     }
@@ -1292,18 +1292,18 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">InkTraitItem</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns `Some` if the ink! trait item is a constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_constructor</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InkTraitConstructor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_constructor</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InkTraitConstructor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Constructor</span>(<span class="ident">ink_trait_constructor</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ink_trait_constructor</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident"><span class="self">Self</span>::Constructor</span>(<span class="ident">ink_trait_constructor</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ink_trait_constructor</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns `Some` if the ink! trait item is a message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_message</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InkTraitMessage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_map_message</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InkTraitMessage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Message</span>(<span class="ident">ink_trait_message</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ink_trait_message</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident"><span class="self">Self</span>::Message</span>(<span class="ident">ink_trait_message</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ink_trait_message</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 }
@@ -1313,7 +1313,7 @@
 <span class="doccomment">/// # Panics</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If there are malformed ink! attributes in the input.</span>
-<span class="kw">fn</span> <span class="ident">extract_rust_attributes</span>(<span class="ident">attributes</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">extract_rust_attributes</span>(<span class="ident">attributes</span>: <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">_ink_attrs</span>, <span class="ident">rust_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="ident">attributes</span>.<span class="ident">to_vec</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;encountered unexpected invalid ink! attributes&quot;</span>);
     <span class="ident">rust_attrs</span>
@@ -1327,17 +1327,17 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">InkTraitConstructor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns all non-ink! attributes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="ident">extract_rust_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>)
     }
 
     <span class="doccomment">/// Returns the original signature of the ink! constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>
     }
 
     <span class="doccomment">/// Returns the span of the ink! constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 }
@@ -1350,40 +1350,40 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">InkTraitMessage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns all non-ink! attributes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="ident">extract_rust_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>)
     }
 
     <span class="doccomment">/// Returns the original signature of the ink! message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>
     }
 
     <span class="doccomment">/// Returns the span of the ink! message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 
     <span class="doccomment">/// Returns `true` if the ink! message may mutate the contract storage.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">sig</span>()
             .<span class="ident">receiver</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">fn_arg</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">fn_arg</span> {
-                    <span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>) <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() =&gt; {
+                    <span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>) <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="bool-val">true</span>
                     }
-                    <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>) =&gt; {
+                    <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">pat_type</span>.<span class="ident">ty</span> {
                             <span class="ident">syn::Type::Reference</span>(<span class="ident">reference</span>)
-                                <span class="kw">if</span> <span class="ident">reference</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() =&gt;
+                                <span class="kw">if</span> <span class="ident">reference</span>.<span class="ident">mutability</span>.<span class="ident">is_some</span>() <span class="op">=</span><span class="op">&gt;</span>
                             {
                                 <span class="bool-val">true</span>
                             }
-                            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
                         }
                     }
-                    <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
                 }
             })
             .<span class="ident">expect</span>(<span class="string">&quot;encountered missing receiver for ink! message&quot;</span>)
@@ -1392,7 +1392,7 @@
 
 <span class="kw">impl</span> <span class="ident">InkTrait</span> {
     <span class="doccomment">/// Returns `Ok` if the trait matches all requirements for an ink! trait definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr</span>: <span class="ident">TokenStream2</span>, <span class="ident">input</span>: <span class="ident">TokenStream2</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr</span>: <span class="ident">TokenStream2</span>, <span class="ident">input</span>: <span class="ident">TokenStream2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">attr</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">attr</span>,
@@ -1404,22 +1404,22 @@
     }
 
     <span class="doccomment">/// Returns span of the ink! trait definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 
     <span class="doccomment">/// Returns the attributes of the ink! trait definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Attribute</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>
     }
 
     <span class="doccomment">/// Returns the identifier of the ink! trait definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">ident</span>
     }
 
     <span class="doccomment">/// Returns an iterator yielding the ink! specific items of the ink! trait definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_items</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">IterInkTraitItems</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_items</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IterInkTraitItems</span> {
         <span class="ident">IterInkTraitItems::new</span>(<span class="self">self</span>)
     }
 
@@ -1431,7 +1431,7 @@
     <span class="doccomment">/// - If the trait is an automatically implemented trait (`auto trait`).</span>
     <span class="doccomment">/// - If the trait is generic over some set of types.</span>
     <span class="doccomment">/// - If the trait&#39;s visibility is not public (`pub`).</span>
-    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">unsafety</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">unsafety</span>,
@@ -1482,37 +1482,37 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Associated types and constants might be allowed in the future.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_items</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_items</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">for</span> <span class="ident">trait_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">items</span> {
             <span class="kw">match</span> <span class="ident">trait_item</span> {
-                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">const_trait_item</span>,
                         <span class="string">&quot;associated constants in ink! trait definitions are not supported, yet&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">macro_trait_item</span>,
                         <span class="string">&quot;macros in ink! trait definitions are not supported&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">type_trait_item</span>,
                     <span class="string">&quot;associated types in ink! trait definitions are not supported, yet&quot;</span>
                 ))
                 }
-                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">verbatim</span>,
                         <span class="string">&quot;encountered unsupported item in ink! trait definition&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident"><span class="self">Self</span>::analyse_methods</span>(<span class="ident">method_trait_item</span>)<span class="question-mark">?</span>;
                 }
-                <span class="ident">unknown</span> =&gt; {
+                <span class="ident">unknown</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">unknown</span>,
                         <span class="string">&quot;encountered unknown or unsupported item in ink! trait definition&quot;</span>
@@ -1532,7 +1532,7 @@
     <span class="doccomment">/// - If the method is variadic or has generic parameters.</span>
     <span class="doccomment">/// - If the method does not respect the properties of either an</span>
     <span class="doccomment">///   ink! message or ink! constructor.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_methods</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_methods</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">default_impl</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">default</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">default_impl</span>,
@@ -1576,15 +1576,15 @@
             ))
         }
         <span class="kw">match</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>) {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>)) =&gt; {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">ink_attr</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="ident">ink_attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Message</span> =&gt; {
+                    <span class="ident">ir::AttributeArg::Message</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident"><span class="self">Self</span>::analyse_message</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="ident">ir::AttributeArg::Constructor</span> =&gt; {
+                    <span class="ident">ir::AttributeArg::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident"><span class="self">Self</span>::analyse_constructor</span>(<span class="ident">method</span>)<span class="question-mark">?</span>;
                     }
-                    <span class="ident">_unsupported</span> =&gt; {
+                    <span class="ident">_unsupported</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             <span class="ident">method</span>,
                             <span class="string">&quot;encountered unsupported ink! attribute for ink! trait method&quot;</span>,
@@ -1592,13 +1592,13 @@
                     }
                 }
             }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">method</span>,
                     <span class="string">&quot;missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method&quot;</span>
                 ))
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>),
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1609,15 +1609,15 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the constructor has a `self` receiver as first argument.</span>
     <span class="doccomment">/// - If the constructor has no `Self` return type.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">ir::sanitize_attributes</span>(
             <span class="ident">constructor</span>.<span class="ident">span</span>(),
             <span class="ident">constructor</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Constructor</span>,
             <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Constructor</span> =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+                    <span class="ident">ir::AttributeArg::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )<span class="question-mark">?</span>;
@@ -1628,15 +1628,15 @@
             ))
         }
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">constructor</span>.<span class="ident">sig</span>.<span class="ident">output</span> {
-            <span class="ident">syn::ReturnType::Default</span> =&gt; {
+            <span class="ident">syn::ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">constructor</span>.<span class="ident">sig</span>,
                     <span class="string">&quot;ink! constructors must return Self&quot;</span>
                 ))
             }
-            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) =&gt; {
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">ty</span> {
-                    <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) =&gt; {
+                    <span class="ident">syn::Type::Path</span>(<span class="ident">type_path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="op">!</span><span class="ident">type_path</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;Self&quot;</span>) {
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                                 <span class="ident">type_path</span>.<span class="ident">path</span>,
@@ -1644,7 +1644,7 @@
                             ))
                         }
                     }
-                    <span class="ident">unknown</span> =&gt; {
+                    <span class="ident">unknown</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             <span class="ident">unknown</span>,
                             <span class="string">&quot;ink! constructors must return Self&quot;</span>
@@ -1661,26 +1661,26 @@
     <span class="doccomment">/// # Errors</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the message has no `&amp;self` or `&amp;mut self` receiver.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_message</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">ir::sanitize_attributes</span>(
             <span class="ident">message</span>.<span class="ident">span</span>(),
             <span class="ident">message</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
             <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Message</span>,
             <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
-                    <span class="ident">ir::AttributeArg::Message</span> =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+                    <span class="ident">ir::AttributeArg::Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">sig</span>.<span class="ident">receiver</span>() {
-            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="kw">_</span>)) =&gt; {
+            <span class="prelude-val">None</span> <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">message</span>.<span class="ident">sig</span>,
                 <span class="string">&quot;missing or malformed `&amp;self` or `&amp;mut self` receiver for ink! message&quot;</span>,
             ))
             }
-            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">receiver</span>.<span class="ident">reference</span>.<span class="ident">is_none</span>() {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">receiver</span>,
@@ -1699,7 +1699,7 @@
 
     <span class="doccomment">/// Checks if the token stream in `$trait_def` results in the expected error message.</span>
     <span class="macro">macro_rules!</span> <span class="ident">assert_ink_trait_eq_err</span> {
-        ( <span class="ident">error</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">trait_def</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; {
+        ( <span class="ident">error</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">trait_def</span>:<span class="ident">tt</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="macro">assert_eq!</span>(
                 <span class="op">&lt;</span><span class="ident">InkTrait</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                     $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">trait_def</span> )<span class="op">*</span>
@@ -1803,7 +1803,7 @@
         <span class="macro">assert_ink_trait_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;missing #[ink(message)] or #[ink(constructor)] flags on ink! trait method&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
-                <span class="kw">fn</span> <span class="ident">non_flagged_3</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">non_flagged_3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1814,7 +1814,7 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! trait methods with default implementations are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">default_implemented</span>() -&gt; <span class="self">Self</span> {}
+                <span class="kw">fn</span> <span class="ident">default_implemented</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1832,7 +1832,7 @@
             <span class="ident">error</span>: <span class="string">&quot;const ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1850,7 +1850,7 @@
             <span class="ident">error</span>: <span class="string">&quot;async ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1868,7 +1868,7 @@
             <span class="ident">error</span>: <span class="string">&quot;unsafe ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1886,7 +1886,7 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! trait methods with non default ABI are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1904,7 +1904,7 @@
             <span class="ident">error</span>: <span class="string">&quot;variadic ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span>(...) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">const_constructor</span>(...) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1922,7 +1922,7 @@
             <span class="ident">error</span>: <span class="string">&quot;generic ink! trait methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">const_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -1958,35 +1958,35 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must not have a `self` receiver&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must not have a `self` receiver&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must not have a `self` receiver&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must not have a `self` receiver&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must not have a `self` receiver&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -2000,7 +2000,7 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! constructors must return Self&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() -&gt; <span class="ident">i32</span>;
+                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
             }
         );
     }
@@ -2037,7 +2037,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -2045,7 +2045,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_trait_eq_err!</span>(
@@ -2053,7 +2053,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">payable</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">does_not_return_self</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -2092,7 +2092,7 @@
             <span class="op">&lt;</span><span class="ident">InkTrait</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">my_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
@@ -2109,9 +2109,9 @@
             <span class="op">&lt;</span><span class="ident">InkTrait</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">constructor_1</span>() -&gt; <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">constructor_1</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">constructor_2</span>() -&gt; <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">constructor_2</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
@@ -2136,9 +2136,9 @@
             <span class="op">&lt;</span><span class="ident">InkTrait</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">constructor_1</span>() -&gt; <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">constructor_1</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">constructor_2</span>() -&gt; <span class="self">Self</span>;
+                    <span class="kw">fn</span> <span class="ident">constructor_2</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
@@ -2170,7 +2170,7 @@
     }
 
     <span class="macro">macro_rules!</span> <span class="ident">ink_trait</span> {
-        ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; {{
+        ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span>:<span class="ident">tt</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {{
             <span class="op">&lt;</span><span class="ident">InkTrait</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                 $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tt</span> )<span class="op">*</span>
             })
@@ -2183,13 +2183,13 @@
         <span class="kw">let</span> <span class="ident">ink_trait</span> <span class="op">=</span> <span class="macro">ink_trait!</span> {
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">constructor_1</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">constructor_1</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">constructor_2</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">constructor_2</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">message_2</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span>;
+                <span class="kw">fn</span> <span class="ident">message_2</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
             }
         };
         <span class="ident">assert_verify_hash2_works_with</span>(
@@ -2205,7 +2205,7 @@
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">message_1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">message_2</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span>;
+                <span class="kw">fn</span> <span class="ident">message_2</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
             }
         };
         <span class="ident">assert_verify_hash2_works_with</span>(
@@ -2219,9 +2219,9 @@
         <span class="kw">let</span> <span class="ident">ink_trait</span> <span class="op">=</span> <span class="macro">ink_trait!</span> {
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyTrait</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">constructor_1</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">constructor_1</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">constructor_2</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">constructor_2</span>(<span class="ident">a</span>: <span class="ident">i32</span>, <span class="ident">b</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         };
         <span class="ident">assert_verify_hash2_works_with</span>(

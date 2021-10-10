@@ -674,10 +674,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">CallableKind</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Message</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Constructor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Message</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;message&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Constructor</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
         }
     }
 }
@@ -696,7 +696,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {}
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">C</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">composed_selector</span>: <span class="self">self</span>.<span class="ident">composed_selector</span>,
             <span class="ident">item_impl</span>: <span class="self">self</span>.<span class="ident">item_impl</span>,
@@ -710,7 +710,7 @@
     <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
     <span class="doccomment">/// Creates a new wrapper around the given callable and parent `impl` block.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">composed_selector</span>: <span class="ident">compose_selector</span>(<span class="ident">item_impl</span>, <span class="ident">callable</span>),
             <span class="ident">item_impl</span>,
@@ -721,17 +721,17 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Returns the composed selector of the ink! callable the `impl` block.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composed_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ir::Selector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composed_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ir::Selector</span> {
         <span class="self">self</span>.<span class="ident">composed_selector</span>
     }
 
     <span class="doccomment">/// Returns a shared reference to the underlying callable.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">C</span> {
         <span class="self">self</span>.<span class="ident">callable</span>
     }
 
     <span class="doccomment">/// Returns the parent implementation block of the ink! callable.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">item_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">item_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::ItemImpl</span> {
         <span class="self">self</span>.<span class="ident">item_impl</span>
     }
 }
@@ -740,35 +740,35 @@
 <span class="kw">where</span>
     <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
-    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CallableKind</span> {
+    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallableKind</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::kind</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
+    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Ident</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::ident</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::user_provided_selector</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::is_payable</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span> {
+    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Visibility</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::visibility</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputsIter</span> {
+    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputsIter</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::inputs</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
+    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::inputs_span</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>] {
+    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>] {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::statements</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 }
@@ -776,7 +776,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> <span class="ident">::core::ops::Deref</span> <span class="kw">for</span> <span class="ident">CallableWithSelector</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">C</span>;
 
-    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="self">self</span>.<span class="ident">callable</span>
     }
 }
@@ -787,32 +787,32 @@
 <span class="doccomment">/// Used to share common behavior between different callable types.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Callable</span> {
     <span class="doccomment">/// Returns the kind of the ink! callable.</span>
-    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CallableKind</span>;
+    <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallableKind</span>;
 
     <span class="doccomment">/// Returns the identifier of the ink! callable.</span>
-    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Ident</span>;
+    <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Ident</span>;
 
     <span class="doccomment">/// Returns the selector of the ink! callable if any has been manually set.</span>
-    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Returns `true` if the ink! callable is flagged as payable.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Flagging as payable is done using the `#[ink(payable)]` attribute.</span>
-    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+    <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span>;
 
     <span class="doccomment">/// Returns the visibility of the ink! callable.</span>
-    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span>;
+    <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Visibility</span>;
 
     <span class="doccomment">/// Returns an iterator yielding all input parameters of the ink! callable.</span>
-    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">InputsIter</span>;
+    <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputsIter</span>;
 
     <span class="doccomment">/// Returns the span of the inputs of the ink! callable.</span>
-    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span>;
+    <span class="kw">fn</span> <span class="ident">inputs_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Span</span>;
 
     <span class="doccomment">/// Returns a slice over shared references to the statements of the callable.</span>
-    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>];
+    <span class="kw">fn</span> <span class="ident">statements</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">syn::Stmt</span>];
 }
 
 <span class="doccomment">/// Returns the composed selector of the ink! callable.</span>
@@ -937,7 +937,7 @@
 <span class="doccomment">///   Only do this if nothing else helps and you need a very specific selector,</span>
 <span class="doccomment">///   e.g. in case of backwards compatibility.</span>
 <span class="doccomment">/// - Do not use the namespace unless required to disambiguate.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compose_selector</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) -&gt; <span class="ident">ir::Selector</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compose_selector</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">item_impl</span>: <span class="kw-2">&amp;</span><span class="ident">ir::ItemImpl</span>, <span class="ident">callable</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ir::Selector</span>
 <span class="kw">where</span>
     <span class="ident">C</span>: <span class="ident">Callable</span>,
 {
@@ -951,7 +951,7 @@
         .<span class="ident">unwrap_or_default</span>();
     <span class="kw">let</span> <span class="ident">separator</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
     <span class="kw">let</span> <span class="ident">joined</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>() {
-        <span class="prelude-val">None</span> =&gt; {
+        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Inherent implementation block:</span>
             <span class="kw">if</span> <span class="ident">namespace_bytes</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">callable_ident</span>
@@ -959,7 +959,7 @@
                 [<span class="ident">namespace_bytes</span>, <span class="ident">callable_ident</span>].<span class="ident">join</span>(<span class="ident">separator</span>)
             }
         }
-        <span class="prelude-val">Some</span>(<span class="ident">path</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Trait implementation block:</span>
             <span class="comment">//</span>
             <span class="comment">// We need to separate between full-path, e.g. `::my::full::Path`</span>
@@ -1001,12 +1001,12 @@
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">ensure_callable_invariants</span>(
     <span class="ident">method_item</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ImplItemMethod</span>,
     <span class="ident">kind</span>: <span class="ident">CallableKind</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">syn::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">bad_visibility</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">method_item</span>.<span class="ident">vis</span> {
-        <span class="ident">syn::Visibility::Inherited</span> =&gt; <span class="prelude-val">None</span>,
-        <span class="ident">syn::Visibility::Restricted</span>(<span class="ident">vis_restricted</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_restricted</span>.<span class="ident">span</span>()),
-        <span class="ident">syn::Visibility::Crate</span>(<span class="ident">vis_crate</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_crate</span>.<span class="ident">span</span>()),
-        <span class="ident">syn::Visibility::Public</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+        <span class="ident">syn::Visibility::Inherited</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="ident">syn::Visibility::Restricted</span>(<span class="ident">vis_restricted</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">vis_restricted</span>.<span class="ident">span</span>()),
+        <span class="ident">syn::Visibility::Crate</span>(<span class="ident">vis_crate</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">vis_crate</span>.<span class="ident">span</span>()),
+        <span class="ident">syn::Visibility::Public</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bad_visibility</span>) <span class="op">=</span> <span class="ident">bad_visibility</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
@@ -1060,8 +1060,8 @@
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">arg</span>) <span class="op">=</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
         <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat</span>) =&gt; <span class="op">!</span><span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">pat</span>.<span class="ident">pat</span>, <span class="ident">syn::Pat::Ident</span>(<span class="kw">_</span>)),
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="kw-2">*</span><span class="ident">pat</span>.<span class="ident">pat</span>, <span class="ident">syn::Pat::Ident</span>(<span class="kw">_</span>)),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }) {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
@@ -1083,8 +1083,8 @@
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Visibility</span> {
     <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) =&gt; <span class="ident">vis_public</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
-            <span class="ident"><span class="self">Self</span>::Inherited</span> =&gt; (),
+            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vis_public</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
+            <span class="ident"><span class="self">Self</span>::Inherited</span> <span class="op">=</span><span class="op">&gt;</span> (),
         }
     }
 }
@@ -1095,7 +1095,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Messages in normal implementation blocks must have public visibility.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_pub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_pub</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Public</span>(<span class="kw">_</span>))
     }
 
@@ -1104,15 +1104,15 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Messages in trait implementation blocks must have inherited visibility.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_inherited</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_inherited</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Inherited</span>)
     }
 
     <span class="doccomment">/// Returns the associated span if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vis_public</span>.<span class="ident">span</span>()),
-            <span class="ident"><span class="self">Self</span>::Inherited</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident"><span class="self">Self</span>::Public</span>(<span class="ident">vis_public</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">vis_public</span>.<span class="ident">span</span>()),
+            <span class="ident"><span class="self">Self</span>::Inherited</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 }
@@ -1125,7 +1125,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">message</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
         }
@@ -1133,7 +1133,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">iter</span>: <span class="ident">constructor</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
         }
@@ -1143,12 +1143,12 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::PatType</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="lifetime">&#39;repeat</span>: <span class="kw">loop</span> {
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_typed</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pat_typed</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_typed</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pat_typed</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>,
             }
         }
     }
@@ -1168,22 +1168,22 @@
     }
 
     <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExpectedSelector</span> {
-        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">raw_selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="self">Self</span> {
+        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">raw_selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
             <span class="ident">ExpectedSelector::Raw</span>(<span class="ident">raw_selector</span>)
         }
     }
 
     <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExpectedSelector</span> {
-        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">blake2_input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">blake2_input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
             <span class="ident">ExpectedSelector::Blake2</span>(<span class="ident">blake2_input</span>)
         }
     }
 
     <span class="kw">impl</span> <span class="ident">ExpectedSelector</span> {
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expected_selector</span>(<span class="self">self</span>) -&gt; <span class="ident">ir::Selector</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expected_selector</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ir::Selector</span> {
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Raw</span>(<span class="ident">raw_selector</span>) =&gt; <span class="ident">ir::Selector::from_bytes</span>(<span class="ident">raw_selector</span>),
-                <span class="ident"><span class="self">Self</span>::Blake2</span>(<span class="ident">blake2_input</span>) =&gt; <span class="ident">ir::Selector::new</span>(<span class="kw-2">&amp;</span><span class="ident">blake2_input</span>),
+                <span class="ident"><span class="self">Self</span>::Raw</span>(<span class="ident">raw_selector</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ir::Selector::from_bytes</span>(<span class="ident">raw_selector</span>),
+                <span class="ident"><span class="self">Self</span>::Blake2</span>(<span class="ident">blake2_input</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ir::Selector::new</span>(<span class="kw-2">&amp;</span><span class="ident">blake2_input</span>),
             }
         }
     }

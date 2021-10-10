@@ -66,9 +66,9 @@
 <span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">OnInstance</span>: <span class="ident">EnvBackend</span> <span class="op">+</span> <span class="ident">TypedEnvBackend</span> {
-    <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
+    <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="ident">R</span>;
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>;
 }
 
 <span class="macro">cfg_if!</span> {

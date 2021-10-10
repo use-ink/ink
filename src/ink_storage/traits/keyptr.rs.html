@@ -55,13 +55,13 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExtKeyPtr</span> {
     <span class="doccomment">/// Advances the key pointer by the same amount of the footprint of the</span>
     <span class="doccomment">/// generic type parameter of `T` and returns the old value.</span>
-    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Key</span>
+    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Key</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">SpreadLayout</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">ExtKeyPtr</span> <span class="kw">for</span> <span class="ident">KeyPtr</span> {
-    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Key</span>
+    <span class="kw">fn</span> <span class="ident">next_for</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Key</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
     {

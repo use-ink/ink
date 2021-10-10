@@ -160,7 +160,7 @@
 };
 <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
@@ -177,21 +177,21 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">match</span> <span class="ident">entity</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Handle the Option&lt;T&gt; as if it was a T.</span>
             <span class="comment">//</span>
             <span class="comment">// Sadly this does not not work well with `Option&lt;Option&lt;T&gt;&gt;`.</span>
             <span class="comment">// For this we&#39;d need specialization in Rust or similar.</span>
             <span class="ident"><span class="kw">super</span>::push_spread_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
         }
-        <span class="prelude-val">None</span> =&gt; <span class="ident">clear_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">root_key</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">entity</span>),
+        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">clear_spread_root_opt</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">root_key</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">entity</span>),
     }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_spread_root_opt</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>, <span class="ident">f</span>: <span class="ident">F</span>)
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span>,
 {
     <span class="comment">// We can clean up some storage entity using its `SpreadLayout::clear_spread`</span>
     <span class="comment">// implementation or its defined storage footprint.</span>
@@ -233,20 +233,20 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root_opt</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
     <span class="kw">match</span> <span class="ident">ink_env::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;decoding does not match expected type&quot;</span>)
     {
-        <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">value</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// In case the contract storage is occupied we handle</span>
             <span class="comment">// the Option&lt;T&gt; as if it was a T.</span>
             <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>, <span class="ident">root_key</span>);
             <span class="prelude-val">Some</span>(<span class="ident">value</span>)
         }
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
     }
 }
 
@@ -255,14 +255,14 @@
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {
     <span class="kw">match</span> <span class="ident">entity</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">value</span>) =&gt; {
+        <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Handle the Option&lt;T&gt; as if it was a T.</span>
             <span class="comment">//</span>
             <span class="comment">// Sadly this does not work well with `Option&lt;Option&lt;T&gt;&gt;`.</span>
             <span class="comment">// For this we&#39;d need specialization in Rust or similar.</span>
             <span class="ident"><span class="kw">super</span>::push_packed_root</span>(<span class="ident">value</span>, <span class="ident">root_key</span>)
         }
-        <span class="prelude-val">None</span> =&gt; {
+        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Clear the associated storage cell.</span>
             <span class="ident">ink_env::clear_contract_storage</span>(<span class="ident">root_key</span>);
         }

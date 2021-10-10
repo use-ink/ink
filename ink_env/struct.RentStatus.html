@@ -9,7 +9,7 @@
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Information about the required deposit and resulting rent.</p>
 <p>The easiest way to guarantee that a contract stays alive is to assert that
 <code>max_rent == 0</code> at the <strong>end</strong> of a contract’s execution.</p>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>The <code>current_*</code> fields do <strong>not</strong> consider changes to the code’s <code>refcount</code>
 made during the currently running call.</p>
 </div></details><h2 id="fields" class="fields small-section-header">Fields<a href="#fields" class="anchor"></a></h2><span id="structfield.max_deposit" class="structfield small-section-header"><a href="#structfield.max_deposit" class="anchor field"></a><code>max_deposit: T::<a class="type" href="trait.Environment.html#associatedtype.Balance" title="type ink_env::Environment::Balance">Balance</a></code></span><div class="docblock"><p>Required deposit assuming that this contract is the only user of its code.</p>

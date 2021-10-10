@@ -166,49 +166,49 @@
         <span class="self">self</span>,
         <span class="ident">fmt</span>: <span class="ident">::core::fmt::Arguments</span>,
         <span class="ident">sealed</span>: <span class="ident">private::Sealed</span>,
-    ) -&gt; <span class="ident">syn::LitInt</span>;
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span>;
 
     <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.</span>
-    <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
+    <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span>;
 
     <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.</span>
-    <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
+    <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span>;
 
     <span class="doccomment">/// Converts the given value into a hex represented literal with type suffix.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The resulting hex encoded literal is padded with zeros.</span>
-    <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
+    <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span>;
 
     <span class="doccomment">/// Converts the given value into a hex represented literal without type suffix.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The resulting hex encoded literal is padded with zeros.</span>
-    <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span>;
+    <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span>;
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">generate_hex_literal_impls</span> {
-    ( $( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_suffixed</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_unsuffixed</span>:<span class="ident">literal</span>) ),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
+    ( $( (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_suffixed</span>:<span class="ident">literal</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_unsuffixed</span>:<span class="ident">literal</span>) ),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) <span class="op">=</span><span class="op">&gt;</span> {
         $(
             <span class="kw">impl</span> <span class="ident">HexLiteral</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-                <span class="kw">fn</span> <span class="ident">hex_impl_</span>(<span class="self">self</span>, <span class="ident">fmt</span>: <span class="ident">::core::fmt::Arguments</span>, <span class="ident">_sealed</span>: <span class="ident">private::Sealed</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                <span class="kw">fn</span> <span class="ident">hex_impl_</span>(<span class="self">self</span>, <span class="ident">fmt</span>: <span class="ident">::core::fmt::Arguments</span>, <span class="ident">_sealed</span>: <span class="ident">private::Sealed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span> {
                     <span class="ident">::syn::LitInt::new</span>(
                         <span class="kw-2">&amp;</span><span class="macro">::std::format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">fmt</span>),
                         <span class="ident">proc_macro2::Span::call_site</span>()
                     )
                 }
 
-                <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                <span class="kw">fn</span> <span class="ident">hex_suffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span> {
                     <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}_{}&quot;</span>, <span class="self">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                <span class="kw">fn</span> <span class="ident">hex_unsuffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span> {
                     <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="string">&quot;0x{:X}&quot;</span>, <span class="self">self</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                <span class="kw">fn</span> <span class="ident">hex_padded_suffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span> {
                     <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_suffixed</span>, <span class="self">self</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="ident">private::Sealed</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) -&gt; <span class="ident">syn::LitInt</span> {
+                <span class="kw">fn</span> <span class="ident">hex_padded_unsuffixed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::LitInt</span> {
                     <span class="self">self</span>.<span class="ident">hex_impl_</span>(<span class="macro">::core::format_args!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">fmt_unsuffixed</span>, <span class="self">self</span>), <span class="ident">private::Sealed</span>)
                 }
             }
