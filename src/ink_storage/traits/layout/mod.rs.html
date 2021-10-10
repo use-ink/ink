@@ -96,29 +96,29 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The given key pointer is guiding the allocation of static fields onto</span>
     <span class="doccomment">/// the contract storage regions.</span>
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span>;
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span>;
 }
 
 <span class="doccomment">/// Types implementing this trait are supported layouting crypto hashers.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LayoutCryptoHasher</span> {
     <span class="doccomment">/// Returns the layout crypto hasher for `Self`.</span>
-    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() -&gt; <span class="ident">CryptoHasher</span>;
+    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Blake2x256</span> {
-    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() -&gt; <span class="ident">CryptoHasher</span> {
+    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher::Blake2x256</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Sha2x256</span> {
-    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() -&gt; <span class="ident">CryptoHasher</span> {
+    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher::Sha2x256</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">LayoutCryptoHasher</span> <span class="kw">for</span> <span class="ident">Keccak256</span> {
-    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() -&gt; <span class="ident">CryptoHasher</span> {
+    <span class="kw">fn</span> <span class="ident">crypto_hasher</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CryptoHasher</span> {
         <span class="ident">CryptoHasher::Keccak256</span>
     }
 }

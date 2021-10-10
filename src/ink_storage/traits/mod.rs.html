@@ -263,7 +263,7 @@
 <span class="doccomment">///   the contract storage using spread layout.</span>
 <span class="doccomment">/// - Users should prefer using this function directly instead of using the</span>
 <span class="doccomment">///   trait methods on [`SpreadLayout`].</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">T</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_spread_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
@@ -320,7 +320,7 @@
 <span class="doccomment">///   the contract storage using packed layout.</span>
 <span class="doccomment">/// - Users should prefer using this function directly instead of using the</span>
 <span class="doccomment">///   trait methods on [`PackedLayout`].</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">T</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pull_packed_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
 {

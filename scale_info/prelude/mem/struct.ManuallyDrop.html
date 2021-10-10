@@ -9,7 +9,7 @@ If you need to handle uninitialized data, use <a href="union.MaybeUninit.html"><
 This means that a <code>ManuallyDrop&lt;T&gt;</code> whose content has been dropped must not
 be exposed through a public safe API.
 Correspondingly, <code>ManuallyDrop::drop</code> is unsafe.</p>
-<h2 id="manuallydrop-and-drop-order" class="section-header"><a href="#manuallydrop-and-drop-order"><code>ManuallyDrop</code> and drop order.</a></h2>
+<h1 id="manuallydrop-and-drop-order" class="section-header"><a href="#manuallydrop-and-drop-order"><code>ManuallyDrop</code> and drop order.</a></h1>
 <p>Rust has a well-defined <a href="https://doc.rust-lang.org/reference/destructors.html">drop order</a> of values. To make sure that fields or
 locals are dropped in a specific order, reorder the declarations such that
 the implicit drop order is the correct one.</p>
@@ -28,7 +28,7 @@ the others, make it the last field of a struct:</p>
     <span class="ident">context</span>: <span class="ident">Context</span>,
 }</code></pre></div>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/mem/manually_drop.rs.html#53-114" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl&lt;T&gt; <a class="struct" href="struct.ManuallyDrop.html" title="struct scale_info::prelude::mem::ManuallyDrop">ManuallyDrop</a>&lt;T&gt;</h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.20.0, const since 1.36.0">1.20.0 (const: 1.36.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/mem/manually_drop.rs.html#69" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.new" class="fnname">new</a>(value: T) -&gt; <a class="struct" href="struct.ManuallyDrop.html" title="struct scale_info::prelude::mem::ManuallyDrop">ManuallyDrop</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Wrap a value to be manually dropped.</p>
-<h5 id="examples" class="section-header"><a href="#examples">Examples</a></h5>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem::ManuallyDrop</span>;
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ManuallyDrop::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;Hello World!&quot;</span>));
 <span class="ident">x</span>.<span class="ident">truncate</span>(<span class="number">5</span>); <span class="comment">// You can still safely operate on the value</span>
@@ -36,7 +36,7 @@ the others, make it the last field of a struct:</p>
 <span class="comment">// But `Drop` will not be run here</span></code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.into_inner" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.20.0, const since 1.36.0">1.20.0 (const: 1.36.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/mem/manually_drop.rs.html#87" title="goto source code">[src]</a></div><a href="#method.into_inner" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.into_inner" class="fnname">into_inner</a>(slot: <a class="struct" href="struct.ManuallyDrop.html" title="struct scale_info::prelude::mem::ManuallyDrop">ManuallyDrop</a>&lt;T&gt;) -&gt; T</h4></div></summary><div class="docblock"><p>Extracts the value from the <code>ManuallyDrop</code> container.</p>
 <p>This allows the value to be dropped again.</p>
-<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem::ManuallyDrop</span>;
 <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">ManuallyDrop::new</span>(<span class="ident">Box::new</span>(()));
 <span class="kw">let</span> <span class="kw">_</span>: <span class="ident">Box</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ManuallyDrop::into_inner</span>(<span class="ident">x</span>); <span class="comment">// This drops the `Box`.</span></code></pre></div>
@@ -46,7 +46,7 @@ Instead of using <a href="struct.ManuallyDrop.html#method.drop" title="ManuallyD
 you can use this method to take the value and use it however desired.</p>
 <p>Whenever possible, it is preferable to use <a href="struct.ManuallyDrop.html#method.into_inner" title="ManuallyDrop::into_inner"><code>into_inner</code></a>
 instead, which prevents duplicating the content of the <code>ManuallyDrop&lt;T&gt;</code>.</p>
-<h5 id="safety" class="section-header"><a href="#safety">Safety</a></h5>
+<h1 id="safety" class="section-header"><a href="#safety">Safety</a></h1>
 <p>This function semantically moves out the contained value without preventing further usage,
 leaving the state of this container unchanged.
 It is your responsibility to ensure that this <code>ManuallyDrop</code> is not used again.</p>
@@ -55,7 +55,7 @@ It is your responsibility to ensure that this <code>ManuallyDrop</code> is not u
 the contained value is a packed struct, the destructor will be called in-place
 without moving the value, and thus can be used to safely drop <a href="https://doc.rust-lang.org/nightly/core/pin/index.html">pinned</a> data.</p>
 <p>If you have ownership of the value, you can use <a href="struct.ManuallyDrop.html#method.into_inner" title="ManuallyDrop::into_inner"><code>ManuallyDrop::into_inner</code></a> instead.</p>
-<h5 id="safety-1" class="section-header"><a href="#safety-1">Safety</a></h5>
+<h1 id="safety-1" class="section-header"><a href="#safety-1">Safety</a></h1>
 <p>This function runs the destructor of the contained value. Other than changes made by
 the destructor itself, the memory is left unchanged, and so as far as the compiler is
 concerned still holds a bit-pattern which is valid for the type <code>T</code>.</p>

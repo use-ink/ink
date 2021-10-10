@@ -7,7 +7,7 @@ defined.</p>
 <a href="struct.BuildHasherDefault.html#method.default"><code>default</code></a>. When using <code>BuildHasherDefault</code> with <a href="../../std/collections/struct.HashMap.html"><code>HashMap</code></a> or
 <a href="../../std/collections/struct.HashSet.html"><code>HashSet</code></a>, this doesn’t need to be done, since they implement appropriate
 <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="Default"><code>Default</code></a> instances themselves.</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
 <p>Using <code>BuildHasherDefault</code> to specify a custom <a href="trait.BuildHasher.html" title="BuildHasher"><code>BuildHasher</code></a> for
 <a href="../../std/collections/struct.HashMap.html"><code>HashMap</code></a>:</p>
 
@@ -23,7 +23,7 @@ defined.</p>
        <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">finish</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
         <span class="comment">// Your hashing algorithm goes here!</span>
         <span class="macro">unimplemented!</span>()
     }

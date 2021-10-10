@@ -1023,29 +1023,29 @@
 
 <span class="kw">impl</span> <span class="ident">ChainExtension</span> {
     <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
             .<span class="ident">expect</span>(<span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension&quot;</span>);
         <span class="ident">attrs</span>
     }
 
     <span class="doccomment">/// Returns the span of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">proc_macro2::Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro2::Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 
     <span class="doccomment">/// Returns the identifier of the ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">ident</span>
     }
 
     <span class="doccomment">/// Returns a slice over all the chain extension methods.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SliceIter</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_methods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SliceIter</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">methods</span>.<span class="ident">iter</span>()
     }
 
     <span class="doccomment">/// Returns the type of the error code of the chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Type</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">syn::Type</span> {
         <span class="self">self</span>.<span class="ident">error_code</span>
             .<span class="ident">default</span>
             .<span class="ident">as_ref</span>()
@@ -1087,7 +1087,7 @@
 
 <span class="kw">impl</span> <span class="ident">ChainExtensionMethod</span> {
     <span class="doccomment">/// Returns the Rust attributes of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attrs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="self">self</span>.<span class="ident">item</span>.<span class="ident">attrs</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>())
             .<span class="ident">expect</span>(
             <span class="string">&quot;encountered unexpected invalid attributes for ink! chain extension method&quot;</span>,
@@ -1096,39 +1096,39 @@
     }
 
     <span class="doccomment">/// Returns the span of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">proc_macro2::Span</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">proc_macro2::Span</span> {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">span</span>()
     }
 
     <span class="doccomment">/// Returns the identifier of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">proc_macro2::Ident</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">ident</span>
     }
 
     <span class="doccomment">/// Returns the method signature of the ink! chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sig</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">syn::Signature</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>
     }
 
     <span class="doccomment">/// Returns the unique ID of the chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ExtensionId</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ExtensionId</span> {
         <span class="self">self</span>.<span class="ident">id</span>
     }
 
     <span class="doccomment">/// Returns an iterator over the inputs of the chain extension method.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ChainExtensionMethodInputs</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inputs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChainExtensionMethodInputs</span> {
         <span class="ident">ChainExtensionMethodInputs</span> {
             <span class="ident">iter</span>: <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
         }
     }
 
     <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">handle_status</span>
     }
 
     <span class="doccomment">/// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns_result</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns_result</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">returns_result</span>
     }
 }
@@ -1140,17 +1140,17 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ChainExtensionMethodInputs</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::PatType</span>;
 
-    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">size_hint</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">next</span>()<span class="question-mark">?</span>;
         <span class="kw">match</span> <span class="ident">item</span> {
-            <span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>) =&gt; {
+            <span class="ident">syn::FnArg::Receiver</span>(<span class="ident">receiver</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;encountered unexpected receiver in chain extension method input: {:?}&quot;</span>, <span class="ident">receiver</span>)
             }
-            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">pat_type</span>),
+            <span class="ident">syn::FnArg::Typed</span>(<span class="ident">pat_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">pat_type</span>),
         }
     }
 }
@@ -1169,12 +1169,12 @@
 
 <span class="kw">impl</span> <span class="ident">ExtensionId</span> {
     <span class="doccomment">/// Creates a new chain extension method ID from the given `u32`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">index</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">index</span> }
     }
 
     <span class="doccomment">/// Returns the underlying raw `u32` index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">index</span>
     }
 }
@@ -1182,7 +1182,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChainExtension</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) -&gt; <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">item_trait</span>: <span class="ident">syn::ItemTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident">idents_lint::ensure_no_ink_identifiers</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
         <span class="ident"><span class="self">Self</span>::analyse_properties</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> (<span class="ident">error_code</span>, <span class="ident">methods</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::analyse_items</span>(<span class="kw-2">&amp;</span><span class="ident">item_trait</span>)<span class="question-mark">?</span>;
@@ -1196,7 +1196,7 @@
 
 <span class="kw">impl</span> <span class="ident">ChainExtension</span> {
     <span class="doccomment">/// Returns `Ok` if the trait matches all requirements for an ink! chain extension.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr</span>: <span class="ident">TokenStream2</span>, <span class="ident">input</span>: <span class="ident">TokenStream2</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">attr</span>: <span class="ident">TokenStream2</span>, <span class="ident">input</span>: <span class="ident">TokenStream2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">attr</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">attr</span>,
@@ -1216,7 +1216,7 @@
     <span class="doccomment">/// - If the input trait is generic over some set of types.</span>
     <span class="doccomment">/// - If the input trait&#39;s visibility is not public (`pub`).</span>
     <span class="doccomment">/// - If the input trait has super-traits.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_properties</span>(<span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">unsafety</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">unsafety</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">unsafety</span>,
@@ -1260,7 +1260,7 @@
     <span class="kw">fn</span> <span class="ident">analyse_error_code</span>(
         <span class="ident">item_type</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemType</span>,
         <span class="ident">previous</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::TraitItemType</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">item_type</span>.<span class="ident">ident</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;ErrorCode&quot;</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">item_type</span>.<span class="ident">ident</span>,
@@ -1287,7 +1287,7 @@
             ))
         }
         <span class="kw">match</span> <span class="ident">previous</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">previous_error_code</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="ident">previous_error_code</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">item_type</span>,
                     <span class="string">&quot;encountered duplicate `ErrorCode` associated types for the chain extension&quot;</span>,
@@ -1296,7 +1296,7 @@
                     <span class="string">&quot;first `ErrorCode` associated type here&quot;</span>,
                 )))
             }
-            <span class="prelude-val">None</span> =&gt; {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">*</span><span class="ident">previous</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">item_type</span>.<span class="ident">clone</span>());
             }
         }
@@ -1324,34 +1324,34 @@
     <span class="doccomment">/// as a result of this procedural macro invocation.</span>
     <span class="kw">fn</span> <span class="ident">analyse_items</span>(
         <span class="ident">item_trait</span>: <span class="kw-2">&amp;</span><span class="ident">syn::ItemTrait</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">syn::TraitItemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">syn::TraitItemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">methods</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_ids</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">error_code</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">trait_item</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">item_trait</span>.<span class="ident">items</span> {
             <span class="kw">match</span> <span class="ident">trait_item</span> {
-                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Const</span>(<span class="ident">const_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">const_trait_item</span>,
                         <span class="string">&quot;associated constants in ink! chain extensions are not supported, yet&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Macro</span>(<span class="ident">macro_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">macro_trait_item</span>,
                         <span class="string">&quot;macros in ink! chain extensions are not supported&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Type</span>(<span class="ident">type_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident"><span class="self">Self</span>::analyse_error_code</span>(<span class="ident">type_trait_item</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">error_code</span>)<span class="question-mark">?</span>;
                 }
-                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Verbatim</span>(<span class="ident">verbatim</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">verbatim</span>,
                         <span class="string">&quot;encountered unsupported item in ink! chain extensions&quot;</span>
                     ))
                 }
-                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) =&gt; {
+                <span class="ident">syn::TraitItem::Method</span>(<span class="ident">method_trait_item</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">method</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::analyse_methods</span>(<span class="ident">method_trait_item</span>)<span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">method_id</span> <span class="op">=</span> <span class="ident">method</span>.<span class="ident">id</span>();
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">previous</span>) <span class="op">=</span> <span class="ident">seen_ids</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">method_id</span>) {
@@ -1366,7 +1366,7 @@
                     <span class="ident">seen_ids</span>.<span class="ident">insert</span>(<span class="ident">method_id</span>, <span class="ident">method</span>.<span class="ident">span</span>());
                     <span class="ident">methods</span>.<span class="ident">push</span>(<span class="ident">method</span>);
                 }
-                <span class="ident">unknown</span> =&gt; {
+                <span class="ident">unknown</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                         <span class="ident">unknown</span>,
                         <span class="string">&quot;encountered unknown or unsupported item in ink! chain extensions&quot;</span>
@@ -1375,8 +1375,8 @@
             }
         }
         <span class="kw">let</span> <span class="ident">error_code</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">error_code</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">error_code</span>) =&gt; <span class="ident">error_code</span>,
-            <span class="prelude-val">None</span> =&gt; {
+            <span class="prelude-val">Some</span>(<span class="ident">error_code</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error_code</span>,
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">item_trait</span>,
                     <span class="string">&quot;missing ErrorCode associated type from ink! chain extension&quot;</span>,
@@ -1395,7 +1395,7 @@
     <span class="doccomment">/// - If the method declared as `unsafe`, `const` or `async`.</span>
     <span class="doccomment">/// - If the method has some explicit API.</span>
     <span class="doccomment">/// - If the method is variadic or has generic parameters.</span>
-    <span class="kw">fn</span> <span class="ident">analyse_methods</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">analyse_methods</span>(<span class="ident">method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">default_impl</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">default</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                 <span class="ident">default_impl</span>,
@@ -1440,16 +1440,16 @@
         }
         <span class="kw">match</span> <span class="ident">ir::first_ink_attribute</span>(<span class="kw-2">&amp;</span><span class="ident">method</span>.<span class="ident">attrs</span>)<span class="question-mark">?</span>
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">first</span>().<span class="ident">kind</span>().<span class="ident">clone</span>()) {
-            <span class="prelude-val">Some</span>(<span class="ident">ir::AttributeArg::Extension</span>(<span class="ident">extension</span>)) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="ident">ir::AttributeArg::Extension</span>(<span class="ident">extension</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident"><span class="self">Self</span>::analyse_chain_extension_method</span>(<span class="ident">method</span>, <span class="ident">extension</span>)
             }
-            <span class="prelude-val">Some</span>(<span class="ident">_unsupported</span>) =&gt; {
+            <span class="prelude-val">Some</span>(<span class="ident">_unsupported</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">method</span>,
                     <span class="string">&quot;encountered unsupported ink! attribute for ink! chain extension method. expected #[ink(extension = N: u32)] attribute&quot;</span>
                 ))
             }
-            <span class="prelude-val">None</span> =&gt; {
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">method</span>,
                     <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>
@@ -1466,7 +1466,7 @@
     <span class="kw">fn</span> <span class="ident">analyse_chain_extension_method</span>(
         <span class="ident">item_method</span>: <span class="kw-2">&amp;</span><span class="ident">syn::TraitItemMethod</span>,
         <span class="ident">extension</span>: <span class="ident">ExtensionId</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ChainExtensionMethod</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ir::sanitize_attributes</span>(
             <span class="ident">item_method</span>.<span class="ident">span</span>(),
             <span class="ident">item_method</span>.<span class="ident">attrs</span>.<span class="ident">clone</span>(),
@@ -1475,8 +1475,8 @@
                 <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
                     <span class="ident">ir::AttributeArg::Extension</span>(<span class="kw">_</span>)
                     <span class="op">|</span> <span class="ident">ir::AttributeArg::HandleStatus</span>(<span class="kw">_</span>)
-                    <span class="op">|</span> <span class="ident">ir::AttributeArg::ReturnsResult</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
+                    <span class="op">|</span> <span class="ident">ir::AttributeArg::ReturnsResult</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="prelude-val">None</span>),
                 }
             },
         )<span class="question-mark">?</span>;
@@ -1502,7 +1502,7 @@
 
     <span class="doccomment">/// Checks if the token stream in `$chain_extension` results in the expected error message.</span>
     <span class="macro">macro_rules!</span> <span class="ident">assert_ink_chain_extension_eq_err</span> {
-        ( <span class="ident">error</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">chain_extension</span>:<span class="ident">tt</span>)<span class="op">*</span> ) =&gt; {
+        ( <span class="ident">error</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err_str</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">chain_extension</span>:<span class="ident">tt</span>)<span class="op">*</span> ) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="macro">assert_eq!</span>(
                 <span class="op">&lt;</span><span class="ident">ChainExtension</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemTrait</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
                     $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">chain_extension</span> )<span class="op">*</span>
@@ -1641,7 +1641,7 @@
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
             <span class="ident">error</span>: <span class="string">&quot;missing #[ink(extension = N: u32)] flag on ink! chain extension method&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
-                <span class="kw">fn</span> <span class="ident">non_flagged_3</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">non_flagged_3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1652,7 +1652,7 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! chain extension methods with default implementations are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">default_implemented</span>() -&gt; <span class="self">Self</span> {}
+                <span class="kw">fn</span> <span class="ident">default_implemented</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {}
             }
         );
     }
@@ -1663,7 +1663,7 @@
             <span class="ident">error</span>: <span class="string">&quot;const ink! chain extension methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1674,7 +1674,7 @@
             <span class="ident">error</span>: <span class="string">&quot;async ink! chain extension methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1685,7 +1685,7 @@
             <span class="ident">error</span>: <span class="string">&quot;unsafe ink! chain extension methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1696,7 +1696,7 @@
             <span class="ident">error</span>: <span class="string">&quot;ink! chain extension methods with non default ABI are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">extern</span> <span class="kw">fn</span> <span class="ident">const_constructor</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1707,7 +1707,7 @@
             <span class="ident">error</span>: <span class="string">&quot;variadic ink! chain extension methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span>(...) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">const_constructor</span>(...) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1718,7 +1718,7 @@
             <span class="ident">error</span>: <span class="string">&quot;generic ink! chain extension methods are not supported&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">const_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">const_constructor</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1780,7 +1780,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">42</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">42</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1788,7 +1788,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">duplicate_attributes</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1796,7 +1796,7 @@
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">conflicting_attributes</span>() -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">conflicting_attributes</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1809,7 +1809,7 @@
                 <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
 
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1818,7 +1818,7 @@
                 <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
 
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1827,7 +1827,7 @@
                 <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
 
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1836,7 +1836,7 @@
                 <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
 
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
@@ -1845,7 +1845,7 @@
                 <span class="kw">type</span> <span class="ident">ErrorCode</span> <span class="op">=</span> ();
 
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">has_self_receiver</span>(<span class="self">self</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
             }
         );
     }
@@ -1874,11 +1874,11 @@
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
                     <span class="kw">fn</span> <span class="ident">extension_2</span>(<span class="ident">input</span>: <span class="ident">i32</span>);
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">3</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_3</span>() -&gt; <span class="ident">i32</span>;
+                    <span class="kw">fn</span> <span class="ident">extension_3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">4</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_4</span>(<span class="ident">input</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i32</span>;
+                    <span class="kw">fn</span> <span class="ident">extension_4</span>(<span class="ident">input</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">extension_5</span>(<span class="ident">in1</span>: <span class="ident">i8</span>, <span class="ident">in2</span>: <span class="ident">i16</span>, <span class="ident">in3</span>: <span class="ident">i32</span>, <span class="ident">in4</span>: <span class="ident">i64</span>) -&gt; (<span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">u64</span>);
+                    <span class="kw">fn</span> <span class="ident">extension_5</span>(<span class="ident">in1</span>: <span class="ident">i8</span>, <span class="ident">in2</span>: <span class="ident">i16</span>, <span class="ident">in3</span>: <span class="ident">i32</span>, <span class="ident">in4</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">u8</span>, <span class="ident">u16</span>, <span class="ident">u32</span>, <span class="ident">u64</span>);
                 }
             }).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">chain_extension</span>.<span class="ident">methods</span>.<span class="ident">len</span>(), <span class="number">5</span>);

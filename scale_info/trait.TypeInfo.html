@@ -3,7 +3,7 @@
     fn <a href="#tymethod.type_info" class="fnname">type_info</a>() -&gt; <a class="struct" href="struct.Type.html" title="struct scale_info::Type">Type</a>;
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implementors return their meta type information.</p>
 </div></details><h2 id="associated-types" class="small-section-header">Associated Types<a href="#associated-types" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="associatedtype.Identity" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/scale_info/lib.rs.html#140" title="goto source code">[src]</a></div><h4 class="code-header">type <a href="#associatedtype.Identity" class="type">Identity</a>: ?<a class="trait" href="prelude/marker/trait.Sized.html" title="trait scale_info::prelude::marker::Sized">Sized</a> + 'static</h4></div></summary><div class="docblock"><p>The type identifying for which type info is provided.</p>
-<h5 id="note" class="section-header"><a href="#note">Note</a></h5>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <p>This is used to uniquely identify a type via <a href="prelude/any/struct.TypeId.html#method.of" title="core::any::TypeId::of"><code>core::any::TypeId::of</code></a>. In most cases it
 will just be <code>Self</code>, but can be used to unify different types which have the same encoded
 representation e.g. reference types <code>Box&lt;T&gt;</code>, <code>&amp;T</code> and <code>&amp;mut T</code>.</p>

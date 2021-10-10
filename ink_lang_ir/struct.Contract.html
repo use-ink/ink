@@ -2,29 +2,29 @@
 <p>This is the root of any ink! smart contract definition. It contains every
 information accessible to the ink! smart contract macros. It is also used
 as the root source for the ink! code generation.</p>
-<h2 id="example" class="section-header"><a href="#example">Example</a></h2><div class="example-wrap"><pre class="language-no_compile"><code>#[ink::contract(/* optional ink! configurations */)]
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1><div class="example-wrap"><pre class="language-no_compile"><code>#[ink::contract(/* optional ink! configurations */)]
 mod my_contract {
     /* ink! and Rust definitions */
 }</code></pre></div></div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/contract.rs.html#47-117" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="struct" href="struct.Contract.html" title="struct ink_lang_ir::Contract">Contract</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.new" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/contract.rs.html#62-74" title="goto source code">[src]</a></div><a href="#method.new" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.new" class="fnname">new</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;ink_config: <a class="struct" href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;ink_module: <a class="struct" href="https://docs.rs/proc-macro2/1.0.29/proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">TokenStream2</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="struct" href="https://docs.rs/syn/1.0.80/syn/error/struct.Error.html" title="struct syn::error::Error">Error</a>&gt;</h4></div></summary><div class="docblock"><p>Creates a new ink! contract from the given ink! configuration and module
 token streams.</p>
 <p>The ink! macro should use this constructor in order to setup ink!.</p>
-<h5 id="note" class="section-header"><a href="#note">Note</a></h5>
+<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
 <ul>
 <li>The <code>ink_config</code> token stream must properly decode into <a href="struct.Config.html" title="ir::Config"><code>ir::Config</code></a>.</li>
 <li>The <code>ink_module</code> token stream must properly decode into <a href="struct.ItemMod.html" title="ir::ItemMod"><code>ir::ItemMod</code></a>.</li>
 </ul>
-<h5 id="errors" class="section-header"><a href="#errors">Errors</a></h5>
+<h1 id="errors" class="section-header"><a href="#errors">Errors</a></h1>
 <p>Returns an error if the provided token stream cannot be decoded properly
 into a valid ink! configuration or ink! module respectively.</p>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.module" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/contract.rs.html#89-91" title="goto source code">[src]</a></div><a href="#method.module" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.module" class="fnname">module</a>(&amp;self) -&gt; &amp;<a class="struct" href="struct.ItemMod.html" title="struct ink_lang_ir::ItemMod">ItemMod</a></h4></div></summary><div class="docblock"><p>Returns the ink! inline module definition.</p>
-<h5 id="note-1" class="section-header"><a href="#note-1">Note</a></h5>
+<h1 id="note-1" class="section-header"><a href="#note-1">Note</a></h1>
 <p>The ink! inline module definition is the module that comprises the
 whole ink! smart contract, e.g.:</p>
 <div class="example-wrap"><pre class="language-no_compile"><code>#[ink::contract]
 mod my_contract {
     // ... definitions
 }</code></pre></div></div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.config" class="method has-srclink"><div class="rightside"><a class="srclink" href="../src/ink_lang_ir/ir/contract.rs.html#114-116" title="goto source code">[src]</a></div><a href="#method.config" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.config" class="fnname">config</a>(&amp;self) -&gt; &amp;<a class="struct" href="struct.Config.html" title="struct ink_lang_ir::Config">Config</a></h4></div></summary><div class="docblock"><p>Returns the configuration of the ink! smart contract.</p>
-<h5 id="note-2" class="section-header"><a href="#note-2">Note</a></h5>
+<h1 id="note-2" class="section-header"><a href="#note-2">Note</a></h1>
 <p>The configuration is given via the <code>#[ink::contract(config))]</code> attribute
 macro annotation itself within the <code>(config)</code> part. The available fields
 are the following:</p>
