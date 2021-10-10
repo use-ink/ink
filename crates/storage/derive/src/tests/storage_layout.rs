@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// The `synstructure` crate currently expands to code that has a single
+// `panic` inside an `if` block. We have to allow the following `clippy`
+// lint until the fixing PR has been merged:
+// PR: https://github.com/mystor/synstructure/pull/50
+#![allow(clippy::if_then_panic)]
+
 use crate::storage_layout_derive;
 
 #[test]

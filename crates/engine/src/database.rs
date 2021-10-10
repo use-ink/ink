@@ -147,10 +147,7 @@ mod tests {
         assert_eq!(database.get(&key1), None);
         assert_eq!(database.insert(key1.clone(), val1.clone()), None);
         assert_eq!(database.get(&key1), Some(&val1));
-        assert_eq!(
-            database.insert(key1.clone(), val2.clone()),
-            Some(val1.clone())
-        );
+        assert_eq!(database.insert(key1.clone(), val2.clone()), Some(val1));
         assert_eq!(database.get(&key1), Some(&val2));
         assert_eq!(database.insert(key2.clone(), val3.clone()), None);
         assert_eq!(database.len(), 2);
@@ -182,7 +179,7 @@ mod tests {
         );
         assert_eq!(
             storage.insert_into_contract_storage(&account_id, &key1, val2.clone()),
-            Some(val1.clone())
+            Some(val1)
         );
         assert_eq!(
             storage.get_from_contract_storage(&account_id, &key1),

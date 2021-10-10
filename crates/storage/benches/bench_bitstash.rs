@@ -84,11 +84,7 @@ fn bench_populated_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("Bench: populated cache");
     group.bench_function("fill_bitstash", |b| b.iter(populated_cache::fill_bitstash));
     group.bench_function("one_put", |b| {
-        b.iter_batched_ref(
-            create_large_stash,
-            |stash| one_put(stash),
-            BatchSize::SmallInput,
-        )
+        b.iter_batched_ref(create_large_stash, one_put, BatchSize::SmallInput)
     });
     group.finish();
 }
@@ -120,7 +116,7 @@ fn bench_empty_cache(c: &mut Criterion) {
                     push_stash_by_ref(&stash);
                     pull_stash()
                 },
-                |stash| one_put(stash),
+                one_put,
                 BatchSize::SmallInput,
             )
         });
