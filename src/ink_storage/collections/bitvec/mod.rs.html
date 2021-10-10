@@ -387,7 +387,7 @@
 
 <span class="kw">impl</span> <span class="ident">Bitvec</span> {
     <span class="doccomment">/// Creates a new empty bit vector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">len</span>: <span class="ident">Lazy::from</span>(<span class="number">0</span>),
             <span class="ident">bits</span>: <span class="ident">StorageVec::new</span>(),
@@ -395,13 +395,13 @@
     }
 
     <span class="doccomment">/// Returns the length of the bit vector in bits.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">len</span>
     }
 
     <span class="doccomment">/// Returns `true` if the bit vector is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>
     }
 
     <span class="doccomment">/// Returns the capacity of the bit vector in bits.</span>
@@ -410,32 +410,32 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns a `u64` since it is always greater than or equal to `self.len()`</span>
     <span class="doccomment">/// which itself returns a `u32`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         (<span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">256</span>) <span class="kw">as</span> <span class="ident">u64</span>
     }
 
     <span class="doccomment">/// Returns an iterator over the bits of the storage bit vector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitsIter</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BitsIter</span> {
         <span class="ident">BitsIter::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator over the mutable bits of the storage bit vector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bits_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BitsIterMut</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bits_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">BitsIterMut</span> {
         <span class="ident">BitsIterMut::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator over the 256-bit chunks of the storage bit vector.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_chunks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bits256Iter</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_chunks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bits256Iter</span> {
         <span class="ident">Bits256Iter::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns an iterator over the mutable 256-bit chunks of the storage bit vector.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_chunks_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bits256IterMut</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_chunks_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Bits256IterMut</span> {
         <span class="ident">Bits256IterMut::new</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Splits the given index into a 256-bit pack index and a position index of the bit.</span>
-    <span class="kw">fn</span> <span class="ident">split_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Index</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">split_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Index</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -445,7 +445,7 @@
     <span class="doccomment">/// Returns the immutable access pair to the underlying 256-bits pack and bit.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the given index is out of bounds.</span>
-    <span class="kw">fn</span> <span class="ident">get_bits256</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Bits256</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_bits256</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Bits256</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">pos256</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">split_index</span>(<span class="ident">at</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">bits256</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">get</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="prelude-val">Some</span>((<span class="ident">bits256</span>, <span class="ident">pos256</span>))
@@ -454,31 +454,31 @@
     <span class="doccomment">/// Returns the mutable access pair to the underlying 256-bits pack and bit.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the given index is out of bounds.</span>
-    <span class="kw">fn</span> <span class="ident">get_bits256_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bits256</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_bits256_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bits256</span>, <span class="ident">Index256</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">pos256</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">split_index</span>(<span class="ident">at</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">bits256</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">get_mut</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="prelude-val">Some</span>((<span class="ident">bits256</span>, <span class="ident">pos256</span>))
     }
 
     <span class="doccomment">/// Returns a mutable bit access to the bit at the given index if any.</span>
-    <span class="kw">fn</span> <span class="ident">get_access_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_access_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">get_bits256_mut</span>(<span class="ident">at</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">bits256</span>, <span class="ident">pos256</span>)<span class="op">|</span> <span class="ident">BitRefMut::new</span>(<span class="ident">bits256</span>, <span class="ident">pos256</span>))
     }
 
     <span class="doccomment">/// Returns the value of the bit at the given index if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">get_bits256</span>(<span class="ident">at</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">bits256</span>, <span class="ident">pos256</span>)<span class="op">|</span> <span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">pos256</span>))
     }
 
     <span class="doccomment">/// Returns a mutable bit access to the bit at the given index if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">get_access_mut</span>(<span class="ident">at</span>)
     }
 
     <span class="doccomment">/// Returns a shared reference to the 256-bit chunk for the bit at the given index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_chunk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChunkRef</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Bits256</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_chunk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChunkRef</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Bits256</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -490,7 +490,7 @@
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the 256-bit chunk for the bit at the given index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_chunk_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChunkRef</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bits256</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_chunk_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChunkRef</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Bits256</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -506,7 +506,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the bit vector is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -518,7 +518,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the bit vector is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -530,7 +530,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the bit vector is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -542,7 +542,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if the bit vector is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -550,7 +550,7 @@
     }
 
     <span class="doccomment">/// The maximum number of bits that can be pushed to a storage bit vector.</span>
-    <span class="kw">fn</span> <span class="ident">maximum_capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+    <span class="kw">fn</span> <span class="ident">maximum_capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="ident">u32::MAX</span>
     }
 
@@ -568,7 +568,7 @@
             <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">maximum_capacity</span>(),
             <span class="string">&quot;reached maximum capacity for storage bit vector&quot;</span>
         );
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">capacity</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">capacity</span>() {
             <span class="comment">// Case: All 256-bits packs are full or there are none:</span>
             <span class="comment">// Need to push another 256-bit pack to the storage vector.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits256</span> <span class="op">=</span> <span class="ident">Bits256::default</span>();
@@ -600,7 +600,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This reduces the length of the bit vector by one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// Bail out early if the bit vector is emtpy.</span>
             <span class="kw">return</span> <span class="prelude-val">None</span>

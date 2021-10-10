@@ -1190,7 +1190,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ContractSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">ContractSpec</span> {
             <span class="ident">constructors</span>: <span class="self">self</span>
                 .<span class="ident">constructors</span>
@@ -1217,22 +1217,22 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the set of constructors of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">constructors</span>
     }
 
     <span class="doccomment">/// Returns the external messages of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">messages</span>
     }
 
     <span class="doccomment">/// Returns the events of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">events</span>
     }
 
     <span class="doccomment">/// Returns the contract documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
@@ -1247,12 +1247,12 @@
     <span class="doccomment">/// The to-be-constructed contract specification.</span>
     <span class="ident">spec</span>: <span class="ident">ContractSpec</span>,
     <span class="doccomment">/// Marker for compile-time checking of valid contract specifications.</span>
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">S</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">Invalid</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets the constructors of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">constructors</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">Valid</span><span class="op">&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">constructors</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">constructors</span>: <span class="ident">C</span>) -&gt; <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">Valid</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">C</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">ConstructorSpec</span><span class="op">&gt;</span>,
     {
@@ -1269,7 +1269,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets the messages of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">messages</span>: <span class="ident">M</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">messages</span><span class="op">&lt;</span><span class="ident">M</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">messages</span>: <span class="ident">M</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">M</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageSpec</span><span class="op">&gt;</span>,
     {
@@ -1284,7 +1284,7 @@
     }
 
     <span class="doccomment">/// Sets the events of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">events</span>: <span class="ident">E</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">events</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">events</span>: <span class="ident">E</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EventSpec</span><span class="op">&gt;</span>,
     {
@@ -1299,7 +1299,7 @@
     }
 
     <span class="doccomment">/// Sets the documentation of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -1316,7 +1316,7 @@
 
 <span class="kw">impl</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">Valid</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Finalizes construction of the contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">ContractSpec</span> {
         <span class="macro">assert!</span>(
             <span class="op">!</span><span class="self">self</span>.<span class="ident">spec</span>.<span class="ident">constructors</span>.<span class="ident">is_empty</span>(),
             <span class="string">&quot;must have at least one constructor&quot;</span>
@@ -1331,7 +1331,7 @@
 
 <span class="kw">impl</span> <span class="ident">ContractSpec</span> {
     <span class="doccomment">/// Creates a new contract specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ContractSpecBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ContractSpecBuilder</span> {
         <span class="ident">ContractSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="self">Self</span> {
                 <span class="ident">constructors</span>: <span class="ident">Vec::new</span>(),
@@ -1366,7 +1366,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ConstructorSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ConstructorSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">ConstructorSpec</span> {
             <span class="ident">name</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">name</span>),
             <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
@@ -1387,22 +1387,22 @@
     <span class="doccomment">/// Returns the name of the message.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// In case of a trait provided constructor the trait name is prefixed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
 
     <span class="doccomment">/// Returns the selector hash of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>
     }
 
     <span class="doccomment">/// Returns the parameters of the deployment handler.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
     }
 
     <span class="doccomment">/// Returns the deployment handler documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
@@ -1416,14 +1416,14 @@
 <span class="doccomment">/// debug code-gen macros.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Selector</span><span class="op">&gt;</span> {
     <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Selector</span><span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">Selector</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ConstructorSpec</span> {
     <span class="doccomment">/// Creates a new constructor spec builder.</span>
     <span class="kw">fn</span> <span class="ident">from_name_segments</span>(
         <span class="ident">segments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">ConstructorSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="self">Self</span> {
                 <span class="ident">name</span>: <span class="ident">segments</span>,
@@ -1438,7 +1438,7 @@
     <span class="doccomment">/// Creates a new constructor spec builder.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_name</span>(
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident"><span class="self">Self</span>::from_name_segments</span>(<span class="macro">vec!</span>[<span class="ident">name</span>])
     }
 
@@ -1446,14 +1446,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_trait_and_name</span>(
         <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">constructor_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident"><span class="self">Self</span>::from_name_segments</span>(<span class="macro">vec!</span>[<span class="ident">trait_name</span>, <span class="ident">constructor_name</span>])
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets the function selector of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="self">self</span>, <span class="ident">selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="self">self</span>, <span class="ident">selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span> {
         <span class="ident">ConstructorSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span> {
                 <span class="ident">selector</span>: <span class="ident">selector</span>.<span class="ident">into</span>(),
@@ -1466,7 +1466,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets the input arguments of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&gt;</span>,
     {
@@ -1477,7 +1477,7 @@
     }
 
     <span class="doccomment">/// Sets the documentation of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -1490,7 +1490,7 @@
 
 <span class="kw">impl</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Finishes construction of the constructor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConstructorSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">ConstructorSpec</span> {
         <span class="self">self</span>.<span class="ident">spec</span>
     }
 }
@@ -1524,7 +1524,7 @@
 
 <span class="doccomment">/// Type state for builders to tell that some mandatory state has not yet been set</span>
 <span class="doccomment">/// yet or to fail upon setting the same state multiple times.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">S</span><span class="op">&gt;</span>);
 
 <span class="kw">mod</span> <span class="ident">state</span> {
     <span class="doccomment">//! Type states that tell what state of a message has not</span>
@@ -1544,7 +1544,7 @@
     <span class="doccomment">/// Creates a new message spec from the given name segments.</span>
     <span class="kw">fn</span> <span class="ident">from_name_segments</span>(
         <span class="ident">segments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>,
@@ -1567,7 +1567,7 @@
     <span class="doccomment">/// Creates a new message spec builder.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_name</span>(
         <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>,
@@ -1580,7 +1580,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_trait_and_name</span>(
         <span class="ident">trait_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">message_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span>
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>,
         <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::IsPayable</span><span class="op">&gt;</span>,
@@ -1598,37 +1598,37 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// In case of trait provided messages and constructors the prefix</span>
     <span class="doccomment">/// by convention in ink! is the name of the trait.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
 
     <span class="doccomment">/// Returns the selector hash of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Selector</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>
     }
 
     <span class="doccomment">/// Returns true if the message is allowed to mutate the contract state.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">mutates</span>
     }
 
     <span class="doccomment">/// Returns true if the message is payable by the caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">payable</span>
     }
 
     <span class="doccomment">/// Returns the parameters of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
     }
 
     <span class="doccomment">/// Returns the return type of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">return_type</span>
     }
 
     <span class="doccomment">/// Returns the message documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
@@ -1643,7 +1643,7 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span><span class="op">&gt;</span> {
     <span class="ident">spec</span>: <span class="ident">MessageSpec</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span>)<span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Selector</span><span class="op">&gt;</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
@@ -1651,7 +1651,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selector</span>(
         <span class="self">self</span>,
         <span class="ident">selector</span>: [<span class="ident">u8</span>; <span class="number">4</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">MessageSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
                 <span class="ident">selector</span>: <span class="ident">selector</span>.<span class="ident">into</span>(),
@@ -1664,7 +1664,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">Missing</span><span class="op">&lt;</span><span class="ident">state::Mutates</span><span class="op">&gt;</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets if the message is mutable, thus taking `&amp;mut self` or not thus taking `&amp;self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="self">self</span>, <span class="ident">mutates</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">state::Mutates</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mutates</span>(<span class="self">self</span>, <span class="ident">mutates</span>: <span class="ident">bool</span>) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">state::Mutates</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">MessageSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
                 <span class="ident">mutates</span>,
@@ -1680,7 +1680,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">payable</span>(
         <span class="self">self</span>,
         <span class="ident">is_payable</span>: <span class="ident">bool</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">state::IsPayable</span>, <span class="ident">R</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">state::IsPayable</span>, <span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">MessageSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
                 <span class="ident">payable</span>: <span class="ident">is_payable</span>,
@@ -1696,7 +1696,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns</span>(
         <span class="self">self</span>,
         <span class="ident">return_type</span>: <span class="ident">ReturnTypeSpec</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span> {
         <span class="ident">MessageSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="ident">MessageSpec</span> {
                 <span class="ident">return_type</span>,
@@ -1709,7 +1709,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">M</span>, <span class="ident">P</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Sets the input arguments of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&gt;</span>,
     {
@@ -1720,7 +1720,7 @@
     }
 
     <span class="doccomment">/// Sets the documentation of the message specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -1735,7 +1735,7 @@
     <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">state::Selector</span>, <span class="ident">state::Mutates</span>, <span class="ident">state::IsPayable</span>, <span class="ident">state::Returns</span><span class="op">&gt;</span>
 {
     <span class="doccomment">/// Finishes construction of the message.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">MessageSpec</span> {
         <span class="self">self</span>.<span class="ident">spec</span>
     }
 }
@@ -1743,7 +1743,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">MessageSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">MessageSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">MessageSpec</span> {
             <span class="ident">name</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">name</span>),
             <span class="ident">selector</span>: <span class="self">self</span>.<span class="ident">selector</span>,
@@ -1782,7 +1782,7 @@
 
 <span class="kw">impl</span> <span class="ident">EventSpecBuilder</span> {
     <span class="doccomment">/// Sets the input arguments of the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">args</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">A</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">EventParamSpec</span><span class="op">&gt;</span>,
     {
@@ -1793,7 +1793,7 @@
     }
 
     <span class="doccomment">/// Sets the input arguments of the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -1804,7 +1804,7 @@
     }
 
     <span class="doccomment">/// Finalizes building the event specification.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EventSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">EventSpec</span> {
         <span class="self">self</span>.<span class="ident">spec</span>
     }
 }
@@ -1812,7 +1812,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">EventSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">EventSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">EventSpec</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
             <span class="ident">args</span>: <span class="self">self</span>
@@ -1827,7 +1827,7 @@
 
 <span class="kw">impl</span> <span class="ident">EventSpec</span> {
     <span class="doccomment">/// Creates a new event specification builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EventSpecBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">EventSpecBuilder</span> {
         <span class="ident">EventSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="self">Self</span> {
                 <span class="ident">name</span>,
@@ -1843,17 +1843,17 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the name of the event.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
 
     <span class="doccomment">/// The event arguments.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>
     }
 
     <span class="doccomment">/// The event documentation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
@@ -1863,7 +1863,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Selector</span>([<span class="ident">u8</span>; <span class="number">4</span>]);
 
 <span class="kw">impl</span> <span class="ident">serde::Serialize</span> <span class="kw">for</span> <span class="ident">Selector</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">serde::Serializer</span>,
     {
@@ -1872,7 +1872,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">serde::Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Selector</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">serde::Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
@@ -1884,7 +1884,7 @@
 
 <span class="kw">impl</span> <span class="ident">Selector</span> {
     <span class="doccomment">/// Returns the underlying selector bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
     }
 }
@@ -1942,7 +1942,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeSpec</span> {
             <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
             <span class="ident">display_name</span>: <span class="self">self</span>.<span class="ident">display_name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
@@ -1962,7 +1962,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Panics if the given display name is invalid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">display_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_str</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">display_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -1981,7 +1981,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Panics if the given display name is invalid.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_segs</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_name_segs</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">segments</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">S</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
@@ -1994,7 +1994,7 @@
     }
 
     <span class="doccomment">/// Creates a new type specification without a display name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -2010,12 +2010,12 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the actual type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">F::Type</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::Type</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
     }
 
     <span class="doccomment">/// Returns the compile-time known displayed representation of the type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DisplayName</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">display_name</span>
     }
 }
@@ -2041,7 +2041,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">EventParamSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">EventParamSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">EventParamSpec</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
             <span class="ident">indexed</span>: <span class="self">self</span>.<span class="ident">indexed</span>,
@@ -2053,7 +2053,7 @@
 
 <span class="kw">impl</span> <span class="ident">EventParamSpec</span> {
     <span class="doccomment">/// Creates a new event parameter specification builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EventParamSpecBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">EventParamSpecBuilder</span> {
         <span class="ident">EventParamSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="self">Self</span> {
                 <span class="ident">name</span>,
@@ -2073,22 +2073,22 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the name of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
 
     <span class="doccomment">/// Returns true if the event parameter is indexed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">indexed</span>
     }
 
     <span class="doccomment">/// Returns the type of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
     }
 
     <span class="doccomment">/// Returns the documentation associated with the arguments.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">F::String</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
@@ -2101,21 +2101,21 @@
 
 <span class="kw">impl</span> <span class="ident">EventParamSpecBuilder</span> {
     <span class="doccomment">/// Sets the type of the event parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">spec</span>: <span class="ident">TypeSpec</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">spec</span>: <span class="ident">TypeSpec</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
         <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">spec</span>;
         <span class="ident">this</span>
     }
 
     <span class="doccomment">/// If the event parameter is indexed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="self">self</span>, <span class="ident">is_indexed</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">indexed</span>(<span class="self">self</span>, <span class="ident">is_indexed</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
         <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">indexed</span> <span class="op">=</span> <span class="ident">is_indexed</span>;
         <span class="ident">this</span>
     }
 
     <span class="doccomment">/// Sets the documentation of the event parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">docs</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     {
@@ -2129,7 +2129,7 @@
     }
 
     <span class="doccomment">/// Finishes constructing the event parameter spec.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EventParamSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">EventParamSpec</span> {
         <span class="self">self</span>.<span class="ident">spec</span>
     }
 }
@@ -2149,7 +2149,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">ReturnTypeSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ReturnTypeSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">ReturnTypeSpec</span> {
             <span class="ident">opt_type</span>: <span class="self">self</span>
                 .<span class="ident">opt_type</span>
@@ -2168,7 +2168,7 @@
     <span class="doccomment">/// ReturnTypeSpec::new(None); // no return type;</span>
     <span class="doccomment">/// ReturnTypeSpec::new(TypeSpec::new::&lt;i32&gt;()); // return type of `i32`</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeSpec</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -2183,7 +2183,7 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the optional return type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opt_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opt_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">opt_type</span>.<span class="ident">as_ref</span>()
     }
 }
@@ -2205,7 +2205,7 @@
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">MessageParamSpec</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">MessageParamSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">MessageParamSpec</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
             <span class="ident">ty</span>: <span class="self">self</span>.<span class="ident">ty</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
@@ -2215,7 +2215,7 @@
 
 <span class="kw">impl</span> <span class="ident">MessageParamSpec</span> {
     <span class="doccomment">/// Constructs a new message parameter specification via builder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageParamSpecBuilder</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">MessageParamSpecBuilder</span> {
         <span class="ident">MessageParamSpecBuilder</span> {
             <span class="ident">spec</span>: <span class="self">Self</span> {
                 <span class="ident">name</span>,
@@ -2231,12 +2231,12 @@
     <span class="ident">F</span>: <span class="ident">Form</span>,
 {
     <span class="doccomment">/// Returns the name of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">F::String</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
 
     <span class="doccomment">/// Returns the type of the parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TypeSpec</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>
     }
 }
@@ -2249,14 +2249,14 @@
 
 <span class="kw">impl</span> <span class="ident">MessageParamSpecBuilder</span> {
     <span class="doccomment">/// Sets the type of the message parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">TypeSpec</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">of_type</span>(<span class="self">self</span>, <span class="ident">ty</span>: <span class="ident">TypeSpec</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>;
         <span class="ident">this</span>.<span class="ident">spec</span>.<span class="ident">ty</span> <span class="op">=</span> <span class="ident">ty</span>;
         <span class="ident">this</span>
     }
 
     <span class="doccomment">/// Finishes construction of the message parameter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MessageParamSpec</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">done</span>(<span class="self">self</span>) -&gt; <span class="ident">MessageParamSpec</span> {
         <span class="self">self</span>.<span class="ident">spec</span>
     }
 }

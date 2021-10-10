@@ -149,7 +149,7 @@
 <span class="macro">impl_as_ref_for_generator!</span>(<span class="ident">Storage</span>);
 
 <span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">access_env_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_access_env_trait_impls</span>();
         <span class="kw">let</span> <span class="ident">storage_struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_storage_struct</span>();
@@ -159,7 +159,7 @@
                 <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink_lang::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
             });
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span> <span class="op">=</span><span class="op">&gt;</span>
+        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span> =&gt;
             #<span class="ident">access_env_impls</span>
             #<span class="ident">storage_struct</span>
 
@@ -178,7 +178,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_access_env_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_access_env_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote!</span> {
@@ -188,7 +188,7 @@
                     <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink_lang::EnvAccess</span><span class="op">&lt;</span>
                         <span class="lifetime">&#39;a</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
 
-                    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
+                    <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
                         <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::Env</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
                             <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
                     }
@@ -198,7 +198,7 @@
                     <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink_lang::EnvAccess</span><span class="op">&lt;</span>
                         <span class="lifetime">&#39;static</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
 
-                    <span class="kw">fn</span> <span class="ident">env</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
+                    <span class="kw">fn</span> <span class="ident">env</span>() -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
                         <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::StaticEnv</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
                             <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
                     }
@@ -208,14 +208,14 @@
     }
 
     <span class="doccomment">/// Generates the storage struct definition.</span>
-    <span class="kw">fn</span> <span class="ident">generate_storage_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_storage_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">fields</span>();
         <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
-        <span class="macro">quote_spanned!</span>( <span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+        <span class="macro">quote_spanned!</span>( <span class="ident">span</span> =&gt;
             #<span class="ident">cfg</span>
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(

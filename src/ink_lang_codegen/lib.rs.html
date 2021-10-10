@@ -120,7 +120,7 @@
 }
 
 <span class="doccomment">/// Generates the entire code for the given ink! contract.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_code</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_code</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">entity</span>: <span class="ident">T</span>) -&gt; <span class="ident">TokenStream2</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">CodeGenerator</span>,
 {

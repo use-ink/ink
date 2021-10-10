@@ -321,10 +321,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ContractPhase</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DynamicAllocatorState</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">phase</span>: <span class="ident">ContractPhase</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">phase</span>: <span class="ident">ContractPhase</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">phase</span> {
-            <span class="ident">ContractPhase::Deploy</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DynamicAllocatorState::UninitDeploy</span>,
-            <span class="ident">ContractPhase::Call</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DynamicAllocatorState::UninitCall</span>,
+            <span class="ident">ContractPhase::Deploy</span> =&gt; <span class="ident">DynamicAllocatorState::UninitDeploy</span>,
+            <span class="ident">ContractPhase::Call</span> =&gt; <span class="ident">DynamicAllocatorState::UninitCall</span>,
         }
     }
 }
@@ -340,20 +340,20 @@
             <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="kw">_</span>)
                 <span class="comment">// We only perform this check on Wasm compilation to avoid</span>
                 <span class="comment">// some overly constrained check for the off-chain testing.</span>
-                <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) <span class="op">=</span><span class="op">&gt;</span>
+                <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) =&gt;
             {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;cannot initialize the dynamic storage \
                      allocator instance twice in Wasm&quot;</span>,
                 )
             }
-            <span class="ident">DynamicAllocatorState::Finalized</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::Finalized</span> =&gt; {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;cannot initialize the dynamic storage \
                  allocator after it has been finalized&quot;</span>,
                 )
             }
-            <span class="ident">state</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">state</span> =&gt; {
                 <span class="kw-2">*</span><span class="ident">state</span> <span class="op">=</span> <span class="ident">phase</span>.<span class="ident">into</span>();
             }
         }
@@ -364,7 +364,7 @@
     <span class="doccomment">/// The global dynamic storage allocator must not be used after this!</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="ident">allocator</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="ident">allocator</span>) =&gt; {
                 <span class="comment">// Push all state of the global dynamic storage allocator</span>
                 <span class="comment">// instance back onto the contract storage.</span>
                 <span class="ident">push_spread_root</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocator</span><span class="op">&gt;</span>(
@@ -377,13 +377,13 @@
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">ManuallyDrop::new</span>(<span class="ident">mem::take</span>(<span class="ident">allocator</span>));
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">DynamicAllocatorState::Finalized</span>;
             }
-            <span class="ident">DynamicAllocatorState::Finalized</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::Finalized</span> =&gt; {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;cannot finalize the dynamic storage allocator \
                      after it has already been finalized&quot;</span>
                 )
             }
-            <span class="ident">DynamicAllocatorState::UninitCall</span> <span class="op">|</span> <span class="ident">DynamicAllocatorState::UninitDeploy</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::UninitCall</span> <span class="op">|</span> <span class="ident">DynamicAllocatorState::UninitDeploy</span> =&gt; {
                 <span class="comment">// Nothing to do in these states.</span>
             }
         }
@@ -397,18 +397,18 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the global dynamic storage allocator instance has already been finalized.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) -&gt; <span class="ident">R</span>,
     {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DynamicAllocatorState::UninitDeploy</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::UninitDeploy</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allocator</span> <span class="op">=</span> <span class="ident">DynamicAllocator::default</span>();
                 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">allocator</span>);
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="ident">allocator</span>);
                 <span class="ident">result</span>
             }
-            <span class="ident">DynamicAllocatorState::UninitCall</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::UninitCall</span> =&gt; {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allocator</span> <span class="op">=</span> <span class="ident">pull_spread_root</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocator</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">Key::from</span>(
                     <span class="ident">DYNAMIC_ALLOCATOR_KEY_OFFSET</span>,
                 ));
@@ -416,8 +416,8 @@
                 <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="ident">allocator</span>);
                 <span class="ident">result</span>
             }
-            <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">allocator</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>(<span class="ident">allocator</span>),
-            <span class="ident">DynamicAllocatorState::Finalized</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">DynamicAllocatorState::Initialized</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">allocator</span>) =&gt; <span class="ident">f</span>(<span class="ident">allocator</span>),
+            <span class="ident">DynamicAllocatorState::Finalized</span> =&gt; {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;cannot operate on the dynamic storage \
                      allocator after it has been finalized&quot;</span>
@@ -453,9 +453,9 @@
         }
 
         <span class="doccomment">/// Forwards to the `on_instance` of the global dynamic storage allocator instance.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
         <span class="kw">where</span>
-            <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+            <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) -&gt; <span class="ident">R</span>,
         {
             <span class="comment">// SAFETY: Accessing the global allocator in Wasm mode is single</span>
             <span class="comment">//         threaded and will not return back a reference to its</span>
@@ -491,9 +491,9 @@
         }
 
         <span class="doccomment">/// Forwards to the `on_instance` of the global dynamic storage allocator instance.</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_instance</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
         <span class="kw">where</span>
-            <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">R</span>,
+            <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">DynamicAllocator</span>) -&gt; <span class="ident">R</span>,
         {
             <span class="ident">GLOBAL_INSTANCE</span>.<span class="ident">with</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
                 <span class="ident">instance</span>.<span class="ident">borrow_mut</span>().<span class="ident">on_instance</span>(<span class="ident">f</span>)

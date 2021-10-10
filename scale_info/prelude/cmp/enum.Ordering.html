@@ -3,7 +3,7 @@
     Equal,
     Greater,
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An <code>Ordering</code> is the result of a comparison between two values.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="number">1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">2</span>);
@@ -18,42 +18,42 @@
 </div><div id="variant.Equal" class="variant small-section-header"><a href="#variant.Equal" class="anchor field"></a><code>Equal</code></div><div class="docblock"><p>An ordering where a compared value is equal to another.</p>
 </div><div id="variant.Greater" class="variant small-section-header"><a href="#variant.Greater" class="anchor field"></a><code>Greater</code></div><div class="docblock"><p>An ordering where a compared value is greater than another.</p>
 </div><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#338-569" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl <a class="enum" href="enum.Ordering.html" title="enum scale_info::prelude::cmp::Ordering">Ordering</a></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_eq" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#354" title="goto source code">[src]</a></div><a href="#method.is_eq" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_eq" class="fnname">is_eq</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is the <code>Equal</code> variant.</p>
-<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_eq</span>(), <span class="bool-val">false</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Equal</span>.<span class="ident">is_eq</span>(), <span class="bool-val">true</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Greater</span>.<span class="ident">is_eq</span>(), <span class="bool-val">false</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_ne" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#373" title="goto source code">[src]</a></div><a href="#method.is_ne" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_ne" class="fnname">is_ne</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is not the <code>Equal</code> variant.</p>
-<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_ne</span>(), <span class="bool-val">true</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Equal</span>.<span class="ident">is_ne</span>(), <span class="bool-val">false</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Greater</span>.<span class="ident">is_ne</span>(), <span class="bool-val">true</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_lt" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#392" title="goto source code">[src]</a></div><a href="#method.is_lt" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_lt" class="fnname">is_lt</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is the <code>Less</code> variant.</p>
-<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
+<h5 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_lt</span>(), <span class="bool-val">true</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Equal</span>.<span class="ident">is_lt</span>(), <span class="bool-val">false</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Greater</span>.<span class="ident">is_lt</span>(), <span class="bool-val">false</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_gt" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#411" title="goto source code">[src]</a></div><a href="#method.is_gt" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_gt" class="fnname">is_gt</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is the <code>Greater</code> variant.</p>
-<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
+<h5 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_gt</span>(), <span class="bool-val">false</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Equal</span>.<span class="ident">is_gt</span>(), <span class="bool-val">false</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Greater</span>.<span class="ident">is_gt</span>(), <span class="bool-val">true</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_le" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#430" title="goto source code">[src]</a></div><a href="#method.is_le" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_le" class="fnname">is_le</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is either the <code>Less</code> or <code>Equal</code> variant.</p>
-<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
+<h5 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_le</span>(), <span class="bool-val">true</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Equal</span>.<span class="ident">is_le</span>(), <span class="bool-val">true</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Greater</span>.<span class="ident">is_le</span>(), <span class="bool-val">false</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.is_ge" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.53.0, const since 1.53.0">1.53.0 (const: 1.53.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#449" title="goto source code">[src]</a></div><a href="#method.is_ge" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.is_ge" class="fnname">is_ge</a>(self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></h4></div></summary><div class="docblock"><p>Returns <code>true</code> if the ordering is either the <code>Greater</code> or <code>Equal</code> variant.</p>
-<h1 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h1>
+<h5 id="examples-6" class="section-header"><a href="#examples-6">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="macro">assert_eq!</span>(<span class="ident">Ordering::Less</span>.<span class="ident">is_ge</span>(), <span class="bool-val">false</span>);
@@ -65,7 +65,7 @@
 <li><code>Greater</code> becomes <code>Less</code>.</li>
 <li><code>Equal</code> becomes <code>Equal</code>.</li>
 </ul>
-<h1 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h1>
+<h5 id="examples-7" class="section-header"><a href="#examples-7">Examples</a></h5>
 <p>Basic behavior:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
@@ -81,10 +81,10 @@
 <span class="ident">data</span>.<span class="ident">sort_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">cmp</span>(<span class="ident">b</span>).<span class="ident">reverse</span>());
 
 <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="kw">_</span>] <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="number">10</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">2</span>];
-<span class="macro">assert!</span>(<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">b</span>);</code></pre></div>
+<span class="macro">assert!</span>(<span class="ident">data</span> <span class="op">==</span> <span class="ident">b</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.then" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.17.0, const since 1.48.0">1.17.0 (const: 1.48.0)</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#525" title="goto source code">[src]</a></div><a href="#method.then" class="anchor"></a><h4 class="code-header">pub const fn <a href="#method.then" class="fnname">then</a>(self, other: <a class="enum" href="enum.Ordering.html" title="enum scale_info::prelude::cmp::Ordering">Ordering</a>) -&gt; <a class="enum" href="enum.Ordering.html" title="enum scale_info::prelude::cmp::Ordering">Ordering</a></h4></div></summary><div class="docblock"><p>Chains two orderings.</p>
 <p>Returns <code>self</code> when it’s not <code>Equal</code>. Otherwise returns <code>other</code>.</p>
-<h1 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h1>
+<h5 id="examples-8" class="section-header"><a href="#examples-8">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Ordering::Equal</span>.<span class="ident">then</span>(<span class="ident">Ordering::Less</span>);
@@ -107,7 +107,7 @@
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.then_with" class="method has-srclink"><div class="rightside"><span class="since" title="Stable since Rust version 1.17.0">1.17.0</span><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#563" title="goto source code">[src]</a></div><a href="#method.then_with" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.then_with" class="fnname">then_with</a>&lt;F&gt;(self, f: F) -&gt; <a class="enum" href="enum.Ordering.html" title="enum scale_info::prelude::cmp::Ordering">Ordering</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>() -&gt; <a class="enum" href="enum.Ordering.html" title="enum scale_info::prelude::cmp::Ordering">Ordering</a>,&nbsp;</span></h4></div></summary><div class="docblock"><p>Chains the ordering with the given function.</p>
 <p>Returns <code>self</code> when it’s not <code>Equal</code>. Otherwise calls <code>f</code> and returns
 the result.</p>
-<h1 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h1>
+<h5 id="examples-9" class="section-header"><a href="#examples-9">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 
 <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Ordering::Equal</span>.<span class="ident">then_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Ordering::Less</span>);

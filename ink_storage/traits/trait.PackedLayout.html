@@ -4,17 +4,17 @@
 <div class="item-spacer"></div>    fn <a href="#tymethod.clear_packed" class="fnname">clear_packed</a>(&amp;self, at: &amp;<a class="struct" href="../../ink_primitives/key/struct.Key.html" title="struct ink_primitives::key::Key">Key</a>);
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Types that can be stored to and loaded from a single contract storage cell.</p>
 </div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><details class="rustdoc-toggle" open><summary><div id="tymethod.pull_packed" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_storage/traits/packed.rs.html#27" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#tymethod.pull_packed" class="fnname">pull_packed</a>(&amp;mut self, at: &amp;<a class="struct" href="../../ink_primitives/key/struct.Key.html" title="struct ink_primitives::key::Key">Key</a>)</h4></div></summary><div class="docblock"><p>Indicates to <code>self</code> that is has just been pulled from the storage.</p>
-<h1 id="note" class="section-header"><a href="#note">Note</a></h1>
+<h5 id="note" class="section-header"><a href="#note">Note</a></h5>
 <p>Most types will have to implement a simple forwarding to their fields.
 However, some types such as <a href="../alloc/struct.Box.html"><code>storage::Box</code></a>
 are required to perform some special handling upon receiving this signal.</p>
 </div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.push_packed" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_storage/traits/packed.rs.html#36" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#tymethod.push_packed" class="fnname">push_packed</a>(&amp;self, at: &amp;<a class="struct" href="../../ink_primitives/key/struct.Key.html" title="struct ink_primitives::key::Key">Key</a>)</h4></div></summary><div class="docblock"><p>Indicates to <code>self</code> that it is about to be pushed to contract storage.</p>
-<h1 id="note-1" class="section-header"><a href="#note-1">Note</a></h1>
+<h5 id="note-1" class="section-header"><a href="#note-1">Note</a></h5>
 <p>Most types will have to implement a simple forwarding to their fields.
 However, some types such as <a href="../alloc/struct.Box.html"><code>storage::Box</code></a>
 are required to perform some special handling upon receiving this signal.</p>
 </div></details><details class="rustdoc-toggle" open><summary><div id="tymethod.clear_packed" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_storage/traits/packed.rs.html#45" title="goto source code">[src]</a></div><h4 class="code-header">fn <a href="#tymethod.clear_packed" class="fnname">clear_packed</a>(&amp;self, at: &amp;<a class="struct" href="../../ink_primitives/key/struct.Key.html" title="struct ink_primitives::key::Key">Key</a>)</h4></div></summary><div class="docblock"><p>Indicates to <code>self</code> that it is about to be cleared from contract storage.</p>
-<h1 id="note-2" class="section-header"><a href="#note-2">Note</a></h1>
+<h5 id="note-2" class="section-header"><a href="#note-2">Note</a></h5>
 <p>Most types will have to implement a simple forwarding to their fields.
 However, some types such as <a href="../alloc/struct.Box.html"><code>storage::Box</code></a>
 are required to perform some special handling upon receiving this signal.</p>

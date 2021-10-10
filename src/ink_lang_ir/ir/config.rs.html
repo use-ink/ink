@@ -320,7 +320,7 @@
 }
 
 <span class="doccomment">/// Return an error to notify about duplicate ink! configuration arguments.</span>
-<span class="kw">fn</span> <span class="ident">duplicate_config_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">fst</span>: <span class="ident">F</span>, <span class="ident">snd</span>: <span class="ident">S</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Error</span>
+<span class="kw">fn</span> <span class="ident">duplicate_config_err</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">fst</span>: <span class="ident">F</span>, <span class="ident">snd</span>: <span class="ident">S</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">syn::Error</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">Spanned</span>,
     <span class="ident">S</span>: <span class="ident">Spanned</span>,
@@ -340,7 +340,7 @@
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ast::AttributeArgs</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Config</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">syn::Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">args</span>: <span class="ident">ast::AttributeArgs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">args</span>: <span class="ident">ast::AttributeArgs</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dynamic_storage_allocator</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">ast::MetaNameValue</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">as_dependency</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">bool</span>, <span class="ident">ast::MetaNameValue</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">env</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Environment</span>, <span class="ident">ast::MetaNameValue</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -404,7 +404,7 @@
     <span class="doccomment">/// Returns the environmental types definition if specified.</span>
     <span class="doccomment">/// Otherwise returns the default environmental types definition provided</span>
     <span class="doccomment">/// by ink!.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">env</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">syn::Path</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">env</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">syn::Path</span> {
         <span class="self">self</span>.<span class="ident">env</span>
             .<span class="ident">as_ref</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">env</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">env</span>.<span class="ident">path</span>)
@@ -416,7 +416,7 @@
     <span class="doccomment">/// for the ink! smart contract, `false` otherwise.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If nothing has been specified returns the default which is `false`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dynamic_storage_allocator_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dynamic_storage_allocator_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">dynamic_storage_allocator</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 
@@ -425,7 +425,7 @@
     <span class="doccomment">/// otherwise.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If nothing has been specified returns the default which is `false`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_compile_as_dependency_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_compile_as_dependency_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">as_dependency</span>.<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
     }
 }
@@ -438,7 +438,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Environment</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">path</span>: <span class="macro">syn::parse_quote!</span> { <span class="ident">::ink_env::DefaultEnvironment</span> },
         }

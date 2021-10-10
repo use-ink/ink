@@ -491,25 +491,25 @@
 {
     <span class="doccomment">/// Returns the account ID of the called contract instance.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">callee</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">callee</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">callee</span>
     }
 
     <span class="doccomment">/// Returns the chosen gas limit for the called contract execution.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u64</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         <span class="self">self</span>.<span class="ident">gas_limit</span>
     }
 
     <span class="doccomment">/// Returns the transferred value for the called contract.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">E::Balance</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">E::Balance</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transferred_value</span>
     }
 
     <span class="doccomment">/// Returns the execution input.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">exec_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">exec_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">exec_input</span>
     }
 }
@@ -525,7 +525,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::invoke_contract</span>(<span class="self">self</span>)
     }
 }
@@ -544,7 +544,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the</span>
     <span class="doccomment">/// called contract message does not return anything because it is more efficient.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident"><span class="kw">crate</span>::Error</span><span class="op">&gt;</span> {
         <span class="ident"><span class="kw">crate</span>::eval_contract</span>(<span class="self">self</span>)
     }
 }
@@ -627,7 +627,7 @@
 <span class="doccomment">///     .unwrap();</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>() -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span>
     <span class="ident">E</span>,
     <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>,
     <span class="ident">Unset</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
@@ -653,7 +653,7 @@
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="ident">env</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">E</span><span class="op">&gt;</span>,
+    <span class="ident">env</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">E</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The current parameters that have been built up so far.</span>
     <span class="ident">callee</span>: <span class="ident">Callee</span>,
     <span class="ident">gas_limit</span>: <span class="ident">GasLimit</span>,
@@ -672,7 +672,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span>(
         <span class="self">self</span>,
         <span class="ident">callee</span>: <span class="ident">E::AccountId</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
     {
         <span class="ident">CallBuilder</span> {
             <span class="ident">env</span>: <span class="ident">Default::default</span>(),
@@ -695,7 +695,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_limit</span>(
         <span class="self">self</span>,
         <span class="ident">gas_limit</span>: <span class="ident">u64</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
         <span class="ident">CallBuilder</span> {
             <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
@@ -717,7 +717,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span>(
         <span class="self">self</span>,
         <span class="ident">transferred_value</span>: <span class="ident">E::Balance</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
         <span class="ident">CallBuilder</span> {
             <span class="ident">env</span>: <span class="ident">Default::default</span>(),
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>,
@@ -756,7 +756,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returns</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasLimit</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">R</span>: <span class="ident">IndicateReturnType</span>,
     {
@@ -787,7 +787,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exec_input</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">exec_input</span>: <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span>
+    ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span>
         <span class="ident">E</span>,
         <span class="ident">Callee</span>,
         <span class="ident">GasLimit</span>,
@@ -821,7 +821,7 @@
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E::Balance</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Finalizes the call builder to call a function.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">params</span>(<span class="self">self</span>) -&gt; <span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
         <span class="ident">CallParams</span> {
             <span class="ident">callee</span>: <span class="self">self</span>.<span class="ident">callee</span>.<span class="ident">value</span>(),
             <span class="ident">gas_limit</span>: <span class="self">self</span>.<span class="ident">gas_limit</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="number">0</span>),
@@ -850,7 +850,7 @@
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E::Balance</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Invokes the cross-chain function call.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">invoke</span>()
     }
 }
@@ -872,7 +872,7 @@
     <span class="ident">TransferredValue</span>: <span class="ident">Unwrap</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">E::Balance</span><span class="op">&gt;</span>,
 {
     <span class="doccomment">/// Invokes the cross-chain function call and returns the result.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fire</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">params</span>().<span class="ident">eval</span>()
     }
 }

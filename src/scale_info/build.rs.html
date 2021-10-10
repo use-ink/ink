@@ -506,11 +506,11 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">S</span> <span class="op">=</span> <span class="ident">state::PathNotAssigned</span><span class="op">&gt;</span> {
     <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
     <span class="ident">type_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MetaType</span><span class="op">&gt;</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">S</span><span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">S</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">TypeBuilder</span> {
             <span class="ident">path</span>: <span class="ident">Default::default</span>(),
             <span class="ident">type_params</span>: <span class="ident">Default::default</span>(),
@@ -521,7 +521,7 @@
 
 <span class="kw">impl</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">state::PathNotAssigned</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Set the Path for the type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="ident">Path</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">state::PathAssigned</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">state::PathAssigned</span><span class="op">&gt;</span> {
         <span class="ident">TypeBuilder</span> {
             <span class="ident">path</span>: <span class="prelude-val">Some</span>(<span class="ident">path</span>),
             <span class="ident">type_params</span>: <span class="self">self</span>.<span class="ident">type_params</span>,
@@ -531,7 +531,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">state::PathAssigned</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">type_def</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span>
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">type_def</span>: <span class="ident">D</span>) -&gt; <span class="ident">Type</span>
     <span class="kw">where</span>
         <span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TypeDef</span><span class="op">&gt;</span>,
     {
@@ -540,19 +540,19 @@
     }
 
     <span class="doccomment">/// Construct a &quot;variant&quot; type i.e an `enum`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">builder</span>: <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">builder</span>: <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>) -&gt; <span class="ident">Type</span> {
         <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">builder</span>.<span class="ident">finalize</span>())
     }
 
     <span class="doccomment">/// Construct a &quot;composite&quot; type i.e. a `struct`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composite</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">fields</span>: <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Type</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">composite</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">fields</span>: <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="ident">Type</span> {
         <span class="self">self</span>.<span class="ident">build</span>(<span class="ident">TypeDefComposite::new</span>(<span class="ident">fields</span>.<span class="ident">finalize</span>()))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> <span class="ident">TypeBuilder</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Set the type parameters if it&#39;s a generic type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_params</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_params</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_params</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_params</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaType</span><span class="op">&gt;</span>,
     {
@@ -573,17 +573,17 @@
 
 <span class="kw">impl</span> <span class="ident">Fields</span> {
     <span class="doccomment">/// The type construct has no fields</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">NoFields</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unit</span>() -&gt; <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">NoFields</span><span class="op">&gt;</span> {
         <span class="ident">FieldsBuilder</span>::<span class="op">&lt;</span><span class="ident">NoFields</span><span class="op">&gt;</span><span class="ident">::default</span>()
     }
 
     <span class="doccomment">/// Fields for a type construct with named fields</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">NamedFields</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named</span>() -&gt; <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">NamedFields</span><span class="op">&gt;</span> {
         <span class="ident">FieldsBuilder::default</span>()
     }
 
     <span class="doccomment">/// Fields for a type construct with unnamed fields</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">UnnamedFields</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed</span>() -&gt; <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">UnnamedFields</span><span class="op">&gt;</span> {
         <span class="ident">FieldsBuilder::default</span>()
     }
 }
@@ -591,11 +591,11 @@
 <span class="doccomment">/// Build a set of either all named (e.g. for a struct) or all unnamed (e.g. for a tuple struct)</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&gt;</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">fields</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
@@ -605,14 +605,14 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Complete building and return the set of fields</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">fields</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">NamedFields</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Add a named field with the type of the type parameter `T`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">field_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">field_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -621,7 +621,7 @@
     }
 
     <span class="doccomment">/// Add a named, [`Compact`] field of type `T`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::HasCompact</span>,
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::HasCompact</span><span class="op">&gt;</span><span class="ident">::Type</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -634,7 +634,7 @@
 
 <span class="kw">impl</span> <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">UnnamedFields</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Add an unnamed field with the type of the type parameter `T`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">field_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">field_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
@@ -643,7 +643,7 @@
     }
 
     <span class="doccomment">/// Add an unnamed, [`Compact`] field of type `T`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">scale::HasCompact</span>,
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::HasCompact</span><span class="op">&gt;</span><span class="ident">::Type</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -666,13 +666,13 @@
 
 <span class="kw">impl</span> <span class="ident">Variants</span> {
     <span class="doccomment">/// Build a set of variants, at least one of which will have fields.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_fields</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">VariantFields</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_fields</span>() -&gt; <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">VariantFields</span><span class="op">&gt;</span> {
         <span class="ident">VariantsBuilder::new</span>()
     }
 
     <span class="doccomment">/// Build a set of variants, none of which will have fields, and the discriminant can</span>
     <span class="doccomment">/// be directly chosen or accessed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fieldless</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">Fieldless</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fieldless</span>() -&gt; <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">Fieldless</span><span class="op">&gt;</span> {
         <span class="ident">VariantsBuilder::new</span>()
     }
 }
@@ -681,25 +681,25 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">variants</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variant</span><span class="op">&gt;</span>,
-    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">VariantFields</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Add a variant with fields constructed by the supplied [`FieldsBuilder`](`crate::build::FieldsBuilder`)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">fields</span>: <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">fields</span>: <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">variants</span>.<span class="ident">push</span>(<span class="ident">Variant::with_fields</span>(<span class="ident">name</span>, <span class="ident">fields</span>));
         <span class="self">self</span>
     }
 
     <span class="doccomment">/// Add a variant with no fields i.e. a unit variant</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant_unit</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant_unit</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">variant</span>::<span class="op">&lt;</span><span class="ident">NoFields</span><span class="op">&gt;</span>(<span class="ident">name</span>, <span class="ident">Fields::unit</span>())
     }
 }
 
 <span class="kw">impl</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">Fieldless</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Add a fieldless variant, explicitly setting the discriminant</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">discriminant</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">discriminant</span>: <span class="ident">u64</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">variants</span>
             .<span class="ident">push</span>(<span class="ident">Variant::with_discriminant</span>(<span class="ident">name</span>, <span class="ident">discriminant</span>));
         <span class="self">self</span>
@@ -707,14 +707,14 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">VariantsBuilder</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">VariantsBuilder</span> {
             <span class="ident">variants</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">marker</span>: <span class="ident">Default::default</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TypeDefVariant</span> {
+    <span class="kw">fn</span> <span class="ident">finalize</span>(<span class="self">self</span>) -&gt; <span class="ident">TypeDefVariant</span> {
         <span class="ident">TypeDefVariant::new</span>(<span class="self">self</span>.<span class="ident">variants</span>)
     }
 }

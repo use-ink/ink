@@ -148,45 +148,45 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">generate_for_constructor</span>(
         <span class="ident">constructor</span>: <span class="ident">ir::InkTraitConstructor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    ) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">sig</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">ident</span>;
         <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Out&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">inputs</span>;
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
             <span class="doccomment">/// Output type of the respective trait constructor.</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span>;
 
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
-            <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">inputs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span>;
+            <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">inputs</span>) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span>;
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">generate_for_message</span>(<span class="ident">message</span>: <span class="ident">ir::InkTraitMessage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_for_message</span>(<span class="ident">message</span>: <span class="ident">ir::InkTraitMessage</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">sig</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">ident</span>;
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">inputs</span>;
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">output</span> {
-            <span class="ident">syn::ReturnType::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> { () },
-            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">quote!</span> { #<span class="ident">ty</span> },
+            <span class="ident">syn::ReturnType::Default</span> =&gt; <span class="macro">quote!</span> { () },
+            <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) =&gt; <span class="macro">quote!</span> { #<span class="ident">ty</span> },
         };
         <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Out&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
             <span class="doccomment">/// Output type of the respective trait message.</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span>: <span class="ident">::ink_lang::ImpliesReturn</span><span class="op">&lt;</span>#<span class="ident">output</span><span class="op">&gt;</span>;
 
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
-            <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">inputs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::#<span class="ident">output_ident</span>;
+            <span class="kw">fn</span> #<span class="ident">ident</span>(#<span class="ident">inputs</span>) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span>;
         )
     }
 }
 
 <span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">TraitDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">verify_hash</span>();
@@ -211,7 +211,7 @@
             .<span class="ident">iter_items</span>()
             .<span class="ident">flat_map</span>(<span class="ident">ir::InkTraitItem::filter_map_message</span>)
             .<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_for_message</span>);
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> <span class="op">=</span><span class="op">&gt;</span>
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="kw">pub</span> <span class="kw">trait</span> #<span class="ident">ident</span>: <span class="ident">::ink_lang::CheckedInkTrait</span><span class="op">&lt;</span>[(); #<span class="ident">verify_hash_id</span>]<span class="op">&gt;</span> {
                 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
