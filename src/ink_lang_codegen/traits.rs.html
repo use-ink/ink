@@ -60,13 +60,13 @@
 <span class="doccomment">/// Types implementing this trait are code generators for the ink! language.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GenerateCode</span> {
     <span class="doccomment">/// Generates ink! contract code.</span>
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>;
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span>;
 }
 
 <span class="doccomment">/// Types implementing this trait can forward code generation to other generators.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GenerateCodeUsing</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">ir::Contract</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Generates code using the given codegen module.</span>
-    <span class="kw">fn</span> <span class="ident">generate_code_using</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>
+    <span class="kw">fn</span> <span class="ident">generate_code_using</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span>
     <span class="kw">where</span>
         <span class="ident">G</span>: <span class="ident">GenerateCode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span><span class="op">&gt;</span>;
 }
@@ -75,7 +75,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">ir::Contract</span><span class="op">&gt;</span>,
 {
-    <span class="kw">fn</span> <span class="ident">generate_code_using</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span>
+    <span class="kw">fn</span> <span class="ident">generate_code_using</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">G</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span>
     <span class="kw">where</span>
         <span class="ident">G</span>: <span class="ident">GenerateCode</span> <span class="op">+</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span><span class="op">&gt;</span>,
     {

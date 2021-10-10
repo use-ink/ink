@@ -141,7 +141,7 @@
     };
 
     <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">DynamicAllocator</span> {
-        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Layout</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
             <span class="ident">Layout::Struct</span>(<span class="ident">StructLayout::new</span>(<span class="macro">vec!</span>[<span class="ident">FieldLayout::new</span>(
                 <span class="string">&quot;allocations&quot;</span>,
                 <span class="op">&lt;</span><span class="ident">BitStash</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>),
@@ -153,7 +153,7 @@
 <span class="kw">impl</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">DynamicAllocator</span> {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">BitStash</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">allocations</span>: <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>),
         }
@@ -174,7 +174,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the dynamic allocator ran out of free dynamic allocations.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DynamicAllocation</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">DynamicAllocation</span> {
         <span class="ident">DynamicAllocation</span>(<span class="self">self</span>.<span class="ident">allocations</span>.<span class="ident">put</span>())
     }
 

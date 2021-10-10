@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Defines the interface for a chain extension."><meta name="keywords" content="rust, rustlang, rust-lang, chain_extension"><title>chain_extension in ink_lang_macro - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../ink_lang_macro/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><div class="sidebar-elems"><h2 class="location">Other items in<br><a href="index.html">ink_lang_macro</a></h2><div id="sidebar-vars" data-name="chain_extension" data-ty="attr" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="#">chain_extension</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#1140-1142" title="goto source code">[src]</a></span></h1><pre class="rust attr"><code>#[chain_extension]</code></pre><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Defines the interface for a chain extension.</p>
-<h1 id="structure" class="section-header"><a href="#structure">Structure</a></h1>
+<h2 id="structure" class="section-header"><a href="#structure">Structure</a></h2>
 <p>The interface consists of an error code that indicates lightweight errors
 as well as the definition of some chain extension methods.</p>
 <p>The overall structure follows that of a simple Rust trait definition.
@@ -9,13 +9,13 @@ The methods are defined as associated trait methods without implementation.</p>
 and must have inputs and output that implement the SCALE encoding and decoding.
 Their return value follows specific rules that can be altered using the <code>handle_status</code>
 and <code>returns_result</code> attributes which are described in more detail below.</p>
-<h1 id="usage" class="section-header"><a href="#usage">Usage</a></h1>
+<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2>
 <p>Usually the chain extension definition using this procedural macro is provided
 by the author of the chain extension in a separate crate.
 ink! smart contracts using this chain extension simply depend on this crate
 and use its associated environment definition in order to make use of
 the methods provided by the chain extension.</p>
-<h1 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h1>
+<h2 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h2>
 <p>There are three different attributes with which the chain extension methods
 can be flagged:</p>
 <div><table><thead><tr><th align="left">Attribute</th><th align="center">Required</th><th align="left">Default Value</th><th align="center">Description</th></tr></thead><tbody>
@@ -27,14 +27,14 @@ can be flagged:</p>
 <p>As with all ink! attributes multiple of them can either appear in a contiguous list:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Access</span>;</code></pre></div>
+<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Access</span>;</code></pre></div>
 <p>… or as multiple stand alone ink! attributes applied to the same item:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>)]</span>
 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Access</span>;</code></pre></div>
-<h2 id="details-handle_status" class="section-header"><a href="#details-handle_status">Details: <code>handle_status</code></a></h2>
+<span class="kw">fn</span> <span class="ident">key_access_for_account</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">account</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Access</span>;</code></pre></div>
+<h3 id="details-handle_status" class="section-header"><a href="#details-handle_status">Details: <code>handle_status</code></a></h3>
 <p>Default value: <code>true</code></p>
 <p>By default all chain extension methods return a <code>Result&lt;T, E&gt;</code> where <code>E: From&lt;Self::ErrorCode&gt;</code>.
 The <code>Self::ErrorCode</code> represents the error code of the chain extension.
@@ -48,17 +48,17 @@ a single <code>u32</code> value.</p>
 <p>A chain extension method that is flagged with <code>handle_status = false</code> assumes that the returned error code
 will always indicate success. Therefore it will always load and decode the output buffer and loses
 the <code>E: From&lt;Self::ErrorCode</code> constraint for the call.</p>
-<h2 id="details-returns_result" class="section-header"><a href="#details-returns_result">Details: <code>returns_result</code></a></h2>
+<h3 id="details-returns_result" class="section-header"><a href="#details-returns_result">Details: <code>returns_result</code></a></h3>
 <p>Default value: <code>true</code></p>
 <p>By default chain extension methods are assumed to return a value of type <code>Result&lt;T, E&gt;</code> through the
 output buffer. Using <code>returns_result = false</code> this check is disabled and the chain extension method may return
 any other type.</p>
 <p>Note that if a chain extension method is attributed with <code>returns_result = false</code>
 and with <code>handle_status = true</code> it will still return a value of type <code>Result&lt;T, Self::ErrorCode&gt;</code>.</p>
-<h2 id="usage-handle_status-and-returns_result" class="section-header"><a href="#usage-handle_status-and-returns_result">Usage: <code>handle_status</code> and <code>returns_result</code></a></h2>
+<h3 id="usage-handle_status-and-returns_result" class="section-header"><a href="#usage-handle_status-and-returns_result">Usage: <code>handle_status</code> and <code>returns_result</code></a></h3>
 <p>Use both <code>handle_status = false</code> and <code>returns_result = false</code> for the same chain extension method
 if a call to it may never fail and never returns a <code>Result</code> type.</p>
-<h1 id="combinations" class="section-header"><a href="#combinations">Combinations</a></h1>
+<h2 id="combinations" class="section-header"><a href="#combinations">Combinations</a></h2>
 <p>Due to the possibility to flag a chain extension method with <code>handle_status</code> and <code>returns_result</code>
 there are 4 different cases with slightly varying semantics:</p>
 <div><table><thead><tr><th align="center"><code>handle_status</code></th><th align="center"><code>returns_result</code></th><th align="left">Effects</th></tr></thead><tbody>
@@ -67,7 +67,7 @@ there are 4 different cases with slightly varying semantics:</p>
 <tr><td align="center"><code>false</code></td><td align="center"><code>true</code></td><td align="left">The chain extension method is required to return a value of type <code>Result&lt;T, E&gt;</code>. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly.</td></tr>
 <tr><td align="center"><code>false</code></td><td align="center"><code>false</code></td><td align="left">The chain extension method may return any non-<code>Result</code> type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly.</td></tr>
 </tbody></table>
-</div><h1 id="error-code" class="section-header"><a href="#error-code">Error Code</a></h1>
+</div><h2 id="error-code" class="section-header"><a href="#error-code">Error Code</a></h2>
 <p>Every chain extension defines exactly one <code>ErrorCode</code> using the following syntax:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
@@ -83,7 +83,7 @@ more or less trivial conversion from the <code>u32</code> status code to a <code
 The <code>Ok(())</code> value indicates that the call to the chain extension method was successful.</p>
 <p>By convention an error code of <code>0</code> represents success.
 However, chain extension authors may use whatever suits their needs.</p>
-<h1 id="example-definition" class="section-header"><a href="#example-definition">Example: Definition</a></h1>
+<h2 id="example-definition" class="section-header"><a href="#example-definition">Example: Definition</a></h2>
 <p>In the below example a chain extension is defined that allows its users to read and write
 from and to the runtime storage using access privileges:</p>
 
@@ -100,7 +100,7 @@ from and to the runtime storage using access privileges:</p>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Actually returns a value of type `Result&lt;Vec&lt;u8&gt;, Self::ErrorCode&gt;`.</span>
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">1</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Reads from runtime storage.</span>
     <span class="doccomment">///</span>
@@ -117,7 +117,7 @@ from and to the runtime storage using access privileges:</p>
     <span class="doccomment">/// This requires `ReadWriteError` to implement `From&lt;ReadWriteErrorCode&gt;`</span>
     <span class="doccomment">/// and may potentially return any `Self::ErrorCode` through its return value.</span>
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">2</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Writes into runtime storage.</span>
     <span class="doccomment">///</span>
@@ -133,7 +133,7 @@ from and to the runtime storage using access privileges:</p>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Assumes to never fail the call and therefore always returns `Option&lt;Access&gt;`.</span>
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">4</span>, <span class="ident">returns_result</span> <span class="op">=</span> <span class="bool-val">false</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Unlocks previously aquired permission to access key.</span>
     <span class="doccomment">///</span>
@@ -146,14 +146,14 @@ from and to the runtime storage using access privileges:</p>
     <span class="doccomment">/// Assumes the call to never fail and therefore does _NOT_ require `UnlockAccessError`</span>
     <span class="doccomment">/// to implement `From&lt;Self::ErrorCode&gt;` as in the `read_small` method above.</span>
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="number">5</span>, <span class="ident">handle_status</span> <span class="op">=</span> <span class="bool-val">false</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">access</span>: <span class="ident">Access</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">access</span>: <span class="ident">Access</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span>;
 }</code></pre></div>
 <p>All the error types and other utility types used in the chain extension definition
 above are often required to implement various traits such as SCALE’s <code>Encode</code> and <code>Decode</code>
 as well as <code>scale-info</code>’s <code>TypeInfo</code> trait.</p>
 <p>A full example of the above chain extension definition can be seen
 <a href="https://github.com/paritytech/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs">here</a>.</p>
-<h1 id="example-environment" class="section-header"><a href="#example-environment">Example: Environment</a></h1>
+<h2 id="example-environment" class="section-header"><a href="#example-environment">Example: Environment</a></h2>
 <p>In order to allow ink! smart contracts to use the above defined chain extension it needs
 to be integrated into an <code>Environment</code> definition as shown below:</p>
 
@@ -177,7 +177,7 @@ to be integrated into an <code>Environment</code> definition as shown below:</p>
 <p>Above we defined the <code>CustomEnvironment</code> which defaults to ink!’s <code>DefaultEnvironment</code>
 for all constants and types but the <code>ChainExtension</code> type which is assigned to our newly
 defined chain extension.</p>
-<h1 id="example-usage" class="section-header"><a href="#example-usage">Example: Usage</a></h1>
+<h2 id="example-usage" class="section-header"><a href="#example-usage">Example: Usage</a></h2>
 <p>An ink! smart contract can use the above defined chain extension through the <code>Environment</code>
 definition defined in the last example section using the <code>env</code> macro parameter as
 shown below.</p>
@@ -191,17 +191,17 @@ shown below.</p>
 
     <span class="kw">impl</span> <span class="ident">ReadWriter</span> {
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> { <span class="self">Self</span> {} }
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> { <span class="self">Self</span> {} }
 
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="ident">env</span>()
                 .<span class="ident">extension</span>()
                 .<span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
         }
 
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_small</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u32</span>, [<span class="ident">u8</span>; <span class="number">32</span>]), <span class="ident">ReadWriteError</span><span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="ident">env</span>()
                 .<span class="ident">extension</span>()
                 .<span class="ident">read_small</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
@@ -212,28 +212,28 @@ shown below.</p>
             <span class="kw-2">&amp;</span><span class="self">self</span>,
             <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
             <span class="ident">value</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
+        ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ReadWriteErrorCode</span><span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="ident">env</span>()
                 .<span class="ident">extension</span>()
                 .<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)
         }
 
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Access</span><span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="ident">env</span>()
                 .<span class="ident">extension</span>()
                 .<span class="ident">access</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
         }
 
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">access</span>: <span class="ident">Access</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unlock_access</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">access</span>: <span class="ident">Access</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">UnlockAccessError</span><span class="op">&gt;</span> {
             <span class="self">self</span>.<span class="ident">env</span>()
                 .<span class="ident">extension</span>()
                 .<span class="ident">unlock_access</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="ident">access</span>)
         }
     }
 }</code></pre></div>
-<h1 id="technical-limitations" class="section-header"><a href="#technical-limitations">Technical Limitations</a></h1>
+<h2 id="technical-limitations" class="section-header"><a href="#technical-limitations">Technical Limitations</a></h2>
 <ul>
 <li>Due to technical limitations it is not possible to refer to the <code>ErrorCode</code> associated type
 using <code>Self::ErrorCode</code> anywhere within the chain extension and its defined methods.
