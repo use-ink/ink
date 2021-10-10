@@ -171,7 +171,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InkProject</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">layout</span>: <span class="ident">L</span>, <span class="ident">spec</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">S</span><span class="op">&gt;</span>(<span class="ident">layout</span>: <span class="ident">L</span>, <span class="ident">spec</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">L</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">layout::Layout</span><span class="op">&gt;</span>,
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ContractSpec</span><span class="op">&gt;</span>,
@@ -188,17 +188,17 @@
 
 <span class="kw">impl</span> <span class="ident">InkProject</span> {
     <span class="doccomment">/// Returns a read-only registry of types in the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">PortableRegistry</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">registry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PortableRegistry</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">registry</span>
     }
 
     <span class="doccomment">/// Returns the storage layout of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">layout::Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">layout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">layout::Layout</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">layout</span>
     }
 
     <span class="doccomment">/// Returns the specification of the contract.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spec</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ContractSpec</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">spec</span>
     }
 }

@@ -82,14 +82,14 @@
 
 <span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">SelectorId</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Generates `selector_id!` macro code.</span>
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">macro_input</span>.<span class="ident">input</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">selector_id</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">macro_input</span>
             .<span class="ident">selector</span>()
             .<span class="ident">into_be_u32</span>()
             .<span class="ident">hex_padded_suffixed</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span> #<span class="ident">selector_id</span>)
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; #<span class="ident">selector_id</span>)
     }
 }
 
@@ -102,10 +102,10 @@
 
 <span class="kw">impl</span> <span class="ident">GenerateCode</span> <span class="kw">for</span> <span class="ident">SelectorBytes</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Generates `selector_id!` macro code.</span>
-    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+    <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">macro_input</span>.<span class="ident">input</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">macro_input</span>.<span class="ident">selector</span>().<span class="ident">hex_lits</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span><span class="op">=</span><span class="op">&gt;</span> [ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ] )
+        <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt; [ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ] )
     }
 }
 </code></pre></div>

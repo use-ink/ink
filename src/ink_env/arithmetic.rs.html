@@ -393,34 +393,34 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Saturating</span> {
     <span class="doccomment">/// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds instead of</span>
     <span class="doccomment">/// overflowing.</span>
-    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Saturating subtraction. Compute `self - rhs`, saturating at the numeric bounds instead of</span>
     <span class="doccomment">/// overflowing.</span>
-    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Saturating multiply. Compute `self * rhs`, saturating at the numeric bounds instead of</span>
     <span class="doccomment">/// overflowing.</span>
-    <span class="kw">fn</span> <span class="ident">saturating_mul</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_mul</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Saturating exponentiation. Compute `self.pow(exp)`, saturating at the numeric bounds</span>
     <span class="doccomment">/// instead of overflowing.</span>
-    <span class="kw">fn</span> <span class="ident">saturating_pow</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">saturating_pow</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span>;
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Saturating</span> <span class="kw">for</span> <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Zero</span> <span class="op">+</span> <span class="ident">One</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">CheckedMul</span> <span class="op">+</span> <span class="ident">Bounded</span> <span class="op">+</span> <span class="ident">num_traits::Saturating</span>,
 {
-    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">saturating_add</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">num_traits::Saturating</span><span class="op">&gt;</span><span class="ident">::saturating_add</span>(<span class="self">self</span>, <span class="ident">o</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">saturating_sub</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">num_traits::Saturating</span><span class="op">&gt;</span><span class="ident">::saturating_sub</span>(<span class="self">self</span>, <span class="ident">o</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">saturating_mul</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">saturating_mul</span>(<span class="self">self</span>, <span class="ident">o</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">checked_mul</span>(<span class="kw-2">&amp;</span><span class="ident">o</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="kw">if</span> (<span class="self">self</span> <span class="op">&lt;</span> <span class="ident">T::zero</span>()) <span class="op">!</span><span class="op">=</span> (<span class="ident">o</span> <span class="op">&lt;</span> <span class="ident">T::zero</span>()) {
                 <span class="ident">Bounded::min_value</span>()
@@ -430,7 +430,7 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">saturating_pow</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">saturating_pow</span>(<span class="self">self</span>, <span class="ident">exp</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">neg</span> <span class="op">=</span> <span class="self">self</span> <span class="op">&lt;</span> <span class="ident">T::zero</span>() <span class="op">&amp;&amp;</span> <span class="ident">exp</span> <span class="op">%</span> <span class="number">2</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>;
         <span class="ident">checked_pow</span>(<span class="self">self</span>, <span class="ident">exp</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">neg</span> {

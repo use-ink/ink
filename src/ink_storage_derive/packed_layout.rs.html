@@ -61,7 +61,7 @@
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 
 <span class="doccomment">/// Derives `ink_storage`&#39;s `PackedLayout` trait for the given `struct` or `enum`.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">packed_layout_derive</span>(<span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">synstructure::Structure</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TokenStream2</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">packed_layout_derive</span>(<span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">synstructure::Structure</span>) -&gt; <span class="ident">TokenStream2</span> {
     <span class="ident">s</span>.<span class="ident">bind_with</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">synstructure::BindStyle::Move</span>)
         .<span class="ident">add_bounds</span>(<span class="ident">synstructure::AddBounds::Generics</span>)
         .<span class="ident">underscore_const</span>(<span class="bool-val">true</span>);

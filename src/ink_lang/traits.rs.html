@@ -218,7 +218,7 @@
 <span class="doccomment">/// A dispatchable contract constructor message.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Constructor</span>: <span class="ident">FnInput</span> <span class="op">+</span> <span class="ident">FnSelector</span> <span class="op">+</span> <span class="ident">FnState</span> {
-    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span><span class="ident">::Input</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span><span class="ident">::State</span>;
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span><span class="ident">::Input</span>) -&gt; <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span><span class="ident">::State</span>;
 }
 
 <span class="doccomment">/// A `&amp;self` dispatchable contract message.</span>
@@ -227,7 +227,7 @@
     <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(
         <span class="kw-2">&amp;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span><span class="ident">::State</span>,
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span><span class="ident">::Input</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span><span class="ident">::Output</span>;
+    ) -&gt; <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span><span class="ident">::Output</span>;
 }
 
 <span class="doccomment">/// A `&amp;mut self` dispatchable contract message.</span>
@@ -236,7 +236,7 @@
     <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnState</span><span class="op">&gt;</span><span class="ident">::State</span>,
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnInput</span><span class="op">&gt;</span><span class="ident">::Input</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span><span class="ident">::Output</span>;
+    ) -&gt; <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">FnOutput</span><span class="op">&gt;</span><span class="ident">::Output</span>;
 }
 
 <span class="doccomment">/// Indicates that some compile time expression is expected to be `true`.</span>

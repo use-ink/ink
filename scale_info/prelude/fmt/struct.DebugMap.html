@@ -2,13 +2,13 @@
 <p>This is useful when you wish to output a formatted map as a part of your
 <a href="trait.Debug.html#tymethod.fmt" title="Debug::fmt"><code>Debug::fmt</code></a> implementation.</p>
 <p>This can be constructed by the <a href="struct.Formatter.html#method.debug_map" title="Formatter::debug_map"><code>Formatter::debug_map</code></a> method.</p>
-<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>().<span class="ident">entries</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">k</span>, <span class="kw-2">ref</span> <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>))).<span class="ident">finish</span>()
     }
 }
@@ -18,13 +18,13 @@
     <span class="string">&quot;{\&quot;A\&quot;: 10, \&quot;B\&quot;: 11}&quot;</span>,
 );</code></pre></div>
 </div></details><h2 id="implementations" class="small-section-header">Implementations<a href="#implementations" class="anchor"></a></h2><details class="rustdoc-toggle implementors-toggle" open><summary><div id="impl" class="impl has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#718-939" title="goto source code">[src]</a></div><a href="#impl" class="anchor"></a><h3 class="code-header in-band">impl&lt;'a, 'b&gt; <a class="struct" href="struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;'b: 'a,&nbsp;</span></h3></div></summary><div class="impl-items"><details class="rustdoc-toggle method-toggle" open><summary><div id="method.entry" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#742" title="goto source code">[src]</a></div><a href="#method.entry" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.entry" class="fnname">entry</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;mut self, <br>&nbsp;&nbsp;&nbsp;&nbsp;key: &amp;dyn <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;value: &amp;dyn <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a><br>) -&gt; &amp;mut <a class="struct" href="struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt;</h4></div></summary><div class="docblock"><p>Adds a new entry to the map output.</p>
-<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<h5 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>()
            .<span class="ident">entry</span>(<span class="kw-2">&amp;</span><span class="string">&quot;whole&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) <span class="comment">// We add the &quot;whole&quot; entry.</span>
            .<span class="ident">finish</span>()
@@ -39,16 +39,16 @@
 <p>This method, together with <code>value</code>, is an alternative to <code>entry</code> that
 can be used when the complete entry isn’t known upfront. Prefer the <code>entry</code>
 method when it’s possible to use.</p>
-<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<h5 id="panics" class="section-header"><a href="#panics">Panics</a></h5>
 <p><code>key</code> must be called before <code>value</code> and each call to <code>key</code> must be followed
 by a corresponding call to <code>value</code>. Otherwise this method will panic.</p>
-<h1 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h1>
+<h5 id="examples-2" class="section-header"><a href="#examples-2">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>()
            .<span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="string">&quot;whole&quot;</span>).<span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) <span class="comment">// We add the &quot;whole&quot; entry.</span>
            .<span class="ident">finish</span>()
@@ -63,16 +63,16 @@ by a corresponding call to <code>value</code>. Otherwise this method will panic.
 <p>This method, together with <code>key</code>, is an alternative to <code>entry</code> that
 can be used when the complete entry isn’t known upfront. Prefer the <code>entry</code>
 method when it’s possible to use.</p>
-<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
+<h5 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h5>
 <p><code>key</code> must be called before <code>value</code> and each call to <code>key</code> must be followed
 by a corresponding call to <code>value</code>. Otherwise this method will panic.</p>
-<h1 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h1>
+<h5 id="examples-3" class="section-header"><a href="#examples-3">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>()
            .<span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="string">&quot;whole&quot;</span>).<span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>) <span class="comment">// We add the &quot;whole&quot; entry.</span>
            .<span class="ident">finish</span>()
@@ -83,14 +83,14 @@ by a corresponding call to <code>value</code>. Otherwise this method will panic.
     <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">Foo</span>(<span class="macro">vec!</span>[(<span class="string">&quot;A&quot;</span>.<span class="ident">to_string</span>(), <span class="number">10</span>), (<span class="string">&quot;B&quot;</span>.<span class="ident">to_string</span>(), <span class="number">11</span>)])),
     <span class="string">&quot;{\&quot;whole\&quot;: [(\&quot;A\&quot;, 10), (\&quot;B\&quot;, 11)]}&quot;</span>,
 );</code></pre></div>
-</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.entries" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#888-892" title="goto source code">[src]</a></div><a href="#method.entries" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.entries" class="fnname">entries</a>&lt;K, V, I&gt;(&amp;mut self, entries: I) -&gt; &amp;mut <a class="struct" href="struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;V: <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;I: <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html" title="trait core::iter::traits::collect::IntoIterator">IntoIterator</a>&lt;Item = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>K, V<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;,<br>&nbsp;&nbsp;&nbsp;&nbsp;K: <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>,&nbsp;</span></h4></div></summary><div class="docblock"><p>Adds the contents of an iterator of entries to the map output.</p>
-<h1 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h1>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.entries" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#888-892" title="goto source code">[src]</a></div><a href="#method.entries" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.entries" class="fnname">entries</a>&lt;K, V, I&gt;(&amp;mut self, entries: I) -&gt; &amp;mut <a class="struct" href="struct.DebugMap.html" title="struct scale_info::prelude::fmt::DebugMap">DebugMap</a>&lt;'a, 'b&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;K: <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;V: <a class="trait" href="trait.Debug.html" title="trait scale_info::prelude::fmt::Debug">Debug</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;I: <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html" title="trait core::iter::traits::collect::IntoIterator">IntoIterator</a>&lt;Item = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a>K, V<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;,&nbsp;</span></h4></div></summary><div class="docblock"><p>Adds the contents of an iterator of entries to the map output.</p>
+<h5 id="examples-4" class="section-header"><a href="#examples-4">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>()
            <span class="comment">// We map our vec so each entries&#39; first field will become</span>
            <span class="comment">// the &quot;key&quot;.</span>
@@ -104,16 +104,16 @@ by a corresponding call to <code>value</code>. Otherwise this method will panic.
     <span class="string">&quot;{\&quot;A\&quot;: 10, \&quot;B\&quot;: 11}&quot;</span>,
 );</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.finish" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/fmt/builders.rs.html#928" title="goto source code">[src]</a></div><a href="#method.finish" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.finish" class="fnname">finish</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="struct.Error.html" title="struct scale_info::prelude::fmt::Error">Error</a>&gt;</h4></div></summary><div class="docblock"><p>Finishes output and returns any error encountered.</p>
-<h1 id="panics-2" class="section-header"><a href="#panics-2">Panics</a></h1>
+<h5 id="panics-2" class="section-header"><a href="#panics-2">Panics</a></h5>
 <p><code>key</code> must be called before <code>value</code> and each call to <code>key</code> must be followed
 by a corresponding call to <code>value</code>. Otherwise this method will panic.</p>
-<h1 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h1>
+<h5 id="examples-5" class="section-header"><a href="#examples-5">Examples</a></h5>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">struct</span> <span class="ident">Foo</span>(<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">i32</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Foo</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="ident">fmt</span>.<span class="ident">debug_map</span>()
            .<span class="ident">entries</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">&amp;</span>(<span class="kw-2">ref</span> <span class="ident">k</span>, <span class="kw-2">ref</span> <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>)))
            .<span class="ident">finish</span>() <span class="comment">// Ends the struct formatting.</span>

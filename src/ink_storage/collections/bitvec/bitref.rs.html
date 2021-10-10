@@ -225,8 +225,8 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">BitRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">get</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">get</span>()
+    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">get</span>() <span class="op">==</span> <span class="ident">other</span>.<span class="ident">get</span>()
     }
 }
 
@@ -234,7 +234,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">BitRefMut</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates access to the indexed bit within the 256-bit pack.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Bits256</span>, <span class="ident">at</span>: <span class="ident">Index256</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bits</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Bits256</span>, <span class="ident">at</span>: <span class="ident">Index256</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">bits</span>, <span class="ident">at</span> }
     }
 
@@ -244,7 +244,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If 0: returns `false`</span>
     <span class="doccomment">/// - If 1: returns `true`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">get</span>(<span class="self">self</span>.<span class="ident">at</span>)
     }
 
@@ -289,11 +289,11 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::BitRefMut</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::collections::bitvec::Bits256</span>;
 
-    <span class="kw">fn</span> <span class="ident">is_populated_bit_set</span>(<span class="ident">index</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        (<span class="ident">index</span> <span class="op">%</span> <span class="number">5</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">index</span> <span class="op">%</span> <span class="number">13</span>) <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+    <span class="kw">fn</span> <span class="ident">is_populated_bit_set</span>(<span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
+        (<span class="ident">index</span> <span class="op">%</span> <span class="number">5</span>) <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">index</span> <span class="op">%</span> <span class="number">13</span>) <span class="op">==</span> <span class="number">0</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">populated_bits256</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bits256</span> {
+    <span class="kw">fn</span> <span class="ident">populated_bits256</span>() -&gt; <span class="ident">Bits256</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits256</span> <span class="op">=</span> <span class="ident">Bits256::default</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">256</span> {
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>;
@@ -310,11 +310,11 @@
             <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">is_populated_bit_set</span>(<span class="ident">i</span>);
             <span class="macro">assert_eq!</span>(<span class="ident">bitref</span>.<span class="ident">get</span>(), <span class="ident">expected</span>);
             <span class="comment">// Set only every second bit to true and check this later:</span>
-            <span class="ident">bitref</span>.<span class="ident">set_to</span>(<span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+            <span class="ident">bitref</span>.<span class="ident">set_to</span>(<span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>);
         }
         <span class="comment">// Check if `set_to` was successful:</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">255</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>);
         }
     }
 
@@ -336,7 +336,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits256</span> <span class="op">=</span> <span class="ident">populated_bits256</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">255</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bitref</span> <span class="op">=</span> <span class="ident">BitRefMut::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bits256</span>, <span class="ident">i</span>);
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span> {
                 <span class="ident">bitref</span>.<span class="ident">set</span>();
             } <span class="kw">else</span> {
                 <span class="ident">bitref</span>.<span class="ident">reset</span>();
@@ -344,7 +344,7 @@
         }
         <span class="comment">// Check if `set` and `reset` was successful:</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="number">255</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">bits256</span>.<span class="ident">get</span>(<span class="ident">i</span>), <span class="ident">i</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>);
         }
     }
 

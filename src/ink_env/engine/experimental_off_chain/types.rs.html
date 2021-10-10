@@ -91,7 +91,7 @@
 };
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ink_engine::test_api::EmittedEvent</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EmittedEvent</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">evt</span>: <span class="ident">ink_engine::test_api::EmittedEvent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">evt</span>: <span class="ident">ink_engine::test_api::EmittedEvent</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">EmittedEvent</span> {
             <span class="ident">topics</span>: <span class="ident">evt</span>.<span class="ident">topics</span>,
             <span class="ident">data</span>: <span class="ident">evt</span>.<span class="ident">data</span>,
@@ -100,14 +100,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ink_engine::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ink_engine::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ink_engine::Error</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">ink_engine::Error::Account</span>(<span class="ident">acc</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">OffChainError::Account</span>(<span class="ident">acc</span>.<span class="ident">into</span>()),
-            <span class="ident">ink_engine::Error::UninitializedBlocks</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">OffChainError::UninitializedBlocks</span>,
-            <span class="ident">ink_engine::Error::UninitializedExecutionContext</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ink_engine::Error::Account</span>(<span class="ident">acc</span>) =&gt; <span class="ident">OffChainError::Account</span>(<span class="ident">acc</span>.<span class="ident">into</span>()),
+            <span class="ident">ink_engine::Error::UninitializedBlocks</span> =&gt; <span class="ident">OffChainError::UninitializedBlocks</span>,
+            <span class="ident">ink_engine::Error::UninitializedExecutionContext</span> =&gt; {
                 <span class="ident">OffChainError::UninitializedExecutionContext</span>
             }
-            <span class="ident">ink_engine::Error::UnregisteredChainExtension</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ink_engine::Error::UnregisteredChainExtension</span> =&gt; {
                 <span class="ident">OffChainError::UnregisteredChainExtension</span>
             }
         };
@@ -116,13 +116,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ink_engine::AccountError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AccountError</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ink_engine::AccountError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ink_engine::AccountError</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">err</span> {
-            <span class="ident">ink_engine::AccountError::Decoding</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">AccountError::Decoding</span>(<span class="ident">e</span>),
-            <span class="ident">ink_engine::AccountError::UnexpectedUserAccount</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ink_engine::AccountError::Decoding</span>(<span class="ident">e</span>) =&gt; <span class="ident">AccountError::Decoding</span>(<span class="ident">e</span>),
+            <span class="ident">ink_engine::AccountError::UnexpectedUserAccount</span> =&gt; {
                 <span class="ident">AccountError::UnexpectedUserAccount</span>
             }
-            <span class="ident">ink_engine::AccountError::NoAccountForId</span>(<span class="ident">acc</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ink_engine::AccountError::NoAccountForId</span>(<span class="ident">acc</span>) =&gt; {
                 <span class="ident">AccountError::NoAccountForId</span>(<span class="ident">acc</span>)
             }
         }
@@ -130,7 +130,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ink_engine::AccountError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">account_error</span>: <span class="ident">ink_engine::AccountError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">account_error</span>: <span class="ident">ink_engine::AccountError</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">Error::OffChain</span>(<span class="ident">OffChainError::Account</span>(<span class="ident">account_error</span>.<span class="ident">into</span>()))
     }
 }

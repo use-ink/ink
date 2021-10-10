@@ -4,7 +4,7 @@ This is important if users want to combine types of varying storage
 footprints. For example, dynamic allocations are required whenever
 a user wants to use a storage collection (e.g. <code>storage::Vec</code>) in
 another storage collection: <code>storage::Vec&lt;storage::Vec&lt;T&gt;&gt;</code></p>
-<h1 id="simplification" class="section-header"><a href="#simplification">Simplification</a></h1>
+<h2 id="simplification" class="section-header"><a href="#simplification">Simplification</a></h2>
 <p>The contracts pallet is using 256-bit keys for identifying storage cells.
 This implies a storage space of <code>2^256</code> cells which is big enough to say that
 there are probably never going to happen collisions anywhere at any time
@@ -22,7 +22,7 @@ This enables us to have 32-bit keys instead of 256-bit keys.</p>
 keys by using one of the built-in crypto hashes that has a 256-bit output,
 e.g. KECCAK, SHA-2 or BLAKE-2. For technical reasons we should prepend the
 bytes of the 32-bit key by some unique byte sequence, e.g.:</p>
-<div class="example-wrap"><pre class="language-no_compile"><code>let key256 = blake2x256(b&quot;DYNAMICALLY ALLOCATED&quot;, bytes(key32));</code></pre></div><h1 id="internals" class="section-header"><a href="#internals">Internals</a></h1>
+<div class="example-wrap"><pre class="language-no_compile"><code>let key256 = blake2x256(b&quot;DYNAMICALLY ALLOCATED&quot;, bytes(key32));</code></pre></div><h2 id="internals" class="section-header"><a href="#internals">Internals</a></h2>
 <p>As described in [# Simplification] there are <code>2^32</code> possible uniform dynamic
 allocations available. For each such slot the dynamic allocator stores via
 a single bit in a bitvector if that slot is free or occupied.
@@ -43,15 +43,15 @@ the set-bits vector which is 32 times more dense than our <code>free</code> list
 The additional density implies that we can query up to 8192 potential
 dynamic storage allocations with a single contract storage look-up.</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Box.html" title="ink_storage::alloc::Box struct">Box</a></div><div class="item-right docblock-short"><p>A dynamically allocated storage entity.</p>
-</div><div class="item-left module-item"><a class="struct" href="struct.DynamicAllocation.html" title="ink_storage::alloc::DynamicAllocation struct">DynamicAllocation</a></div><div class="item-right docblock-short"><p>A unique dynamic allocation.</p>
-</div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="enum" href="enum.ContractPhase.html" title="ink_storage::alloc::ContractPhase enum">ContractPhase</a></div><div class="item-right docblock-short"><p>The phase in which a contract execution can be.</p>
-</div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
-<div class="item-table"><div class="item-left module-item"><a class="fn" href="fn.alloc.html" title="ink_storage::alloc::alloc fn">alloc</a></div><div class="item-right docblock-short"><p>Returns a new dynamic storage allocation.</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.finalize.html" title="ink_storage::alloc::finalize fn">finalize</a></div><div class="item-right docblock-short"><p>Finalizes the global dynamic storage allocator instance.</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.free.html" title="ink_storage::alloc::free fn">free</a></div><div class="item-right docblock-short"><p>Frees the given dynamic storage allocation.</p>
-</div><div class="item-left module-item"><a class="fn" href="fn.initialize.html" title="ink_storage::alloc::initialize fn">initialize</a></div><div class="item-right docblock-short"><p>Tells the global dynamic storage allocator instance how it shall initialize.</p>
-</div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_storage" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Box.html" title="ink_storage::alloc::Box struct">Box</a></div><div class="item-right docblock-short"><p>A dynamically allocated storage entity.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DynamicAllocation.html" title="ink_storage::alloc::DynamicAllocation struct">DynamicAllocation</a></div><div class="item-right docblock-short"><p>A unique dynamic allocation.</p>
+</div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.ContractPhase.html" title="ink_storage::alloc::ContractPhase enum">ContractPhase</a></div><div class="item-right docblock-short"><p>The phase in which a contract execution can be.</p>
+</div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.alloc.html" title="ink_storage::alloc::alloc fn">alloc</a></div><div class="item-right docblock-short"><p>Returns a new dynamic storage allocation.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.finalize.html" title="ink_storage::alloc::finalize fn">finalize</a></div><div class="item-right docblock-short"><p>Finalizes the global dynamic storage allocator instance.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.free.html" title="ink_storage::alloc::free fn">free</a></div><div class="item-right docblock-short"><p>Frees the given dynamic storage allocation.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.initialize.html" title="ink_storage::alloc::initialize fn">initialize</a></div><div class="item-right docblock-short"><p>Tells the global dynamic storage allocator instance how it shall initialize.</p>
+</div></div></div></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_storage" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script>
 </body></html>
