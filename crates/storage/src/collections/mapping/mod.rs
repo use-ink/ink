@@ -38,9 +38,16 @@ use ink_primitives::Key;
 ///
 /// If a key does not exist the `Default` value for the `value` will be returned.
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+#[derive(Default)]
 pub struct Mapping<K, V> {
     key: Key,
     _marker: PhantomData<(K, V)>,
+}
+
+impl<K, V> core::fmt::Debug for Mapping<K, V> {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("Mapping").field("key", &self.key).finish()
+    }
 }
 
 impl<K, V> Mapping<K, V>
