@@ -12,7 +12,7 @@ ink_storage = { version = "3.0.0-rc5", path = "../../crates/storage", default-fe
 ink_lang = { version = "3.0.0-rc5", path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "erc721"

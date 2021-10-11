@@ -4,6 +4,7 @@ This is the 6th release candidate for ink! 3.0.
 
 ## Changed
 
+- Update to `scale-info` 1.0 - [#845](https://github.com/paritytech/ink/pull/845).
 - Message and constructor selectors no longer take their inputs as string but as `u32` decodable integer. For example:
 
     - It is no longer possible to specify a selector as `#[ink(selector = "0xC0DECAFE")]`.
