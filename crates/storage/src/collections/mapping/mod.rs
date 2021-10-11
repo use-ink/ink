@@ -57,7 +57,7 @@ where
 {
     /// Creates a new empty `Mapping`.
     ///
-    /// Not sure how this should be exposed/initialize irl.
+    /// Not sure how this should be exposed/initialize in real life.
     pub fn new(key: Key) -> Self {
         Self {
             key,
