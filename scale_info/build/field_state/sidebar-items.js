@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["NameAssigned","A name has been assigned to the field."],["NameNotAssigned","A name has not been assigned to the field."],["TypeAssigned","A type has been assigned to the field."],["TypeNotAssigned","A type has not been assigned to the field."]]});

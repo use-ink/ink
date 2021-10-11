@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-0.6.0&#x2F;src&#x2F;ty&#x2F;fields.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fields.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-1.0.0&#x2F;src&#x2F;ty&#x2F;fields.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fields.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -162,8 +162,6 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -179,22 +177,21 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">build::FieldBuilder</span>,
     <span class="ident">form</span>::{
         <span class="ident">Form</span>,
         <span class="ident">MetaForm</span>,
         <span class="ident">PortableForm</span>,
     },
+    <span class="ident">prelude::vec::Vec</span>,
     <span class="ident">IntoPortable</span>,
     <span class="ident">MetaType</span>,
     <span class="ident">Registry</span>,
-    <span class="ident">TypeInfo</span>,
 };
-<span class="kw">use</span> <span class="ident">scale</span>::{
-    <span class="ident">Encode</span>,
-    <span class="ident">HasCompact</span>,
-};
+<span class="kw">use</span> <span class="ident">scale::Encode</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">serde</span>::{
+    <span class="ident">de::DeserializeOwned</span>,
     <span class="ident">Deserialize</span>,
     <span class="ident">Serialize</span>,
 };
@@ -230,6 +227,13 @@
 <span class="doccomment">/// alias, there are no guarantees provided, and the type name representation</span>
 <span class="doccomment">/// may change.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+    <span class="ident">serde</span>(<span class="ident">bound</span>(
+        <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize, T::String: Serialize&quot;</span>,
+        <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned, T::String: DeserializeOwned&quot;</span>,
+    ))
+)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;camelCase&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Encode</span>)]</span>
@@ -244,7 +248,17 @@
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>))]</span>
     <span class="ident">ty</span>: <span class="ident">T::Type</span>,
     <span class="doccomment">/// The name of the type of the field as it appears in the source code.</span>
-    <span class="ident">type_name</span>: <span class="ident">T::String</span>,
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+        <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>, <span class="ident">default</span>)
+    )]</span>
+    <span class="ident">type_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T::String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Documentation</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+        <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)
+    )]</span>
+    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T::String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Field</span> {
@@ -254,56 +268,33 @@
         <span class="ident">Field</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>)),
             <span class="ident">ty</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">ty</span>),
-            <span class="ident">type_name</span>: <span class="self">self</span>.<span class="ident">type_name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
+            <span class="ident">type_name</span>: <span class="self">self</span>.<span class="ident">type_name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">tn</span><span class="op">|</span> <span class="ident">tn</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>)),
+            <span class="ident">docs</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">docs</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Field</span> {
+    <span class="doccomment">/// Returns a new [`FieldBuilder`] for constructing a field.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">FieldBuilder</span> {
+        <span class="ident">FieldBuilder::new</span>()
+    }
+
     <span class="doccomment">/// Creates a new field.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Use this constructor if you want to instantiate from a given meta type.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">ty</span>: <span class="ident">MetaType</span>,
-        <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+        <span class="ident">type_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+        <span class="ident">docs</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>],
     ) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">name</span>,
             <span class="ident">ty</span>,
             <span class="ident">type_name</span>,
+            <span class="ident">docs</span>: <span class="ident">docs</span>.<span class="ident">to_vec</span>(),
         }
-    }
-
-    <span class="doccomment">/// Creates a new named field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use this constructor if you want to instantiate from a given</span>
-    <span class="doccomment">/// compile-time type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">named_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="prelude-val">Some</span>(<span class="ident">name</span>), <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">type_name</span>)
-    }
-
-    <span class="doccomment">/// Creates a new unnamed field.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use this constructor if you want to instantiate an unnamed field from a</span>
-    <span class="doccomment">/// given compile-time type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unnamed_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="prelude-val">None</span>, <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(), <span class="ident">type_name</span>)
-    }
-
-    <span class="doccomment">/// Creates a new [`Compact`] field.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compact_of</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">type_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="ident">Field</span>
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">HasCompact</span>,
-        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">HasCompact</span><span class="op">&gt;</span><span class="ident">::Type</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-    {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">name</span>, <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">HasCompact</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>(), <span class="ident">type_name</span>)
     }
 }
 
@@ -326,8 +317,13 @@
     <span class="doccomment">/// name are not specified, but in practice will be the name of any valid</span>
     <span class="doccomment">/// type for a field. This is intended for informational and diagnostic</span>
     <span class="doccomment">/// purposes only.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::String</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_name</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T::String</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">type_name</span>.<span class="ident">as_ref</span>()
+    }
+
+    <span class="doccomment">/// Returns the documentation of the field.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">T::String</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
 </code></pre></div>

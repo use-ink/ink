@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-0.6.0&#x2F;src&#x2F;impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-1.0.0&#x2F;src&#x2F;impls.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>impls.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -262,6 +262,166 @@
 <span id="262">262</span>
 <span id="263">263</span>
 <span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -277,9 +437,22 @@
 <span class="comment">// limitations under the License.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{
+    <span class="ident">borrow</span>::{
+        <span class="ident">Cow</span>,
+        <span class="ident">ToOwned</span>,
+    },
     <span class="ident">boxed::Box</span>,
-    <span class="ident">collections::BTreeMap</span>,
+    <span class="ident">collections</span>::{
+        <span class="ident">BTreeMap</span>,
+        <span class="ident">BTreeSet</span>,
+        <span class="ident">VecDeque</span>,
+    },
+    <span class="ident">fmt</span>,
     <span class="ident">marker::PhantomData</span>,
+    <span class="ident">ops</span>::{
+        <span class="ident">Range</span>,
+        <span class="ident">RangeInclusive</span>,
+    },
     <span class="ident">string::String</span>,
     <span class="ident">vec::Vec</span>,
 };
@@ -291,11 +464,22 @@
     <span class="ident">Type</span>,
     <span class="ident">TypeDefArray</span>,
     <span class="ident">TypeDefCompact</span>,
-    <span class="ident">TypeDefPhantom</span>,
     <span class="ident">TypeDefPrimitive</span>,
     <span class="ident">TypeDefSequence</span>,
     <span class="ident">TypeDefTuple</span>,
     <span class="ident">TypeInfo</span>,
+};
+<span class="kw">use</span> <span class="ident">core::num</span>::{
+    <span class="ident">NonZeroI128</span>,
+    <span class="ident">NonZeroI16</span>,
+    <span class="ident">NonZeroI32</span>,
+    <span class="ident">NonZeroI64</span>,
+    <span class="ident">NonZeroI8</span>,
+    <span class="ident">NonZeroU128</span>,
+    <span class="ident">NonZeroU16</span>,
+    <span class="ident">NonZeroU32</span>,
+    <span class="ident">NonZeroU64</span>,
+    <span class="ident">NonZeroU8</span>,
 };
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_primitives</span> {
@@ -325,28 +509,13 @@
     <span class="ident">i128</span> =&gt; <span class="ident">TypeDefPrimitive::I128</span>,
 );
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_array</span> {
-    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span> )<span class="op">*</span> ) =&gt; {
-        $(
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] {
-                <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="ident">N</span>] {
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
-                    <span class="ident">TypeDefArray::new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>, <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
-                }
-            }
-        )<span class="op">*</span>
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">TypeDefArray::new</span>(<span class="ident">N</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
     }
 }
-
-<span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
-<span class="macro">impl_metadata_for_array!</span>(
-        <span class="number">1</span>  <span class="number">2</span>  <span class="number">3</span>  <span class="number">4</span>  <span class="number">5</span>  <span class="number">6</span>  <span class="number">7</span>  <span class="number">8</span>  <span class="number">9</span>
-    <span class="number">10</span> <span class="number">11</span> <span class="number">12</span> <span class="number">13</span> <span class="number">14</span> <span class="number">15</span> <span class="number">16</span> <span class="number">17</span> <span class="number">18</span> <span class="number">19</span>
-    <span class="number">20</span> <span class="number">21</span> <span class="number">22</span> <span class="number">23</span> <span class="number">24</span> <span class="number">25</span> <span class="number">26</span> <span class="number">27</span> <span class="number">28</span> <span class="number">29</span>
-    <span class="number">30</span> <span class="number">31</span> <span class="number">32</span>
-    <span class="number">40</span> <span class="number">48</span> <span class="number">56</span> <span class="number">64</span> <span class="number">72</span> <span class="number">96</span> <span class="number">128</span> <span class="number">160</span> <span class="number">192</span> <span class="number">224</span> <span class="number">256</span>
-);
 
 <span class="macro">macro_rules!</span> <span class="ident">impl_metadata_for_tuple</span> {
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ident</span>),<span class="op">*</span> ) =&gt; {
@@ -382,8 +551,51 @@
 <span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>);
 <span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>);
 <span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>, <span class="ident">Q</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>, <span class="ident">Q</span>, <span class="ident">R</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>, <span class="ident">Q</span>, <span class="ident">R</span>, <span class="ident">S</span>);
+<span class="macro">impl_metadata_for_tuple!</span>(<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>, <span class="ident">M</span>, <span class="ident">N</span>, <span class="ident">O</span>, <span class="ident">P</span>, <span class="ident">Q</span>, <span class="ident">R</span>, <span class="ident">S</span>, <span class="ident">T</span>);
+
+<span class="macro">macro_rules!</span> <span class="ident">impl_for_non_zero</span> {
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>: <span class="ident">ty</span> ),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
+        $(
+            <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span> {
+                <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+                <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+                    <span class="ident">Type::builder</span>()
+                        .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>)))
+                        .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span>()))
+                }
+            }
+        )<span class="op">*</span>
+    };
+}
+
+<span class="macro">impl_for_non_zero!</span>(
+    <span class="ident">NonZeroI8</span>,
+    <span class="ident">NonZeroI16</span>,
+    <span class="ident">NonZeroI32</span>,
+    <span class="ident">NonZeroI64</span>,
+    <span class="ident">NonZeroI128</span>,
+    <span class="ident">NonZeroU8</span>,
+    <span class="ident">NonZeroU16</span>,
+    <span class="ident">NonZeroU32</span>,
+    <span class="ident">NonZeroU64</span>,
+    <span class="ident">NonZeroU128</span>
+);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> [<span class="ident">T</span>];
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident"><span class="self">Self</span>::Identity::type_info</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
@@ -403,11 +615,13 @@
     <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Option&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>[<span class="ident">T</span>])
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>[<span class="ident">T</span>])
             .<span class="ident">variant</span>(
-                <span class="ident">Variants::with_fields</span>()
-                    .<span class="ident">variant_unit</span>(<span class="string">&quot;None&quot;</span>)
-                    .<span class="ident">variant</span>(<span class="string">&quot;Some&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>)),
+                <span class="ident">Variants::new</span>()
+                    .<span class="ident">variant</span>(<span class="string">&quot;None&quot;</span>, <span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">index</span>(<span class="number">0</span>))
+                    .<span class="ident">variant</span>(<span class="string">&quot;Some&quot;</span>, <span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
+                        <span class="ident">v</span>.<span class="ident">index</span>(<span class="number">1</span>).<span class="ident">fields</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
+                    }),
             )
     }
 }
@@ -422,12 +636,30 @@
     <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Result&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>(<span class="ident">T</span>, <span class="ident">E</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>(<span class="ident">T</span>, <span class="ident">E</span>))
             .<span class="ident">variant</span>(
-                <span class="ident">Variants::with_fields</span>()
-                    .<span class="ident">variant</span>(<span class="string">&quot;Ok&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;T&quot;</span>))
-                    .<span class="ident">variant</span>(<span class="string">&quot;Err&quot;</span>, <span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="string">&quot;E&quot;</span>)),
+                <span class="ident">Variants::new</span>()
+                    .<span class="ident">variant</span>(<span class="string">&quot;Ok&quot;</span>, <span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
+                        <span class="ident">v</span>.<span class="ident">index</span>(<span class="number">0</span>).<span class="ident">fields</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
+                    })
+                    .<span class="ident">variant</span>(<span class="string">&quot;Err&quot;</span>, <span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
+                        <span class="ident">v</span>.<span class="ident">index</span>(<span class="number">1</span>).<span class="ident">fields</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>()))
+                    }),
             )
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">ToOwned</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Cow&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>(<span class="ident">T</span>))
+            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()))
     }
 }
 
@@ -441,8 +673,22 @@
     <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
         <span class="ident">Type::builder</span>()
             .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;BTreeMap&quot;</span>))
-            .<span class="ident">type_params</span>(<span class="macro">tuple_meta_type!</span>[(<span class="ident">K</span>, <span class="ident">V</span>)])
-            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[(<span class="ident">K</span>, <span class="ident">V</span>)]<span class="op">&gt;</span>(<span class="string">&quot;[(K, V)]&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>[<span class="ident">K</span>, <span class="ident">V</span>])
+            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span>[(<span class="ident">K</span>, <span class="ident">V</span>)]<span class="op">&gt;</span>()))
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;BTreeSet&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>[<span class="ident">T</span>])
+            .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span>[<span class="ident">T</span>]<span class="op">&gt;</span>()))
     }
 }
 
@@ -506,14 +752,17 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">PhantomIdentity</span> <span class="op">=</span> <span class="ident">PhantomData</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="ident">PhantomIdentity</span>;
 
     <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
-        <span class="ident">TypeDefPhantom::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
+        <span class="comment">// Fields of this type should be filtered out and never appear in the type graph.</span>
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;PhantomData&quot;</span>))
+            .<span class="ident">docs</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;PhantomData placeholder, this type should be filtered out&quot;</span>])
+            .<span class="ident">composite</span>(<span class="ident">Fields::unit</span>())
     }
 }
 
@@ -524,6 +773,77 @@
     <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
     <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
         <span class="ident">TypeDefCompact::new</span>(<span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()).<span class="ident">into</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Idx</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">fmt::Debug</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;Range&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>[<span class="ident">Idx</span>])
+            .<span class="ident">composite</span>(
+                <span class="ident">Fields::named</span>()
+                    .<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">name</span>(<span class="string">&quot;start&quot;</span>).<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;Idx&quot;</span>))
+                    .<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">name</span>(<span class="string">&quot;end&quot;</span>).<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;Idx&quot;</span>)),
+            )
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">RangeInclusive</span><span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">Idx</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">fmt::Debug</span>,
+{
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::prelude</span>(<span class="string">&quot;RangeInclusive&quot;</span>))
+            .<span class="ident">type_params</span>(<span class="macro">type_params!</span>[<span class="ident">Idx</span>])
+            .<span class="ident">composite</span>(
+                <span class="ident">Fields::named</span>()
+                    .<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">name</span>(<span class="string">&quot;start&quot;</span>).<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;Idx&quot;</span>))
+                    .<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">name</span>(<span class="string">&quot;end&quot;</span>).<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">Idx</span><span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;Idx&quot;</span>)),
+            )
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">bit_vec</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">bitvec::vec::BitVec</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">O</span>: <span class="ident">bitvec::order::BitOrder</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">bitvec::store::BitStore</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    {
+        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+        <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+            <span class="ident"><span class="kw">crate</span>::TypeDefBitSequence::new</span>::<span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">into</span>()
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">bitvec::order::Lsb0</span> {
+        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+        <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+            <span class="ident">Type::builder</span>()
+                .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Lsb0&quot;</span>, <span class="string">&quot;bitvec::order&quot;</span>))
+                .<span class="ident">composite</span>(<span class="ident">Fields::unit</span>())
+        }
+    }
+
+    <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">bitvec::order::Msb0</span> {
+        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
+
+        <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+            <span class="ident">Type::builder</span>()
+                .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Msb0&quot;</span>, <span class="string">&quot;bitvec::order&quot;</span>))
+                .<span class="ident">composite</span>(<span class="ident">Fields::unit</span>())
+        }
     }
 }
 </code></pre></div>

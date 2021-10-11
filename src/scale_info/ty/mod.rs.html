@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-0.6.0&#x2F;src&#x2F;ty&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-1.0.0&#x2F;src&#x2F;ty&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -467,6 +467,129 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -543,10 +666,16 @@
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
         <span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;params&quot;</span>, <span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)
     )]</span>
-    <span class="ident">type_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T::Type</span><span class="op">&gt;</span>,
+    <span class="ident">type_params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TypeParameter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The actual type definition</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;def&quot;</span>))]</span>
     <span class="ident">type_def</span>: <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Documentation</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(
+        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+        <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)
+    )]</span>
+    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T::String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Type</span> {
@@ -555,8 +684,9 @@
     <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">Type</span> {
             <span class="ident">path</span>: <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
-            <span class="ident">type_params</span>: <span class="ident">registry</span>.<span class="ident">register_types</span>(<span class="self">self</span>.<span class="ident">type_params</span>),
+            <span class="ident">type_params</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">type_params</span>),
             <span class="ident">type_def</span>: <span class="self">self</span>.<span class="ident">type_def</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
+            <span class="ident">docs</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">docs</span>),
         }
     }
 }
@@ -565,7 +695,7 @@
     ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>  ), <span class="op">+</span> $(,)<span class="question-mark">?</span>) =&gt; { $(
         <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">item</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>) -&gt; <span class="self">Self</span> {
-                <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Path::voldemort</span>(), <span class="ident">Vec::new</span>(), <span class="ident">item</span>)
+                <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Path::voldemort</span>(), <span class="ident">Vec::new</span>(), <span class="ident">item</span>, <span class="ident">Vec::new</span>())
             }
         }
     )<span class="op">*</span> }
@@ -577,7 +707,7 @@
     <span class="ident">TypeDefSequence</span>,
     <span class="ident">TypeDefTuple</span>,
     <span class="ident">TypeDefCompact</span>,
-    <span class="ident">TypeDefPhantom</span>,
+    <span class="ident">TypeDefBitSequence</span>,
 );
 
 <span class="kw">impl</span> <span class="ident">Type</span> {
@@ -586,15 +716,21 @@
         <span class="ident">TypeBuilder::default</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">type_params</span>: <span class="ident">I</span>, <span class="ident">type_def</span>: <span class="ident">D</span>) -&gt; <span class="self">Self</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">D</span><span class="op">&gt;</span>(
+        <span class="ident">path</span>: <span class="ident">Path</span>,
+        <span class="ident">type_params</span>: <span class="ident">I</span>,
+        <span class="ident">type_def</span>: <span class="ident">D</span>,
+        <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaType</span><span class="op">&gt;</span>,
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">TypeParameter</span><span class="op">&gt;</span>,
         <span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TypeDef</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
             <span class="ident">path</span>,
             <span class="ident">type_params</span>: <span class="ident">type_params</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">type_def</span>: <span class="ident">type_def</span>.<span class="ident">into</span>(),
+            <span class="ident">docs</span>,
         }
     }
 }
@@ -609,7 +745,7 @@
     }
 
     <span class="doccomment">/// Returns the generic type parameters of the type</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">T::Type</span>] {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">TypeParameter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_params</span>
     }
 
@@ -617,9 +753,78 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_def</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_def</span>
     }
+
+    <span class="doccomment">/// Returns the documentation of the type</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">T::String</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
+    }
+}
+
+<span class="doccomment">/// A generic type parameter.</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(
+    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
+    <span class="ident">serde</span>(<span class="ident">bound</span>(
+        <span class="ident">serialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: Serialize, T::String: Serialize&quot;</span>,
+        <span class="ident">deserialize</span> <span class="op">=</span> <span class="string">&quot;T::Type: DeserializeOwned, T::String: DeserializeOwned&quot;</span>,
+    ))
+)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Encode</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeParameter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The name of the generic type parameter e.g. &quot;T&quot;.</span>
+    <span class="ident">name</span>: <span class="ident">T::String</span>,
+    <span class="doccomment">/// The concrete type for the type parameter.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// `None` if the type parameter is skipped.</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>))]</span>
+    <span class="ident">ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T::Type</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeParameter</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeParameter</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+
+    <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="ident">TypeParameter</span> {
+            <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
+            <span class="ident">ty</span>: <span class="self">self</span>.<span class="ident">ty</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="ident">ty</span>)),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeParameter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Form</span>,
+{
+    <span class="doccomment">/// Create a new [`TypeParameter`].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="ident">T::String</span>, <span class="ident">ty</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T::Type</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">name</span>, <span class="ident">ty</span> }
+    }
+
+    <span class="doccomment">/// Get the type of the parameter.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// `None` if the parameter is skipped.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T::Type</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">ty</span>.<span class="ident">as_ref</span>()
+    }
+
+    <span class="doccomment">/// Get the name of the parameter.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::String</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
+    }
 }
 
 <span class="doccomment">/// The possible types a SCALE encodable Rust value could have.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// In order to preserve backwards compatibility, variant indices are explicitly specified instead</span>
+<span class="doccomment">/// of depending on the default implicit ordering.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// When adding a new variant, it must be added at the end with an incremented index.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// When removing an existing variant, the rest of variant indices remain the same, and the removed</span>
+<span class="doccomment">/// index should not be reused.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
@@ -633,21 +838,29 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">From</span>, <span class="ident">Debug</span>, <span class="ident">Encode</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeDef</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
     <span class="doccomment">/// A composite type (e.g. a struct or a tuple)</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>)]</span>
     <span class="ident">Composite</span>(<span class="ident">TypeDefComposite</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A variant type (e.g. an enum)</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">1</span>)]</span>
     <span class="ident">Variant</span>(<span class="ident">TypeDefVariant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A sequence type with runtime known length.</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">2</span>)]</span>
     <span class="ident">Sequence</span>(<span class="ident">TypeDefSequence</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
     <span class="doccomment">/// An array type with compile-time known length.</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">3</span>)]</span>
     <span class="ident">Array</span>(<span class="ident">TypeDefArray</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A tuple type.</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">4</span>)]</span>
     <span class="ident">Tuple</span>(<span class="ident">TypeDefTuple</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A Rust primitive type.</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">5</span>)]</span>
     <span class="ident">Primitive</span>(<span class="ident">TypeDefPrimitive</span>),
     <span class="doccomment">/// A type using the [`Compact`] encoding</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">6</span>)]</span>
     <span class="ident">Compact</span>(<span class="ident">TypeDefCompact</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// A PhantomData type.</span>
-    <span class="ident">Phantom</span>(<span class="ident">TypeDefPhantom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// A type representing a sequence of bits.</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">7</span>)]</span>
+    <span class="ident">BitSequence</span>(<span class="ident">TypeDefBitSequence</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDef</span> {
@@ -662,46 +875,65 @@
             <span class="ident">TypeDef::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="ident">tuple</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
             <span class="ident">TypeDef::Primitive</span>(<span class="ident">primitive</span>) =&gt; <span class="ident">primitive</span>.<span class="ident">into</span>(),
             <span class="ident">TypeDef::Compact</span>(<span class="ident">compact</span>) =&gt; <span class="ident">compact</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
-            <span class="ident">TypeDef::Phantom</span>(<span class="ident">phantom</span>) =&gt; <span class="ident">phantom</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
+            <span class="ident">TypeDef::BitSequence</span>(<span class="ident">bitseq</span>) =&gt; <span class="ident">bitseq</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>).<span class="ident">into</span>(),
         }
     }
 }
 
 <span class="doccomment">/// A primitive Rust type.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Explicit codec indices specified to ensure backwards compatibility. See [`TypeDef`].</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;lowercase&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Encode</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeDefPrimitive</span> {
     <span class="doccomment">/// `bool` type</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">0</span>)]</span>
     <span class="ident">Bool</span>,
     <span class="doccomment">/// `char` type</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">1</span>)]</span>
     <span class="ident">Char</span>,
     <span class="doccomment">/// `str` type</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">2</span>)]</span>
     <span class="ident">Str</span>,
     <span class="doccomment">/// `u8`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">3</span>)]</span>
     <span class="ident">U8</span>,
     <span class="doccomment">/// `u16`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">4</span>)]</span>
     <span class="ident">U16</span>,
     <span class="doccomment">/// `u32`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">5</span>)]</span>
     <span class="ident">U32</span>,
     <span class="doccomment">/// `u64`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">6</span>)]</span>
     <span class="ident">U64</span>,
     <span class="doccomment">/// `u128`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">7</span>)]</span>
     <span class="ident">U128</span>,
     <span class="doccomment">/// 256 bits unsigned int (no rust equivalent)</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">8</span>)]</span>
     <span class="ident">U256</span>,
     <span class="doccomment">/// `i8`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">9</span>)]</span>
     <span class="ident">I8</span>,
     <span class="doccomment">/// `i16`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">10</span>)]</span>
     <span class="ident">I16</span>,
     <span class="doccomment">/// `i32`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">11</span>)]</span>
     <span class="ident">I32</span>,
     <span class="doccomment">/// `i64`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">12</span>)]</span>
     <span class="ident">I64</span>,
     <span class="doccomment">/// `i128`</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">13</span>)]</span>
     <span class="ident">I128</span>,
     <span class="doccomment">/// 256 bits signed int (no rust equivalent)</span>
+    <span class="attribute">#[<span class="ident">codec</span>(<span class="ident">index</span> <span class="op">=</span> <span class="number">14</span>)]</span>
     <span class="ident">I256</span>,
 }
 
@@ -785,7 +1017,10 @@
         <span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">MetaType</span><span class="op">&gt;</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">fields</span>: <span class="ident">type_params</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+            <span class="ident">fields</span>: <span class="ident">type_params</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">ty</span><span class="op">|</span> <span class="op">!</span><span class="ident">ty</span>.<span class="ident">is_phantom</span>())
+                .<span class="ident">collect</span>(),
         }
     }
 
@@ -891,49 +1126,60 @@
     }
 }
 
-<span class="doccomment">/// A type describing a `PhantomData&lt;T&gt;` type.</span>
+<span class="doccomment">/// Type describing a [`bitvec::vec::BitVec`].</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// In the context of SCALE encoded types, including `PhantomData&lt;T&gt;` types in</span>
-<span class="doccomment">/// the type info  might seem surprising. The reason to include this information</span>
-<span class="doccomment">/// is that there could be situations where it&#39;s useful and because removing</span>
-<span class="doccomment">/// `PhantomData` items from the derive input quickly becomes a messy</span>
-<span class="doccomment">/// syntax-level hack (see PR https://github.com/paritytech/scale-info/pull/31).</span>
-<span class="doccomment">/// Instead we take the same approach as `parity-scale-codec` where users are</span>
-<span class="doccomment">/// required to explicitly skip fields that cannot be represented in SCALE</span>
-<span class="doccomment">/// encoding, using the `#[codec(skip)]` attribute.</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This can only be constructed for `TypeInfo` in the `MetaForm` with the `bit-vec` feature</span>
+<span class="doccomment">/// enabled, but can be decoded or deserialized into the `PortableForm` without this feature.</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>))]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Encode</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefPhantom</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The PhantomData type parameter</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>))]</span>
-    <span class="ident">type_param</span>: <span class="ident">T::Type</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefBitSequence</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The type implementing [`bitvec::store::BitStore`].</span>
+    <span class="ident">bit_store_type</span>: <span class="ident">T::Type</span>,
+    <span class="doccomment">/// The type implementing [`bitvec::order::BitOrder`].</span>
+    <span class="ident">bit_order_type</span>: <span class="ident">T::Type</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefPhantom</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefPhantom</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
+<span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefBitSequence</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TypeDefBitSequence</span><span class="op">&lt;</span><span class="ident">PortableForm</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">TypeDefPhantom</span> {
-            <span class="ident">type_param</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>),
+        <span class="ident">TypeDefBitSequence</span> {
+            <span class="ident">bit_store_type</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_store_type</span>),
+            <span class="ident">bit_order_type</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_order_type</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TypeDefPhantom</span> {
-    <span class="doccomment">/// Creates a new phantom type definition.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">type_param</span>: <span class="ident">MetaType</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">type_param</span> }
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeDefPhantom</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">TypeDefBitSequence</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Form</span>,
 {
-    <span class="doccomment">/// Returns the type parameter type of the phantom type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">type_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::Type</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">type_param</span>
+    <span class="doccomment">/// Returns the type of the bit ordering of the [`::bitvec::vec::BitVec`].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bit_order_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::Type</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_order_type</span>
+    }
+
+    <span class="doccomment">/// Returns underlying type used to store the [`::bitvec::vec::BitVec`].</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bit_store_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::Type</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_store_type</span>
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">TypeDefBitSequence</span> {
+    <span class="doccomment">/// Creates a new [`TypeDefBitSequence`] for the supplied bit order and bit store types.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">O</span>: <span class="ident">bitvec::order::BitOrder</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">T</span>: <span class="ident">bitvec::store::BitStore</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+    {
+        <span class="self">Self</span> {
+            <span class="ident">bit_order_type</span>: <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(),
+            <span class="ident">bit_store_type</span>: <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
+        }
     }
 }
 </code></pre></div>

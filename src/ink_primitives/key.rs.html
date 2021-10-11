@@ -395,6 +395,8 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -638,7 +640,9 @@
         <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
             <span class="ident">Type::builder</span>()
                 .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Key&quot;</span>, <span class="string">&quot;ink_primitives&quot;</span>))
-                .<span class="ident">composite</span>(<span class="ident">Fields::unnamed</span>().<span class="ident">field_of</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>(<span class="string">&quot;[u8; 32]&quot;</span>))
+                .<span class="ident">composite</span>(
+                    <span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;[u8; 32]&quot;</span>)),
+                )
         }
     }
 };

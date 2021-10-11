@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Efficient and space-efficient serialization of Rust types."><meta name="keywords" content="rust, rustlang, rust-lang, scale_info"><title>scale_info - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../scale_info/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate scale_info</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.6.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all scale_info's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="scale_info" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">scale_info</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/scale_info/lib.rs.html#15-152" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Efficient and space-efficient serialization of Rust types.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Efficient and space-efficient serialization of Rust types."><meta name="keywords" content="rust, rustlang, rust-lang, scale_info"><title>scale_info - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../scale_info/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate scale_info</h2><div class="block version"><div class="narrow-helper"></div><p>Version 1.0.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all scale_info's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="scale_info" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">scale_info</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/scale_info/lib.rs.html#15-377" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Efficient and space-efficient serialization of Rust types.</p>
 <p>This library provides structures to easily retrieve compile-time type
 information at runtime and also to serialize this information in a
 space-efficient form, aka <code>PortableForm</code>.</p>
@@ -12,6 +12,131 @@ trait.</p>
 <p>This trait should be implemented for all types that are serializable.
 <code>scale-info</code> provides implementations for all commonly used Rust standard
 types and a derive macro for implementing of custom types.</p>
+<h3 id="deriving-typeinfo" class="section-header"><a href="#deriving-typeinfo">Deriving <code>TypeInfo</code></a></h3>
+<p>Enable the <code>derive</code> feature of this crate:</p>
+<div class="example-wrap"><pre class="language-toml"><code>scale-info = { version = &quot;0.6.0&quot;, features = [&quot;derive&quot;] }</code></pre></div>
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">use</span> <span class="ident">scale_info::TypeInfo</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="kw">struct</span> <span class="ident">MyStruct</span> {
+    <span class="ident">a</span>: <span class="ident">u32</span>,
+    <span class="ident">b</span>: <span class="ident">MyEnum</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="kw">enum</span> <span class="ident">MyEnum</span> {
+    <span class="ident">A</span>(<span class="ident">bool</span>),
+    <span class="ident">B</span> { <span class="ident">f</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> },
+    <span class="ident">C</span>,
+}</code></pre></div>
+<h4 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h4><h5 id="scale_infobounds" class="section-header"><a href="#scale_infobounds"><code>#[scale_info(bounds(..))]</code></a></h5>
+<p>Replace the auto-generated <code>where</code> clause bounds for the derived <code>TypeInfo</code> implementation.</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="attribute">#[<span class="ident">scale_info</span>(<span class="ident">bounds</span>(<span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>))]</span>
+<span class="kw">struct</span> <span class="ident">MyStruct</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}</code></pre></div>
+<p>The derive macro automatically adds <code>TypeInfo</code> bounds for all type parameters, and all field
+types containing type parameters or associated types.</p>
+<p>This is naive and sometimes adds unnecessary bounds, since on a syntactical level there is no
+way to differentiate between a generic type constructor and a type alias with a generic argument
+e.g.</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">trait</span> <span class="ident">MyTrait</span> {
+    <span class="kw">type</span> <span class="ident">A</span>;
+}
+
+<span class="kw">type</span> <span class="ident">MyAlias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">MyTrait</span><span class="op">&gt;</span><span class="ident">::A</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="kw">struct</span> <span class="ident">MyStruct</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">a</span>: <span class="ident">MyAlias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">b</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}</code></pre></div>
+<p>So for the above, since a <code>MyAlias&lt;T&gt;: TypeInfo</code> bound is required, and we can’t distinguish
+between <code>MyAlias&lt;T&gt;</code> and <code>Vec&lt;T&gt;</code>, then the <code>TypeInfo</code> bound is simply added for all
+fields which contain any type param. In this case the redundant <code>Vec&lt;T&gt;: TypeInfo</code>
+would be added.</p>
+<p>This is usually okay, but in some circumstances can cause problems, for example with the
+[<code>overflow evaluating the requirement</code>] error <a href="https://github.com/paritytech/scale-info/blob/master/test_suite/tests/ui/pass_custom_bounds_fix_overflow.rs">here</a>.</p>
+<p>The <code>bounds</code> attribute provides an <a href="https://serde.rs/attr-bound.html">“escape hatch”</a> to allow
+the programmer control of the <code>where</code> clause on the generated <code>impl</code>, to solve this and other
+issues that can’t be foreseen by the auto-generated bounds heuristic.</p>
+<h5 id="scale_infoskip_type_params" class="section-header"><a href="#scale_infoskip_type_params"><code>#[scale_info(skip_type_params(..))]</code></a></h5>
+<p>Remove the requirement for the specified type params to implement <code>TypeInfo</code>.</p>
+<p>Consider a simple example of a type parameter which is used for associated types, but the type
+itself does not carry any type information. Consider this common pattern:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">trait</span> <span class="ident">Config</span> {
+    <span class="kw">type</span> <span class="ident">Balance</span>;
+}
+
+<span class="kw">struct</span> <span class="ident">Runtime</span>; <span class="comment">// doesn&#39;t implement `TypeInfo`</span>
+
+<span class="kw">impl</span> <span class="ident">Config</span> <span class="kw">for</span> <span class="ident">Runtime</span> {
+    <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u64</span>;
+}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="attribute">#[<span class="ident">scale_info</span>(<span class="ident">skip_type_params</span>(<span class="ident">T</span>))]</span>
+<span class="kw">struct</span> <span class="ident">A</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Config</span><span class="op">&gt;</span> {
+    <span class="ident">balance</span>: <span class="ident">T::Balance</span>,
+    <span class="ident">marker</span>: <span class="ident">core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">assert_type_info</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale_info::TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>() {}
+
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="comment">// without the `skip_type_params` attribute this will fail.</span>
+    <span class="ident">assert_type_info</span>::<span class="op">&lt;</span><span class="ident">A</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+}</code></pre></div>
+<p>By default, the derived <code>TypeInfo</code> implementation will add the type of all type parameters to
+the <code>TypeParameter</code> specification e.g.</p>
+<p><code>type_params(vec![TypeParameter::new(&quot;T&quot;, Some(MetaType::new::&lt;T&gt;()))])</code></p>
+<p>In the example above, this will cause a compiler error because <code>Runtime</code> is the concrete tyoe
+for <code>T</code>, which does not satisfy the <code>TypeInfo</code> requirement of <code>MetaType::new::&lt;T&gt;()</code>.</p>
+<p>Simply adding a <code>TypeInfo</code> derive to <code>Runtime</code> is one way of solving this, but that could be
+misleading (why does it need <code>TypeInfo</code> if a value of that type is never encoded?), and can
+sometimes require adding <code>TypeInfo</code> bounds in other impl blocks.</p>
+<p>The <code>skip_type_params</code> attribute solves this, providing an additional “escape hatch” which
+prevents the given type parameter’s type information being required:</p>
+<p><code>type_params(vec![TypeParameter::new(&quot;T&quot;, None)])</code></p>
+<p>The generated type params do not now require <code>T</code> to implement <code>TypeInfo</code>, so the auto-generated
+bound is not added to the generated <code>TypeInfo</code> <code>where</code> clause.</p>
+<h5 id="combining-bounds-and-skip_type_params" class="section-header"><a href="#combining-bounds-and-skip_type_params">Combining <code>bounds</code> and <code>skip_type_params</code></a></h5>
+<p>These two attributes can complement one another, particularly in the case where using <code>bounds</code>
+would still require manually adding a <code>TypeInfo</code> bound for the type parameter:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
+<span class="attribute">#[<span class="ident">scale_info</span>(<span class="ident">bounds</span>(), <span class="ident">skip_type_params</span>(<span class="ident">T</span>))]</span>
+<span class="kw">struct</span> <span class="ident">A</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">marker</span>: <span class="ident">core::marker::PhantomData</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}</code></pre></div>
+<p>Without <code>skip_type_params</code> in the example above, it would require the <code>TypeInfo</code> bounds for <code>T</code>
+to be added manually e.g. <code>#[scale_info(bounds(T: TypeInfo + 'static))]</code>. Since the intention of
+the empty bounds is to <strong>remove</strong> all type bounds, then the addition of <code>skip_type_params</code>
+allows this to compile successfully.</p>
+<h6 id="precedence" class="section-header"><a href="#precedence">Precedence</a></h6>
+<p>When used independently, both attributes modify the <code>where</code> clause of the derived <code>TypeInfo</code>
+impl. When used together, the predicates supplied in the <code>bounds</code> attribute replaces <em>all</em>
+auto-generated bounds, and <code>skip_type_params</code> will have no effect on the resulting <code>where</code>
+clause.</p>
+<p><strong>Note:</strong> When using <code>bounds</code> without <code>skip_type_params</code>, it is therefore required to manually
+add a <code>TypeInfo</code> bound for any non skipped type parameters. The compiler will let you know.</p>
+<h5 id="scale_infocapture_docs--defaultalwaysnever" class="section-header"><a href="#scale_infocapture_docs--defaultalwaysnever"><code>#[scale_info(capture_docs = &quot;default|always|never&quot;)]</code></a></h5>
+<p>Docs for types, fields and variants can all be captured by the <code>docs</code> feature being enabled.
+This can be overridden using the <code>capture_docs</code> attribute:</p>
+<p><code>#[scale_info(capture_docs = &quot;default&quot;)]</code> will capture docs iff the <code>docs</code> feature is enabled.
+This is the default if <code>capture_docs</code> is not specified.</p>
+<p><code>#[scale_info(capture_docs = &quot;always&quot;)]</code> will capture docs for the annotated type even if the
+<code>docs</code> feature is <em>not</em> enabled.</p>
+<p><code>#[scale_info(capture_docs = &quot;never&quot;)]</code> will <em>not</em> capture docs for the annotated type even if
+the <code>docs</code> is enabled.</p>
+<p>This is useful e.g. when compiling metadata into a Wasm blob, and it is desirable to keep the
+binary size as small as possible, so the <code>docs</code> feature would be disabled. In case the docs for
+some types is necessary they could be enabled on a per-type basis with the above attribute.</p>
 <h2 id="forms" class="section-header"><a href="#forms">Forms</a></h2>
 <p>To bridge between compile-time type information and runtime the
 <a href="form/enum.MetaForm.html"><code>MetaForm</code></a> is used to easily retrieve all
@@ -42,8 +167,11 @@ They are designed to allow only construction of valid definitions.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="interner/index.html" title="scale_info::interner mod">interner</a></div><div class="item-right docblock-short"><p>Interning data structure and associated symbol definitions.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="scale_info::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>Exports from <code>std</code>, <code>core</code> and <code>alloc</code> crates.</p>
 </div></div></div><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.tuple_meta_type.html" title="scale_info::tuple_meta_type macro">tuple_meta_type</a></div><div class="item-right docblock-short"><p>Takes a number of types and returns a vector that contains their respective
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.named_type_params.html" title="scale_info::named_type_params macro">named_type_params</a></div><div class="item-right docblock-short"><p>Construct a vector of <code>TypeParameter</code>s from pairs of the name and the concrete type.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.tuple_meta_type.html" title="scale_info::tuple_meta_type macro">tuple_meta_type</a></div><div class="item-right docblock-short"><p>Takes a number of types and returns a vector that contains their respective
 <a href="struct.MetaType.html"><code>MetaType</code></a> instances.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.type_params.html" title="scale_info::type_params macro">type_params</a></div><div class="item-right docblock-short"><p>Construct a vector of <a href="struct.TypeParameter.html" title="TypeParameter"><code>TypeParameter</code></a> instances with the name of the type parameter,
+together with its concrete <a href="struct.MetaType.html" title="MetaType"><code>MetaType</code></a>.</p>
 </div></div></div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Field.html" title="scale_info::Field struct">Field</a></div><div class="item-right docblock-short"><p>A field of a struct-like data type.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.MetaType.html" title="scale_info::MetaType struct">MetaType</a></div><div class="item-right docblock-short"><p>A metatype abstraction.</p>
@@ -53,13 +181,14 @@ They are designed to allow only construction of valid definitions.</p>
 definitions.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Type.html" title="scale_info::Type struct">Type</a></div><div class="item-right docblock-short"><p>A <a href="struct.Type.html" title="Type"><code>Type</code></a> definition with optional metadata.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefArray.html" title="scale_info::TypeDefArray struct">TypeDefArray</a></div><div class="item-right docblock-short"><p>An array type.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefBitSequence.html" title="scale_info::TypeDefBitSequence struct">TypeDefBitSequence</a></div><div class="item-right docblock-short"><p>Type describing a [<code>bitvec::vec::BitVec</code>].</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefCompact.html" title="scale_info::TypeDefCompact struct">TypeDefCompact</a></div><div class="item-right docblock-short"><p>A type wrapped in [<code>Compact</code>].</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefComposite.html" title="scale_info::TypeDefComposite struct">TypeDefComposite</a></div><div class="item-right docblock-short"><p>A composite type, consisting of either named (struct) or unnamed (tuple
 struct) fields</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefPhantom.html" title="scale_info::TypeDefPhantom struct">TypeDefPhantom</a></div><div class="item-right docblock-short"><p>A type describing a <code>PhantomData&lt;T&gt;</code> type.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefSequence.html" title="scale_info::TypeDefSequence struct">TypeDefSequence</a></div><div class="item-right docblock-short"><p>A type to refer to a sequence of elements of the same type.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefTuple.html" title="scale_info::TypeDefTuple struct">TypeDefTuple</a></div><div class="item-right docblock-short"><p>A type to refer to tuple types.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeDefVariant.html" title="scale_info::TypeDefVariant struct">TypeDefVariant</a></div><div class="item-right docblock-short"><p>A Enum type (consisting of variants).</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.TypeParameter.html" title="scale_info::TypeParameter struct">TypeParameter</a></div><div class="item-right docblock-short"><p>A generic type parameter.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Variant.html" title="scale_info::Variant struct">Variant</a></div><div class="item-right docblock-short"><p>A struct enum variant with either named (struct) or unnamed (tuple struct)
 fields.</p>
 </div></div></div><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
@@ -68,6 +197,7 @@ fields.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.TypeDefPrimitive.html" title="scale_info::TypeDefPrimitive enum">TypeDefPrimitive</a></div><div class="item-right docblock-short"><p>A primitive Rust type.</p>
 </div></div></div><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.IntoPortable.html" title="scale_info::IntoPortable trait">IntoPortable</a></div><div class="item-right docblock-short"><p>Convert the type definition into the portable form using a registry.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.StaticTypeInfo.html" title="scale_info::StaticTypeInfo trait">StaticTypeInfo</a></div><div class="item-right docblock-short"><p>Convenience trait for implementors, combining <code>TypeInfo</code> and <code>'static</code> bounds.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="trait" href="trait.TypeInfo.html" title="scale_info::TypeInfo trait">TypeInfo</a></div><div class="item-right docblock-short"><p>Implementors return their meta type information.</p>
 </div></div></div><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.meta_type.html" title="scale_info::meta_type fn">meta_type</a></div><div class="item-right docblock-short"><p>Returns the runtime bridge to the types compile-time type information.</p>

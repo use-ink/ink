@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-0.6.0&#x2F;src&#x2F;ty&#x2F;variant.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>variant.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `&#x2F;usr&#x2F;local&#x2F;cargo&#x2F;registry&#x2F;src&#x2F;github.com-1ecc6299db9ec823&#x2F;scale-info-1.0.0&#x2F;src&#x2F;ty&#x2F;variant.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>variant.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../scale_info/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -223,6 +223,8 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2019-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -240,7 +242,6 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude::vec::Vec</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">build::FieldsBuilder</span>,
     <span class="ident">form</span>::{
         <span class="ident">Form</span>,
         <span class="ident">MetaForm</span>,
@@ -285,7 +286,7 @@
 <span class="doccomment">///     Monday,</span>
 <span class="doccomment">///     Tuesday,</span>
 <span class="doccomment">///     Wednesday,</span>
-<span class="doccomment">///     Thursday = 42, // Also allows to manually set the discriminant!</span>
+<span class="doccomment">///     Thursday = 42, // Allows setting the discriminant explicitly</span>
 <span class="doccomment">///     Friday,</span>
 <span class="doccomment">///     Saturday,</span>
 <span class="doccomment">///     Sunday,</span>
@@ -383,18 +384,18 @@
         <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)
     )]</span>
     <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The discriminant of the variant.</span>
+    <span class="doccomment">/// Index of the variant, used in `parity-scale-codec`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Even though setting the discriminant is optional</span>
-    <span class="doccomment">/// every C-like enum variant has a discriminant specified</span>
-    <span class="doccomment">/// upon compile-time.</span>
+    <span class="doccomment">/// The value of this will be, in order of precedence:</span>
+    <span class="doccomment">///     1. The explicit index defined by a `#[codec(index = N)]` attribute.</span>
+    <span class="doccomment">///     2. The implicit index from the position of the variant in the `enum` definition.</span>
+    <span class="ident">index</span>: <span class="ident">u8</span>,
+    <span class="doccomment">/// Documentation</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(
         <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>,
-        <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Option::is_none&quot;</span>, <span class="ident">default</span>)
+        <span class="ident">serde</span>(<span class="ident">skip_serializing_if</span> <span class="op">=</span> <span class="string">&quot;Vec::is_empty&quot;</span>, <span class="ident">default</span>)
     )]</span>
-    <span class="ident">discriminant</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+    <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T::String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">Variant</span> {
@@ -404,27 +405,25 @@
         <span class="ident">Variant</span> {
             <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">into_portable</span>(<span class="ident">registry</span>),
             <span class="ident">fields</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">fields</span>),
-            <span class="ident">discriminant</span>: <span class="self">self</span>.<span class="ident">discriminant</span>,
+            <span class="ident">index</span>: <span class="self">self</span>.<span class="ident">index</span>,
+            <span class="ident">docs</span>: <span class="ident">registry</span>.<span class="ident">map_into_portable</span>(<span class="self">self</span>.<span class="ident">docs</span>),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Variant</span> {
-    <span class="doccomment">/// Creates a new variant with the given fields.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_fields</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">fields</span>: <span class="ident">FieldsBuilder</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Creates a new variant.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+        <span class="ident">fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Field</span><span class="op">&lt;</span><span class="ident">MetaForm</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">index</span>: <span class="ident">u8</span>,
+        <span class="ident">docs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">name</span>,
-            <span class="ident">fields</span>: <span class="ident">fields</span>.<span class="ident">finalize</span>(),
-            <span class="ident">discriminant</span>: <span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="doccomment">/// Creates a new variant with the given discriminant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_discriminant</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">discriminant</span>: <span class="ident">u64</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">fields</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">discriminant</span>: <span class="prelude-val">Some</span>(<span class="ident">discriminant</span>),
+            <span class="ident">fields</span>,
+            <span class="ident">index</span>,
+            <span class="ident">docs</span>,
         }
     }
 }
@@ -433,7 +432,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Form</span>,
 {
-    <span class="doccomment">/// Returns the name of the variant</span>
+    <span class="doccomment">/// Returns the name of the variant.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T::String</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
     }
@@ -443,9 +442,14 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fields</span>
     }
 
-    <span class="doccomment">/// Returns the discriminant of the variant.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">discriminant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">discriminant</span>
+    <span class="doccomment">/// Returns the index of the variant.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u8</span> {
+        <span class="self">self</span>.<span class="ident">index</span>
+    }
+
+    <span class="doccomment">/// Returns the documentation of the variant.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">T::String</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">docs</span>
     }
 }
 </code></pre></div>

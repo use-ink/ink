@@ -139,6 +139,9 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -209,8 +212,11 @@
                 <span class="comment">// .type_params(vec![scale_info::MetaType::new::&lt;T&gt;()])</span>
                 .<span class="ident">composite</span>(
                     <span class="ident">scale_info::build::Fields::named</span>()
-                        .<span class="ident">field_of</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocation</span><span class="op">&gt;</span>(<span class="string">&quot;allocation&quot;</span>, <span class="string">&quot;DynamicAllocation&quot;</span>),
-                )
+                        .<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>
+                            .<span class="ident">name</span>(<span class="string">&quot;allocation&quot;</span>)
+                            .<span class="ident">ty</span>::<span class="op">&lt;</span><span class="ident">DynamicAllocation</span><span class="op">&gt;</span>()
+                            .<span class="ident">type_name</span>(<span class="string">&quot;DynamicAllocation&quot;</span>),
+                ))
         }
     }
 };

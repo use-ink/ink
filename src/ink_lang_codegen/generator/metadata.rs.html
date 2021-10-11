@@ -459,14 +459,14 @@
             #<span class="ident">no_cross_calling_cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink_metadata::InkProject</span>  {
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink_metadata::MetadataVersioned</span>  {
                     <span class="kw">let</span> <span class="ident">contract</span>: <span class="ident">::ink_metadata::ContractSpec</span> <span class="op">=</span> {
                         #<span class="ident">contract</span>
                     };
                     <span class="kw">let</span> <span class="ident">layout</span>: <span class="ident">::ink_metadata::layout::Layout</span> <span class="op">=</span> {
                         #<span class="ident">layout</span>
                     };
-                    <span class="ident">::ink_metadata::InkProject::new</span>(<span class="ident">layout</span>, <span class="ident">contract</span>)
+                    <span class="ident">::ink_metadata::InkProject::new</span>(<span class="ident">layout</span>, <span class="ident">contract</span>).<span class="ident">into</span>()
                 }
             };
         }
