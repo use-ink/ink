@@ -36,6 +36,9 @@ mod literal;
 
 pub use self::{
     ir::{
+        blake2b_256,
+        marker,
+        Blake2x256Macro,
         Callable,
         CallableKind,
         CallableWithSelector,
@@ -66,6 +69,7 @@ pub use self::{
         Namespace,
         Receiver,
         Selector,
+        SelectorMacro,
         Storage,
         Visibility,
     },

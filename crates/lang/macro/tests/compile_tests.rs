@@ -16,6 +16,15 @@
 fn compile_tests() {
     let t = trybuild::TestCases::new();
 
+    t.pass("tests/ui/blake2b/pass/*.rs");
+    t.compile_fail("tests/ui/blake2b/fail/*.rs");
+
+    t.pass("tests/ui/selector_id/pass/*.rs");
+    t.compile_fail("tests/ui/selector_id/fail/*.rs");
+
+    t.pass("tests/ui/selector_bytes/pass/*.rs");
+    t.compile_fail("tests/ui/selector_bytes/fail/*.rs");
+
     t.pass("tests/ui/contract/pass/01-noop-contract.rs");
     t.pass("tests/ui/contract/pass/02-flipper-contract.rs");
     t.pass("tests/ui/contract/pass/03-incrementer-contract.rs");

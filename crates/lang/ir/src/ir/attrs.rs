@@ -588,7 +588,7 @@ pub fn sanitize_attributes<I, C>(
     parent_span: Span,
     attrs: I,
     is_valid_first: &ir::AttributeArgKind,
-    mut is_conflicting_attr: C,
+    is_conflicting_attr: C,
 ) -> Result<(InkAttribute, Vec<syn::Attribute>), syn::Error>
 where
     I: IntoIterator<Item = syn::Attribute>,
@@ -605,7 +605,7 @@ where
             is_valid_first,
         ))
     })?;
-    normalized.ensure_no_conflicts(|arg| is_conflicting_attr(arg))?;
+    normalized.ensure_no_conflicts(is_conflicting_attr)?;
     Ok((normalized, other_attrs))
 }
 

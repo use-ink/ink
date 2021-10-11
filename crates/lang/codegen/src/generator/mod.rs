@@ -26,6 +26,7 @@ macro_rules! impl_as_ref_for_generator {
     };
 }
 
+mod blake2b;
 mod chain_extension;
 mod contract;
 mod cross_calling;
@@ -35,10 +36,12 @@ mod events;
 mod ink_test;
 mod item_impls;
 mod metadata;
+mod selector;
 mod storage;
 mod trait_def;
 
 pub use self::{
+    blake2b::Blake2x256,
     chain_extension::ChainExtension,
     contract::Contract,
     cross_calling::{
@@ -51,6 +54,10 @@ pub use self::{
     ink_test::InkTest,
     item_impls::ItemImpls,
     metadata::Metadata,
+    selector::{
+        SelectorBytes,
+        SelectorId,
+    },
     storage::Storage,
     trait_def::TraitDefinition,
 };
