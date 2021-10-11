@@ -66,12 +66,20 @@ where
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    pub fn get(&self, key: &K) -> Option<V> {
+    pub fn get<Q>(&self, key: &Q) -> Option<V>
+    where
+        K: core::borrow::Borrow<Q>,
+        Q: scale::Encode,
+    {
         pull_packed_root_opt(&self.key(key))
     }
 
-    fn key(&self, key: &K) -> Key {
-        let encodedable_key = (self.key, key);
+    fn key<Q>(&self, key: &Q) -> Key
+    where
+        K: core::borrow::Borrow<Q>,
+        Q: scale::Encode,
+    {
+        let encodedable_key = (&self.key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
         output.into()
