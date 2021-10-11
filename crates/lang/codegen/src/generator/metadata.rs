@@ -141,9 +141,7 @@ impl Metadata<'_> {
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 let constructor = constructor.callable();
                 let ident = constructor.ident();
-                let args = constructor
-                    .inputs()
-                    .map(|arg| Self::generate_message_param(arg));
+                let args = constructor.inputs().map(Self::generate_message_param);
                 let constr = match trait_ident {
                     Some(trait_ident) => {
                         quote_spanned!(span => from_trait_and_name(
@@ -236,9 +234,7 @@ impl Metadata<'_> {
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
-                let args = message
-                    .inputs()
-                    .map(|arg| Self::generate_message_param(arg));
+                let args = message.inputs().map(Self::generate_message_param);
                 let ret_ty = Self::generate_return_type(message.output());
                 let constr = match trait_ident {
                     Some(trait_ident) => {

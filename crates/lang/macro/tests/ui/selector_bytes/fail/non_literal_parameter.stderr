@@ -1,0 +1,5 @@
+error: expected string or byte string literal as input: expected literal
+ --> $DIR/non_literal_parameter.rs:4:37
+  |
+4 | const _: u32 = ink::selector_bytes!(INPUT);
+  |                                     ^^^^^

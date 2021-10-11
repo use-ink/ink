@@ -118,7 +118,7 @@ impl<'a> IterMut<'a> {
 
     /// Returns access for the given bit index with extended but valid lifetimes.
     fn get<'b>(&'b mut self, index: u8) -> BitRefMut<'a> {
-        unsafe { BitRefMut::new(extend_lifetime(&mut self.bits), index) }
+        unsafe { BitRefMut::new(extend_lifetime(self.bits), index) }
     }
 }
 

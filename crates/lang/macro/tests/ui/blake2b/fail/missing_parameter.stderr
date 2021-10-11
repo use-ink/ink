@@ -1,0 +1,7 @@
+error: expected string or byte string literal as input: unexpected end of input, expected literal
+ --> $DIR/missing_parameter.rs:3:21
+  |
+3 | const _: [u8; 32] = ink::blake2x256!();
+  |                     ^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the macro `ink::blake2x256` (in Nightly builds, run with -Z macro-backtrace for more info)
