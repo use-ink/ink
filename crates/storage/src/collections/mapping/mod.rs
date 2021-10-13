@@ -26,7 +26,10 @@ use crate::traits::{
     SpreadLayout,
 };
 
-use core::marker::PhantomData;
+use core::{
+    cell::RefCell,
+    marker::PhantomData,
+};
 
 use ink_env::hash::{
     Blake2x256,
@@ -41,12 +44,16 @@ use ink_primitives::Key;
 #[derive(Default)]
 pub struct Mapping<K, V> {
     offset_key: Key,
+    storage_key: RefCell<Key>,
     _marker: PhantomData<(K, V)>,
 }
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("Mapping").field("offset_key", &self.offset_key).finish()
+        f.debug_struct("Mapping")
+            .field("offset_key", &self.offset_key)
+            .field("storage_key", &self.storage_key)
+            .finish()
     }
 }
 
@@ -61,6 +68,7 @@ where
     pub fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
+            storage_key: RefCell::new(Key::default()),
             _marker: Default::default(),
         }
     }
@@ -73,7 +81,8 @@ where
         V: core::borrow::Borrow<R>,
         R: PackedLayout,
     {
-        push_packed_root(value, &self.storage_key(key));
+        self.update_storage_key(key);
+        push_packed_root(value, &self.storage_key.borrow());
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -84,14 +93,17 @@ where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
     {
-        pull_packed_root_opt(&self.storage_key(key))
+        self.update_storage_key(key);
+        pull_packed_root_opt(&self.storage_key.borrow())
     }
 
-    /// Returns a `Key` pointer used internally by the storage API.
+    /// Updates the `Key` pointer used internally by the storage API.
     ///
     /// This key is a combination of the `Mapping`'s internal `offset_key` and the user provided
     /// `key`.
-    fn storage_key<Q>(&self, key: &Q) -> Key
+    ///
+    /// Callers should be careful to update the key before making any queries to storage.
+    fn update_storage_key<Q>(&self, key: &Q)
     where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
@@ -99,7 +111,7 @@ where
         let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
-        output.into()
+        *self.storage_key.borrow_mut() = output.into();
     }
 }
 
