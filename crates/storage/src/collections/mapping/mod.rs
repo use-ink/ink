@@ -30,6 +30,7 @@ use core::{
     cell::RefCell,
     marker::PhantomData,
 };
+use core::cell::UnsafeCell;
 
 use ink_env::hash::{
     Blake2x256,
@@ -44,7 +45,7 @@ use ink_primitives::Key;
 #[derive(Default)]
 pub struct Mapping<K, V> {
     offset_key: Key,
-    storage_key: RefCell<Key>,
+    storage_key: UnsafeCell<Key>,
     _marker: PhantomData<(K, V)>,
 }
 
@@ -68,7 +69,7 @@ where
     pub fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
-            storage_key: RefCell::new(Key::default()),
+            storage_key: UnsafeCell::new(Key::default()),
             _marker: Default::default(),
         }
     }
@@ -82,7 +83,11 @@ where
         R: PackedLayout,
     {
         self.update_storage_key(key);
-        push_packed_root(value, &self.storage_key.borrow());
+        let ptr = self.storage_key.get();
+        let ptr_ref = unsafe {
+            ptr.as_ref().expect("Robin, this is safe, trust me.")
+        };
+        push_packed_root(value, ptr_ref);
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -94,7 +99,11 @@ where
         Q: scale::Encode,
     {
         self.update_storage_key(key);
-        pull_packed_root_opt(&self.storage_key.borrow())
+        let ptr = self.storage_key.get();
+        let ptr_ref = unsafe {
+            ptr.as_ref().expect("Robin, this is safe, trust me.")
+        };
+        pull_packed_root_opt(ptr_ref)
     }
 
     /// Updates the `Key` pointer used internally by the storage API.
@@ -111,7 +120,11 @@ where
         let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
-        *self.storage_key.borrow_mut() = output.into();
+
+        // "Mr. Compiler, this is safe, trust me."
+        unsafe {
+            *self.storage_key.get() = output.into();
+        }
     }
 }
 
