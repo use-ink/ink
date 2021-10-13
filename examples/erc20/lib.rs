@@ -61,7 +61,7 @@ mod erc20 {
         pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
             let mut balances = Mapping::new([1u8; 32].into());
-            balances.insert(caller, initial_supply);
+            balances.insert(&caller, &initial_supply);
             let instance = Self {
                 total_supply: Lazy::new(initial_supply),
                 balances,
@@ -120,7 +120,7 @@ mod erc20 {
         #[ink(message)]
         pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances.insert((owner, spender), value);
+            self.allowances.insert(&(owner, spender), &value);
             self.env().emit_event(Approval {
                 owner,
                 spender,
@@ -156,7 +156,7 @@ mod erc20 {
                 return Err(Error::InsufficientAllowance)
             }
             self.transfer_from_to(from, to, value)?;
-            self.allowances.insert((from, caller), allowance - value);
+            self.allowances.insert(&(from, caller), &(allowance - value));
             Ok(())
         }
 
@@ -178,9 +178,9 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
-            self.balances.insert(from, from_balance - value);
+            self.balances.insert(&from, &(from_balance - value));
             let to_balance = self.balance_of(to);
-            self.balances.insert(to, to_balance + value);
+            self.balances.insert(&to, &(to_balance + value));
             self.env().emit_event(Transfer {
                 from: Some(from),
                 to: Some(to),
