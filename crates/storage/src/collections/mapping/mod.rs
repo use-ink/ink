@@ -66,8 +66,14 @@ where
     }
 
     /// Insert the given `value` to the contract storage.
-    pub fn insert(&mut self, key: K, value: V) {
-        push_packed_root(&value, &self.key(&key));
+    pub fn insert<Q, R>(&mut self, key: &Q, value: &R)
+    where
+        K: core::borrow::Borrow<Q>,
+        Q: scale::Encode,
+        V: core::borrow::Borrow<R>,
+        R: PackedLayout,
+    {
+        push_packed_root(value, &self.key(key));
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -145,8 +151,8 @@ mod tests {
     #[test]
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-            let mut mapping = Mapping::new([0u8; 32].into());
-            mapping.insert(1, 2);
+            let mut mapping: Mapping<u8, _> = Mapping::new([0u8; 32].into());
+            mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
             Ok(())
