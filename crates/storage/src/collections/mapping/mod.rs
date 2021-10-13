@@ -40,13 +40,13 @@ use ink_primitives::Key;
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 #[derive(Default)]
 pub struct Mapping<K, V> {
-    key: Key,
+    offset_key: Key,
     _marker: PhantomData<(K, V)>,
 }
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("Mapping").field("key", &self.key).finish()
+        f.debug_struct("Mapping").field("offset_key", &self.offset_key).finish()
     }
 }
 
@@ -58,9 +58,9 @@ where
     /// Creates a new empty `Mapping`.
     ///
     /// Not sure how this should be exposed/initialize in real life.
-    pub fn new(key: Key) -> Self {
+    pub fn new(offset_key: Key) -> Self {
         Self {
-            key,
+            offset_key,
             _marker: Default::default(),
         }
     }
@@ -73,7 +73,7 @@ where
         V: core::borrow::Borrow<R>,
         R: PackedLayout,
     {
-        push_packed_root(value, &self.key(key));
+        push_packed_root(value, &self.storage_key(key));
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -84,15 +84,19 @@ where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
     {
-        pull_packed_root_opt(&self.key(key))
+        pull_packed_root_opt(&self.storage_key(key))
     }
 
-    fn key<Q>(&self, key: &Q) -> Key
+    /// Returns a `Key` pointer used internally by the storage API.
+    ///
+    /// This key is a combination of the `Mapping`'s internal `offset_key` and the user provided
+    /// `key`.
+    fn storage_key<Q>(&self, key: &Q) -> Key
     where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
     {
-        let encodedable_key = (&self.key, key);
+        let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
         output.into()
