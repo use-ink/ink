@@ -1023,6 +1023,71 @@
 <span id="1023">1023</span>
 <span id="1024">1024</span>
 <span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1049,6 +1114,7 @@
         <span class="ident">HashOutput</span>,
     },
     <span class="ident">Environment</span>,
+    <span class="ident">Error</span>,
     <span class="ident">RentParams</span>,
     <span class="ident">RentStatus</span>,
     <span class="prelude-ty">Result</span>,
@@ -1056,6 +1122,7 @@
 <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ChainExtensionInstance</span>;
+<span class="kw">use</span> <span class="ident">ink_eth_compatibility::ECDSAPublicKey</span>;
 
 <span class="doccomment">/// The environment of the compiled ink! smart contract.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContractEnv</span> {
@@ -2046,6 +2113,69 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type::default</span>();
         <span class="ident">ink_env::hash_encoded</span>::<span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
         <span class="ident">output</span>
+    }
+
+    <span class="doccomment">/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,</span>
+    <span class="doccomment">/// and stores the result in `output`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use ink_lang as ink;</span>
+    <span class="doccomment">/// # #[ink::contract]</span>
+    <span class="doccomment">/// # pub mod my_contract {</span>
+    <span class="doccomment">/// #     #[ink(storage)]</span>
+    <span class="doccomment">/// #     pub struct MyContract { }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #     impl MyContract {</span>
+    <span class="doccomment">/// #         #[ink(constructor)]</span>
+    <span class="doccomment">/// #         pub fn new() -&gt; Self {</span>
+    <span class="doccomment">/// #             Self {}</span>
+    <span class="doccomment">/// #         }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// /// Recovery from pre-defined signature and message hash</span>
+    <span class="doccomment">/// #[ink(message)]</span>
+    <span class="doccomment">/// pub fn ecdsa_recover(&amp;self) {</span>
+    <span class="doccomment">///     const signature: [u8; 65] = [</span>
+    <span class="doccomment">///         161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,</span>
+    <span class="doccomment">///         162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,</span>
+    <span class="doccomment">///          33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,</span>
+    <span class="doccomment">///         211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,</span>
+    <span class="doccomment">///          28,</span>
+    <span class="doccomment">///     ];</span>
+    <span class="doccomment">///     const message_hash: [u8; 32] = [</span>
+    <span class="doccomment">///         162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,</span>
+    <span class="doccomment">///         239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208</span>
+    <span class="doccomment">///     ];</span>
+    <span class="doccomment">///     let EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [</span>
+    <span class="doccomment">///           2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,</span>
+    <span class="doccomment">///           7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,</span>
+    <span class="doccomment">///         152,</span>
+    <span class="doccomment">///     ].into();</span>
+    <span class="doccomment">///     let result = self.env().ecdsa_recover(&amp;signature, &amp;message_hash);</span>
+    <span class="doccomment">///     assert!(result.is_ok());</span>
+    <span class="doccomment">///     assert_eq!(result.unwrap().as_ref(), EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     // Pass invalid zero message hash</span>
+    <span class="doccomment">///     let failed_result = self.env().ecdsa_recover(&amp;signature, &amp;[0; 32]);</span>
+    <span class="doccomment">///     assert!(failed_result.is_err());</span>
+    <span class="doccomment">///     if let Err(e) = failed_result {</span>
+    <span class="doccomment">///         assert_eq!(e, ink_env::Error::EcdsaRecoverFailed);</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// #</span>
+    <span class="doccomment">/// #     }</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ecdsa_recover</span>(
+        <span class="self">self</span>,
+        <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">65</span>],
+        <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ECDSAPublicKey</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">33</span>];
+        <span class="ident">ink_env::ecdsa_recover</span>(<span class="ident">signature</span>, <span class="ident">message_hash</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">into</span>())
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::EcdsaRecoverFailed</span>)
     }
 }
 </code></pre></div>

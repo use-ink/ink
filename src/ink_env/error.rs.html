@@ -53,6 +53,8 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -104,6 +106,8 @@
     <span class="doccomment">/// The call to `seal_debug_message` had no effect because debug message</span>
     <span class="doccomment">/// recording was disabled.</span>
     <span class="ident">LoggingDisabled</span>,
+    <span class="doccomment">/// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.</span>
+    <span class="ident">EcdsaRecoverFailed</span>,
 }
 
 <span class="doccomment">/// A result of environmental operations.</span>
