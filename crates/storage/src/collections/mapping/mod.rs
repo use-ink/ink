@@ -26,11 +26,7 @@ use crate::traits::{
     SpreadLayout,
 };
 
-use core::{
-    cell::RefCell,
-    marker::PhantomData,
-};
-use core::cell::UnsafeCell;
+use core::marker::PhantomData;
 
 use ink_env::hash::{
     Blake2x256,
@@ -45,16 +41,12 @@ use ink_primitives::Key;
 #[derive(Default)]
 pub struct Mapping<K, V> {
     offset_key: Key,
-    storage_key: UnsafeCell<Key>,
     _marker: PhantomData<(K, V)>,
 }
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("Mapping")
-            .field("offset_key", &self.offset_key)
-            .field("storage_key", &self.storage_key)
-            .finish()
+        f.debug_struct("Mapping").field("offset_key", &self.offset_key).finish()
     }
 }
 
@@ -69,7 +61,6 @@ where
     pub fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
-            storage_key: UnsafeCell::new(Key::default()),
             _marker: Default::default(),
         }
     }
@@ -82,12 +73,7 @@ where
         V: core::borrow::Borrow<R>,
         R: PackedLayout,
     {
-        self.update_storage_key(key);
-        let ptr = self.storage_key.get();
-        let ptr_ref = unsafe {
-            ptr.as_ref().expect("Robin, this is safe, trust me.")
-        };
-        push_packed_root(value, ptr_ref);
+        push_packed_root(value, &self.storage_key(key));
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -98,21 +84,14 @@ where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
     {
-        self.update_storage_key(key);
-        let ptr = self.storage_key.get();
-        let ptr_ref = unsafe {
-            ptr.as_ref().expect("Robin, this is safe, trust me.")
-        };
-        pull_packed_root_opt(ptr_ref)
+        pull_packed_root_opt(&self.storage_key(key))
     }
 
-    /// Updates the `Key` pointer used internally by the storage API.
+    /// Returns a `Key` pointer used internally by the storage API.
     ///
     /// This key is a combination of the `Mapping`'s internal `offset_key` and the user provided
     /// `key`.
-    ///
-    /// Callers should be careful to update the key before making any queries to storage.
-    fn update_storage_key<Q>(&self, key: &Q)
+    fn storage_key<Q>(&self, key: &Q) -> Key
     where
         K: core::borrow::Borrow<Q>,
         Q: scale::Encode,
@@ -120,11 +99,7 @@ where
         let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
         ink_env::hash_encoded::<Blake2x256, _>(&encodedable_key, &mut output);
-
-        // "Mr. Compiler, this is safe, trust me."
-        unsafe {
-            *self.storage_key.get() = output.into();
-        }
+        output.into()
     }
 }
 
