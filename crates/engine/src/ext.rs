@@ -94,6 +94,8 @@ define_error_codes! {
     /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled = 9,
+    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
+    EcdsaRecoverFailed = 11,
 }
 
 /// The raw return code returned by the host side.
@@ -416,6 +418,45 @@ impl Engine {
         unimplemented!(
             "off-chain environment does not yet support `call_chain_extension`"
         );
+    }
+
+    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+    /// and stores the result in `output`.
+    pub fn ecdsa_recover(
+        &mut self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+        output: &mut [u8; 33],
+    ) -> Result {
+        use secp256k1::{
+            recover,
+            Message,
+            RecoveryId,
+            Signature,
+        };
+
+        // In most implementations, the v is just 0 or 1 internally, but 27 was added
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        let recovery_byte = if signature[64] > 26 {
+            signature[64] - 27
+        } else {
+            signature[64]
+        };
+        let message = Message::parse(message_hash);
+        let signature = Signature::parse_slice(&signature[0..64])
+            .unwrap_or_else(|error| panic!("Unable to parse the signature: {}", error));
+
+        let recovery_id = RecoveryId::parse(recovery_byte)
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
+
+        let pub_key = recover(&message, &signature, &recovery_id);
+        match pub_key {
+            Ok(pub_key) => {
+                *output = pub_key.serialize_compressed();
+                Ok(())
+            }
+            Err(_) => Err(Error::EcdsaRecoverFailed),
+        }
     }
 }
 

@@ -22,6 +22,9 @@ sha2 = { version = "0.9" }
 sha3 = { version = "0.9" }
 blake2 = { version = "0.9" }
 
+# ECDSA for the off-chain environment.
+libsecp256k1 = { version = "0.3.5", default-features = false }
+
 [features]
 default = ["std"]
 std = [

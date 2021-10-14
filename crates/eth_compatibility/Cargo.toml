@@ -1,0 +1,25 @@
+[package]
+name = "ink_eth_compatibility"
+version = "3.0.0-rc5"
+authors = ["Parity Technologies <admin@parity.io>"]
+edition = "2018"
+
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/paritytech/ink"
+documentation = "https://docs.rs/ink_eth_compatibility/"
+homepage = "https://www.parity.io/"
+description = "[ink!] Ethereum related stuff."
+keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl", "ethereum"]
+categories = ["no-std", "embedded"]
+include = ["Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
+
+[dependencies]
+ink_env = { version = "3.0.0-rc5", path = "../env", default-features = false }
+libsecp256k1 = { version = "0.3.5", default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "ink_env/std",
+]

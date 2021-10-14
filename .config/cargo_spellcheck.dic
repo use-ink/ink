@@ -5,7 +5,9 @@ AST
 BLAKE2
 BLAKE2b
 DApp
+ECDSA
 ERC
+Ethereum
 FFI
 Gnosis
 GPL
