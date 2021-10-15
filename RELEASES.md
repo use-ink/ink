@@ -6,7 +6,7 @@ This is the 6th release candidate for ink! 3.0.
 - Added support for the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
-    The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.ReturnFlags.html).
+    The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.CallFlags.html).
 
 ## Changed
 
