@@ -1,4 +1,4 @@
-//! # Plain Multisig Wallet
+//! # Multisig Wallet
 //!
 //! This implements a plain multi owner wallet.
 //!
@@ -55,15 +55,15 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::multisig_plain::{
+pub use self::multisig::{
     ConfirmationStatus,
-    MultisigPlain,
+    Multisig,
     Transaction,
 };
 use ink_lang as ink;
 
 #[ink::contract]
-mod multisig_plain {
+mod multisig {
     use ink_env::call::{
         build_call,
         utils::ReturnType,
@@ -150,7 +150,7 @@ mod multisig_plain {
     }
 
     #[ink(storage)]
-    pub struct MultisigPlain {
+    pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
         confirmations: StorageHashMap<(TransactionId, AccountId), ()>,
@@ -247,7 +247,7 @@ mod multisig_plain {
         new_requirement: u32,
     }
 
-    impl MultisigPlain {
+    impl Multisig {
         /// The only constructor of the contract.
         ///
         /// A list of owners must be supplied and a number of how many of them must
@@ -287,9 +287,9 @@ mod multisig_plain {
         /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
         /// ```no_run
         /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
-        /// use multisig_plain::{Transaction, ConfirmationStatus};
+        /// use multisig::{Transaction, ConfirmationStatus};
         ///
-        /// // address of an existing MultiSigPlain contract
+        /// // address of an existing MultiSig contract
         /// let wallet_id: AccountId = [7u8; 32].into();
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
@@ -708,13 +708,13 @@ mod multisig_plain {
                 .expect("Test environment is expected to be initialized.")
         }
 
-        fn build_contract() -> MultisigPlain {
+        fn build_contract() -> Multisig {
             let accounts = default_accounts();
             let owners = ink_prelude::vec![accounts.alice, accounts.bob, accounts.eve];
-            MultisigPlain::new(2, owners)
+            Multisig::new(2, owners)
         }
 
-        fn submit_transaction() -> MultisigPlain {
+        fn submit_transaction() -> Multisig {
             let mut contract = build_contract();
             let accounts = default_accounts();
             set_from_owner();
@@ -752,21 +752,21 @@ mod multisig_plain {
         #[ink::test]
         #[should_panic]
         fn empty_owner_construction_fails() {
-            MultisigPlain::new(0, vec![]);
+            Multisig::new(0, vec![]);
         }
 
         #[ink::test]
         #[should_panic]
         fn zero_requirement_construction_fails() {
             let accounts = default_accounts();
-            MultisigPlain::new(0, vec![accounts.alice, accounts.bob]);
+            Multisig::new(0, vec![accounts.alice, accounts.bob]);
         }
 
         #[ink::test]
         #[should_panic]
         fn too_large_requirement_construction_fails() {
             let accounts = default_accounts();
-            MultisigPlain::new(3, vec![accounts.alice, accounts.bob]);
+            Multisig::new(3, vec![accounts.alice, accounts.bob]);
         }
 
         #[ink::test]
