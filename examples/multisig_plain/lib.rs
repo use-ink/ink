@@ -506,7 +506,7 @@ mod multisig_plain {
         /// Its return value indicates whether the called transaction was successful and contains
         /// its output when successful.
         /// This can be called by anyone.
-        #[ink(message)]
+        #[ink(message, payable)]
         pub fn eval_transaction(
             &mut self,
             trans_id: TransactionId,
