@@ -56,7 +56,7 @@ impl ReturnFlags {
 }
 
 /// The flags used to change the behavior of a contract call.
-#[derive(Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct CallFlags {
     forward_input: bool,
     clone_input: bool,
@@ -117,7 +117,7 @@ impl CallFlags {
     ///
     /// This value is used to forward the call flag information to the
     /// `contracts` pallet.
-    pub(crate) fn into_u32(&self) -> u32 {
+    pub(crate) fn into_u32(self) -> u32 {
         const FORWARD_INPUT: u32 = 0b0000_0001;
         const CLONE_INPUT: u32 = 0b0000_0010;
         const TAIL_CALL: u32 = 0b0000_0100;
