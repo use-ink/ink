@@ -289,7 +289,7 @@ mod multisig {
         /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig::{Transaction, ConfirmationStatus};
         ///
-        /// // address of an existing `MultiSig` contract
+        /// // address of an existing `Multisig` contract
         /// let wallet_id: AccountId = [7u8; 32].into();
         ///
         /// // first create the transaction that adds `alice` through `add_owner`
