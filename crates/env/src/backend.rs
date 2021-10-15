@@ -55,7 +55,7 @@ impl ReturnFlags {
     }
 }
 
-/// The flags used to change the behaviour of a contract call.
+/// The flags used to change the behavior of a contract call.
 #[derive(Debug, Default)]
 pub struct CallFlags {
     forward_input: bool,

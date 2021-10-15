@@ -37,7 +37,7 @@ where
 {
     /// The account ID of the to-be-called smart contract.
     callee: E::AccountId,
-    /// The flags used to change the behaviour of a contract call.
+    /// The flags used to change the behavior of a contract call.
     call_flags: CallFlags,
     /// The maximum gas costs allowed for the call.
     gas_limit: u64,
@@ -263,7 +263,7 @@ impl<E, Callee, GasLimit, TransferredValue, Args, RetType>
 where
     E: Environment,
 {
-    /// The flags used to change the behaviour of the contract call.
+    /// The flags used to change the behavior of the contract call.
     #[inline]
     pub fn call_flags(
         self,
