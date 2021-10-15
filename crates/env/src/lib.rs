@@ -86,7 +86,10 @@ use self::backend::{
 };
 pub use self::{
     api::*,
-    backend::ReturnFlags,
+    backend::{
+        CallFlags,
+        ReturnFlags,
+    },
     error::{
         Error,
         Result,

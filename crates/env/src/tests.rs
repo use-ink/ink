@@ -62,3 +62,42 @@ fn test_hash_blake2_128() {
         [180, 158, 48, 21, 171, 163, 217, 175, 145, 160, 25, 159, 213, 142, 103, 242]
     );
 }
+
+#[test]
+fn test_call_flags() {
+    let flags = crate::CallFlags::default();
+
+    // enable each flag one after the other
+    let flags = flags.set_forward_input(true);
+    assert!(flags.forward_input());
+    assert_eq!(flags.into_u32(), 0b0000_0001);
+
+    let flags = flags.set_clone_input(true);
+    assert!(flags.clone_input());
+    assert_eq!(flags.into_u32(), 0b0000_0011);
+
+    let flags = flags.set_tail_call(true);
+    assert!(flags.tail_call());
+    assert_eq!(flags.into_u32(), 0b0000_0111);
+
+    let flags = flags.set_allow_reentry(true);
+    assert!(flags.allow_reentry());
+    assert_eq!(flags.into_u32(), 0b0000_1111);
+
+    // disable each flag one after the other
+    let flags = flags.set_allow_reentry(false);
+    assert!(!flags.allow_reentry());
+    assert_eq!(flags.into_u32(), 0b0000_0111);
+
+    let flags = flags.set_tail_call(false);
+    assert!(!flags.tail_call());
+    assert_eq!(flags.into_u32(), 0b0000_0011);
+
+    let flags = flags.set_clone_input(false);
+    assert!(!flags.clone_input());
+    assert_eq!(flags.into_u32(), 0b0000_0001);
+
+    let flags = flags.set_forward_input(false);
+    assert!(!flags.forward_input());
+    assert_eq!(flags.into_u32(), 0b0000_0000);
+}

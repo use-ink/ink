@@ -13,6 +13,7 @@
 // limitations under the License.
 
 use crate::{
+    backend::CallFlags,
     call::{
         utils::{
             EmptyArgumentList,
@@ -36,6 +37,8 @@ where
 {
     /// The account ID of the to-be-called smart contract.
     callee: E::AccountId,
+    /// The flags used to change the behaviour of a contract call.
+    call_flags: CallFlags,
     /// The maximum gas costs allowed for the call.
     gas_limit: u64,
     /// The transferred value for the call.
@@ -43,7 +46,7 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: ExecutionInput<Args>,
+    exec_input: Option<ExecutionInput<Args>>,
 }
 
 impl<E, Args, R> CallParams<E, Args, R>
@@ -54,6 +57,12 @@ where
     #[inline]
     pub(crate) fn callee(&self) -> &E::AccountId {
         &self.callee
+    }
+
+    /// Returns the call flags.
+    #[inline]
+    pub(crate) fn call_flags(&self) -> &CallFlags {
+        &self.call_flags
     }
 
     /// Returns the chosen gas limit for the called contract execution.
@@ -70,7 +79,7 @@ where
 
     /// Returns the execution input.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+    pub(crate) fn exec_input(&self) -> &Option<ExecutionInput<Args>> {
         &self.exec_input
     }
 }
@@ -202,6 +211,7 @@ where
     CallBuilder {
         env: Default::default(),
         callee: Default::default(),
+        call_flags: Default::default(),
         gas_limit: Default::default(),
         transferred_value: Default::default(),
         exec_input: Default::default(),
@@ -217,6 +227,7 @@ where
     env: PhantomData<fn() -> E>,
     /// The current parameters that have been built up so far.
     callee: Callee,
+    call_flags: CallFlags,
     gas_limit: GasLimit,
     transferred_value: TransferredValue,
     exec_input: Args,
@@ -238,6 +249,30 @@ where
         CallBuilder {
             env: Default::default(),
             callee: Set(callee),
+            call_flags: self.call_flags,
+            gas_limit: self.gas_limit,
+            transferred_value: self.transferred_value,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+        }
+    }
+}
+
+impl<E, Callee, GasLimit, TransferredValue, Args, RetType>
+    CallBuilder<E, Callee, GasLimit, TransferredValue, Args, RetType>
+where
+    E: Environment,
+{
+    /// The flags used to change the behaviour of the contract call.
+    #[inline]
+    pub fn call_flags(
+        self,
+        call_flags: CallFlags,
+    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, RetType> {
+        CallBuilder {
+            env: Default::default(),
+            callee: self.callee,
+            call_flags,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
             exec_input: self.exec_input,
@@ -260,6 +295,7 @@ where
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
+            call_flags: self.call_flags,
             gas_limit: Set(gas_limit),
             transferred_value: self.transferred_value,
             exec_input: self.exec_input,
@@ -282,6 +318,7 @@ where
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
+            call_flags: self.call_flags,
             gas_limit: self.gas_limit,
             transferred_value: Set(transferred_value),
             exec_input: self.exec_input,
@@ -324,6 +361,7 @@ where
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
+            call_flags: self.call_flags,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
             exec_input: self.exec_input,
@@ -359,6 +397,7 @@ where
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
+            call_flags: self.call_flags,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
             exec_input: Set(exec_input),
@@ -385,12 +424,42 @@ where
     pub fn params(self) -> CallParams<E, Args, RetType> {
         CallParams {
             callee: self.callee.value(),
+            call_flags: self.call_flags,
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
             transferred_value: self
                 .transferred_value
                 .unwrap_or_else(|| E::Balance::from(0u32)),
             _return_type: Default::default(),
-            exec_input: self.exec_input.value(),
+            exec_input: Some(self.exec_input.value()),
+        }
+    }
+}
+
+impl<E, GasLimit, TransferredValue, RetType>
+    CallBuilder<
+        E,
+        Set<E::AccountId>,
+        GasLimit,
+        TransferredValue,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<RetType>,
+    >
+where
+    E: Environment,
+    GasLimit: Unwrap<Output = u64>,
+    TransferredValue: Unwrap<Output = E::Balance>,
+{
+    /// Finalizes the call builder to call a function.
+    pub fn params(self) -> CallParams<E, EmptyArgumentList, ()> {
+        CallParams {
+            callee: self.callee.value(),
+            call_flags: self.call_flags,
+            gas_limit: self.gas_limit.unwrap_or_else(|| 0),
+            transferred_value: self
+                .transferred_value
+                .unwrap_or_else(|| E::Balance::from(0u32)),
+            _return_type: Default::default(),
+            exec_input: None,
         }
     }
 }
@@ -408,6 +477,26 @@ where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
     Args: scale::Encode,
+    TransferredValue: Unwrap<Output = E::Balance>,
+{
+    /// Invokes the cross-chain function call.
+    pub fn fire(self) -> Result<(), Error> {
+        self.params().invoke()
+    }
+}
+
+impl<E, GasLimit, TransferredValue>
+    CallBuilder<
+        E,
+        Set<E::AccountId>,
+        GasLimit,
+        TransferredValue,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ReturnType<()>>,
+    >
+where
+    E: Environment,
+    GasLimit: Unwrap<Output = u64>,
     TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call.
