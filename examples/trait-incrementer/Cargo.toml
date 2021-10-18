@@ -1,15 +1,15 @@
 [package]
 name = "trait-incrementer"
-version = "3.0.0-rc5"
+version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 
 [dependencies]
-ink_primitives = { version = "3.0.0-rc5", path = "../../crates/primitives", default-features = false }
-ink_metadata = { version = "3.0.0-rc5", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc5", path = "../../crates/env", default-features = false }
-ink_storage = { version = "3.0.0-rc5", path = "../../crates/storage", default-features = false }
-ink_lang = { version = "3.0.0-rc5", path = "../../crates/lang", default-features = false }
+ink_primitives = { version = "3.0.0-rc6", path = "../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc6", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc6", path = "../../crates/env", default-features = false }
+ink_storage = { version = "3.0.0-rc6", path = "../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.0-rc6", path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
