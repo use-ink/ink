@@ -36,7 +36,7 @@ sha3 = { version = "0.9", optional = true }
 blake2 = { version = "0.9", optional = true }
 
 # ECDSA for the off-chain environment.
-libsecp256k1 = { version = "0.3.5", default-features = false }
+libsecp256k1 = { version = "0.7.0", default-features = false }
 
 # Only used in the off-chain environment.
 #
