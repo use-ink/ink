@@ -170,10 +170,10 @@ impl CrossCalling<'_> {
                     }
                 }
 
-                impl ::ink_lang::ToAccountId<Environment> for #ident {
+                impl ::core::convert::AsRef<AccountId> for #ident {
                     #[inline]
-                    fn to_account_id(&self) -> AccountId {
-                        self.account_id
+                    fn as_ref(&self) -> &AccountId {
+                        &self.account_id
                     }
                 }
             };
@@ -312,7 +312,7 @@ impl CrossCalling<'_> {
             #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_env::call::CallBuilder<
                 Environment,
-                ::ink_env::call::utils::Set<AccountId>,
+                ::ink_env::call::utils::Set<&'a AccountId>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
@@ -325,7 +325,7 @@ impl CrossCalling<'_> {
                 #receiver #(, #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 ::ink_env::call::build_call::<Environment>()
-                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .callee(<_ as ::core::convert::AsRef<AccountId>>::as_ref(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])
@@ -516,14 +516,14 @@ impl CrossCalling<'_> {
                 #( #input_bindings : #input_types ),*
             ) -> ::ink_env::call::CallBuilder<
                 Environment,
-                ::ink_env::call::utils::Set<AccountId>,
+                ::ink_env::call::utils::Set<&'a AccountId>,
                 ::ink_env::call::utils::Unset<u64>,
                 ::ink_env::call::utils::Unset<Balance>,
                 ::ink_env::call::utils::Set<::ink_env::call::ExecutionInput<#arg_list>>,
                 ::ink_env::call::utils::Set<#output_sig>,
             > {
                 ::ink_env::call::build_call::<Environment>()
-                    .callee(::ink_lang::ToAccountId::to_account_id(self.contract))
+                    .callee(<_ as ::core::convert::AsRef<AccountId>>::as_ref(self.contract))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #composed_selector ),* ])

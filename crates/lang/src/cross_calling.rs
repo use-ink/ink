@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::Environment;
-
 /// The type that can never be returned because it is not possible to craft an instance of it.
 #[doc(hidden)]
 pub enum NeverReturns {}
@@ -42,15 +40,4 @@ pub trait ForwardCallMut {
 
     /// Instantiates a call forwarder to forward `&mut self` messages.
     fn call_mut(self) -> Self::Forwarder;
-}
-
-/// Implemented by contracts that are compiled as dependencies.
-///
-/// Allows them to return their underlying account identifier.
-pub trait ToAccountId<T>
-where
-    T: Environment,
-{
-    /// Returns the underlying account identifier of the instantiated contract.
-    fn to_account_id(&self) -> <T as Environment>::AccountId;
 }

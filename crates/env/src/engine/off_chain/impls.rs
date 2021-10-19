@@ -20,6 +20,7 @@ use super::{
 use crate::{
     call::{
         utils::ReturnType,
+        BalanceEncoder,
         CallParams,
         CreateParams,
     },
@@ -479,9 +480,13 @@ impl TypedEnvBackend for EnvInstance {
             .expect("could not encode rent allowance")
     }
 
-    fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
+    fn invoke_contract<T, Balance, Args>(
+        &mut self,
+        params: &CallParams<T, Balance, Args, ()>,
+    ) -> Result<()>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
     {
         let _gas_limit = params.gas_limit();
@@ -491,12 +496,13 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
-    fn eval_contract<T, Args, R>(
+    fn eval_contract<T, Balance, Args, R>(
         &mut self,
-        _call_params: &CallParams<T, Args, ReturnType<R>>,
+        _call_params: &CallParams<T, Balance, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
         R: scale::Decode,
     {

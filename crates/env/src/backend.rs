@@ -15,6 +15,7 @@
 use crate::{
     call::{
         utils::ReturnType,
+        BalanceEncoder,
         CallParams,
         CreateParams,
     },
@@ -299,12 +300,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<T, Balance, Args>(
         &mut self,
-        call_data: &CallParams<T, Args, ()>,
+        call_data: &CallParams<T, Balance, Args, ()>,
     ) -> Result<()>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode;
 
     /// Evaluates a contract message and returns its result.
@@ -312,12 +314,13 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`eval_contract`][`crate::eval_contract`]
-    fn eval_contract<T, Args, R>(
+    fn eval_contract<T, Balance, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ReturnType<R>>,
+        call_data: &CallParams<T, Balance, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
         R: scale::Decode;
 

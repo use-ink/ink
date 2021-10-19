@@ -28,32 +28,34 @@ use crate::{
 };
 use core::marker::PhantomData;
 
+use super::BalanceEncoder;
+
 /// The final parameters to the cross-contract call.
 #[derive(Debug)]
-pub struct CallParams<E, Args, R>
+pub struct CallParams<'id, E, Balance, Args, R>
 where
     E: Environment,
 {
     /// The account ID of the to-be-called smart contract.
-    callee: E::AccountId,
+    callee: &'id E::AccountId,
     /// The maximum gas costs allowed for the call.
     gas_limit: u64,
     /// The transferred value for the call.
-    transferred_value: E::Balance,
+    transferred_value: Balance,
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
     exec_input: ExecutionInput<Args>,
 }
 
-impl<E, Args, R> CallParams<E, Args, R>
+impl<'id, E, Balance, Args, R> CallParams<'id, E, Balance, Args, R>
 where
     E: Environment,
 {
     /// Returns the account ID of the called contract instance.
     #[inline]
-    pub(crate) fn callee(&self) -> &E::AccountId {
-        &self.callee
+    pub(crate) fn callee(&self) -> &'id E::AccountId {
+        self.callee
     }
 
     /// Returns the chosen gas limit for the called contract execution.
@@ -64,7 +66,7 @@ where
 
     /// Returns the transferred value for the called contract.
     #[inline]
-    pub(crate) fn transferred_value(&self) -> &E::Balance {
+    pub(crate) fn transferred_value(&self) -> &Balance {
         &self.transferred_value
     }
 
@@ -75,9 +77,10 @@ where
     }
 }
 
-impl<E, Args> CallParams<E, Args, ()>
+impl<E, Balance, Args> CallParams<'_, E, Balance, Args, ()>
 where
     E: Environment,
+    Balance: BalanceEncoder<E>,
     Args: scale::Encode,
 {
     /// Invokes the contract with the given built-up call parameters.
@@ -91,9 +94,10 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
+impl<E, Balance, Args, R> CallParams<'_, E, Balance, Args, ReturnType<R>>
 where
     E: Environment,
+    Balance: BalanceEncoder<E>,
     Args: scale::Encode,
     R: scale::Decode,
 {
@@ -139,9 +143,9 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// build_call::<DefaultEnvironment>()
-///     .callee(AccountId::from([0x42; 32]))
+///     .callee(&AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .transferred_value(&10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42)
@@ -174,9 +178,9 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .callee(AccountId::from([0x42; 32]))
+///     .callee(&AccountId::from([0x42; 32]))
 ///     .gas_limit(5000)
-///     .transferred_value(10)
+///     .transferred_value(&10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42)
@@ -232,8 +236,8 @@ where
     #[inline]
     pub fn callee(
         self,
-        callee: E::AccountId,
-    ) -> CallBuilder<E, Set<E::AccountId>, GasLimit, TransferredValue, Args, RetType>
+        callee: &E::AccountId,
+    ) -> CallBuilder<E, Set<&E::AccountId>, GasLimit, TransferredValue, Args, RetType>
     {
         CallBuilder {
             env: Default::default(),
@@ -277,8 +281,8 @@ where
     #[inline]
     pub fn transferred_value(
         self,
-        transferred_value: E::Balance,
-    ) -> CallBuilder<E, Callee, GasLimit, Set<E::Balance>, Args, RetType> {
+        transferred_value: &E::Balance,
+    ) -> CallBuilder<E, Callee, GasLimit, Set<&E::Balance>, Args, RetType> {
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
@@ -367,10 +371,10 @@ where
     }
 }
 
-impl<E, GasLimit, TransferredValue, Args, RetType>
+impl<'id, 'balance, E, GasLimit, TransferredValue, Args, RetType>
     CallBuilder<
         E,
-        Set<E::AccountId>,
+        Set<&'id E::AccountId>,
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
@@ -379,26 +383,24 @@ impl<E, GasLimit, TransferredValue, Args, RetType>
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
-    TransferredValue: Unwrap<Output = E::Balance>,
+    TransferredValue: BalanceEncoder<E>,
 {
     /// Finalizes the call builder to call a function.
-    pub fn params(self) -> CallParams<E, Args, RetType> {
+    pub fn params(self) -> CallParams<'id, E, TransferredValue, Args, RetType> {
         CallParams {
             callee: self.callee.value(),
             gas_limit: self.gas_limit.unwrap_or_else(|| 0),
-            transferred_value: self
-                .transferred_value
-                .unwrap_or_else(|| E::Balance::from(0u32)),
+            transferred_value: self.transferred_value,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
         }
     }
 }
 
-impl<E, GasLimit, TransferredValue, Args>
+impl<'id, E, GasLimit, TransferredValue, Args>
     CallBuilder<
         E,
-        Set<E::AccountId>,
+        Set<&'id E::AccountId>,
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
@@ -407,8 +409,8 @@ impl<E, GasLimit, TransferredValue, Args>
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
+    TransferredValue: BalanceEncoder<E>,
     Args: scale::Encode,
-    TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call.
     pub fn fire(self) -> Result<(), Error> {
@@ -416,10 +418,10 @@ where
     }
 }
 
-impl<E, GasLimit, TransferredValue, Args, R>
+impl<'id, E, GasLimit, TransferredValue, Args, R>
     CallBuilder<
         E,
-        Set<E::AccountId>,
+        Set<&'id E::AccountId>,
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
@@ -428,9 +430,9 @@ impl<E, GasLimit, TransferredValue, Args, R>
 where
     E: Environment,
     GasLimit: Unwrap<Output = u64>,
+    TransferredValue: BalanceEncoder<E>,
     Args: scale::Encode,
     R: scale::Decode,
-    TransferredValue: Unwrap<Output = E::Balance>,
 {
     /// Invokes the cross-chain function call and returns the result.
     pub fn fire(self) -> Result<R, Error> {

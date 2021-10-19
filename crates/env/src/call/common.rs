@@ -16,6 +16,8 @@
 
 use core::marker::PhantomData;
 
+use crate::Environment;
+
 /// Represents a return type.
 ///
 /// Used as a marker type to differentiate at compile-time between invoke and evaluate.
@@ -50,6 +52,16 @@ impl<T> Set<T> {
     }
 }
 
+impl<T> scale::Encode for Set<T>
+where
+    T: scale::Encode,
+{
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+        self.0.encode_to(output)
+    }
+}
+
 /// A parameter that has not been set, yet.
 #[derive(Debug)]
 pub struct Unset<T>(PhantomData<fn() -> T>);
@@ -69,6 +81,18 @@ impl<T> Default for Unset<T> {
         Self(Default::default())
     }
 }
+
+impl<T> scale::Encode for Unset<T>
+where
+    T: Default + scale::Encode,
+{
+    #[inline]
+    fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
+        <T as Default>::default().encode_to(output)
+    }
+}
+
+impl<T> scale::EncodeLike<T> for Unset<T> where T: Default + scale::Encode {}
 
 /// Implemented by [`Set`] and [`Unset`] in order to unwrap their value.
 ///
@@ -105,5 +129,44 @@ impl<T> Unwrap for Set<T> {
         F: FnOnce() -> Self::Output,
     {
         self.value()
+    }
+}
+
+/// Returns a balance encoder from the implementing type.
+///
+/// # Note
+///
+/// This trait is only implemented by `Set<&E::Balance>` and `Unset<E::Balance>`
+/// where `E` is an ink! environment type that implements the `Environment` trait.
+pub trait BalanceEncoder<E>
+where
+    E: Environment,
+{
+    /// The balance encoder type.
+    type Output: scale::EncodeLike<E::Balance>;
+
+    /// Returns a balance encoder.
+    fn as_balance_encoder(&self) -> Self::Output;
+}
+
+impl<'a, E> BalanceEncoder<E> for Set<&'a E::Balance>
+where
+    E: Environment,
+{
+    type Output = &'a E::Balance;
+
+    fn as_balance_encoder(&self) -> Self::Output {
+        self.value()
+    }
+}
+
+impl<E> BalanceEncoder<E> for Unset<E::Balance>
+where
+    E: Environment,
+{
+    type Output = Self;
+
+    fn as_balance_encoder(&self) -> Self::Output {
+        *self
     }
 }

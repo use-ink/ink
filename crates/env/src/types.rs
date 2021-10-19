@@ -59,6 +59,7 @@ pub trait Environment {
     /// The type of balances.
     type Balance: 'static
         + scale::Codec
+        + Default
         + Copy
         + Clone
         + PartialEq

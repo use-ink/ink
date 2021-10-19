@@ -16,6 +16,7 @@ use core::marker::PhantomData;
 use ink_env::{
     call::{
         utils::ReturnType,
+        BalanceEncoder,
         CallParams,
         CreateParams,
     },
@@ -750,11 +751,15 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
+    pub fn invoke_contract<Balance, Args>(
+        self,
+        params: &CallParams<T, Balance, Args, ()>,
+    ) -> Result<()>
     where
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
     {
-        ink_env::invoke_contract::<T, Args>(params)
+        ink_env::invoke_contract::<T, Balance, Args>(params)
     }
 
     /// Evaluates a contract message and returns its result.
@@ -805,15 +810,16 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::eval_contract`]
-    pub fn eval_contract<Args, R>(
+    pub fn eval_contract<Balance, Args, R>(
         self,
-        params: &CallParams<T, Args, ReturnType<R>>,
+        params: &CallParams<T, Balance, Args, ReturnType<R>>,
     ) -> Result<R>
     where
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::eval_contract::<T, Args, R>(params)
+        ink_env::eval_contract::<T, Balance, Args, R>(params)
     }
 
     /// Restores a smart contract from its tombstone state.

@@ -36,7 +36,6 @@ pub use self::{
         ForwardCall,
         ForwardCallMut,
         NeverReturns,
-        ToAccountId,
     },
     dispatcher::{
         deny_payment,

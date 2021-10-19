@@ -21,6 +21,7 @@ use super::{
 use crate::{
     call::{
         utils::ReturnType,
+        BalanceEncoder,
         CallParams,
         CreateParams,
     },
@@ -187,19 +188,21 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, Args, RetType, R>(
+    fn invoke_contract_impl<T, Balance, Args, RetType, R>(
         &mut self,
-        params: &CallParams<T, Args, RetType>,
+        params: &CallParams<T, Balance, Args, RetType>,
     ) -> Result<R>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
         R: scale::Decode,
     {
         let mut scope = self.scoped_buffer();
         let gas_limit = params.gas_limit();
         let enc_callee = scope.take_encoded(params.callee());
-        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let enc_transferred_value =
+            scope.take_encoded(&params.transferred_value().as_balance_encoder());
         let enc_input = scope.take_encoded(params.exec_input());
         let output = &mut scope.take_rest();
         ext::call(
@@ -389,23 +392,25 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<T, Balance, Args>(
         &mut self,
-        call_params: &CallParams<T, Args, ()>,
+        call_params: &CallParams<T, Balance, Args, ()>,
     ) -> Result<()>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
     {
         self.invoke_contract_impl(call_params)
     }
 
-    fn eval_contract<T, Args, R>(
+    fn eval_contract<T, Balance, Args, R>(
         &mut self,
-        call_params: &CallParams<T, Args, ReturnType<R>>,
+        call_params: &CallParams<T, Balance, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: Environment,
+        Balance: BalanceEncoder<T>,
         Args: scale::Encode,
         R: scale::Decode,
     {

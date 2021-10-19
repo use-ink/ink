@@ -22,6 +22,7 @@ use crate::{
     },
     call::{
         utils::ReturnType,
+        BalanceEncoder,
         CallParams,
         CreateParams,
     },
@@ -310,13 +311,16 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
+pub fn invoke_contract<T, Balance, Args>(
+    params: &CallParams<T, Balance, Args, ()>,
+) -> Result<()>
 where
     T: Environment,
+    Balance: BalanceEncoder<T>,
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
+        TypedEnvBackend::invoke_contract::<T, Balance, Args>(instance, params)
     })
 }
 
@@ -336,14 +340,17 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
+pub fn eval_contract<T, Balance, Args, R>(
+    params: &CallParams<T, Balance, Args, ReturnType<R>>,
+) -> Result<R>
 where
     T: Environment,
+    Balance: BalanceEncoder<T>,
     Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
+        TypedEnvBackend::eval_contract::<T, Balance, Args, R>(instance, params)
     })
 }
 

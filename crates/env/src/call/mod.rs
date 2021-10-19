@@ -46,6 +46,7 @@ pub use self::{
         CallBuilder,
         CallParams,
     },
+    common::BalanceEncoder,
     create_builder::{
         build_create,
         state,
