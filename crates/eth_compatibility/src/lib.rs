@@ -92,10 +92,10 @@ impl ECDSAPublicKey {
     /// ```
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
-        use libsecp256k1::PublicKey;
+        use secp256k1::PublicKey;
 
         // Transform compressed public key into uncompressed.
-        let pub_key = PublicKey::parse_compressed(&self.0)
+        let pub_key = PublicKey::from_slice(&self.0)
             .expect("Unable to parse the compressed ECDSA public key");
         let uncompressed = pub_key.serialize();
 
