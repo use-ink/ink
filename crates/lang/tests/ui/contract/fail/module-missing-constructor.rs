@@ -1,7 +1,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod contact {
+mod contract {
     #[ink(storage)]
     pub struct Contract {}
 
