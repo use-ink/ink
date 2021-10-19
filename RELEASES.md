@@ -4,6 +4,10 @@ This is the 6th release candidate for ink! 3.0.
 
 ## Added
 - Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Added new utility proc. macros to `ink_lang` crate:
+    - `blake2`: Compute the BLAKE2b 256-bit hash of the given input literal string.
+    - `selector_bytes`: Compute the ink! selector of the given input literal string and return it as `[u8; 4]`.
+    - `selector_id`: Compute the ink! selector of the given input literal string and return it as `u32`.
 
 ## Changed
 - Update to `scale-info` 1.0 - [#845](https://github.com/paritytech/ink/pull/845).
