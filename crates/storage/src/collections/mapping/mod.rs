@@ -13,6 +13,9 @@
 // limitations under the License.
 
 //! A simple mapping to contract storage.
+//!
+//! This mapping doesn't actually "own" any data. Instead it is just a simple wrapper around the
+//! contract storage facilities.
 
 use crate::traits::{
     clear_spread_root,
@@ -35,8 +38,6 @@ use ink_env::hash::{
 use ink_primitives::Key;
 
 /// A mapping of key-value pairs directly into contract storage.
-///
-/// If a key does not exist the `Default` value for the `value` will be returned.
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 #[derive(Default)]
 pub struct Mapping<K, V> {
@@ -46,7 +47,9 @@ pub struct Mapping<K, V> {
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("Mapping").field("offset_key", &self.offset_key).finish()
+        f.debug_struct("Mapping")
+            .field("offset_key", &self.offset_key)
+            .finish()
     }
 }
 
@@ -57,7 +60,8 @@ where
 {
     /// Creates a new empty `Mapping`.
     ///
-    /// Not sure how this should be exposed/initialize in real life.
+    /// TODO [#961]: Ideally we improve how this is initialized by extending the
+    /// `SpreadLayout`/`PackedLayout` traits for non-caching data structures.
     pub fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
