@@ -5,7 +5,9 @@ AST
 BLAKE2
 BLAKE2b
 DApp
+ECDSA
 ERC
+Ethereum
 FFI
 Gnosis
 GPL
@@ -63,6 +65,7 @@ v3
 validator
 variadic
 versa
+versioning
 Verbatim
 metadata
 timestamp

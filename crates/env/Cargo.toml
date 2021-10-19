@@ -1,6 +1,6 @@
 [package]
 name = "ink_env"
-version = "3.0.0-rc5"
+version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -15,11 +15,11 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_engine = { version = "3.0.0-rc5", path = "../engine/", default-features = false, optional = true }
-ink_metadata = { version = "3.0.0-rc5", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
-ink_allocator = { version = "3.0.0-rc5", path = "../allocator/", default-features = false }
-ink_primitives = { version = "3.0.0-rc5", path = "../primitives/", default-features = false }
-ink_prelude = { version = "3.0.0-rc5", path = "../prelude/", default-features = false }
+ink_engine = { version = "3.0.0-rc6", path = "../engine/", default-features = false, optional = true }
+ink_metadata = { version = "3.0.0-rc6", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
+ink_allocator = { version = "3.0.0-rc6", path = "../allocator/", default-features = false }
+ink_primitives = { version = "3.0.0-rc6", path = "../primitives/", default-features = false }
+ink_prelude = { version = "3.0.0-rc6", path = "../prelude/", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
@@ -35,12 +35,15 @@ sha2 = { version = "0.9", optional = true }
 sha3 = { version = "0.9", optional = true }
 blake2 = { version = "0.9", optional = true }
 
+# ECDSA for the off-chain environment.
+libsecp256k1 = { version = "0.3.5", default-features = false }
+
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
-scale-info = { version = "0.6", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]

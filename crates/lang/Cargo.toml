@@ -1,6 +1,6 @@
 [package]
 name = "ink_lang"
-version = "3.0.0-rc5"
+version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
@@ -15,12 +15,13 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_env = { version = "3.0.0-rc5", path = "../env", default-features = false }
-ink_storage = { version = "3.0.0-rc5", path = "../storage", default-features = false }
-ink_primitives = { version = "3.0.0-rc5", path = "../primitives", default-features = false }
-ink_metadata = { version = "3.0.0-rc5", path = "../metadata", default-features = false, optional = true }
-ink_prelude = { version = "3.0.0-rc5", path = "../prelude", default-features = false }
-ink_lang_macro = { version = "3.0.0-rc5", path = "macro", default-features = false }
+ink_env = { version = "3.0.0-rc6", path = "../env", default-features = false }
+ink_storage = { version = "3.0.0-rc6", path = "../storage", default-features = false }
+ink_primitives = { version = "3.0.0-rc6", path = "../primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc6", path = "../metadata", default-features = false, optional = true }
+ink_prelude = { version = "3.0.0-rc6", path = "../prelude", default-features = false }
+ink_eth_compatibility = { version = "3.0.0-rc6", path = "../eth_compatibility", default-features = false }
+ink_lang_macro = { version = "3.0.0-rc6", path = "macro", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
@@ -28,7 +29,7 @@ static_assertions = "1.1"
 
 [dev-dependencies]
 # required for the doctest of `env_access::EnvAccess::instantiate_contract`
-scale-info = { version = "0.6", default-features = false, features = ["derive"] }
+scale-info = { version = "1.0", default-features = false, features = ["derive"] }
 
 [features]
 default = ["std"]

@@ -92,7 +92,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// Entry point for writing ink! smart contracts.
 ///
 /// If you are a beginner trying to learn ink! we recommend you to check out
-/// our extensive [ink! workshop](https://substrate.dev/substrate-contracts-workshop/#/).
+/// our extensive [ink! workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 ///
 /// **Note:** In all below examples we will be using `ink_lang` crate aliased as just `ink`.
 ///           You can do this yourself by adding the following line to your code:
