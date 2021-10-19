@@ -1,3 +1,13 @@
+# Version 3.0-rc7 (UNRELEASED)
+
+This is the 7th release candidate for ink! 3.0.
+
+## Added
+
+## Changed
+
+## Fixed
+
 # Version 3.0-rc6
 
 This is the 6th release candidate for ink! 3.0.
