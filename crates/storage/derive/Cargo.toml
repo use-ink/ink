@@ -1,13 +1,13 @@
 [package]
 name = "ink_storage_derive"
-version = "3.0.0-rc5"
+version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2018"
 
 license = "Apache-2.0"
 readme = "../README.md"
 repository = "https://github.com/paritytech/ink"
-documentation = "https://substrate.dev/substrate-contracts-workshop/#/"
+documentation = "https://docs.rs/ink_storage_derive"
 homepage = "https://www.parity.io/"
 description = "[ink!] Derive macros for common ink_storage defined traits."
 keywords = ["wasm", "parity", "webassembly", "blockchain", "edsl"]
@@ -18,15 +18,15 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 proc-macro = true
 
 [dependencies]
-quote = "1.0"
-syn = { version = "1.0", features = ["full"] }
-proc-macro2 = "1.0"
+quote = "1"
+syn = { version = "1", features = ["full"] }
+proc-macro2 = "1"
 synstructure = "0.12.4"
 
 [dev-dependencies]
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
-ink_env = { version = "3.0.0-rc5", path = "../../env" }
-ink_primitives = { version = "3.0.0-rc5", path = "../../primitives" }
-ink_metadata = { version = "3.0.0-rc5", path = "../../metadata" }
-ink_prelude = { version = "3.0.0-rc5", path = "../../prelude/" }
-ink_storage = { version = "3.0.0-rc5", path = ".." }
+ink_env = { version = "3.0.0-rc6", path = "../../env" }
+ink_primitives = { version = "3.0.0-rc6", path = "../../primitives" }
+ink_metadata = { version = "3.0.0-rc6", path = "../../metadata" }
+ink_prelude = { version = "3.0.0-rc6", path = "../../prelude/" }
+ink_storage = { version = "3.0.0-rc6", path = ".." }

@@ -113,7 +113,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     "i32"
                                 ],
-                                "type": 1
+                                "type": 0
                             }
                         }
                     ],
@@ -139,7 +139,7 @@ fn spec_contract_json() {
                                 "displayName": [
                                     "i32"
                                 ],
-                                "type": 1
+                                "type": 0
                             }
                         }
                     ],
@@ -160,7 +160,7 @@ fn spec_contract_json() {
                         "displayName": [
                             "i32"
                         ],
-                        "type": 1
+                        "type": 0
                     },
                     "selector": "0x25444afe"
                 }

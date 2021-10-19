@@ -1,14 +1,22 @@
-# Version 3.0-rc6 (UNRELEASED)
+# Version 3.0-rc6
 
 This is the 6th release candidate for ink! 3.0.
 
+## Added
+- Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
+
 ## Changed
-
-- Message and constructor selectors no longer take their inputs as string but as `u32` decodable integer. For example:
-
+- Update to `scale-info` 1.0 - [#845](https://github.com/paritytech/ink/pull/845).
+- Message and constructor selectors no longer take their inputs as string, but as `u32` decodable integer - [#928](https://github.com/paritytech/ink/pull/928).<br/>
+  For example:
     - It is no longer possible to specify a selector as `#[ink(selector = "0xC0DECAFE")]`.
     - The newly allowed formats are `#[ink(selector = 0xC0DECAFE)]` and `#[ink(selector = 42)]`.
     - Smart contract authors are required to update their smart contracts for this change.
+- Improved the `multisig` example - [#962](https://github.com/paritytech/ink/pull/962).
+- Changed the link to our beginner's workshop to the migrated workshop on `substrate.io` - [#957](https://github.com/paritytech/ink/pull/957).
+
+## Fixed
+- Fixed a mistake in the `ink_env::block_timestamp()` documentation - [#937](https://github.com/paritytech/ink/pull/937).
 
 # Version 3.0-rc5 (2021-09-08)
 
@@ -18,8 +26,7 @@ The list below shows the additions, changes and fixes that are visible to users 
 
 ## Compatibility
 
-Make sure to use a recent Rust nightly and `cargo-contract` with the current
-release: 
+Make sure to use a recent Rust nightly and `cargo-contract` with the current release:
 ```
 cargo install cargo-contract --vers ^0.14 --force --locked && rustup update
 ```

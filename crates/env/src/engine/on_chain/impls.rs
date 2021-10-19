@@ -111,6 +111,7 @@ impl From<ext::Error> for Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
+            ext::Error::EcdsaRecoverFailed => Self::EcdsaRecoverFailed,
         }
     }
 }
@@ -277,6 +278,15 @@ impl EnvBackend for EnvInstance {
         <H as CryptoHash>::hash(enc_input, output)
     }
 
+    fn ecdsa_recover(
+        &mut self,
+        signature: &[u8; 65],
+        message_hash: &[u8; 32],
+        output: &mut [u8; 33],
+    ) -> Result<()> {
+        ext::ecdsa_recover(signature, message_hash, output).map_err(Into::into)
+    }
+
     fn call_chain_extension<I, T, E, ErrorCode, F, D>(
         &mut self,
         func_id: u32,
@@ -295,7 +305,7 @@ impl EnvBackend for EnvInstance {
         let enc_input = scope.take_encoded(input);
         let output = &mut scope.take_rest();
         status_to_result(ext::call_chain_extension(func_id, enc_input, output))?;
-        let decoded = decode_to_result(&mut &output[..])?;
+        let decoded = decode_to_result(&output[..])?;
         Ok(decoded)
     }
 }

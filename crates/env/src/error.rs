@@ -49,6 +49,8 @@ pub enum Error {
     /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled,
+    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
+    EcdsaRecoverFailed,
 }
 
 /// A result of environmental operations.

@@ -604,3 +604,39 @@ where
         instance.hash_encoded::<H, T>(input, output)
     })
 }
+
+/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
+/// and stores the result in `output`.
+///
+/// # Example
+///
+/// ```
+/// const signature: [u8; 65] = [
+///     161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
+///     162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
+///      33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
+///     211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
+///      28,
+/// ];
+/// const message_hash: [u8; 32] = [
+///     162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
+///     239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+/// ];
+/// const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+///       2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+///       7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+///     152,
+/// ];
+/// let mut output = [0; 33];
+/// ink_env::ecdsa_recover(&signature, &message_hash, &mut output);
+/// assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
+/// ```
+pub fn ecdsa_recover(
+    signature: &[u8; 65],
+    message_hash: &[u8; 32],
+    output: &mut [u8; 33],
+) -> Result<()> {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.ecdsa_recover(signature, message_hash, output)
+    })
+}

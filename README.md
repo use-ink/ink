@@ -31,7 +31,7 @@
 
 <br/>
 
-[Guided Tutorial for Beginners](https://substrate.dev/substrate-contracts-workshop/#/0/building-your-contract)&nbsp;&nbsp;•&nbsp;&nbsp;
+[Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1)&nbsp;&nbsp;•&nbsp;&nbsp;
 [ink! Documentation Portal](https://paritytech.github.io/ink-docs)
 
 <br/>
@@ -191,13 +191,13 @@ cargo contract build
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
 
-For information on how to deploy this to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://substrate.dev/substrate-contracts-workshop/).
+For information on how to deploy this to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 
 
 ## How it Works
 
-* Substrate's [Framework for Runtime Aggregation of Modularised Entities (FRAME)](https://substrate.dev/docs/en/knowledgebase/runtime/frame) contains
-a module  which implements an API for typical functions smart contracts need (storage, querying information about accounts, …).
+* Substrate's [Framework for Runtime Aggregation of Modularized Entities (FRAME)](https://docs.substrate.io/v3/runtime/frame)
+contains a module  which implements an API for typical functions smart contracts need (storage,querying information about accounts, …).
 This module is called the `contracts` pallet,
 * The `contracts` pallet requires smart contracts to be uploaded to the blockchain as a Wasm blob.
 * ink! is a smart contract language which targets the API exposed by `contracts`.
@@ -216,7 +216,7 @@ In a module annotated with `#[ink::contract]` these attributes are available:
 | `#[ink(storage)]` | On `struct` definitions. | Defines the ink! storage struct. There can only be one ink! storage definition per contract. |
 | `#[ink(event)]` | On `struct` definitions. | Defines an ink! event. A contract can define multiple such ink! events. |
 | `#[ink(anonymous)]` | Applicable to ink! events. | Tells the ink! codegen to treat the ink! event as anonymous which omits the event signature as topic upon emitting. Very similar to anonymous events in Solidity. |
-| `#[ink(topic)]` | Applicate on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
+| `#[ink(topic)]` | Applicable on ink! event field. | Tells the ink! codegen to provide a topic hash for the given field. Every ink! event can only have a limited number of such topic field. Similar semantics as to indexed event arguments in Solidity. |
 | `#[ink(message)]` | Applicable to methods. | Flags a method for the ink! storage struct as message making it available to the API for calling the contract. |
 | `#[ink(constructor)]` | Applicable to method. | Flags a method for the ink! storage struct as constructor making it available to the API for instantiating the contract. |
 | `#[ink(payable)]` | Applicable to ink! messages. | Allows receiving value as part of the call of the ink! message. ink! constructors are implicitly payable. |
