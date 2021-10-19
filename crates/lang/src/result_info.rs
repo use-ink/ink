@@ -89,6 +89,10 @@ mod tests {
         assert!(is_result_type!(Result<Result<(), ()>, ()>));
         assert!(is_result_type!(Result<(), Result<(), ()>>));
         assert!(is_result_type!(Result<Result<(), ()>, Result<(), ()>>));
+
+        // Check that type aliases work, too.
+        type MyResult = Result<(), ()>;
+        assert!(is_result_type!(MyResult));
     }
 
     #[test]
@@ -105,5 +109,11 @@ mod tests {
         assert!(is_result_err!(Err::<(), i32>(5)));
         assert!(is_result_err!(Err::<i32, bool>(false)));
         assert!(is_result_err!(Err::<i32, Result::<i32, String>>(Ok(42))));
+
+        {
+            // Check that we do not simply check against `Result` as identifier.
+            type Result = Option<()>;
+            assert!(!is_result_type!(Result));
+        }
     }
 }
