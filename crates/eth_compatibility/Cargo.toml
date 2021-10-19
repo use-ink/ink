@@ -16,7 +16,7 @@ include = ["Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 ink_env = { version = "3.0.0-rc6", path = "../env", default-features = false }
-libsecp256k1 = { version = "0.3.5", default-features = false }
+libsecp256k1 = { version = "0.7.0", default-features = false, features = ["static-context"] }
 
 [features]
 default = ["std"]

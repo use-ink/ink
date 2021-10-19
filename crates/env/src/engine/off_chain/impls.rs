@@ -201,7 +201,7 @@ impl EnvBackend for EnvInstance {
         message_hash: &[u8; 32],
         output: &mut [u8; 33],
     ) -> Result<()> {
-        use secp256k1::{
+        use libsecp256k1::{
             recover,
             Message,
             RecoveryId,
@@ -216,7 +216,7 @@ impl EnvBackend for EnvInstance {
             signature[64]
         };
         let message = Message::parse(message_hash);
-        let signature = Signature::parse_slice(&signature[0..64])
+        let signature = Signature::parse_standard_slice(&signature[0..64])
             .unwrap_or_else(|error| panic!("Unable to parse the signature: {}", error));
 
         let recovery_id = RecoveryId::parse(recovery_byte)
