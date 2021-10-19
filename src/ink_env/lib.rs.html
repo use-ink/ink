@@ -156,6 +156,8 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -271,10 +273,12 @@
         <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_prelude::format</span>;
 
-        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer which will be:</span>
-        <span class="doccomment">///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)</span>
-        <span class="doccomment">///  - Logged as a `debug!` message on the substrate node, which will be printed to the node</span>
-        <span class="doccomment">///    console&#39;s `stdout` when the log level is set to `debug`.</span>
+        <span class="doccomment">/// Appends a formatted string to the `debug_message` buffer if message recording is</span>
+        <span class="doccomment">/// enabled in the contracts pallet and if the call is performed via RPC (**not** via an</span>
+        <span class="doccomment">/// extrinsic). The `debug_message` buffer will be:</span>
+        <span class="doccomment">///  - Returned to the RPC caller.</span>
+        <span class="doccomment">///  - Logged as a `debug!` message on the Substrate node, which will be printed to the</span>
+        <span class="doccomment">///    node console&#39;s `stdout` when the log level is set to `-lruntime::contracts=debug`.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// # Note</span>
         <span class="doccomment">///</span>
