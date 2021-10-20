@@ -266,16 +266,11 @@ impl CallBuilder<'_> {
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
         let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
-        let input_bindings = message
+        let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()
             .inputs()
-            .map(|input| &input.pat)
-            .collect::<Vec<_>>();
-        let input_types = message
-            .callable()
-            .inputs()
-            .map(|input| &input.ty)
-            .collect::<Vec<_>>();
+            .map(|input| (&input.pat, &input.ty))
+            .unzip();
         let mut_token = message
             .receiver()
             .is_ref_mut()
