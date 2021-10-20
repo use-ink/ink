@@ -2,6 +2,29 @@
 
 This is the 6th release candidate for ink! 3.0.
 
+## Compatibility
+
+### Please upgrade `cargo-contract`
+
+You need to update to the latest `cargo-contract` in order to use this release:
+```
+cargo install cargo-contract --vers ^0.15 --force --locked
+```
+
+If you build contracts from this release candidate with an older `cargo-contract`,
+the UI's won't display all contract-relevant fields.
+
+### Please upgrade `scale-info` in your contract's dependencies
+
+In this release candidate we upgraded `scale-info`. You have to use a compatible
+version in your contract's `Cargo.toml` as well; `cargo-contract` will throw
+an error otherwise.
+
+The `Cargo.toml` should contain
+```
+scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+```
+
 ## Added
 - Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Added new utility proc. macros to `ink_lang` crate - [#947](https://github.com/paritytech/ink/pull/947):
