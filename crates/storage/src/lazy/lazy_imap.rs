@@ -28,6 +28,7 @@ use crate::traits::{
 use core::{
     fmt,
     fmt::Debug,
+    ops::AddAssign,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -35,7 +36,6 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
-use core::ops::AddAssign;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;

@@ -204,9 +204,9 @@ impl Key {
     #[cfg(target_endian = "little")]
     fn add_assign_u64_le(&mut self, rhs: u64) {
         let words = self.reinterpret_as_u64x4_mut();
-        let (res0,  ovfl) = words[0].overflowing_add(rhs);
-        let (res1,  ovfl) = words[1].overflowing_add(ovfl as u64);
-        let (res2,  ovfl) = words[2].overflowing_add(ovfl as u64);
+        let (res0, ovfl) = words[0].overflowing_add(rhs);
+        let (res1, ovfl) = words[1].overflowing_add(ovfl as u64);
+        let (res2, ovfl) = words[2].overflowing_add(ovfl as u64);
         let (res3, _ovfl) = words[3].overflowing_add(ovfl as u64);
         words[0] = res0;
         words[1] = res1;
@@ -229,9 +229,9 @@ impl Key {
     fn add_assign_u64_le_using(&self, rhs: u64, result: &mut Key) {
         let input = self.reinterpret_as_u64x4();
         let result = result.reinterpret_as_u64x4_mut();
-        let (res0,  ovfl) = input[0].overflowing_add(rhs);
-        let (res1,  ovfl) = input[1].overflowing_add(ovfl as u64);
-        let (res2,  ovfl) = input[2].overflowing_add(ovfl as u64);
+        let (res0, ovfl) = input[0].overflowing_add(rhs);
+        let (res1, ovfl) = input[1].overflowing_add(ovfl as u64);
+        let (res2, ovfl) = input[2].overflowing_add(ovfl as u64);
         let (res3, _ovfl) = input[3].overflowing_add(ovfl as u64);
         result[0] = res0;
         result[1] = res1;

@@ -197,10 +197,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let mut output: [u8; 9600] = [0; 9600];
-        match self
-            .engine
-            .get_storage(key.as_ref(), &mut &mut output[..])
-        {
+        match self.engine.get_storage(key.as_ref(), &mut &mut output[..]) {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
