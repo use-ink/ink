@@ -23,14 +23,13 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-// mod key;
-mod key2;
+mod key;
 mod key_ptr;
 
 #[cfg(test)]
 mod tests;
 
 pub use self::{
-    key2::Key,
+    key::Key,
     key_ptr::KeyPtr,
 };
