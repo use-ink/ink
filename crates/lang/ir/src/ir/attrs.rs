@@ -918,7 +918,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 )),
                                 "extension" => Err(format_err!(
                                     meta,
-                                    "encountered #[ink(extension)] that is missing its N parameter. \
+                                    "encountered #[ink(extension)] that is missing its `id` parameter. \
                                     Did you mean #[ink(extension = id: u32)] ?"
                                 )),
                                 "handle_status" => Err(format_err!(
@@ -1260,7 +1260,7 @@ mod tests {
                 #[ink(extension)]
             },
             Err(
-                "encountered #[ink(extension)] that is missing its N parameter. \
+                "encountered #[ink(extension)] that is missing its `id` parameter. \
                 Did you mean #[ink(extension = id: u32)] ?",
             ),
         );
