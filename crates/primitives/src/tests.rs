@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// use super::*;
-use super::Key2 as Key;
+use super::Key;
 
 const TEST_BYTES: [u8; 32] = *b"\
         \x00\x01\x02\x03\x04\x05\x06\x07\

@@ -381,10 +381,11 @@ where
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
+        let mut root_key = Key::default();
         for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
-                let key = offset_key + (index as u64);
-                entry.push_packed_root(&key);
+                offset_key.add_assign_u64_using(index as u64, &mut root_key);
+                entry.push_packed_root(&root_key);
             }
         }
     }
@@ -404,7 +405,10 @@ impl<T, const N: usize> LazyArray<T, N> {
         if at >= self.capacity() {
             return None
         }
-        self.key.as_ref().map(|key| key + at as u64)
+        self.key.as_ref().cloned().map(|mut key| {
+            key += at as u64;
+            key
+        })
     }
 }
 
@@ -585,6 +589,12 @@ mod tests {
         assert_cached_entries(&default_larray, &[]);
     }
 
+    fn add_key(key: &Key, offset: u64) -> Key {
+        let mut result = key.clone();
+        result += offset;
+        result
+    }
+
     #[test]
     fn lazy_works() {
         let key = Key::from([0x42; 32]);
@@ -592,7 +602,7 @@ mod tests {
         // Key must be Some.
         assert_eq!(larray.key(), Some(&key));
         assert_eq!(larray.key_at(0), Some(key));
-        assert_eq!(larray.key_at(1), Some(key + 1u64));
+        assert_eq!(larray.key_at(1), Some(add_key(&key, 1)));
         assert_eq!(larray.capacity(), 4);
         // Cached elements must be empty.
         assert_cached_entries(&larray, &[]);

@@ -35,6 +35,7 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
+use std::ops::AddAssign;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
@@ -248,8 +249,9 @@ where
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
+        let mut root_key = Key::default();
         for (&index, entry) in self.entries().iter() {
-            let root_key = offset_key + (index as u64);
+            offset_key.add_assign_u64_using(index as u64, &mut root_key);
             entry.push_packed_root(&root_key);
         }
     }
@@ -299,9 +301,10 @@ where
 {
     /// Returns an offset key for the given index.
     pub fn key_at(&self, index: Index) -> Option<Key> {
-        let key = self.key?;
-        let offset_key = key + index as u64;
-        Some(offset_key)
+        self.key.as_ref().cloned().map(|mut key| {
+            key.add_assign(index as u64);
+            key
+        })
     }
 
     /// Lazily loads the value at the given index.
@@ -492,6 +495,12 @@ mod tests {
         assert_eq!(imap.entries(), default_imap.entries());
     }
 
+    fn add_key(key: &Key, offset: u64) -> Key {
+        let mut result = key.clone();
+        result += offset;
+        result
+    }
+
     #[test]
     fn lazy_works() {
         let key = Key::from([0x42; 32]);
@@ -499,7 +508,7 @@ mod tests {
         // Key must be none.
         assert_eq!(imap.key(), Some(&key));
         assert_eq!(imap.key_at(0), Some(key));
-        assert_eq!(imap.key_at(1), Some(key + 1u64));
+        assert_eq!(imap.key_at(1), Some(add_key(&key, 1)));
         // Cached elements must be empty.
         assert_cached_entries(&imap, &[]);
     }

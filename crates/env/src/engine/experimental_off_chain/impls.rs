@@ -189,7 +189,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let v = scale::Encode::encode(value);
-        self.engine.set_storage(key.as_bytes(), &v[..]);
+        self.engine.set_storage(key.as_ref(), &v[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -199,7 +199,7 @@ impl EnvBackend for EnvInstance {
         let mut output: [u8; 9600] = [0; 9600];
         match self
             .engine
-            .get_storage(key.as_bytes(), &mut &mut output[..])
+            .get_storage(key.as_ref(), &mut &mut output[..])
         {
             Ok(_) => (),
             Err(ext::Error::KeyNotFound) => return Ok(None),
@@ -210,7 +210,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        self.engine.clear_storage(key.as_bytes())
+        self.engine.clear_storage(key.as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -445,7 +445,7 @@ impl TypedEnvBackend for EnvInstance {
         let enc_rent_allowance = &scale::Encode::encode(&rent_allowance)[..];
 
         let filtered: Vec<&[u8]> =
-            filtered_keys.iter().map(|k| &k.as_bytes()[..]).collect();
+            filtered_keys.iter().map(|k| &k.as_ref()[..]).collect();
         self.engine.restore_to(
             enc_account_id,
             enc_code_hash,
