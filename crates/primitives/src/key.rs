@@ -303,7 +303,11 @@ impl Key {
     ///
     /// This will overwrite the contents of the `result` key.
     #[inline]
-    pub fn add_assign_u64_using(&self, rhs: u64, result: &mut Key) {
+    pub fn add_assign_using<T>(&self, rhs: T, result: &mut Key)
+    where
+        T: Into<u64>,
+    {
+        let rhs = rhs.into();
         cfg_if! {
             if #[cfg(target_endian = "little")] {
                 self.add_assign_u64_le_using(rhs, result);

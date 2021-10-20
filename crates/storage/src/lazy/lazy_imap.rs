@@ -250,7 +250,7 @@ where
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         let mut root_key = Key::default();
         for (&index, entry) in self.entries().iter() {
-            offset_key.add_assign_u64_using(index as u64, &mut root_key);
+            offset_key.add_assign_using(index as u64, &mut root_key);
             entry.push_packed_root(&root_key);
         }
     }
@@ -300,7 +300,7 @@ where
 {
     /// Returns an offset key for the given index.
     pub fn key_at(&self, index: Index) -> Option<Key> {
-        self.key.as_ref().copied().map(|mut key| {
+        self.key.map(|mut key| {
             key += index as u64;
             key
         })

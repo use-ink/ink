@@ -128,7 +128,7 @@ mod key {
         };
         let input = Key::from(bytes);
         let mut result = Key::default();
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 
@@ -160,7 +160,7 @@ mod key {
         };
         let input = Key::from(OVERFLOW_1_TEST_BYTES);
         let mut result = Key::default();
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 
@@ -192,7 +192,7 @@ mod key {
         };
         let input = Key::from(OVERFLOW_2_TEST_BYTES);
         let mut result = Key::default();
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 
@@ -224,7 +224,7 @@ mod key {
         };
         let input = Key::from(OVERFLOW_3_TEST_BYTES);
         let mut result = Key::default();
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 
@@ -243,7 +243,7 @@ mod key {
         let expected = [0x00; 32];
         let input = Key::from(BYTES);
         let mut result = Key::default();
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 
@@ -273,7 +273,7 @@ mod key {
                 expected
             };
             let mut result = Key::default();
-            zero.add_assign_u64_using(*test_value, &mut result);
+            zero.add_assign_using(*test_value, &mut result);
             assert_eq!(result.as_ref(), &expected);
         }
     }
@@ -288,7 +288,7 @@ mod key {
         };
         let input = Key::from(bytes);
         let mut result = Key::from([0xFF; 32]);
-        input.add_assign_u64_using(1u64, &mut result);
+        input.add_assign_using(1u64, &mut result);
         assert_eq!(result.as_ref(), &expected);
     }
 }

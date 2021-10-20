@@ -384,7 +384,7 @@ where
         let mut root_key = Key::default();
         for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
-                offset_key.add_assign_u64_using(index as u64, &mut root_key);
+                offset_key.add_assign_using(index as u64, &mut root_key);
                 entry.push_packed_root(&root_key);
             }
         }
@@ -405,7 +405,7 @@ impl<T, const N: usize> LazyArray<T, N> {
         if at >= self.capacity() {
             return None
         }
-        self.key.as_ref().copied().map(|mut key| {
+        self.key.map(|mut key| {
             key += at as u64;
             key
         })
