@@ -28,7 +28,6 @@ use crate::traits::{
 use core::{
     fmt,
     fmt::Debug,
-    ops::AddAssign,
     ptr::NonNull,
 };
 use ink_prelude::{
@@ -301,8 +300,8 @@ where
 {
     /// Returns an offset key for the given index.
     pub fn key_at(&self, index: Index) -> Option<Key> {
-        self.key.as_ref().cloned().map(|mut key| {
-            key.add_assign(index as u64);
+        self.key.as_ref().copied().map(|mut key| {
+            key += index as u64;
             key
         })
     }

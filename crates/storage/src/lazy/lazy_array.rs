@@ -405,7 +405,7 @@ impl<T, const N: usize> LazyArray<T, N> {
         if at >= self.capacity() {
             return None
         }
-        self.key.as_ref().cloned().map(|mut key| {
+        self.key.as_ref().copied().map(|mut key| {
             key += at as u64;
             key
         })
