@@ -523,7 +523,6 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
-                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
                 pub enum __ink_ConstructorDecoder {
                     #( #constructors_variants ),*
                 }
