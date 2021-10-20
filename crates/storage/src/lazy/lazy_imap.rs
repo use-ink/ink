@@ -250,7 +250,7 @@ where
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
         let mut root_key = Key::default();
         for (&index, entry) in self.entries().iter() {
-            offset_key.add_assign_using(index as u64, &mut root_key);
+            offset_key.add_assign_using(index, &mut root_key);
             entry.push_packed_root(&root_key);
         }
     }
