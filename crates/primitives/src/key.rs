@@ -303,6 +303,7 @@ impl Key {
     /// # Note
     ///
     /// This will overwrite the contents of the `result` key.
+    #[inline]
     pub fn add_assign_u64_using(&self, rhs: u64, result: &mut Key) {
         cfg_if! {
             if #[cfg(target_endian = "little")] {
