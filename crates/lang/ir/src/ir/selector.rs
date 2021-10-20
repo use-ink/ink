@@ -51,7 +51,7 @@ impl<'a> TraitPrefix<'a> {
         }
     }
 
-    /// Returns a shared slice over the bytes of the namespace.
+    /// Returns a vector over the bytes of the namespace.
     pub fn namespace_bytes(&self) -> Vec<u8> {
         self.namespace
             .map(|namespace| namespace.value().into_bytes())
