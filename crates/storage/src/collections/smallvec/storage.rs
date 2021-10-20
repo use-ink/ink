@@ -37,7 +37,7 @@ const _: () = {
         T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new("len", <u32 as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",

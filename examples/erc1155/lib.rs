@@ -152,7 +152,7 @@ pub trait Erc1155TokenReceiver {
     ///
     /// Any callers must revert if they receive anything other than `ON_ERC_1155_RECEIVED_SELECTOR` as a return
     /// value.
-    #[ink(message)]
+    #[ink(message, selector = 0xF23A6E61)]
     fn on_received(
         &mut self,
         operator: AccountId,
@@ -172,7 +172,7 @@ pub trait Erc1155TokenReceiver {
     ///
     /// Any callers must revert if they receive anything other than `BATCH_ON_ERC_1155_RECEIVED_SELECTOR` as a return
     /// value.
-    #[ink(message)]
+    #[ink(message, selector = 0xBC197C81)]
     fn on_batch_received(
         &mut self,
         operator: AccountId,

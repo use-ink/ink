@@ -1,0 +1,52 @@
+error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
+  --> tests/ui/contract/fail/message-returns-non-codec.rs:18:34
+   |
+18 |         pub fn message(&self) -> NonCodecType {
+   |                                  ^^^^^^^^^^^^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
+   |
+   = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
+note: required by a bound in `DispatchOutput`
+  --> src/codegen/dispatch/type_check.rs:69:8
+   |
+69 |     T: scale::Encode + 'static;
+   |        ^^^^^^^^^^^^^ required by this bound in `DispatchOutput`
+
+error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
+   --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
+    |
+18  | /         pub fn message(&self) -> NonCodecType {
+19  | |             NonCodecType
+20  | |         }
+    | |_________^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
+    |
+    = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
+note: required by a bound in `execute_message`
+   --> src/codegen/dispatch/execution.rs:139:13
+    |
+139 |     Output: scale::Encode + 'static,
+    |             ^^^^^^^^^^^^^ required by this bound in `execute_message`
+
+error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
+   --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
+    |
+6   |       pub struct NonCodecType;
+    |       ------------------------ doesn't satisfy `NonCodecType: parity_scale_codec::Decode`
+...
+18  | /         pub fn message(&self) -> NonCodecType {
+19  | |             NonCodecType
+20  | |         }
+    | |_________^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>` due to unsatisfied trait bounds
+    |
+    = note: the following trait bounds were not satisfied:
+            `NonCodecType: parity_scale_codec::Decode`
+note: the following trait must be implemented
+   --> $CARGO/parity-scale-codec-2.3.1/src/codec.rs
+    |
+    | / pub trait Decode: Sized {
+    | |     // !INTERNAL USE ONLY!
+    | |     // This const helps SCALE to optimize the encoding/decoding by doing fake specialization.
+    | |     #[doc(hidden)]
+...   |
+    | |     }
+    | | }
+    | |_^

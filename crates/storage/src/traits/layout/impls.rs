@@ -99,7 +99,7 @@ macro_rules! impl_layout_for_tuple {
         {
             fn layout(key_ptr: &mut KeyPtr) -> Layout {
                 Layout::Struct(
-                    StructLayout::new(vec![
+                    StructLayout::new([
                         $(
                             FieldLayout::new(None, <$frag as StorageLayout>::layout(key_ptr)),
                         )*
@@ -137,10 +137,10 @@ where
         let dispatch_key = key_ptr.advance_by(1);
         Layout::Enum(EnumLayout::new(
             *dispatch_key,
-            vec![
+            [
                 (
                     Discriminant::from(0),
-                    StructLayout::new(vec![FieldLayout::new(
+                    StructLayout::new([FieldLayout::new(
                         None,
                         <T as StorageLayout>::layout(&mut key_ptr.clone()),
                     )]),
@@ -160,17 +160,17 @@ where
         let dispatch_key = key_ptr.advance_by(1);
         Layout::Enum(EnumLayout::new(
             *dispatch_key,
-            vec![
+            [
                 (
                     Discriminant::from(0),
-                    StructLayout::new(vec![FieldLayout::new(
+                    StructLayout::new([FieldLayout::new(
                         None,
                         <T as StorageLayout>::layout(&mut key_ptr.clone()),
                     )]),
                 ),
                 (
                     Discriminant::from(1),
-                    StructLayout::new(vec![FieldLayout::new(
+                    StructLayout::new([FieldLayout::new(
                         None,
                         <E as StorageLayout>::layout(&mut key_ptr.clone()),
                     )]),

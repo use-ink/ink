@@ -1,5 +1,0 @@
-error: ink! constructors must not be unsafe
-  --> $DIR/C-11-unsafe-constructor.rs:10:13
-   |
-10 |         pub unsafe fn unsafe_constructor() -> Self {
-   |             ^^^^^^

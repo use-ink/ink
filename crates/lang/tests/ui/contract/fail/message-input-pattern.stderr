@@ -1,0 +1,5 @@
+error: ink! message arguments must have an identifier
+  --> tests/ui/contract/fail/message-input-pattern.rs:15:31
+   |
+15 |         pub fn message(&self, (_a, _b): (i32, i32)) {}
+   |                               ^^^^^^^^^^^^^^^^^^^^

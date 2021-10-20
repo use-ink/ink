@@ -1,7 +1,0 @@
-error: expected string or byte string literal as input: unexpected end of input, expected literal
- --> $DIR/missing_parameter.rs:3:16
-  |
-3 | const _: u32 = ink::selector_id!();
-  |                ^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the macro `ink::selector_id` (in Nightly builds, run with -Z macro-backtrace for more info)

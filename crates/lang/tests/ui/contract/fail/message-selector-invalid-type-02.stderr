@@ -1,0 +1,5 @@
+error: expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]
+  --> tests/ui/contract/fail/message-selector-invalid-type-02.rs:14:24
+   |
+14 |         #[ink(message, selector = true)]
+   |                        ^^^^^^^^^^^^^^^

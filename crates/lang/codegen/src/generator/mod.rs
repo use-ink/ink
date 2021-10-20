@@ -26,10 +26,11 @@ macro_rules! impl_as_ref_for_generator {
     };
 }
 
+mod arg_list;
+mod as_dependency;
 mod blake2b;
 mod chain_extension;
 mod contract;
-mod cross_calling;
 mod dispatch;
 mod env;
 mod events;
@@ -41,13 +42,23 @@ mod storage;
 mod trait_def;
 
 pub use self::{
+    arg_list::{
+        generate_argument_list,
+        generate_reference_to_trait_info,
+        input_bindings,
+        input_bindings_tuple,
+        input_types,
+        input_types_tuple,
+        output_ident,
+    },
+    as_dependency::{
+        ContractReference,
+        NotAsDependencyCfg,
+        OnlyAsDependencyCfg,
+    },
     blake2b::Blake2x256,
     chain_extension::ChainExtension,
     contract::Contract,
-    cross_calling::{
-        CrossCalling,
-        CrossCallingConflictCfg,
-    },
     dispatch::Dispatch,
     env::Env,
     events::Events,

@@ -1,0 +1,5 @@
+error: ink! trait methods with default implementations are not supported
+ --> tests/ui/trait_def/fail/message_default_impl.rs:6:23
+  |
+6 |     fn message(&self) {}
+  |                       ^^

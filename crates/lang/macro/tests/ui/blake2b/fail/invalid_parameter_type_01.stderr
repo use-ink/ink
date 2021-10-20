@@ -1,5 +1,0 @@
-error: expected string or byte string literal as input. found Bool(LitBool { value: true })
- --> $DIR/invalid_parameter_type_01.rs:3:38
-  |
-3 | const _: [u8; 32] = ink::blake2x256!(true);
-  |                                      ^^^^

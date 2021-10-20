@@ -484,7 +484,7 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_balance() == t.transferred_value);
-            let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)
                 .transferred_value(t.transferred_value)
@@ -513,7 +513,7 @@ mod multisig {
         ) -> Result<Vec<u8>, Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            let result = build_call::<<Self as ::ink_lang::ContractEnv>::Env>()
+            let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)
                 .transferred_value(t.transferred_value)

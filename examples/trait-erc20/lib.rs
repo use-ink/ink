@@ -4,16 +4,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_lang as ink;
-
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_lang::{
-        EmitEvent,
-        Env,
-    };
-
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
         collections::HashMap as StorageHashMap,
         lazy::Lazy,
@@ -35,10 +26,6 @@ mod erc20 {
     /// Trait implemented by all ERC-20 respecting smart contracts.
     #[ink::trait_definition]
     pub trait BaseErc20 {
-        /// Creates a new ERC-20 contract with the specified initial supply.
-        #[ink(constructor)]
-        fn new(initial_supply: Balance) -> Self;
-
         /// Returns the total token supply.
         #[ink(message)]
         fn total_supply(&self) -> Balance;
@@ -105,10 +92,10 @@ mod erc20 {
         value: Balance,
     }
 
-    impl BaseErc20 for Erc20 {
+    impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
-        fn new(initial_supply: Balance) -> Self {
+        pub fn new(initial_supply: Balance) -> Self {
             let caller = Self::env().caller();
             let mut balances = StorageHashMap::new();
             balances.insert(caller, initial_supply);
@@ -124,7 +111,9 @@ mod erc20 {
             });
             instance
         }
+    }
 
+    impl BaseErc20 for Erc20 {
         /// Returns the total token supply.
         #[ink(message)]
         fn total_supply(&self) -> Balance {
@@ -211,6 +200,7 @@ mod erc20 {
         }
     }
 
+    #[ink(impl)]
     impl Erc20 {
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
         ///
@@ -257,7 +247,7 @@ mod erc20 {
         };
         use ink_lang as ink;
 
-        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
         fn assert_transfer_event(
             event: &ink_env::test::EmittedEvent,
@@ -293,7 +283,7 @@ mod erc20 {
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
                 result
             }
-            let expected_topics = vec![
+            let expected_topics = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
                     value: b"Erc20::Transfer",

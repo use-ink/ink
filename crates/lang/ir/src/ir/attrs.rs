@@ -31,6 +31,35 @@ use proc_macro2::{
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
+/// An extension trait for [`syn::Attribute`] in order to query for documentation.
+pub trait IsDocAttribute {
+    /// Returns `true` if the attribute is a Rust documentation attribute.
+    fn is_doc_attribute(&self) -> bool;
+
+    /// Returns the contents of the Rust documentation attribute or `None`.
+    fn extract_docs(&self) -> Option<String>;
+}
+
+impl IsDocAttribute for syn::Attribute {
+    fn is_doc_attribute(&self) -> bool {
+        self.path.is_ident("doc")
+    }
+
+    fn extract_docs(&self) -> Option<String> {
+        if !self.is_doc_attribute() {
+            return None
+        }
+        if let Ok(syn::Meta::NameValue(syn::MetaNameValue {
+            lit: syn::Lit::Str(lit_str),
+            ..
+        })) = self.parse_meta()
+        {
+            return Some(lit_str.value())
+        }
+        None
+    }
+}
+
 /// Either an ink! specific attribute, or another uninterpreted attribute.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Attribute {
@@ -467,7 +496,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => {
-                write!(f, "selector = {:?}", selector.as_bytes())
+                write!(f, "selector = {:?}", selector.to_bytes())
             }
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
@@ -483,7 +512,7 @@ impl core::fmt::Display for AttributeArg {
 }
 
 /// An ink! namespace applicable to a trait implementation block.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Namespace {
     /// The underlying bytes.
     bytes: Vec<u8>,
@@ -584,6 +613,7 @@ where
 /// - If there are duplicate ink! attributes.
 /// - If the first ink! attribute is not matching the expected.
 /// - If there are conflicting ink! attributes.
+/// - if there are no ink! attributes.
 pub fn sanitize_attributes<I, C>(
     parent_span: Span,
     attrs: I,
@@ -607,6 +637,45 @@ where
     })?;
     normalized.ensure_no_conflicts(is_conflicting_attr)?;
     Ok((normalized, other_attrs))
+}
+
+/// Sanitizes the given optional attributes.
+///
+/// This partitions the attributes into ink! and non-ink! attributes.
+/// If there are ink! attributes they are normalized and deduplicated.
+/// Also checks to guard against conflicting ink! attributes are provided.
+///
+/// Returns the optional partitioned ink! and non-ink! attributes.
+///
+/// # Parameters
+///
+/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
+/// returns `Err(None)` if the attribute conflicts but without providing further reasoning
+/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+///
+/// # Errors
+///
+/// - If there are invalid ink! attributes.
+/// - If there are duplicate ink! attributes.
+/// - If there are conflicting ink! attributes.
+pub fn sanitize_optional_attributes<I, C>(
+    parent_span: Span,
+    attrs: I,
+    is_conflicting_attr: C,
+) -> Result<(Option<InkAttribute>, Vec<syn::Attribute>), syn::Error>
+where
+    I: IntoIterator<Item = syn::Attribute>,
+    C: FnMut(&ir::AttributeFrag) -> Result<(), Option<syn::Error>>,
+{
+    let (ink_attrs, rust_attrs) = ir::partition_attributes(attrs)?;
+    if ink_attrs.is_empty() {
+        return Ok((None, rust_attrs))
+    }
+    let normalized = ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
+        err.into_combine(format_err!(parent_span, "at this invocation",))
+    })?;
+    normalized.ensure_no_conflicts(is_conflicting_attr)?;
+    Ok((Some(normalized), rust_attrs))
 }
 
 impl Attribute {
@@ -749,7 +818,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                             error
                                         )
                                     })?;
-                                let selector = Selector::from_bytes(selector_u32.to_be_bytes());
+                                let selector = Selector::from(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Selector(selector),
@@ -779,7 +848,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     ),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
+                            return Err(format_err!(name_value, "expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"))
                         }
                         if name_value.path.is_ident("extension") {
                             if let syn::Lit::Int(lit_int) = &name_value.lit {
@@ -837,6 +906,11 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 "topic" => Ok(AttributeArg::Topic),
                                 "payable" => Ok(AttributeArg::Payable),
                                 "impl" => Ok(AttributeArg::Implementation),
+                                "selector" => Err(format_err!(
+                                    meta,
+                                    "encountered #[ink(selector)] that is missing its u32 parameter. \
+                                    Did you mean #[ink(selector = value: u32)] ?"
+                                )),
                                 "namespace" => Err(format_err!(
                                     meta,
                                     "encountered #[ink(namespace)] that is missing its string parameter. \
@@ -844,8 +918,8 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 )),
                                 "extension" => Err(format_err!(
                                     meta,
-                                    "encountered #[ink(extension)] that is missing its N parameter. \
-                                    Did you mean #[ink(extension = N: u32)] ?"
+                                    "encountered #[ink(extension)] that is missing its `id` parameter. \
+                                    Did you mean #[ink(extension = id: u32)] ?"
                                 )),
                                 "handle_status" => Err(format_err!(
                                     meta,
@@ -1042,7 +1116,7 @@ mod tests {
                 #[ink(selector = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from_bytes([0, 0, 0, 42]),
+                Selector::from([0, 0, 0, 42]),
             )])),
         );
         assert_attribute_try_from(
@@ -1050,7 +1124,7 @@ mod tests {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from_bytes([0xDE, 0xAD, 0xBE, 0xEF]),
+                Selector::from([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
     }
@@ -1119,7 +1193,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(namespace = 42)]
             },
-            Err("expecteded string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
+            Err("expected string type for `namespace` argument, e.g. #[ink(namespace = \"hello\")]"),
         );
     }
 
@@ -1186,8 +1260,8 @@ mod tests {
                 #[ink(extension)]
             },
             Err(
-                "encountered #[ink(extension)] that is missing its N parameter. \
-                Did you mean #[ink(extension = N: u32)] ?",
+                "encountered #[ink(extension)] that is missing its `id` parameter. \
+                Did you mean #[ink(extension = id: u32)] ?",
             ),
         );
     }
