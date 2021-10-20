@@ -23,6 +23,7 @@ an error otherwise.
 The `Cargo.toml` should contain
 ```
 scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 ```
 
 ## Added
