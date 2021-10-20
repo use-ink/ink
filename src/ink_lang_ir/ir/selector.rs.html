@@ -149,6 +149,85 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -180,27 +259,106 @@
     <span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>],
 }
 
-<span class="kw">impl</span> <span class="ident">Selector</span> {
-    <span class="doccomment">/// Creates a new selector from the given raw bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">bytes</span> }
+<span class="doccomment">/// The trait prefix to compute a composed selector for trait implementation blocks.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The namespace of the ink! trait definition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default this is equal to the `module_path!` at the ink! trait definition site.</span>
+    <span class="doccomment">/// It can be customized by the ink! trait definition author using `#[ink(namespace = N)]`</span>
+    <span class="doccomment">/// ink! attribute.</span>
+    <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::LitStr</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The Rust identifier of the ink! trait definition.</span>
+    <span class="ident">trait_ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new trait prefix.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">trait_ident</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span>, <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::LitStr</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">namespace</span>,
+            <span class="ident">trait_ident</span>,
+        }
     }
 
+    <span class="doccomment">/// Returns a vector over the bytes of the namespace.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">namespace_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">namespace</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">namespace</span><span class="op">|</span> <span class="ident">namespace</span>.<span class="ident">value</span>().<span class="ident">into_bytes</span>())
+            .<span class="ident">unwrap_or_default</span>()
+    }
+
+    <span class="doccomment">/// Returns a shared reference to the Rust identifier of the trait.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trait_ident</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::Ident</span> {
+        <span class="self">self</span>.<span class="ident">trait_ident</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Selector</span> {
     <span class="doccomment">/// Computes the BLAKE-2 256-bit based selector from the given input bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compute</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">32</span>];
         <span class="ident">blake2b_256</span>(<span class="ident">input</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
-        <span class="ident"><span class="self">Self</span>::from_bytes</span>([<span class="ident">output</span>[<span class="number">0</span>], <span class="ident">output</span>[<span class="number">1</span>], <span class="ident">output</span>[<span class="number">2</span>], <span class="ident">output</span>[<span class="number">3</span>]])
+        <span class="ident"><span class="self">Self</span>::from</span>([<span class="ident">output</span>[<span class="number">0</span>], <span class="ident">output</span>[<span class="number">1</span>], <span class="ident">output</span>[<span class="number">2</span>], <span class="ident">output</span>[<span class="number">3</span>]])
+    }
+
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `trait_prefix` is `None` when computing the selector of ink! constructors</span>
+    <span class="doccomment">///   and messages in inherent implementation blocks.</span>
+    <span class="doccomment">/// - `trait_prefix` is `Some` when computing the selector of ink! constructors</span>
+    <span class="doccomment">///   and messages in trait implementation blocks. In this case the `namespace`</span>
+    <span class="doccomment">///   is either the full path of the trait definition gained by Rust&#39;s</span>
+    <span class="doccomment">///   `module_path!` macro by default or it is customized by manual application</span>
+    <span class="doccomment">///   of the `#[ink(namespace = &quot;my_namespace&quot;)]` ink! attribute. In the</span>
+    <span class="doccomment">///   example `my_namespace` concatenated with `::` and the identifier of the</span>
+    <span class="doccomment">///   trait definition would then be part of the provided `trait_prefix` parameter.</span>
+    <span class="doccomment">/// - `fn_ident` refers to the ink! constructor or message identifier.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Inherent Implementation Blocks</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For inherent implementation blocks, when `trait_prefix` is `None` the composed</span>
+    <span class="doccomment">/// selector is computed as follows:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// 1. Apply `BLAKE2` 256-bit hash `H` on the bytes of the ASCII representation of</span>
+    <span class="doccomment">///   the `fn_ident` identifier.</span>
+    <span class="doccomment">/// 1. The first 4 bytes of `H` make up the selector.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Trait Implementation Blocks</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For trait implementation blocks, when `trait_prefix` is</span>
+    <span class="doccomment">/// `Some((namespace, trait_ident))` the composed selector is computed as follows:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// 1. Compute the ASCII byte representation of `fn_ident` and call it `F`.</span>
+    <span class="doccomment">/// 1. Compute the ASCII byte representation of `namespace` and call it `N`.</span>
+    <span class="doccomment">/// 1. Compute the ASCII byte representation of `trait_ident` and call it `T`.</span>
+    <span class="doccomment">/// 1. Concatenate `N`, `T` and `F` using `::` as separator and call it `C`.</span>
+    <span class="doccomment">/// 1. Apply the `BLAKE2` 256-bit hash `H` of `C`.</span>
+    <span class="doccomment">/// 1. The first 4 bytes of `H` make up the selector.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compose</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">trait_prefix</span>: <span class="ident">T</span>, <span class="ident">fn_ident</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TraitPrefix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">fn_ident</span> <span class="op">=</span> <span class="ident">fn_ident</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
+        <span class="kw">let</span> <span class="ident">input_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trait_prefix</span>.<span class="ident">into</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">trait_prefix</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="ident">trait_prefix</span>.<span class="ident">namespace_bytes</span>();
+                <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">trait_prefix</span>.<span class="ident">trait_ident</span>().<span class="ident">to_string</span>().<span class="ident">into_bytes</span>();
+                <span class="kw">let</span> <span class="ident">separator</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">b&quot;::&quot;</span>[..];
+                <span class="kw">if</span> <span class="ident">namespace</span>.<span class="ident">is_empty</span>() {
+                    [<span class="kw-2">&amp;</span><span class="ident">trait_ident</span>[..], <span class="kw-2">&amp;</span><span class="ident">fn_ident</span>[..]].<span class="ident">join</span>(<span class="ident">separator</span>)
+                } <span class="kw">else</span> {
+                    [<span class="kw-2">&amp;</span><span class="ident">namespace</span>[..], <span class="kw-2">&amp;</span><span class="ident">trait_ident</span>[..], <span class="kw-2">&amp;</span><span class="ident">fn_ident</span>[..]].<span class="ident">join</span>(<span class="ident">separator</span>)
+                }
+            }
+            <span class="prelude-val">None</span> =&gt; <span class="ident">fn_ident</span>.<span class="ident">to_vec</span>(),
+        };
+        <span class="ident"><span class="self">Self</span>::compute</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>)
     }
 
     <span class="doccomment">/// Returns the underlying four bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">4</span>] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bytes</span>
-    }
-
-    <span class="doccomment">/// Returns a unique identifier as `usize`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unique_id</span>(<span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">into_be_u32</span>() <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="number">4</span>] {
+        <span class="self">self</span>.<span class="ident">bytes</span>
     }
 
     <span class="doccomment">/// Returns the big-endian `u32` representation of the selector bytes.</span>
@@ -216,7 +374,7 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">4</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Selector</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">4</span>]) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_bytes</span>(<span class="ident">bytes</span>)
+        <span class="self">Self</span> { <span class="ident">bytes</span> }
     }
 }
 
@@ -273,7 +431,7 @@
                 ))
             }
         };
-        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::new</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>);
+        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">selector</span>,
             <span class="ident">input</span>: <span class="ident">lit</span>,
@@ -288,7 +446,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">hex_lits_works</span>() {
-        <span class="kw">let</span> <span class="ident">hex_lits</span> <span class="op">=</span> <span class="ident">Selector::from_bytes</span>([<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]).<span class="ident">hex_lits</span>();
+        <span class="kw">let</span> <span class="ident">hex_lits</span> <span class="op">=</span> <span class="ident">Selector::from</span>([<span class="number">0xC0</span>, <span class="number">0xDE</span>, <span class="number">0xCA</span>, <span class="number">0xFE</span>]).<span class="ident">hex_lits</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">hex_lits</span>,
             [

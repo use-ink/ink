@@ -296,6 +296,13 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -322,6 +329,7 @@
         <span class="ident">ParseStream</span>,
     },
     <span class="ident">punctuated::Punctuated</span>,
+    <span class="ident">spanned::Spanned</span>,
     <span class="ident">Token</span>,
 };
 
@@ -428,9 +436,15 @@
         <span class="ident">name</span>: <span class="ident">syn::Path</span>,
         <span class="ident">input</span>: <span class="ident">ParseStream</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MetaNameValue</span>, <span class="ident">syn::Error</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">span</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">MetaNameValue</span> {
             <span class="ident">name</span>,
-            <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
+            <span class="ident">eq_token</span>: <span class="ident">input</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_error</span><span class="op">|</span> {
+                <span class="macro">format_err!</span>(
+                    <span class="ident">span</span>,
+                    <span class="string">&quot;ink! config options require an argument separated by &#39;=&#39;&quot;</span>,
+                )
+            })<span class="question-mark">?</span>,
             <span class="ident">value</span>: <span class="ident">input</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>,
         })
     }

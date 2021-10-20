@@ -638,6 +638,18 @@
 <span id="638">638</span>
 <span id="639">639</span>
 <span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -822,8 +834,9 @@
 <span class="doccomment">/// # Details</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Given</span>
-<span class="doccomment">/// - the callable&#39;s identifier `i`</span>
-<span class="doccomment">/// - the optionally set callable&#39;s selector `s`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - the identifier `i` of the callable</span>
+<span class="doccomment">/// - the optionally set selector `s` of the callable</span>
 <span class="doccomment">/// - the `impl` blocks trait path in case it implements a trait, `P`</span>
 <span class="doccomment">/// - 16 kB blocks optional user provided namespace `S`</span>
 <span class="doccomment">///</span>
@@ -983,7 +996,7 @@
             }
         }
     };
-    <span class="ident">ir::Selector::new</span>(<span class="kw-2">&amp;</span><span class="ident">joined</span>)
+    <span class="ident">ir::Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">joined</span>)
 }
 
 <span class="doccomment">/// Ensures that common invariants of externally callable ink! entities are met.</span>
@@ -1046,7 +1059,7 @@
     <span class="kw">if</span> <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">abi</span>.<span class="ident">is_some</span>() {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
             <span class="ident">method_item</span>.<span class="ident">sig</span>.<span class="ident">abi</span>,
-            <span class="string">&quot;ink! {}s must have explicit ABI&quot;</span>,
+            <span class="string">&quot;ink! {}s must not have explicit ABI&quot;</span>,
             <span class="ident">kind</span>,
         ))
     }
@@ -1124,19 +1137,24 @@
     <span class="ident">iter</span>: <span class="ident">syn::punctuated::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">syn::FnArg</span><span class="op">&gt;</span>,
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Creates a new inputs iterator over the given `syn` punctuation.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="ident">inputs</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">syn::punctuated::Punctuated</span><span class="op">&lt;</span><span class="ident">syn::FnArg</span>, <span class="ident">P</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">iter</span>: <span class="ident">inputs</span>.<span class="ident">iter</span>(),
+        }
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Message</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">iter</span>: <span class="ident">message</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
-        }
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Constructor</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">iter</span>: <span class="ident">constructor</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>.<span class="ident">iter</span>(),
-        }
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="kw-2">&amp;</span><span class="ident">constructor</span>.<span class="ident">item</span>.<span class="ident">sig</span>.<span class="ident">inputs</span>)
     }
 }
 
@@ -1151,6 +1169,12 @@
                 <span class="prelude-val">Some</span>(<span class="ident">syn::FnArg::Receiver</span>(<span class="kw">_</span>)) =&gt; <span class="kw">continue</span> <span class="lifetime">&#39;repeat</span>,
             }
         }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExactSizeIterator</span> <span class="kw">for</span> <span class="ident">InputsIter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">iter</span>.<span class="ident">len</span>()
     }
 }
 
@@ -1182,8 +1206,8 @@
     <span class="kw">impl</span> <span class="ident">ExpectedSelector</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">expected_selector</span>(<span class="self">self</span>) -&gt; <span class="ident">ir::Selector</span> {
             <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Raw</span>(<span class="ident">raw_selector</span>) =&gt; <span class="ident">ir::Selector::from_bytes</span>(<span class="ident">raw_selector</span>),
-                <span class="ident"><span class="self">Self</span>::Blake2</span>(<span class="ident">blake2_input</span>) =&gt; <span class="ident">ir::Selector::new</span>(<span class="kw-2">&amp;</span><span class="ident">blake2_input</span>),
+                <span class="ident"><span class="self">Self</span>::Raw</span>(<span class="ident">raw_selector</span>) =&gt; <span class="ident">ir::Selector::from</span>(<span class="ident">raw_selector</span>),
+                <span class="ident"><span class="self">Self</span>::Blake2</span>(<span class="ident">blake2_input</span>) =&gt; <span class="ident">ir::Selector::compute</span>(<span class="kw-2">&amp;</span><span class="ident">blake2_input</span>),
             }
         }
     }
@@ -1246,13 +1270,13 @@
         <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="kw">impl</span>, <span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;my_namespace&quot;</span>)]</span>
-                <span class="kw">impl</span> <span class="ident">MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {}
+                <span class="kw">impl</span> <span class="ident">MyStorage</span> {}
             },
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
             },
-            <span class="string">b&quot;my_namespace::MyTrait::my_message&quot;</span>.<span class="ident">to_vec</span>(),
+            <span class="string">b&quot;my_namespace::my_message&quot;</span>.<span class="ident">to_vec</span>(),
         );
         <span class="ident">assert_compose_selector</span>::<span class="op">&lt;</span><span class="ident">ir::Message</span>, <span class="kw">_</span><span class="op">&gt;</span>(
             <span class="macro">syn::parse_quote!</span> {

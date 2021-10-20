@@ -239,6 +239,80 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -253,14 +327,15 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">generator</span>,
-    <span class="ident">GenerateCode</span>,
-    <span class="ident">GenerateCodeUsing</span> <span class="kw">as</span> <span class="kw">_</span>,
-};
+<span class="kw">use</span> <span class="ident">core::iter</span>;
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">heck::CamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
-<span class="kw">use</span> <span class="ident">ir::Callable</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">ir</span>::{
+    <span class="ident">Callable</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">HexLiteral</span>,
+};
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">quote</span>::{
     <span class="ident">format_ident</span>,
@@ -284,36 +359,140 @@
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">generate_item_impl</span>(<span class="ident">item_impl</span>));
-        <span class="kw">let</span> <span class="ident">no_cross_calling_cfg</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">inout_guards</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_input_output_guards</span>();
+        <span class="kw">let</span> <span class="ident">trait_message_property_guards</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_trait_message_property_guards</span>();
+        <span class="kw">let</span> <span class="ident">use_emit_event</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">next</span>().<span class="ident">is_some</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="comment">// Required to make `self.env().emit_event(..)` syntax available.</span>
+                <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink_lang::codegen::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
+            });
         <span class="macro">quote!</span> {
-            #<span class="ident">no_cross_calling_cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">use</span> <span class="ident">::ink_lang</span>::{<span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>};
+                <span class="comment">// Required to make `self.env()` and `Self::env()` syntax available.</span>
+                <span class="kw">use</span> <span class="ident">::ink_lang::codegen</span>::{<span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>};
+                #<span class="ident">use_emit_event</span>
 
                 #( #<span class="ident">item_impls</span> )<span class="op">*</span>
+                #<span class="ident">inout_guards</span>
+                #<span class="ident">trait_message_property_guards</span>
             };
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">ItemImpls</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Generates the code for the given ink! constructor within a trait implementation block.</span>
-    <span class="kw">fn</span> <span class="ident">generate_trait_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Constructor</span>) -&gt; <span class="ident">TokenStream2</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
-        <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">visibility</span>();
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Out&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
-        <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>();
-        <span class="kw">let</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">statements</span>();
-        <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="kw">type</span> #<span class="ident">output_ident</span> <span class="op">=</span> <span class="self">Self</span>;
+    <span class="doccomment">/// Generates code to guard annotated ink! trait message properties.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// These guarded properties include `selector` and `payable`.</span>
+    <span class="doccomment">/// If an ink! trait message is annotated with `#[ink(payable)]`</span>
+    <span class="doccomment">/// or `#[ink(selector = ..)]` then code is generated to guard that</span>
+    <span class="doccomment">/// the given argument to `payable` or `selector` is equal to</span>
+    <span class="doccomment">/// what the associated ink! trait definition defines for the same</span>
+    <span class="doccomment">/// ink! message.</span>
+    <span class="kw">fn</span> <span class="ident">generate_trait_message_property_guards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
+        <span class="kw">let</span> <span class="ident">trait_message_guards</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">trait_path</span><span class="op">|</span> {
+                <span class="ident">iter::repeat</span>(<span class="ident">trait_path</span>).<span class="ident">zip</span>(<span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            }))
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">trait_path</span>, <span class="ident">message</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">message_local_id</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">local_id</span>().<span class="ident">hex_padded_suffixed</span>();
+                <span class="kw">let</span> <span class="ident">message_guard_payable</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">is_payable</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
+                    <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                        <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink_lang::codegen::TraitMessagePayable</span><span class="op">&lt;</span>{
+                            <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink_lang::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                                <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                                <span class="kw">as</span> <span class="ident">::ink_lang::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">message_local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
+                        }<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::ink_lang::codegen::TraitMessagePayable</span>::<span class="op">&lt;</span><span class="bool-val">true</span><span class="op">&gt;</span>;
+                    )
+                });
+                <span class="kw">let</span> <span class="ident">message_guard_selector</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">user_provided_selector</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">selector</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">given_selector</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">into_be_u32</span>().<span class="ident">hex_padded_suffixed</span>();
+                    <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                        <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink_lang::codegen::TraitMessageSelector</span><span class="op">&lt;</span>{
+                            <span class="ident">::core::primitive::u32::from_be_bytes</span>(
+                                <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink_lang::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>
+                                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+                                    <span class="kw">as</span> <span class="ident">::ink_lang::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">message_local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
+                            )
+                        }<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">::ink_lang::codegen::TraitMessageSelector</span>::<span class="op">&lt;</span>#<span class="ident">given_selector</span><span class="op">&gt;</span>;
+                    )
+                });
+                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                    #<span class="ident">message_guard_payable</span>
+                    #<span class="ident">message_guard_selector</span>
+                )
+            });
+        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
+            #( #<span class="ident">trait_message_guards</span> )<span class="op">*</span>
+        )
+    }
 
-            #( #<span class="ident">attrs</span> )<span class="op">*</span>
-            #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span>( #( #<span class="ident">inputs</span> ),<span class="op">*</span> ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
-                #( #<span class="ident">statements</span> )<span class="op">*</span>
-            }
+    <span class="doccomment">/// Generates code to assert that ink! input and output types meet certain properties.</span>
+    <span class="kw">fn</span> <span class="ident">generate_input_output_guards</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
+        <span class="kw">let</span> <span class="ident">storage_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
+        <span class="kw">let</span> <span class="ident">constructor_input_guards</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">constructor_inputs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
+                    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
+                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                        <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                            <span class="ident">::ink_lang::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
+                        <span class="op">&gt;</span>();
+                    )
+                });
+                <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
+                    #( #<span class="ident">constructor_inputs</span> )<span class="op">*</span>
+                )
+            });
+        <span class="kw">let</span> <span class="ident">message_inout_guards</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">contract</span>
+            .<span class="ident">module</span>()
+            .<span class="ident">impls</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
+            .<span class="ident">flatten</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
+                <span class="kw">let</span> <span class="ident">message_inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">input</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">span</span>();
+                    <span class="kw">let</span> <span class="ident">input_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">ty</span>;
+                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                        <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                            <span class="ident">::ink_lang::codegen::DispatchInput</span><span class="op">&lt;</span>#<span class="ident">input_type</span><span class="op">&gt;</span>
+                        <span class="op">&gt;</span>();
+                    )
+                });
+                <span class="kw">let</span> <span class="ident">message_output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">output_type</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">output_type</span>.<span class="ident">span</span>();
+                    <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
+                        <span class="kw">let</span> <span class="kw">_</span>: () <span class="op">=</span> <span class="ident">::ink_lang::codegen::utils::consume_type</span>::<span class="op">&lt;</span>
+                            <span class="ident">::ink_lang::codegen::DispatchOutput</span><span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>
+                        <span class="op">&gt;</span>();
+                    )
+                });
+                <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
+                    #( #<span class="ident">message_inputs</span> )<span class="op">*</span>
+                    #<span class="ident">message_output</span>
+                )
+            });
+        <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span>=&gt;
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                #( #<span class="ident">constructor_input_guards</span> )<span class="op">*</span>
+                #( #<span class="ident">message_inout_guards</span> )<span class="op">*</span>
+            };
         )
     }
 
@@ -324,7 +503,7 @@
         <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">visibility</span>();
         <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Out&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
+        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>();
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>
             .<span class="ident">output</span>()
@@ -348,46 +527,17 @@
         <span class="kw">let</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">iter_messages</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_trait_message</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
-        <span class="kw">let</span> <span class="ident">constructors</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">iter_constructors</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">cws</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_trait_constructor</span>(<span class="ident">cws</span>.<span class="ident">callable</span>()));
-        <span class="kw">let</span> <span class="ident">other_items</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">items</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="ident">ir::ImplItem::filter_map_other_item</span>)
-            .<span class="ident">map</span>(<span class="ident">ToTokens::to_token_stream</span>);
         <span class="kw">let</span> <span class="ident">trait_path</span> <span class="op">=</span> <span class="ident">item_impl</span>
             .<span class="ident">trait_path</span>()
             .<span class="ident">expect</span>(<span class="string">&quot;encountered missing trait path for trait impl block&quot;</span>);
-        <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="ident">item_impl</span>
-            .<span class="ident">trait_ident</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;encountered missing trait identifier for trait impl block&quot;</span>);
         <span class="kw">let</span> <span class="ident">self_type</span> <span class="op">=</span> <span class="ident">item_impl</span>.<span class="ident">self_type</span>();
-        <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">ir::InkTrait::compute_verify_hash</span>(
-            <span class="ident">trait_ident</span>,
-            <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>().<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">len_inputs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">count</span>();
-                (<span class="ident">ident</span>, <span class="ident">len_inputs</span>)
-            }),
-            <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>().<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">len_inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">count</span>() <span class="op">+</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="ident">is_mut</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>();
-                (<span class="ident">ident</span>, <span class="ident">len_inputs</span>, <span class="ident">is_mut</span>)
-            }),
-        );
-        <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="ident">u32::from_be_bytes</span>([<span class="ident">hash</span>[<span class="number">0</span>], <span class="ident">hash</span>[<span class="number">1</span>], <span class="ident">hash</span>[<span class="number">2</span>], <span class="ident">hash</span>[<span class="number">3</span>]]) <span class="kw">as</span> <span class="ident">usize</span>;
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">::ink_lang::CheckedInkTrait</span><span class="op">&lt;</span>[(); #<span class="ident">checksum</span>]<span class="op">&gt;</span> <span class="kw">for</span> #<span class="ident">self_type</span> {}
-
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
             <span class="kw">impl</span> #<span class="ident">trait_path</span> <span class="kw">for</span> #<span class="ident">self_type</span> {
-                <span class="kw">type</span> <span class="ident">__ink_Checksum</span> <span class="op">=</span> [(); #<span class="ident">checksum</span>];
+                <span class="kw">type</span> <span class="ident">__ink_TraitInfo</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">::ink_lang::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>
+                    <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>;
 
-                #( #<span class="ident">constructors</span> )<span class="op">*</span>
                 #( #<span class="ident">messages</span> )<span class="op">*</span>
-                #( #<span class="ident">other_items</span> )<span class="op">*</span>
             }
         )
     }
@@ -460,10 +610,8 @@
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">self_ty</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-            <span class="macro">::ink_lang::static_assertions::assert_type_eq_all!</span>(
-                #<span class="ident">self_ty</span>,
-                #<span class="ident">storage_ident</span>,
-            );
+            <span class="kw">const</span> <span class="kw">_</span>: <span class="ident">::ink_lang::codegen::utils::IsSameType</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="op">=</span>
+                <span class="ident">::ink_lang::codegen::utils::IsSameType</span>::<span class="op">&lt;</span>#<span class="ident">self_ty</span><span class="op">&gt;</span><span class="ident">::new</span>();
         )
     }
 

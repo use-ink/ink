@@ -758,6 +758,20 @@
 <span id="758">758</span>
 <span id="759">759</span>
 <span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -779,7 +793,10 @@
     <span class="ident">InputsIter</span>,
     <span class="ident">Visibility</span>,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ir</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ir</span>::{
+    <span class="self">self</span>,
+    <span class="ident">utils</span>,
+};
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
@@ -1038,6 +1055,17 @@
             <span class="ident">syn::ReturnType::Default</span> =&gt; <span class="prelude-val">None</span>,
             <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">return_type</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">return_type</span>),
         }
+    }
+
+    <span class="doccomment">/// Returns a local ID unique to the ink! message with respect to its implementation block.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is a compile error if two ink! trait messages share the same local ID.</span>
+    <span class="doccomment">/// Although the above scenario is very unlikely since the local ID is computed</span>
+    <span class="doccomment">/// solely by the identifier of the ink! message.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+        <span class="ident">utils::local_message_id</span>(<span class="self">self</span>.<span class="ident">ident</span>())
     }
 }
 
@@ -1435,7 +1463,7 @@
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must have explicit ABI&quot;</span>)
+            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! messages must not have explicit ABI&quot;</span>)
         }
     }
 

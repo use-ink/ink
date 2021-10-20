@@ -1405,6 +1405,80 @@
 <span id="1405">1405</span>
 <span id="1406">1406</span>
 <span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
+<span id="1443">1443</span>
+<span id="1444">1444</span>
+<span id="1445">1445</span>
+<span id="1446">1446</span>
+<span id="1447">1447</span>
+<span id="1448">1448</span>
+<span id="1449">1449</span>
+<span id="1450">1450</span>
+<span id="1451">1451</span>
+<span id="1452">1452</span>
+<span id="1453">1453</span>
+<span id="1454">1454</span>
+<span id="1455">1455</span>
+<span id="1456">1456</span>
+<span id="1457">1457</span>
+<span id="1458">1458</span>
+<span id="1459">1459</span>
+<span id="1460">1460</span>
+<span id="1461">1461</span>
+<span id="1462">1462</span>
+<span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
+<span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
+<span id="1474">1474</span>
+<span id="1475">1475</span>
+<span id="1476">1476</span>
+<span id="1477">1477</span>
+<span id="1478">1478</span>
+<span id="1479">1479</span>
+<span id="1480">1480</span>
+<span id="1481">1481</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1437,6 +1511,35 @@
 };
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
+
+<span class="doccomment">/// An extension trait for [`syn::Attribute`] in order to query for documentation.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsDocAttribute</span> {
+    <span class="doccomment">/// Returns `true` if the attribute is a Rust documentation attribute.</span>
+    <span class="kw">fn</span> <span class="ident">is_doc_attribute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+
+    <span class="doccomment">/// Returns the contents of the Rust documentation attribute or `None`.</span>
+    <span class="kw">fn</span> <span class="ident">extract_docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">impl</span> <span class="ident">IsDocAttribute</span> <span class="kw">for</span> <span class="ident">syn::Attribute</span> {
+    <span class="kw">fn</span> <span class="ident">is_doc_attribute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;doc&quot;</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">extract_docs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_doc_attribute</span>() {
+            <span class="kw">return</span> <span class="prelude-val">None</span>
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">syn::Meta::NameValue</span>(<span class="ident">syn::MetaNameValue</span> {
+            <span class="ident">lit</span>: <span class="ident">syn::Lit::Str</span>(<span class="ident">lit_str</span>),
+            ..
+        })) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_meta</span>()
+        {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">lit_str</span>.<span class="ident">value</span>())
+        }
+        <span class="prelude-val">None</span>
+    }
+}
 
 <span class="doccomment">/// Either an ink! specific attribute, or another uninterpreted attribute.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -1874,7 +1977,7 @@
             <span class="ident"><span class="self">Self</span>::Constructor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constructor&quot;</span>),
             <span class="ident"><span class="self">Self</span>::Payable</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;payable&quot;</span>),
             <span class="ident"><span class="self">Self</span>::Selector</span>(<span class="ident">selector</span>) =&gt; {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = {:?}&quot;</span>, <span class="ident">selector</span>.<span class="ident">as_bytes</span>())
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;selector = {:?}&quot;</span>, <span class="ident">selector</span>.<span class="ident">to_bytes</span>())
             }
             <span class="ident"><span class="self">Self</span>::Extension</span>(<span class="ident">extension</span>) =&gt; {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;extension = {:?}&quot;</span>, <span class="ident">extension</span>.<span class="ident">into_u32</span>())
@@ -1890,7 +1993,7 @@
 }
 
 <span class="doccomment">/// An ink! namespace applicable to a trait implementation block.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Namespace</span> {
     <span class="doccomment">/// The underlying bytes.</span>
     <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
@@ -1991,6 +2094,7 @@
 <span class="doccomment">/// - If there are duplicate ink! attributes.</span>
 <span class="doccomment">/// - If the first ink! attribute is not matching the expected.</span>
 <span class="doccomment">/// - If there are conflicting ink! attributes.</span>
+<span class="doccomment">/// - if there are no ink! attributes.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sanitize_attributes</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">C</span><span class="op">&gt;</span>(
     <span class="ident">parent_span</span>: <span class="ident">Span</span>,
     <span class="ident">attrs</span>: <span class="ident">I</span>,
@@ -2014,6 +2118,45 @@
     })<span class="question-mark">?</span>;
     <span class="ident">normalized</span>.<span class="ident">ensure_no_conflicts</span>(<span class="ident">is_conflicting_attr</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>((<span class="ident">normalized</span>, <span class="ident">other_attrs</span>))
+}
+
+<span class="doccomment">/// Sanitizes the given optional attributes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This partitions the attributes into ink! and non-ink! attributes.</span>
+<span class="doccomment">/// If there are ink! attributes they are normalized and deduplicated.</span>
+<span class="doccomment">/// Also checks to guard against conflicting ink! attributes are provided.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Returns the optional partitioned ink! and non-ink! attributes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Parameters</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,</span>
+<span class="doccomment">/// returns `Err(None)` if the attribute conflicts but without providing further reasoning</span>
+<span class="doccomment">/// and `Err(Some(reason))` if the attribute conflicts given additional context information.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - If there are invalid ink! attributes.</span>
+<span class="doccomment">/// - If there are duplicate ink! attributes.</span>
+<span class="doccomment">/// - If there are conflicting ink! attributes.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sanitize_optional_attributes</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">C</span><span class="op">&gt;</span>(
+    <span class="ident">parent_span</span>: <span class="ident">Span</span>,
+    <span class="ident">attrs</span>: <span class="ident">I</span>,
+    <span class="ident">is_conflicting_attr</span>: <span class="ident">C</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InkAttribute</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">syn::Attribute</span><span class="op">&gt;</span>), <span class="ident">syn::Error</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">I</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">syn::Attribute</span><span class="op">&gt;</span>,
+    <span class="ident">C</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">ir::AttributeFrag</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+{
+    <span class="kw">let</span> (<span class="ident">ink_attrs</span>, <span class="ident">rust_attrs</span>) <span class="op">=</span> <span class="ident">ir::partition_attributes</span>(<span class="ident">attrs</span>)<span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="ident">ink_attrs</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="prelude-val">None</span>, <span class="ident">rust_attrs</span>))
+    }
+    <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span> <span class="ident">ir::InkAttribute::from_expanded</span>(<span class="ident">ink_attrs</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+        <span class="ident">err</span>.<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(<span class="ident">parent_span</span>, <span class="string">&quot;at this invocation&quot;</span>,))
+    })<span class="question-mark">?</span>;
+    <span class="ident">normalized</span>.<span class="ident">ensure_no_conflicts</span>(<span class="ident">is_conflicting_attr</span>)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((<span class="prelude-val">Some</span>(<span class="ident">normalized</span>), <span class="ident">rust_attrs</span>))
 }
 
 <span class="kw">impl</span> <span class="ident">Attribute</span> {
@@ -2156,7 +2299,7 @@
                                             <span class="ident">error</span>
                                         )
                                     })<span class="question-mark">?</span>;
-                                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::from_bytes</span>(<span class="ident">selector_u32</span>.<span class="ident">to_be_bytes</span>());
+                                <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">Selector::from</span>(<span class="ident">selector_u32</span>.<span class="ident">to_be_bytes</span>());
                                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AttributeFrag</span> {
                                     <span class="ident">ast</span>: <span class="ident">meta</span>,
                                     <span class="ident">arg</span>: <span class="ident">AttributeArg::Selector</span>(<span class="ident">selector</span>),
@@ -2186,7 +2329,7 @@
                                     ),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expected string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;extension&quot;</span>) {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Int</span>(<span class="ident">lit_int</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
@@ -2244,6 +2387,11 @@
                                 <span class="string">&quot;topic&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Topic</span>),
                                 <span class="string">&quot;payable&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Payable</span>),
                                 <span class="string">&quot;impl&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">AttributeArg::Implementation</span>),
+                                <span class="string">&quot;selector&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
+                                    <span class="ident">meta</span>,
+                                    <span class="string">&quot;encountered #[ink(selector)] that is missing its u32 parameter. \
+                                    Did you mean #[ink(selector = value: u32)] ?&quot;</span>
+                                )),
                                 <span class="string">&quot;namespace&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
                                     <span class="string">&quot;encountered #[ink(namespace)] that is missing its string parameter. \
@@ -2251,8 +2399,8 @@
                                 )),
                                 <span class="string">&quot;extension&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
-                                    <span class="string">&quot;encountered #[ink(extension)] that is missing its N parameter. \
-                                    Did you mean #[ink(extension = N: u32)] ?&quot;</span>
+                                    <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
+                                    Did you mean #[ink(extension = id: u32)] ?&quot;</span>
                                 )),
                                 <span class="string">&quot;handle_status&quot;</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(
                                     <span class="ident">meta</span>,
@@ -2449,7 +2597,7 @@
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">42</span>)]</span>
             },
             <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Selector</span>(
-                <span class="ident">Selector::from_bytes</span>([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">42</span>]),
+                <span class="ident">Selector::from</span>([<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">42</span>]),
             )])),
         );
         <span class="ident">assert_attribute_try_from</span>(
@@ -2457,7 +2605,7 @@
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="number">0xDEADBEEF</span>)]</span>
             },
             <span class="prelude-val">Ok</span>(<span class="ident">test::Attribute::Ink</span>(<span class="macro">vec!</span>[<span class="ident">AttributeArg::Selector</span>(
-                <span class="ident">Selector::from_bytes</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
+                <span class="ident">Selector::from</span>([<span class="number">0xDE</span>, <span class="number">0xAD</span>, <span class="number">0xBE</span>, <span class="number">0xEF</span>]),
             )])),
         );
     }
@@ -2526,7 +2674,7 @@
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span> <span class="op">=</span> <span class="number">42</span>)]</span>
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected string type for `namespace` argument, e.g. #[ink(namespace = \&quot;hello\&quot;)]&quot;</span>),
         );
     }
 
@@ -2593,8 +2741,8 @@
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span>)]</span>
             },
             <span class="prelude-val">Err</span>(
-                <span class="string">&quot;encountered #[ink(extension)] that is missing its N parameter. \
-                Did you mean #[ink(extension = N: u32)] ?&quot;</span>,
+                <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
+                Did you mean #[ink(extension = id: u32)] ?&quot;</span>,
             ),
         );
     }

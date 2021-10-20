@@ -806,33 +806,6 @@
 <span id="806">806</span>
 <span id="807">807</span>
 <span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1031,7 +1004,7 @@
                      #[ink(namespace = N:string)] on the implementation block to \
                      disambiguate overlapping selectors.&quot;</span>,
                     <span class="ident">kind</span>,
-                    <span class="ident">selector</span>.<span class="ident">as_bytes</span>(),
+                    <span class="ident">selector</span>.<span class="ident">to_bytes</span>(),
                 )
                 .<span class="ident">into_combine</span>(<span class="macro">format_err!</span>(
                     <span class="ident">first_span</span>,
@@ -1617,33 +1590,6 @@
             <span class="string">&quot;encountered ink! messages with overlapping selectors (= [04, C4, 94, 46])\n\
             hint: use #[ink(selector = S:u32)] on the callable or #[ink(namespace = N:string)] \
             on the implementation block to disambiguate overlapping selectors.&quot;</span>,
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">namespaced_overlapping_trait_impls_works</span>() {
-        <span class="macro">assert!</span>(
-            <span class="op">&lt;</span><span class="ident">ir::ItemMod</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">syn::ItemMod</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="macro">syn::parse_quote!</span> {
-                <span class="kw">mod</span> <span class="ident">my_module</span> {
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">storage</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MyStorage</span> {}
-
-                    <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">namespace</span> <span class="op">=</span> <span class="string">&quot;first&quot;</span>)]</span>
-                    <span class="kw">impl</span> <span class="ident">first::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
-
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
-                    }
-
-                    <span class="kw">impl</span> <span class="ident">second::MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {
-                        <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                        <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
-                    }
-                }
-            })
-            .<span class="ident">is_ok</span>()
         );
     }
 

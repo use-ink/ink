@@ -110,10 +110,6 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -128,11 +124,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">generator</span>,
-    <span class="ident">GenerateCode</span>,
-    <span class="ident">GenerateCodeUsing</span>,
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">quote</span>::{
@@ -156,18 +148,16 @@
         <span class="kw">let</span> <span class="ident">use_emit_event</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">events</span>().<span class="ident">next</span>().<span class="ident">is_some</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="comment">// Required to allow for `self.env().emit_event(..)` in messages and constructors.</span>
-                <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink_lang::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
+                <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink_lang::codegen::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
             });
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span> =&gt;
             #<span class="ident">access_env_impls</span>
             #<span class="ident">storage_struct</span>
 
-            #<span class="ident">cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="comment">// Used to make `self.env()` available in message code.</span>
+                <span class="comment">// Used to make `self.env()` and `Self::env()` available in message code.</span>
                 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-                <span class="kw">use</span> <span class="ident">::ink_lang</span>::{
+                <span class="kw">use</span> <span class="ident">::ink_lang::codegen</span>::{
                     <span class="ident">Env</span> <span class="kw">as</span> <span class="kw">_</span>,
                     <span class="ident">StaticEnv</span> <span class="kw">as</span> <span class="kw">_</span>,
                 };
@@ -180,26 +170,24 @@
 <span class="kw">impl</span> <span class="ident">Storage</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">generate_access_env_trait_impls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote!</span> {
-            #<span class="ident">cfg</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink_lang::Env</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">storage_ident</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink_lang::codegen::Env</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> #<span class="ident">storage_ident</span> {
                     <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink_lang::EnvAccess</span><span class="op">&lt;</span>
-                        <span class="lifetime">&#39;a</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
+                        <span class="lifetime">&#39;a</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
 
                     <span class="kw">fn</span> <span class="ident">env</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
-                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::Env</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
+                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::Env</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
                             <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
                     }
                 }
 
-                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink_lang::StaticEnv</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
+                <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">::ink_lang::codegen::StaticEnv</span> <span class="kw">for</span> #<span class="ident">storage_ident</span> {
                     <span class="kw">type</span> <span class="ident">EnvAccess</span> <span class="op">=</span> <span class="ident">::ink_lang::EnvAccess</span><span class="op">&lt;</span>
-                        <span class="lifetime">&#39;static</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
+                        <span class="lifetime">&#39;static</span>, <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>;
 
                     <span class="kw">fn</span> <span class="ident">env</span>() -&gt; <span class="ident"><span class="self">Self</span>::EnvAccess</span> {
-                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::StaticEnv</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
+                        <span class="op">&lt;</span><span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::StaticEnv</span><span class="op">&gt;</span><span class="ident">::EnvAccess</span>
                             <span class="kw">as</span> <span class="ident">::core::default::Default</span><span class="op">&gt;</span><span class="ident">::default</span>()
                     }
                 }
@@ -214,9 +202,7 @@
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">attrs</span>();
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">fields</span>();
-        <span class="kw">let</span> <span class="ident">cfg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCallingConflictCfg</span><span class="op">&gt;</span>();
         <span class="macro">quote_spanned!</span>( <span class="ident">span</span> =&gt;
-            #<span class="ident">cfg</span>
             #(#<span class="ident">attrs</span>)<span class="op">*</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(
                 <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>,
@@ -227,6 +213,12 @@
             <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ident</span> {
                 #( #<span class="ident">fields</span> ),<span class="op">*</span>
             }
+
+            <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
+                <span class="kw">impl</span> <span class="ident">::ink_lang::reflect::ContractName</span> <span class="kw">for</span> #<span class="ident">ident</span> {
+                    <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>);
+                }
+            };
         )
     }
 }

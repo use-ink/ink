@@ -200,7 +200,7 @@
         <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">scale_info::Type</span> {
             <span class="ident">scale_info::Type::builder</span>()
                 .<span class="ident">path</span>(
-                    <span class="ident">scale_info::Path::from_segments</span>(<span class="macro">vec!</span>[<span class="string">&quot;ink_storage&quot;</span>, <span class="string">&quot;alloc&quot;</span>, <span class="string">&quot;Box&quot;</span>])
+                    <span class="ident">scale_info::Path::from_segments</span>([<span class="string">&quot;ink_storage&quot;</span>, <span class="string">&quot;alloc&quot;</span>, <span class="string">&quot;Box&quot;</span>])
                         .<span class="ident">expect</span>(<span class="string">&quot;encountered invalid Rust path&quot;</span>),
                 )
                 <span class="comment">// Unfortunately we cannot encode the type parameters of the box since they</span>

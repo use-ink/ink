@@ -576,6 +576,9 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1079,7 +1082,10 @@
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
-            <span class="ident">assert_try_from_fails</span>(<span class="ident">item_method</span>, <span class="string">&quot;ink! constructors must have explicit ABI&quot;</span>)
+            <span class="ident">assert_try_from_fails</span>(
+                <span class="ident">item_method</span>,
+                <span class="string">&quot;ink! constructors must not have explicit ABI&quot;</span>,
+            )
         }
     }
 

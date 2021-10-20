@@ -61,6 +61,17 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -89,10 +100,11 @@
     };
 }
 
+<span class="kw">mod</span> <span class="ident">arg_list</span>;
+<span class="kw">mod</span> <span class="ident">as_dependency</span>;
 <span class="kw">mod</span> <span class="ident">blake2b</span>;
 <span class="kw">mod</span> <span class="ident">chain_extension</span>;
 <span class="kw">mod</span> <span class="ident">contract</span>;
-<span class="kw">mod</span> <span class="ident">cross_calling</span>;
 <span class="kw">mod</span> <span class="ident">dispatch</span>;
 <span class="kw">mod</span> <span class="ident">env</span>;
 <span class="kw">mod</span> <span class="ident">events</span>;
@@ -104,13 +116,23 @@
 <span class="kw">mod</span> <span class="ident">trait_def</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
+    <span class="ident">arg_list</span>::{
+        <span class="ident">generate_argument_list</span>,
+        <span class="ident">generate_reference_to_trait_info</span>,
+        <span class="ident">input_bindings</span>,
+        <span class="ident">input_bindings_tuple</span>,
+        <span class="ident">input_types</span>,
+        <span class="ident">input_types_tuple</span>,
+        <span class="ident">output_ident</span>,
+    },
+    <span class="ident">as_dependency</span>::{
+        <span class="ident">ContractReference</span>,
+        <span class="ident">NotAsDependencyCfg</span>,
+        <span class="ident">OnlyAsDependencyCfg</span>,
+    },
     <span class="ident">blake2b::Blake2x256</span>,
     <span class="ident">chain_extension::ChainExtension</span>,
     <span class="ident">contract::Contract</span>,
-    <span class="ident">cross_calling</span>::{
-        <span class="ident">CrossCalling</span>,
-        <span class="ident">CrossCallingConflictCfg</span>,
-    },
     <span class="ident">dispatch::Dispatch</span>,
     <span class="ident">env::Env</span>,
     <span class="ident">events::Events</span>,

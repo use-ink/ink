@@ -983,6 +983,7 @@
 <span id="983">983</span>
 <span id="984">984</span>
 <span id="985">985</span>
+<span id="986">986</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1768,7 +1769,8 @@
             }
         );
         <span class="macro">assert_ink_chain_extension_eq_err!</span>(
-            <span class="ident">error</span>: <span class="string">&quot;encountered #[ink(extension)] that is missing its N parameter. Did you mean #[ink(extension = N: u32)] ?&quot;</span>,
+            <span class="ident">error</span>: <span class="string">&quot;encountered #[ink(extension)] that is missing its `id` parameter. \
+                    Did you mean #[ink(extension = id: u32)] ?&quot;</span>,
             <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MyChainExtension</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">has_self_receiver</span>();

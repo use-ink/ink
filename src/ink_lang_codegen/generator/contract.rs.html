@@ -64,6 +64,7 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
+<span id="67">67</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -105,10 +106,11 @@
         <span class="kw">let</span> <span class="ident">env</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Env</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Storage</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">events</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Events</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">dispatch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Dispatch</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">dispatch2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Dispatch</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">item_impls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::ItemImpls</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">cross_calling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::CrossCalling</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::Metadata</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">contract_reference</span> <span class="op">=</span>
+            <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::ContractReference</span><span class="op">&gt;</span>();
         <span class="kw">let</span> <span class="ident">non_ink_items</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">contract</span>
             .<span class="ident">module</span>()
@@ -121,9 +123,9 @@
                 #<span class="ident">env</span>
                 #<span class="ident">storage</span>
                 #<span class="ident">events</span>
-                #<span class="ident">dispatch</span>
+                #<span class="ident">dispatch2</span>
                 #<span class="ident">item_impls</span>
-                #<span class="ident">cross_calling</span>
+                #<span class="ident">contract_reference</span>
                 #<span class="ident">metadata</span>
                 #( #<span class="ident">non_ink_items</span> )<span class="op">*</span>
             }

@@ -100,6 +100,11 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -146,13 +151,17 @@
     <span class="ident">first_ink_attribute</span>,
     <span class="ident">partition_attributes</span>,
     <span class="ident">sanitize_attributes</span>,
+    <span class="ident">sanitize_optional_attributes</span>,
     <span class="ident">AttributeArg</span>,
     <span class="ident">AttributeArgKind</span>,
     <span class="ident">AttributeFrag</span>,
     <span class="ident">InkAttribute</span>,
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
-    <span class="ident">attrs::Namespace</span>,
+    <span class="ident">attrs</span>::{
+        <span class="ident">IsDocAttribute</span>,
+        <span class="ident">Namespace</span>,
+    },
     <span class="ident">blake2</span>::{
         <span class="ident">blake2b_256</span>,
         <span class="ident">Blake2x256Macro</span>,
@@ -193,10 +202,11 @@
     <span class="ident">selector</span>::{
         <span class="ident">Selector</span>,
         <span class="ident">SelectorMacro</span>,
+        <span class="ident">TraitPrefix</span>,
     },
     <span class="ident">trait_def</span>::{
-        <span class="ident">InkTrait</span>,
-        <span class="ident">InkTraitConstructor</span>,
+        <span class="ident">InkItemTrait</span>,
+        <span class="ident">InkTraitDefinition</span>,
         <span class="ident">InkTraitItem</span>,
         <span class="ident">InkTraitMessage</span>,
         <span class="ident">IterInkTraitItems</span>,
