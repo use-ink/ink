@@ -35,7 +35,7 @@ use ink_prelude::{
     collections::BTreeMap,
 };
 use ink_primitives::Key;
-use std::ops::AddAssign;
+use core::ops::AddAssign;
 
 /// The index type used in the lazy storage chunk.
 pub type Index = u32;
