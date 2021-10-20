@@ -107,7 +107,7 @@ mod key {
     }
 
     #[test]
-    fn add_one_to_zero_works() {
+    fn add_assign_one_to_zero_works() {
         let bytes = [0x00; 32];
         let expected = {
             let mut bytes = [0x00; 32];
@@ -120,61 +120,117 @@ mod key {
     }
 
     #[test]
-    fn add_with_ovfl_works() {
-        const BYTES: [u8; 32] = *b"\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        ";
+    fn add_assign_using_one_to_zero_works() {
+        let bytes = [0x00; 32];
+        let expected = {
+            let mut bytes = [0x00; 32];
+            bytes[0] = 0x01;
+            bytes
+        };
+        let input = Key::from(bytes);
+        let mut result = Key::default();
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
+    }
+
+    const OVERFLOW_1_TEST_BYTES: [u8; 32] = *b"\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+    ";
+
+    #[test]
+    fn add_assign_with_ovfl_1_works() {
         let expected = {
             let mut expected = [0x00; 32];
             expected[8] = 0x01;
             expected
         };
-        let mut key = Key::from(BYTES);
+        let mut key = Key::from(OVERFLOW_1_TEST_BYTES);
         key.add_assign(1u64);
         assert_eq!(key.as_ref(), &expected);
     }
 
     #[test]
-    fn add_with_ovfl_2_works() {
-        const BYTES: [u8; 32] = *b"\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        ";
+    fn add_assign_using_with_ovfl_1_works() {
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[8] = 0x01;
+            expected
+        };
+        let input = Key::from(OVERFLOW_1_TEST_BYTES);
+        let mut result = Key::default();
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
+    }
+
+    const OVERFLOW_2_TEST_BYTES: [u8; 32] = *b"\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+    ";
+
+    #[test]
+    fn add_assign_with_ovfl_2_works() {
         let expected = {
             let mut expected = [0x00; 32];
             expected[16] = 0x01;
             expected
         };
-        let mut key = Key::from(BYTES);
+        let mut key = Key::from(OVERFLOW_2_TEST_BYTES);
         key.add_assign(1u64);
         assert_eq!(key.as_ref(), &expected);
     }
 
     #[test]
-    fn add_with_ovfl_3_works() {
-        const BYTES: [u8; 32] = *b"\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        ";
+    fn add_assign_using_with_ovfl_2_works() {
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[16] = 0x01;
+            expected
+        };
+        let input = Key::from(OVERFLOW_2_TEST_BYTES);
+        let mut result = Key::default();
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
+    }
+
+    const OVERFLOW_3_TEST_BYTES: [u8; 32] = *b"\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
+        \x00\x00\x00\x00\x00\x00\x00\x00\
+    ";
+
+    #[test]
+    fn add_assign_with_ovfl_3_works() {
         let expected = {
             let mut expected = [0x00; 32];
             expected[24] = 0x01;
             expected
         };
-        let mut key = Key::from(BYTES);
+        let mut key = Key::from(OVERFLOW_3_TEST_BYTES);
         key.add_assign(1u64);
         assert_eq!(key.as_ref(), &expected);
     }
 
     #[test]
-    fn add_with_wrap_works() {
+    fn add_assign_using_with_ovfl_3_works() {
+        let expected = {
+            let mut expected = [0x00; 32];
+            expected[24] = 0x01;
+            expected
+        };
+        let input = Key::from(OVERFLOW_3_TEST_BYTES);
+        let mut result = Key::default();
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
+    }
+
+    #[test]
+    fn add_assign_with_wrap_works() {
         const BYTES: [u8; 32] = [0xFF; 32];
         let expected = [0x00; 32];
         let mut key = Key::from(BYTES);
@@ -183,7 +239,17 @@ mod key {
     }
 
     #[test]
-    fn add_to_zero_works() {
+    fn add_assign_using_with_wrap_works() {
+        const BYTES: [u8; 32] = [0xFF; 32];
+        let expected = [0x00; 32];
+        let input = Key::from(BYTES);
+        let mut result = Key::default();
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
+    }
+
+    #[test]
+    fn add_assign_to_zero_works() {
         const TEST_VALUES: &[u64] = &[0, 1, 42, 10_000, u32::MAX as u64, u64::MAX];
         for test_value in TEST_VALUES {
             let mut key = <Key as Default>::default();
@@ -192,8 +258,38 @@ mod key {
                 expected[0..8].copy_from_slice(&test_value.to_le_bytes());
                 expected
             };
-            key.add_assign(*test_value);
+            key += test_value;
             assert_eq!(key.as_ref(), &expected);
         }
+    }
+
+    #[test]
+    fn add_assign_using_to_zero_works() {
+        const TEST_VALUES: &[u64] = &[0, 1, 42, 10_000, u32::MAX as u64, u64::MAX];
+        let zero = <Key as Default>::default();
+        for test_value in TEST_VALUES {
+            let expected = {
+                let mut expected = [0x00; 32];
+                expected[0..8].copy_from_slice(&test_value.to_le_bytes());
+                expected
+            };
+            let mut result = Key::default();
+            zero.add_assign_u64_using(*test_value, &mut result);
+            assert_eq!(result.as_ref(), &expected);
+        }
+    }
+
+    #[test]
+    fn add_assign_using_override_works() {
+        let bytes = [0x00; 32];
+        let expected = {
+            let mut bytes = [0x00; 32];
+            bytes[0] = 0x01;
+            bytes
+        };
+        let input = Key::from(bytes);
+        let mut result = Key::from([0xFF; 32]);
+        input.add_assign_u64_using(1u64, &mut result);
+        assert_eq!(result.as_ref(), &expected);
     }
 }

@@ -112,7 +112,6 @@ impl Key {
     /// This is only safe to do on little-endian systems therefore
     /// this function is only enabled on these platforms.
     #[cfg(target_endian = "little")]
-    #[allow(dead_code)]
     fn reinterpret_as_u64x4(&self) -> &[u64; 4] {
         // SAFETY: Conversion is only safe on little endian architectures.
         unsafe { &*(&self.0 as *const [u8; 32] as *const [u64; 4]) }
@@ -216,6 +215,31 @@ impl Key {
         }
     }
 
+    /// Adds the `u64` value to the key storing the result in `result`.
+    ///
+    /// # Note
+    ///
+    /// This implementation is heavily optimized for little-endian Wasm platforms.
+    ///
+    /// # Developer Note
+    ///
+    /// Since we are operating on little-endian we can convert the underlying `[u8; 32]`
+    /// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`
+    /// it is more efficient to work on chunks of `u8` represented as `u64`.
+    #[cfg(target_endian = "little")]
+    fn add_assign_u64_le_using(&self, rhs: u64, result: &mut Key) {
+        let lhs = self.reinterpret_as_u64x4();
+        let result = result.reinterpret_as_u64x4_mut();
+        let mut carry = rhs;
+        for (lhs, result) in lhs.iter().zip(result) {
+            let (res, ovfl) = lhs.overflowing_add(carry);
+            *result = res;
+            carry = ovfl as u64;
+            // Note: We cannot bail out early in this case in order to
+            //       guarantee that we fully overwrite the result key.
+        }
+    }
+
     /// Adds the `u64` value to the `Key`.
     ///
     /// # Note
@@ -241,6 +265,50 @@ impl Key {
             carry = ovfl as u8;
             if carry == 0 {
                 return
+            }
+        }
+    }
+
+    /// Adds the `u64` value to the key storing the result in `result`.
+    ///
+    /// # Note
+    ///
+    /// This is a fallback implementation that has not been optimized for any
+    /// specific target platform or endianess.
+    #[cfg(target_endian = "big")]
+    fn add_assign_u64_be_using(&self, rhs: u64, result: &mut Key) {
+        let rhs_bytes = rhs.to_be_bytes();
+        let lhs_bytes = self.as_ref();
+        let result_bytes = result.as_mut();
+        let len_rhs = rhs_bytes.len();
+        let len_lhs = lhs_bytes.len();
+        let mut carry = 0;
+        for i in 0..len_rhs {
+            let (res, ovfl) =
+                lhs_bytes[i].overflowing_add(rhs_bytes[i].wrapping_add(carry));
+            result_bytes[i] = res;
+            carry = ovfl as u8;
+        }
+        for i in len_rhs..len_lhs {
+            let (res, ovfl) = lhs_bytes[i].overflowing_add(carry);
+            result_bytes[i] = res;
+            carry = ovfl as u8;
+            // Note: We cannot bail out early in this case in order to
+            //       guarantee that we fully overwrite the result key.
+        }
+    }
+
+    /// Adds the `u64` value to the key storing the result in `result`.
+    ///
+    /// # Note
+    ///
+    /// This will overwrite the contents of the `result` key.
+    pub fn add_assign_u64_using(&self, rhs: u64, result: &mut Key) {
+        cfg_if! {
+            if #[cfg(target_endian = "little")] {
+                self.add_assign_u64_le_using(rhs, result);
+            } else {
+                self.add_assign_u64_be_using(rhs, result);
             }
         }
     }
