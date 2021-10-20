@@ -244,7 +244,7 @@ impl Key {
     /// # Note
     ///
     /// This is a fallback implementation that has not been optimized for any
-    /// specific target platform or endianess.
+    /// specific target platform or endianness.
     #[cfg(target_endian = "big")]
     fn add_assign_u64_be(&mut self, rhs: u64) {
         let rhs_bytes = rhs.to_be_bytes();
@@ -273,7 +273,7 @@ impl Key {
     /// # Note
     ///
     /// This is a fallback implementation that has not been optimized for any
-    /// specific target platform or endianess.
+    /// specific target platform or endianness.
     #[cfg(target_endian = "big")]
     fn add_assign_u64_be_using(&self, rhs: u64, result: &mut Key) {
         let rhs_bytes = rhs.to_be_bytes();
