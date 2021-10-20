@@ -97,7 +97,7 @@ impl ECDSAPublicKey {
         // Transform compressed public key into uncompressed.
         let pub_key = PublicKey::from_slice(&self.0)
             .expect("Unable to parse the compressed ECDSA public key");
-        let uncompressed = pub_key.serialize();
+        let uncompressed = pub_key.serialize_uncompressed();
 
         // Hash the uncompressed public key by Keccak256 algorithm.
         let mut hash = <hash::Keccak256 as hash::HashOutput>::Type::default();
