@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -29,48 +30,10 @@ use ink_env::{
     RentStatus,
     Result,
 };
+use ink_eth_compatibility::ECDSAPublicKey;
 use ink_primitives::Key;
 
-use crate::ChainExtensionInstance;
-use ink_eth_compatibility::ECDSAPublicKey;
-
-/// The environment of the compiled ink! smart contract.
-pub trait ContractEnv {
-    /// The environment type.
-    type Env: ::ink_env::Environment;
-}
-
-/// Simplifies interaction with the host environment via `self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait Env {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env(self) -> Self::EnvAccess;
-}
-
-/// Simplifies interaction with the host environment via `Self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait StaticEnv {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env() -> Self::EnvAccess;
-}
-
-/// A typed accessor to the environment.
+/// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
@@ -651,7 +614,7 @@ where
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}
     /// };
-    /// use other_contract::OtherContract;
+    /// use other_contract::OtherContractRef;
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -666,7 +629,7 @@ where
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, OtherContract>()
+    ///     let create_params = build_create::<DefaultEnvironment, OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)

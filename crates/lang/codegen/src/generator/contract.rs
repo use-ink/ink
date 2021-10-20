@@ -39,10 +39,11 @@ impl GenerateCode for Contract<'_> {
         let env = self.generate_code_using::<generator::Env>();
         let storage = self.generate_code_using::<generator::Storage>();
         let events = self.generate_code_using::<generator::Events>();
-        let dispatch = self.generate_code_using::<generator::Dispatch>();
+        let dispatch2 = self.generate_code_using::<generator::Dispatch>();
         let item_impls = self.generate_code_using::<generator::ItemImpls>();
-        let cross_calling = self.generate_code_using::<generator::CrossCalling>();
         let metadata = self.generate_code_using::<generator::Metadata>();
+        let contract_reference =
+            self.generate_code_using::<generator::ContractReference>();
         let non_ink_items = self
             .contract
             .module()
@@ -55,9 +56,9 @@ impl GenerateCode for Contract<'_> {
                 #env
                 #storage
                 #events
-                #dispatch
+                #dispatch2
                 #item_impls
-                #cross_calling
+                #contract_reference
                 #metadata
                 #( #non_ink_items )*
             }

@@ -501,7 +501,10 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(item_method, "ink! constructors must have explicit ABI")
+            assert_try_from_fails(
+                item_method,
+                "ink! constructors must not have explicit ABI",
+            )
         }
     }
 

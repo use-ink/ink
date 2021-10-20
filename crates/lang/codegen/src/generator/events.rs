@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-    GenerateCodeUsing as _,
-};
+use crate::GenerateCode;
 use derive_more::From;
 use proc_macro2::{
     Span,
@@ -61,19 +57,16 @@ impl<'a> Events<'a> {
     /// them first into the automatically generated base trait of the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
             const _: () = {
-                #no_cross_calling_cfg
-                impl<'a> ::ink_lang::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
+                impl<'a> ::ink_lang::codegen::EmitEvent<#storage_ident> for ::ink_lang::EnvAccess<'a, Environment> {
                     fn emit_event<E>(self, event: E)
                     where
-                        E: Into<<#storage_ident as ::ink_lang::BaseEvent>::Type>,
+                        E: Into<<#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type>,
                     {
                         ::ink_env::emit_event::<
                             Environment,
-                            <#storage_ident as ::ink_lang::BaseEvent>::Type
+                            <#storage_ident as ::ink_lang::reflect::ContractEventBase>::Type
                         >(event.into());
                     }
                 }
@@ -86,8 +79,6 @@ impl<'a> Events<'a> {
     /// serialized and emitted to apply their unique event discriminant (ID).
     fn generate_event_base(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         let event_idents = self
             .contract
             .module()
@@ -97,21 +88,18 @@ impl<'a> Events<'a> {
         let base_event_ident =
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
         quote! {
-            #no_cross_calling_cfg
             #[derive(::scale::Encode, ::scale::Decode)]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*
             }
 
-            #no_cross_calling_cfg
             const _: () = {
-                impl ::ink_lang::BaseEvent for #storage_ident {
+                impl ::ink_lang::reflect::ContractEventBase for #storage_ident {
                     type Type = #base_event_ident;
                 }
             };
 
             #(
-                #no_cross_calling_cfg
                 const _: () = {
                     impl From<#event_idents> for #base_event_ident {
                         fn from(event: #event_idents) -> Self {
@@ -127,7 +115,6 @@ impl<'a> Events<'a> {
                     const AMOUNT: usize = 0;
                 }
 
-                #no_cross_calling_cfg
                 impl ::ink_env::Topics for #base_event_ident {
                     type RemainingTopics = __ink_UndefinedAmountOfTopics;
 
@@ -154,55 +141,34 @@ impl<'a> Events<'a> {
 
     /// Generate checks to guard against too many topics in event definitions.
     fn generate_topics_guard(&self, event: &ir::Event) -> TokenStream2 {
+        let span = event.span();
         let storage_ident = self.contract.module().storage().ident();
         let event_ident = event.ident();
         let len_topics = event.fields().filter(|event| event.is_topic).count();
-        let span = event.span();
+        let max_len_topics = quote_spanned!(span=>
+            <<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env
+                as ::ink_env::Environment>::MAX_EVENT_TOPICS
+        );
         quote_spanned!(span=>
-            const _: () = {
-                #[allow(non_camel_case_types)]
-                pub enum __ink_CheckSatisfied {}
-                pub enum EventTopicsWithinBounds {}
-                impl ::ink_lang::True for __ink_CheckSatisfied {}
-                #[doc(hidden)]
-                pub trait CompliesWithTopicLimit {}
-                impl CompliesWithTopicLimit for __ink_CheckSatisfied {}
+            impl ::ink_lang::codegen::EventLenTopics for #event_ident {
+                type LenTopics = ::ink_lang::codegen::EventTopics<#len_topics>;
+            }
 
-                #[allow(non_camel_case_types)]
-                pub trait __ink_RenameBool {
-                    type Type;
-                }
-                impl __ink_RenameBool for [(); true as usize] {
-                    type Type = __ink_CheckSatisfied;
-                }
-                impl __ink_RenameBool for [(); false as usize] {
-                    type Type = #event_ident;
-                }
-
-                #[allow(non_upper_case_globals)]
-                const __ink_MAX_EVENT_TOPICS: usize = <
-                    <#storage_ident as ::ink_lang::ContractEnv>::Env as ::ink_env::Environment
-                >::MAX_EVENT_TOPICS;
-
-                fn __ink_ensure_max_event_topics<T>(_: T)
-                where
-                    T: __ink_RenameBool,
-                    <T as __ink_RenameBool>::Type: CompliesWithTopicLimit,
-                {}
-                let _ = __ink_ensure_max_event_topics::<[(); (#len_topics <= __ink_MAX_EVENT_TOPICS) as usize]>;
-            };
+            const _: () = ::ink_lang::codegen::utils::consume_type::<
+                ::ink_lang::codegen::EventRespectsTopicLimit<
+                    #event_ident,
+                    { #max_len_topics },
+                >
+            >();
         )
     }
 
     /// Generates the guard code that protects against having too many topics defined on an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let topics_guard = self.generate_topics_guard(event);
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 #topics_guard
             )
         })
@@ -210,8 +176,6 @@ impl<'a> Events<'a> {
 
     /// Generates the `Topics` trait implementations for the user defined events.
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         let contract_ident = self.contract.module().storage().ident();
         self.contract.module().events().map(move |event| {
             let span = event.span();
@@ -258,7 +222,6 @@ impl<'a> Events<'a> {
                 n => quote_spanned!(span=> [::ink_env::topics::state::HasRemainingTopics; #n]),
             };
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 const _: () = {
                     impl ::ink_env::Topics for #event_ident {
                         type RemainingTopics = #remaining_topics_ty;
@@ -287,8 +250,6 @@ impl<'a> Events<'a> {
 
     /// Generates all the user defined event struct definitions.
     fn generate_event_structs(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
         self.contract.module().events().map(move |event| {
             let span = event.span();
             let ident = event.ident();
@@ -305,7 +266,6 @@ impl<'a> Events<'a> {
                 )
             });
             quote_spanned!(span =>
-                #no_cross_calling_cfg
                 #( #attrs )*
                 #[derive(scale::Encode, scale::Decode)]
                 pub struct #ident {

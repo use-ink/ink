@@ -290,12 +290,15 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
-    fn from_name_segments(
-        segments: Vec<&'static str>,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    fn from_name_segments<T>(
+        segments: T,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>>
+    where
+        T: IntoIterator<Item = &'static str>,
+    {
         ConstructorSpecBuilder {
             spec: Self {
-                name: segments,
+                name: segments.into_iter().collect(),
                 selector: Selector::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
@@ -308,7 +311,7 @@ impl ConstructorSpec {
     pub fn from_name(
         name: &'static str,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
-        Self::from_name_segments(vec![name])
+        Self::from_name_segments([name])
     }
 
     /// Creates a new constructor spec builder for a trait provided constructor.
@@ -316,7 +319,7 @@ impl ConstructorSpec {
         trait_name: &'static str,
         constructor_name: &'static str,
     ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
-        Self::from_name_segments(vec![trait_name, constructor_name])
+        Self::from_name_segments([trait_name, constructor_name])
     }
 }
 

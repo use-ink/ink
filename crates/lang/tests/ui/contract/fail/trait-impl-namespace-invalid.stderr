@@ -1,0 +1,9 @@
+error: namespace ink! property is not allowed on ink! trait implementation blocks
+  --> tests/ui/contract/fail/trait-impl-namespace-invalid.rs:23:5
+   |
+23 | /     #[ink(namespace = "namespace")]
+24 | |     impl TraitDefinition for Contract {
+25 | |         #[ink(message)]
+26 | |         fn message(&self) {}
+27 | |     }
+   | |_____^

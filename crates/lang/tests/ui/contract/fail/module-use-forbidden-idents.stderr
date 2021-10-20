@@ -1,0 +1,83 @@
+error: encountered invalid identifier starting with __ink_
+ --> tests/ui/contract/fail/module-use-forbidden-idents.rs:4:5
+  |
+4 | mod __ink_contract {
+  |     ^^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+ --> tests/ui/contract/fail/module-use-forbidden-idents.rs:6:16
+  |
+6 |     pub struct __ink_Contract {}
+  |                ^^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+ --> tests/ui/contract/fail/module-use-forbidden-idents.rs:8:11
+  |
+8 |     const __ink_CONST: () = ();
+  |           ^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+ --> tests/ui/contract/fail/module-use-forbidden-idents.rs:9:12
+  |
+9 |     static __ink_STATIC: () = ();
+  |            ^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:10:10
+   |
+10 |     type __ink_Type = ();
+   |          ^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:12:10
+   |
+12 |     impl __ink_Contract {
+   |          ^^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:14:16
+   |
+14 |         pub fn __ink_constructor(__ink_input: __ink_Type) -> Self {
+   |                ^^^^^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:14:34
+   |
+14 |         pub fn __ink_constructor(__ink_input: __ink_Type) -> Self {
+   |                                  ^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:14:47
+   |
+14 |         pub fn __ink_constructor(__ink_input: __ink_Type) -> Self {
+   |                                               ^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:19:16
+   |
+19 |         pub fn __ink_message(&self, __ink_input: __ink_Type) -> __ink_Type {
+   |                ^^^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:19:37
+   |
+19 |         pub fn __ink_message(&self, __ink_input: __ink_Type) -> __ink_Type {
+   |                                     ^^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:19:50
+   |
+19 |         pub fn __ink_message(&self, __ink_input: __ink_Type) -> __ink_Type {
+   |                                                  ^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:19:65
+   |
+19 |         pub fn __ink_message(&self, __ink_input: __ink_Type) -> __ink_Type {
+   |                                                                 ^^^^^^^^^^
+
+error: encountered invalid identifier starting with __ink_
+  --> tests/ui/contract/fail/module-use-forbidden-idents.rs:20:17
+   |
+20 |             let __ink_first = ();
+   |                 ^^^^^^^^^^^

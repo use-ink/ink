@@ -24,6 +24,7 @@ use syn::{
         ParseStream,
     },
     punctuated::Punctuated,
+    spanned::Spanned,
     Token,
 };
 
@@ -130,9 +131,15 @@ impl MetaNameValue {
         name: syn::Path,
         input: ParseStream,
     ) -> Result<MetaNameValue, syn::Error> {
+        let span = name.span();
         Ok(MetaNameValue {
             name,
-            eq_token: input.parse()?,
+            eq_token: input.parse().map_err(|_error| {
+                format_err!(
+                    span,
+                    "ink! config options require an argument separated by '='",
+                )
+            })?,
             value: input.parse()?,
         })
     }

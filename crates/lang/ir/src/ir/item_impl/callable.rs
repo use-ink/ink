@@ -182,8 +182,9 @@ pub trait Callable {
 /// # Details
 ///
 /// Given
-/// - the callable's identifier `i`
-/// - the optionally set callable's selector `s`
+///
+/// - the identifier `i` of the callable
+/// - the optionally set selector `s` of the callable
 /// - the `impl` blocks trait path in case it implements a trait, `P`
 /// - 16 kB blocks optional user provided namespace `S`
 ///
@@ -343,7 +344,7 @@ where
             }
         }
     };
-    ir::Selector::new(&joined)
+    ir::Selector::compute(&joined)
 }
 
 /// Ensures that common invariants of externally callable ink! entities are met.
@@ -406,7 +407,7 @@ pub(super) fn ensure_callable_invariants(
     if method_item.sig.abi.is_some() {
         return Err(format_err_spanned!(
             method_item.sig.abi,
-            "ink! {}s must have explicit ABI",
+            "ink! {}s must not have explicit ABI",
             kind,
         ))
     }
@@ -484,19 +485,24 @@ pub struct InputsIter<'a> {
     iter: syn::punctuated::Iter<'a, syn::FnArg>,
 }
 
+impl<'a> InputsIter<'a> {
+    /// Creates a new inputs iterator over the given `syn` punctuation.
+    pub(crate) fn new<P>(inputs: &'a syn::punctuated::Punctuated<syn::FnArg, P>) -> Self {
+        Self {
+            iter: inputs.iter(),
+        }
+    }
+}
+
 impl<'a> From<&'a ir::Message> for InputsIter<'a> {
     fn from(message: &'a ir::Message) -> Self {
-        Self {
-            iter: message.item.sig.inputs.iter(),
-        }
+        Self::new(&message.item.sig.inputs)
     }
 }
 
 impl<'a> From<&'a ir::Constructor> for InputsIter<'a> {
     fn from(constructor: &'a ir::Constructor) -> Self {
-        Self {
-            iter: constructor.item.sig.inputs.iter(),
-        }
+        Self::new(&constructor.item.sig.inputs)
     }
 }
 
@@ -511,6 +517,12 @@ impl<'a> Iterator for InputsIter<'a> {
                 Some(syn::FnArg::Receiver(_)) => continue 'repeat,
             }
         }
+    }
+}
+
+impl<'a> ExactSizeIterator for InputsIter<'a> {
+    fn len(&self) -> usize {
+        self.iter.len()
     }
 }
 
@@ -542,8 +554,8 @@ mod tests {
     impl ExpectedSelector {
         pub fn expected_selector(self) -> ir::Selector {
             match self {
-                Self::Raw(raw_selector) => ir::Selector::from_bytes(raw_selector),
-                Self::Blake2(blake2_input) => ir::Selector::new(&blake2_input),
+                Self::Raw(raw_selector) => ir::Selector::from(raw_selector),
+                Self::Blake2(blake2_input) => ir::Selector::compute(&blake2_input),
             }
         }
     }
@@ -606,13 +618,13 @@ mod tests {
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {
                 #[ink(impl, namespace = "my_namespace")]
-                impl MyTrait for MyStorage {}
+                impl MyStorage {}
             },
             syn::parse_quote! {
                 #[ink(message)]
                 fn my_message(&self) {}
             },
-            b"my_namespace::MyTrait::my_message".to_vec(),
+            b"my_namespace::my_message".to_vec(),
         );
         assert_compose_selector::<ir::Message, _>(
             syn::parse_quote! {

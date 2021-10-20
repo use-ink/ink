@@ -198,7 +198,7 @@ mod erc20 {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
         use ink_lang as ink;
 
@@ -518,7 +518,7 @@ mod erc20 {
         use ink_env::Clear;
         use ink_lang as ink;
 
-        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
         fn assert_transfer_event(
             event: &ink_env::test::EmittedEvent,

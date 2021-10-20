@@ -43,7 +43,7 @@ const _: () = {
 
     impl StorageLayout for BitStash {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new(
                     "counts",
                     <StorageVec<CountFree> as StorageLayout>::layout(key_ptr),

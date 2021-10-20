@@ -25,10 +25,13 @@ ink_lang_macro = { version = "3.0.0-rc6", path = "macro", default-features = fal
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-static_assertions = "1.1"
 
 [dev-dependencies]
-# required for the doctest of `env_access::EnvAccess::instantiate_contract`
+ink_lang_ir = { version = "3.0.0-rc6", path = "ir" }
+ink_metadata = { version = "3.0.0-rc6", default-features = false, path = "../metadata" }
+
+trybuild = { version = "1.0.49", features = ["diff"] }
+# Required for the doctest of `env_access::EnvAccess::instantiate_contract`
 scale-info = { version = "1.0", default-features = false, features = ["derive"] }
 
 [features]
@@ -43,3 +46,11 @@ std = [
     "ink_lang_macro/std",
     "scale/std",
 ]
+show-codegen-docs = []
+
+# Due to https://github.com/rust-lang/cargo/issues/6915 features that affect a dev-dependency
+# currently can't be enabled by a parent crate, hence `["ink_env/ink-experimental-engine"]` does
+# not work.
+# After we switch to the new off-chain environment with https://github.com/paritytech/ink/issues/565
+# we can remove the feature altogether.
+ink-experimental-engine = []
