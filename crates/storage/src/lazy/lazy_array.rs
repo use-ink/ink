@@ -590,7 +590,7 @@ mod tests {
     }
 
     fn add_key(key: &Key, offset: u64) -> Key {
-        let mut result = key.clone();
+        let mut result = *key;
         result += offset;
         result
     }
