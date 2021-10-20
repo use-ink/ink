@@ -18,6 +18,7 @@ include = ["/Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 ink_prelude = { version = "3.0.0-rc6", path = "../prelude/", default-features = false }
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+cfg-if = "1"
 
 [dev-dependencies]
 criterion = "0.3.1"
