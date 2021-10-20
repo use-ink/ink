@@ -204,15 +204,14 @@ impl Key {
     #[cfg(target_endian = "little")]
     fn add_assign_u64_le(&mut self, rhs: u64) {
         let words = self.reinterpret_as_u64x4_mut();
-        let mut carry = rhs;
-        for word in words {
-            let (res, ovfl) = word.overflowing_add(carry);
-            *word = res;
-            carry = ovfl as u64;
-            if carry == 0 {
-                return
-            }
-        }
+        let (res0,  ovfl) = words[0].overflowing_add(rhs);
+        let (res1,  ovfl) = words[1].overflowing_add(ovfl as u64);
+        let (res2,  ovfl) = words[2].overflowing_add(ovfl as u64);
+        let (res3, _ovfl) = words[3].overflowing_add(ovfl as u64);
+        words[0] = res0;
+        words[1] = res1;
+        words[2] = res2;
+        words[3] = res3;
     }
 
     /// Adds the `u64` value to the key storing the result in `result`.
@@ -228,16 +227,16 @@ impl Key {
     /// it is more efficient to work on chunks of `u8` represented as `u64`.
     #[cfg(target_endian = "little")]
     fn add_assign_u64_le_using(&self, rhs: u64, result: &mut Key) {
-        let lhs = self.reinterpret_as_u64x4();
+        let input = self.reinterpret_as_u64x4();
         let result = result.reinterpret_as_u64x4_mut();
-        let mut carry = rhs;
-        for (lhs, result) in lhs.iter().zip(result) {
-            let (res, ovfl) = lhs.overflowing_add(carry);
-            *result = res;
-            carry = ovfl as u64;
-            // Note: We cannot bail out early in this case in order to
-            //       guarantee that we fully overwrite the result key.
-        }
+        let (res0,  ovfl) = input[0].overflowing_add(rhs);
+        let (res1,  ovfl) = input[1].overflowing_add(ovfl as u64);
+        let (res2,  ovfl) = input[2].overflowing_add(ovfl as u64);
+        let (res3, _ovfl) = input[3].overflowing_add(ovfl as u64);
+        result[0] = res0;
+        result[1] = res1;
+        result[2] = res2;
+        result[3] = res3;
     }
 
     /// Adds the `u64` value to the `Key`.
