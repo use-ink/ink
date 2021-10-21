@@ -1160,7 +1160,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::caller`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">caller</span>(<span class="self">self</span>) -&gt; <span class="ident">T::AccountId</span> {
-        <span class="ident">ink_env::caller</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode caller&quot;</span>)
+        <span class="ident">ink_env::caller</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the transferred balance for the contract execution.</span>
@@ -1197,7 +1197,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::transferred_balance`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_balance</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode transferred balance&quot;</span>)
+        <span class="ident">ink_env::transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the price for the specified amount of gas.</span>
@@ -1240,7 +1240,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::weight_to_fee`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">weight_to_fee</span>(<span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::weight_to_fee</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">gas</span>).<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode weight fee&quot;</span>)
+        <span class="ident">ink_env::weight_to_fee</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">gas</span>)
     }
 
     <span class="doccomment">/// Returns the amount of gas left for the contract execution.</span>
@@ -1279,7 +1279,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::gas_left`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_left</span>(<span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        <span class="ident">ink_env::gas_left</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode gas left&quot;</span>)
+        <span class="ident">ink_env::gas_left</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the timestamp of the current block.</span>
@@ -1321,7 +1321,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::block_timestamp`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_timestamp</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Timestamp</span> {
-        <span class="ident">ink_env::block_timestamp</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode block time stamp&quot;</span>)
+        <span class="ident">ink_env::block_timestamp</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the account ID of the executed contract.</span>
@@ -1367,7 +1367,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::account_id`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">account_id</span>(<span class="self">self</span>) -&gt; <span class="ident">T::AccountId</span> {
-        <span class="ident">ink_env::account_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode contract account ID&quot;</span>)
+        <span class="ident">ink_env::account_id</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the balance of the executed contract.</span>
@@ -1401,7 +1401,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::balance`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">balance</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode contract balance&quot;</span>)
+        <span class="ident">ink_env::balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the current rent allowance for the executed contract.</span>
@@ -1436,7 +1436,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::rent_allowance`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_allowance</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode contract rent allowance&quot;</span>)
+        <span class="ident">ink_env::rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Sets the rent allowance of the executed contract to the new value.</span>
@@ -1567,7 +1567,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::block_number`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_number</span>(<span class="self">self</span>) -&gt; <span class="ident">T::BlockNumber</span> {
-        <span class="ident">ink_env::block_number</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode block number&quot;</span>)
+        <span class="ident">ink_env::block_number</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the minimum balance that is required for creating an account.</span>
@@ -1600,7 +1600,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::minimum_balance`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minimum_balance</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::minimum_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode minimum account balance&quot;</span>)
+        <span class="ident">ink_env::minimum_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the tombstone deposit for the contracts chain.</span>
@@ -1633,7 +1633,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// For more details visit: [`ink_env::tombstone_deposit`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tombstone_deposit</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;couldn&#39;t decode tombstone deposits&quot;</span>)
+        <span class="ident">ink_env::tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Instantiates another contract.</span>

@@ -82,7 +82,7 @@ must be aligned with respect to SCALE encoding and semantics.</p>
 
 <span class="kw">impl</span> <span class="ident">ink_env::Environment</span> <span class="kw">for</span> <span class="ident">MyEnvironment</span> {
     <span class="kw">const</span> <span class="ident">MAX_EVENT_TOPICS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
-    <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> <span class="ident">u64</span>;
+    <span class="kw">type</span> <span class="ident">AccountId</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">16</span>];
     <span class="kw">type</span> <span class="ident">Balance</span> <span class="op">=</span> <span class="ident">u128</span>;
     <span class="kw">type</span> <span class="ident">Hash</span> <span class="op">=</span> [<span class="ident">u8</span>; <span class="number">32</span>];
     <span class="kw">type</span> <span class="ident">Timestamp</span> <span class="op">=</span> <span class="ident">u64</span>;

@@ -1365,7 +1365,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///     impl ink_env::Environment for MyEnvironment {</span>
 <span class="doccomment">///         const MAX_EVENT_TOPICS: usize = 3;</span>
-<span class="doccomment">///         type AccountId = u64;</span>
+<span class="doccomment">///         type AccountId = [u8; 16];</span>
 <span class="doccomment">///         type Balance = u128;</span>
 <span class="doccomment">///         type Hash = [u8; 32];</span>
 <span class="doccomment">///         type Timestamp = u64;</span>
@@ -1384,7 +1384,7 @@
 <span class="doccomment">///         #</span>
 <span class="doccomment">///         # impl ink_env::Environment for MyEnvironment {</span>
 <span class="doccomment">///         #     const MAX_EVENT_TOPICS: usize = 3;</span>
-<span class="doccomment">///         #     type AccountId = u64;</span>
+<span class="doccomment">///         #     type AccountId = [u8; 16];</span>
 <span class="doccomment">///         #     type Balance = u128;</span>
 <span class="doccomment">///         #     type Hash = [u8; 32];</span>
 <span class="doccomment">///         #     type Timestamp = u64;</span>
