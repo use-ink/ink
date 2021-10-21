@@ -48,7 +48,7 @@ use ink_primitives::Key;
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller<T>() -> Result<T::AccountId>
+pub fn caller<T>() -> T::AccountId
 where
     T: Environment,
 {
@@ -62,7 +62,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn transferred_balance<T>() -> Result<T::Balance>
+pub fn transferred_balance<T>() -> T::Balance
 where
     T: Environment,
 {
@@ -76,7 +76,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<T>(gas: u64) -> Result<T::Balance>
+pub fn weight_to_fee<T>(gas: u64) -> T::Balance
 where
     T: Environment,
 {
@@ -90,7 +90,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> Result<u64>
+pub fn gas_left<T>() -> u64
 where
     T: Environment,
 {
@@ -104,7 +104,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn block_timestamp<T>() -> Result<T::Timestamp>
+pub fn block_timestamp<T>() -> T::Timestamp
 where
     T: Environment,
 {
@@ -122,7 +122,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn account_id<T>() -> Result<T::AccountId>
+pub fn account_id<T>() -> T::AccountId
 where
     T: Environment,
 {
@@ -136,7 +136,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn balance<T>() -> Result<T::Balance>
+pub fn balance<T>() -> T::Balance
 where
     T: Environment,
 {
@@ -150,7 +150,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn rent_allowance<T>() -> Result<T::Balance>
+pub fn rent_allowance<T>() -> T::Balance
 where
     T: Environment,
 {
@@ -200,7 +200,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn block_number<T>() -> Result<T::BlockNumber>
+pub fn block_number<T>() -> T::BlockNumber
 where
     T: Environment,
 {
@@ -214,7 +214,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn minimum_balance<T>() -> Result<T::Balance>
+pub fn minimum_balance<T>() -> T::Balance
 where
     T: Environment,
 {
@@ -228,7 +228,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn tombstone_deposit<T>() -> Result<T::Balance>
+pub fn tombstone_deposit<T>() -> T::Balance
 where
     T: Environment,
 {

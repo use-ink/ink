@@ -340,54 +340,44 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_inplace::<T::AccountId>(ext::caller))
+    fn caller<T: Environment>(&mut self) -> T::AccountId {
+        self.get_property_inplace::<T::AccountId>(ext::caller)
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Balance>(ext::value_transferred))
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<u64>(ext::gas_left))
+    fn gas_left<T: Environment>(&mut self) -> u64 {
+        self.get_property_little_endian::<u64>(ext::gas_left)
     }
 
-    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Timestamp>(ext::now))
+    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
+        self.get_property_little_endian::<T::Timestamp>(ext::now)
     }
 
-    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_inplace::<T::AccountId>(ext::address))
+    fn account_id<T: Environment>(&mut self) -> T::AccountId {
+        self.get_property_inplace::<T::AccountId>(ext::address)
     }
 
-    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Balance>(ext::balance))
+    fn balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::balance)
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Balance>(ext::rent_allowance))
+    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::rent_allowance)
     }
 
-    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::BlockNumber>(ext::block_number))
+    fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
+        self.get_property_little_endian::<T::BlockNumber>(ext::block_number)
     }
 
-    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Balance>(ext::minimum_balance))
+    fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::minimum_balance)
     }
 
-    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
-        // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_little_endian::<T::Balance>(ext::tombstone_deposit))
+    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -527,10 +517,10 @@ impl TypedEnvBackend for EnvInstance {
         ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
-        let output = &mut self.scoped_buffer().take_rest();
-        ext::weight_to_fee(gas, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
+        let mut result = <T::Balance as FromLittleEndian>::Bytes::default();
+        ext::weight_to_fee(gas, &mut result.as_mut());
+        <T::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
