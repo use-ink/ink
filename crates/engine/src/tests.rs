@@ -268,7 +268,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     // when
     let mut output = [0; 33];
     engine
-        .ecdsa_recover(&signature_with_recovery_id, &msg.as_ref(), &mut output)
+        .ecdsa_recover(&signature_with_recovery_id, msg.as_ref(), &mut output)
         .expect("ecdsa recovery failed");
 
     // then
