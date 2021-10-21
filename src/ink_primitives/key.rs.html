@@ -337,66 +337,6 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -411,46 +351,85 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
+<span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">fmt</span>,
-    <span class="ident">ops</span>::{
-        <span class="ident">Add</span>,
-        <span class="ident">AddAssign</span>,
+    <span class="ident">fmt</span>::{
+        <span class="self">self</span>,
+        <span class="ident">Debug</span>,
+        <span class="ident">Display</span>,
+        <span class="ident">Formatter</span>,
     },
+    <span class="ident">ops::AddAssign</span>,
+};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">scale_info</span>::{
+    <span class="ident">build::Fields</span>,
+    <span class="ident">Path</span>,
+    <span class="ident">Type</span>,
+    <span class="ident">TypeInfo</span>,
 };
 
-<span class="doccomment">/// Key into contract storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Used to identify contract storage cells for read and write operations.</span>
-<span class="doccomment">/// Can be compared to a raw pointer and features simple pointer arithmetic.</span>
+<span class="doccomment">/// A key into the smart contract storage.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is the most low-level primitive to identify contract storage cells.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Unsafe</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Prefer using high-level types found in `ink_storage` to operate on the contract</span>
-<span class="doccomment">/// storage.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
+<span class="doccomment">/// - The storage of an ink! smart contract can be viewed as a key-value store.</span>
+<span class="doccomment">/// - In order to manipulate its storage an ink! smart contract is required</span>
+<span class="doccomment">///   to indicate the respective cells using this primitive type.</span>
+<span class="doccomment">/// - The `Key` type can be compared to a raw pointer and also allows operations</span>
+<span class="doccomment">///   similar to pointer arithmetic.</span>
+<span class="doccomment">/// - Users usually should not have to deal with this low-level primitive themselves</span>
+<span class="doccomment">///   and instead use the more high-level primitives provided by the `ink_storage`</span>
+<span class="doccomment">///   crate.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">transparent</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>([<span class="ident">u64</span>; <span class="number">4</span>]);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Key</span>([<span class="ident">u8</span>; <span class="number">32</span>]);
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span>(<span class="ident">bytes</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>] {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>
+    }
+}
 
 <span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;0x&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">limb</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>)<span class="question-mark">?</span>;
-            <span class="kw">for</span> <span class="ident">byte</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">limb</span>.<span class="ident">to_le_bytes</span>() {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:02X}&quot;</span>, <span class="ident">byte</span>)<span class="question-mark">?</span>;
-            }
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>();
+        <span class="kw">let</span> <span class="ident">len_bytes</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">len_chunk</span> <span class="op">=</span> <span class="number">4</span>;
+        <span class="kw">let</span> <span class="ident">len_chunks</span> <span class="op">=</span> <span class="ident">len_bytes</span> <span class="op">/</span> <span class="ident">len_chunk</span>;
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len_chunks</span> {
+            <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">*</span> <span class="ident">len_chunk</span>;
+            <span class="macro">write!</span>(
+                <span class="ident">f</span>,
+                <span class="string">&quot;_{:02X}{:02X}{:02X}{:02X}&quot;</span>,
+                <span class="ident">bytes</span>[<span class="ident">offset</span>],
+                <span class="ident">bytes</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="number">1</span>],
+                <span class="ident">bytes</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="number">2</span>],
+                <span class="ident">bytes</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="number">3</span>]
+            )<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Key(&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
@@ -458,86 +437,35 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">f</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
-            <span class="comment">// SAFETY: If the machine has little endian byte ordering we can</span>
-            <span class="comment">//         simply transmute the input bytes into the correct `u64`</span>
-            <span class="comment">//         byte ordering for the `Key` data structure. Otherwise</span>
-            <span class="comment">//         we have to manually convert them via the</span>
-            <span class="comment">//         `from_bytes_be_fallback` procedure.</span>
-            <span class="comment">//</span>
-            <span class="comment">// We decided to have the little endian as default format for Key</span>
-            <span class="comment">// instance since WebAssembly dictates little endian byte ordering</span>
-            <span class="comment">// for the execution environment.</span>
-            <span class="self">Self</span>(<span class="kw">unsafe</span> { <span class="ident">::core::mem::transmute</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>], [<span class="ident">u64</span>; <span class="number">4</span>]<span class="op">&gt;</span>(<span class="ident">bytes</span>) })
-        } <span class="kw">else</span> {
-            <span class="ident"><span class="self">Self</span>::from_bytes_be_fallback</span>(<span class="ident">bytes</span>)
-        }
-    }
-}
-
 <span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="doccomment">/// Creates a new key from the given bytes.</span>
+    <span class="doccomment">/// Reinterprets the underlying bytes of the key as `&amp;[u64; 4]`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">/// # Safety</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a fallback procedure in case the target machine does not have</span>
-    <span class="doccomment">/// little endian byte ordering.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_bytes_be_fallback</span>(<span class="ident">bytes</span>: [<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="self">Self</span> {
-        <span class="attribute">#[<span class="ident">inline</span>]</span>
-        <span class="kw">fn</span> <span class="ident">carve_out_u64_bytes</span>(<span class="ident">bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>], <span class="ident">offset</span>: <span class="ident">u8</span>) -&gt; [<span class="ident">u8</span>; <span class="number">8</span>] {
-            <span class="kw">let</span> <span class="ident">o</span> <span class="op">=</span> (<span class="ident">offset</span> <span class="op">*</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-            [
-                <span class="ident">bytes</span>[<span class="ident">o</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">1</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">2</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">3</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">4</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">5</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">6</span>],
-                <span class="ident">bytes</span>[<span class="ident">o</span> <span class="op">+</span> <span class="number">7</span>],
-            ]
-        }
-        <span class="self">Self</span>([
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">carve_out_u64_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="number">0</span>)),
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">carve_out_u64_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="number">1</span>)),
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">carve_out_u64_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="number">2</span>)),
-            <span class="ident">u64::from_le_bytes</span>(<span class="ident">carve_out_u64_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="number">3</span>)),
-        ])
-    }
-
-    <span class="doccomment">/// Tries to return the underlying bytes as slice.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This only returns `Some` if the execution environment has little-endian</span>
-    <span class="doccomment">/// byte order.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">as_bytes</span>())
-        }
-        <span class="prelude-val">None</span>
-    }
-
-    <span class="doccomment">/// Returns the underlying bytes of the key.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This only works and is supported if the target machine has little-endian</span>
-    <span class="doccomment">/// byte ordering. Use [`Key::try_as_bytes`] as a general procedure instead.</span>
+    <span class="doccomment">/// This is only safe to do on little-endian systems therefore</span>
+    <span class="doccomment">/// this function is only enabled on these platforms.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>] {
-        <span class="comment">// SAFETY: This pointer cast is possible since the outer struct</span>
-        <span class="comment">//         (Key) is `repr(transparent)` and since we restrict</span>
-        <span class="comment">//         ourselves to little-endian byte ordering. In any other</span>
-        <span class="comment">//         case this is invalid which is why return `None` as</span>
-        <span class="comment">//         fallback.</span>
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u64</span>; <span class="number">4</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u8</span>; <span class="number">32</span>]) }
+    <span class="kw">fn</span> <span class="ident">reinterpret_as_u64x4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u64</span>; <span class="number">4</span>] {
+        <span class="comment">// SAFETY: Conversion is only safe on little endian architectures.</span>
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
+    }
+
+    <span class="doccomment">/// Reinterprets the underlying bytes of the key as `&amp;mut [u64; 4]`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Safety</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is only safe to do on little-endian systems therefore</span>
+    <span class="doccomment">/// this function is only enabled on these platforms.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">reinterpret_as_u64x4_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u64</span>; <span class="number">4</span>] {
+        <span class="comment">// SAFETY: Conversion is only safe on little endian architectures.</span>
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
     }
 }
 
@@ -548,252 +476,204 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
-            <span class="ident">dest</span>.<span class="ident">write</span>(<span class="self">self</span>.<span class="ident">try_as_bytes</span>().<span class="ident">expect</span>(<span class="string">&quot;little endian is asserted&quot;</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">dest</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">to_bytes</span>())
-        }
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>)
+    <span class="kw">where</span>
+        <span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
+    {
+        <span class="ident">output</span>.<span class="ident">write</span>(<span class="self">self</span>.<span class="ident">as_ref</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">using_encoded</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span>
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">R</span>,
+    {
+        <span class="ident">f</span>(<span class="self">self</span>.<span class="ident">as_ref</span>())
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">encoded_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">size_hint</span>()
     }
 }
+
+<span class="kw">impl</span> <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {}
 
 <span class="kw">impl</span> <span class="ident">scale::Decode</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from</span>(<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>))
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="doccomment">/// Returns the bytes that are representing the key.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bytes</span>(<span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="number">32</span>] {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>) {
-            <span class="comment">// SAFETY: This pointer cast is possible since the outer struct</span>
-            <span class="comment">//         (Key) is `repr(transparent)` and since we restrict</span>
-            <span class="comment">//         ourselves to little-endian byte ordering. In any other</span>
-            <span class="comment">//         case this is invalid which is why return `None` as</span>
-            <span class="comment">//         fallback.</span>
-            <span class="kw">unsafe</span> { <span class="ident">core::mem::transmute</span>::<span class="op">&lt;</span>[<span class="ident">u64</span>; <span class="number">4</span>], [<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>(<span class="self">self</span>.<span class="number">0</span>) }
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">to_bytes_be_fallback</span>()
-        }
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">scale::Input</span>,
+    {
+        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from</span>(<span class="ident">bytes</span>))
     }
 
-    <span class="doccomment">/// Fallback big-endian procedure to return the underlying bytes of `self`.</span>
-    <span class="kw">fn</span> <span class="ident">to_bytes_be_fallback</span>(<span class="self">self</span>) -&gt; [<span class="ident">u8</span>; <span class="number">32</span>] {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
-            <span class="kw">let</span> <span class="ident">o</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">*</span> <span class="number">8</span>;
-            <span class="ident">result</span>[<span class="ident">o</span>..(<span class="ident">o</span> <span class="op">+</span> <span class="number">8</span>)].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">i</span>].<span class="ident">to_le_bytes</span>());
-        }
-        <span class="ident">result</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Key</span>;
-
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="self">self</span> <span class="op">+</span><span class="op">=</span> <span class="ident">rhs</span>;
-        <span class="self">self</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Key</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Key</span>;
-
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="op">&lt;</span><span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::add</span>(<span class="kw-2">*</span><span class="self">self</span>, <span class="ident">rhs</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Key</span>;
-
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="op">&lt;</span><span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::add</span>(<span class="self">self</span>, <span class="kw-2">*</span><span class="ident">rhs</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Key</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Key</span>;
-
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Add</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::add</span>(<span class="self">self</span>, <span class="kw-2">*</span><span class="ident">rhs</span>)
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">encoded_fixed_size</span>() -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Some</span>(<span class="number">32</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
-    <span class="kw">use</span> <span class="ident">scale_info</span>::{
-        <span class="ident">build::Fields</span>,
-        <span class="ident">Path</span>,
-        <span class="ident">Type</span>,
-        <span class="ident">TypeInfo</span>,
-    };
+<span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
 
-    <span class="kw">impl</span> <span class="ident">TypeInfo</span> <span class="kw">for</span> <span class="ident">Key</span> {
-        <span class="kw">type</span> <span class="ident">Identity</span> <span class="op">=</span> <span class="self">Self</span>;
-
-        <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
-            <span class="ident">Type::builder</span>()
-                .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Key&quot;</span>, <span class="string">&quot;ink_primitives&quot;</span>))
-                .<span class="ident">composite</span>(
-                    <span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;[u8; 32]&quot;</span>)),
-                )
-        }
-    }
-};
-
-<span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
-        <span class="kw">let</span> (<span class="ident">res_0</span>,  <span class="ident">ovfl_0</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs</span>);
-        <span class="kw">let</span> (<span class="ident">res_1</span>,  <span class="ident">ovfl_1</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl_0</span> <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="kw">let</span> (<span class="ident">res_2</span>,  <span class="ident">ovfl_2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl_1</span> <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="kw">let</span> (<span class="ident">res_3</span>, <span class="ident">_ovfl_3</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl_2</span> <span class="kw">as</span> <span class="ident">u64</span>);
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">res_0</span>;
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">res_1</span>;
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">2</span>] <span class="op">=</span> <span class="ident">res_2</span>;
-        <span class="self">self</span>.<span class="number">0</span>[<span class="number">3</span>] <span class="op">=</span> <span class="ident">res_3</span>;
+    <span class="kw">fn</span> <span class="ident">type_info</span>() -&gt; <span class="ident">Type</span> {
+        <span class="ident">Type::builder</span>()
+            .<span class="ident">path</span>(<span class="ident">Path::new</span>(<span class="string">&quot;Key&quot;</span>, <span class="string">&quot;ink_primitives&quot;</span>))
+            .<span class="ident">composite</span>(
+                <span class="ident">Fields::unnamed</span>().<span class="ident">field</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">ty</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span>().<span class="ident">type_name</span>(<span class="string">&quot;[u8; 32]&quot;</span>)),
+            )
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
-    <span class="kw">fn</span> <span class="ident">test_bytes</span>() -&gt; [<span class="ident">u8</span>; <span class="number">32</span>] {
-        <span class="kw-2">*</span><span class="string">b&quot;\
-            \x00\x01\x02\x03\x04\x05\x06\x07\
-            \x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\
-            \x10\x11\x12\x13\x14\x15\x16\x17\
-            \x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\
-        &quot;</span>
+<span class="kw">impl</span> <span class="ident">Key</span> {
+    <span class="doccomment">/// Adds the `u64` value to the `Key`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This implementation is heavily optimized for little-endian Wasm platforms.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Since we are operating on little-endian we can convert the underlying `[u8; 32]`</span>
+    <span class="doccomment">/// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`</span>
+    <span class="doccomment">/// it is more efficient to work on chunks of `u8` represented as `u64`.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_le</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+        <span class="kw">let</span> <span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinterpret_as_u64x4_mut</span>();
+        <span class="kw">let</span> (<span class="ident">res0</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">0</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs</span>);
+        <span class="kw">let</span> (<span class="ident">res1</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">1</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="kw">let</span> (<span class="ident">res2</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">2</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="kw">let</span> (<span class="ident">res3</span>, <span class="ident">_ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">3</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="ident">words</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">res0</span>;
+        <span class="ident">words</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">res1</span>;
+        <span class="ident">words</span>[<span class="number">2</span>] <span class="op">=</span> <span class="ident">res2</span>;
+        <span class="ident">words</span>[<span class="number">3</span>] <span class="op">=</span> <span class="ident">res3</span>;
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">default_works</span>() {
-        <span class="macro">assert_eq!</span>(<span class="op">&lt;</span><span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>().<span class="ident">to_bytes</span>(), [<span class="number">0x00</span>; <span class="number">32</span>]);
+    <span class="doccomment">/// Adds the `u64` value to the key storing the result in `result`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This implementation is heavily optimized for little-endian Wasm platforms.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Since we are operating on little-endian we can convert the underlying `[u8; 32]`</span>
+    <span class="doccomment">/// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`</span>
+    <span class="doccomment">/// it is more efficient to work on chunks of `u8` represented as `u64`.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_le_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>) {
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinterpret_as_u64x4</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">reinterpret_as_u64x4_mut</span>();
+        <span class="kw">let</span> (<span class="ident">res0</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">input</span>[<span class="number">0</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs</span>);
+        <span class="kw">let</span> (<span class="ident">res1</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">input</span>[<span class="number">1</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="kw">let</span> (<span class="ident">res2</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">input</span>[<span class="number">2</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="kw">let</span> (<span class="ident">res3</span>, <span class="ident">_ovfl</span>) <span class="op">=</span> <span class="ident">input</span>[<span class="number">3</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
+        <span class="ident">result</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">res0</span>;
+        <span class="ident">result</span>[<span class="number">1</span>] <span class="op">=</span> <span class="ident">res1</span>;
+        <span class="ident">result</span>[<span class="number">2</span>] <span class="op">=</span> <span class="ident">res2</span>;
+        <span class="ident">result</span>[<span class="number">3</span>] <span class="op">=</span> <span class="ident">res3</span>;
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">debug_works</span>() {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">test_bytes</span>());
-        <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">key</span>),
-            <span class="ident">String::from</span>(
-                <span class="string">&quot;Key(0x\
-                    _0001020304050607\
-                    _08090A0B0C0D0E0F\
-                    _1011121314151617\
-                    _18191A1B1C1D1E1F\
-                )&quot;</span>
-            ),
-        );
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_works</span>() {
-        <span class="kw">let</span> <span class="ident">test_bytes</span> <span class="op">=</span> <span class="ident">test_bytes</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">Key::from</span>(<span class="ident">test_bytes</span>).<span class="ident">to_bytes</span>(), <span class="ident">test_bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Key::from_bytes_be_fallback</span>(<span class="ident">test_bytes</span>).<span class="ident">to_bytes</span>(), <span class="ident">test_bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Key::from</span>(<span class="ident">test_bytes</span>).<span class="ident">to_bytes_be_fallback</span>(), <span class="ident">test_bytes</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">Key::from_bytes_be_fallback</span>(<span class="ident">test_bytes</span>).<span class="ident">to_bytes_be_fallback</span>(), <span class="ident">test_bytes</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_one_to_zero</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-            <span class="ident">bytes</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">0x01</span>;
-            <span class="ident">bytes</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">bytes</span>);
-        <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="number">1u64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_with_ovfl</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">*</span><span class="string">b&quot;\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        &quot;</span>;
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-            <span class="ident">expected</span>[<span class="number">8</span>] <span class="op">=</span> <span class="number">0x01</span>;
-            <span class="ident">expected</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">bytes</span>);
-        <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="number">1u64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_with_ovfl_2</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">*</span><span class="string">b&quot;\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        &quot;</span>;
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-            <span class="ident">expected</span>[<span class="number">16</span>] <span class="op">=</span> <span class="number">0x01</span>;
-            <span class="ident">expected</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">bytes</span>);
-        <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="number">1u64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_with_ovfl_3</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw-2">*</span><span class="string">b&quot;\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
-            \x00\x00\x00\x00\x00\x00\x00\x00\
-        &quot;</span>;
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-            <span class="ident">expected</span>[<span class="number">24</span>] <span class="op">=</span> <span class="number">0x01</span>;
-            <span class="ident">expected</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">bytes</span>);
-        <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="number">1u64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_with_wrap</span>() {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="number">0xFF</span>; <span class="number">32</span>];
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">Key::from</span>(<span class="ident">bytes</span>);
-        <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="number">1u64</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_to_zero</span>() {
-        <span class="kw">for</span> <span class="ident">test_value</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="number">0_u64</span>, <span class="number">1</span>, <span class="number">42</span>, <span class="number">10_000</span>, <span class="ident">u32::MAX</span> <span class="kw">as</span> <span class="ident">u64</span>, <span class="ident">u64::MAX</span>] {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Key</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>();
-            <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected</span> <span class="op">=</span> [<span class="number">0x00</span>; <span class="number">32</span>];
-                <span class="ident">expected</span>[<span class="number">0</span>..<span class="number">8</span>].<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">test_value</span>.<span class="ident">to_le_bytes</span>());
-                <span class="ident">expected</span>
-            };
-            <span class="ident">key</span>.<span class="ident">add_assign</span>(<span class="kw-2">*</span><span class="ident">test_value</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">key</span>.<span class="ident">to_bytes</span>(), <span class="ident">expected</span>);
+    <span class="doccomment">/// Adds the `u64` value to the `Key`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a fallback implementation that has not been optimized for any</span>
+    <span class="doccomment">/// specific target platform or endianness.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_be</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+        <span class="kw">let</span> <span class="ident">rhs_bytes</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">to_be_bytes</span>();
+        <span class="kw">let</span> <span class="ident">lhs_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>();
+        <span class="kw">let</span> <span class="ident">len_rhs</span> <span class="op">=</span> <span class="ident">rhs_bytes</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">len_lhs</span> <span class="op">=</span> <span class="ident">lhs_bytes</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">carry</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len_rhs</span> {
+            <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">ovfl</span>) <span class="op">=</span>
+                <span class="ident">lhs_bytes</span>[<span class="ident">i</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs_bytes</span>[<span class="ident">i</span>].<span class="ident">wrapping_add</span>(<span class="ident">carry</span>));
+            <span class="ident">lhs_bytes</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>;
+            <span class="ident">carry</span> <span class="op">=</span> <span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u8</span>;
         }
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">len_rhs</span>..<span class="ident">len_lhs</span> {
+            <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">lhs_bytes</span>[<span class="ident">i</span>].<span class="ident">overflowing_add</span>(<span class="ident">carry</span>);
+            <span class="ident">lhs_bytes</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>;
+            <span class="ident">carry</span> <span class="op">=</span> <span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u8</span>;
+            <span class="kw">if</span> <span class="ident">carry</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="kw">return</span>
+            }
+        }
+    }
+
+    <span class="doccomment">/// Adds the `u64` value to the key storing the result in `result`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is a fallback implementation that has not been optimized for any</span>
+    <span class="doccomment">/// specific target platform or endianness.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_be_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>) {
+        <span class="kw">let</span> <span class="ident">rhs_bytes</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">to_be_bytes</span>();
+        <span class="kw">let</span> <span class="ident">lhs_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>();
+        <span class="kw">let</span> <span class="ident">result_bytes</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">as_mut</span>();
+        <span class="kw">let</span> <span class="ident">len_rhs</span> <span class="op">=</span> <span class="ident">rhs_bytes</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="ident">len_lhs</span> <span class="op">=</span> <span class="ident">lhs_bytes</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">carry</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len_rhs</span> {
+            <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">ovfl</span>) <span class="op">=</span>
+                <span class="ident">lhs_bytes</span>[<span class="ident">i</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs_bytes</span>[<span class="ident">i</span>].<span class="ident">wrapping_add</span>(<span class="ident">carry</span>));
+            <span class="ident">result_bytes</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>;
+            <span class="ident">carry</span> <span class="op">=</span> <span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u8</span>;
+        }
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">len_rhs</span>..<span class="ident">len_lhs</span> {
+            <span class="kw">let</span> (<span class="ident">res</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">lhs_bytes</span>[<span class="ident">i</span>].<span class="ident">overflowing_add</span>(<span class="ident">carry</span>);
+            <span class="ident">result_bytes</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>;
+            <span class="ident">carry</span> <span class="op">=</span> <span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u8</span>;
+            <span class="comment">// Note: We cannot bail out early in this case in order to</span>
+            <span class="comment">//       guarantee that we fully overwrite the result key.</span>
+        }
+    }
+
+    <span class="doccomment">/// Adds the `u64` value to the key storing the result in `result`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will overwrite the contents of the `result` key.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_assign_using</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>)
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">rhs</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">into</span>();
+        <span class="macro">cfg_if!</span> {
+            <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span> {
+                <span class="self">self</span>.<span class="ident">add_assign_u64_le_using</span>(<span class="ident">rhs</span>, <span class="ident">result</span>);
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">add_assign_u64_be_using</span>(<span class="ident">rhs</span>, <span class="ident">result</span>);
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+        <span class="macro">cfg_if!</span> {
+            <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span> {
+                <span class="self">self</span>.<span class="ident">add_assign_u64_le</span>(<span class="ident">rhs</span>);
+            } <span class="kw">else</span> {
+                <span class="self">self</span>.<span class="ident">add_assign_u64_be</span>(<span class="ident">rhs</span>);
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) {
+        <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::add_assign</span>(<span class="self">self</span>, <span class="kw-2">*</span><span class="ident">rhs</span>)
     }
 }
 </code></pre></div>
