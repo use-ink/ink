@@ -516,9 +516,6 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -746,7 +743,6 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let s: StorageVec&lt;i32&gt; = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]</span>
     <span class="doccomment">///     .into_iter()</span>
-    <span class="doccomment">///     .copied()</span>
     <span class="doccomment">///     .collect();</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(s.binary_search(&amp;13),  Ok(9));</span>
@@ -792,7 +788,6 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let s: StorageVec&lt;i32&gt; = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]</span>
     <span class="doccomment">///     .into_iter()</span>
-    <span class="doccomment">///     .copied()</span>
     <span class="doccomment">///     .collect();</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let seek = 13;</span>
@@ -880,7 +875,6 @@
     <span class="doccomment">///     (4, 55),</span>
     <span class="doccomment">/// ]</span>
     <span class="doccomment">/// .into_iter()</span>
-    <span class="doccomment">/// .copied()</span>
     <span class="doccomment">/// .collect();</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(s.binary_search_by_key(&amp;13, |&amp;(a, b)| b),  Ok(9));</span>
