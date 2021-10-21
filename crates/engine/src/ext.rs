@@ -442,11 +442,12 @@ impl Engine {
         } else {
             signature[64]
         };
-        let recovery_id = RecoveryId::parse(recovery_byte)
-            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
         let message = Message::parse(message_hash);
         let signature = Signature::parse_standard_slice(&signature[0..64])
             .unwrap_or_else(|error| panic!("Unable to parse the signature: {}", error));
+
+        let recovery_id = RecoveryId::parse(recovery_byte)
+            .unwrap_or_else(|error| panic!("Unable to parse the recovery id: {}", error));
 
         let pub_key = recover(&message, &signature, &recovery_id);
         match pub_key {
