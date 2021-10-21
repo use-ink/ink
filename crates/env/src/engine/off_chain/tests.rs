@@ -84,18 +84,12 @@ fn gas_price() -> crate::Result<()> {
             chain_spec.set_gas_price::<crate::DefaultEnvironment>(gas_price.into())
         })?;
 
-        assert_eq!(
-            2u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(1)
-        );
+        assert_eq!(2u128, crate::weight_to_fee::<crate::DefaultEnvironment>(1));
         assert_eq!(
             20u128,
             crate::weight_to_fee::<crate::DefaultEnvironment>(10)
         );
-        assert_eq!(
-            6u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(3)
-        );
+        assert_eq!(6u128, crate::weight_to_fee::<crate::DefaultEnvironment>(3));
 
         Ok(())
     })
