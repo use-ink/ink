@@ -21,7 +21,6 @@ use libsecp256k1::{
     PublicKey,
     SecretKey,
 };
-use std::convert::TryInto;
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this
