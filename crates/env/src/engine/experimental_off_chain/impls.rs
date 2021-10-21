@@ -506,10 +506,9 @@ impl TypedEnvBackend for EnvInstance {
     fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);
-        scale::Decode::decode(&mut &output[..])
-            .unwrap_or_else(|error| {
-                panic!("could not read `weight_to_fee` property: {:?}", error)
-            })
+        scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
+            panic!("could not read `weight_to_fee` property: {:?}", error)
+        })
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
