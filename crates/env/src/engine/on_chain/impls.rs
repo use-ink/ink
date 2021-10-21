@@ -231,15 +231,20 @@ impl EnvInstance {
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let enc_input = scope.take_encoded(params.exec_input());
         let output = &mut scope.take_rest();
-        ext::call(
+        let call_result = ext::call(
             enc_callee,
             gas_limit,
             enc_transferred_value,
             enc_input,
             output,
-        )?;
-        let decoded = scale::Decode::decode(&mut &output[..])?;
-        Ok(decoded)
+        );
+        match call_result {
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
     }
 }
 

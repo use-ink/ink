@@ -107,13 +107,6 @@ pub struct ExecuteMessageConfig {
     ///
     /// This is usually true for `&mut self` ink! messages.
     pub mutates: bool,
-    /// Yields `true` if the ink! message execution might revert execution.
-    ///
-    /// # Note
-    ///
-    /// In ink! this is usually `true` for root ink! smart contracts and
-    /// `false` for dependency ink! smart contracts.
-    pub may_revert: bool,
     /// Yields `true` if the dynamic storage allocator has been enabled.
     ///
     /// # Note
@@ -159,8 +152,7 @@ where
         // will have more opportunities to optimize the whole conditional away. This is
         // due to the fact that `is_result_type!` relies on constant information whereas
         // is_result_err!` requires `&self`.
-        let revert_state =
-            config.may_revert && is_result_type!(Output) && is_result_err!(&result);
+        let revert_state = is_result_type!(Output) && is_result_err!(&result);
         ink_env::return_value::<Output>(
             ReturnFlags::default().set_reverted(revert_state),
             &result,
