@@ -86,15 +86,15 @@ fn gas_price() -> crate::Result<()> {
 
         assert_eq!(
             2u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(1).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(1)
         );
         assert_eq!(
             20u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(10).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(10)
         );
         assert_eq!(
             6u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(3).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(3)
         );
 
         Ok(())
