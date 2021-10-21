@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #![no_std]
+
 use ink_env::{
     DefaultEnvironment,
     Environment,
