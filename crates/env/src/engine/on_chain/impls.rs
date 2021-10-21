@@ -44,6 +44,7 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
+    FromLittleEndian,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -190,6 +191,20 @@ impl EnvInstance {
         result
     }
 
+    /// Returns the contract property value from its little-endian representation.
+    ///
+    /// # Note
+    ///
+    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    where
+        T: FromLittleEndian,
+    {
+        let mut result = <T as FromLittleEndian>::Bytes::default();
+        ext_fn(&mut result.as_mut());
+        <T as FromLittleEndian>::from_le_bytes(result)
+    }
+
     /// Returns the contract property value.
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
@@ -331,42 +346,48 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::value_transferred)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Balance>(ext::value_transferred))
     }
 
     fn gas_left<T: Environment>(&mut self) -> Result<u64> {
         // TODO: Remove the `Ok` since this function just became infallible.
-        let le_bytes = self.get_property_inplace::<[u8; 8]>(ext::gas_left);
-        Ok(u64::from_le_bytes(le_bytes))
+        Ok(self.get_property_little_endian::<u64>(ext::gas_left))
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(ext::now)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Timestamp>(ext::now))
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
         // TODO: Remove the `Ok` since this function just became infallible.
-        Ok(self.get_property_inplace::<T::AccountId>(ext::caller))
+        Ok(self.get_property_inplace::<T::AccountId>(ext::address))
     }
 
     fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::balance)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Balance>(ext::balance))
     }
 
     fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::rent_allowance)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Balance>(ext::rent_allowance))
     }
 
     fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
-        self.get_property::<T::BlockNumber>(ext::block_number)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::BlockNumber>(ext::block_number))
     }
 
     fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::minimum_balance)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Balance>(ext::minimum_balance))
     }
 
     fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::tombstone_deposit)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_little_endian::<T::Balance>(ext::tombstone_deposit))
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)

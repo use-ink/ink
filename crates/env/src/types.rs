@@ -46,6 +46,60 @@ use scale_info::TypeInfo;
 use sp_arithmetic::PerThing;
 pub use sp_arithmetic::Perbill;
 
+/// Allows to instantiate a type from its little-endian bytes representation.
+pub trait FromLittleEndian {
+    /// The little-endian bytes representation.
+    type Bytes: Default + AsRef<[u8]> + AsMut<[u8]>;
+
+    /// Create a new instance from the little-endian bytes representation.
+    fn from_le_bytes(bytes: Self::Bytes) -> Self;
+}
+
+impl FromLittleEndian for u8 {
+    type Bytes = [u8; 1];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u16 {
+    type Bytes = [u8; 2];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u32 {
+    type Bytes = [u8; 4];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u64 {
+    type Bytes = [u8; 8];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u128 {
+    type Bytes = [u8; 16];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
@@ -71,7 +125,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The type of hash.
     type Hash: 'static
@@ -92,7 +147,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The type of block number.
     type BlockNumber: 'static
@@ -101,7 +157,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The chain extension for the environment.
     ///
