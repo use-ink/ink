@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::GenerateCode;
+use crate::{
+    generator,
+    GenerateCode,
+    GenerateCodeUsing as _,
+};
+use ::core::iter;
 use derive_more::From;
-use ir::Callable as _;
+use ir::{
+    Callable as _,
+    HexLiteral,
+    IsDocAttribute,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -28,35 +37,24 @@ pub struct Metadata<'a> {
     /// The contract to generate code for.
     contract: &'a ir::Contract,
 }
-
-impl Metadata<'_> {
-    fn generate_cgf(&self) -> TokenStream2 {
-        if self.contract.config().is_compile_as_dependency_enabled() {
-            return quote! { #[cfg(feature = "__ink_DO_NOT_COMPILE")] }
-        }
-        quote! { #[cfg(not(feature = "ink-as-dependency"))] }
-    }
-}
+impl_as_ref_for_generator!(Metadata);
 
 impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let no_cross_calling_cfg = self.generate_cgf();
+        let cfg_not_as_dependency =
+            self.generate_code_using::<generator::NotAsDependencyCfg>();
 
         quote! {
             #[cfg(feature = "std")]
-            #no_cross_calling_cfg
+            #cfg_not_as_dependency
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_metadata::MetadataVersioned  {
-                    let contract: ::ink_metadata::ContractSpec = {
-                        #contract
-                    };
-                    let layout: ::ink_metadata::layout::Layout = {
-                        #layout
-                    };
-                    ::ink_metadata::InkProject::new(layout, contract).into()
+                    <::ink_metadata::InkProject as ::core::convert::Into<::ink_metadata::MetadataVersioned>>::into(
+                        ::ink_metadata::InkProject::new(#layout, #contract)
+                    )
                 }
             };
         }
@@ -65,22 +63,27 @@ impl GenerateCode for Metadata<'_> {
 
 impl Metadata<'_> {
     fn generate_layout(&self) -> TokenStream2 {
-        let contract_ident = self.contract.module().storage().ident();
-        quote! {
-            <#contract_ident as ::ink_storage::traits::StorageLayout>::layout(
+        let storage_span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        quote_spanned!(storage_span=>
+            <#storage_ident as ::ink_storage::traits::StorageLayout>::layout(
                 &mut <::ink_primitives::KeyPtr as ::core::convert::From<::ink_primitives::Key>>::from(
                     <::ink_primitives::Key as ::core::convert::From<[::core::primitive::u8; 32usize]>>::from([0x00_u8; 32usize])
                 )
             )
-        }
+        )
     }
 
     fn generate_contract(&self) -> TokenStream2 {
         let constructors = self.generate_constructors();
         let messages = self.generate_messages();
         let events = self.generate_events();
-        let docs = self.generate_docs();
-
+        let docs = self
+            .contract
+            .module()
+            .attrs()
+            .iter()
+            .filter_map(|attr| attr.extract_docs());
         quote! {
             ::ink_metadata::ContractSpec::new()
                 .constructors([
@@ -99,81 +102,50 @@ impl Metadata<'_> {
         }
     }
 
-    /// Extracts the doc strings from the given slice of attributes.
-    fn extract_doc_comments(
-        attributes: &[syn::Attribute],
-    ) -> impl Iterator<Item = String> + '_ {
-        attributes
-            .iter()
-            .filter_map(|attribute| {
-                match attribute.parse_meta() {
-                    Ok(syn::Meta::NameValue(name_value)) => Some(name_value),
-                    Ok(_) | Err(_) => None,
-                }
-            })
-            .filter(|name_value| name_value.path.is_ident("doc"))
-            .filter_map(|name_value| {
-                match name_value.lit {
-                    syn::Lit::Str(lit_str) => Some(lit_str.value()),
-                    _ => None,
-                }
-            })
-    }
-
-    /// Generates ink! metadata for all contract constructors.
+    /// Generates ink! metadata for all ink! smart contract constructors.
+    #[allow(clippy::redundant_closure)] // We are getting arcane lifetime errors otherwise.
     fn generate_constructors(&self) -> impl Iterator<Item = TokenStream2> + '_ {
         self.contract
             .module()
             .impls()
-            .flat_map(|impl_block| {
-                let trait_ident = impl_block
-                    .trait_path()
-                    .map(|path| path.segments.last().map(|seg| &seg.ident))
-                    .flatten();
-                impl_block
-                    .iter_constructors()
-                    .map(move |constructor| (trait_ident, constructor))
-            })
-            .map(|(trait_ident, constructor)| {
-                let span = constructor.span();
-                let attrs = constructor.attrs();
-                let docs = Self::extract_doc_comments(attrs);
-                let selector_bytes = constructor.composed_selector().hex_lits();
-                let constructor = constructor.callable();
-                let ident = constructor.ident();
-                let args = constructor.inputs().map(Self::generate_message_param);
-                let constr = match trait_ident {
-                    Some(trait_ident) => {
-                        quote_spanned!(span => from_trait_and_name(
-                            ::core::stringify!(#trait_ident),
-                            ::core::stringify!(#ident)
-                        ))
-                    }
-                    None => {
-                        quote_spanned!(span => from_name(::core::stringify!(#ident)))
-                    }
-                };
-                quote_spanned!(span =>
-                    ::ink_metadata::ConstructorSpec::#constr
-                        .selector([
-                            #( #selector_bytes ),*
-                        ])
-                        .args([
-                            #( #args ),*
-                        ])
-                        .docs([
-                            #( #docs ),*
-                        ])
-                        .done()
-                )
-            })
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| Self::generate_constructor(constructor))
+    }
+
+    /// Generates ink! metadata for a single ink! constructor.
+    fn generate_constructor(
+        constructor: ir::CallableWithSelector<ir::Constructor>,
+    ) -> TokenStream2 {
+        let span = constructor.span();
+        let docs = constructor
+            .attrs()
+            .iter()
+            .filter_map(|attr| attr.extract_docs());
+        let selector_bytes = constructor.composed_selector().hex_lits();
+        let constructor = constructor.callable();
+        let ident = constructor.ident();
+        let args = constructor.inputs().map(Self::generate_dispatch_argument);
+        quote_spanned!(span=>
+            ::ink_metadata::ConstructorSpec::from_name(::core::stringify!(#ident))
+                .selector([
+                    #( #selector_bytes ),*
+                ])
+                .args([
+                    #( #args ),*
+                ])
+                .docs([
+                    #( #docs ),*
+                ])
+                .done()
+        )
     }
 
     /// Generates the ink! metadata for the given parameter and parameter type.
-    fn generate_message_param(pat_type: &syn::PatType) -> TokenStream2 {
+    fn generate_dispatch_argument(pat_type: &syn::PatType) -> TokenStream2 {
         let ident = match &*pat_type.pat {
             syn::Pat::Ident(ident) => &ident.ident,
-            _ => unreachable!("encountered unexpected non identifier in ink! parameter"),
+            _ => unreachable!("encountered ink! dispatch input with missing identifier"),
         };
         let type_spec = Self::generate_type_spec(&pat_type.ty);
         quote! {
@@ -199,11 +171,11 @@ impl Metadata<'_> {
             let segs = path
                 .segments
                 .iter()
-                .map(|seg| seg.ident.to_string())
+                .map(|seg| &seg.ident)
                 .collect::<Vec<_>>();
             quote! {
                 ::ink_metadata::TypeSpec::with_name_segs::<#ty, _>(
-                    ::core::iter::IntoIterator::into_iter([ #( #segs ),* ])
+                    ::core::iter::IntoIterator::into_iter([ #( ::core::stringify!(#segs) ),* ])
                         .map(::core::convert::AsRef::as_ref)
                 )
             }
@@ -212,43 +184,39 @@ impl Metadata<'_> {
         }
     }
 
-    fn generate_messages(&self) -> impl Iterator<Item = TokenStream2> + '_ {
+    /// Generates the ink! metadata for all ink! smart contract messages.
+    fn generate_messages(&self) -> Vec<TokenStream2> {
+        let mut messages = Vec::new();
+        let inherent_messages = self.generate_inherent_messages();
+        let trait_messages = self.generate_trait_messages();
+        messages.extend(inherent_messages);
+        messages.extend(trait_messages);
+        messages
+    }
+
+    /// Generates the ink! metadata for all inherent ink! smart contract messages.
+    fn generate_inherent_messages(&self) -> Vec<TokenStream2> {
         self.contract
             .module()
             .impls()
-            .flat_map(|impl_block| {
-                let trait_ident = impl_block
-                    .trait_path()
-                    .map(|path| path.segments.last().map(|seg| &seg.ident))
-                    .flatten();
-                impl_block
-                    .iter_messages()
-                    .map(move |message| (trait_ident, message))
-            })
-            .map(|(trait_ident, message)| {
+            .filter(|item_impl| item_impl.trait_path().is_none())
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
                 let span = message.span();
-                let attrs = message.attrs();
-                let docs = Self::extract_doc_comments(attrs);
+                let docs = message
+                    .attrs()
+                    .iter()
+                    .filter_map(|attr| attr.extract_docs());
                 let selector_bytes = message.composed_selector().hex_lits();
                 let is_payable = message.is_payable();
                 let message = message.callable();
                 let mutates = message.receiver().is_ref_mut();
                 let ident = message.ident();
-                let args = message.inputs().map(Self::generate_message_param);
+                let args = message.inputs().map(Self::generate_dispatch_argument);
                 let ret_ty = Self::generate_return_type(message.output());
-                let constr = match trait_ident {
-                    Some(trait_ident) => {
-                        quote_spanned!(span => from_trait_and_name(
-                            ::core::stringify!(#trait_ident),
-                            ::core::stringify!(#ident),
-                        ))
-                    }
-                    None => {
-                        quote_spanned!(span => from_name(::core::stringify!(#ident)))
-                    }
-                };
                 quote_spanned!(span =>
-                    ::ink_metadata::MessageSpec::#constr
+                    ::ink_metadata::MessageSpec::from_name(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -264,6 +232,68 @@ impl Metadata<'_> {
                         .done()
                 )
             })
+            .collect()
+    }
+
+    /// Generates the ink! metadata for all inherent ink! smart contract messages.
+    fn generate_trait_messages(&self) -> Vec<TokenStream2> {
+        let storage_ident = self.contract.module().storage().ident();
+        self.contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| {
+                item_impl
+                    .trait_path()
+                    .map(|trait_path| {
+                        let trait_ident = item_impl.trait_ident().expect(
+                            "must have an ink! trait identifier if it is an ink! trait implementation"
+                        );
+                        iter::repeat((trait_ident, trait_path)).zip(item_impl.iter_messages())
+                    })
+            })
+            .flatten()
+            .map(|((trait_ident, trait_path), message)| {
+                let message_span = message.span();
+                let message_ident = message.ident();
+                let message_docs = message
+                    .attrs()
+                    .iter()
+                    .filter_map(|attr| attr.extract_docs());
+                let message_args = message
+                    .inputs()
+                    .map(Self::generate_dispatch_argument);
+                let mutates = message.receiver().is_ref_mut();
+                let local_id = message.local_id().hex_padded_suffixed();
+                let is_payable = quote! {{
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
+                }};
+                let selector = quote! {{
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                }};
+                let ret_ty = Self::generate_return_type(message.output());
+                quote_spanned!(message_span=>
+                    ::ink_metadata::MessageSpec::from_trait_and_name(
+                        ::core::stringify!(#trait_ident),
+                        ::core::stringify!(#message_ident)
+                    )
+                        .selector(#selector)
+                        .args([
+                            #( #message_args ),*
+                        ])
+                        .returns(#ret_ty)
+                        .mutates(#mutates)
+                        .payable(#is_payable)
+                        .docs([
+                            #( #message_docs ),*
+                        ])
+                        .done()
+                )
+            })
+            .collect()
     }
 
     /// Generates ink! metadata for the given return type.
@@ -288,7 +318,7 @@ impl Metadata<'_> {
         self.contract.module().events().map(|event| {
             let span = event.span();
             let ident = event.ident();
-            let docs = Self::extract_doc_comments(event.attrs());
+            let docs = event.attrs().iter().filter_map(|attr| attr.extract_docs());
             let args = Self::generate_event_args(event);
             quote_spanned!(span =>
                 ::ink_metadata::EventSpec::new(::core::stringify!(#ident))
@@ -309,8 +339,10 @@ impl Metadata<'_> {
             let span = event_field.span();
             let ident = event_field.ident();
             let is_topic = event_field.is_topic;
-            let attrs = event_field.attrs();
-            let docs = Self::extract_doc_comments(&attrs);
+            let docs = event_field
+                .attrs()
+                .into_iter()
+                .filter_map(|attr| attr.extract_docs());
             let ty = Self::generate_type_spec(event_field.ty());
             quote_spanned!(span =>
                 ::ink_metadata::EventParamSpec::new(::core::stringify!(#ident))
@@ -323,39 +355,39 @@ impl Metadata<'_> {
             )
         })
     }
-
-    /// Generates the documentation for the contract module.
-    fn generate_docs(&self) -> impl Iterator<Item = String> + '_ {
-        Self::extract_doc_comments(self.contract.module().attrs())
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// Extracts and collects the contents of the Rust documentation attributes.
+    fn extract_doc_attributes(attrs: &[syn::Attribute]) -> Vec<String> {
+        attrs
+            .iter()
+            .filter_map(|attr| attr.extract_docs())
+            .collect()
+    }
+
     #[test]
     fn extract_doc_comments_works() {
         assert_eq!(
-            Metadata::extract_doc_comments(&[syn::parse_quote!( #[doc = r"content"] )])
-                .collect::<Vec<_>>(),
+            extract_doc_attributes(&[syn::parse_quote!( #[doc = r"content"] )]),
             vec!["content".to_string()],
         );
         assert_eq!(
-            Metadata::extract_doc_comments(&[syn::parse_quote!(
+            extract_doc_attributes(&[syn::parse_quote!(
                 /// content
-            )])
-            .collect::<Vec<_>>(),
+            )]),
             vec![" content".to_string()],
         );
         assert_eq!(
-            Metadata::extract_doc_comments(&[syn::parse_quote!(
+            extract_doc_attributes(&[syn::parse_quote!(
                 /**
                  * Multi-line comments ...
                  * May span many lines
                  */
-            )])
-            .collect::<Vec<_>>(),
+            )]),
             vec![r"
                  * Multi-line comments ...
                  * May span many lines
@@ -363,7 +395,7 @@ mod tests {
             .to_string()],
         );
         assert_eq!(
-            Metadata::extract_doc_comments(&[
+            extract_doc_attributes(&[
                 syn::parse_quote!(
                     /// multiple
                 ),
@@ -376,8 +408,7 @@ mod tests {
                 syn::parse_quote!(
                     /// comments
                 ),
-            ])
-            .collect::<Vec<_>>(),
+            ]),
             vec![
                 " multiple".to_string(),
                 " single".to_string(),
@@ -386,7 +417,7 @@ mod tests {
             ],
         );
         assert_eq!(
-            Metadata::extract_doc_comments(&[
+            extract_doc_attributes(&[
                 syn::parse_quote!( #[doc = r"a"] ),
                 syn::parse_quote!( #[non_doc] ),
                 syn::parse_quote!( #[doc = r"b"] ),
@@ -396,8 +427,7 @@ mod tests {
                 syn::parse_quote!( #[doc = r"d"] ),
                 syn::parse_quote!( #[doc(Nope)] ),
                 syn::parse_quote!( #[doc = r"e"] ),
-            ])
-            .collect::<Vec<_>>(),
+            ]),
             vec![
                 "a".to_string(),
                 "b".to_string(),

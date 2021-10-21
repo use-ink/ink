@@ -1,0 +1,5 @@
+error: ink! constructors must not be async
+  --> tests/ui/contract/fail/constructor-async.rs:10:13
+   |
+10 |         pub async fn constructor() -> Self {
+   |             ^^^^^

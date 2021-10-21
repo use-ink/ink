@@ -59,7 +59,7 @@ const _: () = {
         Key: From<<H as HashOutput>::Type>,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new(
                     "keys",
                     <StorageStash<K> as StorageLayout>::layout(key_ptr),

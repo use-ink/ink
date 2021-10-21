@@ -60,7 +60,7 @@ const _: () = {
         T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new("header", <Header as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "entries",

@@ -44,7 +44,7 @@ const _: () = {
 
     impl StorageLayout for StorageBitvec {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",

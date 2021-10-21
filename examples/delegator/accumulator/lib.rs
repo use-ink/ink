@@ -1,6 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-pub use self::accumulator::Accumulator;
+pub use self::accumulator::{
+    Accumulator,
+    AccumulatorRef,
+};
+
 use ink_lang as ink;
 
 #[ink::contract]

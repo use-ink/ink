@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-    GenerateCodeUsing,
-};
+use crate::GenerateCode;
 use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
@@ -40,18 +36,16 @@ impl GenerateCode for Storage<'_> {
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
                 // Required to allow for `self.env().emit_event(..)` in messages and constructors.
-                quote! { use ::ink_lang::EmitEvent as _; }
+                quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
-        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!(storage_span =>
             #access_env_impls
             #storage_struct
 
-            #cfg
             const _: () = {
-                // Used to make `self.env()` available in message code.
+                // Used to make `self.env()` and `Self::env()` available in message code.
                 #[allow(unused_imports)]
-                use ::ink_lang::{
+                use ::ink_lang::codegen::{
                     Env as _,
                     StaticEnv as _,
                 };
@@ -64,26 +58,24 @@ impl GenerateCode for Storage<'_> {
 impl Storage<'_> {
     fn generate_access_env_trait_impls(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
-        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote! {
-            #cfg
             const _: () = {
-                impl<'a> ::ink_lang::Env for &'a #storage_ident {
+                impl<'a> ::ink_lang::codegen::Env for &'a #storage_ident {
                     type EnvAccess = ::ink_lang::EnvAccess<
-                        'a, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                        'a, <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>;
 
                     fn env(self) -> Self::EnvAccess {
-                        <<Self as ::ink_lang::Env>::EnvAccess
+                        <<Self as ::ink_lang::codegen::Env>::EnvAccess
                             as ::core::default::Default>::default()
                     }
                 }
 
-                impl<'a> ::ink_lang::StaticEnv for #storage_ident {
+                impl<'a> ::ink_lang::codegen::StaticEnv for #storage_ident {
                     type EnvAccess = ::ink_lang::EnvAccess<
-                        'static, <#storage_ident as ::ink_lang::ContractEnv>::Env>;
+                        'static, <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>;
 
                     fn env() -> Self::EnvAccess {
-                        <<Self as ::ink_lang::StaticEnv>::EnvAccess
+                        <<Self as ::ink_lang::codegen::StaticEnv>::EnvAccess
                             as ::core::default::Default>::default()
                     }
                 }
@@ -98,9 +90,7 @@ impl Storage<'_> {
         let ident = storage.ident();
         let attrs = storage.attrs();
         let fields = storage.fields();
-        let cfg = self.generate_code_using::<generator::CrossCallingConflictCfg>();
         quote_spanned!( span =>
-            #cfg
             #(#attrs)*
             #[cfg_attr(
                 feature = "std",
@@ -111,6 +101,12 @@ impl Storage<'_> {
             pub struct #ident {
                 #( #fields ),*
             }
+
+            const _: () = {
+                impl ::ink_lang::reflect::ContractName for #ident {
+                    const NAME: &'static str = ::core::stringify!(#ident);
+                }
+            };
         )
     }
 }

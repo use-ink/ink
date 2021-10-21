@@ -1,5 +1,0 @@
-error: expected string or byte string literal as input. found Bool(LitBool { value: true })
- --> $DIR/invalid_parameter_type_01.rs:3:34
-  |
-3 | const _: u32 = ink::selector_id!(true);
-  |                                  ^^^^

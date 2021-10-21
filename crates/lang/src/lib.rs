@@ -14,69 +14,27 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[macro_use]
+#[doc(hidden)]
+mod result_info;
+
+#[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
+pub mod codegen;
+
+pub mod reflect;
+
 mod chain_extension;
-mod contract;
-mod cross_calling;
-mod dispatcher;
+mod contract_ref;
 mod env_access;
-mod error;
-mod events;
-mod traits;
 
 pub use self::{
     chain_extension::{
         ChainExtensionInstance,
         IsResultType,
     },
-    contract::{
-        DispatchMode,
-        DispatchUsingMode,
-    },
-    cross_calling::{
-        ForwardCall,
-        ForwardCallMut,
-        NeverReturns,
-        ToAccountId,
-    },
-    dispatcher::{
-        deny_payment,
-        execute_constructor,
-        execute_message,
-        execute_message_mut,
-        AcceptsPayments,
-        ConstructorDispatcher,
-        EnablesDynamicStorageAllocator,
-        Execute,
-        MessageDispatcher,
-    },
-    env_access::{
-        ContractEnv,
-        Env,
-        EnvAccess,
-        StaticEnv,
-    },
-    error::{
-        DispatchError,
-        DispatchResult,
-    },
-    events::{
-        BaseEvent,
-        EmitEvent,
-    },
-    traits::{
-        CheckedInkTrait,
-        Constructor,
-        FnInput,
-        FnOutput,
-        FnSelector,
-        FnState,
-        ImpliesReturn,
-        MessageMut,
-        MessageRef,
-        True,
-    },
+    contract_ref::ToAccountId,
+    env_access::EnvAccess,
 };
-pub use ::static_assertions;
 pub use ink_lang_macro::{
     blake2x256,
     chain_extension,
