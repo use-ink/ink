@@ -666,7 +666,6 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
-            let may_revert = ::core::cfg!(not(feature = "ink-as-dependency"));
             let is_dynamic_storage_allocation_enabled = self
                 .contract
                 .config()
@@ -681,7 +680,6 @@ impl Dispatch<'_> {
                         ::ink_lang::codegen::ExecuteMessageConfig {
                             payable: #accepts_payment,
                             mutates: #mutates_storage,
-                            may_revert: #may_revert,
                             dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
                         },
                         move |storage: &mut #storage_ident| { #message_callable(storage, input) }

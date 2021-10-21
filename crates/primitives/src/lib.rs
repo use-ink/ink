@@ -26,6 +26,9 @@
 mod key;
 mod key_ptr;
 
+#[cfg(test)]
+mod tests;
+
 pub use self::{
     key::Key,
     key_ptr::KeyPtr,

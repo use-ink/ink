@@ -215,7 +215,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     impl ink_env::Environment for MyEnvironment {
 ///         const MAX_EVENT_TOPICS: usize = 3;
-///         type AccountId = u64;
+///         type AccountId = [u8; 16];
 ///         type Balance = u128;
 ///         type Hash = [u8; 32];
 ///         type Timestamp = u64;
@@ -234,7 +234,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #
 ///         # impl ink_env::Environment for MyEnvironment {
 ///         #     const MAX_EVENT_TOPICS: usize = 3;
-///         #     type AccountId = u64;
+///         #     type AccountId = [u8; 16];
 ///         #     type Balance = u128;
 ///         #     type Hash = [u8; 32];
 ///         #     type Timestamp = u64;

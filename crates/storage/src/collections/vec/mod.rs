@@ -225,7 +225,6 @@ where
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     ///     .into_iter()
-    ///     .copied()
     ///     .collect();
     ///
     /// assert_eq!(s.binary_search(&13),  Ok(9));
@@ -271,7 +270,6 @@ where
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
     ///     .into_iter()
-    ///     .copied()
     ///     .collect();
     ///
     /// let seek = 13;
@@ -359,7 +357,6 @@ where
     ///     (4, 55),
     /// ]
     /// .into_iter()
-    /// .copied()
     /// .collect();
     ///
     /// assert_eq!(s.binary_search_by_key(&13, |&(a, b)| b),  Ok(9));

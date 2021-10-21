@@ -2,8 +2,7 @@
 name = "dns"
 version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>"]
-edition = "2018"
-resolver = "2"
+edition = "2021"
 
 [dependencies]
 ink_primitives = { version = "3.0.0-rc6", path = "../../crates/primitives", default-features = false }

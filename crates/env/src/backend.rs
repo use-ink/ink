@@ -186,56 +186,56 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller<T: Environment>(&mut self) -> Result<T::AccountId>;
+    fn caller<T: Environment>(&mut self) -> T::AccountId;
 
     /// Returns the transferred balance for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`transferred_balance`][`crate::transferred_balance`]
-    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance;
 
     /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance>;
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance;
 
     /// Returns the amount of gas left for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`gas_left`][`crate::gas_left`]
-    fn gas_left<T: Environment>(&mut self) -> Result<u64>;
+    fn gas_left<T: Environment>(&mut self) -> u64;
 
     /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
     /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
-    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp>;
+    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp;
 
     /// Returns the address of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
-    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId>;
+    fn account_id<T: Environment>(&mut self) -> T::AccountId;
 
     /// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`balance`][`crate::balance`]
-    fn balance<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn balance<T: Environment>(&mut self) -> T::Balance;
 
     /// Returns the current rent allowance for the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`rent_allowance`][`crate::rent_allowance`]
-    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn rent_allowance<T: Environment>(&mut self) -> T::Balance;
 
     /// Returns information needed for rent calculations.
     ///
@@ -259,21 +259,21 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`block_number`][`crate::block_number`]
-    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber>;
+    fn block_number<T: Environment>(&mut self) -> T::BlockNumber;
 
     /// Returns the minimum balance that is required for creating an account.
     ///
     /// # Note
     ///
     /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn minimum_balance<T: Environment>(&mut self) -> T::Balance;
 
     /// Returns the tombstone deposit of the contract chain.
     ///
     /// # Note
     ///
     /// For more details visit: [`tombstone_deposit`][`crate::tombstone_deposit`]
-    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance>;
+    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance;
 
     /// Emits an event with the given event data.
     ///
