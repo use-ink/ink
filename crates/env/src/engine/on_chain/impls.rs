@@ -249,7 +249,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_bytes(), &buffer[..]);
+        ext::set_storage(key.as_ref(), &buffer[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -257,7 +257,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_bytes(), output) {
+        match ext::get_storage(key.as_ref(), output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -267,7 +267,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_bytes())
+        ext::clear_storage(key.as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
