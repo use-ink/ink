@@ -97,6 +97,7 @@ pub use self::{
         Clear,
         DefaultEnvironment,
         Environment,
+        FromLittleEndian,
         Hash,
         NoChainExtension,
         Perbill,

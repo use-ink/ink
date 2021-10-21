@@ -266,7 +266,7 @@ impl EnvInstance {
     where
         T: Environment,
     {
-        let src_id = self.account_id::<T>()?;
+        let src_id = self.account_id::<T>();
         let src_value = self
             .accounts
             .get_account::<T>(&src_id)
@@ -300,12 +300,12 @@ impl EnvInstance {
         T: Environment,
     {
         // Send the remaining balance to the beneficiary
-        let all: T::Balance = self.balance::<T>().expect("could not decode balance");
+        let all: T::Balance = self.balance::<T>();
         self.transfer_impl::<T>(&beneficiary, all)
             .expect("transfer did not work ");
 
         // Remove account
-        let contract_id = self.account_id::<T>().expect("could not decode account id");
+        let contract_id = self.account_id::<T>();
         self.accounts.remove_account::<T>(contract_id);
 
         // The on-chain implementation would set a tombstone with a code hash here
@@ -324,70 +324,72 @@ impl EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
+    fn caller<T: Environment>(&mut self) -> T::AccountId {
         self.exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .caller::<T>()
-            .map_err(|_| scale::Error::from("could not decode caller"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `caller` property: {:?}", error)
+            })
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
         self.exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .transferred_value::<T>()
-            .map_err(|_| scale::Error::from("could not decode transferred balance"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `transferred_balance` property: {:?}", error)
+            })
     }
 
     /// Emulates gas price calculation
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
         use crate::arithmetic::Saturating as _;
 
-        let gas_price = self
-            .chain_spec
-            .gas_price::<T>()
-            .map_err(|_| scale::Error::from("could not decode gas price"))?;
-
-        Ok(gas_price
-            .saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value())))
+        let gas_price = self.chain_spec.gas_price::<T>().unwrap_or_else(|error| {
+            panic!("could not read `gas_price` property: {:?}", error)
+        });
+        gas_price.saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value()))
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
-        Ok(self
-            .exec_context()
+    fn gas_left<T: Environment>(&mut self) -> u64 {
+        self.exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .gas::<T>())
+            .gas::<T>()
     }
 
-    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
+    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
         self.current_block()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .timestamp::<T>()
-            .map_err(|_| scale::Error::from("could not decode block time"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `block_timestamp` property: {:?}", error)
+            })
     }
 
-    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: Environment>(&mut self) -> T::AccountId {
         self.exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .callee::<T>()
-            .map_err(|_| scale::Error::from("could not decode callee"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `account_id` property: {:?}", error)
+            })
     }
 
-    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn balance<T: Environment>(&mut self) -> T::Balance {
         self.callee_account()
             .balance::<T>()
-            .map_err(|_| scale::Error::from("could not decode callee balance"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `balance` property: {:?}", error)
+            })
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
         self.callee_account()
             .rent_allowance::<T>()
-            .map_err(|_| scale::Error::from("could not decode callee rent allowance"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `rent_allowance` property: {:?}", error)
+            })
     }
 
     fn rent_params<T>(&mut self) -> Result<RentParams<T>>
@@ -396,20 +398,20 @@ impl TypedEnvBackend for EnvInstance {
     {
         use crate::arithmetic::Saturating as _;
 
-        let total_balance = self.balance::<T>()?;
+        let total_balance = self.balance::<T>();
 
         // the off-chain environment does currently not support reserved balance,
         // hence we just use the total balance here.
-        let free_balance = self.balance::<T>()?;
+        let free_balance = self.balance::<T>();
 
         let deposit_per_contract = self.chain_spec.deposit_per_contract::<T>()?;
         let deposit_per_storage_byte = self.chain_spec.deposit_per_storage_byte::<T>()?;
         let deposit_per_storage_item = self.chain_spec.deposit_per_storage_item::<T>()?;
         let rent_fraction = self.chain_spec.rent_fraction::<T>()?;
-        let minimum_balance: T::Balance = self.minimum_balance::<T>()?;
-        let tombstone_deposit = self.tombstone_deposit::<T>()?;
+        let minimum_balance: T::Balance = self.minimum_balance::<T>();
+        let tombstone_deposit = self.tombstone_deposit::<T>();
         let subsistence_threshold = minimum_balance.saturating_add(tombstone_deposit);
-        let rent_allowance = self.rent_allowance::<T>()?;
+        let rent_allowance = self.rent_allowance::<T>();
 
         Ok(RentParams {
             deposit_per_contract,
@@ -440,26 +442,29 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support rent status")
     }
 
-    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
+    fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
         self.current_block()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .number::<T>()
-            .map_err(|_| scale::Error::from("could not decode block number"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `block_number` property: {:?}", error)
+            })
     }
 
-    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
         self.chain_spec
             .minimum_balance::<T>()
-            .map_err(|_| scale::Error::from("could not decode minimum balance"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `minimum_balance` property: {:?}", error)
+            })
     }
 
-    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
         self.chain_spec
             .tombstone_deposit::<T>()
-            .map_err(|_| scale::Error::from("could not decode tombstone deposit"))
-            .map_err(Into::into)
+            .unwrap_or_else(|error| {
+                panic!("could not read `tombstone_deposit` property: {:?}", error)
+            })
     }
 
     fn emit_event<T, Event>(&mut self, new_event: Event)

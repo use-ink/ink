@@ -45,9 +45,8 @@ pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,
 {
-    let transferred = ink_env::transferred_balance::<E>()
-        .expect("encountered error while querying transferred balance");
-    if transferred != <E as Environment>::Balance::from(0u32) {
+    let transferred = ink_env::transferred_balance::<E>();
+    if transferred != <E as Environment>::Balance::from(0_u32) {
         return Err(DispatchError::PaidUnpayableMessage)
     }
     Ok(())

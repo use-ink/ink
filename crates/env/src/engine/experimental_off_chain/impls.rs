@@ -311,32 +311,53 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
+    fn caller<T: Environment>(&mut self) -> T::AccountId {
         self.get_property::<T::AccountId>(Engine::caller)
+            .unwrap_or_else(|error| {
+                panic!("could not read `caller` property: {:?}", error)
+            })
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::value_transferred)
+            .unwrap_or_else(|error| {
+                panic!("could not read `transferred_value` property: {:?}", error)
+            })
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
+    fn gas_left<T: Environment>(&mut self) -> u64 {
         self.get_property::<u64>(Engine::gas_left)
+            .unwrap_or_else(|error| {
+                panic!("could not read `gas_left` property: {:?}", error)
+            })
     }
 
-    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
+    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
         self.get_property::<T::Timestamp>(Engine::block_timestamp)
+            .unwrap_or_else(|error| {
+                panic!("could not read `block_timestamp` property: {:?}", error)
+            })
     }
 
-    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
+    fn account_id<T: Environment>(&mut self) -> T::AccountId {
         self.get_property::<T::AccountId>(Engine::address)
+            .unwrap_or_else(|error| {
+                panic!("could not read `account_id` property: {:?}", error)
+            })
     }
 
-    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn balance<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::balance)
+            .unwrap_or_else(|error| {
+                panic!("could not read `balance` property: {:?}", error)
+            })
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::rent_allowance)
+            .unwrap_or_else(|error| {
+                panic!("could not read `rent_allowance` property: {:?}", error)
+            })
     }
 
     fn rent_params<T>(&mut self) -> Result<RentParams<T>>
@@ -356,16 +377,25 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support rent status")
     }
 
-    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
+    fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
         self.get_property::<T::BlockNumber>(Engine::block_number)
+            .unwrap_or_else(|error| {
+                panic!("could not read `block_number` property: {:?}", error)
+            })
     }
 
-    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::minimum_balance)
+            .unwrap_or_else(|error| {
+                panic!("could not read `minimum_balance` property: {:?}", error)
+            })
     }
 
-    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
+    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::tombstone_deposit)
+            .unwrap_or_else(|error| {
+                panic!("could not read `tombstone_deposit` property: {:?}", error)
+            })
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -470,10 +500,12 @@ impl TypedEnvBackend for EnvInstance {
             .map_err(Into::into)
     }
 
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         self.engine.weight_to_fee(gas, &mut &mut output[..]);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+        scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
+            panic!("could not read `weight_to_fee` property: {:?}", error)
+        })
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
