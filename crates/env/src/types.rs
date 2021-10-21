@@ -54,7 +54,15 @@ pub trait Environment {
     const MAX_EVENT_TOPICS: usize;
 
     /// The address type.
-    type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
+    type AccountId: 'static
+        + scale::Codec
+        + Clone
+        + PartialEq
+        + Eq
+        + Ord
+        + AsRef<[u8]>
+        + AsMut<[u8]>
+        + Default;
 
     /// The type of balances.
     type Balance: 'static
@@ -161,6 +169,34 @@ pub type RentFraction = Perbill;
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
+
+impl AsRef<[u8; 32]> for AccountId {
+    #[inline]
+    fn as_ref(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl AsMut<[u8; 32]> for AccountId {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [u8; 32] {
+        &mut self.0
+    }
+}
+
+impl AsRef<[u8]> for AccountId {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl AsMut<[u8]> for AccountId {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [u8] {
+        &mut self.0[..]
+    }
+}
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
     type Error = TryFromSliceError;

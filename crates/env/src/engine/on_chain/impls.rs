@@ -176,6 +176,20 @@ impl EnvInstance {
         ScopedBuffer::from(&mut self.buffer[..])
     }
 
+    /// Returns the contract property value into the given result buffer.
+    ///
+    /// # Note
+    ///
+    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    where
+        T: Default + AsMut<[u8]>,
+    {
+        let mut result = T::default();
+        ext_fn(&mut result.as_mut());
+        result
+    }
+
     /// Returns the contract property value.
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
@@ -312,7 +326,8 @@ impl EnvBackend for EnvInstance {
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::caller)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_inplace::<T::AccountId>(ext::caller))
     }
 
     fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
@@ -320,7 +335,9 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn gas_left<T: Environment>(&mut self) -> Result<u64> {
-        self.get_property::<u64>(ext::gas_left)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        let le_bytes = self.get_property_inplace::<[u8; 8]>(ext::gas_left);
+        Ok(u64::from_le_bytes(le_bytes))
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
@@ -328,7 +345,8 @@ impl TypedEnvBackend for EnvInstance {
     }
 
     fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::address)
+        // TODO: Remove the `Ok` since this function just became infallible.
+        Ok(self.get_property_inplace::<T::AccountId>(ext::caller))
     }
 
     fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
