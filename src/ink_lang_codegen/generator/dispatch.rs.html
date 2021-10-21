@@ -768,8 +768,6 @@
 <span id="768">768</span>
 <span id="769">769</span>
 <span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1438,7 +1436,6 @@
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
                 }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::MUTATES</span>
             );
-            <span class="kw">let</span> <span class="ident">may_revert</span> <span class="op">=</span> <span class="macro">::core::cfg!</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-as-dependency&quot;</span>));
             <span class="kw">let</span> <span class="ident">is_dynamic_storage_allocation_enabled</span> <span class="op">=</span> <span class="self">self</span>
                 .<span class="ident">contract</span>
                 .<span class="ident">config</span>()
@@ -1453,7 +1450,6 @@
                         <span class="ident">::ink_lang::codegen::ExecuteMessageConfig</span> {
                             <span class="ident">payable</span>: #<span class="ident">accepts_payment</span>,
                             <span class="ident">mutates</span>: #<span class="ident">mutates_storage</span>,
-                            <span class="ident">may_revert</span>: #<span class="ident">may_revert</span>,
                             <span class="ident">dynamic_storage_alloc</span>: #<span class="ident">is_dynamic_storage_allocation_enabled</span>,
                         },
                         <span class="kw">move</span> <span class="op">|</span><span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> #<span class="ident">storage_ident</span><span class="op">|</span> { #<span class="ident">message_callable</span>(<span class="ident">storage</span>, <span class="ident">input</span>) }
