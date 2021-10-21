@@ -10,7 +10,6 @@ note: required by a bound in `DispatchOutput`
    |
 69 |     T: scale::Encode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchOutput`
-
 error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
@@ -21,11 +20,10 @@ error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
     |
     = note: required because of the requirements on the impl of `Encode` for `NonCodecType`
 note: required by a bound in `execute_message`
-   --> src/codegen/dispatch/execution.rs:138:13
+   --> src/codegen/dispatch/execution.rs:131:13
     |
-138 |     Output: scale::Encode + 'static,
+131 |     Output: scale::Encode + 'static,
     |             ^^^^^^^^^^^^^ required by this bound in `execute_message`
-
 error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::AccountId>, Unset<u64>, Unset<u128>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
