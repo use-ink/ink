@@ -30,7 +30,7 @@ static_assertions = "1.1"
 sp-arithmetic = { version = "3.0", default-features = false }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-secp256k1 = { version = "0.20.3", default-features = false }
+libsecp256k1 = { version = "0.7.0", default-features = false }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ink_engine = { version = "3.0.0-rc6", path = "../engine/", default-features = false, optional = true }
@@ -41,7 +41,7 @@ sha3 = { version = "0.9", optional = true }
 blake2 = { version = "0.9", optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.20.3", features = ["recovery"] }
+libsecp256k1 = { version = "0.7.0", features = ["lazy-static-context"] }
 
 # Only used in the off-chain environment.
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
