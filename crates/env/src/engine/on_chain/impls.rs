@@ -239,11 +239,11 @@ impl EnvInstance {
             output,
         );
         match call_result {
-            Ok(()) | Err(Error::CalleeReverted) => {
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
                 let decoded = scale::Decode::decode(&mut &output[..])?;
                 Ok(decoded)
             }
-            actual_error => Err(actual_error),
+            Err(actual_error) => Err(actual_error.into()),
         }
     }
 }
