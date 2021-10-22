@@ -14,7 +14,9 @@
 
 use crate::traits::{
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_primitives::Key;
@@ -27,9 +29,12 @@ macro_rules! impl_layout_for_tuple {
                 $frag: SpreadLayout,
             )*
         {
-            const FOOTPRINT: u64 = 0 $(+ <$frag as SpreadLayout>::FOOTPRINT)*;
-            const REQUIRES_DEEP_CLEAN_UP: bool = false $(|| <$frag as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP)*;
+            const FOOTPRINT: ::core::primitive::u64 =
+                0_u64 $(+ <$frag as SpreadLayout>::FOOTPRINT)*;
+            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool =
+                false $(|| <$frag as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP)*;
 
+            #[inline]
             fn push_spread(&self, ptr: &mut KeyPtr) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -38,6 +43,7 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
+            #[inline]
             fn clear_spread(&self, ptr: &mut KeyPtr) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -46,10 +52,27 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
+            #[inline]
             fn pull_spread(ptr: &mut KeyPtr) -> Self {
                 (
                     $(
                         <$frag as SpreadLayout>::pull_spread(ptr),
+                    )*
+                )
+            }
+        }
+
+        impl<$($frag),*> SpreadAllocate for ($($frag),* ,)
+        where
+            $(
+                $frag: SpreadAllocate,
+            )*
+        {
+            #[inline]
+            fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+                (
+                    $(
+                        <$frag as SpreadAllocate>::allocate_spread(ptr),
                     )*
                 )
             }
@@ -85,6 +108,22 @@ macro_rules! impl_layout_for_tuple {
                 let ($($frag),*,) = self;
                 $(
                     <$frag as PackedLayout>::pull_packed($frag, at);
+                )*
+            }
+        }
+
+        impl<$($frag),*> PackedAllocate for ($($frag),* ,)
+        where
+            $(
+                $frag: PackedAllocate,
+            )*
+        {
+            #[inline]
+            fn allocate_packed(&mut self, at: &Key) {
+                #[allow(non_snake_case)]
+                let ($($frag),*,) = self;
+                $(
+                    <$frag as PackedAllocate>::allocate_packed($frag, at);
                 )*
             }
         }
