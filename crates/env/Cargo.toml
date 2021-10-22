@@ -15,7 +15,6 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_engine = { version = "3.0.0-rc6", path = "../engine/", default-features = false, optional = true }
 ink_metadata = { version = "3.0.0-rc6", path = "../metadata/", default-features = false, features = ["derive"], optional = true }
 ink_allocator = { version = "3.0.0-rc6", path = "../allocator/", default-features = false }
 ink_primitives = { version = "3.0.0-rc6", path = "../primitives/", default-features = false }
@@ -30,13 +29,19 @@ arrayref = "0.3"
 static_assertions = "1.1"
 sp-arithmetic = { version = "3.0", default-features = false }
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+libsecp256k1 = { version = "0.7.0", default-features = false }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ink_engine = { version = "3.0.0-rc6", path = "../engine/", default-features = false, optional = true }
+
 # Hashes for the off-chain environment.
 sha2 = { version = "0.9", optional = true }
 sha3 = { version = "0.9", optional = true }
 blake2 = { version = "0.9", optional = true }
 
 # ECDSA for the off-chain environment.
-libsecp256k1 = { version = "0.3.5", default-features = false }
+libsecp256k1 = { version = "0.7.0" }
 
 # Only used in the off-chain environment.
 #
