@@ -14,7 +14,9 @@
 
 use crate::traits::{
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use array_init::array_init;
@@ -39,8 +41,19 @@ where
         }
     }
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         array_init::<_, T, N>(|_| <T as SpreadLayout>::pull_spread(ptr))
+    }
+}
+
+impl<T, const N: usize> SpreadAllocate for [T; N]
+where
+    T: SpreadAllocate,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        array_init::<_, T, N>(|_| <T as SpreadAllocate>::allocate_spread(ptr))
     }
 }
 
@@ -66,6 +79,18 @@ where
     fn pull_packed(&mut self, at: &Key) {
         for elem in self {
             <T as PackedLayout>::pull_packed(elem, at)
+        }
+    }
+}
+
+impl<T, const N: usize> PackedAllocate for [T; N]
+where
+    T: PackedAllocate,
+{
+    #[inline]
+    fn allocate_packed(&mut self, at: &Key) {
+        for elem in self {
+            <T as PackedAllocate>::allocate_packed(elem, at)
         }
     }
 }
