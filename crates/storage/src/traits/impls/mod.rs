@@ -14,70 +14,77 @@
 
 macro_rules! impl_always_packed_layout {
     ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
-        const _: () = {
-            use crate::traits::impls::{
-                forward_clear_packed,
-                forward_pull_packed,
-                forward_push_packed,
-            };
-            impl<$($frag),+> SpreadLayout for $name < $($frag),+ >
-            where
-                $(
-                    $frag: PackedLayout,
-                )+
-            {
-                const FOOTPRINT: u64 = 1;
+        impl<$($frag),+> $crate::traits::SpreadLayout for $name < $($frag),+ >
+        where
+            $(
+                $frag: $crate::traits::PackedLayout,
+            )+
+        {
+            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
+            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
 
-                const REQUIRES_DEEP_CLEAN_UP: bool = $deep;
-
-                #[inline]
-                fn pull_spread(ptr: &mut KeyPtr) -> Self {
-                    forward_pull_packed::<Self>(ptr)
-                }
-
-                #[inline]
-                fn push_spread(&self, ptr: &mut KeyPtr) {
-                    forward_push_packed::<Self>(self, ptr)
-                }
-
-                #[inline]
-                fn clear_spread(&self, ptr: &mut KeyPtr) {
-                    forward_clear_packed::<Self>(self, ptr)
-                }
+            #[inline]
+            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
+                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
             }
-        };
+
+            #[inline]
+            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
+                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
+            }
+
+            #[inline]
+            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
+                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
+            }
+        }
+
+        impl<$($frag),+> $crate::traits::SpreadAllocate for $name < $($frag),+ >
+        where
+            Self: ::core::default::Default,
+            $(
+                $frag: $crate::traits::PackedAllocate,
+            )+
+        {
+            #[inline]
+            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
+                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
+            }
+        }
     };
     ( $name:ty, deep: $deep:expr ) => {
-        const _: () = {
-            use crate::traits::impls::{
-                forward_clear_packed,
-                forward_pull_packed,
-                forward_push_packed,
-            };
-            impl SpreadLayout for $name
-            where
-                Self: PackedLayout,
-            {
-                const FOOTPRINT: u64 = 1;
+        impl $crate::traits::SpreadLayout for $name
+        where
+            Self: $crate::traits::PackedLayout,
+        {
+            const FOOTPRINT: ::core::primitive::u64 = 1_u64;
+            const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
 
-                const REQUIRES_DEEP_CLEAN_UP: bool = $deep;
-
-                #[inline]
-                fn pull_spread(ptr: &mut KeyPtr) -> Self {
-                    forward_pull_packed::<Self>(ptr)
-                }
-
-                #[inline]
-                fn push_spread(&self, ptr: &mut KeyPtr) {
-                    forward_push_packed::<Self>(self, ptr)
-                }
-
-                #[inline]
-                fn clear_spread(&self, ptr: &mut KeyPtr) {
-                    forward_clear_packed::<Self>(self, ptr)
-                }
+            #[inline]
+            fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
+                $crate::traits::impls::forward_pull_packed::<Self>(ptr)
             }
-        };
+
+            #[inline]
+            fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
+                $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
+            }
+
+            #[inline]
+            fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
+                $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
+            }
+        }
+
+        impl $crate::traits::SpreadAllocate for $name
+        where
+            Self: $crate::traits::PackedLayout + ::core::default::Default,
+        {
+            #[inline]
+            fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
+                $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
+            }
+        }
     };
 }
 
