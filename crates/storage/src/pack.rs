@@ -18,7 +18,9 @@ use crate::traits::{
     forward_pull_packed,
     forward_push_packed,
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_prelude::vec::Vec;
@@ -189,6 +191,18 @@ where
     }
 }
 
+impl<T> SpreadAllocate for Pack<T>
+where
+    T: PackedLayout + Default,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            inner: T::default(),
+            key: Some(*ptr.key()),
+        }
+    }
+}
+
 impl<T> PackedLayout for Pack<T>
 where
     T: PackedLayout,
@@ -201,6 +215,15 @@ where
     }
     fn clear_packed(&self, at: &Key) {
         <T as PackedLayout>::clear_packed(Self::as_inner(self), at)
+    }
+}
+
+impl<T> PackedAllocate for Pack<T>
+where
+    T: PackedAllocate + Default,
+{
+    fn allocate_packed(&mut self, at: &Key) {
+        <T as PackedAllocate>::allocate_packed(Self::as_inner_mut(self), at)
     }
 }
 
