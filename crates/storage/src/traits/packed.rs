@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{SpreadLayout, spread::SpreadAllocate};
+use super::{
+    spread::SpreadAllocate,
+    SpreadLayout,
+};
 use ink_primitives::Key;
 
 /// Types that can be default initialized to a single storage cell.

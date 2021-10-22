@@ -46,28 +46,31 @@ pub(crate) use self::optspec::{
 };
 pub use self::{
     impls::{
+        forward_allocate_packed,
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
-        forward_allocate_packed,
     },
     keyptr::{
         ExtKeyPtr,
         KeyPtr,
     },
-    packed::{PackedAllocate, PackedLayout},
+    packed::{
+        PackedAllocate,
+        PackedLayout,
+    },
     spread::{
-        SpreadLayout,
         SpreadAllocate,
+        SpreadLayout,
         FOOTPRINT_CLEANUP_THRESHOLD,
     },
 };
+use ink_primitives::Key;
 pub use ink_storage_derive::{
     PackedLayout,
     SpreadLayout,
     StorageLayout,
 };
-use ink_primitives::Key;
 
 /// Pulls an instance of type `T` from the contract storage using spread layout.
 ///

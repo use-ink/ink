@@ -101,8 +101,8 @@ use super::{
     clear_packed_root,
     pull_packed_root,
     push_packed_root,
-    PackedLayout,
     PackedAllocate,
+    PackedLayout,
 };
 use crate::traits::{
     ExtKeyPtr as _,
