@@ -15,6 +15,7 @@
 //! Implementation of generic traits that are useful for the storage stash.
 
 use super::{
+    Header,
     Iter,
     IterMut,
     Stash as StorageStash,
@@ -31,6 +32,16 @@ where
 {
     fn drop(&mut self) {
         self.clear_cells();
+    }
+}
+
+impl Default for Header {
+    fn default() -> Self {
+        Self {
+            last_vacant: 0,
+            len: 0,
+            len_entries: 0,
+        }
     }
 }
 
