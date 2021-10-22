@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::traits::ExtKeyPtr as _;
-
 macro_rules! impl_always_packed_layout {
     ( $name:ident < $($frag:ident),+ >, deep: $deep:expr ) => {
         const _: () = {
@@ -92,12 +90,17 @@ mod tuples;
 mod fuzz_tests;
 
 use super::{
+    allocate_packed_root,
     clear_packed_root,
     pull_packed_root,
     push_packed_root,
     PackedLayout,
+    PackedAllocate,
 };
-use crate::traits::KeyPtr;
+use crate::traits::{
+    ExtKeyPtr as _,
+    KeyPtr,
+};
 
 /// Returns the greater of both values.
 const fn max(a: u64, b: u64) -> u64 {
@@ -119,6 +122,23 @@ where
     T: PackedLayout,
 {
     pull_packed_root::<T>(ptr.next_for::<T>())
+}
+
+/// Allocates an instance of type `T` in packed fashion to the contract storage.
+///
+/// This default initializes the entity at the storage location identified
+/// by `ptr`. The storage entity is expected to be decodable in its packed form.
+///
+/// # Note
+///
+/// Use this utility function to use a packed allocate operation for the type
+/// instead of a spread storage layout allocation operation.
+#[inline]
+pub fn forward_allocate_packed<T>(ptr: &mut KeyPtr) -> T
+where
+    T: PackedAllocate + Default,
+{
+    allocate_packed_root::<T>(ptr.next_for::<T>())
 }
 
 /// Pushes an instance of type `T` in packed fashion to the contract storage.
