@@ -25,6 +25,7 @@ use crate::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -282,6 +283,19 @@ where
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
         // responsible for cleaning up.
+    }
+}
+
+impl<K, V, H> SpreadAllocate for LazyHashMap<K, V, H>
+where
+    K: Ord + scale::Encode,
+    V: PackedLayout,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 }
 
