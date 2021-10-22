@@ -102,16 +102,19 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         Self::pull_spread_root(root_key)
     }
 
+    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.push_spread_root(root_key)
     }
 
+    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.clear_spread_root(root_key)

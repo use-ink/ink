@@ -243,6 +243,7 @@ where
 {
     const FOOTPRINT: u64 = 1_u64 << 32;
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
