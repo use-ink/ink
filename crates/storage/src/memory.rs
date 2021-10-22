@@ -14,6 +14,7 @@
 
 use crate::traits::{
     KeyPtr,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -80,6 +81,16 @@ where
 
     fn push_spread(&self, _ptr: &mut KeyPtr) {}
     fn clear_spread(&self, _ptr: &mut KeyPtr) {}
+}
+
+impl<T> SpreadAllocate for Memory<T>
+where
+    T: Default,
+{
+    #[inline]
+    fn allocate_spread(_ptr: &mut KeyPtr) -> Self {
+        Default::default()
+    }
 }
 
 impl<T> Memory<T> {
