@@ -62,7 +62,7 @@ pub use self::{
         FOOTPRINT_CLEANUP_THRESHOLD,
     },
 };
-pub use ::ink_storage_derive::{
+pub use ink_storage_derive::{
     PackedLayout,
     SpreadLayout,
     StorageLayout,
