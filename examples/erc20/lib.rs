@@ -138,7 +138,7 @@ mod erc20 {
         /// works using references which are more efficient in Wasm.
         #[inline]
         fn allowance_impl(&self, owner: &AccountId, spender: &AccountId) -> Balance {
-            self.allowances.get(&(owner, spender)).unwrap_or_default()
+            self.allowances.get((owner, spender)).unwrap_or_default()
         }
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
@@ -164,7 +164,7 @@ mod erc20 {
         #[ink(message)]
         pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances.insert(&(&owner, &spender), &value);
+            self.allowances.insert((&owner, &spender), &value);
             self.env().emit_event(Approval {
                 owner,
                 spender,
@@ -201,7 +201,7 @@ mod erc20 {
             }
             self.transfer_from_to(&from, &to, value)?;
             self.allowances
-                .insert(&(&from, &caller), &(allowance - value));
+                .insert((&from, &caller), &(allowance - value));
             Ok(())
         }
 

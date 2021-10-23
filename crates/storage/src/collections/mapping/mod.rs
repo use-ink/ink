@@ -68,7 +68,7 @@ where
 {
     /// Insert the given `value` to the contract storage.
     #[inline]
-    pub fn insert<Q, R>(&mut self, key: &Q, value: &R)
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R)
     where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
@@ -80,7 +80,7 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    pub fn get<Q>(&self, key: &Q) -> Option<V>
+    pub fn get<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
     {
@@ -91,7 +91,7 @@ where
     ///
     /// This key is a combination of the `Mapping`'s internal `offset_key`
     /// and the user provided `key`.
-    fn storage_key<Q>(&self, key: &Q) -> Key
+    fn storage_key<Q>(&self, key: Q) -> Key
     where
         Q: scale::EncodeLike<K>,
     {
