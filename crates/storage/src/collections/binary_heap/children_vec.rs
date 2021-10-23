@@ -26,6 +26,7 @@ use crate::{
     traits::{
         KeyPtr,
         PackedLayout,
+        SpreadAllocate,
         SpreadLayout,
     },
     Lazy,
@@ -304,6 +305,18 @@ where
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.children, ptr);
+    }
+}
+
+impl<T> SpreadAllocate for ChildrenVec<T>
+where
+    T: SpreadLayout + Ord + PackedLayout,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            len: SpreadAllocate::allocate_spread(ptr),
+            children: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }
 

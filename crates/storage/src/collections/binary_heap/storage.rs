@@ -21,6 +21,7 @@ use super::{
 use crate::traits::{
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 
@@ -96,5 +97,16 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.elements, ptr);
+    }
+}
+
+impl<T> SpreadAllocate for BinaryHeap<T>
+where
+    T: PackedLayout + Ord,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            elements: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }
