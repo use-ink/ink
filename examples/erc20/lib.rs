@@ -4,8 +4,10 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
+    use ink_primitives::{Key, KeyPtr};
     use ink_storage::{
         collections::mapping::Mapping,
+        traits::SpreadAllocate,
         lazy::Lazy,
     };
 
@@ -55,24 +57,50 @@ mod erc20 {
     /// The ERC-20 result type.
     pub type Result<T> = core::result::Result<T, Error>;
 
+    impl SpreadAllocate for Erc20 {
+        fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+            Self {
+                total_supply: SpreadAllocate::allocate_spread(ptr),
+                balances: SpreadAllocate::allocate_spread(ptr),
+                allowances: SpreadAllocate::allocate_spread(ptr),
+            }
+        }
+    }
+
     impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
+            let root_key = Key::from([0x00; 32]);
+            let mut key_ptr = KeyPtr::from(root_key);
+            let mut instance = Self::allocate_spread(&mut key_ptr);
+            instance.new_init(initial_supply);
+            instance
+            // let caller = Self::env().caller();
+            // let mut balances = Mapping::new([1u8; 32].into());
+            // balances.insert(&caller, &initial_supply);
+            // let instance = Self {
+            //     total_supply: Lazy::new(initial_supply),
+            //     balances,
+            //     allowances: Mapping::new([1u8; 32].into()),
+            // };
+            // Self::env().emit_event(Transfer {
+            //     from: None,
+            //     to: Some(caller),
+            //     value: initial_supply,
+            // });
+            // instance
+        }
+
+        fn new_init(&mut self, initial_supply: Balance) {
             let caller = Self::env().caller();
-            let mut balances = Mapping::new([1u8; 32].into());
-            balances.insert(&caller, &initial_supply);
-            let instance = Self {
-                total_supply: Lazy::new(initial_supply),
-                balances,
-                allowances: Mapping::new([1u8; 32].into()),
-            };
+            self.balances.insert(&caller, &initial_supply);
+            *self.total_supply = initial_supply;
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
                 value: initial_supply,
             });
-            instance
         }
 
         /// Returns the total token supply.
