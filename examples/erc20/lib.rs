@@ -78,6 +78,7 @@ mod erc20 {
             instance
         }
 
+        /// Default initializes the ERC-20 contract with the specified initial supply.
         fn new_init(&mut self, initial_supply: Balance) {
             let caller = Self::env().caller();
             self.balances.insert(&caller, &initial_supply);
