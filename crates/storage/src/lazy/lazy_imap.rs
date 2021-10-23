@@ -23,6 +23,7 @@ use crate::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -242,6 +243,7 @@ where
 {
     const FOOTPRINT: u64 = 1_u64 << 32;
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
@@ -261,6 +263,16 @@ where
         // they generally are not aware of their entire set of associated
         // elements. The high-level abstractions that build upon them are
         // responsible for cleaning up.
+    }
+}
+
+impl<V> SpreadAllocate for LazyIndexMap<V>
+where
+    V: PackedLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 }
 

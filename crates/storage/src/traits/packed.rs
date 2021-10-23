@@ -12,8 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::SpreadLayout;
+use super::{
+    spread::SpreadAllocate,
+    SpreadLayout,
+};
 use ink_primitives::Key;
+
+/// Types that can be default initialized to a single storage cell.
+pub trait PackedAllocate: SpreadAllocate + PackedLayout {
+    /// Indicates to `self` that is has just been allocated to the storage.
+    ///
+    /// # Note
+    ///
+    /// Most types will have to implement a trivial forwarding to their fields.
+    /// However, some types such as [`storage::Box`](`crate::Box`)
+    /// are required to perform some special handling upon receiving this signal.
+    fn allocate_packed(&mut self, at: &Key);
+}
 
 /// Types that can be stored to and loaded from a single contract storage cell.
 pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
@@ -21,7 +36,7 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     ///
     /// # Note
     ///
-    /// Most types will have to implement a simple forwarding to their fields.
+    /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
     /// are required to perform some special handling upon receiving this signal.
     fn pull_packed(&mut self, at: &Key);
@@ -30,7 +45,7 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     ///
     /// # Note
     ///
-    /// Most types will have to implement a simple forwarding to their fields.
+    /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
     /// are required to perform some special handling upon receiving this signal.
     fn push_packed(&self, at: &Key);
@@ -39,7 +54,7 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     ///
     /// # Note
     ///
-    /// Most types will have to implement a simple forwarding to their fields.
+    /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
     /// are required to perform some special handling upon receiving this signal.
     fn clear_packed(&self, at: &Key);

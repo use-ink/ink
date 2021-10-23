@@ -26,6 +26,7 @@ use crate::{
         forward_push_packed,
         KeyPtr,
         PackedLayout,
+        SpreadAllocate,
         SpreadLayout,
     },
 };
@@ -135,5 +136,20 @@ where
         self.clear_cells();
         SpreadLayout::clear_spread(&self.keys, ptr);
         SpreadLayout::clear_spread(&self.values, ptr);
+    }
+}
+
+impl<K, V, H> SpreadAllocate for StorageHashMap<K, V, H>
+where
+    K: Ord + Clone + PackedLayout,
+    V: PackedLayout,
+    H: CryptoHash,
+    Key: From<<H as HashOutput>::Type>,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            keys: SpreadAllocate::allocate_spread(ptr),
+            values: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }

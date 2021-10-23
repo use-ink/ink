@@ -46,6 +46,7 @@ pub(crate) use self::optspec::{
 };
 pub use self::{
     impls::{
+        forward_allocate_packed,
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
@@ -54,18 +55,22 @@ pub use self::{
         ExtKeyPtr,
         KeyPtr,
     },
-    packed::PackedLayout,
+    packed::{
+        PackedAllocate,
+        PackedLayout,
+    },
     spread::{
+        SpreadAllocate,
         SpreadLayout,
         FOOTPRINT_CLEANUP_THRESHOLD,
     },
 };
-pub use ::ink_storage_derive::{
+use ink_primitives::Key;
+pub use ink_storage_derive::{
     PackedLayout,
     SpreadLayout,
     StorageLayout,
 };
-use ink_primitives::Key;
 
 /// Pulls an instance of type `T` from the contract storage using spread layout.
 ///
@@ -84,6 +89,25 @@ where
 {
     let mut ptr = KeyPtr::from(*root_key);
     <T as SpreadLayout>::pull_spread(&mut ptr)
+}
+
+/// Pulls an instance of type `T` from the contract storage using spread layout.
+///
+/// The root key denotes the offset into the contract storage where the
+/// instance of type `T` is being pulled from.
+///
+/// # Note
+///
+/// - The routine assumes that the instance has previously been stored to
+///   the contract storage using spread layout.
+/// - Users should prefer using this function directly instead of using the
+///   trait method on [`SpreadAllocate`].
+pub fn allocate_spread_root<T>(root_key: &Key) -> T
+where
+    T: SpreadAllocate,
+{
+    let mut ptr = KeyPtr::from(*root_key);
+    <T as SpreadAllocate>::allocate_spread(&mut ptr)
 }
 
 /// Clears the entity from the contract storage using spread layout.
@@ -143,6 +167,26 @@ where
         .expect("could not properly decode storage entry")
         .expect("storage entry was empty");
     <T as PackedLayout>::pull_packed(&mut entity, root_key);
+    entity
+}
+
+/// Allocates an instance of type `T` to the contract storage using packed layout.
+///
+/// The root key denotes the offset into the contract storage where the
+/// instance of type `T` is being allocated to.
+///
+/// # Note
+///
+/// - The routine assumes that the instance has previously been stored to
+///   the contract storage using packed layout.
+/// - Users should prefer using this function directly instead of using the
+///   trait method on [`PackedAllocate`].
+pub fn allocate_packed_root<T>(root_key: &Key) -> T
+where
+    T: PackedAllocate + Default,
+{
+    let mut entity = <T as Default>::default();
+    <T as PackedAllocate>::allocate_packed(&mut entity, root_key);
     entity
 }
 

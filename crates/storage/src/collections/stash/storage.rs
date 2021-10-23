@@ -22,11 +22,14 @@ use super::{
 use crate::{
     lazy::LazyIndexMap,
     traits::{
+        forward_allocate_packed,
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
         KeyPtr,
+        PackedAllocate,
         PackedLayout,
+        SpreadAllocate,
         SpreadLayout,
     },
 };
@@ -88,10 +91,24 @@ impl SpreadLayout for Header {
     }
 }
 
+impl SpreadAllocate for Header {
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        forward_allocate_packed::<Self>(ptr)
+    }
+}
+
 impl PackedLayout for Header {
+    #[inline(always)]
     fn pull_packed(&mut self, _at: &Key) {}
+    #[inline(always)]
     fn push_packed(&self, _at: &Key) {}
+    #[inline(always)]
     fn clear_packed(&self, _at: &Key) {}
+}
+
+impl PackedAllocate for Header {
+    #[inline(always)]
+    fn allocate_packed(&mut self, _at: &Key) {}
 }
 
 impl<T> SpreadLayout for Entry<T>
@@ -159,5 +176,17 @@ where
         self.clear_cells();
         SpreadLayout::clear_spread(&self.header, ptr);
         SpreadLayout::clear_spread(&self.entries, ptr);
+    }
+}
+
+impl<T> SpreadAllocate for StorageStash<T>
+where
+    T: PackedLayout,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            header: SpreadAllocate::allocate_spread(ptr),
+            entries: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }
