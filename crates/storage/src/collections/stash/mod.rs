@@ -53,7 +53,7 @@ where
 }
 
 /// Stores general commonly required information about the storage stash.
-#[derive(Debug, scale::Encode, scale::Decode)]
+#[derive(Debug, Default, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 struct Header {
     /// The latest vacant index.

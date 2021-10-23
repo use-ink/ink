@@ -35,16 +35,6 @@ where
     }
 }
 
-impl Default for Header {
-    fn default() -> Self {
-        Self {
-            last_vacant: 0,
-            len: 0,
-            len_entries: 0,
-        }
-    }
-}
-
 impl<T> Default for StorageStash<T>
 where
     T: PackedLayout,
