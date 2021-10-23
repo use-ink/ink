@@ -85,7 +85,7 @@ mod erc20 {
         fn new_init(&mut self, initial_supply: Balance) {
             let caller = Self::env().caller();
             self.balances.insert(&caller, &initial_supply);
-            *self.total_supply = initial_supply;
+            Lazy::set(&mut self.total_supply, initial_supply);
             Self::env().emit_event(Transfer {
                 from: None,
                 to: Some(caller),
