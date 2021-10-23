@@ -72,6 +72,19 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -90,6 +103,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
     <span class="ident">KeyPtr</span>,
     <span class="ident">PackedLayout</span>,
+    <span class="ident">SpreadAllocate</span>,
     <span class="ident">SpreadLayout</span>,
 };
 
@@ -144,6 +158,18 @@
         <span class="self">self</span>.<span class="ident">clear_cells</span>();
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">elems</span>, <span class="ident">ptr</span>);
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">SmallVec</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
+{
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">len</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+            <span class="ident">elems</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+        }
     }
 }
 </code></pre></div>

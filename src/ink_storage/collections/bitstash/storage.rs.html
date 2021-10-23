@@ -101,6 +101,16 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -130,6 +140,7 @@
         <span class="ident">forward_push_packed</span>,
         <span class="ident">KeyPtr</span>,
         <span class="ident">PackedLayout</span>,
+        <span class="ident">SpreadAllocate</span>,
         <span class="ident">SpreadLayout</span>,
     },
 };
@@ -202,6 +213,15 @@
     <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">free</span>, <span class="ident">ptr</span>);
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">BitStash</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">counts</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+            <span class="ident">free</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+        }
     }
 }
 </code></pre></div>

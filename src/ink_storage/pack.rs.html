@@ -523,6 +523,36 @@
 <span id="523">523</span>
 <span id="524">524</span>
 <span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -543,7 +573,9 @@
     <span class="ident">forward_pull_packed</span>,
     <span class="ident">forward_push_packed</span>,
     <span class="ident">KeyPtr</span>,
+    <span class="ident">PackedAllocate</span>,
     <span class="ident">PackedLayout</span>,
+    <span class="ident">SpreadAllocate</span>,
     <span class="ident">SpreadLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">ink_prelude::vec::Vec</span>;
@@ -619,14 +651,21 @@
     <span class="kw">fn</span> <span class="ident">using_encoded</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">R</span> {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::using_encoded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">f</span>)
     }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">encoded_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::encoded_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>)
+    }
 }
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale::EncodeLike</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">scale::Encode</span> <span class="op">+</span> <span class="ident">PackedLayout</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">scale::Decode</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">scale::Decode</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
 {
     <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>)<span class="question-mark">?</span>))
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="ident">input</span>).<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::new</span>)
     }
 }
 
@@ -707,6 +746,18 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedLayout</span> <span class="op">+</span> <span class="ident">Default</span>,
+{
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">inner</span>: <span class="ident">T::default</span>(),
+            <span class="ident">key</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">ptr</span>.<span class="ident">key</span>()),
+        }
+    }
+}
+
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PackedLayout</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
@@ -719,6 +770,15 @@
     }
     <span class="kw">fn</span> <span class="ident">clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::clear_packed</span>(<span class="ident"><span class="self">Self</span>::as_inner</span>(<span class="self">self</span>), <span class="ident">at</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PackedAllocate</span> <span class="kw">for</span> <span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Default</span>,
+{
+    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_packed</span>(<span class="ident"><span class="self">Self</span>::as_inner_mut</span>(<span class="self">self</span>), <span class="ident">at</span>)
     }
 }
 

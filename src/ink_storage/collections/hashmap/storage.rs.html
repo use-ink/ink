@@ -137,6 +137,22 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -165,6 +181,7 @@
         <span class="ident">forward_push_packed</span>,
         <span class="ident">KeyPtr</span>,
         <span class="ident">PackedLayout</span>,
+        <span class="ident">SpreadAllocate</span>,
         <span class="ident">SpreadLayout</span>,
     },
 };
@@ -274,6 +291,21 @@
         <span class="self">self</span>.<span class="ident">clear_cells</span>();
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">keys</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>, <span class="ident">ptr</span>);
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">StorageHashMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span>, <span class="ident">H</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
+    <span class="ident">V</span>: <span class="ident">PackedLayout</span>,
+    <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
+    <span class="ident">Key</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span><span class="op">&gt;</span>,
+{
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">keys</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+            <span class="ident">values</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
+        }
     }
 }
 </code></pre></div>

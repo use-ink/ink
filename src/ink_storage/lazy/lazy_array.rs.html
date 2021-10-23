@@ -868,6 +868,18 @@
 <span id="868">868</span>
 <span id="869">869</span>
 <span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -893,6 +905,7 @@
     <span class="ident">ExtKeyPtr</span>,
     <span class="ident">KeyPtr</span>,
     <span class="ident">PackedLayout</span>,
+    <span class="ident">SpreadAllocate</span>,
     <span class="ident">SpreadLayout</span>,
 };
 <span class="kw">use</span> <span class="ident">core</span>::{
@@ -1245,6 +1258,7 @@
 {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">N</span> <span class="kw">as</span> <span class="ident">u64</span>;
 
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
     }
@@ -1266,6 +1280,16 @@
         <span class="comment">// they generally are not aware of their entire set of associated</span>
         <span class="comment">// elements. The high-level abstractions that build upon them are</span>
         <span class="comment">// responsible for cleaning up.</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">LazyArray</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">N</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedLayout</span>,
+{
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::lazy</span>(<span class="kw-2">*</span><span class="ident">ExtKeyPtr::next_for</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>))
     }
 }
 

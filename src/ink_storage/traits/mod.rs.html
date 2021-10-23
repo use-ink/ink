@@ -183,6 +183,50 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -231,6 +275,7 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">impls</span>::{
+        <span class="ident">forward_allocate_packed</span>,
         <span class="ident">forward_clear_packed</span>,
         <span class="ident">forward_pull_packed</span>,
         <span class="ident">forward_push_packed</span>,
@@ -239,18 +284,22 @@
         <span class="ident">ExtKeyPtr</span>,
         <span class="ident">KeyPtr</span>,
     },
-    <span class="ident">packed::PackedLayout</span>,
+    <span class="ident">packed</span>::{
+        <span class="ident">PackedAllocate</span>,
+        <span class="ident">PackedLayout</span>,
+    },
     <span class="ident">spread</span>::{
+        <span class="ident">SpreadAllocate</span>,
         <span class="ident">SpreadLayout</span>,
         <span class="ident">FOOTPRINT_CLEANUP_THRESHOLD</span>,
     },
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">::ink_storage_derive</span>::{
+<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_storage_derive</span>::{
     <span class="ident">PackedLayout</span>,
     <span class="ident">SpreadLayout</span>,
     <span class="ident">StorageLayout</span>,
 };
-<span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// Pulls an instance of type `T` from the contract storage using spread layout.</span>
 <span class="doccomment">///</span>
@@ -269,6 +318,25 @@
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
+}
+
+<span class="doccomment">/// Pulls an instance of type `T` from the contract storage using spread layout.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The root key denotes the offset into the contract storage where the</span>
+<span class="doccomment">/// instance of type `T` is being pulled from.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The routine assumes that the instance has previously been stored to</span>
+<span class="doccomment">///   the contract storage using spread layout.</span>
+<span class="doccomment">/// - Users should prefer using this function directly instead of using the</span>
+<span class="doccomment">///   trait method on [`SpreadAllocate`].</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">allocate_spread_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">T</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">SpreadAllocate</span>,
+{
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
 }
 
 <span class="doccomment">/// Clears the entity from the contract storage using spread layout.</span>
@@ -328,6 +396,26 @@
         .<span class="ident">expect</span>(<span class="string">&quot;could not properly decode storage entry&quot;</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;storage entry was empty&quot;</span>);
     <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="ident">entity</span>
+}
+
+<span class="doccomment">/// Allocates an instance of type `T` to the contract storage using packed layout.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The root key denotes the offset into the contract storage where the</span>
+<span class="doccomment">/// instance of type `T` is being allocated to.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Note</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// - The routine assumes that the instance has previously been stored to</span>
+<span class="doccomment">///   the contract storage using packed layout.</span>
+<span class="doccomment">/// - Users should prefer using this function directly instead of using the</span>
+<span class="doccomment">///   trait method on [`PackedAllocate`].</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">allocate_packed_root</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) -&gt; <span class="ident">T</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Default</span>,
+{
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>();
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
     <span class="ident">entity</span>
 }
 
