@@ -70,10 +70,8 @@ where
     #[inline]
     pub fn insert<Q, R>(&mut self, key: &Q, value: &R)
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
-        V: core::borrow::Borrow<R>,
-        R: PackedLayout,
+        Q: scale::EncodeLike<K>,
+        R: scale::EncodeLike<V> + PackedLayout,
     {
         push_packed_root(value, &self.storage_key(key));
     }
@@ -84,8 +82,7 @@ where
     #[inline]
     pub fn get<Q>(&self, key: &Q) -> Option<V>
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
         pull_packed_root_opt(&self.storage_key(key))
     }
@@ -96,8 +93,7 @@ where
     /// and the user provided `key`.
     fn storage_key<Q>(&self, key: &Q) -> Key
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
         let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
