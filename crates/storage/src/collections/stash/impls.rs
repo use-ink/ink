@@ -15,7 +15,6 @@
 //! Implementation of generic traits that are useful for the storage stash.
 
 use super::{
-    Header,
     Iter,
     IterMut,
     Stash as StorageStash,
