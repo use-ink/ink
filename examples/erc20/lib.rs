@@ -76,20 +76,6 @@ mod erc20 {
             let mut instance = Self::allocate_spread(&mut key_ptr);
             instance.new_init(initial_supply);
             instance
-            // let caller = Self::env().caller();
-            // let mut balances = Mapping::new([1u8; 32].into());
-            // balances.insert(&caller, &initial_supply);
-            // let instance = Self {
-            //     total_supply: Lazy::new(initial_supply),
-            //     balances,
-            //     allowances: Mapping::new([1u8; 32].into()),
-            // };
-            // Self::env().emit_event(Transfer {
-            //     from: None,
-            //     to: Some(caller),
-            //     value: initial_supply,
-            // });
-            // instance
         }
 
         fn new_init(&mut self, initial_supply: Balance) {
