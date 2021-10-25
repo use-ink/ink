@@ -70,6 +70,16 @@ scale-info = { version = "1.0", default-features = false, features = ["derive"],
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
 ```
 
+### New metadata format
+
+There are breaking changes to the metadata format in this release. 
+
+- Removes top level `metadataVersion` field from the contract metadata (https://github.com/paritytech/cargo-contract/pull/342/files).
+- Introduces new top level versioned metadata [enum](https://github.com/paritytech/ink/blob/master/crates/metadata/src/lib.rs#L68). 
+- Upgrades to `scale-info` version `1.0` (https://github.com/paritytech/ink/pull/845). 
+  - The previous supported version was `0.6`, so check release notes for all changes since then: https://github.com/paritytech/ink/pull/845
+  - One of the main changes to be aware of is the change to 0 based type lookup ids: https://github.com/paritytech/scale-info/pull/90
+
 ## Added
 - Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Added new utility proc. macros to `ink_lang` crate - [#947](https://github.com/paritytech/ink/pull/947):
