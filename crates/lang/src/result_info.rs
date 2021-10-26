@@ -96,6 +96,27 @@ mod tests {
     }
 
     #[test]
+    fn is_result_type_works_for_generic() {
+        #[allow(dead_code)]
+        fn execute_message<Output, F>(
+            f: F,
+        ) -> Output
+            where
+                F: FnOnce() -> Output,
+        {
+            assert!(is_result_type!(Output));
+            f()
+        }
+
+        // Check that type aliases work, too.
+        type MyResult = Result<(), ()>;
+        assert!(is_result_type!(MyResult));
+        assert!(execute_message(|| -> MyResult {
+            Ok(())
+        }).is_ok());
+    }
+
+    #[test]
     fn is_result_err_works() {
         assert!(!is_result_err!(true));
         assert!(!is_result_err!(42));
