@@ -12,53 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub struct IsResultType<T> {
-    marker: core::marker::PhantomData<fn() -> T>,
+pub trait IsResult {
+    fn is_result() -> bool;
 }
 
-impl<T, E> IsResultType<::core::result::Result<T, E>> {
-    // We need to allow for dead code at this point because
-    // the Rust compiler thinks this function is unused even
-    // though it acts as the specialized case for detection.
-    #[allow(dead_code)]
-    pub const VALUE: bool = true;
+impl<T> IsResult for T {
+    default fn is_result() -> bool {
+        false
+    }
 }
 
-pub trait IsResultTypeFallback {
-    const VALUE: bool = false;
+impl<T, E> IsResult for ::core::result::Result<T, E> {
+    default fn is_result() -> bool {
+        true
+    }
 }
-impl<T> IsResultTypeFallback for IsResultType<T> {}
 
 /// Returns `true` if the given type is a `Result` type.
 macro_rules! is_result_type {
     ( $T:ty $(,)? ) => {{
         #[allow(unused_imports)]
-        use $crate::result_info::IsResultTypeFallback as _;
+        use $crate::result_info::IsResult as _;
 
-        $crate::result_info::IsResultType::<$T>::VALUE
+        <$T as $crate::result_info::IsResult>::is_result()
     }};
 }
 
-pub struct IsResultErr<'lt, T>(pub &'lt T);
-
-impl<T, E> IsResultErr<'_, ::core::result::Result<T, E>> {
-    #[inline(always)]
-    // We need to allow for dead code at this point because
-    // the Rust compiler thinks this function is unused even
-    // though it acts as the specialized case for detection.
-    #[allow(dead_code)]
-    pub fn value(&self) -> bool {
-        self.0.is_err()
-    }
+pub trait IsError {
+    fn is_err(&self) -> bool;
 }
 
-pub trait IsResultErrFallback {
-    #[inline(always)]
-    fn value(&self) -> bool {
+impl<T> IsError for T {
+    default fn is_err(&self) -> bool {
         false
     }
 }
-impl<T> IsResultErrFallback for IsResultErr<'_, T> {}
+
+impl<T, E> IsError for ::core::result::Result<T, E> {
+    default fn is_err(&self) -> bool {
+        self.is_err()
+    }
+}
 
 /// Evaluates to `true` if the given expression is a `Result::Err(_)`.
 ///
@@ -68,8 +62,8 @@ impl<T> IsResultErrFallback for IsResultErr<'_, T> {}
 macro_rules! is_result_err {
     ( $e:expr $(,)? ) => {{
         #[allow(unused_imports)]
-        use $crate::result_info::IsResultErrFallback as _;
-        $crate::result_info::IsResultErr(&$e).value()
+        use $crate::result_info::IsError as _;
+        $crate::result_info::IsError::is_err(&$e)
     }};
 }
 
@@ -97,23 +91,33 @@ mod tests {
 
     #[test]
     fn is_result_type_works_for_generic() {
-        #[allow(dead_code)]
-        fn execute_message<Output, F>(
-            f: F,
-        ) -> Output
-            where
-                F: FnOnce() -> Output,
+        type MyResult = Result<(), ()>;
+
+        fn execute_message<Output, F>(f: F) -> Output
+        where
+            F: FnOnce() -> Output,
         {
             assert!(is_result_type!(Output));
             f()
         }
 
-        // Check that type aliases work, too.
+        assert!(execute_message(|| -> MyResult { Ok(()) }).is_ok());
+    }
+
+    #[test]
+    fn is_result_err_works_for_generic() {
         type MyResult = Result<(), ()>;
-        assert!(is_result_type!(MyResult));
-        assert!(execute_message(|| -> MyResult {
-            Ok(())
-        }).is_ok());
+
+        fn execute_message<Output, F>(f: F) -> Output
+        where
+            F: FnOnce() -> Output,
+        {
+            let result = f();
+            assert!(is_result_err!(result));
+            result
+        }
+
+        assert!(execute_message(|| -> MyResult { Err(()) }).is_err());
     }
 
     #[test]
