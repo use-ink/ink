@@ -88,7 +88,7 @@ pub fn execute_constructor<S, F>(
     f: F,
 ) -> Result<(), DispatchError>
 where
-    S: ink_storage::traits::SpreadLayout,
+    S: SpreadLayout,
     F: FnOnce() -> S,
 {
     if config.dynamic_storage_alloc {
