@@ -257,7 +257,7 @@ then the format trait used is the <a href="trait.Display.html" title="Display"><
 <p>When implementing a format trait for your own type, you will have to
 implement a method of the signature:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {</code></pre></div>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {</code></pre></div>
 <p>Your type will be passed as <code>self</code> by-reference, and then the function
 should emit output into the <code>f.buf</code> stream. It is up to each format trait
 implementation to correctly adhere to the requested formatting parameters.
@@ -286,7 +286,7 @@ like:</p>
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Vector2D</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="comment">// The `f` value implements the `Write` trait, which is what the</span>
         <span class="comment">// write! macro is expecting. Note that this formatting ignores the</span>
         <span class="comment">// various flags provided to format strings.</span>
@@ -297,7 +297,7 @@ like:</p>
 <span class="comment">// Different traits allow different forms of output of a type. The meaning</span>
 <span class="comment">// of this format is to print the magnitude of a vector.</span>
 <span class="kw">impl</span> <span class="ident">fmt::Binary</span> <span class="kw">for</span> <span class="ident">Vector2D</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">magnitude</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">y</span>) <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="kw">let</span> <span class="ident">magnitude</span> <span class="op">=</span> <span class="ident">magnitude</span>.<span class="ident">sqrt</span>();
 
@@ -355,7 +355,7 @@ function is actually invoking the <a href="../../std/io/trait.Write.html#method.
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">w</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-<span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">w</span>, <span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>);</code></pre></div>
+<span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">w</span>, <span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>);</code></pre></div>
 <h4 id="print" class="section-header"><a href="#print"><code>print!</code></a></h4>
 <p>This and <a href="../../std/macro.println.html" title="println!"><code>println!</code></a> emit their output to stdout. Similarly to the <a href="https://doc.rust-lang.org/nightly/core/macro.write.html" title="write!"><code>write!</code></a>
 macro, the goal of these macros is to avoid intermediate allocations when
@@ -379,10 +379,10 @@ off, some example usage is:</p>
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">some_writer</span> <span class="op">=</span> <span class="ident">io::stdout</span>();
-<span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">some_writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="macro">format_args!</span>(<span class="string">&quot;print with a {}&quot;</span>, <span class="string">&quot;macro&quot;</span>));
+<span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">some_writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="macro">format_args!</span>(<span class="string">&quot;print with a {}&quot;</span>, <span class="string">&quot;macro&quot;</span>));
 
 <span class="kw">fn</span> <span class="ident">my_fmt_fn</span>(<span class="ident">args</span>: <span class="ident">fmt::Arguments</span>) {
-    <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">io::stdout</span>(), <span class="string">&quot;{}&quot;</span>, <span class="ident">args</span>);
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">io::stdout</span>(), <span class="string">&quot;{}&quot;</span>, <span class="ident">args</span>);
 }
 <span class="ident">my_fmt_fn</span>(<span class="macro">format_args!</span>(<span class="string">&quot;, or a {} too&quot;</span>, <span class="string">&quot;function&quot;</span>));</code></pre></div>
 <p>The result of the <a href="https://doc.rust-lang.org/nightly/core/macro.format_args.html" title="format_args!"><code>format_args!</code></a> macro is a value of type <a href="struct.Arguments.html" title="fmt::Arguments"><code>fmt::Arguments</code></a>.

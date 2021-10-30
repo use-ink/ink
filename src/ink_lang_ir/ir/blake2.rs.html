@@ -100,7 +100,7 @@
 <span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span> <span class="kw">as</span> <span class="kw">_</span>;
 
 <span class="doccomment">/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
     <span class="kw">use</span> <span class="ident">::blake2::digest</span>::{
         <span class="ident">Update</span> <span class="kw">as</span> <span class="kw">_</span>,
         <span class="ident">VariableOutput</span> <span class="kw">as</span> <span class="kw">_</span>,
@@ -157,7 +157,7 @@
             }
         };
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">32</span>];
-        <span class="ident">blake2b_256</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
+        <span class="ident">blake2b_256</span>(<span class="kw-2">&amp;</span><span class="ident">input_bytes</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output</span>);
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">hash</span>: <span class="ident">output</span>,
             <span class="ident">input</span>: <span class="ident">lit</span>,

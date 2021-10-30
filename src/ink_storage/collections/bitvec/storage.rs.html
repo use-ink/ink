@@ -154,7 +154,7 @@
     };
 
     <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="ident">StorageBitvec</span> {
-        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
             <span class="ident">Layout::Struct</span>(<span class="ident">StructLayout::new</span>([
                 <span class="ident">FieldLayout::new</span>(<span class="string">&quot;len&quot;</span>, <span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>)),
                 <span class="ident">FieldLayout::new</span>(
@@ -170,21 +170,21 @@
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_push_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_clear_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">PackedLayout</span> <span class="kw">for</span> <span class="ident">Bits256</span> {
-    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {}
+    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {}
     <span class="kw">fn</span> <span class="ident">push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {}
     <span class="kw">fn</span> <span class="ident">clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {}
 }
@@ -192,26 +192,26 @@
 <span class="kw">impl</span> <span class="ident">SpreadLayout</span> <span class="kw">for</span> <span class="ident">StorageBitvec</span> {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">Pack</span><span class="op">&lt;</span><span class="ident">Bits256</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">len</span>: <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>),
             <span class="ident">bits</span>: <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bits</span>, <span class="ident">ptr</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bits</span>, <span class="ident">ptr</span>);
     }
 }
 
 <span class="kw">impl</span> <span class="ident">SpreadAllocate</span> <span class="kw">for</span> <span class="ident">StorageBitvec</span> {
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">len</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
             <span class="ident">bits</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),

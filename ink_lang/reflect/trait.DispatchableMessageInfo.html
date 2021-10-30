@@ -29,7 +29,7 @@ chosen or derived selector of the dispatchable ink! message.</p>
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {}
 
         <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="number">0xC0DECAFE</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message2</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>) -&gt; (<span class="ident">bool</span>, <span class="ident">i32</span>) {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">message2</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>) -&gt; (<span class="ident">bool</span>, <span class="ident">i32</span>) {
             <span class="macro">unimplemented!</span>()
         }
     }

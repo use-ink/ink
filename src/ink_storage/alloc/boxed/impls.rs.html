@@ -166,7 +166,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="ident">clear_spread_root</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">allocation</span>.<span class="ident">key</span>());
         <span class="ident"><span class="kw">crate</span>::alloc::free</span>(<span class="self">self</span>.<span class="ident">allocation</span>);
     }
@@ -217,7 +217,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">core::fmt::Display</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">core::fmt::Display::fmt</span>(<span class="ident">StorageBox::get</span>(<span class="self">self</span>), <span class="ident">f</span>)
     }
 }
@@ -226,7 +226,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">core::hash::Hash</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">core::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">core::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
         <span class="ident">StorageBox::get</span>(<span class="self">self</span>).<span class="ident">hash</span>(<span class="ident">state</span>)
     }
 }
@@ -244,7 +244,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="ident">StorageBox::get_mut</span>(<span class="self">self</span>)
     }
 }
@@ -262,7 +262,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="ident">StorageBox::get_mut</span>(<span class="self">self</span>)
     }
 }
@@ -282,7 +282,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="ident">StorageBox::get_mut</span>(<span class="self">self</span>)
     }
 }

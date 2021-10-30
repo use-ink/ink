@@ -88,7 +88,7 @@
     <span class="doccomment">/// Most types will have to implement a trivial forwarding to their fields.</span>
     <span class="doccomment">/// However, some types such as [`storage::Box`](`crate::Box`)</span>
     <span class="doccomment">/// are required to perform some special handling upon receiving this signal.</span>
-    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>);
+    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>);
 }
 
 <span class="doccomment">/// Types that can be stored to and loaded from a single contract storage cell.</span>
@@ -100,7 +100,7 @@
     <span class="doccomment">/// Most types will have to implement a trivial forwarding to their fields.</span>
     <span class="doccomment">/// However, some types such as [`storage::Box`](`crate::Box`)</span>
     <span class="doccomment">/// are required to perform some special handling upon receiving this signal.</span>
-    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>);
+    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>);
 
     <span class="doccomment">/// Indicates to `self` that it is about to be pushed to contract storage.</span>
     <span class="doccomment">///</span>

@@ -28,7 +28,7 @@ this operation, <code>other</code> becomes empty.</p>
 <span class="ident">list2</span>.<span class="ident">push_back</span>(<span class="string">&#39;b&#39;</span>);
 <span class="ident">list2</span>.<span class="ident">push_back</span>(<span class="string">&#39;c&#39;</span>);
 
-<span class="ident">list1</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">list2</span>);
+<span class="ident">list1</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">list2</span>);
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">list1</span>.<span class="ident">iter</span>();
 <span class="macro">assert_eq!</span>(<span class="ident">iter</span>.<span class="ident">next</span>(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&#39;a&#39;</span>));

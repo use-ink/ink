@@ -16,8 +16,8 @@ example, here is a struct <code>Slice</code> that has two pointers of type <code
 presumably pointing into an array somewhere:</p>
 
 <div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="kw">struct</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>,
-    <span class="ident">end</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>,
+    <span class="ident">start</span>: <span class="kw-2">*const</span> <span class="ident">T</span>,
+    <span class="ident">end</span>: <span class="kw-2">*const</span> <span class="ident">T</span>,
 }</code></pre></div>
 <p>The intention is that the underlying data is only valid for the
 lifetime <code>'a</code>, so <code>Slice</code> should not outlive <code>'a</code>. However, this
@@ -29,8 +29,8 @@ to. We can correct this by telling the compiler to act <em>as if</em> the
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 
 <span class="kw">struct</span> <span class="ident">Slice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">start</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>,
-    <span class="ident">end</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span>,
+    <span class="ident">start</span>: <span class="kw-2">*const</span> <span class="ident">T</span>,
+    <span class="ident">end</span>: <span class="kw-2">*const</span> <span class="ident">T</span>,
     <span class="ident">phantom</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span>,
 }</code></pre></div>
 <p>This also in turn requires the annotation <code>T: 'a</code>, indicating
@@ -59,7 +59,7 @@ the struct <code>ExternalResource</code> which wraps a handle.</p>
 <span class="kw">use</span> <span class="ident">std::mem</span>;
 
 <span class="kw">struct</span> <span class="ident">ExternalResource</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
-   <span class="ident">resource_handle</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> (),
+   <span class="ident">resource_handle</span>: <span class="kw-2">*mut</span> (),
    <span class="ident">resource_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>,
 }
 

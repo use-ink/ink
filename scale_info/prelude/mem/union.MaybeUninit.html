@@ -72,7 +72,7 @@ unnecessary moves.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">make_vec</span>(<span class="ident">out</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) {
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">make_vec</span>(<span class="ident">out</span>: <span class="kw-2">*mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>) {
     <span class="comment">// `write` does not drop the old contents, which is important.</span>
     <span class="ident">out</span>.<span class="ident">write</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
 }
@@ -101,7 +101,7 @@ unnecessary moves.</p>
     <span class="comment">// uninitialized value to be dropped. Also if there is a panic during</span>
     <span class="comment">// this loop, we have a memory leak, but there is no memory safety</span>
     <span class="comment">// issue.</span>
-    <span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>[..] {
+    <span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">data</span>[..] {
         <span class="ident">elem</span>.<span class="ident">write</span>(<span class="macro">vec!</span>[<span class="number">42</span>]);
     }
 
@@ -124,13 +124,13 @@ be found in low-level datastructures.</p>
 <span class="comment">// Count the number of elements we have assigned.</span>
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_len</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">0</span>;
 
-<span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>[<span class="number">0</span>..<span class="number">500</span>] {
+<span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">data</span>[<span class="number">0</span>..<span class="number">500</span>] {
     <span class="ident">elem</span>.<span class="ident">write</span>(<span class="ident">String::from</span>(<span class="string">&quot;hello&quot;</span>));
     <span class="ident">data_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 }
 
 <span class="comment">// For each item in the array, drop if we allocated it.</span>
-<span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>[<span class="number">0</span>..<span class="ident">data_len</span>] {
+<span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">data</span>[<span class="number">0</span>..<span class="ident">data_len</span>] {
     <span class="kw">unsafe</span> { <span class="ident">ptr::drop_in_place</span>(<span class="ident">elem</span>.<span class="ident">as_mut_ptr</span>()); }
 }</code></pre></div>
 <h3 id="initializing-a-struct-field-by-field" class="section-header"><a href="#initializing-a-struct-field-by-field">Initializing a struct field-by-field</a></h3>
@@ -221,19 +221,19 @@ The example below could then use <code>let mut buf = [const { MaybeUninit::&lt;u
 <span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
-    <span class="kw">fn</span> <span class="ident">read_into_buffer</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">max_len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span>;
+    <span class="kw">fn</span> <span class="ident">read_into_buffer</span>(<span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">max_len</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span>;
 }
 
 <span class="doccomment">/// Returns a (possibly smaller) slice of data that was actually read</span>
-<span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>]) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
+<span class="kw">fn</span> <span class="ident">read</span>(<span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>]) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] {
     <span class="kw">unsafe</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">read_into_buffer</span>(<span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">read_into_buffer</span>(<span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="ident">buf</span>.<span class="ident">len</span>());
         <span class="ident">MaybeUninit::slice_assume_init_ref</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[..<span class="ident">len</span>])
     }
 }
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: [<span class="ident">MaybeUninit</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>; <span class="number">32</span>] <span class="op">=</span> <span class="ident">MaybeUninit::uninit_array</span>();
-<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">read</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>);</code></pre></div>
+<span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">read</span>(<span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);</code></pre></div>
 </div></details><details class="rustdoc-toggle method-toggle" open><summary><div id="method.zeroed" class="method has-srclink"><div class="rightside"><a class="srclink" href="https://doc.rust-lang.org/nightly/src/core/mem/maybe_uninit.rs.html#400" title="goto source code">[src]</a></div><a href="#method.zeroed" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.zeroed" class="fnname">zeroed</a>() -&gt; <a class="union" href="union.MaybeUninit.html" title="union scale_info::prelude::mem::MaybeUninit">MaybeUninit</a>&lt;T&gt;</h4></div></summary><div class="docblock"><p>Creates a new <code>MaybeUninit&lt;T&gt;</code> in an uninitialized state, with the memory being
 filled with <code>0</code> bytes. It depends on <code>T</code> whether that already makes for
 proper initialization. For example, <code>MaybeUninit&lt;usize&gt;::zeroed()</code> is initialized,
@@ -318,7 +318,7 @@ With <code>write</code>, we can avoid the need to write through a raw pointer:</
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">memory</span>.<span class="ident">len</span>()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">capacity</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;Attempted to push to a full pin arena!&quot;</span>);
         }
@@ -361,7 +361,7 @@ into a reference is undefined behavior unless the <code>MaybeUninit&lt;T&gt;</co
 <span class="ident">x</span>.<span class="ident">write</span>(<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>]);
 <span class="comment">// Create a reference into the `MaybeUninit&lt;Vec&lt;u32&gt;&gt;`.</span>
 <span class="comment">// This is okay because we initialized it.</span>
-<span class="kw">let</span> <span class="ident">x_vec</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">x</span>.<span class="ident">as_mut_ptr</span>() };
+<span class="kw">let</span> <span class="ident">x_vec</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">x</span>.<span class="ident">as_mut_ptr</span>() };
 <span class="ident">x_vec</span>.<span class="ident">push</span>(<span class="number">3</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">x_vec</span>.<span class="ident">len</span>(), <span class="number">4</span>);</code></pre></div>
 <p><em>Incorrect</em> usage of this method:</p>
@@ -369,7 +369,7 @@ into a reference is undefined behavior unless the <code>MaybeUninit&lt;T&gt;</co
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem::MaybeUninit</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::uninit</span>();
-<span class="kw">let</span> <span class="ident">x_vec</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">x</span>.<span class="ident">as_mut_ptr</span>() };
+<span class="kw">let</span> <span class="ident">x_vec</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">x</span>.<span class="ident">as_mut_ptr</span>() };
 <span class="comment">// We have created a reference to an uninitialized vector! This is undefined behavior. ⚠️</span></code></pre></div>
 <p>(Notice that the rules around references to uninitialized data are not finalized yet, but
 until they are, it is advisable to avoid them.)</p>
@@ -515,7 +515,7 @@ initialize a <code>MaybeUninit</code>.</p>
 
 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
     <span class="doccomment">/// Initializes *all* the bytes of the input buffer.</span>
-    <span class="kw">fn</span> <span class="ident">initialize_buffer</span>(<span class="ident">buf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">1024</span>]);
+    <span class="kw">fn</span> <span class="ident">initialize_buffer</span>(<span class="ident">buf</span>: <span class="kw-2">*mut</span> [<span class="ident">u8</span>; <span class="number">1024</span>]);
 }
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">1024</span>]<span class="op">&gt;</span><span class="ident">::uninit</span>();
@@ -526,7 +526,7 @@ initialize a <code>MaybeUninit</code>.</p>
 <span class="comment">// However, using `.assume_init()` may trigger a `memcpy` of the 1024 bytes.</span>
 <span class="comment">// To assert our buffer has been initialized without copying it, we upgrade</span>
 <span class="comment">// the `&amp;mut MaybeUninit&lt;[u8; 1024]&gt;` to a `&amp;mut [u8; 1024]`:</span>
-<span class="kw">let</span> <span class="ident">buf</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">1024</span>] <span class="op">=</span> <span class="kw">unsafe</span> {
+<span class="kw">let</span> <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">1024</span>] <span class="op">=</span> <span class="kw">unsafe</span> {
     <span class="comment">// SAFETY: `buf` has been initialized.</span>
     <span class="ident">buf</span>.<span class="ident">assume_init_mut</span>()
 };
@@ -572,11 +572,11 @@ initialize a <code>MaybeUninit</code>.</p>
 
 <span class="kw">let</span> <span class="ident">foo</span>: <span class="ident">Foo</span> <span class="op">=</span> <span class="kw">unsafe</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">foo</span> <span class="op">=</span> <span class="ident">MaybeUninit</span>::<span class="op">&lt;</span><span class="ident">Foo</span><span class="op">&gt;</span><span class="ident">::uninit</span>();
-    <span class="ident">ptr::write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">foo</span>.<span class="ident">assume_init_mut</span>().<span class="ident">a</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u32</span>, <span class="number">1337</span>);
+    <span class="ident">ptr::write</span>(<span class="kw-2">&amp;mut</span> <span class="ident">foo</span>.<span class="ident">assume_init_mut</span>().<span class="ident">a</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u32</span>, <span class="number">1337</span>);
                  <span class="comment">// ^^^^^^^^^^^^^^^^^^^^^</span>
                  <span class="comment">// (mutable) reference to uninitialized memory!</span>
                  <span class="comment">// This is undefined behavior.</span>
-    <span class="ident">ptr::write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">foo</span>.<span class="ident">assume_init_mut</span>().<span class="ident">b</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">u8</span>, <span class="number">42</span>);
+    <span class="ident">ptr::write</span>(<span class="kw-2">&amp;mut</span> <span class="ident">foo</span>.<span class="ident">assume_init_mut</span>().<span class="ident">b</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">u8</span>, <span class="number">42</span>);
                  <span class="comment">// ^^^^^^^^^^^^^^^^^^^^^</span>
                  <span class="comment">// (mutable) reference to uninitialized memory!</span>
                  <span class="comment">// This is undefined behavior.</span>
@@ -628,7 +628,7 @@ Calling this when the content is not yet fully initialized causes undefined beha
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dst</span> <span class="op">=</span> [<span class="ident">MaybeUninit::uninit</span>(); <span class="number">32</span>];
 <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">32</span>];
 
-<span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">MaybeUninit::write_slice</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="kw-2">&amp;</span><span class="ident">src</span>);
+<span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">MaybeUninit::write_slice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dst</span>, <span class="kw-2">&amp;</span><span class="ident">src</span>);
 
 <span class="macro">assert_eq!</span>(<span class="ident">init</span>, <span class="ident">src</span>);</code></pre></div>
 
@@ -638,7 +638,7 @@ Calling this when the content is not yet fully initialized causes undefined beha
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">32</span>);
 <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">16</span>];
 
-<span class="ident">MaybeUninit::write_slice</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">vec</span>.<span class="ident">spare_capacity_mut</span>()[..<span class="ident">src</span>.<span class="ident">len</span>()], <span class="kw-2">&amp;</span><span class="ident">src</span>);
+<span class="ident">MaybeUninit::write_slice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">vec</span>.<span class="ident">spare_capacity_mut</span>()[..<span class="ident">src</span>.<span class="ident">len</span>()], <span class="kw-2">&amp;</span><span class="ident">src</span>);
 
 <span class="comment">// SAFETY: we have just copied all the elements of len into the spare capacity</span>
 <span class="comment">// the first src.len() elements of the vec are valid now.</span>
@@ -661,7 +661,7 @@ Any already initialized elements will not be dropped.</p>
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dst</span> <span class="op">=</span> [<span class="ident">MaybeUninit::uninit</span>(), <span class="ident">MaybeUninit::uninit</span>(), <span class="ident">MaybeUninit::uninit</span>(), <span class="ident">MaybeUninit::uninit</span>(), <span class="ident">MaybeUninit::uninit</span>()];
 <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> [<span class="string">&quot;wibbly&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;wobbly&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;timey&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;wimey&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;stuff&quot;</span>.<span class="ident">to_string</span>()];
 
-<span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">MaybeUninit::write_slice_cloned</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dst</span>, <span class="kw-2">&amp;</span><span class="ident">src</span>);
+<span class="kw">let</span> <span class="ident">init</span> <span class="op">=</span> <span class="ident">MaybeUninit::write_slice_cloned</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dst</span>, <span class="kw-2">&amp;</span><span class="ident">src</span>);
 
 <span class="macro">assert_eq!</span>(<span class="ident">init</span>, <span class="ident">src</span>);</code></pre></div>
 
@@ -671,7 +671,7 @@ Any already initialized elements will not be dropped.</p>
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">32</span>);
 <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> [<span class="string">&quot;rust&quot;</span>, <span class="string">&quot;is&quot;</span>, <span class="string">&quot;a&quot;</span>, <span class="string">&quot;pretty&quot;</span>, <span class="string">&quot;cool&quot;</span>, <span class="string">&quot;language&quot;</span>];
 
-<span class="ident">MaybeUninit::write_slice_cloned</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">vec</span>.<span class="ident">spare_capacity_mut</span>()[..<span class="ident">src</span>.<span class="ident">len</span>()], <span class="kw-2">&amp;</span><span class="ident">src</span>);
+<span class="ident">MaybeUninit::write_slice_cloned</span>(<span class="kw-2">&amp;mut</span> <span class="ident">vec</span>.<span class="ident">spare_capacity_mut</span>()[..<span class="ident">src</span>.<span class="ident">len</span>()], <span class="kw-2">&amp;</span><span class="ident">src</span>);
 
 <span class="comment">// SAFETY: we have just cloned all the elements of len into the spare capacity</span>
 <span class="comment">// the first src.len() elements of the vec are valid now.</span>

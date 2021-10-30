@@ -294,7 +294,7 @@
     }
 
     <span class="doccomment">/// Returns mutable access to a single bit if the index is out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BitRefMut</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -302,7 +302,7 @@
     }
 
     <span class="doccomment">/// Returns an iterator over mutable accessors to the valid bits of `self`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">Bits256BitsIterMut</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Bits256BitsIterMut</span> {
         <span class="self">self</span>.<span class="ident">bits</span>.<span class="ident">iter_mut</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="kw">as</span> <span class="ident">u16</span>)
     }
 }
@@ -319,8 +319,8 @@
         <span class="comment">//         that both `ChunkRef&lt;&amp;&#39;a mut Bits256&gt;` as well as</span>
         <span class="comment">//         `ChunkRef&lt;&amp;&#39;a Bits256&gt;` have the same internal layout</span>
         <span class="comment">//         and thus can be transmuted safely.</span>
-        <span class="kw">let</span> <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="self">Self</span> <span class="op">=</span> <span class="self">self</span>;
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident"><span class="self">Self</span>::Target</span>) }
+        <span class="kw">let</span> <span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="self">Self</span> <span class="op">=</span> <span class="self">self</span>;
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident"><span class="self">Self</span>::Target</span>) }
     }
 }
 
@@ -365,7 +365,7 @@
     <span class="kw">fn</span> <span class="ident">exclusive_works</span>() {
         <span class="kw">let</span> <span class="ident">len</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">100</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">populated_bits256</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bits</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bits</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">cref</span>.<span class="ident">len</span>(), <span class="ident">len</span> <span class="kw">as</span> <span class="ident">u32</span>);
         <span class="comment">// `get` and `get_mut` works:</span>
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len</span> {
@@ -387,7 +387,7 @@
     <span class="kw">fn</span> <span class="ident">position_first_zero_works</span>() {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">256</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zeros</span> <span class="op">=</span> <span class="ident">Default::default</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zeros</span>, <span class="ident">len</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;mut</span> <span class="ident">zeros</span>, <span class="ident">len</span>);
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">len</span> {
             <span class="macro">assert_eq!</span>(<span class="ident">cref</span>.<span class="ident">position_first_zero</span>(), <span class="prelude-val">Some</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>));
             <span class="ident">cref</span>.<span class="ident">get_mut</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>).<span class="ident">unwrap</span>().<span class="ident">set</span>();
@@ -400,7 +400,7 @@
     <span class="kw">fn</span> <span class="ident">iter_mut_works</span>() {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="number">100</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zeros</span> <span class="op">=</span> <span class="ident">Default::default</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">zeros</span>, <span class="ident">len</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cref</span> <span class="op">=</span> <span class="ident">ChunkRef::exclusive</span>(<span class="kw-2">&amp;mut</span> <span class="ident">zeros</span>, <span class="ident">len</span>);
         <span class="comment">// Initialize all bits with 0 and set them to 1 via `iter_mut`.</span>
         <span class="comment">// Then check if they are 1:</span>
         <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">byte</span> <span class="kw">in</span> <span class="ident">cref</span>.<span class="ident">iter_mut</span>() {

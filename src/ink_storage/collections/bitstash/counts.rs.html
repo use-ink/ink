@@ -153,8 +153,8 @@
 }
 
 <span class="kw">impl</span> <span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CountFree</span> {
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]
+    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Output</span> {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span> <span class="kw">as</span> <span class="ident">usize</span>]
     }
 }
 
@@ -170,12 +170,12 @@
     }
 
     <span class="doccomment">/// Sets the flag for the 256-bit chunk at the given index to `full`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_full</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_full</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">|</span><span class="op">=</span> <span class="number">1_u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">31</span> <span class="op">-</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span>);
     }
 
     <span class="doccomment">/// Resets the flag for the 256-bit chunk at the given index to not `full`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset_full</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset_full</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) {
         <span class="self">self</span>.<span class="number">0</span> <span class="op">&amp;=</span> <span class="op">!</span>(<span class="number">1_u32</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="number">31</span> <span class="op">-</span> <span class="ident">index</span> <span class="kw">as</span> <span class="ident">u32</span>));
     }
 }
@@ -198,7 +198,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the given index is out of bounds.</span>
     <span class="doccomment">/// - If the increment would cause an overflow.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inc</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) {
         <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="ident">index</span>] <span class="op">==</span> <span class="op">!</span><span class="number">0</span> {
             <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">set_full</span>(<span class="ident">index</span> <span class="kw">as</span> <span class="ident">u8</span>);
@@ -215,7 +215,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// - If the given index is out of bounds.</span>
     <span class="doccomment">/// - If the decrement would cause an overflow.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dec</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dec</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u8</span>) -&gt; <span class="ident">u8</span> {
         <span class="macro">assert!</span>(<span class="ident">index</span> <span class="op">&lt;</span> <span class="number">32</span>, <span class="string">&quot;index is out of bounds&quot;</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">is_full</span>(<span class="ident">index</span>) {
             <span class="self">self</span>.<span class="ident">full</span>.<span class="ident">reset_full</span>(<span class="ident">index</span>);

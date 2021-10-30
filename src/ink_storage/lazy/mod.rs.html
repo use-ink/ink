@@ -399,7 +399,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
     {
-        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+        <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
             <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>)
         }
     }
@@ -411,17 +411,17 @@
 {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">cell</span>: <span class="op">&lt;</span><span class="ident">LazyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="ident">ptr</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cell</span>, <span class="ident">ptr</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cell</span>, <span class="ident">ptr</span>)
     }
 }
@@ -430,7 +430,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">cell</span>: <span class="op">&lt;</span><span class="ident">LazyCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_spread</span>(<span class="ident">ptr</span>),
         }
@@ -486,7 +486,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If loading from contract storage failed.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="ident">lazy</span>.<span class="ident">cell</span>.<span class="ident">get_mut</span>().<span class="ident">expect</span>(<span class="string">&quot;encountered empty storage cell&quot;</span>)
     }
 
@@ -503,7 +503,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If accessing the inner value fails.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="ident">lazy</span>: <span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) {
         <span class="ident">lazy</span>.<span class="ident">cell</span>.<span class="ident">set</span>(<span class="ident">new_value</span>);
     }
 }
@@ -571,7 +571,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">core::fmt::Display</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="ident">core::fmt::Display::fmt</span>(<span class="ident">Lazy::get</span>(<span class="self">self</span>), <span class="ident">f</span>)
     }
 }
@@ -580,7 +580,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">core::hash::Hash</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">core::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">core::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
         <span class="ident">Lazy::get</span>(<span class="self">self</span>).<span class="ident">hash</span>(<span class="ident">state</span>);
     }
 }
@@ -598,7 +598,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="ident">Lazy::get_mut</span>(<span class="self">self</span>)
     }
 }
@@ -616,7 +616,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
+    <span class="kw">fn</span> <span class="ident">borrow_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">T</span> {
         <span class="ident">Lazy::get_mut</span>(<span class="self">self</span>)
     }
 }
@@ -636,7 +636,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Target</span> {
         <span class="ident">Lazy::get_mut</span>(<span class="self">self</span>)
     }
 }

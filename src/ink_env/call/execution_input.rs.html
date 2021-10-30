@@ -401,7 +401,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">scale::Encode</span><span class="op">&gt;</span><span class="ident">::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arg</span>, <span class="ident">output</span>)
     }
 }
@@ -413,7 +413,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {}
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {}
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> <span class="ident">scale::Encode</span> <span class="kw">for</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Argument</span><span class="op">&lt;</span><span class="ident">Head</span><span class="op">&gt;</span>, <span class="ident">Rest</span><span class="op">&gt;</span>
@@ -427,7 +427,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
         <span class="comment">// We reverse the order of encoding because we build up the list of</span>
         <span class="comment">// arguments in reverse order, too. This way we encode the arguments</span>
         <span class="comment">// in the same order in which they have been pushed to the argument list</span>
@@ -447,7 +447,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>) {
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>) {
         <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>, <span class="ident">output</span>);
         <span class="ident">scale::Encode::encode_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">args</span>, <span class="ident">output</span>);
     }
@@ -463,7 +463,7 @@
         <span class="kw">let</span> <span class="ident">exec_input</span> <span class="op">=</span> <span class="ident">ExecutionInput::new</span>(<span class="ident">selector</span>);
         <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">exec_input</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Selector</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Selector</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, <span class="ident">selector</span>);
     }
 
@@ -479,7 +479,7 @@
         <span class="kw">let</span> <span class="ident">empty_list</span> <span class="op">=</span> <span class="ident">ArgumentList::empty</span>().<span class="ident">push_arg</span>(<span class="kw-2">&amp;</span><span class="number">1i32</span>);
         <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
-        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, <span class="number">1i32</span>);
     }
 
@@ -492,7 +492,7 @@
         <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">empty_list</span>);
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">encoded</span>.<span class="ident">is_empty</span>());
         <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span>
-            <span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">bool</span>, [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
+            <span class="op">&lt;</span>(<span class="ident">i32</span>, <span class="ident">bool</span>, [<span class="ident">u8</span>; <span class="number">4</span>]) <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">encoded</span>[..]).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">decoded</span>, (<span class="number">42i32</span>, <span class="bool-val">true</span>, [<span class="number">0x66</span>; <span class="number">4</span>]));
     }
 }

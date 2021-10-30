@@ -307,7 +307,7 @@
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Item</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Ink</span>(<span class="ident">ink_item</span>) =&gt; <span class="ident">ink_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
             <span class="ident"><span class="self">Self</span>::Rust</span>(<span class="ident">rust_item</span>) =&gt; <span class="ident">rust_item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
@@ -425,7 +425,7 @@
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">InkItem</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Storage</span>(<span class="ident">storage</span>) =&gt; <span class="ident">storage</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),
             <span class="ident"><span class="self">Self</span>::Event</span>(<span class="ident">event</span>) =&gt; <span class="ident">event</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>),

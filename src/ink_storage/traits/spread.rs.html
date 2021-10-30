@@ -135,7 +135,7 @@
     <span class="doccomment">///   the instance is being allocated at.</span>
     <span class="doccomment">/// - Fields of `Self` are allocated in order and construct `Self` upon</span>
     <span class="doccomment">///   completion.</span>
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span>;
 }
 
 <span class="doccomment">/// Types that can be stored to and loaded from the contract storage.</span>
@@ -179,7 +179,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method of pulling is depth-first: Sub-types are pulled first and</span>
     <span class="doccomment">/// construct the super-type through this procedure.</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span>;
 
     <span class="doccomment">/// Pushes an instance of `Self` to the contract storage.</span>
     <span class="doccomment">///</span>
@@ -191,7 +191,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method of pushing is depth-first: Sub-types are pushed before</span>
     <span class="doccomment">/// their parent or super type.</span>
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>);
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>);
 
     <span class="doccomment">/// Clears an instance of `Self` from the contract storage.</span>
     <span class="doccomment">///</span>
@@ -204,7 +204,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method of clearing is depth-first: Sub-types are cleared before</span>
     <span class="doccomment">/// their parent or super type.</span>
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>);
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>);
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_storage" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

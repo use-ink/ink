@@ -401,13 +401,13 @@
 
 <span class="kw">impl</span> <span class="ident">AsMut</span><span class="op">&lt;</span>[<span class="ident">u8</span>; <span class="number">32</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span>
+    <span class="kw">fn</span> <span class="ident">as_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] {
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">write_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;0x&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>();
         <span class="kw">let</span> <span class="ident">len_bytes</span> <span class="op">=</span> <span class="ident">bytes</span>.<span class="ident">len</span>();
@@ -429,7 +429,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Key(&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
@@ -438,7 +438,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Key</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">write_bytes</span>(<span class="ident">f</span>)
     }
 }
@@ -453,7 +453,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">reinterpret_as_u64x4</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[<span class="ident">u64</span>; <span class="number">4</span>] {
         <span class="comment">// SAFETY: Conversion is only safe on little endian architectures.</span>
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*const</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
     }
 
     <span class="doccomment">/// Reinterprets the underlying bytes of the key as `&amp;mut [u64; 4]`.</span>
@@ -463,9 +463,9 @@
     <span class="doccomment">/// This is only safe to do on little-endian systems therefore</span>
     <span class="doccomment">/// this function is only enabled on these platforms.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">reinterpret_as_u64x4_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u64</span>; <span class="number">4</span>] {
+    <span class="kw">fn</span> <span class="ident">reinterpret_as_u64x4_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> [<span class="ident">u64</span>; <span class="number">4</span>] {
         <span class="comment">// SAFETY: Conversion is only safe on little endian architectures.</span>
-        <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
+        <span class="kw">unsafe</span> { <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">u8</span>; <span class="number">32</span>] <span class="kw">as</span> <span class="kw-2">*mut</span> [<span class="ident">u64</span>; <span class="number">4</span>]) }
     }
 }
 
@@ -476,7 +476,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">O</span>)
+    <span class="kw">fn</span> <span class="ident">encode_to</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">O</span>)
     <span class="kw">where</span>
         <span class="ident">O</span>: <span class="ident">scale::Output</span> <span class="op">+</span> <span class="question-mark">?</span><span class="ident">Sized</span>,
     {
@@ -501,7 +501,7 @@
 
 <span class="kw">impl</span> <span class="ident">scale::Decode</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">scale::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">scale::Input</span>,
     {
@@ -541,7 +541,7 @@
     <span class="doccomment">/// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`</span>
     <span class="doccomment">/// it is more efficient to work on chunks of `u8` represented as `u64`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_u64_le</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_le</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
         <span class="kw">let</span> <span class="ident">words</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinterpret_as_u64x4_mut</span>();
         <span class="kw">let</span> (<span class="ident">res0</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">0</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs</span>);
         <span class="kw">let</span> (<span class="ident">res1</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">words</span>[<span class="number">1</span>].<span class="ident">overflowing_add</span>(<span class="ident">ovfl</span> <span class="kw">as</span> <span class="ident">u64</span>);
@@ -565,7 +565,7 @@
     <span class="doccomment">/// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`</span>
     <span class="doccomment">/// it is more efficient to work on chunks of `u8` represented as `u64`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_u64_le_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_le_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Key</span>) {
         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinterpret_as_u64x4</span>();
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">reinterpret_as_u64x4_mut</span>();
         <span class="kw">let</span> (<span class="ident">res0</span>, <span class="ident">ovfl</span>) <span class="op">=</span> <span class="ident">input</span>[<span class="number">0</span>].<span class="ident">overflowing_add</span>(<span class="ident">rhs</span>);
@@ -585,7 +585,7 @@
     <span class="doccomment">/// This is a fallback implementation that has not been optimized for any</span>
     <span class="doccomment">/// specific target platform or endianness.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_u64_be</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_be</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
         <span class="kw">let</span> <span class="ident">rhs_bytes</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">to_be_bytes</span>();
         <span class="kw">let</span> <span class="ident">lhs_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>();
         <span class="kw">let</span> <span class="ident">len_rhs</span> <span class="op">=</span> <span class="ident">rhs_bytes</span>.<span class="ident">len</span>();
@@ -614,7 +614,7 @@
     <span class="doccomment">/// This is a fallback implementation that has not been optimized for any</span>
     <span class="doccomment">/// specific target platform or endianness.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;big&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign_u64_be_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign_u64_be_using</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>, <span class="ident">result</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Key</span>) {
         <span class="kw">let</span> <span class="ident">rhs_bytes</span> <span class="op">=</span> <span class="ident">rhs</span>.<span class="ident">to_be_bytes</span>();
         <span class="kw">let</span> <span class="ident">lhs_bytes</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_ref</span>();
         <span class="kw">let</span> <span class="ident">result_bytes</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">as_mut</span>();
@@ -642,7 +642,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will overwrite the contents of the `result` key.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_assign_using</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>, <span class="ident">result</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Key</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_assign_using</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">T</span>, <span class="ident">result</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Key</span>)
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
     {
@@ -659,7 +659,7 @@
 
 <span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="ident">u64</span>) {
         <span class="macro">cfg_if!</span> {
             <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_endian</span> <span class="op">=</span> <span class="string">&quot;little&quot;</span>)]</span> {
                 <span class="self">self</span>.<span class="ident">add_assign_u64_le</span>(<span class="ident">rhs</span>);
@@ -672,7 +672,7 @@
 
 <span class="kw">impl</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">u64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Key</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) {
+    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rhs</span>: <span class="kw-2">&amp;</span><span class="ident">u64</span>) {
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">AddAssign</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::add_assign</span>(<span class="self">self</span>, <span class="kw-2">*</span><span class="ident">rhs</span>)
     }
 }

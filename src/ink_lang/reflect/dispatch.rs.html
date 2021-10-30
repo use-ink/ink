@@ -902,7 +902,7 @@
     <span class="doccomment">/// We unify `&amp;self` and `&amp;mut self` ink! messages here and always take a `&amp;mut self`.</span>
     <span class="doccomment">/// This is mainly done for simplification but also because we can easily convert from</span>
     <span class="doccomment">/// `&amp;mut self` to `&amp;self` with our current dispatch codegen architecture.</span>
-    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
+    <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span>;
 
     <span class="doccomment">/// Yields `true` if the dispatchable ink! message mutates the ink! storage.</span>
     <span class="kw">const</span> <span class="ident">MUTATES</span>: <span class="ident">bool</span>;
@@ -1182,7 +1182,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DispatchError</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">core::fmt::Formatter</span>) -&gt; <span class="ident">core::fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_str</span>())
     }
 }
@@ -1298,7 +1298,7 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">DecodeDispatch</span>: <span class="ident">scale::Decode</span> {
-    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">scale::Input</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">DispatchError</span><span class="op">&gt;</span>;
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ink_lang" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

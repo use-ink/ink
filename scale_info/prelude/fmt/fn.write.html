@@ -8,7 +8,7 @@ into the output stream provided.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
-<span class="ident">fmt::write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>, <span class="macro">format_args!</span>(<span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>))
+<span class="ident">fmt::write</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="macro">format_args!</span>(<span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>))
     .<span class="ident">expect</span>(<span class="string">&quot;Error occurred while trying to write in String&quot;</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">output</span>, <span class="string">&quot;Hello world!&quot;</span>);</code></pre></div>
 <p>Please note that using <a href="https://doc.rust-lang.org/nightly/core/macro.write.html"><code>write!</code></a> might be preferable. Example:</p>
@@ -16,7 +16,7 @@ into the output stream provided.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 
 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::new</span>();
-<span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>, <span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>)
+<span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>, <span class="string">&quot;Hello {}!&quot;</span>, <span class="string">&quot;world&quot;</span>)
     .<span class="ident">expect</span>(<span class="string">&quot;Error occurred while trying to write in String&quot;</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">output</span>, <span class="string">&quot;Hello world!&quot;</span>);</code></pre></div>
 </div></details></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

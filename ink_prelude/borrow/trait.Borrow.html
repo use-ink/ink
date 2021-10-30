@@ -101,7 +101,7 @@ type that wraps a string but compares ASCII letters ignoring their case:</p>
 implementation of <code>Hash</code> needs to ignore ASCII case, too:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">CaseInsensitiveString</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">H</span>) {
+    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
         <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_bytes</span>() {
             <span class="ident">c</span>.<span class="ident">to_ascii_lowercase</span>().<span class="ident">hash</span>(<span class="ident">state</span>)
         }

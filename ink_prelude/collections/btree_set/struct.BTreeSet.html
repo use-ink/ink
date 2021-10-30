@@ -319,7 +319,7 @@ The elements are visited in ascending order.</p>
 <span class="ident">b</span>.<span class="ident">insert</span>(<span class="number">4</span>);
 <span class="ident">b</span>.<span class="ident">insert</span>(<span class="number">5</span>);
 
-<span class="ident">a</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
+<span class="ident">a</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>);
 
 <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">5</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">0</span>);

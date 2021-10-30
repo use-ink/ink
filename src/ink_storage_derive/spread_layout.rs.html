@@ -321,13 +321,13 @@
             <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">::core::primitive::u64</span> <span class="op">=</span> #<span class="ident">footprint_body</span>;
             <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
 
-            <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) -&gt; <span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) -&gt; <span class="self">Self</span> {
                 #<span class="ident">pull_body</span>
             }
-            <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
+            <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
                 <span class="kw">match</span> <span class="self">self</span> { #<span class="ident">push_body</span> }
             }
-            <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
+            <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
                 <span class="kw">match</span> <span class="self">self</span> { #<span class="ident">clear_body</span> }
             }
         }
@@ -391,20 +391,20 @@
 
             <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">requires_deep_clean_up_body</span>;
 
-            <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) -&gt; <span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) -&gt; <span class="self">Self</span> {
                 <span class="kw">match</span> <span class="op">&lt;</span><span class="ident">::core::primitive::u8</span> <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="ident">__key_ptr</span>) {
                     #<span class="ident">pull_body</span>
                     <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;encountered invalid enum discriminant&quot;</span>),
                 }
             }
-            <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
+            <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
                 <span class="kw">match</span> <span class="self">self</span> {
                     #(
                         #<span class="ident">push_body</span>
                     )<span class="op">*</span>
                 }
             }
-            <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
+            <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>) {
                 <span class="kw">match</span> <span class="self">self</span> {
                     #<span class="ident">clear_body</span>
                 }

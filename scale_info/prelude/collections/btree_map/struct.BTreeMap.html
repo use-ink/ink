@@ -19,7 +19,7 @@ that initially only checks every i<sup>th</sup> element for some choice of i.</p
 performance on <em>small</em> nodes of elements which are cheap to compare. However in the future we
 would like to further explore choosing the optimal search strategy based on the choice of B,
 and possibly other factors. Using linear search, searching for a random element is expected
-to take O(B * log(n)) comparisons, which is generally worse than a BST. In practice,
+to take B * log(n) comparisons, which is generally worse than a BST. In practice,
 however, performance is excellent.</p>
 <p>It is a logic error for a key to be modified in such a way that the key’s ordering relative to
 any other key, as determined by the <a href="../../cmp/trait.Ord.html" title="Ord"><code>Ord</code></a> trait, changes while it is in the map. This is
@@ -342,7 +342,7 @@ The elements are visited in ascending key order.</p>
 <span class="ident">b</span>.<span class="ident">insert</span>(<span class="number">4</span>, <span class="string">&quot;e&quot;</span>);
 <span class="ident">b</span>.<span class="ident">insert</span>(<span class="number">5</span>, <span class="string">&quot;f&quot;</span>);
 
-<span class="ident">a</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>);
+<span class="ident">a</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">b</span>);
 
 <span class="macro">assert_eq!</span>(<span class="ident">a</span>.<span class="ident">len</span>(), <span class="number">5</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">b</span>.<span class="ident">len</span>(), <span class="number">0</span>);

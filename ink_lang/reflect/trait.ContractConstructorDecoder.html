@@ -33,7 +33,7 @@
         <span class="ident">input_bytes</span>.<span class="ident">extend</span>(<span class="macro">selector_bytes!</span>(<span class="string">&quot;constructor1&quot;</span>));
         <span class="macro">assert!</span>(
             <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Contract</span> <span class="kw">as</span> <span class="ident">ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_ok</span>()
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_ok</span>()
         );
     }
     <span class="comment">// Call to `constructor2` with 2 parameters.</span>
@@ -44,7 +44,7 @@
         <span class="ident">input_bytes</span>.<span class="ident">extend</span>(<span class="number">42i32</span>.<span class="ident">encode</span>());
         <span class="macro">assert!</span>(
             <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Contract</span> <span class="kw">as</span> <span class="ident">ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_ok</span>()
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_ok</span>()
         );
     }
     <span class="comment">// Call with invalid ink! constructor selector.</span>
@@ -53,7 +53,7 @@
         <span class="ident">input_bytes</span>.<span class="ident">extend</span>(<span class="macro">selector_bytes!</span>(<span class="string">&quot;non_existing_constructor&quot;</span>));
         <span class="macro">assert!</span>(
             <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Contract</span> <span class="kw">as</span> <span class="ident">ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_err</span>()
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_err</span>()
         );
     }
     <span class="comment">// Call with invalid ink! constructor parameters.</span>
@@ -62,7 +62,7 @@
         <span class="ident">input_bytes</span>.<span class="ident">extend</span>(<span class="macro">selector_bytes!</span>(<span class="string">&quot;constructor2&quot;</span>));
         <span class="macro">assert!</span>(
             <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Contract</span> <span class="kw">as</span> <span class="ident">ContractConstructorDecoder</span><span class="op">&gt;</span><span class="ident">::Type</span> <span class="kw">as</span> <span class="ident">Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_err</span>()
+                <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">input_bytes</span>[..]).<span class="ident">is_err</span>()
         );
     }
 }</code></pre></div>

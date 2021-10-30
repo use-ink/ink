@@ -9,7 +9,7 @@
 <h3 id="trait-implementation-message" class="section-header"><a href="#trait-implementation-message">Trait implementation message:</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">MyTrait</span> <span class="kw">for</span> <span class="ident">MyStorage</span> {
     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">bool</span>) -&gt; <span class="ident">i32</span> {
+    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">bool</span>) -&gt; <span class="ident">i32</span> {
         <span class="comment">/* message implementation goes here */</span>
     }
 }</code></pre></div>

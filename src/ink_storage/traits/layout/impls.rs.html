@@ -249,7 +249,7 @@
     ( $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ty</span>),<span class="op">*</span> $(,)<span class="question-mark">?</span> ) =&gt; {
         $(
             <span class="kw">impl</span> <span class="ident">StorageLayout</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
-                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
                     <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(<span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>))))
                 }
             }
@@ -271,14 +271,14 @@
             <span class="kw">where</span>
                 <span class="ident">T</span>: <span class="ident">StorageLayout</span> <span class="op">+</span> <span class="ident">SpreadLayout</span>,
             {
-                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+                <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
                     <span class="kw">let</span> <span class="ident">len</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>;
                     <span class="kw">let</span> <span class="ident">elem_footprint</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
                     <span class="ident">Layout::Array</span>(<span class="ident">ArrayLayout::new</span>(
                         <span class="ident">LayoutKey::from</span>(<span class="ident">key_ptr</span>.<span class="ident">next_for</span>::<span class="op">&lt;</span>[<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>]<span class="op">&gt;</span>()),
                         <span class="ident">len</span>,
                         <span class="ident">elem_footprint</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
+                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
                     ))
                 }
             }
@@ -301,7 +301,7 @@
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">frag</span>: <span class="ident">StorageLayout</span>,
             )<span class="op">*</span>
         {
-            <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+            <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
                 <span class="ident">Layout::Struct</span>(
                     <span class="ident">StructLayout::new</span>([
                         $(
@@ -328,7 +328,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="ident">key_ptr</span>)
     }
 }
@@ -337,7 +337,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
         <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
         <span class="ident">Layout::Enum</span>(<span class="ident">EnumLayout::new</span>(
             <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
@@ -346,7 +346,7 @@
                     <span class="ident">Discriminant::from</span>(<span class="number">0</span>),
                     <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
                         <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
+                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
                     )]),
                 ),
                 (<span class="ident">Discriminant::from</span>(<span class="number">1</span>), <span class="ident">StructLayout::new</span>(<span class="ident">Vec::new</span>())),
@@ -360,7 +360,7 @@
     <span class="ident">T</span>: <span class="ident">StorageLayout</span>,
     <span class="ident">E</span>: <span class="ident">StorageLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
         <span class="kw">let</span> <span class="ident">dispatch_key</span> <span class="op">=</span> <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>);
         <span class="ident">Layout::Enum</span>(<span class="ident">EnumLayout::new</span>(
             <span class="kw-2">*</span><span class="ident">dispatch_key</span>,
@@ -369,14 +369,14 @@
                     <span class="ident">Discriminant::from</span>(<span class="number">0</span>),
                     <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
                         <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
+                        <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
                     )]),
                 ),
                 (
                     <span class="ident">Discriminant::from</span>(<span class="number">1</span>),
                     <span class="ident">StructLayout::new</span>([<span class="ident">FieldLayout::new</span>(
                         <span class="prelude-val">None</span>,
-                        <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
+                        <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">StorageLayout</span><span class="op">&gt;</span><span class="ident">::layout</span>(<span class="kw-2">&amp;mut</span> <span class="ident">key_ptr</span>.<span class="ident">clone</span>()),
                     )]),
                 ),
             ],
@@ -388,7 +388,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
         <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
             <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
         )))
@@ -400,7 +400,7 @@
     <span class="ident">K</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">V</span>: <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 {
-    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
+    <span class="kw">fn</span> <span class="ident">layout</span>(<span class="ident">key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="ident">Layout</span> {
         <span class="ident">Layout::Cell</span>(<span class="ident">CellLayout::new</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">LayoutKey::from</span>(
             <span class="ident">key_ptr</span>.<span class="ident">advance_by</span>(<span class="number">1</span>),
         )))

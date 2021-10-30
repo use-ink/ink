@@ -1213,7 +1213,7 @@
 <span class="doccomment">/// let mut output = &lt;Sha2x256 as HashOutput&gt;::Type::default(); // 256-bit buffer</span>
 <span class="doccomment">/// let hash  = ink_env::hash_bytes::&lt;Sha2x256&gt;(input, &amp;mut output);</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_bytes</span><span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
 <span class="kw">where</span>
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
 {
@@ -1237,7 +1237,7 @@
 <span class="doccomment">/// ink_env::hash_encoded::&lt;Sha2x256, _&gt;(&amp;encodable, &amp;mut output);</span>
 <span class="doccomment">/// assert_eq!(output, EXPECTED);</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hash_encoded</span><span class="op">&lt;</span><span class="ident">H</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident">H</span> <span class="kw">as</span> <span class="ident">HashOutput</span><span class="op">&gt;</span><span class="ident">::Type</span>)
 <span class="kw">where</span>
     <span class="ident">H</span>: <span class="ident">CryptoHash</span>,
     <span class="ident">T</span>: <span class="ident">scale::Encode</span>,
@@ -1276,7 +1276,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ecdsa_recover</span>(
     <span class="ident">signature</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">65</span>],
     <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
-    <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
+    <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">instance</span>.<span class="ident">ecdsa_recover</span>(<span class="ident">signature</span>, <span class="ident">message_hash</span>, <span class="ident">output</span>)

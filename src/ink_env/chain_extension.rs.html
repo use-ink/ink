@@ -709,7 +709,7 @@
                 <span class="self">self</span>.<span class="ident">func_id</span>,
                 <span class="ident">input</span>,
                 <span class="ident">ErrorCode::from_status_code</span>,
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
+                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
             )
         })
     }
@@ -763,7 +763,7 @@
                 <span class="self">self</span>.<span class="ident">func_id</span>,
                 <span class="ident">input</span>,
                 <span class="op">|</span><span class="ident">_status_code</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()),
-                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
+                <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>).<span class="ident">map_err</span>(<span class="ident">Into::into</span>),
             )
         })
     }
@@ -821,7 +821,7 @@
                 <span class="ident">input</span>,
                 <span class="ident">ErrorCode::from_status_code</span>,
                 <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>)
+                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>)
                         .<span class="ident">expect</span>(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
                     <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
                 },
@@ -870,7 +870,7 @@
                 <span class="ident">input</span>,
                 <span class="op">|</span><span class="ident">_status_code</span><span class="op">|</span> <span class="prelude-val">Ok</span>(()),
                 <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">output</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>)
+                    <span class="kw">let</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">O</span> <span class="kw">as</span> <span class="ident">scale::Decode</span><span class="op">&gt;</span><span class="ident">::decode</span>(<span class="kw-2">&amp;mut</span> <span class="ident">output</span>)
                         .<span class="ident">expect</span>(<span class="string">&quot;encountered error while decoding chain extension method call return value&quot;</span>);
                     <span class="prelude-val">Ok</span>(<span class="ident">decoded</span>)
                 },

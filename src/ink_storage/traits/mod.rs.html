@@ -317,7 +317,7 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ptr</span>)
 }
 
 <span class="doccomment">/// Pulls an instance of type `T` from the contract storage using spread layout.</span>
@@ -336,7 +336,7 @@
     <span class="ident">T</span>: <span class="ident">SpreadAllocate</span>,
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_spread</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>)
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ptr</span>)
 }
 
 <span class="doccomment">/// Clears the entity from the contract storage using spread layout.</span>
@@ -355,7 +355,7 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::clear_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::clear_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ptr</span>);
 }
 
 <span class="doccomment">/// Pushes the entity to the contract storage using spread layout.</span>
@@ -374,7 +374,7 @@
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span>,
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">KeyPtr::from</span>(<span class="kw-2">*</span><span class="ident">root_key</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ptr</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="ident">entity</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ptr</span>);
 }
 
 <span class="doccomment">/// Pulls an instance of type `T` from the contract storage using packed layout.</span>
@@ -395,7 +395,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="ident">ink_env::get_contract_storage</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">root_key</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;could not properly decode storage entry&quot;</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;storage entry was empty&quot;</span>);
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
     <span class="ident">entity</span>
 }
 
@@ -415,7 +415,7 @@
     <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Default</span>,
 {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entity</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">Default</span><span class="op">&gt;</span><span class="ident">::default</span>();
-    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
+    <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="ident">entity</span>, <span class="ident">root_key</span>);
     <span class="ident">entity</span>
 }
 

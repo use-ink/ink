@@ -334,17 +334,17 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">V</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_push_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_clear_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 }
@@ -355,7 +355,7 @@
     <span class="ident">V</span>: <span class="ident">PackedAllocate</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_allocate_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 }
@@ -379,7 +379,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a map so we can forward pull signals</span>
         <span class="comment">// only to the values of a map.</span>
         <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">values_mut</span>() {
@@ -393,7 +393,7 @@
     <span class="ident">K</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Ord</span>,
     <span class="ident">V</span>: <span class="ident">PackedAllocate</span>,
 {
-    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a map so we can forward allocate signals</span>
         <span class="comment">// only to the values of a map.</span>
         <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">values_mut</span>() {
@@ -410,17 +410,17 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_push_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_clear_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 }
@@ -430,7 +430,7 @@
     <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_allocate_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 }
@@ -452,7 +452,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a set so we cannot forward pull signals.</span>
     }
 }
@@ -462,7 +462,7 @@
     <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a set so we cannot forward pull signals.</span>
     }
 }
@@ -475,17 +475,17 @@
     <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::REQUIRES_DEEP_CLEAN_UP</span>;
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_pull_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_push_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">forward_clear_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ptr</span>)
     }
 }
@@ -495,7 +495,7 @@
     <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">forward_allocate_packed</span>::<span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>(<span class="ident">ptr</span>)
     }
 }
@@ -517,7 +517,7 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a heap so we cannot forward pull signals.</span>
     }
 }
@@ -527,7 +527,7 @@
     <span class="ident">T</span>: <span class="ident">PackedAllocate</span> <span class="op">+</span> <span class="ident">Ord</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+    <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
         <span class="comment">// We cannot mutate keys in a heap so we cannot forward pull signals.</span>
     }
 }
@@ -553,7 +553,7 @@
                     }
                 }
 
-                <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+                <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
                     <span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="self">self</span> {
                         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedLayout</span><span class="op">&gt;</span><span class="ident">::pull_packed</span>(<span class="ident">elem</span>, <span class="ident">at</span>)
                     }
@@ -564,7 +564,7 @@
             <span class="kw">where</span>
                 <span class="ident">T</span>: <span class="ident">PackedAllocate</span>,
             {
-                <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
+                <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="kw-2">&amp;</span><span class="ident">Key</span>) {
                     <span class="kw">for</span> <span class="ident">elem</span> <span class="kw">in</span> <span class="self">self</span> {
                         <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">PackedAllocate</span><span class="op">&gt;</span><span class="ident">::allocate_packed</span>(<span class="ident">elem</span>, <span class="ident">at</span>)
                     }

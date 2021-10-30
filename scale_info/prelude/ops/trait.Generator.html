@@ -23,11 +23,11 @@ closure-like:</p>
         <span class="kw">return</span> <span class="string">&quot;foo&quot;</span>
     };
 
-    <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">generator</span>).<span class="ident">resume</span>(()) {
+    <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">generator</span>).<span class="ident">resume</span>(()) {
         <span class="ident">GeneratorState::Yielded</span>(<span class="number">1</span>) =&gt; {}
         <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected return from resume&quot;</span>),
     }
-    <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">generator</span>).<span class="ident">resume</span>(()) {
+    <span class="kw">match</span> <span class="ident">Pin::new</span>(<span class="kw-2">&amp;mut</span> <span class="ident">generator</span>).<span class="ident">resume</span>(()) {
         <span class="ident">GeneratorState::Complete</span>(<span class="string">&quot;foo&quot;</span>) =&gt; {}
         <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;unexpected return from resume&quot;</span>),
     }

@@ -814,10 +814,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Receiver</span> {
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Ref</span> =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;</span><span class="self">self</span> },
-            <span class="ident"><span class="self">Self</span>::RefMut</span> =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span> },
+            <span class="ident"><span class="self">Self</span>::RefMut</span> =&gt; <span class="macro">quote::quote!</span> { <span class="kw-2">&amp;mut</span> <span class="self">self</span> },
         };
         <span class="ident">tokens</span>.<span class="ident">extend</span>(<span class="ident">receiver</span>);
     }
@@ -886,7 +886,7 @@
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Message</span> {
     <span class="doccomment">/// We mainly implement this trait for this ink! type to have a derived</span>
     <span class="doccomment">/// [`Spanned`](`syn::spanned::Spanned`) implementation for it.</span>
-    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
+    <span class="kw">fn</span> <span class="ident">to_tokens</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;mut</span> <span class="ident">proc_macro2::TokenStream</span>) {
         <span class="self">self</span>.<span class="ident">item</span>.<span class="ident">to_tokens</span>(<span class="ident">tokens</span>)
     }
 }
@@ -1220,7 +1220,7 @@
                 <span class="ident">Receiver::RefMut</span>,
                 <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
                 },
             ),
         ];
@@ -1256,7 +1256,7 @@
                 <span class="bool-val">false</span>,
                 <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                    <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
                 },
             ),
             <span class="comment">// &amp;mut self + pub</span>
@@ -1264,7 +1264,7 @@
                 <span class="bool-val">true</span>,
                 <span class="macro">syn::parse_quote!</span> {
                     <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
                 },
             ),
         ];
@@ -1293,12 +1293,12 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
             <span class="comment">// &amp;mut self + pub</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + payable</span>
             <span class="macro">syn::parse_quote!</span> {
@@ -1308,7 +1308,7 @@
             <span class="comment">// &amp;mut self + payable</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>, <span class="ident">payable</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + many inputs + output works</span>
             <span class="macro">syn::parse_quote!</span> {
@@ -1318,7 +1318,7 @@
             <span class="comment">// &amp;mut self + many inputs + output works</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>, <span class="ident">input3</span>: <span class="ident">u32</span>, <span class="ident">input4</span>: <span class="ident">u64</span>) -&gt; <span class="ident">bool</span> {}
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input1</span>: <span class="ident">i32</span>, <span class="ident">input2</span>: <span class="ident">i64</span>, <span class="ident">input3</span>: <span class="ident">u32</span>, <span class="ident">input4</span>: <span class="ident">u64</span>) -&gt; <span class="ident">bool</span> {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1347,11 +1347,11 @@
             },
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1380,7 +1380,7 @@
             },
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="ident">this</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) {}
+                <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="ident">this</span>: <span class="kw-2">&amp;mut</span> <span class="self">Self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1402,7 +1402,7 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1421,7 +1421,7 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1440,7 +1440,7 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1459,7 +1459,7 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1478,7 +1478,7 @@
             <span class="comment">// &amp;mut self</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, ...) {}
+                <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, ...) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {
@@ -1497,7 +1497,7 @@
             <span class="comment">// &amp;mut self + crate visibility</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">crate</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">crate</span> <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
             <span class="comment">// &amp;self + pub restricted visibility</span>
             <span class="macro">syn::parse_quote!</span> {
@@ -1507,7 +1507,7 @@
             <span class="comment">// &amp;mut self + pub restricted visibility</span>
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">message</span>)]</span>
-                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my::path</span>) <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+                <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident">my::path</span>) <span class="kw">fn</span> <span class="ident">my_message</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
             },
         ];
         <span class="kw">for</span> <span class="ident">item_method</span> <span class="kw">in</span> <span class="ident">item_methods</span> {

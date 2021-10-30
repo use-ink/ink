@@ -542,7 +542,7 @@
                 <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::ink_storage::traits::StorageLayout</span>,
             {
                 <span class="kw">fn</span> <span class="ident">layout</span>(
-                    <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>,
+                    <span class="ident">__key_ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_storage::traits::KeyPtr</span>,
                 ) -&gt; <span class="ident">::ink_metadata::layout::Layout</span> {
                     <span class="ident">::ink_metadata::layout::Layout::Struct</span>(
                         <span class="ident">::ink_metadata::layout::StructLayout::new</span>([
@@ -579,7 +579,7 @@
                 <span class="kw">const</span> <span class="ident">REQUIRES_DEEP_CLEAN_UP</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
                 <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) -&gt; <span class="self">Self</span> {
+                <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) -&gt; <span class="self">Self</span> {
                     <span class="self">Self</span> {
                         <span class="ident">account_id</span>: <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>
                             <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="ident">ptr</span>)
@@ -587,13 +587,13 @@
                 }
 
                 <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) {
+                <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) {
                     <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>
                         <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">account_id</span>, <span class="ident">ptr</span>)
                 }
 
                 <span class="attribute">#[<span class="ident">inline</span>]</span>
-                <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) {
+                <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::ink_primitives::KeyPtr</span>) {
                     <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>
                         <span class="kw">as</span> <span class="ident">::ink_storage::traits::SpreadLayout</span><span class="op">&gt;</span><span class="ident">::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">account_id</span>, <span class="ident">ptr</span>)
                 }
@@ -619,7 +619,7 @@
                 <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::ink_storage::traits::PackedLayout</span>,
             {
                 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
+                <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
                 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
                 <span class="kw">fn</span> <span class="ident">push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
                 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
@@ -660,7 +660,7 @@
                 <span class="ident">E</span>: <span class="ident">::ink_env::Environment</span>,
                 <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::AccountId</span>: <span class="ident">::core::fmt::Debug</span>,
             {
-                <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span> {
+                <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">::core::fmt::Formatter</span>) -&gt; <span class="ident">::core::fmt::Result</span> {
                     <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">call_builder_ident</span>))
                         .<span class="ident">field</span>(<span class="string">&quot;account_id&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">account_id</span>)
                         .<span class="ident">finish</span>()

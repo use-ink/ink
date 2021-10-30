@@ -601,12 +601,12 @@
                     <span class="comment">// we know that it also thinly wraps an `AccountId`.</span>
                     <span class="comment">// Furthermore both types use `repr(transparent)`.</span>
                     <span class="kw">unsafe</span> {
-                        <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">account_id</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">AccountId</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>)
+                        <span class="kw-2">&amp;</span><span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">account_id</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">AccountId</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>)
                     }
                 }
 
                 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">forward_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Forwarder</span> {
+                <span class="kw">fn</span> <span class="ident">forward_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Forwarder</span> {
                     <span class="comment">// SAFETY:</span>
                     <span class="comment">//</span>
                     <span class="comment">// We convert from a exclusive reference to a type that thinly wraps</span>
@@ -614,7 +614,7 @@
                     <span class="comment">// we know that it also thinly wraps an `AccountId`.</span>
                     <span class="comment">// Furthermore both types use `repr(transparent)`.</span>
                     <span class="kw">unsafe</span> {
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">account_id</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AccountId</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>)
+                        <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">account_id</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">AccountId</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident"><span class="self">Self</span>::Forwarder</span>)
                     }
                 }
 
@@ -626,8 +626,8 @@
                 }
 
                 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">build_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>)
-                    -&gt; <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Forwarder</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
+                <span class="kw">fn</span> <span class="ident">build_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>)
+                    -&gt; <span class="kw-2">&amp;mut</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Forwarder</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::Builder</span>
                 {
                     <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallBuilder</span><span class="op">&gt;</span><span class="ident">::call_mut</span>(
                         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallForwarderFor</span><span class="op">&lt;</span>#<span class="ident">trait_info</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::forward_mut</span>(<span class="self">self</span>)

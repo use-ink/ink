@@ -830,10 +830,10 @@
         <span class="kw">let</span> <span class="ident">amount_dispatchables</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">generate_contract_amount_dispatchables_trait_impl</span>();
         <span class="kw">let</span> <span class="ident">contract_dispatchable_messages</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">generate_contract_dispatchable_messages_trait_impl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">message_spans</span>);
+            <span class="self">self</span>.<span class="ident">generate_contract_dispatchable_messages_trait_impl</span>(<span class="kw-2">&amp;mut</span> <span class="ident">message_spans</span>);
         <span class="kw">let</span> <span class="ident">contract_dispatchable_constructors</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">generate_contract_dispatchable_constructors_trait_impl</span>(
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">constructor_spans</span>,
+                <span class="kw-2">&amp;mut</span> <span class="ident">constructor_spans</span>,
             );
         <span class="kw">let</span> <span class="ident">contract_dispatchable_constructor_infos</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">generate_dispatchable_constructor_infos</span>();
@@ -907,7 +907,7 @@
     <span class="doccomment">/// ink! messages of the ink! smart contract.</span>
     <span class="kw">fn</span> <span class="ident">generate_contract_dispatchable_messages_trait_impl</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">message_spans</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
+        <span class="ident">message_spans</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
@@ -975,7 +975,7 @@
     <span class="doccomment">/// ink! constructor of the ink! smart contract.</span>
     <span class="kw">fn</span> <span class="ident">generate_contract_dispatchable_constructors_trait_impl</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
+        <span class="ident">constructor_spans</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">proc_macro2::Span</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
@@ -1081,7 +1081,7 @@
                         <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_tuple_type</span>;
                         <span class="kw">type</span> <span class="ident">Storage</span> <span class="op">=</span> #<span class="ident">storage_ident</span>;
 
-                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
+                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
                             <span class="op">|</span><span class="ident">storage</span>, #<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
                                 #<span class="ident">storage_ident</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
                             };
@@ -1139,7 +1139,7 @@
                         <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> #<span class="ident">output_tuple_type</span>;
                         <span class="kw">type</span> <span class="ident">Storage</span> <span class="op">=</span> #<span class="ident">storage_ident</span>;
 
-                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
+                        <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
                             <span class="op">|</span><span class="ident">storage</span>, #<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
                                 #<span class="ident">storage_ident</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
                             };
@@ -1298,7 +1298,7 @@
                 }
 
                 <span class="kw">impl</span> <span class="ident">::ink_lang::reflect::DecodeDispatch</span> <span class="kw">for</span> <span class="ident">__ink_ConstructorDecoder</span> {
-                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>)
+                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>)
                         -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::ink_lang::reflect::DispatchError</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
@@ -1315,7 +1315,7 @@
                 }
 
                 <span class="kw">impl</span> <span class="ident">::scale::Decode</span> <span class="kw">for</span> <span class="ident">__ink_ConstructorDecoder</span> {
-                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
+                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
@@ -1452,7 +1452,7 @@
                             <span class="ident">mutates</span>: #<span class="ident">mutates_storage</span>,
                             <span class="ident">dynamic_storage_alloc</span>: #<span class="ident">is_dynamic_storage_allocation_enabled</span>,
                         },
-                        <span class="kw">move</span> <span class="op">|</span><span class="ident">storage</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> #<span class="ident">storage_ident</span><span class="op">|</span> { #<span class="ident">message_callable</span>(<span class="ident">storage</span>, <span class="ident">input</span>) }
+                        <span class="kw">move</span> <span class="op">|</span><span class="ident">storage</span>: <span class="kw-2">&amp;mut</span> #<span class="ident">storage_ident</span><span class="op">|</span> { #<span class="ident">message_callable</span>(<span class="ident">storage</span>, <span class="ident">input</span>) }
                     )
                 }
             )
@@ -1467,7 +1467,7 @@
                 }
 
                 <span class="kw">impl</span> <span class="ident">::ink_lang::reflect::DecodeDispatch</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
-                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>)
+                    <span class="kw">fn</span> <span class="ident">decode_dispatch</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>)
                         -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::ink_lang::reflect::DispatchError</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
@@ -1484,7 +1484,7 @@
                 }
 
                 <span class="kw">impl</span> <span class="ident">::scale::Decode</span> <span class="kw">for</span> <span class="ident">__ink_MessageDecoder</span> {
-                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
+                    <span class="kw">fn</span> <span class="ident">decode</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="kw-2">&amp;mut</span> <span class="ident">I</span>) -&gt; <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">::scale::Error</span><span class="op">&gt;</span>
                     <span class="kw">where</span>
                         <span class="ident">I</span>: <span class="ident">::scale::Input</span>,
                     {
