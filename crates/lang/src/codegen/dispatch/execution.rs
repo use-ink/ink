@@ -35,6 +35,19 @@ use ink_storage::{
     },
 };
 
+/// The root key of the ink! smart contract.
+///
+/// # Note
+///
+/// - This is the key where storage allocation, pushing and pulling is rooted
+///   using the `SpreadLayout` and `SpreadAllocate` traits primarily.
+/// - This trait is automatically implemented by the ink! codegen.
+/// - The existence of this trait allows to customize the root key in future
+///   versions of ink! if needed.
+pub trait ContractRootKey {
+    const ROOT_KEY: Key;
+}
+
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
 ///
 /// # Errors
