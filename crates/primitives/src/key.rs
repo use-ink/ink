@@ -46,10 +46,23 @@ use scale_info::{
 #[repr(transparent)]
 pub struct Key([u8; 32]);
 
+impl Key {
+    /// Creates a new key instance from the given bytes.
+    ///
+    /// # Note
+    ///
+    /// This constructor only exists since it is not yet possible to define
+    /// the `From` trait implementation as const.
+    #[inline]
+    pub const fn new(bytes: [u8; 32]) -> Self {
+        Self(bytes)
+    }
+}
+
 impl From<[u8; 32]> for Key {
     #[inline]
     fn from(bytes: [u8; 32]) -> Self {
-        Self(bytes)
+        Self::new(bytes)
     }
 }
 
