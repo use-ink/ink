@@ -18,19 +18,24 @@ use crate::reflect::{
 };
 use core::{
     any::TypeId,
+    convert::Infallible,
     mem::ManuallyDrop,
 };
 use ink_env::{
     Environment,
     ReturnFlags,
 };
-use ink_primitives::Key;
+use ink_primitives::{
+    Key,
+    KeyPtr,
+};
 use ink_storage::{
     alloc,
     alloc::ContractPhase,
     traits::{
         pull_spread_root,
         push_spread_root,
+        SpreadAllocate,
         SpreadLayout,
     },
 };
@@ -123,10 +128,37 @@ where
     }
 }
 
+/// Initializes the ink! contract using the given initialization routine.
+///
+/// # Note
+///
+/// - This uses `SpreadAllocate` trait in order to default initialize the
+///   ink! smart contract before calling the initialization routine.
+/// - This either returns `Contract` or `Result<Contract, E>` depending
+///   on the return type `R` of the initializer closure `F`.
+///   If `R` is `()` then `Contract` is returned and if `R` is any type of
+///   `Result<(), E>` then `Result<Contract, E>` is returned.
+///   Other return types for `F` than the ones listed above are not allowed.
+#[inline]
+pub fn initialize_contract<Contract, F, R>(
+    initializer: F,
+) -> <R as InitializerReturnType<Contract>>::Wrapped
+where
+    Contract: ContractRootKey + SpreadAllocate,
+    F: FnOnce(&mut Contract) -> R,
+    R: InitializerReturnType<Contract>,
+{
+    let mut key_ptr = KeyPtr::from(<Contract as ContractRootKey>::ROOT_KEY);
+    let mut instance = <Contract as SpreadAllocate>::allocate_spread(&mut key_ptr);
+    let result = initializer(&mut instance);
+    result.into_wrapped(instance)
+}
 
 mod private {
     /// Seals the implementation of `ContractInitializerReturnType`.
     pub trait Sealed {}
+    impl Sealed for () {}
+    impl<T, E> Sealed for Result<T, E> {}
     /// A thin-wrapper type that automatically seals its inner type.
     ///
     /// Since it is private it can only be used from within this crate.
@@ -194,6 +226,36 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
         &self.0
     }
 }
+
+/// Trait used to convert return types of contract initializer routines.
+///
+/// Only `()` and `Result<(), E>` are allowed contract initializer return types.
+/// For `WrapReturnType<C>` where `C` is the contract type the trait converts
+/// `()` into `C` and `Result<(), E>` into `Result<C, E>`.
+pub trait InitializerReturnType<C>: private::Sealed {
+    type Wrapped;
+
+    /// Performs the type conversion of the initialization routine return type.
+    fn into_wrapped(self, wrapped: C) -> Self::Wrapped;
+}
+
+impl<C> InitializerReturnType<C> for () {
+    type Wrapped = C;
+
+    #[inline]
+    fn into_wrapped(self, wrapped: C) -> C {
+        wrapped
+    }
+}
+impl<C, E> InitializerReturnType<C> for Result<(), E> {
+    type Wrapped = Result<C, E>;
+
+    #[inline]
+    fn into_wrapped(self, wrapped: C) -> Self::Wrapped {
+        self.map(|_| wrapped)
+    }
+}
+
 /// Configuration for execution of ink! messages.
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteMessageConfig {
