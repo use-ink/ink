@@ -189,10 +189,30 @@ pub trait ConstructorReturnType<C>: private::Sealed {
     /// For infallible constructors this is `core::convert::Infallible`.
     type Error;
 
+    /// The type of the return value of the constructor.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructors this is `()` whereas for fallible
+    /// constructors this is the actual return value. Since we only ever
+    /// return a value in case of `Result::Err` the `Result::Ok` value
+    /// does not matter.
     type ReturnValue;
 
+    /// Converts the return value into a `Result` instance.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructor returns this always yields `Ok`.
     fn as_result(&self) -> Result<&C, &Self::Error>;
 
+    /// Returns the actual return value of the constructor.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructor returns this always yields `()`
+    /// and is basically ignored since this does not get called
+    /// if the constructor did not fail.
     fn return_value(&self) -> &Self::ReturnValue;
 }
 
