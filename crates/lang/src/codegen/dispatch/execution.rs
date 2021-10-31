@@ -108,7 +108,7 @@ where
             //
             // This requires us to sync back the changes of the contract storage.
             let root_key = <Contract as ContractRootKey>::ROOT_KEY;
-            push_spread_root::<Contract>(&contract, &root_key);
+            push_spread_root::<Contract>(contract, &root_key);
             if config.dynamic_storage_alloc {
                 alloc::finalize();
             }
