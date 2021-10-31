@@ -27,6 +27,7 @@ pub use self::{
         execute_constructor,
         execute_message,
         ContractCallBuilder,
+        ContractRootKey,
         DispatchInput,
         DispatchOutput,
         ExecuteConstructorConfig,
