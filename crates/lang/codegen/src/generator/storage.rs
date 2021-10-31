@@ -106,6 +106,9 @@ impl Storage<'_> {
                 impl ::ink_lang::reflect::ContractName for #ident {
                     const NAME: &'static str = ::core::stringify!(#ident);
                 }
+                impl ::ink_lang::codegen::ContractRootKey for #ident {
+                    const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
+                }
             };
         )
     }
