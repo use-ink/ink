@@ -51,6 +51,7 @@
 extern crate proc_macro;
 
 mod packed_layout;
+mod spread_allocate;
 mod spread_layout;
 mod storage_layout;
 
@@ -59,6 +60,7 @@ mod tests;
 
 use self::{
     packed_layout::packed_layout_derive,
+    spread_allocate::spread_allocate_derive,
     spread_layout::spread_layout_derive,
     storage_layout::storage_layout_derive,
 };
@@ -132,6 +134,44 @@ synstructure::decl_derive!(
     /// ```
     packed_layout_derive
 );
+
+synstructure::decl_derive!(
+    [SpreadAllocate] =>
+    /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
+    ///
+    /// # Note
+    ///
+    /// As of now `enum` types are not supported!
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ink_primitives::Key;
+    /// use ink_storage::traits::{
+    ///     SpreadAllocate,
+    ///     SpreadLayout,
+    ///     allocate_spread_root,
+    ///};
+    ///
+    /// #[derive(SpreadAllocate, SpreadLayout)]
+    /// # #[derive(Debug, PartialEq)]
+    /// struct NamedFields {
+    ///     a: u32,
+    ///     b: [u32; 32],
+    /// }
+    ///
+    /// let allocated: NamedFields = allocate_spread_root(&Key::from([0x42; 32]));
+    /// assert_eq!(
+    ///     allocated,
+    ///     NamedFields {
+    ///         a: 0,
+    ///         b: [0; 32],
+    ///     }
+    /// );
+    /// ```
+    spread_allocate_derive
+);
+
 synstructure::decl_derive!(
     [StorageLayout] =>
     /// Derives `ink_storage`'s `StorageLayout` trait for the given `struct` or `enum`.
