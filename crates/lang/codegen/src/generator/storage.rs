@@ -33,7 +33,6 @@ impl GenerateCode for Storage<'_> {
         let storage_span = self.contract.module().storage().span();
         let access_env_impls = self.generate_access_env_trait_impls();
         let storage_struct = self.generate_storage_struct();
-        let allocate_spread_impl = self.generate_spread_allocate_trait_impl();
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
                 // Required to allow for `self.env().emit_event(..)` in messages and constructors.
@@ -42,7 +41,6 @@ impl GenerateCode for Storage<'_> {
         quote_spanned!(storage_span =>
             #storage_struct
             #access_env_impls
-            #allocate_spread_impl
 
             const _: () = {
                 // Used to make `self.env()` and `Self::env()` available in message code.
@@ -83,57 +81,6 @@ impl Storage<'_> {
                 }
             };
         }
-    }
-
-    /// Generates a default implementation of `SpreadAllocate` for the ink! storage struct.
-    ///
-    /// # Note
-    ///
-    /// Unlike with `SpreadLayout` it is unfortunately not possible to use the derive macro
-    /// in order to implement this trait. This is due to the fact that `SpreadAllocate` shall
-    /// only be implemented on the ink! storage struct if and only if all of its fields
-    /// implement the trait.
-    /// Therefore having `SpreadAllocate` implemented on the ink! storage struct is optional
-    /// whereas having `SpreadLayout` implemented is mandatory.
-    fn generate_spread_allocate_trait_impl(&self) -> TokenStream2 {
-        let storage = self.contract.module().storage();
-        let span = storage.span();
-        let storage_ident = storage.ident();
-        let bounds = storage.fields().map(|field| {
-            let field_span = field.span();
-            let field_ty = &field.ty;
-            quote_spanned!(field_span=>
-                #field_ty: ::ink_storage::traits::SpreadAllocate
-            )
-        });
-        let body = storage.fields().enumerate().map(|(index, field)| {
-            let field_span = field.span();
-            let field_ident = field
-                .ident
-                .as_ref()
-                .map(|ident| quote! { #ident })
-                .unwrap_or_else(|| quote! { #index });
-            let field_ty = &field.ty;
-            quote_spanned!(field_span=>
-                #field_ident: <#field_ty as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
-            )
-        });
-        quote_spanned!(span=>
-            impl ::ink_storage::traits::SpreadAllocate for #storage_ident
-            where
-                #(
-                    #bounds
-                ),*
-            {
-                fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
-                    Self {
-                        #(
-                            #body
-                        ),*
-                    }
-                }
-            }
-        )
     }
 
     /// Generates the storage struct definition.
