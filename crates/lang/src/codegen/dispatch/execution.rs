@@ -83,26 +83,117 @@ pub struct ExecuteConstructorConfig {
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
 #[inline]
-pub fn execute_constructor<S, F>(
+pub fn execute_constructor<Contract, F, R>(
     config: ExecuteConstructorConfig,
     f: F,
 ) -> Result<(), DispatchError>
 where
-    S: SpreadLayout,
-    F: FnOnce() -> S,
+    Contract: SpreadLayout + ContractRootKey,
+    F: FnOnce() -> R,
+    <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
+    private::Seal<R>: ConstructorReturnType<Contract>,
 {
     if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Deploy);
     }
-    let storage = ManuallyDrop::new(f());
-    let root_key = Key::from([0x00; 32]);
-    push_spread_root::<S>(&storage, &root_key);
-    if config.dynamic_storage_alloc {
-        alloc::finalize();
+    let result = ManuallyDrop::new(private::Seal(f()));
+    match result.as_result() {
+        Ok(contract) => {
+            // Constructor is infallible or is fallible but succeeded.
+            //
+            // This requires us to sync back the changes of the contract storage.
+            let root_key = <Contract as ContractRootKey>::ROOT_KEY;
+            push_spread_root::<Contract>(&contract, &root_key);
+            if config.dynamic_storage_alloc {
+                alloc::finalize();
+            }
+            Ok(())
+        }
+        Err(_) => {
+            // Constructor is fallible and failed.
+            //
+            // We need to revert the state of the transaction.
+            ink_env::return_value::<
+                <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue,
+            >(
+                ReturnFlags::default().set_reverted(true),
+                result.return_value(),
+            )
+        }
     }
-    Ok(())
 }
 
+
+mod private {
+    /// Seals the implementation of `ContractInitializerReturnType`.
+    pub trait Sealed {}
+    /// A thin-wrapper type that automatically seals its inner type.
+    ///
+    /// Since it is private it can only be used from within this crate.
+    /// We need this type in order to properly seal the `ConstructorReturnType`
+    /// trait from unwanted external trait implementations.
+    #[repr(transparent)]
+    pub struct Seal<T>(pub T);
+    impl<T> Sealed for Seal<T> {}
+}
+
+/// Guards against using invalid contract initializer types.
+///
+/// # Note
+///
+/// Currently the only allowed types are `()` and `Result<(), E>`
+/// where `E` is some unspecified error type.
+/// If the contract initializer returns `Result::Err` the utility
+/// method that is used to initialize an ink! smart contract will
+/// revert the state of the contract instantiation.
+pub trait ConstructorReturnType<C>: private::Sealed {
+    /// Is `true` if `Self` is `Result<C, E>`.
+    const IS_RESULT: bool = false;
+
+    /// The error type of the constructor return type.
+    ///
+    /// # Note
+    ///
+    /// For infallible constructors this is `core::convert::Infallible`.
+    type Error;
+
+    type ReturnValue;
+
+    fn as_result(&self) -> Result<&C, &Self::Error>;
+
+    fn return_value(&self) -> &Self::ReturnValue;
+}
+
+impl<C> ConstructorReturnType<C> for private::Seal<C> {
+    type Error = Infallible;
+    type ReturnValue = ();
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        Ok(&self.0)
+    }
+
+    #[inline(always)]
+    fn return_value(&self) -> &Self::ReturnValue {
+        &()
+    }
+}
+
+impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
+    const IS_RESULT: bool = true;
+    type Error = E;
+    type ReturnValue = Result<C, E>;
+
+    #[inline(always)]
+    fn as_result(&self) -> Result<&C, &Self::Error> {
+        self.0.as_ref()
+    }
+
+    #[inline(always)]
+    fn return_value(&self) -> &Self::ReturnValue {
+        &self.0
+    }
+}
 /// Configuration for execution of ink! messages.
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteMessageConfig {
