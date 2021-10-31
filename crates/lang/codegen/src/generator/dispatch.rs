@@ -511,7 +511,7 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
-                    ::ink_lang::codegen::execute_constructor::<#storage_ident, _>(
+                    ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
                         ::ink_lang::codegen::ExecuteConstructorConfig {
                             dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
                         },
