@@ -26,6 +26,7 @@ pub use self::{
         deny_payment,
         execute_constructor,
         execute_message,
+        initialize_contract,
         ContractCallBuilder,
         ContractRootKey,
         DispatchInput,
