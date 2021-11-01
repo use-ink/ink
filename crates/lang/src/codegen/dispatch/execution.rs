@@ -163,7 +163,7 @@ where
 {
     if config.mutates {
         let root_key = Key::from([0x00; 32]);
-        push_spread_root::<Contract>(&contract, &root_key);
+        push_spread_root::<Contract>(contract, &root_key);
     }
     if config.dynamic_storage_alloc {
         alloc::finalize();
@@ -182,5 +182,5 @@ where
 {
     // There is no need to push back the intermediate results of the
     // contract since the transaction is going to be reverted.
-    ink_env::return_value::<R>(ReturnFlags::default().set_reverted(true), &result)
+    ink_env::return_value::<R>(ReturnFlags::default().set_reverted(true), result)
 }
