@@ -25,6 +25,8 @@ pub use self::{
     dispatch::{
         deny_payment,
         execute_constructor,
+        finalize_message,
+        initiate_message,
         execute_message,
         ContractCallBuilder,
         DispatchInput,

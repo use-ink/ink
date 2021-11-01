@@ -21,6 +21,8 @@ pub use self::{
         deny_payment,
         execute_constructor,
         execute_message,
+        finalize_message,
+        initiate_message,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
     },
