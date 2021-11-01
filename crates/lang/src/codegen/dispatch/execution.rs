@@ -115,6 +115,15 @@ pub struct ExecuteMessageConfig {
     pub dynamic_storage_alloc: bool,
 }
 
+/// Initiates an ink! message call with the given configuration.
+///
+/// Returns the contract state pulled from the root storage region upon success.
+///
+/// # Note
+///
+/// This work around that splits executing an ink! message into initiate
+/// and finalize phases was needed due to the fact that `is_result_type`
+/// and `is_result_err` macros do not work in generic contexts.
 #[inline(always)]
 pub fn initiate_message<Contract>(
     config: ExecuteMessageConfig,
@@ -133,6 +142,21 @@ where
     Ok(contract)
 }
 
+/// Finalizes an ink! message call with the given configuration.
+///
+/// This dispatches into fallible and infallible message finalization
+/// depending on the given `success` state.
+///
+/// - If the message call was successful the return value is simply returned
+///   and cached storage is pushed back to the contract storage.
+/// - If the message call failed the return value result is returned instead
+///   and the transaction is signalled to be reverted.
+///
+/// # Note
+///
+/// This work around that splits executing an ink! message into initiate
+/// and finalize phases was needed due to the fact that `is_result_type`
+/// and `is_result_err` macros do not work in generic contexts.
 #[inline(always)]
 pub fn finalize_message<Contract, R>(
     success: bool,
