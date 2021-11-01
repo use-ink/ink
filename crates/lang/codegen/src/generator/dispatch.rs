@@ -677,7 +677,10 @@ impl Dispatch<'_> {
                         mutates: #mutates_storage,
                         dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
                     };
-                    let mut contract: #storage_ident = ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?;
+                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                        ::core::mem::ManuallyDrop::new(
+                            ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
+                        );
                     let result: #message_output = #message_callable(&mut contract, input);
                     let failure = ::ink_lang::is_result_type!(#message_output)
                         && ::ink_lang::is_result_err!(&result);
