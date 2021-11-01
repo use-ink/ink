@@ -170,25 +170,17 @@ where
     }
     if TypeId::of::<R>() != TypeId::of::<()>() {
         // In case the return type is `()` we do not return a value.
-        ink_env::return_value::<R>(
-            ReturnFlags::default(),
-            result,
-        )
+        ink_env::return_value::<R>(ReturnFlags::default(), result)
     }
     Ok(())
 }
 
 #[inline(always)]
-fn finalize_fallible_message<R>(
-    result: &R,
-) -> !
+fn finalize_fallible_message<R>(result: &R) -> !
 where
     R: scale::Encode + 'static,
 {
     // There is no need to push back the intermediate results of the
     // contract since the transaction is going to be reverted.
-    ink_env::return_value::<R>(
-        ReturnFlags::default().set_reverted(true),
-        &result,
-    )
+    ink_env::return_value::<R>(ReturnFlags::default().set_reverted(true), &result)
 }
