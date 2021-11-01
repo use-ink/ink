@@ -157,7 +157,7 @@ where
 /// This work around that splits executing an ink! message into initiate
 /// and finalize phases was needed due to the fact that `is_result_type`
 /// and `is_result_err` macros do not work in generic contexts.
-#[inline(always)]
+#[inline]
 pub fn finalize_message<Contract, R>(
     success: bool,
     contract: &Contract,
@@ -175,7 +175,7 @@ where
     }
 }
 
-#[inline(always)]
+#[inline]
 fn finalize_infallible_message<Contract, R>(
     contract: &Contract,
     config: ExecuteMessageConfig,
@@ -199,7 +199,7 @@ where
     Ok(())
 }
 
-#[inline(always)]
+#[inline]
 fn finalize_fallible_message<R>(result: &R) -> !
 where
     R: scale::Encode + 'static,
