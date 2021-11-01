@@ -690,7 +690,7 @@ impl Dispatch<'_> {
                         config,
                         &result,
                     )?;
-                    Ok(())
+                    ::core::result::Result::Ok(())
                 }
             )
         });
