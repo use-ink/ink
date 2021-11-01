@@ -672,18 +672,22 @@ impl Dispatch<'_> {
                 .is_dynamic_storage_allocator_enabled();
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    ::ink_lang::codegen::execute_message::<
-                        #storage_ident,
-                        #message_output,
-                        _
-                    >(
-                        ::ink_lang::codegen::ExecuteMessageConfig {
-                            payable: #accepts_payment,
-                            mutates: #mutates_storage,
-                            dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
-                        },
-                        move |storage: &mut #storage_ident| { #message_callable(storage, input) }
-                    )
+                    let config = ::ink_lang::codegen::ExecuteMessageConfig {
+                        payable: #accepts_payment,
+                        mutates: #mutates_storage,
+                        dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
+                    };
+                    let mut contract: #storage_ident = ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?;
+                    let result: #message_output = #message_callable(&mut contract, input);
+                    let failure = ::ink_lang::is_result_type!(#message_output)
+                        && ::ink_lang::is_result_err!(&result);
+                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
+                        !failure,
+                        &contract,
+                        config,
+                        &result,
+                    )?;
+                    Ok(())
                 }
             )
         });
