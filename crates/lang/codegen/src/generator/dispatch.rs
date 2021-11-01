@@ -683,7 +683,7 @@ impl Dispatch<'_> {
                         );
                     let result: #message_output = #message_callable(&mut contract, input);
                     let failure = ::ink_lang::is_result_type!(#message_output)
-                        && ::ink_lang::is_result_err!(&result);
+                        && ::ink_lang::is_result_err!(result);
                     ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
                         !failure,
                         &contract,
