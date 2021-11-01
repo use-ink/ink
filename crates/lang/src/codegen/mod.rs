@@ -27,7 +27,6 @@ pub use self::{
         execute_constructor,
         finalize_message,
         initiate_message,
-        execute_message,
         ContractCallBuilder,
         DispatchInput,
         DispatchOutput,

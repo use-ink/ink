@@ -115,52 +115,6 @@ pub struct ExecuteMessageConfig {
     pub dynamic_storage_alloc: bool,
 }
 
-/// Executes the given `&mut self` message closure.
-///
-/// # Note
-///
-/// The closure is supposed to already contain all the arguments that the real
-/// message requires and forwards them.
-#[inline]
-pub fn execute_message<Storage, Output, F>(
-    config: ExecuteMessageConfig,
-    f: F,
-) -> Result<(), DispatchError>
-where
-    Storage: SpreadLayout + ContractEnv,
-    Output: scale::Encode + 'static,
-    F: FnOnce(&mut Storage) -> Output,
-{
-    if !config.payable {
-        deny_payment::<<Storage as ContractEnv>::Env>()?;
-    }
-    if config.dynamic_storage_alloc {
-        alloc::initialize(ContractPhase::Call);
-    }
-    let root_key = Key::from([0x00; 32]);
-    let mut storage = ManuallyDrop::new(pull_spread_root::<Storage>(&root_key));
-    let result = f(&mut storage);
-    if config.mutates {
-        push_spread_root::<Storage>(&storage, &root_key);
-    }
-    if config.dynamic_storage_alloc {
-        alloc::finalize();
-    }
-    if TypeId::of::<Output>() != TypeId::of::<()>() {
-        // We include a check for `is_result_type!(Output)` despite the fact that this
-        // is indirectly covered by `is_result_err!(&result)` because the Rust compiler
-        // will have more opportunities to optimize the whole conditional away. This is
-        // due to the fact that `is_result_type!` relies on constant information whereas
-        // is_result_err!` requires `&self`.
-        let revert_state = is_result_type!(Output) && is_result_err!(&result);
-        ink_env::return_value::<Output>(
-            ReturnFlags::default().set_reverted(revert_state),
-            &result,
-        )
-    }
-    Ok(())
-}
-
 #[inline(always)]
 pub fn initiate_message<Contract>(
     config: ExecuteMessageConfig,
