@@ -223,6 +223,7 @@ mod erc20 {
             if from_balance < value {
                 return Err(Error::InsufficientBalance)
             }
+
             self.balances.insert(from, &(from_balance - value));
             let to_balance = self.balance_of_impl(to);
             self.balances.insert(to, &(to_balance + value));

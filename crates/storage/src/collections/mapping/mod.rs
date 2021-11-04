@@ -29,6 +29,7 @@ use crate::traits::{
     SpreadLayout,
 };
 use core::marker::PhantomData;
+
 use ink_env::hash::{
     Blake2x256,
     HashOutput,
