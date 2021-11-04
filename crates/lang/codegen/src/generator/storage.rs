@@ -21,7 +21,8 @@ use quote::{
 };
 use syn::spanned::Spanned as _;
 
-/// Generator to create the ink! storage struct and important trait implementations.
+/// Generator to create the ink! storage struct and important trait
+/// implementations.
 #[derive(From)]
 pub struct Storage<'a> {
     contract: &'a ir::Contract,
@@ -35,7 +36,8 @@ impl GenerateCode for Storage<'_> {
         let storage_struct = self.generate_storage_struct();
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
-                // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+                // Required to allow for `self.env().emit_event(..)` in messages and
+                // constructors.
                 quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
         quote_spanned!(storage_span =>

@@ -283,13 +283,14 @@ impl Message {
         }
     }
 
-    /// Returns a local ID unique to the ink! message with respect to its implementation block.
+    /// Returns a local ID unique to the ink! message with respect to its
+    /// implementation block.
     ///
     /// # Note
     ///
-    /// It is a compile error if two ink! trait messages share the same local ID.
-    /// Although the above scenario is very unlikely since the local ID is computed
-    /// solely by the identifier of the ink! message.
+    /// It is a compile error if two ink! trait messages share the same local
+    /// ID. Although the above scenario is very unlikely since the local ID
+    /// is computed solely by the identifier of the ink! message.
     pub fn local_id(&self) -> u32 {
         utils::local_message_id(self.ident())
     }

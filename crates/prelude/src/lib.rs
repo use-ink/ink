@@ -14,11 +14,13 @@
 
 //! Data structures to operate on contract memory during contract execution.
 //!
-//! These definitions are useful since we are operating in a `no_std` environment
-//! and should be used by all ink! crates instead of directly using `std` or `alloc`
-//! crates. If needed we shall instead enhance the exposed types here.
+//! These definitions are useful since we are operating in a `no_std`
+//! environment and should be used by all ink! crates instead of directly using
+//! `std` or `alloc` crates. If needed we shall instead enhance the exposed
+//! types here.
 //!
-//! The `ink_prelude` crate guarantees a stable interface between `std` and `no_std` mode.
+//! The `ink_prelude` crate guarantees a stable interface between `std` and
+//! `no_std` mode.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 

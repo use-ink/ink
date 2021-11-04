@@ -394,8 +394,8 @@ pub struct MessageSpec<F: Form = MetaForm> {
     docs: Vec<F::String>,
 }
 
-/// Type state for builders to tell that some mandatory state has not yet been set
-/// yet or to fail upon setting the same state multiple times.
+/// Type state for builders to tell that some mandatory state has not yet been
+/// set yet or to fail upon setting the same state multiple times.
 pub struct Missing<S>(PhantomData<fn() -> S>);
 
 mod state {
@@ -535,7 +535,8 @@ impl<M, P, R> MessageSpecBuilder<Missing<state::Selector>, M, P, R> {
 }
 
 impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
-    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
+    /// Sets if the message is mutable, thus taking `&mut self` or not thus
+    /// taking `&self`.
     pub fn mutates(self, mutates: bool) -> MessageSpecBuilder<S, state::Mutates, P, R> {
         MessageSpecBuilder {
             spec: MessageSpec {
@@ -548,7 +549,8 @@ impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
 }
 
 impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
-    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
+    /// Sets if the message is mutable, thus taking `&mut self` or not thus
+    /// taking `&self`.
     pub fn payable(
         self,
         is_payable: bool,

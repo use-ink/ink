@@ -91,7 +91,8 @@ pub struct VacantEntry {
 #[derive(Debug, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Entry<T> {
-    /// A vacant entry that holds the index to the next and previous vacant entry.
+    /// A vacant entry that holds the index to the next and previous vacant
+    /// entry.
     Vacant(VacantEntry),
     /// An occupied entry that hold the value.
     Occupied(T),
@@ -111,7 +112,8 @@ impl<T> Entry<T> {
         !self.is_occupied()
     }
 
-    /// Returns the vacant entry if the entry is vacant, otherwise returns `None`.
+    /// Returns the vacant entry if the entry is vacant, otherwise returns
+    /// `None`.
     fn try_to_vacant(&self) -> Option<VacantEntry> {
         match self {
             Entry::Occupied(_) => None,
@@ -119,7 +121,8 @@ impl<T> Entry<T> {
         }
     }
 
-    /// Returns the vacant entry if the entry is vacant, otherwise returns `None`.
+    /// Returns the vacant entry if the entry is vacant, otherwise returns
+    /// `None`.
     fn try_to_vacant_mut(&mut self) -> Option<&mut VacantEntry> {
         match self {
             Entry::Occupied(_) => None,
@@ -179,7 +182,8 @@ where
         self.entries.key()
     }
 
-    /// Returns an iterator yielding shared references to all elements of the stash.
+    /// Returns an iterator yielding shared references to all elements of the
+    /// stash.
     ///
     /// # Note
     ///
@@ -190,7 +194,8 @@ where
         Iter::new(self)
     }
 
-    /// Returns an iterator yielding exclusive references to all elements of the stash.
+    /// Returns an iterator yielding exclusive references to all elements of the
+    /// stash.
     ///
     /// # Note
     ///
@@ -201,7 +206,8 @@ where
         IterMut::new(self)
     }
 
-    /// Returns an iterator yielding shared references to all entries of the stash.
+    /// Returns an iterator yielding shared references to all entries of the
+    /// stash.
     pub fn entries(&self) -> Entries<T> {
         Entries::new(self)
     }
@@ -266,8 +272,8 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
-    /// trait implementation.
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::
+    /// clear_spread`] trait implementation.
     fn clear_cells(&self) {
         if self.entries.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
@@ -291,7 +297,8 @@ impl<T> Stash<T>
 where
     T: PackedLayout,
 {
-    /// Rebinds the `prev` and `next` bindings of the neighbors of the vacant entry.
+    /// Rebinds the `prev` and `next` bindings of the neighbors of the vacant
+    /// entry.
     ///
     /// # Note
     ///
@@ -419,7 +426,8 @@ where
     pub fn put(&mut self, new_value: T) -> Index {
         let new_entry = Some(Entry::Occupied(new_value));
         let new_index = if let Some(index) = self.last_vacant_index() {
-            // Put the new element to the most recent vacant index if not all entries are occupied.
+            // Put the new element to the most recent vacant index if not all entries are
+            // occupied.
             let old_entry = self
                 .entries
                 .put_get(index, new_entry)
@@ -482,20 +490,20 @@ where
 
     /// Removes the element stored at the given index if any.
     ///
-    /// This method acts similar to the take API and even still returns an Option.
-    /// However, it guarantees to make no contract storage reads to the indexed
-    /// element and will only write to its internal low-level lazy cache that the
-    /// element at the given index is going to be removed at the end of the contract
-    /// execution.
+    /// This method acts similar to the take API and even still returns an
+    /// Option. However, it guarantees to make no contract storage reads to
+    /// the indexed element and will only write to its internal low-level
+    /// lazy cache that the element at the given index is going to be
+    /// removed at the end of the contract execution.
     ///
-    /// Calling this method with an index out of bounds for the returns `None` and
-    /// does not `remove` the element, otherwise it returns `Some(())`.
+    /// Calling this method with an index out of bounds for the returns `None`
+    /// and does not `remove` the element, otherwise it returns `Some(())`.
     ///
     /// # Safety
     ///
-    /// The caller must ensure that `at` refers to an occupied index. Behavior is
-    /// unspecified if `at` refers to a vacant index and could seriously damage the
-    /// contract storage integrity.
+    /// The caller must ensure that `at` refers to an occupied index. Behavior
+    /// is unspecified if `at` refers to a vacant index and could seriously
+    /// damage the contract storage integrity.
     pub unsafe fn remove_occupied(&mut self, at: Index) -> Option<()> {
         // This function is written similar to [`Stash::take`], with the exception
         // that the caller has to ensure that `at` refers to an occupied entry whereby
@@ -535,10 +543,10 @@ where
     /// - If `max_iterations` is `Some` concrete value it is used in order to
     ///   bound the number of iterations and won't try to defrag until the stash
     ///   is optimally compacted.
-    /// - Users are advised to call this method using `Some` concrete
-    ///   value to keep gas costs within certain bounds.
-    /// - The call to the given callback takes place before the reinsertion
-    ///   of the shifted occupied entry.
+    /// - Users are advised to call this method using `Some` concrete value to
+    ///   keep gas costs within certain bounds.
+    /// - The call to the given callback takes place before the reinsertion of
+    ///   the shifted occupied entry.
     pub fn defrag<C>(&mut self, max_iterations: Option<u32>, mut callback: C) -> u32
     where
         C: FnMut(Index, Index, &T),

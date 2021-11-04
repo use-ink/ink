@@ -61,12 +61,14 @@ use serde::{
 ///
 /// # Note
 ///
-/// Represents the version of the serialized metadata *format*, which is distinct from the version
-/// of this crate for Rust semantic versioning compatibility.
+/// Represents the version of the serialized metadata *format*, which is
+/// distinct from the version of this crate for Rust semantic versioning
+/// compatibility.
 #[derive(Debug, Serialize, Deserialize)]
 #[allow(clippy::large_enum_variant)]
 pub enum MetadataVersioned {
-    /// Version 0 placeholder. Represents the original non-versioned metadata format.
+    /// Version 0 placeholder. Represents the original non-versioned metadata
+    /// format.
     V0(MetadataVersionDeprecated),
     /// Version 1 of the contract metadata.
     V1(InkProject),

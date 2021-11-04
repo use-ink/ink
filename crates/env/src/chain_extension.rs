@@ -14,8 +14,9 @@
 
 //! Definitions and utilities for calling chain extension methods.
 //!
-//! Users should not use these types and definitions directly but rather use the provided
-//! `#[ink::chain_extension]` procedural macro defined in the `ink_lang` crate.
+//! Users should not use these types and definitions directly but rather use the
+//! provided `#[ink::chain_extension]` procedural macro defined in the
+//! `ink_lang` crate.
 
 use crate::{
     backend::EnvBackend,
@@ -32,48 +33,57 @@ use core::marker::PhantomData;
 /// It is the `u32` return value.
 ///
 /// The purpose of an `ErrorCode` type that implements this trait is to provide
-/// more context information about the status of an ink! chain extension method call.
+/// more context information about the status of an ink! chain extension method
+/// call.
 pub trait FromStatusCode: Sized {
-    /// Returns `Ok` if the status code for the called chain extension method is valid.
+    /// Returns `Ok` if the status code for the called chain extension method is
+    /// valid.
     ///
-    /// Returning `Ok` will query the output buffer of the call if the chain extension
-    /// method definition has a return value.
+    /// Returning `Ok` will query the output buffer of the call if the chain
+    /// extension method definition has a return value.
     ///
     /// # Note
     ///
-    /// The convention is to use `0` as the only `raw` value that yields `Ok` whereas
-    /// every other value represents one error code. By convention this mapping should
-    /// never panic and therefore every `raw` value must map to either `Ok` or to a proper
-    /// `ErrorCode` variant.
+    /// The convention is to use `0` as the only `raw` value that yields `Ok`
+    /// whereas every other value represents one error code. By convention
+    /// this mapping should never panic and therefore every `raw` value must
+    /// map to either `Ok` or to a proper `ErrorCode` variant.
     fn from_status_code(status_code: u32) -> Result<(), Self>;
 }
 
 /// A concrete instance of a chain extension method.
 ///
-/// This is a utility type used to drive the execution of a chain extension method call.
-/// It has several specializations of its `call` method for different ways to manage
-/// error handling when calling a predefined chain extension method.
+/// This is a utility type used to drive the execution of a chain extension
+/// method call. It has several specializations of its `call` method for
+/// different ways to manage error handling when calling a predefined chain
+/// extension method.
 ///
-/// - `I` represents the input type of the chain extension method.
-///   All tuple types that may act as input parameters for the chain extension method are valid.
-///   Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
+/// - `I` represents the input type of the chain extension method. All tuple
+///   types that may act as input parameters for the chain extension method are
+///   valid. Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
 /// - `O` represents the return (or output) type of the chain extension method.
 ///   Only `Result<T, E>` or `NoResult<O>` generic types are allowed for `O`.
-///   The `Result<T, E>` type says that the chain extension method returns a `Result` type
-///   whereas the `NoResult<O>` type says that the chain extension method returns a non-`Result` value
-///   of type `O`.
-/// - `ErrorCode` represents how the chain extension method handles the chain extension's error code.
-///   Only `HandleErrorCode<E>` and `IgnoreErrorCode` types are allowed that each say to either properly
-///   handle or ignore the chain extension's error code respectively.
+///   The `Result<T, E>` type says that the chain extension method returns a
+///   `Result` type whereas the `NoResult<O>` type says that the chain extension
+///   method returns a non-`Result` value of type `O`.
+/// - `ErrorCode` represents how the chain extension method handles the chain
+///   extension's error code. Only `HandleErrorCode<E>` and `IgnoreErrorCode`
+///   types are allowed that each say to either properly handle or ignore the
+///   chain extension's error code respectively.
 ///
-/// The type states for type parameter `O` and `ErrorCode` represent 4 different states:
+/// The type states for type parameter `O` and `ErrorCode` represent 4 different
+/// states:
 ///
-/// 1. The chain extension method makes use of the chain extension's error code: `HandleErrorCode(E)`
+/// 1. The chain extension method makes use of the chain extension's error code:
+/// `HandleErrorCode(E)`
 ///     - **A:** The chain extension method returns a `Result<T, E>` type.
-///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
-/// 2. The chain extension ignores the chain extension's error code: `IgnoreErrorCode`
+///     - **B:** The chain extension method returns a type `T` that is not a
+///       `Result` type: `NoResult<T>`
+/// 2. The chain extension ignores the chain extension's error code:
+/// `IgnoreErrorCode`
 ///     - **A:** The chain extension method returns a `Result<T, E>` type.
-///     - **B:** The chain extension method returns a type `T` that is not a `Result` type: `NoResult<T>`
+///     - **B:** The chain extension method returns a type `T` that is not a
+///       `Result` type: `NoResult<T>`
 #[derive(Debug)]
 pub struct ChainExtensionMethod<I, O, ErrorCode> {
     func_id: u32,
@@ -98,8 +108,9 @@ impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
     /// # Note
     ///
     /// `I` represents the input type of the chain extension method.
-    /// All tuple types that may act as input parameters for the chain extension method are valid.
-    /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
+    /// All tuple types that may act as input parameters for the chain extension
+    /// method are valid. Examples include `()`, `i32`, `(u8, [u8; 5],
+    /// i32)`, etc.
     #[inline(always)]
     pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode>
     where
@@ -113,11 +124,13 @@ impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
 }
 
 impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
-    /// Sets the output type of the chain extension method call to `Result<T, E>`.
+    /// Sets the output type of the chain extension method call to `Result<T,
+    /// E>`.
     ///
     /// # Note
     ///
-    /// This indicates that the chain extension method return value might represent a failure.
+    /// This indicates that the chain extension method return value might
+    /// represent a failure.
     #[inline(always)]
     pub fn output_result<T, E>(self) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
     where
@@ -151,15 +164,18 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
 }
 
 impl<I, O> ChainExtensionMethod<I, O, ()> {
-    /// Makes the chain extension method call assume that the returned status code is always success.
+    /// Makes the chain extension method call assume that the returned status
+    /// code is always success.
     ///
     /// # Note
     ///
-    /// This will avoid handling of failure status codes returned by the chain extension method call.
-    /// Use this only if you are sure that the chain extension method call will never return an error
+    /// This will avoid handling of failure status codes returned by the chain
+    /// extension method call. Use this only if you are sure that the chain
+    /// extension method call will never return an error
     /// code that represents failure.
     ///
-    /// The output of the chain extension method call is always decoded and returned in this case.
+    /// The output of the chain extension method call is always decoded and
+    /// returned in this case.
     #[inline(always)]
     pub fn ignore_error_code(self) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
         ChainExtensionMethod {
@@ -172,8 +188,9 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     ///
     /// # Note
     ///
-    /// This will handle the returned status code and only loads and decodes the value
-    /// returned as the output of the chain extension method call in case of success.
+    /// This will handle the returned status code and only loads and decodes the
+    /// value returned as the output of the chain extension method call in
+    /// case of success.
     #[inline(always)]
     pub fn handle_error_code<ErrorCode>(
         self,
@@ -192,19 +209,23 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
 pub mod state {
     use core::marker::PhantomData;
 
-    /// Type state meaning that the chain extension method ignores the chain extension's error code.
+    /// Type state meaning that the chain extension method ignores the chain
+    /// extension's error code.
     #[derive(Debug)]
     pub enum IgnoreErrorCode {}
 
-    /// Type state meaning that the chain extension method uses the chain extension's error code.
+    /// Type state meaning that the chain extension method uses the chain
+    /// extension's error code.
     #[derive(Debug)]
     pub struct HandleErrorCode<T> {
         error_code: PhantomData<fn() -> T>,
     }
 
-    /// Type state meaning that the chain extension method deliberately does not return a `Result` type.
+    /// Type state meaning that the chain extension method deliberately does not
+    /// return a `Result` type.
     ///
-    /// Additionally this is enforced by the `#[ink::chain_extension]` procedural macro when used.
+    /// Additionally this is enforced by the `#[ink::chain_extension]`
+    /// procedural macro when used.
     #[derive(Debug)]
     pub struct NoResult<T> {
         no_result: PhantomData<fn() -> T>,
@@ -225,18 +246,23 @@ where
     ///
     /// # Errors
     ///
-    /// - If the called chain extension method returns a non-successful error code.
-    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the called chain extension method returns a non-successful error
+    ///   code.
+    /// - If the `Result` return value of the called chain extension represents
+    ///   an error.
     /// - If the `Result` return value cannot be SCALE decoded properly.
-    /// - If custom constraints specified by the called chain extension method are violated.
-    ///     - These constraints are determined and defined by the author of the chain extension method.
+    /// - If custom constraints specified by the called chain extension method
+    ///   are violated.
+    ///     - These constraints are determined and defined by the author of the
+    ///       chain extension method.
     ///
     /// # Example
     ///
-    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyError>` upon completion.
-    /// It will handle the shared error code from the chain extension.
-    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// Declares a chain extension method with the unique ID of 5 that requires
+    /// a `bool` and an `i32` as input parameters and returns a `Result<i32,
+    /// MyError>` upon completion. It will handle the shared error code from
+    /// the chain extension. The call is finally invoked with arguments
+    /// `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
     /// ```should_panic
@@ -287,18 +313,22 @@ where
     ///
     /// # Errors
     ///
-    /// - If the `Result` return value of the called chain extension represents an error.
+    /// - If the `Result` return value of the called chain extension represents
+    ///   an error.
     /// - If the `Result` return value cannot be SCALE decoded properly.
-    /// - If custom constraints specified by the called chain extension method are violated.
-    ///     - These constraints are determined and defined by the author of the chain extension method.
+    /// - If custom constraints specified by the called chain extension method
+    ///   are violated.
+    ///     - These constraints are determined and defined by the author of the
+    ///       chain extension method.
     ///
     /// # Example
     ///
-    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyError>` upon completion.
-    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
-    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
-    /// parameter respectively.
+    /// Declares a chain extension method with the unique ID of 5 that requires
+    /// a `bool` and an `i32` as input parameters and returns a `Result<i32,
+    /// MyError>` upon completion. It will ignore the shared error code from
+    /// the chain extension and assumes that the call succeeds. The call is
+    /// finally invoked with arguments `true` and `42` for the `bool` and `i32`
+    /// input parameter respectively.
     ///
     /// ```should_panic
     /// # // Panics because the off-chain environment has not
@@ -342,9 +372,12 @@ where
     ///
     /// # Errors
     ///
-    /// - If the called chain extension method returns a non-successful error code.
-    /// - If custom constraints specified by the called chain extension method are violated.
-    ///     - These constraints are determined and defined by the author of the chain extension method.
+    /// - If the called chain extension method returns a non-successful error
+    ///   code.
+    /// - If custom constraints specified by the called chain extension method
+    ///   are violated.
+    ///     - These constraints are determined and defined by the author of the
+    ///       chain extension method.
     ///
     /// # Panics
     ///
@@ -352,10 +385,11 @@ where
     ///
     /// # Example
     ///
-    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
-    /// It will handle the shared error code from the chain extension.
-    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
+    /// Declares a chain extension method with the unique ID of 5 that requires
+    /// a `bool` and an `i32` as input parameters and returns a `Result<i32,
+    /// MyErrorCode>` upon completion. It will handle the shared error code
+    /// from the chain extension. The call is finally invoked with arguments
+    /// `true` and `42` for the `bool` and `i32` input
     /// parameter respectively.
     ///
     /// ```should_panic
@@ -405,11 +439,12 @@ where
     ///
     /// # Example
     ///
-    /// Declares a chain extension method with the unique ID of 5 that requires a `bool` and an `i32`
-    /// as input parameters and returns a `Result<i32, MyErrorCode>` upon completion.
-    /// It will ignore the shared error code from the chain extension and assumes that the call succeeds.
-    /// The call is finally invoked with arguments `true` and `42` for the `bool` and `i32` input
-    /// parameter respectively.
+    /// Declares a chain extension method with the unique ID of 5 that requires
+    /// a `bool` and an `i32` as input parameters and returns a `Result<i32,
+    /// MyErrorCode>` upon completion. It will ignore the shared error code
+    /// from the chain extension and assumes that the call succeeds.
+    /// The call is finally invoked with arguments `true` and `42` for the
+    /// `bool` and `i32` input parameter respectively.
     ///
     /// ```should_panic
     /// # // Panics because the off-chain environment has not

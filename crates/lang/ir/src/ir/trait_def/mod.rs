@@ -40,7 +40,8 @@ pub struct InkTraitDefinition {
 }
 
 impl InkTraitDefinition {
-    /// Returns `Ok` if the input matches all requirements for an ink! trait definition.
+    /// Returns `Ok` if the input matches all requirements for an ink! trait
+    /// definition.
     pub fn new(config: TokenStream2, input: TokenStream2) -> Result<Self> {
         let parsed_config = syn::parse2::<crate::ast::AttributeArgs>(config)?;
         let parsed_item = syn::parse2::<syn::ItemTrait>(input)?;

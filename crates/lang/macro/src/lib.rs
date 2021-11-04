@@ -49,7 +49,8 @@ pub fn blake2x256(input: TokenStream) -> TokenStream {
     blake2b::generate_blake2x256_hash(input.into()).into()
 }
 
-/// Computes the ink! selector of the string and expands into its `u32` representation.
+/// Computes the ink! selector of the string and expands into its `u32`
+/// representation.
 ///
 /// # Note
 ///
@@ -69,7 +70,8 @@ pub fn selector_id(input: TokenStream) -> TokenStream {
     selector::generate_selector_id(input.into()).into()
 }
 
-/// Computes the ink! selector of the string and expands into its byte representation.
+/// Computes the ink! selector of the string and expands into its byte
+/// representation.
 ///
 /// # Note
 ///
@@ -94,9 +96,9 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// If you are a beginner trying to learn ink! we recommend you to check out
 /// our extensive [ink! workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 ///
-/// **Note:** In all below examples we will be using `ink_lang` crate aliased as just `ink`.
-///           You can do this yourself by adding the following line to your code:
-///           `use ink_lang as ink;`
+/// **Note:** In all below examples we will be using `ink_lang` crate aliased as
+/// just `ink`.           You can do this yourself by adding the following line
+/// to your code:           `use ink_lang as ink;`
 ///
 /// # Description
 ///
@@ -116,8 +118,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// ## Header Arguments
 ///
-/// The `#[ink::contract]` macro can be provided with some additional comma-separated
-/// header arguments:
+/// The `#[ink::contract]` macro can be provided with some additional
+/// comma-separated header arguments:
 ///
 /// - `dynamic_storage_allocator: bool`
 ///
@@ -126,13 +128,14 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     - `true`: Use the dynamic storage allocator provided by ink!.
 ///     - `false`: Do NOT use the dynamic storage allocator provided by ink!.
 ///
-///     This feature is generally only needed for smart contracts that try to model
-///     their data in a way that contains storage entities within other storage
-///     entities.
+///     This feature is generally only needed for smart contracts that try to
+/// model     their data in a way that contains storage entities within other
+/// storage     entities.
 ///
-///     Contract writers should try to write smart contracts that do not depend on the
-///     dynamic storage allocator since enabling it comes at a cost of increased Wasm
-///     file size. Although it will enable interesting use cases. Use it with care!
+///     Contract writers should try to write smart contracts that do not depend
+/// on the     dynamic storage allocator since enabling it comes at a cost of
+/// increased Wasm     file size. Although it will enable interesting use cases.
+/// Use it with care!
 ///
 ///     An example for this is the following type that could potentially be used
 ///     within a contract's storage struct definition:
@@ -166,17 +169,18 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// - `compile_as_dependency: bool`
 ///
 ///     Tells the ink! code generator to **always** or **never**
-///     compile the smart contract as if it was used as a dependency of another ink!
-///     smart contract.
+///     compile the smart contract as if it was used as a dependency of another
+/// ink!     smart contract.
 ///
 ///     Normally this flag is only really useful for ink! developers who
 ///     want to inspect code generation of ink! smart contracts.
-///     The author is not aware of any particular practical use case for users that
-///     makes use of this flag but contract writers are encouraged to disprove this.
+///     The author is not aware of any particular practical use case for users
+/// that     makes use of this flag but contract writers are encouraged to
+/// disprove this.
 ///
 ///     Note that it is recommended to make use of the built-in crate feature
-///     `ink-as-dependency` to flag smart contract dependencies listed in a contract's
-///     `Cargo.toml` as actual dependencies to ink!.
+///     `ink-as-dependency` to flag smart contract dependencies listed in a
+/// contract's     `Cargo.toml` as actual dependencies to ink!.
 ///
 ///     **Usage Example:**
 ///     ```
@@ -195,17 +199,20 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     }
 ///     ```
 ///
-///     **Default value:** Depends on the crate feature propagation of `Cargo.toml`.
+///     **Default value:** Depends on the crate feature propagation of
+/// `Cargo.toml`.
 ///
 /// - `env: impl Environment`
 ///
-///     Tells the ink! code generator which environment to use for the ink! smart contract.
-///     The environment must implement the `Environment` (defined in `ink_env`) trait and provides
-///     all the necessary fundamental type definitions for `Balance`, `AccountId` etc.
+///     Tells the ink! code generator which environment to use for the ink!
+/// smart contract.     The environment must implement the `Environment`
+/// (defined in `ink_env`) trait and provides     all the necessary fundamental
+/// type definitions for `Balance`, `AccountId` etc.
 ///
-///     When using a custom `Environment` implementation for a smart contract all types
-///     that it exposes to the ink! smart contract and the mirrored types used in the runtime
-///     must be aligned with respect to SCALE encoding and semantics.
+///     When using a custom `Environment` implementation for a smart contract
+/// all types     that it exposes to the ink! smart contract and the mirrored
+/// types used in the runtime     must be aligned with respect to SCALE encoding
+/// and semantics.
 ///
 ///     **Usage Example:**
 ///
@@ -224,8 +231,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         type ChainExtension = ::ink_env::NoChainExtension;
 ///     }
 ///     ```
-///     A user might implement their ink! smart contract using the above custom `Environment`
-///     implementation as demonstrated below:
+///     A user might implement their ink! smart contract using the above custom
+/// `Environment`     implementation as demonstrated below:
 ///     ```
 ///     # use ink_lang as ink;
 ///     #[ink::contract(env = MyEnvironment)]
@@ -266,9 +273,10 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// - There must be exactly one `#[ink(storage)]` struct.
 ///
-///     This struct defines the layout of the storage that the ink! smart contract operates on.
-///     The user is able to use a variety of built-in facilities, combine them in various ways
-///     or even provide their own implementations of storage data structures.
+///     This struct defines the layout of the storage that the ink! smart
+/// contract operates on.     The user is able to use a variety of built-in
+/// facilities, combine them in various ways     or even provide their own
+/// implementations of storage data structures.
 ///
 ///     For more information visit the `ink_storage` crate documentation.
 ///
@@ -293,14 +301,15 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// - There must be at least one `#[ink(constructor)]` defined method.
 ///
-///     Methods flagged with `#[ink(constructor)]` are special in that they are dispatchable
-///     upon contract instantiation. A contract may define multiple such constructors which
-///     allow users of the contract to instantiate a contract in multiple different ways.
+///     Methods flagged with `#[ink(constructor)]` are special in that they are
+/// dispatchable     upon contract instantiation. A contract may define multiple
+/// such constructors which     allow users of the contract to instantiate a
+/// contract in multiple different ways.
 ///
 ///     **Example:**
 ///
-///     Given the `Flipper` contract definition above we add an `#[ink(constructor)]`
-///     as follows:
+///     Given the `Flipper` contract definition above we add an
+/// `#[ink(constructor)]`     as follows:
 ///
 ///     ```
 ///     # use ink_lang as ink;
@@ -323,21 +332,23 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// - There must be at least one `#[ink(message)]` defined method.
 ///
-///     Methods flagged with `#[ink(message)]` are special in that they are dispatchable
-///     upon contract invocation. The set of ink! messages defined for an ink! smart contract
-///     define its API surface with which users are allowed to interact.
+///     Methods flagged with `#[ink(message)]` are special in that they are
+/// dispatchable     upon contract invocation. The set of ink! messages defined
+/// for an ink! smart contract     define its API surface with which users are
+/// allowed to interact.
 ///
 ///     An ink! smart contract can have multiple such ink! messages defined.
 ///
 ///     **Note:**
 ///
-///     - An ink! message with a `&self` receiver may only read state whereas an ink! message
-///       with a `&mut self` receiver may mutate the contract's storage.
+///     - An ink! message with a `&self` receiver may only read state whereas an
+///       ink! message with a `&mut self` receiver may mutate the contract's
+///       storage.
 ///
 ///     **Example:**
 ///
-///     Given the `Flipper` contract definition above we add some `#[ink(message)]` definitions
-///     as follows:
+///     Given the `Flipper` contract definition above we add some
+/// `#[ink(message)]` definitions     as follows:
 ///
 ///     ```
 ///     # use ink_lang as ink;
@@ -369,12 +380,12 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     **Payable Messages:**
 ///
-///     An ink! message by default will reject calls that additional fund the smart contract.
-///     Authors of ink! smart contracts can make an ink! message payable by adding the `payable`
-///     flag to it. An example below:
+///     An ink! message by default will reject calls that additional fund the
+/// smart contract.     Authors of ink! smart contracts can make an ink! message
+/// payable by adding the `payable`     flag to it. An example below:
 ///
-///     Note that ink! constructors are always implicitly payable and thus cannot be flagged
-///     as such.
+///     Note that ink! constructors are always implicitly payable and thus
+/// cannot be flagged     as such.
 ///
 ///     ```
 ///     # use ink_lang as ink;
@@ -407,12 +418,14 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     **Controlling the messages selector:**
 ///
-///     Every ink! message and ink! constructor has a unique selector with which the
-///     message or constructor can be uniquely identified within the ink! smart contract.
-///     These selectors are mainly used to drive the contract's dispatch upon calling it.
+///     Every ink! message and ink! constructor has a unique selector with which
+/// the     message or constructor can be uniquely identified within the ink!
+/// smart contract.     These selectors are mainly used to drive the contract's
+/// dispatch upon calling it.
 ///
-///     An ink! smart contract author can control the selector of an ink! message or ink!
-///     constructor using the `selector` flag. An example is shown below:
+///     An ink! smart contract author can control the selector of an ink!
+/// message or ink!     constructor using the `selector` flag. An example is
+/// shown below:
 ///
 ///     ```
 ///     # use ink_lang as ink;
@@ -431,14 +444,14 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///         # /// Flips the current value.
 ///         # #[ink(message)]
-///         # #[ink(selector = 0xCAFEBABE)] // You can either specify selector out-of-line.
-///         # pub fn flip(&mut self) {
+///         # #[ink(selector = 0xCAFEBABE)] // You can either specify selector
+/// out-of-line.         # pub fn flip(&mut self) {
 ///         #     self.value = !self.value;
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = 0xFEEDBEEF)] // ... or specify selector inline.
-///         pub fn get(&self) -> bool {
+///         #[ink(message, selector = 0xFEEDBEEF)] // ... or specify selector
+/// inline.         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
 ///     }
@@ -447,8 +460,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// ## Interacting with the Contract Executor
 ///
-/// The `ink_env` crate provides facilities to interact with the contract executor that
-/// connects ink! smart contracts with the outer world.
+/// The `ink_env` crate provides facilities to interact with the contract
+/// executor that connects ink! smart contracts with the outer world.
 ///
 /// For example it is possible to query the current call's caller via:
 /// ```
@@ -459,8 +472,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// # }).unwrap();
 /// ```
 ///
-/// However, ink! provides a much simpler way to interact with the contract executor
-/// via its environment accessor. An example below:
+/// However, ink! provides a much simpler way to interact with the contract
+/// executor via its environment accessor. An example below:
 ///
 /// ```
 /// # use ink_lang as ink;
@@ -492,12 +505,12 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 /// ## Events
 ///
-/// An ink! smart contract may define events that it can emit during contract execution.
-/// Emitting events can be used by third party tools to query information about a contract's
-/// execution and state.
+/// An ink! smart contract may define events that it can emit during contract
+/// execution. Emitting events can be used by third party tools to query
+/// information about a contract's execution and state.
 ///
-/// The following example ink! contract shows how an event `Transferred` is defined and
-/// emitted in the `#[ink(constructor)]`.
+/// The following example ink! contract shows how an event `Transferred` is
+/// defined and emitted in the `#[ink(constructor)]`.
 ///
 /// ```
 /// # use ink_lang as ink;
@@ -588,9 +601,10 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// Marks trait definitions to ink! as special ink! trait definitions.
 ///
 /// There are some restrictions that apply to ink! trait definitions that
-/// this macro checks. Also ink! trait definitions are required to have specialized
-/// structure so that the main [`#[ink::contract]`](`macro@crate::contract`) macro can
-/// properly generate code for its implementations.
+/// this macro checks. Also ink! trait definitions are required to have
+/// specialized structure so that the main
+/// [`#[ink::contract]`](`macro@crate::contract`) macro can properly generate
+/// code for its implementations.
 ///
 /// # Example: Definition
 ///
@@ -718,18 +732,20 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// as well as the definition of some chain extension methods.
 ///
 /// The overall structure follows that of a simple Rust trait definition.
-/// The error code is defined as an associated type definition of the trait definition.
-/// The methods are defined as associated trait methods without implementation.
+/// The error code is defined as an associated type definition of the trait
+/// definition. The methods are defined as associated trait methods without
+/// implementation.
 ///
-/// Chain extension methods must not have a `self` receiver such as `&self` or `&mut self`
-/// and must have inputs and output that implement the SCALE encoding and decoding.
-/// Their return value follows specific rules that can be altered using the `handle_status`
-/// and `returns_result` attributes which are described in more detail below.
+/// Chain extension methods must not have a `self` receiver such as `&self` or
+/// `&mut self` and must have inputs and output that implement the SCALE
+/// encoding and decoding. Their return value follows specific rules that can be
+/// altered using the `handle_status` and `returns_result` attributes which are
+/// described in more detail below.
 ///
 /// # Usage
 ///
-/// Usually the chain extension definition using this procedural macro is provided
-/// by the author of the chain extension in a separate crate.
+/// Usually the chain extension definition using this procedural macro is
+/// provided by the author of the chain extension in a separate crate.
 /// ink! smart contracts using this chain extension simply depend on this crate
 /// and use its associated environment definition in order to make use of
 /// the methods provided by the chain extension.
@@ -741,12 +757,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// | Attribute | Required | Default Value | Description |
 /// |:----------|:--------:|:--------------|:-----------:|
-/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of the chain extension method. |
-/// | `ink(handle_status = flag: bool)` | Optional | `true` | Assumes that the returned status code of the chain extension method always indicates success and therefore always loads and decodes the output buffer of the call. |
-/// | `ink(returns_result = flag: bool)` | Optional | `true` | By default chain extension methods are assumed to return a `Result<T, E>` in the output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return any other type. |
+/// | `ink(extension = N: u32)` | Yes | - | Determines the unique function ID of
+/// the chain extension method. | | `ink(handle_status = flag: bool)` | Optional
+/// | `true` | Assumes that the returned status code of the chain extension
+/// method always indicates success and therefore always loads and decodes the
+/// output buffer of the call. | | `ink(returns_result = flag: bool)` | Optional
+/// | `true` | By default chain extension methods are assumed to return a
+/// `Result<T, E>` in the output buffer. Using `returns_result = false` this
+/// check is disabled and the chain extension method may return any other type.
+/// |
 ///
-/// As with all ink! attributes multiple of them can either appear in a contiguous list:
-/// ```
+/// As with all ink! attributes multiple of them can either appear in a
+/// contiguous list: ```
 /// # type Access = i32;
 /// # use ink_lang as ink;
 /// # #[ink::chain_extension]
@@ -774,51 +796,70 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// Default value: `true`
 ///
-/// By default all chain extension methods return a `Result<T, E>` where `E: From<Self::ErrorCode>`.
-/// The `Self::ErrorCode` represents the error code of the chain extension.
-/// This means that a smart contract calling such a chain extension method first queries the returned
-/// status code of the chain extension method and only loads and decodes the output if the returned
+/// By default all chain extension methods return a `Result<T, E>` where `E:
+/// From<Self::ErrorCode>`. The `Self::ErrorCode` represents the error code of
+/// the chain extension. This means that a smart contract calling such a chain
+/// extension method first queries the returned status code of the chain
+/// extension method and only loads and decodes the output if the returned
 /// status code indicates a successful call.
-/// This design was chosen as it is more efficient when no output besides the error
-/// code is required for a chain extension call. When designing a chain extension try to utilize the
-/// error code to return errors and only use the output buffer for information that does not fit in
-/// a single `u32` value.
+/// This design was chosen as it is more efficient when no output besides the
+/// error code is required for a chain extension call. When designing a chain
+/// extension try to utilize the error code to return errors and only use the
+/// output buffer for information that does not fit in a single `u32` value.
 ///
-/// A chain extension method that is flagged with `handle_status = false` assumes that the returned error code
-/// will always indicate success. Therefore it will always load and decode the output buffer and loses
+/// A chain extension method that is flagged with `handle_status = false`
+/// assumes that the returned error code will always indicate success. Therefore
+/// it will always load and decode the output buffer and loses
 /// the `E: From<Self::ErrorCode` constraint for the call.
 ///
 /// ## Details: `returns_result`
 ///
 /// Default value: `true`
 ///
-/// By default chain extension methods are assumed to return a value of type `Result<T, E>` through the
-/// output buffer. Using `returns_result = false` this check is disabled and the chain extension method may return
+/// By default chain extension methods are assumed to return a value of type
+/// `Result<T, E>` through the output buffer. Using `returns_result = false`
+/// this check is disabled and the chain extension method may return
 /// any other type.
 ///
-/// Note that if a chain extension method is attributed with `returns_result = false`
-/// and with `handle_status = true` it will still return a value of type `Result<T, Self::ErrorCode>`.
+/// Note that if a chain extension method is attributed with `returns_result =
+/// false` and with `handle_status = true` it will still return a value of type
+/// `Result<T, Self::ErrorCode>`.
 ///
 /// ## Usage: `handle_status` and `returns_result`
 ///
-/// Use both `handle_status = false` and `returns_result = false` for the same chain extension method
-/// if a call to it may never fail and never returns a `Result` type.
+/// Use both `handle_status = false` and `returns_result = false` for the same
+/// chain extension method if a call to it may never fail and never returns a
+/// `Result` type.
 ///
 /// # Combinations
 ///
-/// Due to the possibility to flag a chain extension method with `handle_status` and `returns_result`
-/// there are 4 different cases with slightly varying semantics:
+/// Due to the possibility to flag a chain extension method with `handle_status`
+/// and `returns_result` there are 4 different cases with slightly varying
+/// semantics:
 ///
 /// | `handle_status` | `returns_result` | Effects |
 /// |:---------------:|:----------------:|:--------|
-/// | `true`  | `true`  | The chain extension method is required to return a value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. |
-/// | `true`  | `false` | The chain extension method may return any non-`Result` type. A call will always check if the returned status code indicates success and only then will load and decode the value in the output buffer. The actual return type of the chain extension method is still `Result<T, Self::ErrorCode>` when the chain extension method was defined to return a value of type `T`. |
-/// | `false` | `true`  | The chain extension method is required to return a value of type `Result<T, E>`. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
-/// | `false` | `false` | The chain extension method may return any non-`Result` type. A call will always assume that the returned status code indicates success and therefore always load and decode the output buffer directly. |
+/// | `true`  | `true`  | The chain extension method is required to return a
+/// value of type `Result<T, E>` where `E: From<Self::ErrorCode>`. A call will
+/// always check if the returned status code indicates success and only then
+/// will load and decode the value in the output buffer. | | `true`  | `false` |
+/// The chain extension method may return any non-`Result` type. A call will
+/// always check if the returned status code indicates success and only then
+/// will load and decode the value in the output buffer. The actual return type
+/// of the chain extension method is still `Result<T, Self::ErrorCode>` when the
+/// chain extension method was defined to return a value of type `T`. |
+/// | `false` | `true`  | The chain extension method is required to return a
+/// value of type `Result<T, E>`. A call will always assume that the returned
+/// status code indicates success and therefore always load and decode the
+/// output buffer directly. | | `false` | `false` | The chain extension method
+/// may return any non-`Result` type. A call will always assume that the
+/// returned status code indicates success and therefore always load and decode
+/// the output buffer directly. |
 ///
 /// # Error Code
 ///
-/// Every chain extension defines exactly one `ErrorCode` using the following syntax:
+/// Every chain extension defines exactly one `ErrorCode` using the following
+/// syntax:
 ///
 /// ```
 /// use ink_lang as ink;
@@ -831,17 +872,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// The defined `ErrorCode` must implement `FromStatusCode` which should be implemented as a
-/// more or less trivial conversion from the `u32` status code to a `Result<(), Self::ErrorCode>`.
-/// The `Ok(())` value indicates that the call to the chain extension method was successful.
+/// The defined `ErrorCode` must implement `FromStatusCode` which should be
+/// implemented as a more or less trivial conversion from the `u32` status code
+/// to a `Result<(), Self::ErrorCode>`. The `Ok(())` value indicates that the
+/// call to the chain extension method was successful.
 ///
 /// By convention an error code of `0` represents success.
 /// However, chain extension authors may use whatever suits their needs.
 ///
 /// # Example: Definition
 ///
-/// In the below example a chain extension is defined that allows its users to read and write
-/// from and to the runtime storage using access privileges:
+/// In the below example a chain extension is defined that allows its users to
+/// read and write from and to the runtime storage using access privileges:
 ///
 /// ```
 /// use ink_lang as ink;
@@ -954,17 +996,18 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// # }
 /// ```
 ///
-/// All the error types and other utility types used in the chain extension definition
-/// above are often required to implement various traits such as SCALE's `Encode` and `Decode`
-/// as well as `scale-info`'s `TypeInfo` trait.
+/// All the error types and other utility types used in the chain extension
+/// definition above are often required to implement various traits such as
+/// SCALE's `Encode` and `Decode` as well as `scale-info`'s `TypeInfo` trait.
 ///
 /// A full example of the above chain extension definition can be seen
 /// [here](https://github.com/paritytech/ink/blob/017f71d60799b764425334f86b732cc7b7065fe6/crates/lang/macro/tests/ui/chain_extension/simple.rs).
 ///
 /// # Example: Environment
 ///
-/// In order to allow ink! smart contracts to use the above defined chain extension it needs
-/// to be integrated into an `Environment` definition as shown below:
+/// In order to allow ink! smart contracts to use the above defined chain
+/// extension it needs to be integrated into an `Environment` definition as
+/// shown below:
 ///
 /// ```
 /// # type RuntimeReadWrite = i32;
@@ -988,18 +1031,19 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// Above we defined the `CustomEnvironment` which defaults to ink!'s `DefaultEnvironment`
-/// for all constants and types but the `ChainExtension` type which is assigned to our newly
-/// defined chain extension.
+/// Above we defined the `CustomEnvironment` which defaults to ink!'s
+/// `DefaultEnvironment` for all constants and types but the `ChainExtension`
+/// type which is assigned to our newly defined chain extension.
 ///
 /// # Example: Usage
 ///
-/// An ink! smart contract can use the above defined chain extension through the `Environment`
-/// definition defined in the last example section using the `env` macro parameter as
-/// shown below.
+/// An ink! smart contract can use the above defined chain extension through the
+/// `Environment` definition defined in the last example section using the `env`
+/// macro parameter as shown below.
 ///
-/// Note that chain extension methods are accessible through `Self::extension()` or
-/// `self.extension()`. For example as in `Self::extension().read(..)` or `self.extension().read(..)`.
+/// Note that chain extension methods are accessible through `Self::extension()`
+/// or `self.extension()`. For example as in `Self::extension().read(..)` or
+/// `self.extension().read(..)`.
 ///
 /// ```
 /// # use ink_lang as ink;
@@ -1135,12 +1179,13 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Technical Limitations
 ///
-/// - Due to technical limitations it is not possible to refer to the `ErrorCode` associated type
-///   using `Self::ErrorCode` anywhere within the chain extension and its defined methods.
-///   Instead chain extension authors should directly use the error code type when required.
-///   This limitation might be lifted in future versions of ink!.
-/// - It is not possible to declare other chain extension traits as super traits or super
-///   chain extensions of another.
+/// - Due to technical limitations it is not possible to refer to the
+///   `ErrorCode` associated type using `Self::ErrorCode` anywhere within the
+///   chain extension and its defined methods. Instead chain extension authors
+///   should directly use the error code type when required. This limitation
+///   might be lifted in future versions of ink!.
+/// - It is not possible to declare other chain extension traits as super traits
+///   or super chain extensions of another.
 #[proc_macro_attribute]
 pub fn chain_extension(attr: TokenStream, item: TokenStream) -> TokenStream {
     chain_extension::generate(attr.into(), item.into()).into()

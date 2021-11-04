@@ -39,7 +39,8 @@ use std::{
 /// Conducts repeated insert and remove operations into the map by iterating
 /// over `xs`. For each odd `x` in `xs` a defined number of insert operations
 /// (`inserts_each`) is executed. For each even `x` it's asserted that the
-/// previously inserted elements are in the map, and they are removed subsequently.
+/// previously inserted elements are in the map, and they are removed
+/// subsequently.
 ///
 /// The reasoning behind this even/odd sequence is to introduce some
 /// randomness into when elements are inserted/removed.

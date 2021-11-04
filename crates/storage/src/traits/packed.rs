@@ -26,7 +26,8 @@ pub trait PackedAllocate: SpreadAllocate + PackedLayout {
     ///
     /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
-    /// are required to perform some special handling upon receiving this signal.
+    /// are required to perform some special handling upon receiving this
+    /// signal.
     fn allocate_packed(&mut self, at: &Key);
 }
 
@@ -38,7 +39,8 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     ///
     /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
-    /// are required to perform some special handling upon receiving this signal.
+    /// are required to perform some special handling upon receiving this
+    /// signal.
     fn pull_packed(&mut self, at: &Key);
 
     /// Indicates to `self` that it is about to be pushed to contract storage.
@@ -47,15 +49,18 @@ pub trait PackedLayout: SpreadLayout + scale::Encode + scale::Decode {
     ///
     /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
-    /// are required to perform some special handling upon receiving this signal.
+    /// are required to perform some special handling upon receiving this
+    /// signal.
     fn push_packed(&self, at: &Key);
 
-    /// Indicates to `self` that it is about to be cleared from contract storage.
+    /// Indicates to `self` that it is about to be cleared from contract
+    /// storage.
     ///
     /// # Note
     ///
     /// Most types will have to implement a trivial forwarding to their fields.
     /// However, some types such as [`storage::Box`](`crate::Box`)
-    /// are required to perform some special handling upon receiving this signal.
+    /// are required to perform some special handling upon receiving this
+    /// signal.
     fn clear_packed(&self, at: &Key);
 }

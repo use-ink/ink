@@ -85,7 +85,8 @@ where
     /// # Note
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
+    /// called contract message does not return anything because it is more
+    /// efficient.
     pub fn invoke(&self) -> Result<(), crate::Error> {
         crate::invoke_contract(self)
     }
@@ -104,19 +105,21 @@ where
     /// # Note
     ///
     /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
+    /// called contract message does not return anything because it is more
+    /// efficient.
     pub fn eval(&self) -> Result<R, crate::Error> {
         crate::eval_contract(self)
     }
 }
 
-/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract call.
+/// Returns a new [`CallBuilder`] to build up the parameters to a cross-contract
+/// call.
 ///
 /// # Example
 ///
-/// **Note:** The shown examples panic because there is currently no cross-calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
+/// **Note:** The shown examples panic because there is currently no
+/// cross-calling           support in the off-chain testing environment.
+/// However, this code           should work fine in on-chain environments.
 ///
 /// ## Example 1: No Return Value
 ///
@@ -126,10 +129,8 @@ where
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution
 /// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a
+///   `bool` with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -161,10 +162,8 @@ where
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution
 /// - is provided with 10 units of transferred value for the contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a
+///   `bool` with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -291,7 +290,8 @@ where
 }
 
 mod seal {
-    /// Used to prevent users from implementing `IndicateReturnType` for their own types.
+    /// Used to prevent users from implementing `IndicateReturnType` for their
+    /// own types.
     pub trait Sealed {}
     impl Sealed for () {}
     impl<T> Sealed for super::ReturnType<T> {}
@@ -311,9 +311,9 @@ where
     ///
     /// # Note
     ///
-    /// Either use `.returns::<()>` to signal that the call does not return a value
-    /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
-    /// type `T`.
+    /// Either use `.returns::<()>` to signal that the call does not return a
+    /// value or use `.returns::<ReturnType<T>>` to signal that the call
+    /// returns a value of type `T`.
     #[inline]
     pub fn returns<R>(
         self,

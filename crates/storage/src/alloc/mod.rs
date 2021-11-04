@@ -23,18 +23,18 @@
 //! # Simplification
 //!
 //! The contracts pallet is using 256-bit keys for identifying storage cells.
-//! This implies a storage space of `2^256` cells which is big enough to say that
-//! there are probably never going to happen collisions anywhere at any time
-//! if keys are chosen randomly. Using the built-in crypto hashers on unique
-//! input we can be sure that there are never going to be collisions in this
-//! space of `2^256` cells.
+//! This implies a storage space of `2^256` cells which is big enough to say
+//! that there are probably never going to happen collisions anywhere at any
+//! time if keys are chosen randomly. Using the built-in crypto hashers on
+//! unique input we can be sure that there are never going to be collisions in
+//! this space of `2^256` cells.
 //!
 //! This way we can reduce the problem of finding another region in our storage
 //! that fits certain requirements (e.g. a minimum size) to the problem of
 //! finding another uniform slot. Since we are on 32-bit WebAssembly we have
 //! memory limitations that make it impractical to have more than `2^32` dynamic
-//! allocated entities, so we can create another limitation for having a total of
-//! `2^32` dynamic allocations at any point in time.
+//! allocated entities, so we can create another limitation for having a total
+//! of `2^32` dynamic allocations at any point in time.
 //! This enables us to have 32-bit keys instead of 256-bit keys.
 //!
 //! We can convert such 32-bit keys (represented by e.g. a `u32`) into 256-bit
@@ -55,8 +55,8 @@
 //! for a dynamic allocation would mean that for every 256 consecutively
 //! occupied dynamic allocations there was a contract storage lookup required.
 //! This might seem a lot but given that there could be thousands or
-//! tens of thousands of dynamic allocations at any given time this might not scale
-//! well.
+//! tens of thousands of dynamic allocations at any given time this might not
+//! scale well.
 //! For the reason of improving scalability we added another vector: the
 //! so-called `set_bits` vector.
 //! In this vector every `u8` element densely stores the number of set bits
@@ -104,9 +104,10 @@ pub fn free(allocation: DynamicAllocation) {
 /// automatically being use in the correct order and way by the generated code.
 ///
 /// - The `phase` parameter describes for which execution phase the dynamic
-///   storage allocator needs to be initialized since this is different
-///   in contract instantiations and calls.
-/// - This has to be issued before the first interaction with the global allocator.
+///   storage allocator needs to be initialized since this is different in
+///   contract instantiations and calls.
+/// - This has to be issued before the first interaction with the global
+///   allocator.
 /// - The actual instantiation will happen only upon the first interaction with
 ///   the global allocator, e.g. using the `alloc` or `free` calls. Until then,
 ///   it remains uninitialized.

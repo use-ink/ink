@@ -32,7 +32,8 @@ impl TryFrom<syn::ItemFn> for InkTest {
 }
 
 impl InkTest {
-    /// Returns `Ok` if the trait matches all requirements for an ink! trait definition.
+    /// Returns `Ok` if the trait matches all requirements for an ink! trait
+    /// definition.
     pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<Self, syn::Error> {
         if !attr.is_empty() {
             return Err(format_err_spanned!(

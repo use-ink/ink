@@ -31,7 +31,8 @@ use proc_macro2::{
 use std::collections::HashMap;
 use syn::spanned::Spanned;
 
-/// An extension trait for [`syn::Attribute`] in order to query for documentation.
+/// An extension trait for [`syn::Attribute`] in order to query for
+/// documentation.
 pub trait IsDocAttribute {
     /// Returns `true` if the attribute is a Rust documentation attribute.
     fn is_doc_attribute(&self) -> bool;
@@ -67,12 +68,13 @@ pub enum Attribute {
     Ink(InkAttribute),
     /// Any other attribute.
     ///
-    /// This can be a known `#[derive(Debug)]` or a specific attribute of another
-    /// crate.
+    /// This can be a known `#[derive(Debug)]` or a specific attribute of
+    /// another crate.
     Other(syn::Attribute),
 }
 
-/// Types implementing this trait can return a slice over their `syn` attributes.
+/// Types implementing this trait can return a slice over their `syn`
+/// attributes.
 pub trait Attrs {
     /// Returns the slice of attributes of an AST entity.
     fn attrs(&self) -> &[syn::Attribute];
@@ -212,8 +214,9 @@ impl InkAttribute {
     ///
     /// # Example
     ///
-    /// Given the input ink! attribute sequence `[ #[ink(message)], #[ink(payable)] ]`
-    /// this procedure returns the single attribute `#[ink(message, payable)]`.
+    /// Given the input ink! attribute sequence `[ #[ink(message)],
+    /// #[ink(payable)] ]` this procedure returns the single attribute
+    /// `#[ink(message, payable)]`.
     ///
     /// # Errors
     ///
@@ -286,7 +289,8 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `false` if the ink! attribute contains the `handle_status = false` argument.
+    /// Returns `false` if the ink! attribute contains the `handle_status =
+    /// false` argument.
     ///
     /// Otherwise returns `true`.
     pub fn is_handle_status(&self) -> bool {
@@ -295,7 +299,8 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
     }
 
-    /// Returns `false` if the ink! attribute contains the `returns_result = false` argument.
+    /// Returns `false` if the ink! attribute contains the `returns_result =
+    /// false` argument.
     ///
     /// Otherwise returns `true`.
     pub fn is_returns_result(&self) -> bool {
@@ -411,16 +416,17 @@ pub enum AttributeArg {
     ///
     /// Can be applied on ink! implementation blocks in order to make ink! aware
     /// of them. This is useful if such an implementation block does not contain
-    /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
-    /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
-    /// as ink! implementation blocks thus allowing to access the environment
-    /// etc. Note that ink! messages and constructors still need to be explicitly
-    /// flagged as such.
+    /// any other ink! attributes, so it would be flagged by ink! as a Rust
+    /// item. Adding `#[ink(impl)]` on such implementation blocks makes them
+    /// treated as ink! implementation blocks thus allowing to access the
+    /// environment etc. Note that ink! messages and constructors still need
+    /// to be explicitly flagged as such.
     Implementation,
     /// `#[ink(extension = N: u32)]`
     ///
     /// Applies on ink! chain extension method to set their `func_id` parameter.
-    /// Every chain extension method must have exactly one ink! `extension` attribute.
+    /// Every chain extension method must have exactly one ink! `extension`
+    /// attribute.
     ///
     /// Used by the `#[ink::chain_extension]` procedural macro.
     Extension(ExtensionId),
@@ -531,8 +537,8 @@ impl Namespace {
     }
 }
 
-/// Returns `true` if the given iterator yields at least one attribute of the form
-/// `#[ink(..)]` or `#[ink]`.
+/// Returns `true` if the given iterator yields at least one attribute of the
+/// form `#[ink(..)]` or `#[ink]`.
 ///
 /// # Note
 ///
@@ -565,11 +571,13 @@ where
     }
 }
 
-/// Partitions the given attributes into ink! specific and non-ink! specific attributes.
+/// Partitions the given attributes into ink! specific and non-ink! specific
+/// attributes.
 ///
 /// # Error
 ///
-/// Returns an error if some ink! specific attributes could not be successfully parsed.
+/// Returns an error if some ink! specific attributes could not be successfully
+/// parsed.
 pub fn partition_attributes<I>(
     attrs: I,
 ) -> Result<(Vec<InkAttribute>, Vec<syn::Attribute>), syn::Error>
@@ -603,9 +611,10 @@ where
 ///
 /// # Parameters
 ///
-/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
-/// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not
+/// conflict, returns `Err(None)` if the attribute conflicts but without
+/// providing further reasoning and `Err(Some(reason))` if the attribute
+/// conflicts given additional context information.
 ///
 /// # Errors
 ///
@@ -649,9 +658,10 @@ where
 ///
 /// # Parameters
 ///
-/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
-/// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-/// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+/// The `is_conflicting_attr` closure returns `Ok` if the attribute does not
+/// conflict, returns `Err(None)` if the attribute conflicts but without
+/// providing further reasoning and `Err(Some(reason))` if the attribute
+/// conflicts given additional context information.
 ///
 /// # Errors
 ///
@@ -754,16 +764,18 @@ impl TryFrom<syn::Attribute> for InkAttribute {
 }
 
 impl InkAttribute {
-    /// Ensures that there are no conflicting ink! attribute arguments in `self`.
+    /// Ensures that there are no conflicting ink! attribute arguments in
+    /// `self`.
     ///
     /// The given `is_conflicting` describes for every ink! attribute argument
     /// found in `self` if it is in conflict.
     ///
     /// # Parameters
     ///
-    /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not conflict,
-    /// returns `Err(None)` if the attribute conflicts but without providing further reasoning
-    /// and `Err(Some(reason))` if the attribute conflicts given additional context information.
+    /// The `is_conflicting_attr` closure returns `Ok` if the attribute does not
+    /// conflict, returns `Err(None)` if the attribute conflicts but without
+    /// providing further reasoning and `Err(Some(reason))` if the attribute
+    /// conflicts given additional context information.
     pub fn ensure_no_conflicts<'a, P>(
         &'a self,
         mut is_conflicting: P,

@@ -39,7 +39,8 @@ pub use self::{
 #[doc(inline)]
 pub use self::smallvec::SmallVec;
 
-/// Extends the lifetime `'a` to the outliving lifetime `'b` for the given reference.
+/// Extends the lifetime `'a` to the outliving lifetime `'b` for the given
+/// reference.
 ///
 /// # Note
 ///

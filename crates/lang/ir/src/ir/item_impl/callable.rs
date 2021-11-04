@@ -171,7 +171,8 @@ pub trait Callable {
     /// Returns the span of the inputs of the ink! callable.
     fn inputs_span(&self) -> Span;
 
-    /// Returns a slice over shared references to the statements of the callable.
+    /// Returns a slice over shared references to the statements of the
+    /// callable.
     fn statements(&self) -> &[syn::Stmt];
 }
 
@@ -191,12 +192,12 @@ pub trait Callable {
 /// Then the selector is composed in the following way:
 ///
 /// - If `s` is given we simply return `s`.
-/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate
-///   `S`, `T` and `i` with `::` as separator if `T` refers to a full-path.
-///   If `T` refers to a relative path or is just an identifier we only take
-///   its last segment `p` (e.g. the trait's identifier) into consideration
-///   and use it instead of `P` in the above concatenation.
-///   In the following we refer to the resulting concatenation as `C`.
+/// - Otherwise if `T` is not `None` (trait `impl` block) we concatenate `S`,
+///   `T` and `i` with `::` as separator if `T` refers to a full-path. If `T`
+///   refers to a relative path or is just an identifier we only take its last
+///   segment `p` (e.g. the trait's identifier) into consideration and use it
+///   instead of `P` in the above concatenation. In the following we refer to
+///   the resulting concatenation as `C`.
 /// - Now we take the BLAKE-2 hash of `C` which results in 32 bytes of output
 ///   and take the first 4 bytes that are returned in order as the composed
 ///   selector.
@@ -214,8 +215,8 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
-/// the composed selector.
+/// ... then the selector of `my_message` is simply `0xDEADBEEF` since it
+/// overrides the composed selector.
 ///
 /// ## Inherent implementation block
 ///
@@ -357,8 +358,8 @@ where
 ///  - `const` (compile-time evaluable)
 ///  - `async` (asynchronous WebAssembly smart contract calling is not allowed)
 ///  - `unsafe` (caller provided assertions not yet stable)
-/// - Furthermore this is `true` if the externally callable is defined for a
-///   non default ABI (e.g. `extern "C"`) or does not have valid visibility.
+/// - Furthermore this is `true` if the externally callable is defined for a non
+///   default ABI (e.g. `extern "C"`) or does not have valid visibility.
 pub(super) fn ensure_callable_invariants(
     method_item: &syn::ImplItemMethod,
     kind: CallableKind,
@@ -451,7 +452,8 @@ impl quote::ToTokens for Visibility {
 }
 
 impl Visibility {
-    /// Returns `true` if the visibility of the ink! message of constructor is public (`pub`).
+    /// Returns `true` if the visibility of the ink! message of constructor is
+    /// public (`pub`).
     ///
     /// # Note
     ///
@@ -460,7 +462,8 @@ impl Visibility {
         matches!(self, Self::Public(_))
     }
 
-    /// Returns `true` if the visibility of the ink! message of constructor is inherited.
+    /// Returns `true` if the visibility of the ink! message of constructor is
+    /// inherited.
     ///
     /// # Note
     ///

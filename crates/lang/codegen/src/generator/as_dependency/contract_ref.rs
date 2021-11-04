@@ -32,13 +32,14 @@ use syn::spanned::Spanned as _;
 ///
 /// The call builder is the entity that builds up calls for calling of other
 /// smart contract on-chain in a type safe way.
-/// It implements all ink! traits that the associated ink! smart contract implements
-/// so that their underlying implementation directly calls the respective ink!
-/// trait implementation on-chain.
+/// It implements all ink! traits that the associated ink! smart contract
+/// implements so that their underlying implementation directly calls the
+/// respective ink! trait implementation on-chain.
 ///
 /// The ink! call builder of a smart contract is directly used by the storage
 /// type of the smart contract itself as well by other entities that use the
-/// smart contract via long-hand calling notation to incrementally build up calls.
+/// smart contract via long-hand calling notation to incrementally build up
+/// calls.
 #[derive(From)]
 pub struct ContractRef<'a> {
     contract: &'a ir::Contract,
@@ -71,8 +72,8 @@ impl ContractRef<'_> {
     ///
     /// The generated struct is the type onto which everything is implemented.
     /// It is also the type that is going to be used by other smart contract
-    /// dynamically depending on the smart contract. It mirrors the smart contract
-    /// API but is just a typed thin-wrapper around an `AccountId`.
+    /// dynamically depending on the smart contract. It mirrors the smart
+    /// contract API but is just a typed thin-wrapper around an `AccountId`.
     fn generate_struct(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let doc_attrs = self
@@ -147,7 +148,8 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the `CallBuilder` trait implementation for the contract reference.
+    /// Generates the `CallBuilder` trait implementation for the contract
+    /// reference.
     ///
     /// This creates the bridge between the ink! smart contract type and the
     /// associated call builder.
@@ -174,12 +176,13 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the code for all ink! trait implementations of the contract itself.
+    /// Generates the code for all ink! trait implementations of the contract
+    /// itself.
     ///
     /// # Note
     ///
-    /// The generated implementations must live outside of an artificial `const` block
-    /// in order to properly show their documentation using `rustdoc`.
+    /// The generated implementations must live outside of an artificial `const`
+    /// block in order to properly show their documentation using `rustdoc`.
     fn generate_contract_trait_impls(&self) -> TokenStream2 {
         self.contract
             .module()
@@ -193,10 +196,12 @@ impl ContractRef<'_> {
             .collect()
     }
 
-    /// Generates the code for a single ink! trait implementation of the contract itself.
+    /// Generates the code for a single ink! trait implementation of the
+    /// contract itself.
     ///
-    /// The generated implementation mainly forwards the calls to the previously generated
-    /// associated call builder that implements each respective ink! trait.
+    /// The generated implementation mainly forwards the calls to the previously
+    /// generated associated call builder that implements each respective
+    /// ink! trait.
     fn generate_contract_trait_impl(
         &self,
         trait_path: &syn::Path,
@@ -218,8 +223,8 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the code for all messages of a single ink! trait implementation of
-    /// the ink! smart contract.
+    /// Generates the code for all messages of a single ink! trait
+    /// implementation of the ink! smart contract.
     fn generate_contract_trait_impl_messages(
         &self,
         trait_path: &syn::Path,
@@ -233,8 +238,8 @@ impl ContractRef<'_> {
             .collect()
     }
 
-    /// Generates the code for a single message of a single ink! trait implementation
-    /// that is implemented by the ink! smart contract.
+    /// Generates the code for a single message of a single ink! trait
+    /// implementation that is implemented by the ink! smart contract.
     fn generate_contract_trait_impl_for_message(
         &self,
         trait_path: &syn::Path,
@@ -275,12 +280,13 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the code for all ink! inherent implementations of the contract itself.
+    /// Generates the code for all ink! inherent implementations of the contract
+    /// itself.
     ///
     /// # Note
     ///
-    /// The generated implementations must live outside of an artificial `const` block
-    /// in order to properly show their documentation using `rustdoc`.
+    /// The generated implementations must live outside of an artificial `const`
+    /// block in order to properly show their documentation using `rustdoc`.
     fn generate_contract_inherent_impls(&self) -> TokenStream2 {
         self.contract
             .module()
@@ -295,12 +301,14 @@ impl ContractRef<'_> {
             .collect()
     }
 
-    /// Generates the code for a single ink! inherent implementation of the contract itself.
+    /// Generates the code for a single ink! inherent implementation of the
+    /// contract itself.
     ///
     /// # Note
     ///
-    /// This produces the short-hand calling notation for the inherent contract implementation.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// This produces the short-hand calling notation for the inherent contract
+    /// implementation. The generated code simply forwards its calling logic
+    /// to the associated call builder.
     fn generate_contract_inherent_impl(&self, impl_block: &ir::ItemImpl) -> TokenStream2 {
         let span = impl_block.span();
         let attrs = impl_block.attrs();
@@ -320,12 +328,14 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the code for a single ink! inherent message of the contract itself.
+    /// Generates the code for a single ink! inherent message of the contract
+    /// itself.
     ///
     /// # Note
     ///
-    /// This produces the short-hand calling notation for the inherent contract message.
-    /// The generated code simply forwards its calling logic to the associated call builder.
+    /// This produces the short-hand calling notation for the inherent contract
+    /// message. The generated code simply forwards its calling logic to the
+    /// associated call builder.
     fn generate_contract_inherent_impl_for_message(
         &self,
         message: ir::CallableWithSelector<ir::Message>,
@@ -363,13 +373,15 @@ impl ContractRef<'_> {
         )
     }
 
-    /// Generates the code for a single ink! inherent constructor of the contract itself.
+    /// Generates the code for a single ink! inherent constructor of the
+    /// contract itself.
     ///
     /// # Note
     ///
-    /// Unlike with ink! messages this does not forward to the call builder since constructor
-    /// calls in ink! do not have a short-hand notation and therefore this implements the
-    /// long-hand calling notation code directly.
+    /// Unlike with ink! messages this does not forward to the call builder
+    /// since constructor calls in ink! do not have a short-hand notation
+    /// and therefore this implements the long-hand calling notation code
+    /// directly.
     fn generate_contract_inherent_impl_for_constructor(
         &self,
         constructor: ir::CallableWithSelector<ir::Constructor>,

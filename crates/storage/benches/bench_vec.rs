@@ -161,9 +161,9 @@ mod empty_cache {
     }
 }
 
-/// In this case we lazily instantiate a `StorageVec` by first `create_and_store`-ing
-/// into the contract storage. We then load the vec from storage lazily in each
-/// benchmark iteration.
+/// In this case we lazily instantiate a `StorageVec` by first
+/// `create_and_store`-ing into the contract storage. We then load the vec from
+/// storage lazily in each benchmark iteration.
 fn bench_clear_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `clear` and `pop_all` (empty cache)");
@@ -175,9 +175,9 @@ fn bench_clear_empty_cache(c: &mut Criterion) {
     .unwrap();
 }
 
-/// In this case we lazily instantiate a `StorageVec` by first `create_and_store`-ing
-/// into the contract storage. We then load the vec from storage lazily in each
-/// benchmark iteration.
+/// In this case we lazily instantiate a `StorageVec` by first
+/// `create_and_store`-ing into the contract storage. We then load the vec from
+/// storage lazily in each benchmark iteration.
 fn bench_put_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Compare: `set` and `get_mut` (empty cache)");

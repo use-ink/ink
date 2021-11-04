@@ -30,13 +30,14 @@ use syn::spanned::Spanned as _;
 ///
 /// The call builder is the entity that builds up calls for calling of other
 /// smart contract on-chain in a type safe way.
-/// It implements all ink! traits that the associated ink! smart contract implements
-/// so that their underlying implementation directly calls the respective ink!
-/// trait implementation on-chain.
+/// It implements all ink! traits that the associated ink! smart contract
+/// implements so that their underlying implementation directly calls the
+/// respective ink! trait implementation on-chain.
 ///
 /// The ink! call builder of a smart contract is directly used by the storage
 /// type of the smart contract itself as well by other entities that use the
-/// smart contract via long-hand calling notation to incrementally build up calls.
+/// smart contract via long-hand calling notation to incrementally build up
+/// calls.
 #[derive(From)]
 pub struct CallBuilder<'a> {
     contract: &'a ir::Contract,
@@ -137,13 +138,14 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate the `TraitCallForwarder` trait implementations for the call builder
-    /// for every ink! trait implemented by the associated ink! smart contract.
+    /// Generate the `TraitCallForwarder` trait implementations for the call
+    /// builder for every ink! trait implemented by the associated ink!
+    /// smart contract.
     ///
-    /// These call forwarder trait implementations are used to dispatch to the global
-    /// call builder for the respective ink! trait definition that is being called.
-    /// The call builder only forwards the actual calls to those global call builders
-    /// and does not have its own calling logic.
+    /// These call forwarder trait implementations are used to dispatch to the
+    /// global call builder for the respective ink! trait definition that is
+    /// being called. The call builder only forwards the actual calls to
+    /// those global call builders and does not have its own calling logic.
     fn generate_call_forwarder_impls(&self) -> TokenStream2 {
         self.contract
             .module()
@@ -157,8 +159,9 @@ impl CallBuilder<'_> {
             .collect()
     }
 
-    /// Generates code required by the ink! call builder of an ink! smart contract
-    /// for a single ink! trait definition that the contract implements.
+    /// Generates code required by the ink! call builder of an ink! smart
+    /// contract for a single ink! trait definition that the contract
+    /// implements.
     fn generate_code_for_trait_impl(
         &self,
         trait_path: &syn::Path,
@@ -173,8 +176,8 @@ impl CallBuilder<'_> {
         }
     }
 
-    /// Generates code for a single ink! trait implementation to forward calls for
-    /// the associated ink! smart contract call builder.
+    /// Generates code for a single ink! trait implementation to forward calls
+    /// for the associated ink! smart contract call builder.
     fn generate_call_forwarder_for_trait_impl(
         &self,
         trait_path: &syn::Path,
@@ -233,7 +236,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates the actual ink! trait implementation for the generated call builder.
+    /// Generates the actual ink! trait implementation for the generated call
+    /// builder.
     fn generate_ink_trait_impl(
         &self,
         trait_path: &syn::Path,
@@ -301,7 +305,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate call builder code for all ink! inherent ink! implementation blocks.
+    /// Generate call builder code for all ink! inherent ink! implementation
+    /// blocks.
     ///
     /// # Note
     ///
@@ -320,13 +325,15 @@ impl CallBuilder<'_> {
             .collect()
     }
 
-    /// Generate call builder code for a single inherent ink! implementation block.
+    /// Generate call builder code for a single inherent ink! implementation
+    /// block.
     ///
     /// # Note
     ///
-    /// Unlike as with ink! trait implementation blocks we do not have to generate
-    /// associate `*Output` types, ink! trait validating implementation blocks or
-    /// trait forwarder implementations. Instead we build the calls directly.
+    /// Unlike as with ink! trait implementation blocks we do not have to
+    /// generate associate `*Output` types, ink! trait validating
+    /// implementation blocks or trait forwarder implementations. Instead we
+    /// build the calls directly.
     fn generate_call_builder_inherent_impl(
         &self,
         impl_block: &ir::ItemImpl,

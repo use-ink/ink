@@ -32,8 +32,8 @@ pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
 ///
 /// # Note
 ///
-/// This returns `__ink_binding_N` for every message input where `N` is the number
-/// of the input from first to last.
+/// This returns `__ink_binding_N` for every message input where `N` is the
+/// number of the input from first to last.
 pub fn input_bindings(inputs: ir::InputsIter) -> Vec<syn::Ident> {
     inputs
         .enumerate()
@@ -69,7 +69,8 @@ pub fn input_bindings_tuple(inputs: ir::InputsIter) -> TokenStream2 {
     }
 }
 
-/// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
+/// Builds up the `ink_env::call::utils::ArgumentList` type structure for the
+/// given types.
 pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
 where
     Args: IntoIterator<Item = &'b syn::Type>,
@@ -87,12 +88,14 @@ where
     )
 }
 
-/// Generates code to uniquely identify a trait by its unique ID given only its identifier.
+/// Generates code to uniquely identify a trait by its unique ID given only its
+/// identifier.
 ///
 /// # Note
 ///
-/// As with all Rust macros identifiers can shadow each other so the given identifier
-/// needs to be valid for the scope in which the returned code is generated.
+/// As with all Rust macros identifiers can shadow each other so the given
+/// identifier needs to be valid for the scope in which the returned code is
+/// generated.
 pub fn generate_reference_to_trait_info(
     span: Span,
     trait_path: &syn::Path,

@@ -22,7 +22,8 @@ use ink_prelude::{
 ///
 /// # Note
 ///
-/// The first four bytes are the function selector and the rest are SCALE encoded inputs.
+/// The first four bytes are the function selector and the rest are SCALE
+/// encoded inputs.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CallData {
     /// Already encoded function selector and inputs.

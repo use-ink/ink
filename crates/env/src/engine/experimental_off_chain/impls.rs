@@ -48,8 +48,8 @@ use ink_engine::{
 use ink_primitives::Key;
 
 /// The capacity of the static buffer.
-/// This is the same size as the ink! on-chain environment. We chose to use the same size
-/// to be as close to the on-chain behavior as possible.
+/// This is the same size as the ink! on-chain environment. We chose to use the
+/// same size to be as close to the on-chain behavior as possible.
 const BUFFER_SIZE: usize = 1 << 14; // 16 kB
 
 impl CryptoHash for Blake2x128 {
@@ -261,7 +261,8 @@ impl EnvBackend for EnvInstance {
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {

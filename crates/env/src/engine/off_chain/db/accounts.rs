@@ -263,7 +263,8 @@ impl Account {
             .and_then(|contract| contract.storage.get_storage::<T>(at))
     }
 
-    /// Returns the total number of reads and write from and to the contract's storage.
+    /// Returns the total number of reads and write from and to the contract's
+    /// storage.
     pub fn get_storage_rw(&self) -> Result<(usize, usize)> {
         self.contract_or_err().map(|contract| contract.get_rw())
     }

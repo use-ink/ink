@@ -47,12 +47,13 @@
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    // This code gets removed in release builds where the macro will expand into nothing.
+    // This code gets removed in release builds where the macro will expand into
+    // nothing.
     debug_print!("{}\n", info);
 
     // We only use this operation if we are guaranteed to be in Wasm32 compilation.
-    // This is used in order to make any panic a direct abort avoiding Rust's general
-    // panic infrastructure.
+    // This is used in order to make any panic a direct abort avoiding Rust's
+    // general panic infrastructure.
     core::arch::wasm32::unreachable();
 }
 

@@ -17,7 +17,8 @@ mod private {
     pub struct Sealed;
 }
 
-/// Used to convert literal values into their hex representations for code generation.
+/// Used to convert literal values into their hex representations for code
+/// generation.
 pub trait HexLiteral {
     /// Shared implementation details.
     ///
@@ -31,18 +32,22 @@ pub trait HexLiteral {
         sealed: private::Sealed,
     ) -> syn::LitInt;
 
-    /// Converts the given value into a hex represented literal with type suffix.
+    /// Converts the given value into a hex represented literal with type
+    /// suffix.
     fn hex_suffixed(self) -> syn::LitInt;
 
-    /// Converts the given value into a hex represented literal without type suffix.
+    /// Converts the given value into a hex represented literal without type
+    /// suffix.
     fn hex_unsuffixed(self) -> syn::LitInt;
 
-    /// Converts the given value into a hex represented literal with type suffix.
+    /// Converts the given value into a hex represented literal with type
+    /// suffix.
     ///
     /// The resulting hex encoded literal is padded with zeros.
     fn hex_padded_suffixed(self) -> syn::LitInt;
 
-    /// Converts the given value into a hex represented literal without type suffix.
+    /// Converts the given value into a hex represented literal without type
+    /// suffix.
     ///
     /// The resulting hex encoded literal is padded with zeros.
     fn hex_padded_unsuffixed(self) -> syn::LitInt;

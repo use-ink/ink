@@ -38,7 +38,8 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// Use this if the storage field does not need to be loaded in some or most cases.
+/// Use this if the storage field does not need to be loaded in some or most
+/// cases.
 pub struct LazyCell<T>
 where
     T: SpreadLayout,
@@ -584,11 +585,12 @@ mod tests {
                 // 1. Change the second `i32` value of the pair.
                 // 2. Push the pair again to contract storage.
                 //
-                // We prevent the intermediate instance from clearing the storage preemtively by wrapping
-                // it inside `ManuallyDrop`. The third step will clean up the same storage region afterwards.
+                // We prevent the intermediate instance from clearing the storage
+                // preemtively by wrapping it inside `ManuallyDrop`. The
+                // third step will clean up the same storage region afterwards.
                 //
-                // We explicitly do not touch or assert the value of `pulled_pair.0` in order to trigger
-                // the bug.
+                // We explicitly do not touch or assert the value of `pulled_pair.0` in
+                // order to trigger the bug.
                 let pulled_pair: (LazyCell<i32>, i32) =
                     SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
                 let mut pulled_pair = core::mem::ManuallyDrop::new(pulled_pair);
@@ -599,8 +601,9 @@ mod tests {
             {
                 // Step 3: Pull the pair again from the storage.
                 //
-                // If the bug with `Lazy` that has been fixed in PR #528 has been fixed we should be
-                // able to inspect the correct values for both pair entries which is: `(Some(1), 3)`
+                // If the bug with `Lazy` that has been fixed in PR #528 has been fixed we
+                // should be able to inspect the correct values for both
+                // pair entries which is: `(Some(1), 3)`
                 let pulled_pair: (LazyCell<i32>, i32) =
                     SpreadLayout::pull_spread(&mut KeyPtr::from(root_key));
                 assert_eq!(pulled_pair.0.get(), Some(&1i32));
@@ -631,9 +634,10 @@ mod tests {
                 // 1. Change the first values `None` to `Some(...)`.
                 // 2. Push the first value again to contract storage.
                 //
-                // We prevent the intermediate instance from clearing the storage preemptively
-                // by wrapping it inside `ManuallyDrop`. The third step will clean up the same
-                // storage region afterwards.
+                // We prevent the intermediate instance from clearing the storage
+                // preemptively by wrapping it inside `ManuallyDrop`. The
+                // third step will clean up the same storage region
+                // afterwards.
                 let mut ptr = KeyPtr::from(root_key);
                 let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
                 let mut pulled_v1 = core::mem::ManuallyDrop::new(pulled_v1);
@@ -650,8 +654,8 @@ mod tests {
             {
                 // Step 3: Pull the values again from the storage.
                 //
-                // If the bug with `Option` has been fixed in PR #520 we must be able to inspect
-                // the correct values for both entries.
+                // If the bug with `Option` has been fixed in PR #520 we must be able to
+                // inspect the correct values for both entries.
                 let mut ptr = KeyPtr::from(root_key);
                 let pulled_v1: Option<u32> = SpreadLayout::pull_spread(&mut ptr);
                 let pulled_v2: u32 = SpreadLayout::pull_spread(&mut ptr);
@@ -698,7 +702,8 @@ mod tests {
             // the pointer will break as soon as the `Option` is changed to it's
             // opposite (`None` -> `Some`, `Some` -> `None`).
             let mut expected_post_op_ptr = KeyPtr::from(root_key);
-            // advance one time after the cell containing `self.is_some() as u8` has been read
+            // advance one time after the cell containing `self.is_some() as u8` has been
+            // read
             expected_post_op_ptr.advance_by(1);
             // advance another time after the cell containing the inner `Option` value
             // has either been skipped (in case of the previous cell being `None`) or

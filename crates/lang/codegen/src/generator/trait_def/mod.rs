@@ -28,7 +28,8 @@ use quote::{
     quote_spanned,
 };
 
-/// Generator to create the ink! storage struct and important trait implementations.
+/// Generator to create the ink! storage struct and important trait
+/// implementations.
 #[derive(From, Copy, Clone)]
 pub struct TraitDefinition<'a> {
     trait_def: &'a ir::InkTraitDefinition,

@@ -16,7 +16,8 @@ use core::convert::TryFrom;
 use proc_macro2::TokenStream as TokenStream2;
 use syn::spanned::Spanned as _;
 
-/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
+/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in
+/// output.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
     use ::blake2::digest::{
         Update as _,

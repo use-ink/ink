@@ -18,7 +18,8 @@ use crate::{
     traits::PackedLayout,
 };
 
-/// An iterator over shared references to the elements of a small storage vector.
+/// An iterator over shared references to the elements of a small storage
+/// vector.
 #[derive(Debug, Clone, Copy)]
 pub struct Iter<'a, T, const N: usize>
 where
@@ -106,7 +107,8 @@ where
     }
 }
 
-/// An iterator over exclusive references to the elements of a small storage vector.
+/// An iterator over exclusive references to the elements of a small storage
+/// vector.
 #[derive(Debug)]
 pub struct IterMut<'a, T, const N: usize>
 where

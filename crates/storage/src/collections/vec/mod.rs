@@ -44,9 +44,9 @@ use crate::{
 /// # Note
 ///
 /// Despite the similarity to Rust's `Vec` type this storage `Vec` has many
-/// differences in its internal data layout. While it stores its data in contiguous
-/// storage slots this does not mean that the data is actually densely stored
-/// in memory.
+/// differences in its internal data layout. While it stores its data in
+/// contiguous storage slots this does not mean that the data is actually
+/// densely stored in memory.
 ///
 /// Also its technical performance characteristics may be different from Rust's
 /// `Vec` due to the differences stated above.
@@ -89,7 +89,8 @@ where
         }
     }
 
-    /// Returns the number of elements in the vector, also referred to as its length.
+    /// Returns the number of elements in the vector, also referred to as its
+    /// length.
     pub fn len(&self) -> u32 {
         *self.len
     }
@@ -112,8 +113,8 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
-    /// trait implementation.
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::
+    /// clear_spread`] trait implementation.
     fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
@@ -130,7 +131,8 @@ impl<T> Vec<T>
 where
     T: PackedLayout,
 {
-    /// Returns an iterator yielding shared references to all elements of the vector.
+    /// Returns an iterator yielding shared references to all elements of the
+    /// vector.
     ///
     /// # Note
     ///
@@ -141,7 +143,8 @@ where
         Iter::new(self)
     }
 
-    /// Returns an iterator yielding exclusive references to all elements of the vector.
+    /// Returns an iterator yielding exclusive references to all elements of the
+    /// vector.
     ///
     /// # Note
     ///
@@ -450,7 +453,8 @@ where
     /// Removes the indexed element from the vector and returns it.
     ///
     /// The last element of the vector is put into the indexed slot.
-    /// Returns `None` and does not mutate the vector if the index is out of bounds.
+    /// Returns `None` and does not mutate the vector if the index is out of
+    /// bounds.
     ///
     /// # Note
     ///

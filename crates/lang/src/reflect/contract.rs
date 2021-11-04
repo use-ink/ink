@@ -149,11 +149,12 @@ pub trait ContractEnv {
 ///
 /// # Note
 ///
-/// Given an ink! storage struct with identifier `Contract` the ink! codegen produces
-/// the ink! root type `Contract` and the ink! reference type `ContractRef`.
+/// Given an ink! storage struct with identifier `Contract` the ink! codegen
+/// produces the ink! root type `Contract` and the ink! reference type
+/// `ContractRef`.
 ///
-/// This trait exists so that users can avoid using a generated identifier to refer to
-/// the generated reference type of the ink! smart contract.
+/// This trait exists so that users can avoid using a generated identifier to
+/// refer to the generated reference type of the ink! smart contract.
 ///
 /// # Usage
 ///

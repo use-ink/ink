@@ -76,24 +76,28 @@ pub struct ChainExtensionMethod {
     item: syn::TraitItemMethod,
     /// The unique identifier of the chain extension method.
     id: ExtensionId,
-    /// If `false` the `u32` status code of the chain extension method call is going to be
-    /// ignored and assumed to be always successful. The output buffer in this case is going
-    /// to be queried and decoded into the chain extension method's output type.
+    /// If `false` the `u32` status code of the chain extension method call is
+    /// going to be ignored and assumed to be always successful. The output
+    /// buffer in this case is going to be queried and decoded into the
+    /// chain extension method's output type.
     ///
     /// If `true` the returned `u32` status code `code` is queried and
-    /// `<Self::ErrorCode as ink_lang::FromStatusCode>::from_status_code(code)` is called.
-    /// The call to `from_status_code` returns `Result<(), Self::ErrorCode>`. If `Ok(())`
-    /// the output buffer is queried and decoded as described above.
-    /// If `Err(Self::ErrorCode)` the `Self::ErrorCode` is converted into `E` of `Result<T, E>`
+    /// `<Self::ErrorCode as ink_lang::FromStatusCode>::from_status_code(code)`
+    /// is called. The call to `from_status_code` returns `Result<(),
+    /// Self::ErrorCode>`. If `Ok(())` the output buffer is queried and
+    /// decoded as described above. If `Err(Self::ErrorCode)` the
+    /// `Self::ErrorCode` is converted into `E` of `Result<T, E>`
     /// if the chain extension method returns a `Result` type.
-    /// In case the chain extension method does _NOT_ return a `Result` type the call returns
-    /// `Result<T, Self::ErrorCode>` where `T` is the chain extension method's return type.
+    /// In case the chain extension method does _NOT_ return a `Result` type the
+    /// call returns `Result<T, Self::ErrorCode>` where `T` is the chain
+    /// extension method's return type.
     ///
     /// The default for this flag is `true`.
     handle_status: bool,
-    /// If `false` the procedural macro no longer tries to enforce that the returned type encoded
-    /// into the output buffer of the chain extension method call is of type `Result<T, E>`.
-    /// Also `E` is no longer required to implement `From<Self::ErrorCode>` in case `handle_status`
+    /// If `false` the procedural macro no longer tries to enforce that the
+    /// returned type encoded into the output buffer of the chain extension
+    /// method call is of type `Result<T, E>`. Also `E` is no longer
+    /// required to implement `From<Self::ErrorCode>` in case `handle_status`
     /// flag does not exist.
     ///
     /// The default for this flag is `true`.
@@ -137,12 +141,14 @@ impl ChainExtensionMethod {
         }
     }
 
-    /// Returns `true` if the chain extension method was flagged with `#[ink(handle_status)]`.
+    /// Returns `true` if the chain extension method was flagged with
+    /// `#[ink(handle_status)]`.
     pub fn handle_status(&self) -> bool {
         self.handle_status
     }
 
-    /// Returns `true` if the chain extension method was flagged with `#[ink(returns_result)]`.
+    /// Returns `true` if the chain extension method was flagged with
+    /// `#[ink(returns_result)]`.
     pub fn returns_result(&self) -> bool {
         self.returns_result
     }
@@ -176,7 +182,8 @@ impl<'a> Iterator for ChainExtensionMethodInputs<'a> {
 ///
 /// The ink! attribute `#[ink(extension = N: u32)]` for chain extension methods.
 ///
-/// Has a `func_id` extension ID to identify the associated chain extension method.
+/// Has a `func_id` extension ID to identify the associated chain extension
+/// method.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ExtensionId {
     index: u32,
@@ -210,7 +217,8 @@ impl TryFrom<syn::ItemTrait> for ChainExtension {
 }
 
 impl ChainExtension {
-    /// Returns `Ok` if the trait matches all requirements for an ink! chain extension.
+    /// Returns `Ok` if the trait matches all requirements for an ink! chain
+    /// extension.
     pub fn new(attr: TokenStream2, input: TokenStream2) -> Result<Self> {
         if !attr.is_empty() {
             return Err(format_err_spanned!(
@@ -227,7 +235,8 @@ impl ChainExtension {
     /// # Errors
     ///
     /// - If the input trait has been defined as `unsafe`.
-    /// - If the input trait is an automatically implemented trait (`auto trait`).
+    /// - If the input trait is an automatically implemented trait (`auto
+    ///   trait`).
     /// - If the input trait is generic over some set of types.
     /// - If the input trait's visibility is not public (`pub`).
     /// - If the input trait has super-traits.
@@ -265,12 +274,14 @@ impl ChainExtension {
         Ok(())
     }
 
-    /// Checks if the associated trait item type is a proper chain extension error code.
+    /// Checks if the associated trait item type is a proper chain extension
+    /// error code.
     ///
     /// # Errors
     ///
     /// - If the associated type is not called `ErrorCode`.
-    /// - If the associated type is generic, has where bounds or has a default type.
+    /// - If the associated type is generic, has where bounds or has a default
+    ///   type.
     /// - If there are multiple associated `ErrorCode` types.
     fn analyse_error_code(
         item_type: &syn::TraitItemType,
@@ -318,7 +329,8 @@ impl ChainExtension {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respect the requirements for an ink! chain extension.
+    /// Returns `Ok` if all trait items respect the requirements for an ink!
+    /// chain extension.
     ///
     /// # Errors
     ///
@@ -328,15 +340,18 @@ impl ChainExtension {
     ///     - macros definitions or usages
     ///     - unknown token sequences (`Verbatim`s)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
+    /// - If the trait contains methods which do not respect the ink! trait
+    ///   definition requirements:
     ///     - All trait methods must not have a `self` receiver.
-    ///     - All trait methods must have an `#[ink(extension = N: u32)]` attribute that is the ID that
-    ///       corresponds with the function ID of the respective chain extension call.
+    ///     - All trait methods must have an `#[ink(extension = N: u32)]`
+    ///       attribute that is the ID that corresponds with the function ID of
+    ///       the respective chain extension call.
     ///
     /// # Note
     ///
-    /// The input Rust trait item is going to be replaced with a concrete chain extension type definition
-    /// as a result of this procedural macro invocation.
+    /// The input Rust trait item is going to be replaced with a concrete chain
+    /// extension type definition as a result of this procedural macro
+    /// invocation.
     fn analyse_items(
         item_trait: &syn::ItemTrait,
     ) -> Result<(syn::TraitItemType, Vec<ChainExtensionMethod>)> {
@@ -515,7 +530,8 @@ impl ChainExtension {
 mod tests {
     use super::*;
 
-    /// Checks if the token stream in `$chain_extension` results in the expected error message.
+    /// Checks if the token stream in `$chain_extension` results in the expected
+    /// error message.
     macro_rules! assert_ink_chain_extension_eq_err {
         ( error: $err_str:literal, $($chain_extension:tt)* ) => {
             assert_eq!(

@@ -40,17 +40,17 @@ use ink_primitives::Key;
 /// # Usage
 ///
 /// - A `Pack<i32>` instance is equivalent to `i32` in its storage occupation.
-/// - A `Pack<(i32, i32)>` instance will occupy a single cell compared to
-///   `(i32, i32)` which occupies a cell per `i32`.
-/// - A `Lazy<Pack<[u8; 8]>>` lazily loads a `Pack<[u8; 8]>` which occupies
-///   a single cell whereas a `[u8; 8]` array would occupy 8 cells in total,
-///   one for each `u8`.
+/// - A `Pack<(i32, i32)>` instance will occupy a single cell compared to `(i32,
+///   i32)` which occupies a cell per `i32`.
+/// - A `Lazy<Pack<[u8; 8]>>` lazily loads a `Pack<[u8; 8]>` which occupies a
+///   single cell whereas a `[u8; 8]` array would occupy 8 cells in total, one
+///   for each `u8`.
 /// - Rust collections will never use more than a single cell. So
 ///   `Pack<LinkedList<T>>` and `LinkedList<T>` will occupy the same amount of
 ///   cells, namely 1.
-/// - Packs can be packed. So for example a
-///   `Pack<(Pack<(i32, i32)>, Pack<[u8; 8]>)` uses just one cell instead of
-///   two cells which is the case for `(Pack<(i32, i32)>, Pack<[u8; 8]>)`.
+/// - Packs can be packed. So for example a `Pack<(Pack<(i32, i32)>, Pack<[u8;
+///   8]>)` uses just one cell instead of two cells which is the case for
+///   `(Pack<(i32, i32)>, Pack<[u8; 8]>)`.
 /// - Not all `storage` types can be packed. Only those that are implementing
 ///   the `PackedLayout` trait. For example `storage::Vec<T>` does not implement
 ///   this trait and thus cannot be packed.

@@ -35,21 +35,25 @@ pub enum Error {
     /// below the subsistence threshold.
     BelowSubsistenceThreshold,
     /// Transfer failed for other not further specified reason. Most probably
-    /// reserved or locked balance of the sender that was preventing the transfer.
+    /// reserved or locked balance of the sender that was preventing the
+    /// transfer.
     TransferFailed,
-    /// The newly created contract is below the subsistence threshold after executing
-    /// its constructor so no usable contract instance will be created.
+    /// The newly created contract is below the subsistence threshold after
+    /// executing its constructor so no usable contract instance will be
+    /// created.
     NewContractNotFunded,
     /// No code could be found at the supplied code hash.
     CodeNotFound,
-    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    /// The account that was called is either no contract (e.g. user account) or
+    /// is a tombstone.
     NotCallable,
     /// An unknown error has occurred.
     Unknown,
     /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
     LoggingDisabled,
-    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
+    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or
+    /// signature.
     EcdsaRecoverFailed,
 }
 

@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! A lazy storage mapping that stores entries under their SCALE encoded key hashes.
+//! A lazy storage mapping that stores entries under their SCALE encoded key
+//! hashes.
 
 use super::{
     CacheCell,
@@ -64,7 +65,8 @@ use ink_primitives::Key;
 /// [`LazyHashMap::get`].
 pub type EntryMap<K, V> = BTreeMap<K, Box<StorageEntry<V>>>;
 
-/// A lazy storage mapping that stores entries under their SCALE encoded key hashes.
+/// A lazy storage mapping that stores entries under their SCALE encoded key
+/// hashes.
 ///
 /// # Note
 ///
@@ -109,7 +111,8 @@ enum EntryOrMutableValue<E, V> {
     /// This represents the case where the key was in the cache.
     EntryElementWasInCache(E),
     /// A reference to the mutable value behind a cache entry.
-    /// This represents the case where the key was not in the cache, but in storage.
+    /// This represents the case where the key was not in the cache, but in
+    /// storage.
     MutableValueElementWasNotInCache(V),
 }
 
@@ -123,8 +126,8 @@ where
 {
     /// The key stored in this entry.
     key: K,
-    /// Either the occupied `EntryMap` entry that holds the value or a mutable reference
-    /// to the value behind a cache entry.
+    /// Either the occupied `EntryMap` entry that holds the value or a mutable
+    /// reference to the value behind a cache entry.
     entry: EntryOrMutableValue<OccupiedCache<'a, K, V>, &'a mut Box<StorageEntry<V>>>,
 }
 
@@ -136,12 +139,12 @@ where
 {
     /// The key stored in this entry.
     key: K,
-    /// The entry within the `LazyHashMap`. This entry can be either occupied or vacant.
-    /// In an `BTreeMapEntry::Occupied` state the entry has been marked to
-    /// be removed (with `None`), but we still want to expose the `VacantEntry` API
-    /// to the use.
-    /// In an `BTreeMapEntry::Vacant` state the entry is vacant, and we want to expose
-    /// the `VacantEntry` API.
+    /// The entry within the `LazyHashMap`. This entry can be either occupied or
+    /// vacant. In an `BTreeMapEntry::Occupied` state the entry has been
+    /// marked to be removed (with `None`), but we still want to expose the
+    /// `VacantEntry` API to the use.
+    /// In an `BTreeMapEntry::Vacant` state the entry is vacant, and we want to
+    /// expose the `VacantEntry` API.
     entry: BTreeMapEntry<'a, K, Box<StorageEntry<V>>>,
 }
 
@@ -151,7 +154,8 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// A vacant entry that holds the index to the next and previous vacant entry.
+    /// A vacant entry that holds the index to the next and previous vacant
+    /// entry.
     Vacant(VacantEntry<'a, K, V>),
     /// An occupied entry that holds the value.
     Occupied(OccupiedEntry<'a, K, V>),
@@ -175,7 +179,8 @@ where
     V: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // The `hash_builder` field is not really required or needed for debugging purposes.
+        // The `hash_builder` field is not really required or needed for debugging
+        // purposes.
         f.debug_struct("LazyHashMap")
             .field("key", &self.key)
             .field("cached_entries", &DebugEntryMap(&self.cached_entries))
@@ -360,8 +365,9 @@ where
     ///
     /// # Note
     ///
-    /// A lazy map created this way cannot be used to load from the contract storage.
-    /// All operations that directly or indirectly load from storage will panic.
+    /// A lazy map created this way cannot be used to load from the contract
+    /// storage. All operations that directly or indirectly load from
+    /// storage will panic.
     pub fn new() -> Self {
         Self {
             key: None,
@@ -413,8 +419,8 @@ where
     /// # Note
     ///
     /// - Use [`LazyHashMap::put`]`(None)` in order to remove an element.
-    /// - Prefer this method over [`LazyHashMap::put_get`] if you are not interested
-    ///   in the old value of the same cell index.
+    /// - Prefer this method over [`LazyHashMap::put_get`] if you are not
+    ///   interested in the old value of the same cell index.
     ///
     /// # Panics
     ///
@@ -436,7 +442,8 @@ where
     H: CryptoHash,
     Key: From<<H as HashOutput>::Type>,
 {
-    /// Gets the given key's corresponding entry in the map for in-place manipulation.
+    /// Gets the given key's corresponding entry in the map for in-place
+    /// manipulation.
     pub fn entry(&mut self, key: K) -> Entry<K, V> {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
@@ -477,8 +484,9 @@ where
                     .unwrap_or(None);
                 match value.is_some() {
                     true => {
-                        // The entry was not in the cache, but in the storage. This results in
-                        // a problem: We only have `Vacant` here, but need to return `Occupied`,
+                        // The entry was not in the cache, but in the storage. This
+                        // results in a problem: We only have
+                        // `Vacant` here, but need to return `Occupied`,
                         // to reflect this.
                         let v_mut = entry.insert(Box::new(StorageEntry::new(
                             value,
@@ -555,8 +563,9 @@ where
     ///
     /// # Note
     ///
-    /// Only loads a value if `key` is set and if the value has not been loaded yet.
-    /// Returns the freshly loaded or already loaded entry of the value.
+    /// Only loads a value if `key` is set and if the value has not been loaded
+    /// yet. Returns the freshly loaded or already loaded entry of the
+    /// value.
     ///
     /// # Safety
     ///
@@ -566,10 +575,10 @@ where
     ///
     /// # Safety
     ///
-    /// This is an `unsafe` operation because it has a `&self` receiver but returns
-    /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
-    /// within internal use only and should never be given outside the lazy entity
-    /// for public `&self` methods.
+    /// This is an `unsafe` operation because it has a `&self` receiver but
+    /// returns a `*mut Entry<T>` pointer that allows for exclusive access.
+    /// This is safe within internal use only and should never be given
+    /// outside the lazy entity for public `&self` methods.
     unsafe fn lazily_load<Q>(&self, key: &Q) -> NonNull<StorageEntry<V>>
     where
         K: Borrow<Q>,
@@ -612,8 +621,9 @@ where
     ///
     /// # Note
     ///
-    /// Only loads a value if `key` is set and if the value has not been loaded yet.
-    /// Returns a pointer to the freshly loaded or already loaded entry of the value.
+    /// Only loads a value if `key` is set and if the value has not been loaded
+    /// yet. Returns a pointer to the freshly loaded or already loaded entry
+    /// of the value.
     ///
     /// # Panics
     ///
@@ -625,9 +635,9 @@ where
         Q: Ord + scale::Encode + ToOwned<Owned = K>,
     {
         // SAFETY:
-        // - Returning a `&mut Entry<T>` is safe because entities inside the
-        //   cache are stored within a `Box` to not invalidate references into
-        //   them upon operating on the outer cache.
+        // - Returning a `&mut Entry<T>` is safe because entities inside the cache are
+        //   stored within a `Box` to not invalidate references into them upon operating
+        //   on the outer cache.
         unsafe { &mut *self.lazily_load(index).as_ptr() }
     }
 
@@ -650,8 +660,8 @@ where
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             // We need to load the entity before we remove its associated contract storage
-            // because it requires a deep clean-up which propagates clearing to its fields,
-            // for example in the case of `T` being a `storage::Box`.
+            // because it requires a deep clean-up which propagates clearing to its
+            // fields, for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
             clear_packed_root::<V>(entity, &root_key);
         } else {
@@ -661,7 +671,8 @@ where
         }
     }
 
-    /// Returns a shared reference to the value associated with the given key if any.
+    /// Returns a shared reference to the value associated with the given key if
+    /// any.
     ///
     /// # Panics
     ///
@@ -678,7 +689,8 @@ where
         unsafe { &*self.lazily_load(index).as_ptr() }.value().into()
     }
 
-    /// Returns an exclusive reference to the value associated with the given key if any.
+    /// Returns an exclusive reference to the value associated with the given
+    /// key if any.
     ///
     /// # Panics
     ///
@@ -696,8 +708,8 @@ where
     ///
     /// # Note
     ///
-    /// - Use [`LazyHashMap::put_get`]`(None)` in order to remove an element
-    ///   and retrieve the old element back.
+    /// - Use [`LazyHashMap::put_get`]`(None)` in order to remove an element and
+    ///   retrieve the old element back.
     ///
     /// # Panics
     ///
@@ -713,7 +725,8 @@ where
 
     /// Swaps the values at entries with associated keys `x` and `y`.
     ///
-    /// This operation tries to be as efficient as possible and reuse allocations.
+    /// This operation tries to be as efficient as possible and reuse
+    /// allocations.
     ///
     /// # Panics
     ///
@@ -764,8 +777,8 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the default value if empty, and returns
-    /// a reference to the value in the entry.
+    /// Ensures a value is in the entry by inserting the default value if empty,
+    /// and returns a reference to the value in the entry.
     pub fn or_default(self) -> &'a V {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -773,8 +786,8 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the default if empty, and returns
-    /// a mutable reference to the value in the entry.
+    /// Ensures a value is in the entry by inserting the default if empty, and
+    /// returns a mutable reference to the value in the entry.
     pub fn or_insert(self, default: V) -> &'a mut V {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -782,8 +795,9 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the result of the default function if empty,
-    /// and returns mutable references to the key and value in the entry.
+    /// Ensures a value is in the entry by inserting the result of the default
+    /// function if empty, and returns mutable references to the key and
+    /// value in the entry.
     pub fn or_insert_with<F>(self, default: F) -> &'a mut V
     where
         F: FnOnce() -> V,
@@ -794,9 +808,9 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting, if empty, the result of the default
-    /// function, which takes the key as its argument, and returns a mutable reference to
-    /// the value in the entry.
+    /// Ensures a value is in the entry by inserting, if empty, the result of
+    /// the default function, which takes the key as its argument, and
+    /// returns a mutable reference to the value in the entry.
     pub fn or_insert_with_key<F>(self, default: F) -> &'a mut V
     where
         F: FnOnce(&K) -> V,
@@ -834,7 +848,8 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
+    /// Gets a reference to the key that would be used when inserting a value
+    /// through the `VacantEntry`.
     pub fn key(&self) -> &K {
         &self.key
     }
@@ -844,7 +859,8 @@ where
         self.key
     }
 
-    /// Sets the value of the entry with the `VacantEntry`s key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`s key, and returns a
+    /// mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         let new = Box::new(StorageEntry::new(Some(value), EntryState::Mutated));
         match self.entry {
@@ -918,8 +934,8 @@ where
 
     /// Gets a mutable reference to the value in the entry.
     ///
-    /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
-    /// `Entry` value, see `into_mut`.
+    /// If you need a reference to the `OccupiedEntry` which may outlive the
+    /// destruction of the `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
         match &mut self.entry {
             EntryOrMutableValue::EntryElementWasInCache(entry) => {
@@ -961,8 +977,8 @@ where
         self.remove_entry().1
     }
 
-    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
-    /// with a lifetime bound to the map itself.
+    /// Converts the `OccupiedEntry` into a mutable reference to the value in
+    /// the entry with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         match self.entry {
             EntryOrMutableValue::EntryElementWasInCache(entry) => {
@@ -999,7 +1015,8 @@ mod tests {
     };
     use ink_primitives::Key;
 
-    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    /// Asserts that the cached entries of the given `imap` is equal to the
+    /// `expected` slice.
     fn assert_cached_entries<H>(
         hmap: &LazyHashMap<i32, u8, H>,
         expected: &[(i32, StorageEntry<u8>)],

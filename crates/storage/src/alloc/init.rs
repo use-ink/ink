@@ -135,14 +135,16 @@ impl DynamicAllocatorState {
         }
     }
 
-    /// Runs the closure on the global instance for the dynamic storage allocator.
+    /// Runs the closure on the global instance for the dynamic storage
+    /// allocator.
     ///
-    /// Will automatically initialize the global allocator instance if it has not
-    /// yet been initialized.
+    /// Will automatically initialize the global allocator instance if it has
+    /// not yet been initialized.
     ///
     /// # Panics
     ///
-    /// If the global dynamic storage allocator instance has already been finalized.
+    /// If the global dynamic storage allocator instance has already been
+    /// finalized.
     pub fn on_instance<F, R>(&mut self, f: F) -> R
     where
         F: FnOnce(&mut DynamicAllocator) -> R,

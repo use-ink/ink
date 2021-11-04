@@ -115,9 +115,9 @@ mod empty_cache {
     }
 }
 
-/// In this case we lazily instantiate a `StorageStash` by first `create_and_store`-ing
-/// into the contract storage. We then load the stash from storage lazily in each
-/// benchmark iteration.
+/// In this case we lazily instantiate a `StorageStash` by first
+/// `create_and_store`-ing into the contract storage. We then load the stash
+/// from storage lazily in each benchmark iteration.
 fn bench_remove_occupied_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group(

@@ -17,9 +17,10 @@
 //! This module defines everything the ink! procedural macro needs in order to
 //! parse, analyze and generate code for ink! smart contracts.
 //!
-//! The entry point for every ink! smart contract is the [`Contract`](`crate::ir::Contract`)
-//! with its [`Config`](`crate::ir::Config`) provided in the initial invocation at
-//! `#[ink::contract(... configuration ...)]`.
+//! The entry point for every ink! smart contract is the
+//! [`Contract`](`crate::ir::Contract`) with its [`Config`](`crate::ir::Config`)
+//! provided in the initial invocation at `#[ink::contract(... configuration
+//! ...)]`.
 //!
 //! The ink! IR tries to stay close to the original Rust syntactic structure.
 //! All ink! definitions of an ink! smart contract are always defined within

@@ -60,7 +60,8 @@ use ink_primitives::Key;
 ///
 /// # Note
 ///
-/// Use this if the storage field does not need to be loaded in some or most cases.
+/// Use this if the storage field does not need to be loaded in some or most
+/// cases.
 #[derive(Debug)]
 pub struct Lazy<T>
 where
@@ -145,7 +146,8 @@ where
     ///
     /// # Note
     ///
-    /// This loads the value from the contract storage if this did not happen before.
+    /// This loads the value from the contract storage if this did not happen
+    /// before.
     ///
     /// # Panics
     ///
@@ -159,7 +161,8 @@ where
     ///
     /// # Note
     ///
-    /// This loads the value from the contract storage if this did not happen before.
+    /// This loads the value from the contract storage if this did not happen
+    /// before.
     ///
     /// # Panics
     ///

@@ -127,34 +127,37 @@ impl<T> BaseArithmetic for T where
 
 /// A meta trait for arithmetic (copied from substrate).
 ///
-/// Arithmetic types do all the usual stuff you'd expect numbers to do. They are guaranteed to
-/// be able to represent at least `u32` values without loss, hence the trait implies `From<u32>`
-/// and smaller integers. All other conversions are fallible.
+/// Arithmetic types do all the usual stuff you'd expect numbers to do. They are
+/// guaranteed to be able to represent at least `u32` values without loss, hence
+/// the trait implies `From<u32>` and smaller integers. All other conversions
+/// are fallible.
 pub trait AtLeast32Bit: BaseArithmetic + From<u16> + From<u32> {}
 
 impl<T> AtLeast32Bit for T where T: BaseArithmetic + From<u16> + From<u32> {}
 
-/// A meta trait for arithmetic.  Same as [`AtLeast32Bit `], but also bounded to be unsigned.
+/// A meta trait for arithmetic.  Same as [`AtLeast32Bit `], but also bounded to
+/// be unsigned.
 pub trait AtLeast32BitUnsigned: AtLeast32Bit + Unsigned {}
 
 impl<T> AtLeast32BitUnsigned for T where T: AtLeast32Bit + Unsigned {}
 
-/// Saturating arithmetic operations, returning maximum or minimum values instead of overflowing.
+/// Saturating arithmetic operations, returning maximum or minimum values
+/// instead of overflowing.
 pub trait Saturating {
-    /// Saturating addition. Compute `self + rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    /// Saturating addition. Compute `self + rhs`, saturating at the numeric
+    /// bounds instead of overflowing.
     fn saturating_add(self, rhs: Self) -> Self;
 
-    /// Saturating subtraction. Compute `self - rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    /// Saturating subtraction. Compute `self - rhs`, saturating at the numeric
+    /// bounds instead of overflowing.
     fn saturating_sub(self, rhs: Self) -> Self;
 
-    /// Saturating multiply. Compute `self * rhs`, saturating at the numeric bounds instead of
-    /// overflowing.
+    /// Saturating multiply. Compute `self * rhs`, saturating at the numeric
+    /// bounds instead of overflowing.
     fn saturating_mul(self, rhs: Self) -> Self;
 
-    /// Saturating exponentiation. Compute `self.pow(exp)`, saturating at the numeric bounds
-    /// instead of overflowing.
+    /// Saturating exponentiation. Compute `self.pow(exp)`, saturating at the
+    /// numeric bounds instead of overflowing.
     fn saturating_pow(self, exp: usize) -> Self;
 }
 

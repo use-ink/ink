@@ -141,8 +141,9 @@ impl<V> LazyIndexMap<V> {
     ///
     /// # Note
     ///
-    /// A lazy map created this way cannot be used to load from the contract storage.
-    /// All operations that directly or indirectly load from storage will panic.
+    /// A lazy map created this way cannot be used to load from the contract
+    /// storage. All operations that directly or indirectly load from
+    /// storage will panic.
     pub fn new() -> Self {
         Self {
             key: None,
@@ -185,8 +186,8 @@ impl<V> LazyIndexMap<V> {
     /// # Note
     ///
     /// - Use [`LazyIndexMap::put`]`(None)` in order to remove an element.
-    /// - Prefer this method over [`LazyIndexMap::put_get`] if you are not interested
-    ///   in the old value of the same cell index.
+    /// - Prefer this method over [`LazyIndexMap::put_get`] if you are not
+    ///   interested in the old value of the same cell index.
     ///
     /// # Panics
     ///
@@ -294,8 +295,8 @@ where
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             // We need to load the entity before we remove its associated contract storage
-            // because it requires a deep clean-up which propagates clearing to its fields,
-            // for example in the case of `T` being a `storage::Box`.
+            // because it requires a deep clean-up which propagates clearing to its
+            // fields, for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
             clear_packed_root::<V>(entity, &root_key);
         } else {
@@ -322,8 +323,9 @@ where
     ///
     /// # Note
     ///
-    /// Only loads a value if `key` is set and if the value has not been loaded yet.
-    /// Returns the freshly loaded or already loaded entry of the value.
+    /// Only loads a value if `key` is set and if the value has not been loaded
+    /// yet. Returns the freshly loaded or already loaded entry of the
+    /// value.
     ///
     /// # Safety
     ///
@@ -333,10 +335,10 @@ where
     ///
     /// # Safety
     ///
-    /// This is an `unsafe` operation because it has a `&self` receiver but returns
-    /// a `*mut Entry<T>` pointer that allows for exclusive access. This is safe
-    /// within internal use only and should never be given outside the lazy entity
-    /// for public `&self` methods.
+    /// This is an `unsafe` operation because it has a `&self` receiver but
+    /// returns a `*mut Entry<T>` pointer that allows for exclusive access.
+    /// This is safe within internal use only and should never be given
+    /// outside the lazy entity for public `&self` methods.
     unsafe fn lazily_load(&self, index: Index) -> NonNull<StorageEntry<V>> {
         // SAFETY: We have put the whole `cached_entries` mapping into an
         //         `UnsafeCell` because of this caching functionality. The
@@ -372,8 +374,9 @@ where
     ///
     /// # Note
     ///
-    /// Only loads a value if `key` is set and if the value has not been loaded yet.
-    /// Returns the freshly loaded or already loaded entry of the value.
+    /// Only loads a value if `key` is set and if the value has not been loaded
+    /// yet. Returns the freshly loaded or already loaded entry of the
+    /// value.
     ///
     /// # Panics
     ///
@@ -381,9 +384,9 @@ where
     /// - If the lazy chunk is not in a state that allows lazy loading.
     fn lazily_load_mut(&mut self, index: Index) -> &mut StorageEntry<V> {
         // SAFETY:
-        // - Returning a `&mut Entry<T>` is safe because entities inside the
-        //   cache are stored within a `Box` to not invalidate references into
-        //   them upon operating on the outer cache.
+        // - Returning a `&mut Entry<T>` is safe because entities inside the cache are
+        //   stored within a `Box` to not invalidate references into them upon operating
+        //   on the outer cache.
         unsafe { &mut *self.lazily_load(index).as_ptr() }
     }
 
@@ -427,7 +430,8 @@ where
 
     /// Swaps the values at indices `x` and `y`.
     ///
-    /// This operation tries to be as efficient as possible and reuse allocations.
+    /// This operation tries to be as efficient as possible and reuse
+    /// allocations.
     ///
     /// # Panics
     ///
@@ -476,7 +480,8 @@ mod tests {
     };
     use ink_primitives::Key;
 
-    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    /// Asserts that the cached entries of the given `imap` is equal to the
+    /// `expected` slice.
     fn assert_cached_entries(
         imap: &LazyIndexMap<u8>,
         expected: &[(Index, StorageEntry<u8>)],

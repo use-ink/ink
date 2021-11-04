@@ -49,20 +49,20 @@ pub struct TypedEncoded<T> {
     /// # Note
     ///
     /// - This should not be the typed that is actually stored as encoded
-    ///   representation in `self.encoded` but should primarily be an
-    ///   abstract marker type that may be used for classification.
-    /// - The idea behind the marker is to say that whenever two instances
-    ///   of `TypedEncoded` share a marker they are guaranteed to also have
-    ///   a common (but unknown) `type_id` so they can decode to the same
-    ///   original type and thus we can allow to interoperate on them.
+    ///   representation in `self.encoded` but should primarily be an abstract
+    ///   marker type that may be used for classification.
+    /// - The idea behind the marker is to say that whenever two instances of
+    ///   `TypedEncoded` share a marker they are guaranteed to also have a
+    ///   common (but unknown) `type_id` so they can decode to the same original
+    ///   type and thus we can allow to interoperate on them.
     ///
     /// # Example
     ///
     /// The `TestEnv` might use one abstract marker for every
     /// of the fundamental FRAME types: `Balance`, `AccountId`, `Hash`, etc.
-    /// With this and the explicit guarantee that two instances of `TypedEncoded`
-    /// with the same abstract marker also share the same (unknown) `type_id`
-    /// it is possible to allow them to interoperate.
+    /// With this and the explicit guarantee that two instances of
+    /// `TypedEncoded` with the same abstract marker also share the same
+    /// (unknown) `type_id` it is possible to allow them to interoperate.
     marker: PhantomData<fn() -> T>,
 }
 
@@ -204,7 +204,8 @@ impl<M> TypedEncoded<M> {
         Ok(())
     }
 
-    /// Returns `Ok` if `T` is the type represented by the typed encoded instance.
+    /// Returns `Ok` if `T` is the type represented by the typed encoded
+    /// instance.
     fn check_enforced_type<T>(&self) -> Result<()>
     where
         T: 'static,

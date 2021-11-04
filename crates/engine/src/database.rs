@@ -73,7 +73,8 @@ impl Database {
         self.hmap.get(&hashed_key.to_vec())
     }
 
-    /// Inserts `value` into the contract storage of `account_id` at storage key `key`.
+    /// Inserts `value` into the contract storage of `account_id` at storage key
+    /// `key`.
     pub fn insert_into_contract_storage(
         &mut self,
         account_id: &[u8],
@@ -84,7 +85,8 @@ impl Database {
         self.hmap.insert(hashed_key.to_vec(), value)
     }
 
-    /// Removes the value at the contract storage of `account_id` at storage key `key`.
+    /// Removes the value at the contract storage of `account_id` at storage key
+    /// `key`.
     pub fn remove_contract_storage(
         &mut self,
         account_id: &[u8],
@@ -94,8 +96,8 @@ impl Database {
         self.hmap.remove(&hashed_key.to_vec())
     }
 
-    /// Removes a key from the storage, returning the value at the key if the key
-    /// was previously in storage.
+    /// Removes a key from the storage, returning the value at the key if the
+    /// key was previously in storage.
     pub fn remove(&mut self, key: &[u8]) -> Option<Vec<u8>> {
         self.hmap.remove(key)
     }

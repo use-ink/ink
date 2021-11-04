@@ -177,11 +177,12 @@ where
 ///
 /// # Parameters
 ///
-/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
-///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*`
+///   fields. If `None` is supplied the `custom_refcount_*` fields will also be
+///   `None`.
 ///
-///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-///   `refcount` made during the currently running call.
+///   The `current_*` fields of `RentStatus` do **not** consider changes to the
+/// code's   `refcount` made during the currently running call.
 ///
 /// # Errors
 ///
@@ -262,7 +263,8 @@ where
 ///
 /// # Panics
 ///
-/// - If the encode length of value exceeds the configured maximum value length of a storage entry.
+/// - If the encode length of value exceeds the configured maximum value length
+///   of a storage entry.
 pub fn set_contract_storage<V>(key: &Key, value: &V)
 where
     V: scale::Encode,
@@ -272,7 +274,8 @@ where
     })
 }
 
-/// Returns the value stored under the given key in the contract's storage if any.
+/// Returns the value stored under the given key in the contract's storage if
+/// any.
 ///
 /// # Errors
 ///
@@ -298,9 +301,10 @@ pub fn clear_contract_storage(key: &Key) {
 /// # Note
 ///
 /// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]
-///   will generally have a better performance since it won't try to fetch any results.
-/// - This is a low level way to invoke another smart contract.
-///   Prefer to use the ink! guided and type safe approach to using this.
+///   will generally have a better performance since it won't try to fetch any
+///   results.
+/// - This is a low level way to invoke another smart contract. Prefer to use
+///   the ink! guided and type safe approach to using this.
 ///
 /// # Errors
 ///
@@ -381,11 +385,11 @@ where
 ///
 /// - `account_id`: Account ID of the to-be-restored contract.
 /// - `code_hash`: Code hash of the to-be-restored contract.
-/// - `rent_allowance`: Rent allowance of the restored contract
-///                     upon successful restoration.
-/// - `filtered_keys`: Storage keys to be excluded when calculating the tombstone hash,
-///                    which is used to decide whether the original contract and the
-///                    to-be-restored contract have matching storage.
+/// - `rent_allowance`: Rent allowance of the restored contract upon successful
+///   restoration.
+/// - `filtered_keys`: Storage keys to be excluded when calculating the
+///   tombstone hash, which is used to decide whether the original contract and
+///   the to-be-restored contract have matching storage.
 ///
 /// # Usage
 ///
@@ -407,14 +411,15 @@ where
 /// The `filtered_keys` argument can be used to ignore the extraneous keys
 /// used by `C2` but not used by `C`.
 ///
-/// The process of such a smart contract restoration can generally be very expensive.
+/// The process of such a smart contract restoration can generally be very
+/// expensive.
 ///
 /// # Note
 ///
-/// - `filtered_keys` can be used to ignore certain storage regions
-///   in the restorer contract to not influence the hash calculations.
-/// - Does *not* perform restoration right away but defers it to the end of
-///   the contract execution.
+/// - `filtered_keys` can be used to ignore certain storage regions in the
+///   restorer contract to not influence the hash calculations.
+/// - Does *not* perform restoration right away but defers it to the end of the
+///   contract execution.
 /// - Restoration is canceled if there is no tombstone in the destination
 ///   address or if the hashes don't match. No changes are made in this case.
 pub fn restore_contract<T>(
@@ -447,8 +452,8 @@ pub fn restore_contract<T>(
 /// # Note
 ///
 /// This function never returns. Either the termination was successful and the
-/// execution of the destroyed contract is halted. Or it failed during the termination
-/// which is considered fatal and results in a trap and rollback.
+/// execution of the destroyed contract is halted. Or it failed during the
+/// termination which is considered fatal and results in a trap and rollback.
 pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
 where
     T: Environment,
@@ -484,10 +489,10 @@ where
 ///
 /// # Note
 ///
-/// - The input is the 4-bytes selector followed by the arguments
-///   of the called function in their SCALE encoded representation.
-/// - No prior interaction with the environment must take place before
-///   calling this procedure.
+/// - The input is the 4-bytes selector followed by the arguments of the called
+///   function in their SCALE encoded representation.
+/// - No prior interaction with the environment must take place before calling
+///   this procedure.
 ///
 /// # Usage
 ///
@@ -526,13 +531,14 @@ where
     })
 }
 
-/// Returns a random hash seed and the block number since which it was determinable
-/// by chain observers.
+/// Returns a random hash seed and the block number since which it was
+/// determinable by chain observers.
 ///
 /// # Note
 ///
 /// - The subject buffer can be used to further randomize the hash.
-/// - Within the same execution returns the same random hash for the same subject.
+/// - Within the same execution returns the same random hash for the same
+///   subject.
 ///
 /// # Errors
 ///
@@ -541,10 +547,10 @@ where
 /// # Important
 ///
 /// The returned seed should only be used to distinguish commitments made before
-/// the returned block number. If the block number is too early (i.e. commitments were
-/// made afterwards), then ensure no further commitments may be made and repeatedly
-/// call this on later blocks until the block number returned is later than the latest
-/// commitment.
+/// the returned block number. If the block number is too early (i.e.
+/// commitments were made afterwards), then ensure no further commitments may be
+/// made and repeatedly call this on later blocks until the block number
+/// returned is later than the latest commitment.
 pub fn random<T>(subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
 where
     T: Environment,
@@ -561,7 +567,8 @@ pub fn debug_message(message: &str) {
     })
 }
 
-/// Conducts the crypto hash of the given input and stores the result in `output`.
+/// Conducts the crypto hash of the given input and stores the result in
+/// `output`.
 ///
 /// # Example
 ///
@@ -580,7 +587,8 @@ where
     })
 }
 
-/// Conducts the crypto hash of the given encoded input and stores the result in `output`.
+/// Conducts the crypto hash of the given encoded input and stores the result in
+/// `output`.
 ///
 /// # Example
 ///
@@ -605,8 +613,8 @@ where
     })
 }
 
-/// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-/// and stores the result in `output`.
+/// Recovers the compressed ECDSA public key for given `signature` and
+/// `message_hash`, and stores the result in `output`.
 ///
 /// # Example
 ///

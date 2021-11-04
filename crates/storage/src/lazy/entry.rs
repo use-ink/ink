@@ -203,8 +203,8 @@ impl<T> StorageEntry<T>
 where
     T: SpreadLayout,
 {
-    /// Pulls the entity from the underlying associated storage as a `SpreadLayout`
-    /// storage layout representation.
+    /// Pulls the entity from the underlying associated storage as a
+    /// `SpreadLayout` storage layout representation.
     ///
     /// # Note
     ///
@@ -228,7 +228,8 @@ where
         }
     }
 
-    /// Clears the underlying associated storage as `SpreadLayout` storage layout representation.
+    /// Clears the underlying associated storage as `SpreadLayout` storage
+    /// layout representation.
     ///
     /// # Note
     ///
@@ -243,12 +244,14 @@ impl<T> StorageEntry<T>
 where
     T: PackedLayout,
 {
-    /// Pulls the entity from the underlying associated storage as packed representation.
+    /// Pulls the entity from the underlying associated storage as packed
+    /// representation.
     ///
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`] or
+    /// packed storage entities such as
+    /// [`LazyIndexMap`][`crate::lazy::LazyIndexMap`] or
     /// [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn pull_packed_root(root_key: &Key) -> Self {
         Self::new(pull_packed_root_opt::<T>(root_key), EntryState::Preserved)
@@ -259,7 +262,8 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
+    /// packed storage entities such as
+    /// [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
     /// or [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn push_packed_root(&self, root_key: &Key) {
         let old_state = self.replace_state(EntryState::Preserved);
@@ -273,7 +277,8 @@ where
     /// # Note
     ///
     /// Mainly used by lazy storage abstractions that only allow operating on
-    /// packed storage entities such as [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
+    /// packed storage entities such as
+    /// [`LazyIndexMap`][`crate::lazy::LazyIndexMap`]
     /// or [`LazyArray`][`crate::lazy::LazyArray`].
     pub fn clear_packed_root(&self, root_key: &Key) {
         clear_packed_root::<Option<T>>(self.value(), root_key);

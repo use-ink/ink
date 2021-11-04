@@ -35,13 +35,13 @@ use scale_info::{
 /// # Note
 ///
 /// - The storage of an ink! smart contract can be viewed as a key-value store.
-/// - In order to manipulate its storage an ink! smart contract is required
-///   to indicate the respective cells using this primitive type.
+/// - In order to manipulate its storage an ink! smart contract is required to
+///   indicate the respective cells using this primitive type.
 /// - The `Key` type can be compared to a raw pointer and also allows operations
 ///   similar to pointer arithmetic.
-/// - Users usually should not have to deal with this low-level primitive themselves
-///   and instead use the more high-level primitives provided by the `ink_storage`
-///   crate.
+/// - Users usually should not have to deal with this low-level primitive
+///   themselves and instead use the more high-level primitives provided by the
+///   `ink_storage` crate.
 #[derive(Default, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct Key([u8; 32]);
@@ -194,13 +194,15 @@ impl Key {
     ///
     /// # Note
     ///
-    /// This implementation is heavily optimized for little-endian Wasm platforms.
+    /// This implementation is heavily optimized for little-endian Wasm
+    /// platforms.
     ///
     /// # Developer Note
     ///
-    /// Since we are operating on little-endian we can convert the underlying `[u8; 32]`
-    /// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`
-    /// it is more efficient to work on chunks of `u8` represented as `u64`.
+    /// Since we are operating on little-endian we can convert the underlying
+    /// `[u8; 32]` array to `[u64; 4]`. Since in WebAssembly `u64` is
+    /// supported natively unlike `u8` it is more efficient to work on
+    /// chunks of `u8` represented as `u64`.
     #[cfg(target_endian = "little")]
     fn add_assign_u64_le(&mut self, rhs: u64) {
         let words = self.reinterpret_as_u64x4_mut();
@@ -218,13 +220,15 @@ impl Key {
     ///
     /// # Note
     ///
-    /// This implementation is heavily optimized for little-endian Wasm platforms.
+    /// This implementation is heavily optimized for little-endian Wasm
+    /// platforms.
     ///
     /// # Developer Note
     ///
-    /// Since we are operating on little-endian we can convert the underlying `[u8; 32]`
-    /// array to `[u64; 4]`. Since in WebAssembly `u64` is supported natively unlike `u8`
-    /// it is more efficient to work on chunks of `u8` represented as `u64`.
+    /// Since we are operating on little-endian we can convert the underlying
+    /// `[u8; 32]` array to `[u64; 4]`. Since in WebAssembly `u64` is
+    /// supported natively unlike `u8` it is more efficient to work on
+    /// chunks of `u8` represented as `u64`.
     #[cfg(target_endian = "little")]
     fn add_assign_u64_le_using(&self, rhs: u64, result: &mut Key) {
         let input = self.reinterpret_as_u64x4();

@@ -45,13 +45,13 @@ type Index = u32;
 ///
 /// # Note
 ///
-/// - The `storage::SmallVec` has a very similar API compared to a `storage::Vec`.
-///   The major difference between both data structures is that the `SmallVec`
-///   can only contain up to a fixed amount of elements given by `N` whereas the
-///   `Vec` can contain up to `2^32` elements which is the maximum for 32-bit Wasm
-///   targets.
-/// - The performance characteristics may be different from Rust's
-///   `Vec` due to the internal differences.
+/// - The `storage::SmallVec` has a very similar API compared to a
+///   `storage::Vec`. The major difference between both data structures is that
+///   the `SmallVec` can only contain up to a fixed amount of elements given by
+///   `N` whereas the `Vec` can contain up to `2^32` elements which is the
+///   maximum for 32-bit Wasm targets.
+/// - The performance characteristics may be different from Rust's `Vec` due to
+///   the internal differences.
 /// - Allows to store up to N elements.
 #[derive(Debug)]
 pub struct SmallVec<T, const N: usize>
@@ -85,8 +85,8 @@ where
     /// the contents of its associated storage region.
     ///
     /// This API is used for the `Drop` implementation of [`Vec`] as well as
-    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::clear_spread`]
-    /// trait implementation.
+    /// for the [`SpreadLayout::clear_spread`][`crate::traits::SpreadLayout::
+    /// clear_spread`] trait implementation.
     fn clear_cells(&self) {
         if self.elems.key().is_none() {
             // We won't clear any storage if we are in lazy state since there
@@ -117,7 +117,8 @@ where
         self.elems.capacity()
     }
 
-    /// Returns the number of elements in the vector, also referred to as its length.
+    /// Returns the number of elements in the vector, also referred to as its
+    /// length.
     #[inline]
     pub fn len(&self) -> u32 {
         *self.len
@@ -139,8 +140,8 @@ where
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage vectors.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn iter(&self) -> Iter<T, N> {
         Iter::new(self)
     }
@@ -150,8 +151,8 @@ where
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage vectors.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<T, N> {
         IterMut::new(self)
     }
@@ -281,7 +282,8 @@ where
     /// Removes the indexed element from the vector and returns it.
     ///
     /// The last element of the vector is put into the indexed slot.
-    /// Returns `None` and does not mutate the vector if the index is out of bounds.
+    /// Returns `None` and does not mutate the vector if the index is out of
+    /// bounds.
     ///
     /// # Note
     ///

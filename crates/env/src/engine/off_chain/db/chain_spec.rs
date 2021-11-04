@@ -33,11 +33,13 @@ pub struct ChainSpec {
     tombstone_deposit: OffBalance,
     /// The targeted block time.
     block_time: OffTimestamp,
-    /// The balance a contract needs to deposit per storage byte to stay alive indefinitely.
+    /// The balance a contract needs to deposit per storage byte to stay alive
+    /// indefinitely.
     deposit_per_storage_byte: OffBalance,
     /// The balance every contract needs to deposit to stay alive indefinitely.
     deposit_per_contract: OffBalance,
-    /// The balance a contract needs to deposit per storage item to stay alive indefinitely.
+    /// The balance a contract needs to deposit per storage item to stay alive
+    /// indefinitely.
     deposit_per_storage_item: OffBalance,
     /// The fraction of the deposit costs that should be used as rent per block.
     rent_fraction: OffRentFraction,
@@ -141,7 +143,8 @@ impl ChainSpec {
         self.block_time.decode().map_err(Into::into)
     }
 
-    /// The balance a contract needs to deposit per storage byte to stay alive indefinitely.
+    /// The balance a contract needs to deposit per storage byte to stay alive
+    /// indefinitely.
     pub fn deposit_per_storage_byte<T>(&self) -> Result<T::Balance>
     where
         T: Environment,
@@ -157,7 +160,8 @@ impl ChainSpec {
         self.deposit_per_contract.decode().map_err(Into::into)
     }
 
-    /// The balance a contract needs to deposit per storage item to stay alive indefinitely.
+    /// The balance a contract needs to deposit per storage item to stay alive
+    /// indefinitely.
     pub fn deposit_per_storage_item<T>(&self) -> Result<T::Balance>
     where
         T: Environment,

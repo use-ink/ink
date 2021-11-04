@@ -15,7 +15,8 @@
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or `enum`.
+/// Derives `ink_storage`'s `PackedLayout` trait for the given `struct` or
+/// `enum`.
 pub fn packed_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)

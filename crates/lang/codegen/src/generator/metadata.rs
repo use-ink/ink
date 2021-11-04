@@ -194,7 +194,8 @@ impl Metadata<'_> {
         messages
     }
 
-    /// Generates the ink! metadata for all inherent ink! smart contract messages.
+    /// Generates the ink! metadata for all inherent ink! smart contract
+    /// messages.
     fn generate_inherent_messages(&self) -> Vec<TokenStream2> {
         self.contract
             .module()
@@ -235,7 +236,8 @@ impl Metadata<'_> {
             .collect()
     }
 
-    /// Generates the ink! metadata for all inherent ink! smart contract messages.
+    /// Generates the ink! metadata for all inherent ink! smart contract
+    /// messages.
     fn generate_trait_messages(&self) -> Vec<TokenStream2> {
         let storage_ident = self.contract.module().storage().ident();
         self.contract
@@ -333,7 +335,8 @@ impl Metadata<'_> {
         })
     }
 
-    /// Generate ink! metadata for a single argument of an ink! event definition.
+    /// Generate ink! metadata for a single argument of an ink! event
+    /// definition.
     fn generate_event_args(event: &ir::Event) -> impl Iterator<Item = TokenStream2> + '_ {
         event.fields().map(|event_field| {
             let span = event_field.span();

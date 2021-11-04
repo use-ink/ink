@@ -31,15 +31,15 @@ impl ExtError for syn::Error {
 ///
 /// # Parameters
 ///
-/// - The first argument must implement [`quote::ToTokens`] in order to
-///   infer a [`Span`](`proc_macro2::Span`).
+/// - The first argument must implement [`quote::ToTokens`] in order to infer a
+///   [`Span`](`proc_macro2::Span`).
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///
 /// # Note
 ///
-/// On stable Rust this might yield higher quality error span information to the user
-/// than [`format_err`].
+/// On stable Rust this might yield higher quality error span information to the
+/// user than [`format_err`].
 /// - Source:
 /// [`syn::Error::new_spanned`](https://docs.rs/syn/1.0.33/syn/struct.Error.html#method.new_spanned)
 /// - Tracking issue: [`#54725`](https://github.com/rust-lang/rust/issues/54725)
@@ -58,7 +58,8 @@ macro_rules! format_err_spanned {
 ///
 /// # Parameters
 ///
-/// - The first argument must be a type that implements [`syn::spanned::Spanned`].
+/// - The first argument must be a type that implements
+///   [`syn::spanned::Spanned`].
 /// - The second argument is a format string.
 /// - The rest are format string arguments.
 ///

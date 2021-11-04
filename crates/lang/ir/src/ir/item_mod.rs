@@ -84,7 +84,8 @@ use syn::{
 /// }
 /// ```
 ///
-/// If the capabilities of an inline Rust module change we have to adjust for that.
+/// If the capabilities of an inline Rust module change we have to adjust for
+/// that.
 #[derive(Debug, PartialEq, Eq)]
 pub struct ItemMod {
     attrs: Vec<syn::Attribute>,
@@ -97,7 +98,8 @@ pub struct ItemMod {
 
 impl ItemMod {
     /// Ensures that the ink! storage struct is not missing and that there are
-    /// not multiple ink! storage struct definitions for the given slice of items.
+    /// not multiple ink! storage struct definitions for the given slice of
+    /// items.
     fn ensure_storage_struct_quantity(
         module_span: Span,
         items: &[ir::Item],
@@ -121,7 +123,8 @@ impl ItemMod {
         Ok(())
     }
 
-    /// Ensures that the given slice of items contains at least one ink! message.
+    /// Ensures that the given slice of items contains at least one ink!
+    /// message.
     fn ensure_contains_message(
         module_span: Span,
         items: &[ir::Item],
@@ -143,7 +146,8 @@ impl ItemMod {
         Ok(())
     }
 
-    /// Ensures that the given slice of items contains at least one ink! constructor.
+    /// Ensures that the given slice of items contains at least one ink!
+    /// constructor.
     fn ensure_contains_constructor(
         module_span: Span,
         items: &[ir::Item],
@@ -345,7 +349,8 @@ impl ItemMod {
         storage
     }
 
-    /// Returns all (ink! and non-ink! specific) item definitions of the ink! inline module.
+    /// Returns all (ink! and non-ink! specific) item definitions of the ink!
+    /// inline module.
     pub fn items(&self) -> &[ir::Item] {
         self.items.as_slice()
     }

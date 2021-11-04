@@ -15,9 +15,9 @@
 //! The global registry with which it is possible to refer back to the global
 //! trait call builder and call forwarder types using only the trait identifier.
 //!
-//! This works by making the global trait registry type defined in the `ink_lang`
-//! crate implement each and every ink! trait definition and defining associated
-//! types for the trait's respective call builder and call forwarder.
+//! This works by making the global trait registry type defined in the
+//! `ink_lang` crate implement each and every ink! trait definition and defining
+//! associated types for the trait's respective call builder and call forwarder.
 
 use super::TraitDefinition;
 use crate::{
@@ -87,17 +87,19 @@ impl TraitRegistry<'_> {
     /// Generates the global trait registry implementation for the ink! trait.
     ///
     /// This makes it possible to refer back to the global call forwarder and
-    /// call builder specific to this ink! trait from anywhere with just the Rust
-    /// trait identifier which allows for type safe access.
+    /// call builder specific to this ink! trait from anywhere with just the
+    /// Rust trait identifier which allows for type safe access.
     ///
     /// # Note
     ///
-    /// Through this implementation we register the previously defined ink! trait
-    /// call forwarder and call builder types as such for the ink! trait.
+    /// Through this implementation we register the previously defined ink!
+    /// trait call forwarder and call builder types as such for the ink!
+    /// trait.
     ///
     /// This is done by the fact that ink! implements all ink! traits by the
-    /// [`ink_lang::TraitDefinitionRegistry`] type and uses the `__ink_ConcreteImplementer`
-    /// associated type to refer back to the actual call forwarder and call builder types.
+    /// [`ink_lang::TraitDefinitionRegistry`] type and uses the
+    /// `__ink_ConcreteImplementer` associated type to refer back to the
+    /// actual call forwarder and call builder types.
     fn generate_registry_impl(&self) -> TokenStream2 {
         let span = self.span();
         let name = self.trait_ident();
@@ -118,7 +120,8 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generate the code for all ink! trait messages implemented by the trait registry.
+    /// Generate the code for all ink! trait messages implemented by the trait
+    /// registry.
     fn generate_registry_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
@@ -131,7 +134,8 @@ impl TraitRegistry<'_> {
         }
     }
 
-    /// Generates code to assert that ink! input and output types meet certain properties.
+    /// Generates code to assert that ink! input and output types meet certain
+    /// properties.
     fn generate_inout_guards_for_message(message: &ir::InkTraitMessage) -> TokenStream2 {
         let message_span = message.span();
         let message_inputs = message.inputs().map(|input| {
@@ -157,9 +161,11 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait registry.
+    /// Generate the code for a single ink! trait message implemented by the
+    /// trait registry.
     ///
-    /// Generally the implementation of any ink! trait of the ink! trait registry
+    /// Generally the implementation of any ink! trait of the ink! trait
+    /// registry
     fn generate_registry_for_message(
         &self,
         message: &ir::InkTraitMessage,
@@ -274,8 +280,8 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementations for all
-    /// ink! messages defined by the ink! trait definition.
+    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementations
+    /// for all ink! messages defined by the ink! trait definition.
     fn generate_info_for_trait_messages(&self) -> TokenStream2 {
         let span = self.span();
         let message_impls = self.trait_def.trait_def.item().iter_items().filter_map(
@@ -290,8 +296,8 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementation for a single
-    /// ink! message defined by the ink! trait definition.
+    /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementation
+    /// for a single ink! message defined by the ink! trait definition.
     fn generate_info_for_trait_for_message(
         &self,
         message: &ir::InkTraitMessage,

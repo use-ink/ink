@@ -141,8 +141,8 @@ fn remove_out_of_bounds_works() {
 #[test]
 fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        // First populate some storage Stash and writes that to the contract storage using pull_spread
-        // and some known Key.
+        // First populate some storage Stash and writes that to the contract storage
+        // using pull_spread and some known Key.
         let stash = [b'A', b'B', b'C']
             .iter()
             .copied()
@@ -151,8 +151,8 @@ fn remove_works_with_spread_layout_push_pull() -> ink_env::Result<()> {
         SpreadLayout::push_spread(&stash, &mut KeyPtr::from(root_key));
 
         // Then load another instance from the same key lazily and remove some of
-        // the known-to-be-populated entries from it. Afterwards push_spread this second instance and
-        // load yet another using pull_spread again.
+        // the known-to-be-populated entries from it. Afterwards push_spread this second
+        // instance and load yet another using pull_spread again.
         let mut stash2 =
             <StorageStash<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert_eq!(unsafe { stash2.remove_occupied(0) }, Some(()));

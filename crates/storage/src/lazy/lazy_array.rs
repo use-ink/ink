@@ -45,7 +45,8 @@ pub type Index = u32;
 ///
 /// Computes operations on the underlying N storage cells in a lazy fashion.
 /// Due to the size constraints the `LazyArray` is generally more efficient
-/// than the [`LazyMap`](`super::LazyIndexMap`) for most use cases with limited elements.
+/// than the [`LazyMap`](`super::LazyIndexMap`) for most use cases with limited
+/// elements.
 ///
 /// This is mainly used as low-level storage primitives by other high-level
 /// storage primitives in order to manage the contract storage for a whole
@@ -245,7 +246,8 @@ impl<T, const N: usize> EntryArray<T, N> {
         .flatten()
     }
 
-    /// Inserts a new entry into the cache and returns an exclusive reference to it.
+    /// Inserts a new entry into the cache and returns an exclusive reference to
+    /// it.
     unsafe fn insert_entry(
         &self,
         at: Index,
@@ -292,8 +294,8 @@ where
         let root_key = self.key_at(index).expect("cannot clear in lazy state");
         if <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
             // We need to load the entity before we remove its associated contract storage
-            // because it requires a deep clean-up which propagates clearing to its fields,
-            // for example in the case of `T` being a `storage::Box`.
+            // because it requires a deep clean-up which propagates clearing to its
+            // fields, for example in the case of `T` being a `storage::Box`.
             let entity = self.get(index).expect("cannot clear a non existing entity");
             clear_packed_root::<T>(entity, &root_key);
         } else {
@@ -315,8 +317,9 @@ impl<T, const N: usize> LazyArray<T, N> {
     ///
     /// # Note
     ///
-    /// A lazy array created this way cannot be used to load from the contract storage.
-    /// All operations that directly or indirectly load from storage will panic.
+    /// A lazy array created this way cannot be used to load from the contract
+    /// storage. All operations that directly or indirectly load from
+    /// storage will panic.
     pub fn new() -> Self {
         Self {
             key: None,
@@ -496,7 +499,8 @@ where
         self.load_through_cache_mut(at).value_mut().into()
     }
 
-    /// Puts the new value into the indexed slot and returns the old value if any.
+    /// Puts the new value into the indexed slot and returns the old value if
+    /// any.
     ///
     /// # Note
     ///
@@ -563,7 +567,8 @@ mod tests {
     };
     use ink_primitives::Key;
 
-    /// Asserts that the cached entries of the given `imap` is equal to the `expected` slice.
+    /// Asserts that the cached entries of the given `imap` is equal to the
+    /// `expected` slice.
     fn assert_cached_entries<const N: usize>(
         larray: &LazyArray<u8, N>,
         expected: &[(Index, StorageEntry<u8>)],

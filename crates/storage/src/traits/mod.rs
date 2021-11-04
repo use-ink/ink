@@ -19,9 +19,9 @@
 //! to tell a smart contract how to load and store instances of this type
 //! from and to the contract's storage.
 //!
-//! The `PackedLayout` trait can then be implemented on top of the `SpreadLayout`
-//! for types that further allow to be stored in the contract storage in a more
-//! compressed format to a single storage cell.
+//! The `PackedLayout` trait can then be implemented on top of the
+//! `SpreadLayout` for types that further allow to be stored in the contract
+//! storage in a more compressed format to a single storage cell.
 
 mod impls;
 mod keyptr;
@@ -79,8 +79,8 @@ pub use ink_storage_derive::{
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using spread layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`SpreadLayout`].
 pub fn pull_spread_root<T>(root_key: &Key) -> T
@@ -98,8 +98,8 @@ where
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using spread layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait method on [`SpreadAllocate`].
 pub fn allocate_spread_root<T>(root_key: &Key) -> T
@@ -117,8 +117,8 @@ where
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using spread layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using spread layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`SpreadLayout`].
 pub fn clear_spread_root<T>(entity: &T, root_key: &Key)
@@ -155,8 +155,8 @@ where
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
 pub fn pull_packed_root<T>(root_key: &Key) -> T
@@ -170,15 +170,16 @@ where
     entity
 }
 
-/// Allocates an instance of type `T` to the contract storage using packed layout.
+/// Allocates an instance of type `T` to the contract storage using packed
+/// layout.
 ///
 /// The root key denotes the offset into the contract storage where the
 /// instance of type `T` is being allocated to.
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait method on [`PackedAllocate`].
 pub fn allocate_packed_root<T>(root_key: &Key) -> T
@@ -216,8 +217,8 @@ where
 ///
 /// # Note
 ///
-/// - The routine assumes that the instance has previously been stored to
-///   the contract storage using packed layout.
+/// - The routine assumes that the instance has previously been stored to the
+///   contract storage using packed layout.
 /// - Users should prefer using this function directly instead of using the
 ///   trait methods on [`PackedLayout`].
 pub fn clear_packed_root<T>(entity: &T, root_key: &Key)

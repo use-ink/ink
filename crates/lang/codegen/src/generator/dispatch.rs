@@ -36,11 +36,11 @@ use syn::spanned::Spanned as _;
 /// This code efficiently selects the dispatched ink! constructor or message
 /// by inspecting the first four bytes (selector) of the given input bytes.
 ///
-/// As this happens on every contract execution this code must be highly optimized.
-/// For that purpose a so-called dispatch enum is being generated that has a
-/// specialized `scale::Decode` implementation taking the first four bytes of
-/// the input stream in order to identify the enum variant that it is going to
-/// produce out of the rest of the input buffer.
+/// As this happens on every contract execution this code must be highly
+/// optimized. For that purpose a so-called dispatch enum is being generated
+/// that has a specialized `scale::Decode` implementation taking the first four
+/// bytes of the input stream in order to identify the enum variant that it is
+/// going to produce out of the rest of the input buffer.
 ///
 /// The rest of the input buffer is then automatically decoded directly into the
 /// expected input types of the respective ink! constructor or message.
@@ -92,7 +92,8 @@ impl GenerateCode for Dispatch<'_> {
 }
 
 impl Dispatch<'_> {
-    /// Returns the number of dispatchable ink! constructors of the ink! smart contract.
+    /// Returns the number of dispatchable ink! constructors of the ink! smart
+    /// contract.
     fn query_amount_constructors(&self) -> usize {
         self.contract
             .module()
@@ -102,7 +103,8 @@ impl Dispatch<'_> {
             .count()
     }
 
-    /// Returns the number of dispatchable ink! messages of the ink! smart contract.
+    /// Returns the number of dispatchable ink! messages of the ink! smart
+    /// contract.
     ///
     /// This includes inherent ink! messages as well as trait ink! messages.
     fn query_amount_messages(&self) -> usize {
@@ -114,10 +116,12 @@ impl Dispatch<'_> {
             .count()
     }
 
-    /// Generates code for the [`ink_lang::ContractDispatchables`] trait implementation.
+    /// Generates code for the [`ink_lang::ContractDispatchables`] trait
+    /// implementation.
     ///
     /// This trait implementation stores information of how many dispatchable
-    /// ink! messages and ink! constructors there are for the ink! smart contract.
+    /// ink! messages and ink! constructors there are for the ink! smart
+    /// contract.
     fn generate_contract_amount_dispatchables_trait_impl(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
@@ -131,7 +135,8 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates code for the [`ink_lang::ContractDispatchableMessages`] trait implementation.
+    /// Generates code for the [`ink_lang::ContractDispatchableMessages`] trait
+    /// implementation.
     ///
     /// This trait implementation stores the selector ID of each dispatchable
     /// ink! messages of the ink! smart contract.
@@ -199,7 +204,8 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates code for the [`ink_lang::ContractDispatchableConstructors`] trait implementation.
+    /// Generates code for the [`ink_lang::ContractDispatchableConstructors`]
+    /// trait implementation.
     ///
     /// This trait implementation stores the selector ID of each dispatchable
     /// ink! constructor of the ink! smart contract.
@@ -238,10 +244,11 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait
+    /// implementations.
     ///
-    /// These trait implementations store relevant dispatch information for every
-    /// dispatchable ink! constructor of the ink! smart contract.
+    /// These trait implementations store relevant dispatch information for
+    /// every dispatchable ink! constructor of the ink! smart contract.
     fn generate_dispatchable_constructor_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
@@ -277,10 +284,11 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait
+    /// implementations.
     ///
-    /// These trait implementations store relevant dispatch information for every
-    /// dispatchable ink! constructor of the ink! smart contract.
+    /// These trait implementations store relevant dispatch information for
+    /// every dispatchable ink! constructor of the ink! smart contract.
     fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
@@ -432,10 +440,12 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates code for the ink! constructor decoder type of the ink! smart contract.
+    /// Generates code for the ink! constructor decoder type of the ink! smart
+    /// contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
-    /// into one of the available dispatchable ink! constructors and their arguments.
+    /// This type can be used in order to decode the input bytes received by a
+    /// call to `deploy` into one of the available dispatchable ink!
+    /// constructors and their arguments.
     fn generate_constructor_decoder_type(
         &self,
         constructor_spans: &[proc_macro2::Span],
@@ -569,10 +579,12 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates code for the ink! message decoder type of the ink! smart contract.
+    /// Generates code for the ink! message decoder type of the ink! smart
+    /// contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
-    /// into one of the available dispatchable ink! messages and their arguments.
+    /// This type can be used in order to decode the input bytes received by a
+    /// call to `call` into one of the available dispatchable ink! messages
+    /// and their arguments.
     fn generate_message_decoder_type(
         &self,
         message_spans: &[proc_macro2::Span],
@@ -739,11 +751,12 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generates code to express if any dispatchable ink! message accepts payment.
+    /// Generates code to express if any dispatchable ink! message accepts
+    /// payment.
     ///
-    /// This information can be used to speed-up dispatch since denying of payment
-    /// can be generalized to work before dispatch happens if none of the ink! messages
-    /// accept payment anyways.
+    /// This information can be used to speed-up dispatch since denying of
+    /// payment can be generalized to work before dispatch happens if none
+    /// of the ink! messages accept payment anyways.
     fn any_message_accepts_payment_expr(
         &self,
         message_spans: &[proc_macro2::Span],

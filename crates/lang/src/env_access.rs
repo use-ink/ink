@@ -262,9 +262,10 @@ where
     ///
     /// # Note
     ///
-    /// The Substrate default for the timestamp type is the milliseconds since the
-    /// Unix epoch. However, this is not guaranteed: the specific timestamp is
-    /// defined by the chain environment on which this contract runs.
+    /// The Substrate default for the timestamp type is the milliseconds since
+    /// the Unix epoch. However, this is not guaranteed: the specific
+    /// timestamp is defined by the chain environment on which this contract
+    /// runs.
     ///
     /// For more details visit: [`ink_env::block_timestamp`]
     pub fn block_timestamp(self) -> T::Timestamp {
@@ -460,11 +461,12 @@ where
     ///
     /// # Parameters
     ///
-    /// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
-    ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
+    /// - `at_refcount`: The `refcount` assumed for the returned
+    ///   `custom_refcount_*` fields. If `None` is supplied the
+    ///   `custom_refcount_*` fields will also be `None`.
     ///
-    ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-    ///   `refcount` made during the currently running call.
+    ///   The `current_*` fields of `RentStatus` do **not** consider changes to
+    /// the code's   `refcount` made during the currently running call.
     ///
     /// # Note
     ///
@@ -957,7 +959,8 @@ where
         output
     }
 
-    /// Computes the hash of the given SCALE encoded value using the cryptographic hash `H`.
+    /// Computes the hash of the given SCALE encoded value using the
+    /// cryptographic hash `H`.
     ///
     /// # Example
     ///
@@ -988,8 +991,8 @@ where
         output
     }
 
-    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-    /// and stores the result in `output`.
+    /// Recovers the compressed ECDSA public key for given `signature` and
+    /// `message_hash`, and stores the result in `output`.
     ///
     /// # Example
     ///

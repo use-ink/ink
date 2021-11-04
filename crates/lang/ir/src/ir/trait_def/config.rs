@@ -46,7 +46,8 @@ impl TraitDefinitionConfig {
     }
 }
 
-/// Return an error to notify about duplicate ink! trait definition configuration arguments.
+/// Return an error to notify about duplicate ink! trait definition
+/// configuration arguments.
 fn duplicate_config_err<F, S>(fst: F, snd: S, name: &str) -> syn::Error
 where
     F: Spanned,

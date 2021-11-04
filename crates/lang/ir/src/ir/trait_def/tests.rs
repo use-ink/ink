@@ -14,7 +14,8 @@
 
 use super::*;
 
-/// Checks if the token stream in `$trait_def` results in the expected error message.
+/// Checks if the token stream in `$trait_def` results in the expected error
+/// message.
 macro_rules! assert_ink_trait_eq_err {
     ( error: $err_str:literal, $($trait_def:tt)* ) => {
         assert_eq!(

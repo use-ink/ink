@@ -442,7 +442,8 @@ where
 
 #[test]
 fn push_largest_value_complexity_big_o_log_n() -> ink_env::Result<()> {
-    // 1 elements overhead (#508) + 1 elements.len + 1 heap overhead (#508) + 1 heap.len + 1 cell
+    // 1 elements overhead (#508) + 1 elements.len + 1 heap overhead (#508) + 1
+    // heap.len + 1 cell
     const CONST_READS: usize = 5;
 
     // 1 elements.len + 1 cell which was pushed to

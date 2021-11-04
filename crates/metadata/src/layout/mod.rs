@@ -369,7 +369,8 @@ where
         self.len
     }
 
-    /// Returns the number of cells each element in the array layout consists of.
+    /// Returns the number of cells each element in the array layout consists
+    /// of.
     pub fn cells_per_elem(&self) -> u64 {
         self.cells_per_elem
     }
@@ -552,7 +553,8 @@ impl<F> EnumLayout<F>
 where
     F: Form,
 {
-    /// Returns the key where the discriminant is stored to dispatch the variants.
+    /// Returns the key where the discriminant is stored to dispatch the
+    /// variants.
     pub fn dispatch_key(&self) -> &LayoutKey {
         &self.dispatch_key
     }

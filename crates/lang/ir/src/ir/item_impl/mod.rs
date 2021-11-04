@@ -114,8 +114,8 @@ impl quote::ToTokens for ItemImpl {
 }
 
 impl ItemImpl {
-    /// Returns `true` if the Rust implementation block is an ink! implementation
-    /// block.
+    /// Returns `true` if the Rust implementation block is an ink!
+    /// implementation block.
     ///
     /// # Note
     ///
@@ -357,17 +357,20 @@ impl ItemImpl {
             .map(|segment| &segment.ident)
     }
 
-    /// Returns the namespace of the implementation block if any has been provided.
+    /// Returns the namespace of the implementation block if any has been
+    /// provided.
     pub fn namespace(&self) -> Option<&ir::Namespace> {
         self.namespace.as_ref()
     }
 
-    /// Returns an iterator yielding the ink! messages of the implementation block.
+    /// Returns an iterator yielding the ink! messages of the implementation
+    /// block.
     pub fn iter_messages(&self) -> IterMessages {
         IterMessages::new(self)
     }
 
-    /// Returns an iterator yielding the ink! messages of the implementation block.
+    /// Returns an iterator yielding the ink! messages of the implementation
+    /// block.
     pub fn iter_constructors(&self) -> IterConstructors {
         IterConstructors::new(self)
     }

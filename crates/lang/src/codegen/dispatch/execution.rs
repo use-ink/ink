@@ -59,7 +59,8 @@ pub struct ExecuteConstructorConfig {
     ///
     /// # Note
     ///
-    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
+    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator =
+    /// true)]`.
     pub dynamic_storage_alloc: bool,
 }
 
@@ -111,7 +112,8 @@ pub struct ExecuteMessageConfig {
     ///
     /// # Note
     ///
-    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
+    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator =
+    /// true)]`.
     pub dynamic_storage_alloc: bool,
 }
 

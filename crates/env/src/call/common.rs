@@ -18,7 +18,8 @@ use core::marker::PhantomData;
 
 /// Represents a return type.
 ///
-/// Used as a marker type to differentiate at compile-time between invoke and evaluate.
+/// Used as a marker type to differentiate at compile-time between invoke and
+/// evaluate.
 #[derive(Debug)]
 pub struct ReturnType<T>(PhantomData<fn() -> T>);
 

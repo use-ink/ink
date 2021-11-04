@@ -17,12 +17,13 @@ use crate::format_err;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
 
-/// Ensures that the given visibility is `pub` and otherwise returns an appropriate error.
+/// Ensures that the given visibility is `pub` and otherwise returns an
+/// appropriate error.
 ///
 /// # Note
 ///
-/// The `name` parameter is given to improve the resulting error message. It denotes the
-/// entity which cannot have non-public visibility.
+/// The `name` parameter is given to improve the resulting error message. It
+/// denotes the entity which cannot have non-public visibility.
 pub fn ensure_pub_visibility(
     name: &str,
     parent_span: Span,
@@ -49,7 +50,8 @@ pub fn ensure_pub_visibility(
 /// # Note
 ///
 /// - The returned value is equal to the selector of the message identifier.
-/// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
+/// - Used from within ink! trait definitions as well as ink! trait
+///   implementation blocks.
 pub fn local_message_id(ident: &syn::Ident) -> u32 {
     let input = ident.to_string().into_bytes();
     let selector = Selector::compute(&input);

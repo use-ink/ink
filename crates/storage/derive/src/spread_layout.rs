@@ -58,7 +58,8 @@ fn footprint(s: &synstructure::Structure) -> TokenStream2 {
     max_n(&variant_footprints[..])
 }
 
-/// Generates the tokens for the `SpreadLayout` `REQUIRES_DEEP_CLEAN_UP` constant for the given structure.
+/// Generates the tokens for the `SpreadLayout` `REQUIRES_DEEP_CLEAN_UP`
+/// constant for the given structure.
 fn requires_deep_clean_up(s: &synstructure::Structure) -> TokenStream2 {
     s.variants()
         .iter()
@@ -198,7 +199,8 @@ fn spread_layout_enum_derive(s: &synstructure::Structure) -> TokenStream2 {
     })
 }
 
-/// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or `enum`.
+/// Derives `ink_storage`'s `SpreadLayout` trait for the given `struct` or
+/// `enum`.
 pub fn spread_layout_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
         .add_bounds(synstructure::AddBounds::Generics)

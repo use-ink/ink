@@ -14,13 +14,15 @@
 
 use core::fmt::Display;
 
-/// Reflects the number of dispatchable ink! messages and constructors respectively.
+/// Reflects the number of dispatchable ink! messages and constructors
+/// respectively.
 ///
 /// # Note
 ///
 /// - This is automatically implemented by all ink! smart contracts.
-/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  
-///   This explicitly includes ink! messages from ink! trait implementations.
+/// - All ink! constructors and ink! messages of an ink! smart contract are
+///   dispatchables.   This explicitly includes ink! messages from ink! trait
+///   implementations.
 ///
 /// # Usage
 ///
@@ -65,7 +67,8 @@ pub trait ContractAmountDispatchables {
     const CONSTRUCTORS: usize;
 }
 
-/// Reflects the sequence of all dispatchable ink! messages of the ink! smart contract.
+/// Reflects the sequence of all dispatchable ink! messages of the ink! smart
+/// contract.
 ///
 /// # Note
 ///
@@ -111,11 +114,13 @@ pub trait ContractAmountDispatchables {
 /// }
 /// ```
 pub trait ContractDispatchableMessages<const AMOUNT: usize> {
-    /// The sequence stores selector IDs of all ink! messages dispatchable by the ink! smart contract.
+    /// The sequence stores selector IDs of all ink! messages dispatchable by
+    /// the ink! smart contract.
     const IDS: [u32; AMOUNT];
 }
 
-/// Reflects the sequence of all dispatchable ink! constructors of the ink! smart contract.
+/// Reflects the sequence of all dispatchable ink! constructors of the ink!
+/// smart contract.
 ///
 /// # Note
 ///
@@ -161,7 +166,8 @@ pub trait ContractDispatchableMessages<const AMOUNT: usize> {
 /// }
 /// ```
 pub trait ContractDispatchableConstructors<const AMOUNT: usize> {
-    /// The sequence stores selector IDs of all ink! constructors dispatchable by the ink! smart contract.
+    /// The sequence stores selector IDs of all ink! constructors dispatchable
+    /// by the ink! smart contract.
     const IDS: [u32; AMOUNT];
 }
 
@@ -244,13 +250,15 @@ pub trait DispatchableMessageInfo<const ID: u32> {
     /// The ink! storage struct type.
     type Storage;
 
-    /// The closure that can be used to dispatch into the dispatchable ink! message.
+    /// The closure that can be used to dispatch into the dispatchable ink!
+    /// message.
     ///
     /// # Note
     ///
-    /// We unify `&self` and `&mut self` ink! messages here and always take a `&mut self`.
-    /// This is mainly done for simplification but also because we can easily convert from
-    /// `&mut self` to `&self` with our current dispatch codegen architecture.
+    /// We unify `&self` and `&mut self` ink! messages here and always take a
+    /// `&mut self`. This is mainly done for simplification but also because
+    /// we can easily convert from `&mut self` to `&self` with our current
+    /// dispatch codegen architecture.
     const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output;
 
     /// Yields `true` if the dispatchable ink! message mutates the ink! storage.
@@ -336,7 +344,8 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     /// The ink! storage struct type.
     type Storage;
 
-    /// The closure that can be used to dispatch into the dispatchable ink! constructor.
+    /// The closure that can be used to dispatch into the dispatchable ink!
+    /// constructor.
     const CALLABLE: fn(Self::Input) -> Self::Storage;
 
     /// The selectors of the dispatchable ink! constructor.
@@ -345,12 +354,14 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     const LABEL: &'static str;
 }
 
-/// Generated type used to decode all dispatchable ink! messages of the ink! smart contract.
+/// Generated type used to decode all dispatchable ink! messages of the ink!
+/// smart contract.
 ///
 /// # Note
 ///
-/// The decoder follows the ink! calling ABI where all ink! message calls start with
-/// 4 bytes dedicated to the ink! message selector followed by the SCALE encoded parameters.
+/// The decoder follows the ink! calling ABI where all ink! message calls start
+/// with 4 bytes dedicated to the ink! message selector followed by the SCALE
+/// encoded parameters.
 ///
 /// # Usage
 ///
@@ -425,12 +436,14 @@ pub trait ContractMessageDecoder {
     type Type: scale::Decode + ExecuteDispatchable;
 }
 
-/// Generated type used to decode all dispatchable ink! constructors of the ink! smart contract.
+/// Generated type used to decode all dispatchable ink! constructors of the ink!
+/// smart contract.
 ///
 /// # Note
 ///
-/// The decoder follows the ink! calling ABI where all ink! constructor calls start with
-/// 4 bytes dedicated to the ink! constructor selector followed by the SCALE encoded parameters.
+/// The decoder follows the ink! calling ABI where all ink! constructor calls
+/// start with 4 bytes dedicated to the ink! constructor selector followed by
+/// the SCALE encoded parameters.
 ///
 /// # Usage
 ///
@@ -557,19 +570,24 @@ impl From<DispatchError> for scale::Error {
     }
 }
 
-/// Decodes an ink! dispatch input into a known selector and its expected parameters.
+/// Decodes an ink! dispatch input into a known selector and its expected
+/// parameters.
 ///
 /// # Note
 ///
-/// This trait is automatically implemented for ink! message and constructor decoders.
+/// This trait is automatically implemented for ink! message and constructor
+/// decoders.
 ///
 /// # Errors
 ///
 /// Returns an error if any of the decode steps failed:
 ///
-/// - `InvalidSelector`: The first four bytes could not properly decoded into the selector.
-/// - `UnknownSelector`: The decoded selector did not match any of the expected ones.
-/// - `InvalidParameters`: Failed to decoded the parameters for the selected dispatchable.
+/// - `InvalidSelector`: The first four bytes could not properly decoded into
+///   the selector.
+/// - `UnknownSelector`: The decoded selector did not match any of the expected
+///   ones.
+/// - `InvalidParameters`: Failed to decoded the parameters for the selected
+///   dispatchable.
 ///
 /// The other dispatch errors are handled by other structures usually.
 ///

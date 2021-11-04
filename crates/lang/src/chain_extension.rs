@@ -18,12 +18,14 @@
 ///
 /// # Note
 ///
-/// This trait is automatically implemented when using `#[ink::chain_extension]` procedural macro.
+/// This trait is automatically implemented when using `#[ink::chain_extension]`
+/// procedural macro.
 pub trait ChainExtensionInstance {
     /// The type of the chain extension instance.
     type Instance;
 
-    /// Creates a new instance of the chain extension to use methods with method chaining syntax.
+    /// Creates a new instance of the chain extension to use methods with method
+    /// chaining syntax.
     fn instantiate() -> Self::Instance;
 }
 
@@ -32,7 +34,8 @@ pub trait ChainExtensionInstance {
 /// Every chain extension defines a set of chain extension methods
 /// that share a common error code type.
 pub trait ChainExtension {
-    /// The error code that determines whether a chain extension method call was successful.
+    /// The error code that determines whether a chain extension method call was
+    /// successful.
     type ErrorCode: ink_env::chain_extension::FromStatusCode;
 }
 
@@ -55,6 +58,7 @@ impl<T, E> IsResultType for Result<T, E> {
 }
 
 mod private {
-    /// Seals the `IsResultType` trait so that it cannot be implemented outside this module.
+    /// Seals the `IsResultType` trait so that it cannot be implemented outside
+    /// this module.
     pub trait Sealed {}
 }

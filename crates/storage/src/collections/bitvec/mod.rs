@@ -122,12 +122,14 @@ impl Bitvec {
         Bits256Iter::new(self)
     }
 
-    /// Returns an iterator over the mutable 256-bit chunks of the storage bit vector.
+    /// Returns an iterator over the mutable 256-bit chunks of the storage bit
+    /// vector.
     pub(super) fn iter_chunks_mut(&mut self) -> Bits256IterMut {
         Bits256IterMut::new(self)
     }
 
-    /// Splits the given index into a 256-bit pack index and a position index of the bit.
+    /// Splits the given index into a 256-bit pack index and a position index of
+    /// the bit.
     fn split_index(&self, at: Index) -> Option<(Index, Index256)> {
         if at >= self.len() {
             return None
@@ -135,7 +137,8 @@ impl Bitvec {
         Some((at / 256, (at % 256) as u8))
     }
 
-    /// Returns the immutable access pair to the underlying 256-bits pack and bit.
+    /// Returns the immutable access pair to the underlying 256-bits pack and
+    /// bit.
     ///
     /// Returns `None` if the given index is out of bounds.
     fn get_bits256(&self, at: Index) -> Option<(&Bits256, Index256)> {
@@ -170,7 +173,8 @@ impl Bitvec {
         self.get_access_mut(at)
     }
 
-    /// Returns a shared reference to the 256-bit chunk for the bit at the given index.
+    /// Returns a shared reference to the 256-bit chunk for the bit at the given
+    /// index.
     pub fn get_chunk(&self, at: Index) -> Option<ChunkRef<&Bits256>> {
         if at >= self.len() {
             return None
@@ -182,7 +186,8 @@ impl Bitvec {
         Some(ChunkRef::shared(bits256, chunk_len))
     }
 
-    /// Returns an exclusive reference to the 256-bit chunk for the bit at the given index.
+    /// Returns an exclusive reference to the 256-bit chunk for the bit at the
+    /// given index.
     pub fn get_chunk_mut(&mut self, at: Index) -> Option<ChunkRef<&mut Bits256>> {
         if at >= self.len() {
             return None
@@ -276,8 +281,8 @@ impl Bitvec {
         }
         // Case: The last 256-bit pack has unused bits:
         // - Set last bit of last 256-bit pack to the given value.
-        // - Opt.: Since bits are initialized as 0 we only need
-        //         to mutate this value if `value` is `true`.
+        // - Opt.: Since bits are initialized as 0 we only need to mutate this value if
+        //   `value` is `true`.
         *self.len += 1;
         if value {
             self.last_mut()

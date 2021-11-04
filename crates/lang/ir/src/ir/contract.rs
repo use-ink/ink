@@ -52,8 +52,10 @@ impl Contract {
     ///
     /// # Note
     ///
-    /// - The `ink_config` token stream must properly decode into [`ir::Config`].
-    /// - The `ink_module` token stream must properly decode into [`ir::ItemMod`].
+    /// - The `ink_config` token stream must properly decode into
+    ///   [`ir::Config`].
+    /// - The `ink_module` token stream must properly decode into
+    ///   [`ir::ItemMod`].
     ///
     /// # Errors
     ///
@@ -98,16 +100,14 @@ impl Contract {
     /// macro annotation itself within the `(config)` part. The available fields
     /// are the following:
     ///
-    /// - `types`: To specify `Environment` different from the default environment
-    ///            types.
+    /// - `types`: To specify `Environment` different from the default
+    ///   environment types.
     /// - `storage-alloc`: If `true` enables the dynamic storage allocator
-    ///                    facilities and code generation of the ink! smart
-    ///                    contract. Does incur some overhead. The default is
-    ///                    `true`.
+    ///   facilities and code generation of the ink! smart contract. Does incur
+    ///   some overhead. The default is `true`.
     /// - `as-dependency`: If `true` compiles this ink! smart contract always as
-    ///                    if it was a dependency of another smart contract.
-    ///                    This configuration is mainly needed for testing and
-    ///                    the default is `false`.
+    ///   if it was a dependency of another smart contract. This configuration
+    ///   is mainly needed for testing and the default is `false`.
     ///
     /// Note that we might add more configuration fields in the future if
     /// necessary.

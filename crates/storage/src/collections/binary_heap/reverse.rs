@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! [`BinaryHeap`](`super::BinaryHeap`) is a max-heap by default, where the *largest* element will
-//! be returned by `heap.pop()`. To use a [`BinaryHeap`](`super::BinaryHeap`) as a min-heap, where
-//! the *smallest* element returned by `heap.pop()`, the type `T` of the binary heap can be wrapped
-//! in a `Reverse<T>`.
+//! [`BinaryHeap`](`super::BinaryHeap`) is a max-heap by default, where the
+//! *largest* element will be returned by `heap.pop()`. To use a
+//! [`BinaryHeap`](`super::BinaryHeap`) as a min-heap, where the *smallest*
+//! element returned by `heap.pop()`, the type `T` of the binary heap can be
+//! wrapped in a `Reverse<T>`.
 //!
-//! [`Reverse`] simply wraps [`core::cmp::Reverse`] and implements all the required traits for use
-//! as a storage struct.
+//! [`Reverse`] simply wraps [`core::cmp::Reverse`] and implements all the
+//! required traits for use as a storage struct.
 
 use crate::traits::{
     KeyPtr,
@@ -28,8 +29,8 @@ use crate::traits::{
 use ink_prelude::vec::Vec;
 use ink_primitives::Key;
 
-/// Wrapper for [`core::cmp::Reverse`] for using a [`BinaryHeap`](`super::BinaryHeap`) as a
-/// min-heap.
+/// Wrapper for [`core::cmp::Reverse`] for using a
+/// [`BinaryHeap`](`super::BinaryHeap`) as a min-heap.
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Copy, Clone, Default)]
 pub struct Reverse<T>(core::cmp::Reverse<T>);
 

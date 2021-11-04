@@ -114,7 +114,8 @@ impl EnvInstance {
         !self.exec_context.is_empty()
     }
 
-    /// Either resets or initializes the off-chain environment to default values.
+    /// Either resets or initializes the off-chain environment to default
+    /// values.
     pub fn initialize_or_reset_as_default<T>(&mut self) -> crate::Result<()>
     where
         T: Environment,

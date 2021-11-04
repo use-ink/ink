@@ -215,7 +215,8 @@ impl Engine {
         self.exec_context.callee()
     }
 
-    /// Returns the contents of the past performed environmental `debug_message` in order.
+    /// Returns the contents of the past performed environmental `debug_message`
+    /// in order.
     pub fn get_emitted_debug_messages(&self) -> RecordedDebugMessages {
         self.debug_info.emitted_debug_messages.clone()
     }
@@ -237,7 +238,8 @@ impl Engine {
         self.database.set_balance(&account_id, new_balance);
     }
 
-    /// Sets the value transferred from the caller to the callee as part of the call.
+    /// Sets the value transferred from the caller to the callee as part of the
+    /// call.
     pub fn set_value_transferred(&mut self, value: Balance) {
         self.exec_context.value_transferred = value;
     }

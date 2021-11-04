@@ -170,8 +170,9 @@ impl Default for Environment {
 mod tests {
     use super::*;
 
-    /// Asserts that the given input configuration attribute argument are converted
-    /// into the expected ink! configuration or yields the expected error message.
+    /// Asserts that the given input configuration attribute argument are
+    /// converted into the expected ink! configuration or yields the
+    /// expected error message.
     fn assert_try_from(
         input: ast::AttributeArgs,
         expected: Result<Config, &'static str>,

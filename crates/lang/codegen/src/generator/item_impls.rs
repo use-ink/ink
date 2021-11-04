@@ -119,7 +119,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates code to assert that ink! input and output types meet certain properties.
+    /// Generates code to assert that ink! input and output types meet certain
+    /// properties.
     fn generate_input_output_guards(&self) -> TokenStream2 {
         let storage_span = self.contract.module().storage().span();
         let constructor_input_guards = self
@@ -181,7 +182,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! message within a trait implementation block.
+    /// Generates the code for the given ink! message within a trait
+    /// implementation block.
     fn generate_trait_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
@@ -227,7 +229,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! constructor within an inherent implementation block.
+    /// Generates the code for the given ink! constructor within an inherent
+    /// implementation block.
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
@@ -243,7 +246,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates the code for the given ink! message within an inherent implementation block.
+    /// Generates the code for the given ink! message within an inherent
+    /// implementation block.
     fn generate_inherent_message(message: &ir::Message) -> TokenStream2 {
         let span = message.span();
         let attrs = message.attrs();
@@ -288,8 +292,8 @@ impl ItemImpls<'_> {
         )
     }
 
-    /// Generates code to guard against ink! implementations that have not been implemented
-    /// for the ink! storage struct.
+    /// Generates code to guard against ink! implementations that have not been
+    /// implemented for the ink! storage struct.
     fn generate_item_impl_self_ty_guard(&self, item_impl: &ir::ItemImpl) -> TokenStream2 {
         let self_ty = item_impl.self_type();
         let span = self_ty.span();

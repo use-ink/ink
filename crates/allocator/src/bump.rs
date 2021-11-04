@@ -14,12 +14,14 @@
 
 //! A simple bump allocator.
 //!
-//! Its goal to have a much smaller footprint than the admittedly more full-featured `wee_alloc`
-//! allocator which is currently being used by ink! smart contracts.
+//! Its goal to have a much smaller footprint than the admittedly more
+//! full-featured `wee_alloc` allocator which is currently being used by ink!
+//! smart contracts.
 //!
-//! The heap which is used by this allocator is built from pages of Wasm memory (each page is `64KiB`).
-//! We will request new pages of memory as needed until we run out of memory, at which point we
-//! will crash with an `OOM` error instead of freeing any memory.
+//! The heap which is used by this allocator is built from pages of Wasm memory
+//! (each page is `64KiB`). We will request new pages of memory as needed until
+//! we run out of memory, at which point we will crash with an `OOM` error
+//! instead of freeing any memory.
 
 use core::alloc::{
     GlobalAlloc,
@@ -45,8 +47,8 @@ unsafe impl GlobalAlloc for BumpAllocator {
 
     #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-        // A new page in Wasm is guaranteed to already be zero initialized, so we can just use our
-        // regular `alloc` call here and save a bit of work.
+        // A new page in Wasm is guaranteed to already be zero initialized, so we can
+        // just use our regular `alloc` call here and save a bit of work.
         //
         // See: https://webassembly.github.io/spec/core/exec/modules.html#growing-memories
         self.alloc(layout)
@@ -110,10 +112,12 @@ impl InnerAlloc {
         }
     }
 
-    /// Tries to allocate enough memory on the heap for the given `Layout`. If there is not enough
-    /// room on the heap it'll try and grow it by a page.
+    /// Tries to allocate enough memory on the heap for the given `Layout`. If
+    /// there is not enough room on the heap it'll try and grow it by a
+    /// page.
     ///
-    /// Note: This implementation results in internal fragmentation when allocating across pages.
+    /// Note: This implementation results in internal fragmentation when
+    /// allocating across pages.
     fn alloc(&mut self, layout: Layout) -> Option<usize> {
         let alloc_start = self.next;
 
@@ -137,11 +141,12 @@ impl InnerAlloc {
     }
 }
 
-/// Calculates the number of pages of memory needed for an allocation of `size` bytes.
+/// Calculates the number of pages of memory needed for an allocation of `size`
+/// bytes.
 ///
-/// This function rounds up to the next page. For example, if we have an allocation of
-/// `size = PAGE_SIZE / 2` this function will indicate that one page is required to satisfy
-/// the allocation.
+/// This function rounds up to the next page. For example, if we have an
+/// allocation of `size = PAGE_SIZE / 2` this function will indicate that one
+/// page is required to satisfy the allocation.
 #[inline]
 fn required_pages(size: usize) -> Option<usize> {
     size.checked_add(PAGE_SIZE - 1)
@@ -235,8 +240,8 @@ mod tests {
         let expected_limit = 2 * PAGE_SIZE;
         assert_eq!(inner.upper_limit, expected_limit);
 
-        // Notice that we start the allocation on the second page, instead of making use of the
-        // remaining byte on the first page
+        // Notice that we start the allocation on the second page, instead of making use
+        // of the remaining byte on the first page
         let expected_alloc_start = PAGE_SIZE + size_of::<u16>();
         assert_eq!(inner.next, expected_alloc_start);
     }
@@ -259,8 +264,8 @@ mod tests {
         let expected_alloc_start = size_of::<Foo>();
         assert_eq!(inner.next, expected_alloc_start);
 
-        // Now we want to make sure that the state of our allocator is correct for any subsequent
-        // allocations
+        // Now we want to make sure that the state of our allocator is correct for any
+        // subsequent allocations
         let layout = Layout::new::<u8>();
         assert_eq!(inner.alloc(layout), Some(2 * PAGE_SIZE));
 
@@ -288,8 +293,8 @@ mod fuzz_tests {
 
     #[quickcheck]
     fn should_allocate_arbitrary_sized_bytes(n: usize) -> TestResult {
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
+        // If `n` is going to overflow we don't want to check it here (we'll check the
+        // overflow case in another test)
         if n.checked_add(PAGE_SIZE - 1).is_none() {
             return TestResult::discard()
         }
@@ -323,7 +328,8 @@ mod fuzz_tests {
 
     #[quickcheck]
     fn should_not_allocate_arbitrary_bytes_if_they_overflow(n: usize) -> TestResult {
-        // In the previous test we ignored the overflow case, now we ignore the valid cases
+        // In the previous test we ignored the overflow case, now we ignore the valid
+        // cases
         if n.checked_add(PAGE_SIZE - 1).is_some() {
             return TestResult::discard()
         }
@@ -351,8 +357,8 @@ mod fuzz_tests {
         let aligns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
         let align = aligns[align % aligns.len()];
 
-        // If `n` is going to overflow we don't want to check it here (we'll check the overflow
-        // case in another test)
+        // If `n` is going to overflow we don't want to check it here (we'll check the
+        // overflow case in another test)
         if n.checked_add(PAGE_SIZE - 1).is_none() {
             return TestResult::discard()
         }
@@ -382,15 +388,16 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
-    /// The idea behind this fuzz test is to check a series of allocation sequences. For
-    /// example, we maybe have back to back runs as follows:
+    /// The idea behind this fuzz test is to check a series of allocation
+    /// sequences. For example, we maybe have back to back runs as follows:
     ///
     /// 1. `vec![1, 2, 3]`
     /// 2. `vec![4, 5, 6, 7]`
     /// 3. `vec![8]`
     ///
-    /// Each of the vectors represents one sequence of allocations. Within each sequence the
-    /// individual size of allocations will be randomly selected by `quickcheck`.
+    /// Each of the vectors represents one sequence of allocations. Within each
+    /// sequence the individual size of allocations will be randomly
+    /// selected by `quickcheck`.
     #[quickcheck]
     fn should_allocate_arbitrary_byte_sequences(sequence: Vec<usize>) -> TestResult {
         let mut inner = InnerAlloc::new();
@@ -399,8 +406,8 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We want to make sure no single allocation is going to overflow, we'll check this
-        // case in a different test
+        // We want to make sure no single allocation is going to overflow, we'll check
+        // this case in a different test
         if !sequence
             .iter()
             .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
@@ -415,8 +422,8 @@ mod fuzz_tests {
             .fold(0, |acc, &x| acc + required_pages(x).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
-        // We know this is going to end up overflowing, we'll check this case in a different
-        // test
+        // We know this is going to end up overflowing, we'll check this case in a
+        // different test
         if pages_required > max_pages {
             return TestResult::discard()
         }
@@ -442,8 +449,8 @@ mod fuzz_tests {
 
                 total_bytes_fragmented += fragmented_in_current_page;
 
-                // We expect our next allocation to be aligned to the start of the next page
-                // boundary
+                // We expect our next allocation to be aligned to the start of the next
+                // page boundary
                 expected_alloc_start = inner.upper_limit;
             }
 
@@ -471,11 +478,12 @@ mod fuzz_tests {
         TestResult::passed()
     }
 
-    // For this test we have sequences of allocations which will eventually overflow the maximum
-    // amount of pages (in practice this means our heap will be OOM).
+    // For this test we have sequences of allocations which will eventually overflow
+    // the maximum amount of pages (in practice this means our heap will be
+    // OOM).
     //
-    // We don't care about the allocations that succeed (those are checked in other tests), we just
-    // care that eventually an allocation doesn't success.
+    // We don't care about the allocations that succeed (those are checked in other
+    // tests), we just care that eventually an allocation doesn't success.
     #[quickcheck]
     fn should_not_allocate_arbitrary_byte_sequences_which_eventually_overflow(
         sequence: Vec<usize>,
@@ -486,8 +494,8 @@ mod fuzz_tests {
             return TestResult::discard()
         }
 
-        // We want to make sure no single allocation is going to overflow, we'll check that
-        // case seperately
+        // We want to make sure no single allocation is going to overflow, we'll check
+        // that case seperately
         if !sequence
             .iter()
             .all(|n| n.checked_add(PAGE_SIZE - 1).is_some())
@@ -502,8 +510,8 @@ mod fuzz_tests {
             .fold(0, |acc, &x| acc + required_pages(x).unwrap());
         let max_pages = required_pages(usize::MAX - PAGE_SIZE + 1).unwrap();
 
-        // We want to explicitly test for the case where a series of allocations eventually
-        // runs out of pages of memory
+        // We want to explicitly test for the case where a series of allocations
+        // eventually runs out of pages of memory
         if !(pages_required > max_pages) {
             return TestResult::discard()
         }
@@ -515,7 +523,8 @@ mod fuzz_tests {
             results.push(inner.alloc(layout));
         }
 
-        // Ensure that at least one of the allocations ends up overflowing our calculations.
+        // Ensure that at least one of the allocations ends up overflowing our
+        // calculations.
         assert!(
             results.iter().any(|r| r.is_none()),
             "Expected an allocation to overflow our heap, but this didn't happen."

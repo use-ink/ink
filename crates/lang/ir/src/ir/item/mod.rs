@@ -31,7 +31,8 @@ use crate::{
 use core::convert::TryFrom;
 use syn::spanned::Spanned as _;
 
-/// An item in the root of the ink! module ([`ir::ItemMod`](`crate::ir::ItemMod`)).
+/// An item in the root of the ink! module
+/// ([`ir::ItemMod`](`crate::ir::ItemMod`)).
 ///
 /// This is either an ink! specific item or a normal Rust item.
 #[derive(Debug, PartialEq, Eq)]
@@ -177,7 +178,8 @@ impl InkItem {
     ///
     /// # Errors
     ///
-    /// If invalid or malformed ink! attributes are encountered for the given item.
+    /// If invalid or malformed ink! attributes are encountered for the given
+    /// item.
     pub fn is_ink_item(item: &syn::Item) -> Result<bool, syn::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
@@ -225,7 +227,8 @@ impl InkItem {
         }
     }
 
-    /// Returns `true` if the ink! specific item is the storage struct definition.
+    /// Returns `true` if the ink! specific item is the storage struct
+    /// definition.
     pub fn is_storage_item(&self) -> bool {
         self.filter_map_storage_item().is_some()
     }

@@ -209,7 +209,8 @@ impl EnvBackend for EnvInstance {
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {
@@ -293,8 +294,8 @@ impl EnvInstance {
     // Remove the calling account and transfer remaining balance.
     //
     // This function never returns. Either the termination was successful and the
-    // execution of the destroyed contract is halted. Or it failed during the termination
-    // which is considered fatal.
+    // execution of the destroyed contract is halted. Or it failed during the
+    // termination which is considered fatal.
     fn terminate_contract_impl<T>(&mut self, beneficiary: T::AccountId) -> !
     where
         T: Environment,

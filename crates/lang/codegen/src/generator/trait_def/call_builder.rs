@@ -121,12 +121,14 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates the `StorageLayout` trait implementation for the account wrapper.
+    /// Generates the `StorageLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `StorageLayout` trait implementation.
     fn generate_storage_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -155,12 +157,14 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates the `SpreadLayout` trait implementation for the account wrapper.
+    /// Generates the `SpreadLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `SpreadLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `SpreadLayout` trait implementation.
     fn generate_spread_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -198,12 +202,14 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates the `PackedLayout` trait implementation for the account wrapper.
+    /// Generates the `PackedLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `PackedLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `PackedLayout` trait implementation.
     fn generate_packed_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -225,7 +231,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generates trait implementations for auxiliary traits for the account wrapper.
+    /// Generates trait implementations for auxiliary traits for the account
+    /// wrapper.
     ///
     /// # Note
     ///
@@ -266,12 +273,13 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for the account wrapper.
+    /// Generate trait implementations for `FromAccountId` and `ToAccountId` for
+    /// the account wrapper.
     ///
     /// # Note
     ///
-    /// This allows user code to conveniently transform from and to `AccountId` when
-    /// interacting with typed contracts.
+    /// This allows user code to conveniently transform from and to `AccountId`
+    /// when interacting with typed contracts.
     fn generate_to_from_account_id_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_builder_ident = self.ident();
@@ -306,8 +314,8 @@ impl CallBuilder<'_> {
     /// The implemented messages call the SEAL host runtime in order to dispatch
     /// the respective ink! trait message calls of the called smart contract
     /// instance.
-    /// The way these messages are built-up allows the caller to customize message
-    /// parameters such as gas limit and transferred balance.
+    /// The way these messages are built-up allows the caller to customize
+    /// message parameters such as gas limit and transferred balance.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_ident = self.trait_def.trait_def.item().ident();
@@ -335,7 +343,8 @@ impl CallBuilder<'_> {
         )
     }
 
-    /// Generate the code for all ink! trait messages implemented by the trait call builder.
+    /// Generate the code for all ink! trait messages implemented by the trait
+    /// call builder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
         let messages = self.trait_def.trait_def.item().iter_items().filter_map(
             |(item, selector)| {
@@ -349,7 +358,8 @@ impl CallBuilder<'_> {
         }
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait call builder.
+    /// Generate the code for a single ink! trait message implemented by the
+    /// trait call builder.
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,

@@ -495,13 +495,14 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 ///
 /// # Params
 ///
-/// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored contract.
+/// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored
+///   contract.
 /// - `code_hash`: Encoded code hash of the to-be-restored contract.
-/// - `rent_allowance`: The encoded rent allowance of the restored contract
-///                     upon successful restoration.
+/// - `rent_allowance`: The encoded rent allowance of the restored contract upon
+///   successful restoration.
 /// - `filtered_keys`: Storage keys that will be ignored for the tombstone hash
-///                    match calculation that decide whether the original contract
-///                    storage and the storage of the restorer contract is equal.
+///   match calculation that decide whether the original contract storage and
+///   the storage of the restorer contract is equal.
 pub fn restore_to(
     account_id: &[u8],
     code_hash: &[u8],
@@ -662,24 +663,26 @@ pub fn random(subject: &[u8], output: &mut &mut [u8]) {
 #[cfg(feature = "ink-debug")]
 /// Call `seal_debug_message` with the supplied UTF-8 encoded message.
 ///
-/// If debug message recording is disabled in the contracts pallet, the first call will
-/// return a `LoggingDisabled` error, and further calls will be a no-op to avoid the cost
-/// of calling into the supervisor.
+/// If debug message recording is disabled in the contracts pallet, the first
+/// call will return a `LoggingDisabled` error, and further calls will be a
+/// no-op to avoid the cost of calling into the supervisor.
 ///
 /// # Note
 ///
 /// This depends on the `seal_debug_message` interface which requires the
-/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target runtime.
+/// `"pallet-contracts/unstable-interface"` feature to be enabled in the target
+/// runtime.
 pub fn debug_message(message: &str) {
     static mut DEBUG_ENABLED: bool = false;
     static mut FIRST_RUN: bool = true;
 
     // SAFETY: safe because executing in a single threaded context
-    // We need those two variables in order to make sure that the assignment is performed
-    // in the "logging enabled" case. This is because during RPC execution logging might
-    // be enabled while it is disabled during the actual execution as part of a transaction.
-    // The gas estimation takes place during RPC execution. We want to overestimate instead
-    // of underestimate gas usage. Otherwise using this estimate could lead to a out of gas error.
+    // We need those two variables in order to make sure that the assignment is
+    // performed in the "logging enabled" case. This is because during RPC
+    // execution logging might be enabled while it is disabled during the actual
+    // execution as part of a transaction. The gas estimation takes place during
+    // RPC execution. We want to overestimate instead of underestimate gas
+    // usage. Otherwise using this estimate could lead to a out of gas error.
     if unsafe { DEBUG_ENABLED || FIRST_RUN } {
         let bytes = message.as_bytes();
         let ret_code = unsafe {

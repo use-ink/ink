@@ -27,8 +27,8 @@ pub trait SpreadAllocate: SpreadLayout {
     ///
     /// # Note
     ///
-    /// - The key pointer denotes the position in contract storage where
-    ///   the instance is being allocated at.
+    /// - The key pointer denotes the position in contract storage where the
+    ///   instance is being allocated at.
     /// - Fields of `Self` are allocated in order and construct `Self` upon
     ///   completion.
     fn allocate_spread(ptr: &mut KeyPtr) -> Self;
@@ -50,20 +50,22 @@ pub trait SpreadLayout {
     /// has a footprint of 5.
     const FOOTPRINT: u64;
 
-    /// Indicates whether a type requires deep clean-up of its state meaning that
-    /// a clean-up routine has to decode an entity into an instance in order to
-    /// eventually recurse upon its tear-down.
-    /// This is not required for the majority of primitive data types such as `i32`,
-    /// however types such as `storage::Box` that might want to forward the clean-up
-    /// procedure to their inner `T` require a deep clean-up.
+    /// Indicates whether a type requires deep clean-up of its state meaning
+    /// that a clean-up routine has to decode an entity into an instance in
+    /// order to eventually recurse upon its tear-down.
+    /// This is not required for the majority of primitive data types such as
+    /// `i32`, however types such as `storage::Box` that might want to
+    /// forward the clean-up procedure to their inner `T` require a deep
+    /// clean-up.
     ///
     /// # Note
     ///
-    /// The default is set to `true` in order to have correctness by default since
-    /// no type invariants break if a deep clean-up is performed on a type that does
-    /// not need it but performing a shallow clean-up for a type that requires a
-    /// deep clean-up would break invariants.
-    /// This is solely a setting to improve performance upon clean-up for some types.
+    /// The default is set to `true` in order to have correctness by default
+    /// since no type invariants break if a deep clean-up is performed on a
+    /// type that does not need it but performing a shallow clean-up for a
+    /// type that requires a deep clean-up would break invariants.
+    /// This is solely a setting to improve performance upon clean-up for some
+    /// types.
     const REQUIRES_DEEP_CLEAN_UP: bool = true;
 
     /// Pulls an instance of `Self` from the contract storage.
@@ -80,7 +82,8 @@ pub trait SpreadLayout {
     /// Pushes an instance of `Self` to the contract storage.
     ///
     /// - Tries to spread `Self` to as many storage cells as possible.
-    /// - The key pointer denotes the position where the instance is being pushed
+    /// - The key pointer denotes the position where the instance is being
+    ///   pushed
     /// to the contract storage.
     ///
     /// # Note
@@ -91,10 +94,10 @@ pub trait SpreadLayout {
 
     /// Clears an instance of `Self` from the contract storage.
     ///
-    /// - Tries to clean `Self` from contract storage as if `self` was stored
-    ///   in it using spread layout.
-    /// - The key pointer denotes the position where the instance is being cleared
-    ///   from the contract storage.
+    /// - Tries to clean `Self` from contract storage as if `self` was stored in
+    ///   it using spread layout.
+    /// - The key pointer denotes the position where the instance is being
+    ///   cleared from the contract storage.
     ///
     /// # Note
     ///

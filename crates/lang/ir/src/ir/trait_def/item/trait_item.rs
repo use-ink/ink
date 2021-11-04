@@ -72,7 +72,8 @@ impl<'a> InkTraitMessage<'a> {
         Self { item }
     }
 
-    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait message.
+    /// Analyses and extracts the ink! and non-ink! attributes of an ink! trait
+    /// message.
     pub(super) fn extract_attributes(
         span: Span,
         attrs: &[syn::Attribute],
@@ -114,7 +115,8 @@ impl<'a> InkTraitMessage<'a> {
 
     /// Returns the `self` receiver of the ink! trait message.
     ///
-    /// Returns `Ref` for `&self` messages and `RefMut` for `&mut self` messages.
+    /// Returns `Ref` for `&self` messages and `RefMut` for `&mut self`
+    /// messages.
     pub fn receiver(&self) -> Receiver {
         match self.item.sig.inputs.iter().next() {
             Some(syn::FnArg::Receiver(receiver)) => {
@@ -147,13 +149,14 @@ impl<'a> InkTraitMessage<'a> {
         &self.item.sig.ident
     }
 
-    /// Returns a local ID unique to the ink! trait definition of the ink! trait message.
+    /// Returns a local ID unique to the ink! trait definition of the ink! trait
+    /// message.
     ///
     /// # Note
     ///
-    /// It is a compile error if two ink! trait messages share the same local ID.
-    /// Although the above scenario is very unlikely since the local ID is computed
-    /// solely by the identifier of the ink! message.
+    /// It is a compile error if two ink! trait messages share the same local
+    /// ID. Although the above scenario is very unlikely since the local ID
+    /// is computed solely by the identifier of the ink! message.
     pub fn local_id(&self) -> u32 {
         utils::local_message_id(self.ident())
     }

@@ -129,7 +129,8 @@ where
     unimplemented!("off-chain environment does not yet support `set_block_entropy`");
 }
 
-/// Returns the contents of the past performed environmental debug messages in order.
+/// Returns the contents of the past performed environmental debug messages in
+/// order.
 pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.engine.get_emitted_debug_messages()
@@ -140,8 +141,9 @@ pub fn recorded_debug_messages() -> RecordedDebugMessages {
 ///
 /// # Note
 ///
-/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
-/// because lazy storage structures automatically clear their associated cells when they are dropped.
+/// Useful for benchmarks because it ensures the initialized storage is
+/// maintained across runs, because lazy storage structures automatically clear
+/// their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(_disable: bool) {
     unimplemented!(
         "off-chain environment does not yet support `set_clear_storage_disabled`"
@@ -208,7 +210,8 @@ where
     })
 }
 
-/// Sets the value transferred from the caller to the callee as part of the call.
+/// Sets the value transferred from the caller to the callee as part of the
+/// call.
 pub fn set_value_transferred<T>(value: T::Balance)
 where
     T: Environment<Balance = u128>, // Just temporary for the MVP!
@@ -324,11 +327,12 @@ pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
 ///
 /// The arguments denote:
 ///
-/// * `should_terminate`: A closure in which the function supposed to terminate is called.
-/// * `expected_beneficiary`: The beneficiary account who should have received the
-///    remaining value in the contract
-/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred
-///   to the `expected_beneficiary`.
+/// * `should_terminate`: A closure in which the function supposed to terminate
+///   is called.
+/// * `expected_beneficiary`: The beneficiary account who should have received
+///   the remaining value in the contract
+/// * `expected_value_transferred_to_beneficiary`: The value which should have
+///   been transferred to the `expected_beneficiary`.
 /// # Usage
 ///
 /// ```no_compile

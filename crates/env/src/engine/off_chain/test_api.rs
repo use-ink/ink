@@ -215,7 +215,8 @@ where
     Ok(())
 }
 
-/// Returns the contents of the past performed environmental debug messages in order.
+/// Returns the contents of the past performed environmental debug messages in
+/// order.
 pub fn recorded_debug_messages() -> impl Iterator<Item = String> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         // We return a clone of the recorded strings instead of
@@ -261,8 +262,9 @@ where
 ///
 /// # Note
 ///
-/// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
-/// because lazy storage structures automatically clear their associated cells when they are dropped.
+/// Useful for benchmarks because it ensures the initialized storage is
+/// maintained across runs, because lazy storage structures automatically clear
+/// their associated cells when they are dropped.
 pub fn set_clear_storage_disabled(disable: bool) {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance.clear_storage_disabled = disable
@@ -384,7 +386,8 @@ pub struct ContractTerminationResult<E>
 where
     E: Environment,
 {
-    /// The beneficiary account who received the remaining value in the contract.
+    /// The beneficiary account who received the remaining value in the
+    /// contract.
     pub beneficiary: <E as Environment>::AccountId,
     /// The value which was transferred to the `beneficiary`.
     pub transferred: <E as Environment>::Balance,

@@ -46,7 +46,8 @@ pub trait FromAccountId<T>
 where
     T: Environment,
 {
-    /// Creates the contract instance from the account ID of the already instantiated contract.
+    /// Creates the contract instance from the account ID of the already
+    /// instantiated contract.
     fn from_account_id(account_id: <T as Environment>::AccountId) -> Self;
 }
 
@@ -139,7 +140,8 @@ where
     return_type: ReturnType<R>,
 }
 
-/// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
+/// Returns a new [`CreateBuilder`] to build up the parameters to a
+/// cross-contract instantiation.
 ///
 /// # Example
 ///
@@ -149,11 +151,10 @@ where
 ///
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 4000 units of gas for its execution
-/// - is provided with 25 units of transferred value for the new contract instance
-/// - receives the following arguments in order
-///    1. an `i32` with value `42`
-///    2. a `bool` with value `true`
-///    3. an array of 32 `u8` with value `0x10`
+/// - is provided with 25 units of transferred value for the new contract
+///   instance
+/// - receives the following arguments in order 1. an `i32` with value `42` 2. a
+///   `bool` with value `true` 3. an array of 32 `u8` with value `0x10`
 ///
 /// ```should_panic
 /// # use ::ink_env::{
@@ -184,9 +185,9 @@ where
 ///     .unwrap();
 /// ```
 ///
-/// **Note:** The shown example panics because there is currently no cross-calling
-///           support in the off-chain testing environment. However, this code
-///           should work fine in on-chain environments.
+/// **Note:** The shown example panics because there is currently no
+/// cross-calling           support in the off-chain testing environment.
+/// However, this code           should work fine in on-chain environments.
 #[allow(clippy::type_complexity)]
 pub fn build_create<E, R>() -> CreateBuilder<
     E,

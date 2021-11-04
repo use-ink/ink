@@ -36,9 +36,9 @@ impl<'a> TraitDefinition<'a> {
     ///   and allows to build up contract calls that allow for customization by
     ///   the user to provide gas limit, endowment etc.
     /// - The call forwarder is associated to the call builder for the same ink!
-    ///   trait definition and handles all ink! trait calls into another contract
-    ///   instance on-chain. For constructing custom calls it forwards to the call
-    ///   builder.
+    ///   trait definition and handles all ink! trait calls into another
+    ///   contract instance on-chain. For constructing custom calls it forwards
+    ///   to the call builder.
     pub fn generate_call_forwarder(&self) -> TokenStream2 {
         CallForwarder::from(*self).generate_code()
     }
@@ -125,12 +125,14 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generates the `StorageLayout` trait implementation for the account wrapper.
+    /// Generates the `StorageLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `StorageLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `StorageLayout` trait implementation.
     fn generate_storage_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
@@ -152,12 +154,14 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generates the `SpreadLayout` trait implementation for the account wrapper.
+    /// Generates the `SpreadLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `SpreadLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `SpreadLayout` trait implementation.
     fn generate_spread_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
@@ -194,12 +198,14 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generates the `PackedLayout` trait implementation for the account wrapper.
+    /// Generates the `PackedLayout` trait implementation for the account
+    /// wrapper.
     ///
     /// # Note
     ///
-    /// Due to the generic parameter `E` and Rust's default rules for derive generated
-    /// trait bounds it is not recommended to derive the `PackedLayout` trait implementation.
+    /// Due to the generic parameter `E` and Rust's default rules for derive
+    /// generated trait bounds it is not recommended to derive the
+    /// `PackedLayout` trait implementation.
     fn generate_packed_layout_impl(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
@@ -220,7 +226,8 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generates trait implementations for auxiliary traits for the account wrapper.
+    /// Generates trait implementations for auxiliary traits for the account
+    /// wrapper.
     ///
     /// # Note
     ///
@@ -260,12 +267,13 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generate trait impls for `FromAccountId` and `ToAccountId` for the account wrapper.
+    /// Generate trait impls for `FromAccountId` and `ToAccountId` for the
+    /// account wrapper.
     ///
     /// # Note
     ///
-    /// This allows user code to conveniently transform from and to `AccountId` when
-    /// interacting with typed contracts.
+    /// This allows user code to conveniently transform from and to `AccountId`
+    /// when interacting with typed contracts.
     fn generate_to_from_account_id_impls(&self) -> TokenStream2 {
         let span = self.span();
         let call_forwarder_ident = self.ident();
@@ -295,12 +303,14 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generate the trait implementation for `CallBuilder` for the ink! trait call forwarder.
+    /// Generate the trait implementation for `CallBuilder` for the ink! trait
+    /// call forwarder.
     ///
     /// # Note
     ///
     /// Through the implementation of this trait it is possible to refer to the
-    /// ink! trait call builder that is associated to this ink! trait call forwarder.
+    /// ink! trait call builder that is associated to this ink! trait call
+    /// forwarder.
     fn generate_call_builder_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let call_forwarder_ident = self.ident();
@@ -363,7 +373,8 @@ impl CallForwarder<'_> {
         )
     }
 
-    /// Generate the code for all ink! trait messages implemented by the trait call forwarder.
+    /// Generate the code for all ink! trait messages implemented by the trait
+    /// call forwarder.
     fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
         let messages =
             self.trait_def
@@ -379,7 +390,8 @@ impl CallForwarder<'_> {
         }
     }
 
-    /// Generate the code for a single ink! trait message implemented by the trait call forwarder.
+    /// Generate the code for a single ink! trait message implemented by the
+    /// trait call forwarder.
     fn generate_ink_trait_impl_for_message(
         &self,
         message: &ir::InkTraitMessage,

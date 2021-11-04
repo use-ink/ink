@@ -233,9 +233,9 @@ impl Engine {
 
     /// Remove the calling account and transfer remaining balance.
     ///
-    /// This function never returns. Either the termination was successful and the
-    /// execution of the destroyed contract is halted. Or it failed during the
-    /// termination which is considered fatal.
+    /// This function never returns. Either the termination was successful and
+    /// the execution of the destroyed contract is halted. Or it failed
+    /// during the termination which is considered fatal.
     pub fn terminate(&mut self, beneficiary: &[u8]) -> ! {
         // Send the remaining balance to the beneficiary
         let contract = self.get_callee();
@@ -303,13 +303,14 @@ impl Engine {
     ///
     /// # Params
     ///
-    /// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored contract.
+    /// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored
+    ///   contract.
     /// - `code_hash`: Encoded code hash of the to-be-restored contract.
     /// - `rent_allowance`: The encoded rent allowance of the restored contract
-    ///                     upon successful restoration.
-    /// - `filtered_keys`: Storage keys that will be ignored for the tombstone hash
-    ///                    match calculation that decide whether the original contract
-    ///                    storage and the storage of the restorer contract is equal.
+    ///   upon successful restoration.
+    /// - `filtered_keys`: Storage keys that will be ignored for the tombstone
+    ///   hash match calculation that decide whether the original contract
+    ///   storage and the storage of the restorer contract is equal.
     pub fn restore_to(
         &mut self,
         _account_id: &[u8],
@@ -420,8 +421,8 @@ impl Engine {
         );
     }
 
-    /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
-    /// and stores the result in `output`.
+    /// Recovers the compressed ECDSA public key for given `signature` and
+    /// `message_hash`, and stores the result in `output`.
     pub fn ecdsa_recover(
         &mut self,
         signature: &[u8; 65],
@@ -436,7 +437,8 @@ impl Engine {
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
-        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that as well.
+        // as an arbitrary number for signing Bitcoin messages and Ethereum adopted that
+        // as well.
         let recovery_byte = if signature[64] > 26 {
             signature[64] - 27
         } else {

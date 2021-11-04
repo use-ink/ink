@@ -25,8 +25,9 @@ pub struct ECDSAPublicKey([u8; 33]);
 
 impl Default for ECDSAPublicKey {
     fn default() -> Self {
-        // Default is not implemented for [u8; 33], so we can't derive it for ECDSAPublicKey
-        // But clippy thinks that it is possible. So it is workaround for clippy.
+        // Default is not implemented for [u8; 33], so we can't derive it for
+        // ECDSAPublicKey But clippy thinks that it is possible. So it is
+        // workaround for clippy.
         let empty = [0; 33];
         Self { 0: empty }
     }
@@ -113,8 +114,9 @@ impl ECDSAPublicKey {
         result
     }
 
-    /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
-    /// It hashes the compressed public key with the blake2b256 algorithm like in substrate.
+    /// Returns the default Substrate's `AccountId` from the ECDSA compressed
+    /// public key. It hashes the compressed public key with the blake2b256
+    /// algorithm like in substrate.
     ///
     /// # Example
     ///

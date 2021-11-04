@@ -26,7 +26,8 @@ use std::collections::{
 pub struct ChainExtensionHandler {
     /// The currently registered runtime call handler.
     registered: HashMap<ExtensionId, Box<dyn ChainExtension>>,
-    /// The output buffer used and reused for chain extension method call results.
+    /// The output buffer used and reused for chain extension method call
+    /// results.
     output: Vec<u8>,
 }
 
@@ -38,7 +39,8 @@ pub struct ExtensionId(u32);
 
 /// Types implementing this trait can be used as chain extensions.
 ///
-/// This trait is only useful for testing contract via the off-chain environment.
+/// This trait is only useful for testing contract via the off-chain
+/// environment.
 pub trait ChainExtension {
     /// The static function ID of the chain extension.
     ///
@@ -49,7 +51,8 @@ pub trait ChainExtension {
 
     /// Calls the chain extension with the given input.
     ///
-    /// Returns an error code and may fill the `output` buffer with a SCALE encoded result.
+    /// Returns an error code and may fill the `output` buffer with a SCALE
+    /// encoded result.
     fn call(&mut self, input: &[u8], output: &mut Vec<u8>) -> u32;
 }
 
@@ -79,7 +82,8 @@ impl ChainExtensionHandler {
 
     /// Evaluates the chain extension with the given parameters.
     ///
-    /// Upon success returns the values returned by the evaluated chain extension.
+    /// Upon success returns the values returned by the evaluated chain
+    /// extension.
     pub fn eval(&mut self, func_id: u32, input: &[u8]) -> Result<(u32, &[u8])> {
         self.output.clear();
         let extension_id = ExtensionId::from(func_id);

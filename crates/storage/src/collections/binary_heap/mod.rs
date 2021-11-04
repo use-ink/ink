@@ -63,7 +63,8 @@ where
         }
     }
 
-    /// Returns the number of elements in the heap, also referred to as its length.
+    /// Returns the number of elements in the heap, also referred to as its
+    /// length.
     pub fn len(&self) -> u32 {
         self.elements.len()
     }
@@ -78,7 +79,8 @@ impl<T> BinaryHeap<T>
 where
     T: PackedLayout + Ord,
 {
-    /// Returns an iterator yielding shared references to all elements of the heap.
+    /// Returns an iterator yielding shared references to all elements of the
+    /// heap.
     ///
     /// # Note
     ///
@@ -102,7 +104,8 @@ where
     ///
     /// # Note:
     ///
-    /// If the `PeekMut` value is leaked, the heap may be in an inconsistent state.
+    /// If the `PeekMut` value is leaked, the heap may be in an inconsistent
+    /// state.
     ///
     /// # Example
     ///
@@ -208,11 +211,13 @@ where
     T: 'a + PackedLayout + Ord,
 {
     heap: &'a mut BinaryHeap<T>,
-    /// If `true`, on `drop()` will sift the peeked value down the tree if after mutation it is no
-    /// longer the largest value, in order to keep the heap in a consistent state.
+    /// If `true`, on `drop()` will sift the peeked value down the tree if after
+    /// mutation it is no longer the largest value, in order to keep the
+    /// heap in a consistent state.
     ///
-    /// If the peeked value is consumed via `PeekMut::pop()` then this is set to false in order
-    /// to  prevent a redundant reorganization which would already have happened via `BinaryHeap::pop()`.
+    /// If the peeked value is consumed via `PeekMut::pop()` then this is set to
+    /// false in order to  prevent a redundant reorganization which would
+    /// already have happened via `BinaryHeap::pop()`.
     sift: bool,
 }
 

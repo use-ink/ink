@@ -24,9 +24,10 @@ use quote::format_ident;
 /// when building a contract and fails if it finds markers.
 #[derive(scale::Encode, scale::Decode)]
 pub enum EnforcedErrors {
-    /// The below error represents calling a `&mut self` message in a context that
-    /// only allows for `&self` messages. This may happen under certain circumstances
-    /// when ink! trait implementations are involved with long-hand calling notation.
+    /// The below error represents calling a `&mut self` message in a context
+    /// that only allows for `&self` messages. This may happen under certain
+    /// circumstances when ink! trait implementations are involved with
+    /// long-hand calling notation.
     #[codec(index = 1)]
     CannotCallTraitMessage {
         /// The trait that defines the called message.

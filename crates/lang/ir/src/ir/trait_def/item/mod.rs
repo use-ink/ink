@@ -60,7 +60,8 @@ impl TryFrom<syn::ItemTrait> for InkItemTrait {
 }
 
 impl InkItemTrait {
-    /// Creates a new ink! item trait from the given configuration and trait definition.
+    /// Creates a new ink! item trait from the given configuration and trait
+    /// definition.
     pub fn new(
         config: &TraitDefinitionConfig,
         item_trait: syn::ItemTrait,
@@ -99,7 +100,8 @@ impl InkItemTrait {
         &self.item.ident
     }
 
-    /// Returns an iterator yielding the ink! specific items of the ink! trait definition.
+    /// Returns an iterator yielding the ink! specific items of the ink! trait
+    /// definition.
     pub fn iter_items(&self) -> IterInkTraitItems {
         IterInkTraitItems::new(self)
     }
@@ -146,7 +148,8 @@ impl InkItemTrait {
         Ok(())
     }
 
-    /// Returns `Ok` if all trait items respects the requirements for an ink! trait definition.
+    /// Returns `Ok` if all trait items respects the requirements for an ink!
+    /// trait definition.
     ///
     /// # Errors
     ///
@@ -156,9 +159,11 @@ impl InkItemTrait {
     ///     - macros definitions or usages
     ///     - unknown token sequences (verbatim)
     ///     - methods with default implementations
-    /// - If the trait contains methods which do not respect the ink! trait definition requirements:
-    ///     - All trait methods need to be declared as either `#[ink(message)]` or `#[ink(constructor)]`
-    ///       and need to respect their respective rules.
+    /// - If the trait contains methods which do not respect the ink! trait
+    ///   definition requirements:
+    ///     - All trait methods need to be declared as either `#[ink(message)]`
+    ///       or `#[ink(constructor)]` and need to respect their respective
+    ///       rules.
     ///
     /// # Note
     ///
@@ -204,15 +209,16 @@ impl InkItemTrait {
         Ok(())
     }
 
-    /// Analyses an ink! method that can be either an ink! message or constructor.
+    /// Analyses an ink! method that can be either an ink! message or
+    /// constructor.
     ///
     /// # Errors
     ///
     /// - If the method declared as `unsafe`, `const` or `async`.
     /// - If the method has some explicit API.
     /// - If the method is variadic or has generic parameters.
-    /// - If the method does not respect the properties of either an
-    ///   ink! message or ink! constructor.
+    /// - If the method does not respect the properties of either an ink!
+    ///   message or ink! constructor.
     fn analyse_trait_method(method: &syn::TraitItemMethod) -> Result<()> {
         if let Some(default_impl) = &method.default {
             return Err(format_err_spanned!(
@@ -320,18 +326,19 @@ impl InkItemTrait {
 
     /// Extract selectors for ink! trait constructors and messages.
     ///
-    /// The composed or manually specified selectors are stored into the provided
-    /// hash tables for later look-up when querying ink! constructors or messages.
-    /// This way we are more flexible with regard to the underlying structures of the IR.
+    /// The composed or manually specified selectors are stored into the
+    /// provided hash tables for later look-up when querying ink!
+    /// constructors or messages. This way we are more flexible with regard
+    /// to the underlying structures of the IR.
     ///
-    /// In this step we assume that all sanitation checks have taken place prior so
-    /// instead of returning errors we simply panic upon failures.
+    /// In this step we assume that all sanitation checks have taken place prior
+    /// so instead of returning errors we simply panic upon failures.
     ///
     /// # Errors
     ///
-    /// Returns an error if there are overlapping selectors for ink! constructors
-    /// or ink! messages. Note that overlaps between ink! constructor and message
-    /// selectors are allowed.
+    /// Returns an error if there are overlapping selectors for ink!
+    /// constructors or ink! messages. Note that overlaps between ink!
+    /// constructor and message selectors are allowed.
     fn extract_selectors(
         config: &TraitDefinitionConfig,
         item_trait: &syn::ItemTrait,

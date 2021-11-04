@@ -71,7 +71,8 @@ fn create_large_stash() -> BitStash {
 mod populated_cache {
     use super::*;
 
-    /// Executes `put` operations on a new `BitStash` exactly `BENCH_ALLOCATIONS` times.
+    /// Executes `put` operations on a new `BitStash` exactly
+    /// `BENCH_ALLOCATIONS` times.
     pub fn fill_bitstash() {
         let mut stash = BitStash::default();
         for _ in 0..BENCH_ALLOCATIONS {
@@ -92,7 +93,8 @@ fn bench_populated_cache(c: &mut Criterion) {
 mod empty_cache {
     use super::*;
 
-    /// Executes `put` operations on a new `BitStash` exactly `BENCH_ALLOCATIONS` times.
+    /// Executes `put` operations on a new `BitStash` exactly
+    /// `BENCH_ALLOCATIONS` times.
     pub fn fill_bitstash() {
         push_stash();
         let mut stash = pull_stash();
@@ -102,9 +104,9 @@ mod empty_cache {
     }
 }
 
-/// In this case we lazily instantiate a `BitStash` by first creating and storing
-/// into the contract storage. We then load the stash from storage lazily in each
-/// benchmark iteration.
+/// In this case we lazily instantiate a `BitStash` by first creating and
+/// storing into the contract storage. We then load the stash from storage
+/// lazily in each benchmark iteration.
 fn bench_empty_cache(c: &mut Criterion) {
     let _ = ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let mut group = c.benchmark_group("Bench: empty cache");

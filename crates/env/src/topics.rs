@@ -67,9 +67,11 @@ pub mod state {
     /// The topic builder is uninitialized and needs to be provided with the
     /// expected number of topics that need to be constructed.
     pub enum Uninit {}
-    /// There are some remaining topics that need to be provided with some values.
+    /// There are some remaining topics that need to be provided with some
+    /// values.
     pub enum HasRemainingTopics {}
-    /// There are no more remaining topics and the topic builder shall be finalized.
+    /// There are no more remaining topics and the topic builder shall be
+    /// finalized.
     pub enum NoRemainingTopics {}
 }
 
@@ -78,9 +80,11 @@ where
     E: Environment,
     B: TopicsBuilderBackend<E>,
 {
-    /// Initializes the topics builder and informs it about how many topics it must expect to serialize.
+    /// Initializes the topics builder and informs it about how many topics it
+    /// must expect to serialize.
     ///
-    /// The number of expected topics is given implicitly by the `E` type parameter.
+    /// The number of expected topics is given implicitly by the `E` type
+    /// parameter.
     pub fn build<Event: Topics>(
         mut self,
     ) -> TopicsBuilder<<Event as Topics>::RemainingTopics, E, B> {
@@ -101,8 +105,8 @@ where
 {
     /// Pushes another event topic to be serialized through the topics builder.
     ///
-    /// Returns a topics builder that expects one less event topic for serialization
-    /// than before the call.
+    /// Returns a topics builder that expects one less event topic for
+    /// serialization than before the call.
     pub fn push_topic<T>(
         mut self,
         value: &T,
@@ -125,9 +129,9 @@ where
 {
     /// Finalizes the topics builder.
     ///
-    /// No more event topics can be serialized afterwards, but the environment will be
-    /// able to extract the information collected by the topics builder in order to
-    /// emit the serialized event.
+    /// No more event topics can be serialized afterwards, but the environment
+    /// will be able to extract the information collected by the topics
+    /// builder in order to emit the serialized event.
     pub fn finish(self) -> <B as TopicsBuilderBackend<E>>::Output
     where
         B: TopicsBuilderBackend<E>,
@@ -136,7 +140,8 @@ where
     }
 }
 
-/// Indicates that there are some remaining topics left for expected serialization.
+/// Indicates that there are some remaining topics left for expected
+/// serialization.
 #[doc(hidden)]
 pub trait SomeRemainingTopics {
     /// The type state indicating the amount of the remaining topics afterwards.
@@ -185,11 +190,14 @@ impl EventTopicsAmount for state::NoRemainingTopics {
     const AMOUNT: usize = 0;
 }
 
-/// Implemented by event types to guide the event topic serialization using the topics builder.
+/// Implemented by event types to guide the event topic serialization using the
+/// topics builder.
 ///
-/// Normally this trait should be implemented automatically via the ink! codegen.
+/// Normally this trait should be implemented automatically via the ink!
+/// codegen.
 pub trait Topics {
-    /// Type state indicating how many event topics are to be expected by the topics builder.
+    /// Type state indicating how many event topics are to be expected by the
+    /// topics builder.
     type RemainingTopics: EventTopicsAmount;
 
     /// Guides event topic serialization using the given topics builder.

@@ -138,7 +138,8 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// A vacant entry that holds the index to the next and previous vacant entry.
+    /// A vacant entry that holds the index to the next and previous vacant
+    /// entry.
     Vacant(VacantEntry<'a, K, V>),
     /// An occupied entry that holds the value.
     Occupied(OccupiedEntry<'a, K, V>),
@@ -181,8 +182,8 @@ where
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage hash maps.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn iter(&self) -> Iter<K, V, H> {
         Iter::new(self)
     }
@@ -193,41 +194,44 @@ where
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage hash maps.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn iter_mut(&mut self) -> IterMut<K, V, H> {
         IterMut::new(self)
     }
 
-    /// Returns an iterator yielding shared references to all values of the hash map.
+    /// Returns an iterator yielding shared references to all values of the hash
+    /// map.
     ///
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage hash maps.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn values(&self) -> Values<K, V, H> {
         Values::new(self)
     }
 
-    /// Returns an iterator yielding shared references to all values of the hash map.
+    /// Returns an iterator yielding shared references to all values of the hash
+    /// map.
     ///
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage hash maps.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn values_mut(&mut self) -> ValuesMut<K, V, H> {
         ValuesMut::new(self)
     }
 
-    /// Returns an iterator yielding shared references to all keys of the hash map.
+    /// Returns an iterator yielding shared references to all keys of the hash
+    /// map.
     ///
     /// # Note
     ///
     /// - Avoid unbounded iteration over big storage hash maps.
-    /// - Prefer using methods like `Iterator::take` in order to limit the number
-    ///   of yielded elements.
+    /// - Prefer using methods like `Iterator::take` in order to limit the
+    ///   number of yielded elements.
     pub fn keys(&self) -> Keys<K> {
         Keys::new(self)
     }
@@ -273,9 +277,9 @@ where
     ///
     /// # Note
     ///
-    /// - If the map did have this key present, the value is updated,
-    ///   and the old value is returned. The key is not updated, though;
-    ///   this matters for types that can be `==` without being identical.
+    /// - If the map did have this key present, the value is updated, and the
+    ///   old value is returned. The key is not updated, though; this matters
+    ///   for types that can be `==` without being identical.
     pub fn insert(&mut self, key: K, new_value: V) -> Option<V> {
         if let Some(occupied) = self.values.get_mut(&key) {
             // Update value, don't update key.
@@ -301,7 +305,8 @@ where
     /// # Note
     ///
     /// The key may be any borrowed form of the map's key type,
-    /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
+    /// but `Hash` and `Eq` on the borrowed form must match those for the key
+    /// type.
     pub fn take<Q>(&mut self, key: &Q) -> Option<V>
     where
         K: Borrow<Q>,
@@ -317,7 +322,8 @@ where
     /// Returns a shared reference to the value corresponding to the key.
     ///
     /// The key may be any borrowed form of the map's key type,
-    /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
+    /// but `Hash` and `Eq` on the borrowed form must match those for the key
+    /// type.
     pub fn get<Q>(&self, key: &Q) -> Option<&V>
     where
         K: Borrow<Q>,
@@ -329,7 +335,8 @@ where
     /// Returns a mutable reference to the value corresponding to the key.
     ///
     /// The key may be any borrowed form of the map's key type,
-    /// but `Hash` and `Eq` on the borrowed form must match those for the key type.
+    /// but `Hash` and `Eq` on the borrowed form must match those for the key
+    /// type.
     pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         K: Borrow<Q>,
@@ -361,10 +368,11 @@ where
     ///
     /// # Note
     ///
-    /// This frees storage that is held but not necessary for the hash map to hold.
-    /// This operation might be expensive, especially for big `max_iteration`
-    /// parameters. The `max_iterations` parameter can be used to limit the
-    /// expensiveness for this operation and instead free up storage incrementally.
+    /// This frees storage that is held but not necessary for the hash map to
+    /// hold. This operation might be expensive, especially for big
+    /// `max_iteration` parameters. The `max_iterations` parameter can be
+    /// used to limit the expensiveness for this operation and instead free
+    /// up storage incrementally.
     pub fn defrag(&mut self, max_iterations: Option<u32>) -> u32 {
         // This method just defrags the underlying `storage::Stash` used to
         // store the keys as it can sometimes take a lot of unused storage
@@ -387,7 +395,8 @@ where
         self.keys.defrag(Some(max_iterations), callback)
     }
 
-    /// Gets the given key's corresponding entry in the map for in-place manipulation.
+    /// Gets the given key's corresponding entry in the map for in-place
+    /// manipulation.
     pub fn entry(&mut self, key: K) -> Entry<K, V> {
         let entry = self.values.entry(key);
         match entry {
@@ -420,8 +429,8 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the default value if empty, and returns
-    /// a reference to the value in the entry.
+    /// Ensures a value is in the entry by inserting the default value if empty,
+    /// and returns a reference to the value in the entry.
     pub fn or_default(self) -> &'a V {
         match self {
             Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
@@ -429,8 +438,8 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the default if empty, and returns
-    /// a mutable reference to the value in the entry.
+    /// Ensures a value is in the entry by inserting the default if empty, and
+    /// returns a mutable reference to the value in the entry.
     pub fn or_insert(self, default: V) -> &'a mut V {
         match self {
             Entry::Occupied(entry) => &mut entry.values_entry.into_mut().value,
@@ -438,8 +447,9 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting the result of the default function if empty,
-    /// and returns mutable references to the key and value in the entry.
+    /// Ensures a value is in the entry by inserting the result of the default
+    /// function if empty, and returns mutable references to the key and
+    /// value in the entry.
     pub fn or_insert_with<F>(self, default: F) -> &'a mut V
     where
         F: FnOnce() -> V,
@@ -450,9 +460,9 @@ where
         }
     }
 
-    /// Ensures a value is in the entry by inserting, if empty, the result of the default
-    /// function, which takes the key as its argument, and returns a mutable reference to
-    /// the value in the entry.
+    /// Ensures a value is in the entry by inserting, if empty, the result of
+    /// the default function, which takes the key as its argument, and
+    /// returns a mutable reference to the value in the entry.
     pub fn or_insert_with_key<F>(self, default: F) -> &'a mut V
     where
         F: FnOnce(&K) -> V,
@@ -492,7 +502,8 @@ where
     K: Ord + Clone + PackedLayout,
     V: PackedLayout,
 {
-    /// Gets a reference to the key that would be used when inserting a value through the `VacantEntry`.
+    /// Gets a reference to the key that would be used when inserting a value
+    /// through the `VacantEntry`.
     pub fn key(&self) -> &K {
         self.values_entry.key()
     }
@@ -502,7 +513,8 @@ where
         self.values_entry.into_key()
     }
 
-    /// Sets the value of the entry with the `VacantEntry`s key, and returns a mutable reference to it.
+    /// Sets the value of the entry with the `VacantEntry`s key, and returns a
+    /// mutable reference to it.
     pub fn insert(self, value: V) -> &'a mut V {
         // At this point we know that `key` does not yet exist in the map.
         let key_index = self.keys.put(self.key().to_owned());
@@ -540,8 +552,8 @@ where
 
     /// Gets a mutable reference to the value in the entry.
     ///
-    /// If you need a reference to the `OccupiedEntry` which may outlive the destruction of the
-    /// `Entry` value, see `into_mut`.
+    /// If you need a reference to the `OccupiedEntry` which may outlive the
+    /// destruction of the `Entry` value, see `into_mut`.
     pub fn get_mut(&mut self) -> &mut V {
         &mut self.values_entry.get_mut().value
     }
@@ -556,8 +568,8 @@ where
         self.remove_entry().1
     }
 
-    /// Converts the `OccupiedEntry` into a mutable reference to the value in the entry
-    /// with a lifetime bound to the map itself.
+    /// Converts the `OccupiedEntry` into a mutable reference to the value in
+    /// the entry with a lifetime bound to the map itself.
     pub fn into_mut(self) -> &'a mut V {
         &mut self.values_entry.into_mut().value
     }

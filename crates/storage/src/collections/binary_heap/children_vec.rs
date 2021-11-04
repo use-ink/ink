@@ -44,9 +44,10 @@ where
     T: PackedLayout + Ord,
 {
     /// The number of elements stored in the heap.
-    /// We cannot use the length of the storage vector, since each entry (i.e. each
-    /// `Children` object) in the vector contains two child elements (except the root
-    /// element which occupies a `Children` object on its own.
+    /// We cannot use the length of the storage vector, since each entry (i.e.
+    /// each `Children` object) in the vector contains two child elements
+    /// (except the root element which occupies a `Children` object on its
+    /// own.
     len: Lazy<u32>,
     /// The underlying storage vec containing the `Children`.
     children: StorageVec<Children<T>>,
@@ -99,7 +100,8 @@ where
         }
     }
 
-    /// Returns the number of elements in the heap, also referred to as its length.
+    /// Returns the number of elements in the heap, also referred to as its
+    /// length.
     #[inline]
     pub fn len(&self) -> u32 {
         *self.len
@@ -168,7 +170,8 @@ where
         self.pop()
     }
 
-    /// Returns an iterator yielding shared references to all elements of the heap.
+    /// Returns an iterator yielding shared references to all elements of the
+    /// heap.
     ///
     /// # Note
     ///
@@ -232,7 +235,8 @@ where
 
     /// Returns information about the child at the heap index if any.
     ///
-    /// The returned `ChildInfoMut` contains a mutable reference to the value `T`.
+    /// The returned `ChildInfoMut` contains a mutable reference to the value
+    /// `T`.
     pub(super) fn get_child_mut(&mut self, index: u32) -> Option<ChildInfoMut<T>> {
         let storage_index = children::get_children_storage_index(index);
         let child_pos = children::get_child_pos(index);
@@ -278,7 +282,8 @@ where
             .expect("children must exist at last_index");
         let popped_val = info.child.take();
         if info.child_count == 1 {
-            // if both children are non-existent the entire `Children` object can be removed
+            // if both children are non-existent the entire `Children` object can be
+            // removed
             self.children.pop();
         }
         popped_val

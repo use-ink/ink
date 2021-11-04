@@ -53,8 +53,9 @@ impl GenerateCode for Events<'_> {
 }
 
 impl<'a> Events<'a> {
-    /// Used to allow emitting user defined events directly instead of converting
-    /// them first into the automatically generated base trait of the contract.
+    /// Used to allow emitting user defined events directly instead of
+    /// converting them first into the automatically generated base trait of
+    /// the contract.
     fn generate_emit_event_trait_impl(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
         quote! {
@@ -75,8 +76,9 @@ impl<'a> Events<'a> {
     }
 
     /// Generates the base event enum that comprises all user defined events.
-    /// All emitted events are converted into a variant of this enum before being
-    /// serialized and emitted to apply their unique event discriminant (ID).
+    /// All emitted events are converted into a variant of this enum before
+    /// being serialized and emitted to apply their unique event
+    /// discriminant (ID).
     fn generate_event_base(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
         let event_idents = self
@@ -163,7 +165,8 @@ impl<'a> Events<'a> {
         )
     }
 
-    /// Generates the guard code that protects against having too many topics defined on an ink! event.
+    /// Generates the guard code that protects against having too many topics
+    /// defined on an ink! event.
     fn generate_topic_guards(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         self.contract.module().events().map(move |event| {
             let span = event.span();
@@ -174,7 +177,8 @@ impl<'a> Events<'a> {
         })
     }
 
-    /// Generates the `Topics` trait implementations for the user defined events.
+    /// Generates the `Topics` trait implementations for the user defined
+    /// events.
     fn generate_topics_impls(&'a self) -> impl Iterator<Item = TokenStream2> + 'a {
         let contract_ident = self.contract.module().storage().ident();
         self.contract.module().events().map(move |event| {

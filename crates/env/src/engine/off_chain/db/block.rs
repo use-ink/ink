@@ -95,8 +95,8 @@ impl Block {
     ///
     /// - Returned hashes on the surface might appear random, however for
     /// testing purposes the actual implementation is quite simple and
-    /// computes those "random" hashes by wrapping XOR of the internal entry hash
-    /// with the eventually repeated sequence of the subject buffer.
+    /// computes those "random" hashes by wrapping XOR of the internal entry
+    /// hash with the eventually repeated sequence of the subject buffer.
     pub fn random<T>(&self, subject: &[u8]) -> Result<T::Hash>
     where
         T: Environment,

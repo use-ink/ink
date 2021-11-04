@@ -20,7 +20,8 @@ use derive_more::From;
 ///
 /// In the long-term this type should be `Vec<u8>` as well, as to not
 /// be dependent on the specific off-chain environment type, so that
-/// the `engine` crate can be used with an arbitrary `Environment` configuration.
+/// the `engine` crate can be used with an arbitrary `Environment`
+/// configuration.
 pub type Balance = u128;
 
 /// The Account Id type used by this crate.

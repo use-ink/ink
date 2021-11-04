@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Returns `Ok` if there are no occurrences of identifiers starting with `__ink_`.
+/// Returns `Ok` if there are no occurrences of identifiers starting with
+/// `__ink_`.
 ///
 /// # Errors
 ///
-/// Returns a combined error for every instance of `__ink_` prefixed identifier found.
+/// Returns a combined error for every instance of `__ink_` prefixed identifier
+/// found.
 pub fn ensure_no_ink_identifiers<T>(checked: &T) -> Result<(), syn::Error>
 where
     T: VisitBy,
@@ -59,7 +61,8 @@ mod private {
         }
     }
 
-    /// Visitor to ensure that there are no identifiers starting with `__ink_` as prefix.
+    /// Visitor to ensure that there are no identifiers starting with `__ink_`
+    /// as prefix.
     ///
     /// # Errors
     ///

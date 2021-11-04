@@ -116,7 +116,8 @@ impl<'a> IterMut<'a> {
         self.end - self.start
     }
 
-    /// Returns access for the given bit index with extended but valid lifetimes.
+    /// Returns access for the given bit index with extended but valid
+    /// lifetimes.
     fn get<'b>(&'b mut self, index: u8) -> BitRefMut<'a> {
         unsafe { BitRefMut::new(extend_lifetime(self.bits), index) }
     }
@@ -182,7 +183,8 @@ impl Bits256 {
         Iter::new(self, len)
     }
 
-    /// Yields mutable accessors to the first `len` bits of the pack of 256 bits.
+    /// Yields mutable accessors to the first `len` bits of the pack of 256
+    /// bits.
     pub(super) fn iter_mut(&mut self, len: u16) -> IterMut {
         IterMut::new(self, len)
     }

@@ -172,7 +172,8 @@ where
 }
 
 impl EnvInstance {
-    /// Returns a new scoped buffer for the entire scope of the static 16 kB buffer.
+    /// Returns a new scoped buffer for the entire scope of the static 16 kB
+    /// buffer.
     fn scoped_buffer(&mut self) -> ScopedBuffer {
         ScopedBuffer::from(&mut self.buffer[..])
     }
@@ -181,7 +182,8 @@ impl EnvInstance {
     ///
     /// # Note
     ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    /// This skips the potentially costly decoding step that is often equivalent
+    /// to a `memcpy`.
     fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: Default + AsMut<[u8]>,
@@ -191,11 +193,13 @@ impl EnvInstance {
         result
     }
 
-    /// Returns the contract property value from its little-endian representation.
+    /// Returns the contract property value from its little-endian
+    /// representation.
     ///
     /// # Note
     ///
-    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    /// This skips the potentially costly decoding step that is often equivalent
+    /// to a `memcpy`.
     fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
     where
         T: FromLittleEndian,

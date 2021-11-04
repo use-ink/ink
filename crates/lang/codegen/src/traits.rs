@@ -20,7 +20,8 @@ pub trait GenerateCode {
     fn generate_code(&self) -> TokenStream2;
 }
 
-/// Types implementing this trait can forward code generation to other generators.
+/// Types implementing this trait can forward code generation to other
+/// generators.
 pub trait GenerateCodeUsing: AsRef<ir::Contract> {
     /// Generates code using the given codegen module.
     fn generate_code_using<'a, G>(&'a self) -> TokenStream2

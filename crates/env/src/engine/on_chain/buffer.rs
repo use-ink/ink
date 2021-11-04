@@ -120,9 +120,11 @@ impl<'a> From<&'a mut [u8]> for ScopedBuffer<'a> {
 }
 
 impl<'a> ScopedBuffer<'a> {
-    /// Splits the scoped buffer into yet another piece to operate on it temporarily.
+    /// Splits the scoped buffer into yet another piece to operate on it
+    /// temporarily.
     ///
-    /// The split buffer will have an offset of 0 but be offset by `self`'s offset.
+    /// The split buffer will have an offset of 0 but be offset by `self`'s
+    /// offset.
     pub fn split(&mut self) -> ScopedBuffer {
         ScopedBuffer {
             offset: 0,
@@ -169,9 +171,10 @@ impl<'a> ScopedBuffer<'a> {
 
     /// Appends the encoding of `value` to the scoped buffer.
     ///
-    /// Does not return the buffer immediately so that other values can be appended
-    /// afterwards. The [`take_appended`] method shall be used to return the buffer
-    /// that includes all appended encodings as a single buffer.
+    /// Does not return the buffer immediately so that other values can be
+    /// appended afterwards. The [`take_appended`] method shall be used to
+    /// return the buffer that includes all appended encodings as a single
+    /// buffer.
     pub fn append_encoded<T>(&mut self, value: &T)
     where
         T: scale::Encode,
@@ -185,8 +188,8 @@ impl<'a> ScopedBuffer<'a> {
         let _ = core::mem::replace(&mut self.buffer, buffer);
     }
 
-    /// Returns the buffer containing all encodings appended via [`append_encoded`]
-    /// in a single byte buffer.
+    /// Returns the buffer containing all encodings appended via
+    /// [`append_encoded`] in a single byte buffer.
     pub fn take_appended(&mut self) -> &'a mut [u8] {
         debug_assert_ne!(self.offset, 0);
         let offset = self.offset;

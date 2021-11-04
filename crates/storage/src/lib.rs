@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The `ink_storage` utilities used to manipulate and organize contract storage.
+//! The `ink_storage` utilities used to manipulate and organize contract
+//! storage.
 //!
 //! Mainly provides entities to work on a contract's storage
 //! as well as high-level collections on top of those.
