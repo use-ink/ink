@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-    GenerateCodeUsing as _,
-};
+use core::iter;
+
+use crate::GenerateCode;
 use derive_more::From;
 use heck::CamelCase as _;
-use ir::Callable as _;
+use ir::{
+    Callable as _,
+    HexLiteral,
+};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -43,36 +44,140 @@ impl GenerateCode for ItemImpls<'_> {
             .module()
             .impls()
             .map(|item_impl| self.generate_item_impl(item_impl));
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
+        let inout_guards = self.generate_input_output_guards();
+        let trait_message_property_guards = self.generate_trait_message_property_guards();
+        let use_emit_event =
+            self.contract.module().events().next().is_some().then(|| {
+                // Required to make `self.env().emit_event(..)` syntax available.
+                quote! { use ::ink_lang::codegen::EmitEvent as _; }
+            });
         quote! {
-            #no_cross_calling_cfg
             const _: () = {
-                use ::ink_lang::{Env as _, EmitEvent as _, StaticEnv as _};
+                // Required to make `self.env()` and `Self::env()` syntax available.
+                use ::ink_lang::codegen::{Env as _, StaticEnv as _};
+                #use_emit_event
 
                 #( #item_impls )*
+                #inout_guards
+                #trait_message_property_guards
             };
         }
     }
 }
 
 impl ItemImpls<'_> {
-    /// Generates the code for the given ink! constructor within a trait implementation block.
-    fn generate_trait_constructor(constructor: &ir::Constructor) -> TokenStream2 {
-        let span = constructor.span();
-        let attrs = constructor.attrs();
-        let vis = constructor.visibility();
-        let ident = constructor.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
-        let inputs = constructor.inputs();
-        let statements = constructor.statements();
-        quote_spanned!(span =>
-            type #output_ident = Self;
+    /// Generates code to guard annotated ink! trait message properties.
+    ///
+    /// These guarded properties include `selector` and `payable`.
+    /// If an ink! trait message is annotated with `#[ink(payable)]`
+    /// or `#[ink(selector = ..)]` then code is generated to guard that
+    /// the given argument to `payable` or `selector` is equal to
+    /// what the associated ink! trait definition defines for the same
+    /// ink! message.
+    fn generate_trait_message_property_guards(&self) -> TokenStream2 {
+        let storage_span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let trait_message_guards = self
+            .contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| item_impl.trait_path().map(|trait_path| {
+                iter::repeat(trait_path).zip(item_impl.iter_messages())
+            }))
+            .flatten()
+            .map(|(trait_path, message)| {
+                let message_span = message.span();
+                let message_local_id = message.local_id().hex_padded_suffixed();
+                let message_guard_payable = message.is_payable().then(|| {
+                    quote_spanned!(message_span=>
+                        const _: ::ink_lang::codegen::TraitMessagePayable<{
+                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                                as #trait_path>::__ink_TraitInfo
+                                as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::PAYABLE
+                        }> = ::ink_lang::codegen::TraitMessagePayable::<true>;
+                    )
+                });
+                let message_guard_selector = message.user_provided_selector().map(|selector| {
+                    let given_selector = selector.into_be_u32().hex_padded_suffixed();
+                    quote_spanned!(message_span=>
+                        const _: ::ink_lang::codegen::TraitMessageSelector<{
+                            ::core::primitive::u32::from_be_bytes(
+                                <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                                    as #trait_path>::__ink_TraitInfo
+                                    as ::ink_lang::reflect::TraitMessageInfo<#message_local_id>>::SELECTOR
+                            )
+                        }> = ::ink_lang::codegen::TraitMessageSelector::<#given_selector>;
+                    )
+                });
+                quote_spanned!(message_span=>
+                    #message_guard_payable
+                    #message_guard_selector
+                )
+            });
+        quote_spanned!(storage_span=>
+            #( #trait_message_guards )*
+        )
+    }
 
-            #( #attrs )*
-            #vis fn #ident( #( #inputs ),* ) -> Self::#output_ident {
-                #( #statements )*
-            }
+    /// Generates code to assert that ink! input and output types meet certain properties.
+    fn generate_input_output_guards(&self) -> TokenStream2 {
+        let storage_span = self.contract.module().storage().span();
+        let constructor_input_guards = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| {
+                let constructor_span = constructor.span();
+                let constructor_inputs = constructor.inputs().map(|input| {
+                    let span = input.span();
+                    let input_type = &*input.ty;
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                            ::ink_lang::codegen::DispatchInput<#input_type>
+                        >();
+                    )
+                });
+                quote_spanned!(constructor_span=>
+                    #( #constructor_inputs )*
+                )
+            });
+        let message_inout_guards = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
+                let message_span = message.span();
+                let message_inputs = message.inputs().map(|input| {
+                    let span = input.span();
+                    let input_type = &*input.ty;
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                            ::ink_lang::codegen::DispatchInput<#input_type>
+                        >();
+                    )
+                });
+                let message_output = message.output().map(|output_type| {
+                    let span = output_type.span();
+                    quote_spanned!(span=>
+                        let _: () = ::ink_lang::codegen::utils::consume_type::<
+                            ::ink_lang::codegen::DispatchOutput<#output_type>
+                        >();
+                    )
+                });
+                quote_spanned!(message_span=>
+                    #( #message_inputs )*
+                    #message_output
+                )
+            });
+        quote_spanned!(storage_span=>
+            const _: () = {
+                #( #constructor_input_guards )*
+                #( #message_inout_guards )*
+            };
         )
     }
 
@@ -83,7 +188,7 @@ impl ItemImpls<'_> {
         let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Out", ident.to_string().to_camel_case());
+        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
         let inputs = message.inputs();
         let output = message
             .output()
@@ -107,46 +212,17 @@ impl ItemImpls<'_> {
         let messages = item_impl
             .iter_messages()
             .map(|cws| Self::generate_trait_message(cws.callable()));
-        let constructors = item_impl
-            .iter_constructors()
-            .map(|cws| Self::generate_trait_constructor(cws.callable()));
-        let other_items = item_impl
-            .items()
-            .iter()
-            .filter_map(ir::ImplItem::filter_map_other_item)
-            .map(ToTokens::to_token_stream);
         let trait_path = item_impl
             .trait_path()
             .expect("encountered missing trait path for trait impl block");
-        let trait_ident = item_impl
-            .trait_ident()
-            .expect("encountered missing trait identifier for trait impl block");
         let self_type = item_impl.self_type();
-        let hash = ir::InkTrait::compute_verify_hash(
-            trait_ident,
-            item_impl.iter_constructors().map(|constructor| {
-                let ident = constructor.ident().clone();
-                let len_inputs = constructor.inputs().count();
-                (ident, len_inputs)
-            }),
-            item_impl.iter_messages().map(|message| {
-                let ident = message.ident().clone();
-                let len_inputs = message.inputs().count() + 1;
-                let is_mut = message.receiver().is_ref_mut();
-                (ident, len_inputs, is_mut)
-            }),
-        );
-        let checksum = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]) as usize;
         quote_spanned!(span =>
-            unsafe impl ::ink_lang::CheckedInkTrait<[(); #checksum]> for #self_type {}
-
             #( #attrs )*
             impl #trait_path for #self_type {
-                type __ink_Checksum = [(); #checksum];
+                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+                    as #trait_path>::__ink_TraitInfo;
 
-                #( #constructors )*
                 #( #messages )*
-                #( #other_items )*
             }
         )
     }
@@ -219,10 +295,8 @@ impl ItemImpls<'_> {
         let span = self_ty.span();
         let storage_ident = self.contract.module().storage().ident();
         quote_spanned!(span =>
-            ::ink_lang::static_assertions::assert_type_eq_all!(
-                #self_ty,
-                #storage_ident,
-            );
+            const _: ::ink_lang::codegen::utils::IsSameType<#storage_ident> =
+                ::ink_lang::codegen::utils::IsSameType::<#self_ty>::new();
         )
     }
 

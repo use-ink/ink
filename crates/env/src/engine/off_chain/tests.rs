@@ -31,13 +31,19 @@ fn store_load_clear() -> Result<()> {
     })
 }
 
+fn add_key(key: &Key, offset: u64) -> Key {
+    let mut result = *key;
+    result += offset;
+    result
+}
+
 #[test]
 fn key_add() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         let key00 = Key::from([0x0; 32]);
-        let key05 = key00 + 05_u64; // -> 5
-        let key10 = key00 + 10_u64; // -> 10         | same as key55
-        let key55 = key05 + 05_u64; // -> 5 + 5 = 10 | same as key10
+        let key05 = add_key(&key00, 5); // -> 5
+        let key10 = add_key(&key00, 10); // -> 10         | same as key55
+        let key55 = add_key(&key05, 5); // -> 5 + 5 = 10 | same as key10
         crate::set_contract_storage(&key55, &42);
         assert_eq!(crate::get_contract_storage::<i32>(&key10), Ok(Some(42)));
         crate::set_contract_storage(&key10, &1337);
@@ -51,9 +57,9 @@ fn key_add_sub() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         // given
         let key0a = Key::from([0x0; 32]);
-        let key1a = key0a + 1337_u64;
-        let key2a = key0a + 42_u64;
-        let key3a = key0a + 52_u64;
+        let key1a = add_key(&key0a, 1337);
+        let key2a = add_key(&key0a, 42);
+        let key3a = add_key(&key0a, 52);
 
         // when
         crate::set_contract_storage(&key0a, &1);
@@ -78,18 +84,12 @@ fn gas_price() -> crate::Result<()> {
             chain_spec.set_gas_price::<crate::DefaultEnvironment>(gas_price.into())
         })?;
 
-        assert_eq!(
-            2u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(1).unwrap()
-        );
+        assert_eq!(2u128, crate::weight_to_fee::<crate::DefaultEnvironment>(1));
         assert_eq!(
             20u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(10).unwrap()
+            crate::weight_to_fee::<crate::DefaultEnvironment>(10)
         );
-        assert_eq!(
-            6u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(3).unwrap()
-        );
+        assert_eq!(6u128, crate::weight_to_fee::<crate::DefaultEnvironment>(3));
 
         Ok(())
     })

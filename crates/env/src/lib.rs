@@ -97,6 +97,7 @@ pub use self::{
         Clear,
         DefaultEnvironment,
         Environment,
+        FromLittleEndian,
         Hash,
         NoChainExtension,
         Perbill,
@@ -113,10 +114,12 @@ cfg_if::cfg_if! {
         #[doc(hidden)]
         pub use ink_prelude::format;
 
-        /// Appends a formatted string to the `debug_message` buffer which will be:
-        ///  - Returned to the caller when the contract is invoked via RPC (*not* via an extrinsic)
-        ///  - Logged as a `debug!` message on the substrate node, which will be printed to the node
-        ///    console's `stdout` when the log level is set to `debug`.
+        /// Appends a formatted string to the `debug_message` buffer if message recording is
+        /// enabled in the contracts pallet and if the call is performed via RPC (**not** via an
+        /// extrinsic). The `debug_message` buffer will be:
+        ///  - Returned to the RPC caller.
+        ///  - Logged as a `debug!` message on the Substrate node, which will be printed to the
+        ///    node console's `stdout` when the log level is set to `-lruntime::contracts=debug`.
         ///
         /// # Note
         ///

@@ -1,6 +1,84 @@
+# Version 3.0-rc7 (UNRELEASED)
+
+This is the 7th release candidate for ink! 3.0.
+
+## Added
+
+- The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang`.
+    - Some of those traits and their carried information can be used for static reflection of ink!
+      smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
+      publicly usable by ink! smart contract authors.
+
+## Changed
+
+- ink! Contract via `#[ink::contract]`:
+    - ink! smart contracts now always generated two contract types. Given `MyContract`:
+
+    - `MyContract` will still be the storage struct.
+      However, it can now additionally be used as static dependency in other smart contracts.
+      Static dependencies can be envisioned as being directly embedded into a smart contract.
+    - `MyContractRef` is pretty much the same of what we had gotten with the old `ink-as-dependency`.
+      It is a typed thin-wrapper around an `AccountId` that is mirroring the ink! smart contract's API
+      and implemented traits.
+- ink! Trait Definitions via `#[ink::trait_definition]`:
+    - ink! trait definitions no longer can define trait constructors.
+    - ink! trait implementations now inherit `selector` and `payable` properties for trait messages.
+        - Now explicitly setting `selector` or `payable` property for an implemented ink! trait method
+          will only act as a guard that the set property is in fact the same as defined by the ink!
+          trait definition.
+- Improve quite a few ink! specific compile errors:
+    - For example when using ink! messages and constructors that have inputs or outputs that cannot
+      be encoded or decoded using the SCALE codec.
+- Simplified selector computation for ink! trait methods.
+    - Now selectors are encoded as `blake2b({namespace}::{trait_identifier}::{message_identifier})[0..4]`.
+      If no `namespace` is set for the ink! trait definition then the formula is
+      `blake2b({trait_identifier}::{message_identifier})[0..4]`.
+      Where `trait_identifier` and `message_identifier` both refer to the identifiers of the ink! trait
+      definition and ink! trait message respectively.
+
+## Fixed
+
+- Contracts that are compiled as root (the default) now properly revert the transaction if a message
+  returned `Result::Err`.
+    - This does not apply to ink! smart contracts that are used as dependencies. Therefore it is still possible to match against a result return type for a called dependency.
+
 # Version 3.0-rc6
 
 This is the 6th release candidate for ink! 3.0.
+
+## Compatibility
+
+### Please upgrade `cargo-contract`
+
+You need to update to the latest `cargo-contract` in order to use this release:
+```
+cargo install cargo-contract --vers ^0.15 --force --locked
+```
+
+If you build contracts from this release candidate with an older `cargo-contract`,
+the UI's won't display all contract-relevant fields.
+
+### Please upgrade `scale-info` in your contract's dependencies
+
+In this release candidate we upgraded `scale-info`. You have to use a compatible
+version in your contract's `Cargo.toml` as well; `cargo-contract` will throw
+an error otherwise.
+
+The `Cargo.toml` should contain
+```
+scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive", "full"] }
+```
+
+### New metadata format
+
+There are breaking changes to the metadata format in this release. 
+
+- Removes top level `metadataVersion` field from the contract metadata (https://github.com/paritytech/cargo-contract/pull/342/files).
+- Introduces new top level versioned metadata [enum](https://github.com/paritytech/ink/blob/master/crates/metadata/src/lib.rs#L68). 
+- Upgrades to `scale-info` version `1.0` (https://github.com/paritytech/ink/pull/845). 
+  - The previous supported version was `0.6`, so check release notes for all changes since then: https://github.com/paritytech/ink/pull/845
+  - One of the main changes to be aware of is the change to 0 based type lookup ids: https://github.com/paritytech/scale-info/pull/90
 
 ## Added
 - Added an Ethereum-compatibility function to recover a public key from an ECDSA signature and message hash - [#914](https://github.com/paritytech/ink/pull/914) (thanks [@xgreenx](https://github.com/xgreenx)).

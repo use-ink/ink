@@ -99,17 +99,13 @@ impl<'de> serde::Deserialize<'de> for LayoutKey {
 
 impl<'a> From<&'a Key> for LayoutKey {
     fn from(key: &'a Key) -> Self {
-        Self {
-            key: key.to_bytes(),
-        }
+        Self { key: *key.as_ref() }
     }
 }
 
 impl From<Key> for LayoutKey {
     fn from(key: Key) -> Self {
-        Self {
-            key: key.to_bytes(),
-        }
+        Self { key: *key.as_ref() }
     }
 }
 

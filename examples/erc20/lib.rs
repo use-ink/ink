@@ -4,7 +4,6 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
         collections::mapping::Mapping,
         lazy::Lazy,
@@ -198,7 +197,7 @@ mod erc20 {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
         use ink_lang as ink;
 
@@ -345,8 +344,7 @@ mod erc20 {
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Get contract address.
-            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or_else(|_| [0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
             // Create call
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -402,8 +400,7 @@ mod erc20 {
             assert_eq!(ink_env::test::recorded_events().count(), 2);
 
             // Get contract address.
-            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or_else(|_| [0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
             // Create call.
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -456,8 +453,7 @@ mod erc20 {
             assert_eq!(erc20.approve(accounts.bob, initial_allowance), Ok(()));
 
             // Get contract address.
-            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()
-                .unwrap_or_else(|_| [0x0; 32].into());
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
             // Create call.
             let mut data =
                 ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])); // balance_of
@@ -518,7 +514,7 @@ mod erc20 {
         use ink_env::Clear;
         use ink_lang as ink;
 
-        type Event = <Erc20 as ::ink_lang::BaseEvent>::Type;
+        type Event = <Erc20 as ::ink_lang::reflect::ContractEventBase>::Type;
 
         fn assert_transfer_event(
             event: &ink_env::test::EmittedEvent,
@@ -668,7 +664,7 @@ mod erc20 {
             assert_eq!(erc20.balance_of(accounts.bob), 0);
 
             // Set the contract as callee and Bob as caller.
-            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>();
             ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
@@ -713,7 +709,7 @@ mod erc20 {
             assert_eq!(ink_env::test::recorded_events().count(), 2);
 
             // Set the contract as callee and Bob as caller.
-            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            let contract = ink_env::account_id::<ink_env::DefaultEnvironment>();
             ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
@@ -755,7 +751,7 @@ mod erc20 {
             assert_eq!(erc20.approve(accounts.bob, initial_allowance), Ok(()));
 
             // Get contract address.
-            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>()?;
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
             ink_env::test::set_callee::<ink_env::DefaultEnvironment>(callee);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 

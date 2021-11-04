@@ -21,6 +21,19 @@ use super::KeyPtr;
 /// The number is arbitrarily chosen. Might need adjustments later.
 pub const FOOTPRINT_CLEANUP_THRESHOLD: u64 = 32;
 
+/// Types that can be default initialized to some area of the contract storage.
+pub trait SpreadAllocate: SpreadLayout {
+    /// Default initializes the implementing type using spread layout.
+    ///
+    /// # Note
+    ///
+    /// - The key pointer denotes the position in contract storage where
+    ///   the instance is being allocated at.
+    /// - Fields of `Self` are allocated in order and construct `Self` upon
+    ///   completion.
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self;
+}
+
 /// Types that can be stored to and loaded from the contract storage.
 pub trait SpreadLayout {
     /// The footprint of the type.

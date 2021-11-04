@@ -1,0 +1,5 @@
+error: encountered conflicting ink! attribute argument
+ --> tests/ui/trait_def/fail/message_constructor_conflict.rs:5:20
+  |
+5 |     #[ink(message, constructor)]
+  |                    ^^^^^^^^^^^

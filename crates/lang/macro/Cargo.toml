@@ -2,7 +2,7 @@
 name = "ink_lang_macro"
 version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2018"
+edition = "2021"
 
 license = "Apache-2.0"
 readme = "README.md"
@@ -28,9 +28,6 @@ ink_metadata = { version = "3.0.0-rc6", path = "../../metadata/" }
 ink_env = { version = "3.0.0-rc6", path = "../../env/" }
 ink_storage = { version = "3.0.0-rc6", path = "../../storage/" }
 ink_lang = { version = "3.0.0-rc6", path = ".." }
-ink_prelude = { version = "3.0.0-rc6", path = "../../prelude/" }
-
-trybuild = "1.0.24"
 scale-info = { version = "1.0", default-features = false, features = ["derive"] }
 
 [lib]
@@ -44,10 +41,3 @@ std = [
     "ink_lang_ir/std",
     "ink_primitives/std",
 ]
-
-# Due to https://github.com/rust-lang/cargo/issues/6915 features that affect a dev-dependency
-# currently can't be enabled by a parent crate, hence `["ink_env/ink-experimental-engine"]` does
-# not work.
-# After we switch to the new off-chain environment with https://github.com/paritytech/ink/issues/565
-# we can remove the feature altogether.
-ink-experimental-engine = []

@@ -46,6 +46,60 @@ use scale_info::TypeInfo;
 use sp_arithmetic::PerThing;
 pub use sp_arithmetic::Perbill;
 
+/// Allows to instantiate a type from its little-endian bytes representation.
+pub trait FromLittleEndian {
+    /// The little-endian bytes representation.
+    type Bytes: Default + AsRef<[u8]> + AsMut<[u8]>;
+
+    /// Create a new instance from the little-endian bytes representation.
+    fn from_le_bytes(bytes: Self::Bytes) -> Self;
+}
+
+impl FromLittleEndian for u8 {
+    type Bytes = [u8; 1];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u16 {
+    type Bytes = [u8; 2];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u32 {
+    type Bytes = [u8; 4];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u64 {
+    type Bytes = [u8; 8];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
+impl FromLittleEndian for u128 {
+    type Bytes = [u8; 16];
+
+    #[inline]
+    fn from_le_bytes(bytes: Self::Bytes) -> Self {
+        Self::from_le_bytes(bytes)
+    }
+}
+
 /// The environmental types usable by contracts defined with ink!.
 pub trait Environment {
     /// The maximum number of supported event topics provided by the runtime.
@@ -54,7 +108,15 @@ pub trait Environment {
     const MAX_EVENT_TOPICS: usize;
 
     /// The address type.
-    type AccountId: 'static + scale::Codec + Clone + PartialEq + Eq + Ord;
+    type AccountId: 'static
+        + scale::Codec
+        + Clone
+        + PartialEq
+        + Eq
+        + Ord
+        + AsRef<[u8]>
+        + AsMut<[u8]>
+        + Default;
 
     /// The type of balances.
     type Balance: 'static
@@ -63,7 +125,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The type of hash.
     type Hash: 'static
@@ -84,7 +147,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The type of block number.
     type BlockNumber: 'static
@@ -93,7 +157,8 @@ pub trait Environment {
         + Clone
         + PartialEq
         + Eq
-        + AtLeast32BitUnsigned;
+        + AtLeast32BitUnsigned
+        + FromLittleEndian;
 
     /// The chain extension for the environment.
     ///
@@ -161,6 +226,34 @@ pub type RentFraction = Perbill;
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
+
+impl AsRef<[u8; 32]> for AccountId {
+    #[inline]
+    fn as_ref(&self) -> &[u8; 32] {
+        &self.0
+    }
+}
+
+impl AsMut<[u8; 32]> for AccountId {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [u8; 32] {
+        &mut self.0
+    }
+}
+
+impl AsRef<[u8]> for AccountId {
+    #[inline]
+    fn as_ref(&self) -> &[u8] {
+        &self.0[..]
+    }
+}
+
+impl AsMut<[u8]> for AccountId {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [u8] {
+        &mut self.0[..]
+    }
+}
 
 impl<'a> TryFrom<&'a [u8]> for AccountId {
     type Error = TryFromSliceError;

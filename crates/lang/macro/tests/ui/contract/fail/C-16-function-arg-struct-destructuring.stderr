@@ -1,5 +1,0 @@
-error: ink! message arguments must have an identifier
-  --> $DIR/C-16-function-arg-struct-destructuring.rs:20:28
-   |
-20 |         pub fn noop(&self, Foo { foo }: Foo) {}
-   |                            ^^^^^^^^^^^^^^^^

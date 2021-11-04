@@ -1,0 +1,5 @@
+error: expected string or byte string literal as input. found Int(LitInt { token: 42 })
+ --> tests/ui/selector_bytes/fail/invalid_parameter_type_02.rs:3:37
+  |
+3 | const _: u32 = ink::selector_bytes!(42);
+  |                                     ^^

@@ -44,13 +44,17 @@ use self::attrs::{
     first_ink_attribute,
     partition_attributes,
     sanitize_attributes,
+    sanitize_optional_attributes,
     AttributeArg,
     AttributeArgKind,
     AttributeFrag,
     InkAttribute,
 };
 pub use self::{
-    attrs::Namespace,
+    attrs::{
+        IsDocAttribute,
+        Namespace,
+    },
     blake2::{
         blake2b_256,
         Blake2x256Macro,
@@ -91,10 +95,11 @@ pub use self::{
     selector::{
         Selector,
         SelectorMacro,
+        TraitPrefix,
     },
     trait_def::{
-        InkTrait,
-        InkTraitConstructor,
+        InkItemTrait,
+        InkTraitDefinition,
         InkTraitItem,
         InkTraitMessage,
         IterInkTraitItems,

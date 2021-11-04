@@ -1,0 +1,5 @@
+error: encountered invalid empty ink! trait definition
+ --> tests/ui/trait_def/fail/definition_empty.rs:4:1
+  |
+4 | pub trait TraitDefinition {}
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

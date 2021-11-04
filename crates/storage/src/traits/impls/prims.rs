@@ -15,7 +15,9 @@
 use super::max;
 use crate::traits::{
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_env::{
@@ -32,13 +34,17 @@ macro_rules! impl_layout_for_primitive {
     ( $($ty:ty),* $(,)? ) => {
         $(
             impl_always_packed_layout!($ty, deep: false);
-            impl PackedLayout for $ty {
+            impl $crate::traits::PackedLayout for $ty {
                 #[inline(always)]
-                fn pull_packed(&mut self, _at: &Key) {}
+                fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
                 #[inline(always)]
-                fn push_packed(&self, _at: &Key) {}
+                fn push_packed(&self, _at: &::ink_primitives::Key) {}
                 #[inline(always)]
-                fn clear_packed(&self, _at: &Key) {}
+                fn clear_packed(&self, _at: &::ink_primitives::Key) {}
+            }
+            impl $crate::traits::PackedAllocate for $ty {
+                #[inline(always)]
+                fn allocate_packed(&mut self, _at: &::ink_primitives::Key) {}
             }
         )*
     };
@@ -95,6 +101,17 @@ where
     }
 }
 
+impl<T> SpreadAllocate for Option<T>
+where
+    T: SpreadLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
+        None
+    }
+}
+
 impl<T> PackedLayout for Option<T>
 where
     T: PackedLayout,
@@ -117,6 +134,20 @@ where
     fn pull_packed(&mut self, at: &Key) {
         if let Some(value) = self {
             <T as PackedLayout>::pull_packed(value, at)
+        }
+    }
+}
+
+impl<T> PackedAllocate for Option<T>
+where
+    T: PackedAllocate,
+{
+    #[inline]
+    fn allocate_packed(&mut self, at: &Key) {
+        // Note: Maybe this is not needed since `Option<T>` is alwyas default
+        //       initialized as `None` so this cannot really occur.
+        if let Some(value) = self {
+            <T as PackedAllocate>::allocate_packed(value, at)
         }
     }
 }
@@ -218,6 +249,15 @@ where
     }
 }
 
+impl<T> SpreadAllocate for Box<T>
+where
+    T: SpreadAllocate,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Box::new(<T as SpreadAllocate>::allocate_spread(ptr))
+    }
+}
+
 impl<T> PackedLayout for Box<T>
 where
     T: PackedLayout,
@@ -235,6 +275,16 @@ where
     #[inline]
     fn pull_packed(&mut self, at: &Key) {
         <T as PackedLayout>::pull_packed(&mut *self, at)
+    }
+}
+
+impl<T> PackedAllocate for Box<T>
+where
+    T: PackedAllocate,
+{
+    #[inline]
+    fn allocate_packed(&mut self, at: &Key) {
+        <T as PackedAllocate>::allocate_packed(&mut *self, at)
     }
 }
 

@@ -1,0 +1,5 @@
+error: encountered #[ink(selector)] that is missing its u32 parameter. Did you mean #[ink(selector = value: u32)] ?
+  --> tests/ui/contract/fail/message-selector-missing-arg.rs:14:24
+   |
+14 |         #[ink(message, selector)]
+   |                        ^^^^^^^^

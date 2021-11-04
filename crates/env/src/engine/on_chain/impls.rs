@@ -44,6 +44,7 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
+    FromLittleEndian,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -176,6 +177,34 @@ impl EnvInstance {
         ScopedBuffer::from(&mut self.buffer[..])
     }
 
+    /// Returns the contract property value into the given result buffer.
+    ///
+    /// # Note
+    ///
+    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    fn get_property_inplace<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    where
+        T: Default + AsMut<[u8]>,
+    {
+        let mut result = T::default();
+        ext_fn(&mut result.as_mut());
+        result
+    }
+
+    /// Returns the contract property value from its little-endian representation.
+    ///
+    /// # Note
+    ///
+    /// This skips the potentially costly decoding step that is often equivalent to a `memcpy`.
+    fn get_property_little_endian<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> T
+    where
+        T: FromLittleEndian,
+    {
+        let mut result = <T as FromLittleEndian>::Bytes::default();
+        ext_fn(&mut result.as_mut());
+        <T as FromLittleEndian>::from_le_bytes(result)
+    }
+
     /// Returns the contract property value.
     fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
     where
@@ -202,15 +231,20 @@ impl EnvInstance {
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let enc_input = scope.take_encoded(params.exec_input());
         let output = &mut scope.take_rest();
-        ext::call(
+        let call_result = ext::call(
             enc_callee,
             gas_limit,
             enc_transferred_value,
             enc_input,
             output,
-        )?;
-        let decoded = scale::Decode::decode(&mut &output[..])?;
-        Ok(decoded)
+        );
+        match call_result {
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
     }
 }
 
@@ -220,7 +254,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_bytes(), &buffer[..]);
+        ext::set_storage(key.as_ref(), &buffer[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -228,7 +262,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let output = &mut self.scoped_buffer().take_rest();
-        match ext::get_storage(key.as_bytes(), output) {
+        match ext::get_storage(key.as_ref(), output) {
             Ok(_) => (),
             Err(ExtError::KeyNotFound) => return Ok(None),
             Err(_) => panic!("encountered unexpected error"),
@@ -238,7 +272,7 @@ impl EnvBackend for EnvInstance {
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        ext::clear_storage(key.as_bytes())
+        ext::clear_storage(key.as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
@@ -311,44 +345,44 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::caller)
+    fn caller<T: Environment>(&mut self) -> T::AccountId {
+        self.get_property_inplace::<T::AccountId>(ext::caller)
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::value_transferred)
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> Result<u64> {
-        self.get_property::<u64>(ext::gas_left)
+    fn gas_left<T: Environment>(&mut self) -> u64 {
+        self.get_property_little_endian::<u64>(ext::gas_left)
     }
 
-    fn block_timestamp<T: Environment>(&mut self) -> Result<T::Timestamp> {
-        self.get_property::<T::Timestamp>(ext::now)
+    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
+        self.get_property_little_endian::<T::Timestamp>(ext::now)
     }
 
-    fn account_id<T: Environment>(&mut self) -> Result<T::AccountId> {
-        self.get_property::<T::AccountId>(ext::address)
+    fn account_id<T: Environment>(&mut self) -> T::AccountId {
+        self.get_property_inplace::<T::AccountId>(ext::address)
     }
 
-    fn balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::balance)
+    fn balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::balance)
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::rent_allowance)
+    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::rent_allowance)
     }
 
-    fn block_number<T: Environment>(&mut self) -> Result<T::BlockNumber> {
-        self.get_property::<T::BlockNumber>(ext::block_number)
+    fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
+        self.get_property_little_endian::<T::BlockNumber>(ext::block_number)
     }
 
-    fn minimum_balance<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::minimum_balance)
+    fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::minimum_balance)
     }
 
-    fn tombstone_deposit<T: Environment>(&mut self) -> Result<T::Balance> {
-        self.get_property::<T::Balance>(ext::tombstone_deposit)
+    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
+        self.get_property_little_endian::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -488,10 +522,10 @@ impl TypedEnvBackend for EnvInstance {
         ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> Result<T::Balance> {
-        let output = &mut self.scoped_buffer().take_rest();
-        ext::weight_to_fee(gas, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
+        let mut result = <T::Balance as FromLittleEndian>::Bytes::default();
+        ext::weight_to_fee(gas, &mut result.as_mut());
+        <T::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>

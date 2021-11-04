@@ -1,5 +1,0 @@
-error: #[ink(selector = ..)] attributes with string inputs are deprecated. use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)].
-  --> $DIR/M-05-message-invalid-selector.rs:14:24
-   |
-14 |         #[ink(message, selector = "0xC0DECAFE")]
-   |                        ^^^^^^^^^^^^^^^^^^^^^^^

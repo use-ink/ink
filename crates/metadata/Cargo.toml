@@ -2,7 +2,7 @@
 name = "ink_metadata"
 version = "3.0.0-rc6"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
-edition = "2018"
+edition = "2021"
 
 license = "Apache-2.0"
 readme = "README.md"
@@ -24,8 +24,8 @@ derive_more = { version = "0.99", default-features = false, features = ["from"] 
 scale-info = { version = "1.0", default-features = false, features = ["derive", "serde", "decode"] }
 
 [dev-dependencies]
-pretty_assertions = "1.0.0"
-serde_json = "1.0"
+pretty_assertions = "1"
+serde_json = "1"
 
 [features]
 default = [

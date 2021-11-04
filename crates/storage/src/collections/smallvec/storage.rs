@@ -16,6 +16,7 @@ use super::SmallVec;
 use crate::traits::{
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 
@@ -37,7 +38,7 @@ const _: () = {
         T: PackedLayout + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new("len", <u32 as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",
@@ -70,5 +71,17 @@ where
         self.clear_cells();
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.elems, ptr);
+    }
+}
+
+impl<T, const N: usize> SpreadAllocate for SmallVec<T, N>
+where
+    T: PackedLayout,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            len: SpreadAllocate::allocate_spread(ptr),
+            elems: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }

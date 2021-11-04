@@ -16,6 +16,11 @@ use crate::ext::{
     Engine,
     Error,
 };
+use libsecp256k1::{
+    Message,
+    PublicKey,
+    SecretKey,
+};
 
 /// The public methods of the `contracts` pallet write their result into an
 /// `output` buffer instead of returning them. Since we aim to emulate this
@@ -191,4 +196,75 @@ fn must_panic_when_buffer_too_small() {
 
     // then
     unreachable!("`get_storage` must already have panicked");
+}
+
+#[test]
+fn ecdsa_recovery_test_from_contracts_pallet() {
+    // given
+    let mut engine = Engine::new();
+    #[rustfmt::skip]
+    let signature: [u8; 65] = [
+        161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
+        162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
+         33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
+        211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
+         28,
+    ];
+    #[rustfmt::skip]
+    let message_hash: [u8; 32] = [
+        162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
+        239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+    ];
+
+    // when
+    let mut output = [0; 33];
+    engine
+        .ecdsa_recover(&signature, &message_hash, &mut output)
+        .expect("must work");
+
+    // then
+    #[rustfmt::skip]
+    const EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+          2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+          7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+        152,
+    ];
+    assert_eq!(output, EXPECTED_COMPRESSED_PUBLIC_KEY);
+}
+
+#[test]
+fn ecdsa_recovery_with_secp256k1_crate() {
+    // given
+    let mut engine = Engine::new();
+    let seckey = [
+        59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203,
+        174, 253, 102, 39, 170, 146, 46, 252, 4, 143, 236, 12, 136, 28,
+    ];
+    let pubkey = PublicKey::parse_compressed(&[
+        2, 29, 21, 35, 7, 198, 183, 43, 14, 208, 65, 139, 14, 112, 205, 128, 231, 245,
+        41, 91, 141, 134, 245, 114, 45, 63, 82, 19, 251, 210, 57, 79, 54,
+    ])
+    .expect("pubkey creation failed");
+
+    let mut msg_hash = [0; 32];
+    crate::hashing::sha2_256(b"Some message", &mut msg_hash);
+
+    let msg = Message::parse(&msg_hash);
+    let seckey = SecretKey::parse(&seckey).expect("secret key creation failed");
+    let (signature, recovery_id) = libsecp256k1::sign(&msg, &seckey);
+
+    let mut signature = signature.serialize().to_vec();
+    signature.push(recovery_id.serialize());
+    let signature_with_recovery_id: [u8; 65] = signature
+        .try_into()
+        .expect("unable to create signature with recovery id");
+
+    // when
+    let mut output = [0; 33];
+    engine
+        .ecdsa_recover(&signature_with_recovery_id, &msg.serialize(), &mut output)
+        .expect("ecdsa recovery failed");
+
+    // then
+    assert_eq!(output, pubkey.serialize_compressed());
 }
