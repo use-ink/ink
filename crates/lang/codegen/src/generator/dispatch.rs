@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use core::iter;
+
 use crate::{
     generator,
     GenerateCode,
@@ -19,15 +21,11 @@ use crate::{
 };
 use derive_more::From;
 use ir::{
-    Callable as _,
+    Callable,
     HexLiteral as _,
 };
-use proc_macro2::{
-    Ident,
-    TokenStream as TokenStream2,
-};
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{
-    format_ident,
     quote,
     quote_spanned,
 };
@@ -54,651 +52,726 @@ impl_as_ref_for_generator!(Dispatch);
 
 impl GenerateCode for Dispatch<'_> {
     fn generate_code(&self) -> TokenStream2 {
-        let no_cross_calling_cfg =
-            self.generate_code_using::<generator::CrossCallingConflictCfg>();
-        let entry_points = self.generate_entry_points();
-        let dispatch_using_mode = self.generate_dispatch_using_mode();
-        let dispatch_trait_impl_namespaces = self.generate_trait_impl_namespaces();
-        let dispatch_trait_impls = self.generate_dispatch_trait_impls();
-        let message_dispatch_enum = self.generate_message_dispatch_enum();
-        let constructor_dispatch_enum = self.generate_constructor_dispatch_enum();
+        let mut constructor_spans = Vec::new();
+        let mut message_spans = Vec::new();
+
+        let cfg_not_as_dependency =
+            self.generate_code_using::<generator::NotAsDependencyCfg>();
+        let amount_dispatchables =
+            self.generate_contract_amount_dispatchables_trait_impl();
+        let contract_dispatchable_messages =
+            self.generate_contract_dispatchable_messages_trait_impl(&mut message_spans);
+        let contract_dispatchable_constructors = self
+            .generate_contract_dispatchable_constructors_trait_impl(
+                &mut constructor_spans,
+            );
+        let contract_dispatchable_constructor_infos =
+            self.generate_dispatchable_constructor_infos();
+        let contract_dispatchable_messages_infos =
+            self.generate_dispatchable_message_infos();
+        let constructor_decoder_type =
+            self.generate_constructor_decoder_type(&constructor_spans);
+        let message_decoder_type = self.generate_message_decoder_type(&message_spans);
+        let entry_points = self.generate_entry_points(&message_spans);
         quote! {
-            // We do not generate contract dispatch code while the contract
-            // is being tested or the contract is a dependency of another
-            // since both resulting compilations do not require dispatching.
+            #amount_dispatchables
+            #contract_dispatchable_messages
+            #contract_dispatchable_constructors
+            #contract_dispatchable_constructor_infos
+            #contract_dispatchable_messages_infos
+            #constructor_decoder_type
+            #message_decoder_type
+
             #[cfg(not(test))]
-            #no_cross_calling_cfg
+            #cfg_not_as_dependency
             const _: () = {
                 #entry_points
-                #dispatch_using_mode
-                #dispatch_trait_impl_namespaces
-                #dispatch_trait_impls
-                #message_dispatch_enum
-                #constructor_dispatch_enum
             };
         }
     }
 }
 
 impl Dispatch<'_> {
-    /// Generates the static ink! contract entry points.
+    /// Returns the number of dispatchable ink! constructors of the ink! smart contract.
+    fn query_amount_constructors(&self) -> usize {
+        self.contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .count()
+    }
+
+    /// Returns the number of dispatchable ink! messages of the ink! smart contract.
     ///
-    /// # Note
+    /// This includes inherent ink! messages as well as trait ink! messages.
+    fn query_amount_messages(&self) -> usize {
+        self.contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .count()
+    }
+
+    /// Generates code for the [`ink_lang::ContractDispatchables`] trait implementation.
     ///
-    /// Those are expected to exist by the smart contracts host module.
-    /// They guide the dispatch, set-up and tear-down of a smart contract.
-    fn generate_entry_points(&self) -> TokenStream2 {
+    /// This trait implementation stores information of how many dispatchable
+    /// ink! messages and ink! constructors there are for the ink! smart contract.
+    fn generate_contract_amount_dispatchables_trait_impl(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let all_messages_deny_payment = self.all_messages_deny_payment();
-        quote! {
+        let count_messages = self.query_amount_messages();
+        let count_constructors = self.query_amount_constructors();
+        quote_spanned!(span=>
+            impl ::ink_lang::reflect::ContractAmountDispatchables for #storage_ident {
+                const MESSAGES: ::core::primitive::usize = #count_messages;
+                const CONSTRUCTORS: ::core::primitive::usize = #count_constructors;
+            }
+        )
+    }
+
+    /// Generates code for the [`ink_lang::ContractDispatchableMessages`] trait implementation.
+    ///
+    /// This trait implementation stores the selector ID of each dispatchable
+    /// ink! messages of the ink! smart contract.
+    fn generate_contract_dispatchable_messages_trait_impl(
+        &self,
+        message_spans: &mut Vec<proc_macro2::Span>,
+    ) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let inherent_ids = self
+            .contract
+            .module()
+            .impls()
+            .filter(|item_impl| item_impl.trait_path().is_none())
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
+                let span = message.span();
+                message_spans.push(span);
+                let id = message
+                    .composed_selector()
+                    .into_be_u32()
+                    .hex_padded_suffixed();
+                quote_spanned!(span=> #id)
+            })
+            .collect::<Vec<_>>();
+        let trait_ids = self
+            .contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| {
+                item_impl
+                    .trait_path()
+                    .map(|trait_path| {
+                        iter::repeat(trait_path).zip(item_impl.iter_messages())
+                    })
+            })
+            .flatten()
+            .map(|(trait_path, message)| {
+                let local_id = message.local_id().hex_padded_suffixed();
+                let span = message.span();
+                message_spans.push(span);
+                quote_spanned!(span=>
+                    {
+                        ::core::primitive::u32::from_be_bytes(
+                            <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                                as #trait_path>::__ink_TraitInfo
+                                as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                        )
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            impl ::ink_lang::reflect::ContractDispatchableMessages<{
+                <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+            }> for #storage_ident {
+                const IDS: [
+                    ::core::primitive::u32;
+                    <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                ] = [
+                    #( #inherent_ids , )*
+                    #( #trait_ids ),*
+                ];
+            }
+        )
+    }
+
+    /// Generates code for the [`ink_lang::ContractDispatchableConstructors`] trait implementation.
+    ///
+    /// This trait implementation stores the selector ID of each dispatchable
+    /// ink! constructor of the ink! smart contract.
+    fn generate_contract_dispatchable_constructors_trait_impl(
+        &self,
+        constructor_spans: &mut Vec<proc_macro2::Span>,
+    ) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let constructor_ids = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| {
+                let span = constructor.span();
+                constructor_spans.push(span);
+                let id = constructor
+                    .composed_selector()
+                    .into_be_u32()
+                    .hex_padded_suffixed();
+                quote_spanned!(span=> #id)
+            });
+        quote_spanned!(span=>
+            impl ::ink_lang::reflect::ContractDispatchableConstructors<{
+                <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+            }> for #storage_ident {
+                const IDS: [
+                    ::core::primitive::u32;
+                    <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                ] = [
+                    #( #constructor_ids ),*
+                ];
+            }
+        )
+    }
+
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    ///
+    /// These trait implementations store relevant dispatch information for every
+    /// dispatchable ink! constructor of the ink! smart contract.
+    fn generate_dispatchable_constructor_infos(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let constructor_infos = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_constructors())
+            .flatten()
+            .map(|constructor| {
+                let constructor_span = constructor.span();
+                let constructor_ident = constructor.ident();
+                let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
+                let selector_bytes = constructor.composed_selector().hex_lits();
+                let input_bindings = generator::input_bindings(constructor.inputs());
+                let input_tuple_type = generator::input_types_tuple(constructor.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
+                quote_spanned!(constructor_span=>
+                    impl ::ink_lang::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
+                            #storage_ident::#constructor_ident( #( #input_bindings ),* )
+                        };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                        const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            #( #constructor_infos )*
+        )
+    }
+
+    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    ///
+    /// These trait implementations store relevant dispatch information for every
+    /// dispatchable ink! constructor of the ink! smart contract.
+    fn generate_dispatchable_message_infos(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let inherent_message_infos = self
+            .contract
+            .module()
+            .impls()
+            .filter(|item_impl| item_impl.trait_path().is_none())
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .map(|message| {
+                let message_span = message.span();
+                let message_ident = message.ident();
+                let payable = message.is_payable();
+                let mutates = message.receiver().is_ref_mut();
+                let selector_id = message.composed_selector().into_be_u32().hex_padded_suffixed();
+                let selector_bytes = message.composed_selector().hex_lits();
+                let output_tuple_type = message
+                    .output()
+                    .map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
+                let input_bindings = generator::input_bindings(message.inputs());
+                let input_tuple_type = generator::input_types_tuple(message.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                quote_spanned!(message_span=>
+                    impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Output = #output_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                            |storage, #input_tuple_bindings| {
+                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                            };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
+                        const PAYABLE: ::core::primitive::bool = #payable;
+                        const MUTATES: ::core::primitive::bool = #mutates;
+                        const LABEL: &'static ::core::primitive::str = ::core::stringify!(#message_ident);
+                    }
+                )
+            });
+        let trait_message_infos = self
+            .contract
+            .module()
+            .impls()
+            .filter_map(|item_impl| {
+                item_impl
+                    .trait_path()
+                    .map(|trait_path| {
+                        let trait_ident = item_impl.trait_ident().expect(
+                            "must have an ink! trait identifier if it is an ink! trait implementation"
+                        );
+                        iter::repeat((trait_ident, trait_path)).zip(item_impl.iter_messages())
+                    })
+            })
+            .flatten()
+            .map(|((trait_ident, trait_path), message)| {
+                let message_span = message.span();
+                let message_ident = message.ident();
+                let mutates = message.receiver().is_ref_mut();
+                let local_id = message.local_id().hex_padded_suffixed();
+                let payable = quote! {{
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::PAYABLE
+                }};
+                let selector = quote! {{
+                    <<::ink_lang::reflect::TraitDefinitionRegistry<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>
+                        as #trait_path>::__ink_TraitInfo
+                        as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
+                }};
+                let selector_id = quote! {{
+                    ::core::primitive::u32::from_be_bytes(#selector)
+                }};
+                let output_tuple_type = message
+                    .output()
+                    .map(quote::ToTokens::to_token_stream)
+                    .unwrap_or_else(|| quote! { () });
+                let input_bindings = generator::input_bindings(message.inputs());
+                let input_tuple_type = generator::input_types_tuple(message.inputs());
+                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
+                let label = format!("{}::{}", trait_ident, message_ident);
+                quote_spanned!(message_span=>
+                    impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
+                        type Input = #input_tuple_type;
+                        type Output = #output_tuple_type;
+                        type Storage = #storage_ident;
+
+                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
+                            |storage, #input_tuple_bindings| {
+                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                            };
+                        const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
+                        const PAYABLE: ::core::primitive::bool = #payable;
+                        const MUTATES: ::core::primitive::bool = #mutates;
+                        const LABEL: &'static ::core::primitive::str = #label;
+                    }
+                )
+            });
+        quote_spanned!(span=>
+            #( #inherent_message_infos )*
+            #( #trait_message_infos )*
+        )
+    }
+
+    /// Generates code for the entry points of the root ink! smart contract.
+    ///
+    /// This generates the `deploy` and `call` functions with which the smart
+    /// contract runtime mainly interacts with the ink! smart contract.
+    fn generate_entry_points(&self, message_spans: &[proc_macro2::Span]) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let any_message_accept_payment =
+            self.any_message_accepts_payment_expr(message_spans);
+        quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() {
-                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                    ::ink_lang::DispatchMode::Instantiate,
-                ).unwrap_or_else(|error| {
-                    ::core::panic!("dispatching constructor failed: {}", error)
-                })
+                ::ink_env::decode_input::<
+                        <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
+                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
+                    .and_then(|decoder| {
+                        <<#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type
+                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                    })
+                    .unwrap_or_else(|error| {
+                        ::core::panic!("dispatching ink! constructor failed: {}", error)
+                    })
             }
 
             #[cfg(not(test))]
             #[no_mangle]
             fn call() {
-                if #all_messages_deny_payment {
-                    ::ink_lang::deny_payment::<<#storage_ident as ::ink_lang::ContractEnv>::Env>()
-                        .expect("caller transferred value even though all ink! message deny payments")
+                if !#any_message_accept_payment {
+                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
-                <#storage_ident as ::ink_lang::DispatchUsingMode>::dispatch_using_mode(
-                    ::ink_lang::DispatchMode::Call,
-                ).unwrap_or_else(|error| {
-                    ::core::panic!("dispatching message failed: {}", error)
-                })
+                ::ink_env::decode_input::<
+                        <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
+                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
+                    .and_then(|decoder| {
+                        <<#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type
+                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
+                    })
+                    .unwrap_or_else(|error| {
+                        ::core::panic!("dispatching ink! message failed: {}", error)
+                    })
             }
-        }
+        )
     }
 
-    /// Generates the `DispatchUsingMode` trait implementation to guide contract dispatch.
-    fn generate_dispatch_using_mode(&self) -> TokenStream2 {
-        let storage_ident = self.contract.module().storage().ident();
-        quote! {
-            impl ::ink_lang::DispatchUsingMode for #storage_ident {
-                #[allow(unused_parens)]
-                fn dispatch_using_mode(
-                    mode: ::ink_lang::DispatchMode
-                ) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
-                    match mode {
-                        ::ink_lang::DispatchMode::Instantiate => {
-                            <<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type as ::ink_lang::Execute>::execute(
-                                ::ink_env::decode_input::<<#storage_ident as ::ink_lang::ConstructorDispatcher>::Type>()
-                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
-                            )
-                        }
-                        ::ink_lang::DispatchMode::Call => {
-                            <<#storage_ident as ::ink_lang::MessageDispatcher>::Type as ::ink_lang::Execute>::execute(
-                                ::ink_env::decode_input::<<#storage_ident as ::ink_lang::MessageDispatcher>::Type>()
-                                    .map_err(|_| ::ink_lang::DispatchError::CouldNotReadInput)?
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /// Returns the generated ink! namespace identifier for the given callable kind.
-    fn dispatch_trait_impl_namespace(kind: ir::CallableKind) -> Ident {
-        match kind {
-            ir::CallableKind::Constructor => format_ident!("__ink_ConstructorInfo"),
-            ir::CallableKind::Message => format_ident!("__ink_MessageInfo"),
-        }
-    }
-
-    /// Generates utility types to emulate namespaces to disambiguate dispatch trait
-    /// implementations for ink! messages and ink! constructors with overlapping
-    /// selectors.
-    fn generate_trait_impl_namespaces(&self) -> TokenStream2 {
-        let message_namespace =
-            Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
-        let constructor_namespace =
-            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
-        quote! {
-            // Selector namespace for ink! messages of the root smart contract.
-            //
-            // # Note
-            //
-            // - We have separate namespaces for ink! messages and constructors to
-            //   allow for overlapping selectors between them.
-            // - The `ID` const parameter uniquely identifies one of the ink! messages
-            //   implemented by the root smart contract.
-            #[doc(hidden)]
-            pub struct #message_namespace<const ID: ::core::primitive::u32> {}
-
-            // Selector namespace for ink! constructors of the root smart contract.
-            //
-            // # Note
-            //
-            // - We have separate namespaces for ink! messages and constructors to
-            //   allow for overlapping selectors between them.
-            // - The `ID` const parameter uniquely identifies one of the ink! constructors
-            //   implemented by the root smart contract.
-            #[doc(hidden)]
-            pub struct #constructor_namespace<const ID: ::core::primitive::u32> {}
-        }
-    }
-
-    /// Generates code for the dispatch trait implementations for a generic ink! callable.
-    fn generate_trait_impls_for_callable<C>(
+    /// Generates code for the ink! constructor decoder type of the ink! smart contract.
+    ///
+    /// This type can be used in order to decode the input bytes received by a call to `deploy`
+    /// into one of the available dispatchable ink! constructors and their arguments.
+    fn generate_constructor_decoder_type(
         &self,
-        cws: ir::CallableWithSelector<'_, C>,
-    ) -> TokenStream2
-    where
-        C: ir::Callable + quote::ToTokens,
-    {
-        let callable = cws.callable();
-        let callable_span = callable.span();
-        let selector = cws.composed_selector();
-        let (selector_bytes, selector_id) = (
-            selector.hex_lits(),
-            selector.into_be_u32().hex_padded_suffixed(),
-        );
-        let input_types = callable
-            .inputs()
-            .map(|pat_type| &pat_type.ty)
-            .collect::<Vec<_>>();
-        let storage_ident = self.contract.module().storage().ident();
-        let namespace = Self::dispatch_trait_impl_namespace(cws.kind());
-        let input_types_tuple = if input_types.len() != 1 {
-            // Pack all types into a tuple if they are not exactly 1.
-            // This results in `()` for zero input types.
-            quote! { ( #( #input_types ),* ) }
-        } else {
-            // Return the single type without turning it into a tuple.
-            quote! { #( #input_types )* }
-        };
-        let fn_input_impl = quote_spanned!(callable.inputs_span() =>
-            impl ::ink_lang::FnInput for #namespace::<#selector_id> {
-                type Input = #input_types_tuple;
-            }
-        );
-        let fn_selector_impl = quote_spanned!(callable_span =>
-            impl ::ink_lang::FnSelector for #namespace::<#selector_id> {
-                const SELECTOR: ::ink_env::call::Selector = ::ink_env::call::Selector::new([
-                    #( #selector_bytes ),*
-                ]);
-            }
-        );
-        let fn_state_impl = quote_spanned!(callable_span =>
-            impl ::ink_lang::FnState for #namespace::<#selector_id> {
-                type State = #storage_ident;
-            }
-        );
-        quote! {
-            #fn_input_impl
-            #fn_selector_impl
-            #fn_state_impl
-        }
-    }
-
-    /// Returns a tuple of:
-    ///
-    /// - Vector over the generated identifier bindings (`__ink_binding_N`) for all inputs.
-    /// - `TokenStream` representing the binding identifiers as tuple (for equal to two or more inputs),
-    ///   as single identifier (for exactly one input) or as wildcard (`_`) if there are
-    ///   no input bindings.
-    ///
-    /// # Examples
-    ///
-    /// **No inputs:**
-    /// ```
-    /// # use quote::quote;
-    /// # let x: (Vec<()>, _) =
-    /// ( vec![],
-    ///   quote! { _ } )
-    /// # ;
-    /// ```
-    ///
-    /// **Exactly one input:**
-    /// ```
-    /// # use quote::quote;
-    /// # let __ink_binding_0 = ();
-    /// ( vec![__ink_binding_0],
-    ///   quote! { __ink_binding_0 } )
-    /// # ;
-    /// ```
-    ///
-    /// **Multiple (equal to two or more) inputs:**
-    /// ```
-    /// # use quote::quote;
-    /// # let __ink_binding_0 = ();
-    /// # let __ink_binding_1 = ();
-    /// ( vec![__ink_binding_0, __ink_binding_1, /* ... */],
-    ///   quote! { (__ink_binding_0, __ink_binding_1, ..) } )
-    /// # ;
-    /// ```
-    fn generate_input_bindings<C>(callable: &C) -> (Vec<Ident>, TokenStream2)
-    where
-        C: ir::Callable,
-    {
-        let input_bindings = callable
-            .inputs()
-            .enumerate()
-            .map(|(n, _pat_type)| format_ident!("__ink_binding_{}", n))
-            .collect::<Vec<_>>();
-        let inputs_as_tuple_or_wildcard = match input_bindings.len() {
-            0 => quote! { _ },
-            1 => quote! { #( #input_bindings ),* },
-            _ => quote! { ( #( #input_bindings ),* ) },
-        };
-        (input_bindings, inputs_as_tuple_or_wildcard)
-    }
-
-    /// Generates all the dispatch trait implementations for the given ink! message.
-    fn generate_trait_impls_for_message(
-        &self,
-        cws: ir::CallableWithSelector<'_, ir::Message>,
+        constructor_spans: &[proc_macro2::Span],
     ) -> TokenStream2 {
-        let message = cws.callable();
-        let message_span = message.span();
-        let selector = cws.composed_selector();
-        let selector_id = selector.into_be_u32().hex_padded_suffixed();
-        let output_tokens = message
-            .output()
-            .map(quote::ToTokens::to_token_stream)
-            .unwrap_or_else(|| quote! { () });
-        let is_mut = message.receiver().is_ref_mut();
-        let storage_ident = self.contract.module().storage().ident();
-        let message_ident = message.ident();
-        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
-        let fn_output_impl = quote_spanned!(message.output().span() =>
-            impl ::ink_lang::FnOutput for #namespace::<#selector_id> {
-                #[allow(unused_parens)]
-                type Output = #output_tokens;
-            }
-        );
-        let callable_impl = self.generate_trait_impls_for_callable(cws);
-        let (mut_token, message_trait_ident) = if is_mut {
-            (
-                Some(syn::token::Mut::default()),
-                format_ident!("MessageMut"),
+        assert_eq!(constructor_spans.len(), self.query_amount_constructors());
+
+        /// Expands into the token sequence to represent the
+        /// input type of the ink! constructor at the given index.
+        fn expand_constructor_input(
+            span: proc_macro2::Span,
+            storage_ident: &syn::Ident,
+            constructor_index: usize,
+        ) -> TokenStream2 {
+            quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#constructor_index]
+                }>>::Input
             )
-        } else {
-            (None, format_ident!("MessageRef"))
-        };
-        let (input_bindings, inputs_as_tuple_or_wildcard) =
-            Self::generate_input_bindings(message);
-        let as_trait = cws.item_impl().trait_path().map(|trait_path| {
-            quote_spanned!(message_span =>
-                as #trait_path
+        }
+
+        /// Returns the n-th ink! constructor identifier for the decoder type.
+        fn constructor_variant_ident(n: usize) -> syn::Ident {
+            quote::format_ident!("Constructor{}", n)
+        }
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_constructors = self.query_amount_constructors();
+        let constructors_variants = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_input =
+                expand_constructor_input(constructor_span, storage_ident, index);
+            quote_spanned!(constructor_span=>
+                #constructor_ident(#constructor_input)
             )
         });
-        let message_impl = quote_spanned!(message_span =>
-            impl ::ink_lang::#message_trait_ident for #namespace::<#selector_id> {
-                const CALLABLE: fn(
-                    &#mut_token <Self as ::ink_lang::FnState>::State,
-                    <Self as ::ink_lang::FnInput>::Input
-                ) -> <Self as ::ink_lang::FnOutput>::Output = |state, #inputs_as_tuple_or_wildcard| {
-                    <#storage_ident #as_trait>::#message_ident(state, #( #input_bindings ),* )
-                };
-            }
-        );
-        quote_spanned!(message_span =>
-            #callable_impl
-            #fn_output_impl
-            #message_impl
-        )
-    }
-
-    /// Generates all the dispatch trait implementations for the given ink! constructor.
-    fn generate_trait_impls_for_constructor(
-        &self,
-        cws: ir::CallableWithSelector<'_, ir::Constructor>,
-    ) -> TokenStream2 {
-        let constructor = cws.callable();
-        let constructor_span = constructor.span();
-        let selector = cws.composed_selector();
-        let selector_id = selector.into_be_u32().hex_padded_suffixed();
-        let storage_ident = self.contract.module().storage().ident();
-        let constructor_ident = constructor.ident();
-        let namespace =
-            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
-        let callable_impl = self.generate_trait_impls_for_callable(cws);
-        let (input_bindings, inputs_as_tuple_or_wildcard) =
-            Self::generate_input_bindings(constructor);
-        let as_trait = cws.item_impl().trait_path().map(|trait_path| {
-            quote_spanned!(constructor_span =>
-                as #trait_path
+        let constructor_match = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_selector = quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
+            quote_spanned!(constructor_span=>
+                #constructor_selector => {
+                    ::core::result::Result::Ok(Self::#constructor_ident(
+                        <#constructor_input as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
+                    ))
+                }
             )
         });
-        let constructor_impl = quote_spanned!(constructor_span =>
-            impl ::ink_lang::Constructor for #namespace::<#selector_id> {
-                const CALLABLE: fn(
-                    <Self as ::ink_lang::FnInput>::Input
-                ) -> <Self as ::ink_lang::FnState>::State = |#inputs_as_tuple_or_wildcard| {
-                    <#storage_ident #as_trait>::#constructor_ident(#( #input_bindings ),* )
-                };
-            }
-        );
-        quote_spanned!(constructor_span =>
-            #callable_impl
-            #constructor_impl
-        )
-    }
-
-    /// Generate all dispatch trait implementations for ink! messages and ink! constructors.
-    fn generate_dispatch_trait_impls(&self) -> TokenStream2 {
-        let message_impls = self
-            .contract_messages()
-            .map(|message| self.generate_trait_impls_for_message(message));
-        let constructor_impls = self
-            .contract_constructors()
-            .map(|constructor| self.generate_trait_impls_for_constructor(constructor));
-        quote! {
-            #( #message_impls )*
-            #( #constructor_impls )*
-        }
-    }
-
-    /// Generates variant identifiers for the generated dispatch enum.
-    ///
-    /// Since we want to avoid generating random names we generate identifiers
-    /// in terms of the selectors of the associated ink! messages or constructors.
-    ///
-    /// ## Example
-    ///
-    /// Given prefix of `"Message"` and selector with bytes `0xDEADBEEF` we
-    /// generate the following identifier: `__ink_Message_0xdeadbeef`
-    ///
-    /// This way it is clear that this is an ink! generated identifier and even
-    /// encodes the unique selector bytes to make the identifier unique.
-    fn generate_dispatch_variant_ident<C>(
-        &self,
-        cws: ir::CallableWithSelector<'_, C>,
-    ) -> Ident
-    where
-        C: ir::Callable,
-    {
-        let selector_bytes = cws.composed_selector().as_bytes().to_owned();
-        let prefix = match cws.callable().kind() {
-            ir::CallableKind::Message => "Message",
-            ir::CallableKind::Constructor => "Constructor",
-        };
-        quote::format_ident!(
-            "__ink_{}_0x{:02X}{:02X}{:02X}{:02X}",
-            prefix,
-            selector_bytes[0],
-            selector_bytes[1],
-            selector_bytes[2],
-            selector_bytes[3]
-        )
-    }
-
-    /// Generates one match arm of the dispatch `scale::Decode` implementation.
-    ///
-    /// # Note
-    ///
-    /// There is one match arm per ink! constructor or message for the dispatch
-    /// `scale::Decode` implementation.
-    fn generate_dispatch_variant_decode<C>(
-        &self,
-        cws: ir::CallableWithSelector<'_, C>,
-    ) -> TokenStream2
-    where
-        C: ir::Callable,
-    {
-        let selector_bytes = cws.composed_selector().hex_lits();
-        let variant_ident = self.generate_dispatch_variant_ident(cws);
-        let variant_types = cws.callable().inputs().map(|arg| &arg.ty);
-        quote! {
-            [ #( #selector_bytes ),* ] => {
-                ::core::result::Result::Ok(Self::#variant_ident(
-                    #(
-                        <#variant_types as ::scale::Decode>::decode(input)?
-                    ),*
-                ))
-            }
-        }
-    }
-
-    /// Generates one match arm of the dispatch variant enum.
-    ///
-    /// # Note
-    ///
-    /// There is one match arm per ink! constructor or message for the dispatch
-    /// `scale::Decode` implementation.
-    fn generate_dispatch_variant_arm<C>(
-        &self,
-        cws: ir::CallableWithSelector<'_, C>,
-    ) -> TokenStream2
-    where
-        C: ir::Callable,
-    {
-        let input_types = cws.callable().inputs().map(|arg| &arg.ty);
-        let variant_ident = self.generate_dispatch_variant_ident(cws);
-        quote! {
-            #variant_ident(#(#input_types),*)
-        }
-    }
-
-    /// Returns `true` if all ink! messages of `self` deny payments.
-    ///
-    /// # Note
-    ///
-    /// This information is used to produce better code in this scenario.
-    fn all_messages_deny_payment(&self) -> bool {
-        self.contract
-            .module()
-            .impls()
-            .flat_map(ir::ItemImpl::iter_messages)
-            .all(|message| !message.is_payable())
-    }
-
-    /// Generates one match arm of the dispatch message for the `execute` implementation.
-    ///
-    /// # Note
-    ///
-    /// This is basically the code per ink! message that is going to be executed after
-    /// the dispatch has already taken place.
-    fn generate_dispatch_execute_message_arm(
-        &self,
-        cws: ir::CallableWithSelector<'_, ir::Message>,
-    ) -> TokenStream2 {
-        let storage_ident = self.contract.module().storage().ident();
-        let ident = self.generate_dispatch_variant_ident(cws);
-        let message = cws.callable();
-        let arg_pats = message.inputs().map(|arg| &arg.pat).collect::<Vec<_>>();
-        let arg_inputs = if arg_pats.len() == 1 {
-            quote! { #(#arg_pats),* }
-        } else {
-            quote! { ( #(#arg_pats),* ) }
-        };
-        let (mut_mod, msg_trait, exec_fn) = match message.receiver() {
-            ir::Receiver::RefMut => {
-                (
-                    Some(quote! { mut }),
-                    quote! { MessageMut },
-                    quote! { execute_message_mut },
-                )
-            }
-            ir::Receiver::Ref => {
-                (None, quote! { MessageRef }, quote! { execute_message })
-            }
-        };
-        let selector_id = cws.composed_selector().into_be_u32().hex_padded_suffixed();
-        let namespace = Self::dispatch_trait_impl_namespace(ir::CallableKind::Message);
-        // If all ink! messages deny payment we can move the payment check to before
-        // the message dispatch which is more efficient.
-        let accepts_payments = cws.is_payable() || self.all_messages_deny_payment();
-        let is_dynamic_storage_allocation_enabled = self
-            .contract
-            .config()
-            .is_dynamic_storage_allocator_enabled();
-        quote! {
-            Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::#exec_fn::<<#storage_ident as ::ink_lang::ContractEnv>::Env, #namespace::<#selector_id>, _>(
-                    ::ink_lang::AcceptsPayments(#accepts_payments),
-                    ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
-                    move |state: &#mut_mod #storage_ident| {
-                        <#namespace::<#selector_id> as ::ink_lang::#msg_trait>::CALLABLE(
-                            state, #arg_inputs
-                        )
-                    }
-                )
-            }
-        }
-    }
-
-    /// Returns an iterator over all ink! messages of the ink! contract.
-    fn contract_messages(
-        &self,
-    ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Message>> {
-        self.contract
-            .module()
-            .impls()
-            .map(|impl_item| impl_item.iter_messages())
-            .flatten()
-    }
-
-    /// Generates the entire dispatch variant enum for all ink! messages.
-    fn generate_message_dispatch_enum(&self) -> TokenStream2 {
-        let storage_ident = self.contract.module().storage().ident();
-        let message_variants = self
-            .contract_messages()
-            .map(|message| self.generate_dispatch_variant_arm(message));
-        let decode_message = self
-            .contract_messages()
-            .map(|message| self.generate_dispatch_variant_decode(message));
-        let execute_variants = self
-            .contract_messages()
-            .map(|message| self.generate_dispatch_execute_message_arm(message));
-        quote! {
+        let constructor_execute = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_ident = constructor_variant_ident(index);
+            let constructor_callable = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::CALLABLE
+            );
+            let is_dynamic_storage_allocation_enabled = self
+                .contract
+                .config()
+                .is_dynamic_storage_allocator_enabled();
+            quote_spanned!(constructor_span=>
+                Self::#constructor_ident(input) => {
+                    ::ink_lang::codegen::execute_constructor::<#storage_ident, _>(
+                        ::ink_lang::codegen::ExecuteConstructorConfig {
+                            dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
+                        },
+                        move || { #constructor_callable(input) }
+                    )
+                }
+            )
+        });
+        quote_spanned!(span=>
             const _: () = {
-                #[doc(hidden)]
-                pub enum __ink_MessageDispatchEnum {
+                #[allow(non_camel_case_types)]
+                pub enum __ink_ConstructorDecoder {
+                    #( #constructors_variants ),*
+                }
+
+                impl ::ink_lang::reflect::DecodeDispatch for __ink_ConstructorDecoder {
+                    fn decode_dispatch<I>(input: &mut I)
+                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
+                        {
+                            #( #constructor_match , )*
+                            _invalid => ::core::result::Result::Err(
+                                ::ink_lang::reflect::DispatchError::UnknownSelector
+                            )
+                        }
+                    }
+                }
+
+                impl ::scale::Decode for __ink_ConstructorDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                    where
+                        I: ::scale::Input,
+                    {
+                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
+                            .map_err(::core::convert::Into::into)
+                    }
+                }
+
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        match self {
+                            #( #constructor_execute ),*
+                        }
+                    }
+                }
+
+                impl ::ink_lang::reflect::ContractConstructorDecoder for #storage_ident {
+                    type Type = __ink_ConstructorDecoder;
+                }
+            };
+        )
+    }
+
+    /// Generates code for the ink! message decoder type of the ink! smart contract.
+    ///
+    /// This type can be used in order to decode the input bytes received by a call to `call`
+    /// into one of the available dispatchable ink! messages and their arguments.
+    fn generate_message_decoder_type(
+        &self,
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(message_spans.len(), self.query_amount_messages());
+
+        /// Expands into the token sequence to represent the
+        /// input type of the ink! message at the given index.
+        fn expand_message_input(
+            span: proc_macro2::Span,
+            storage_ident: &syn::Ident,
+            message_index: usize,
+        ) -> TokenStream2 {
+            quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#message_index]
+                }>>::Input
+            )
+        }
+
+        /// Returns the n-th ink! message identifier for the decoder type.
+        fn message_variant_ident(n: usize) -> syn::Ident {
+            quote::format_ident!("Message{}", n)
+        }
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_messages = self.query_amount_messages();
+        let message_variants = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_input = expand_message_input(message_span, storage_ident, index);
+            quote_spanned!(message_span=>
+                #message_ident(#message_input)
+            )
+        });
+        let message_match = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_selector = quote_spanned!(span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let message_input = expand_message_input(message_span, storage_ident, index);
+            quote_spanned!(message_span=>
+                #message_selector => {
+                    ::core::result::Result::Ok(Self::#message_ident(
+                        <#message_input as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
+                    ))
+                }
+            )
+        });
+        let any_message_accept_payment =
+            self.any_message_accepts_payment_expr(message_spans);
+        let message_execute = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_ident = message_variant_ident(index);
+            let message_callable = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::CALLABLE
+            );
+            let message_output = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::Output
+            );
+            let accepts_payment = quote_spanned!(message_span=>
+                false ||
+                !#any_message_accept_payment ||
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::PAYABLE
+            );
+            let mutates_storage = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::MUTATES
+            );
+            let is_dynamic_storage_allocation_enabled = self
+                .contract
+                .config()
+                .is_dynamic_storage_allocator_enabled();
+            quote_spanned!(message_span=>
+                Self::#message_ident(input) => {
+                    let config = ::ink_lang::codegen::ExecuteMessageConfig {
+                        payable: #accepts_payment,
+                        mutates: #mutates_storage,
+                        dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
+                    };
+                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                        ::core::mem::ManuallyDrop::new(
+                            ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
+                        );
+                    let result: #message_output = #message_callable(&mut contract, input);
+                    let failure = ::ink_lang::is_result_type!(#message_output)
+                        && ::ink_lang::is_result_err!(result);
+                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
+                        !failure,
+                        &contract,
+                        config,
+                        &result,
+                    )?;
+                    ::core::result::Result::Ok(())
+                }
+            )
+        });
+
+        quote_spanned!(span=>
+            const _: () = {
+                #[allow(non_camel_case_types)]
+                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
+                pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
                 }
 
-                impl ::ink_lang::MessageDispatcher for #storage_ident {
-                    type Type = __ink_MessageDispatchEnum;
-                }
-
-                impl ::scale::Decode for __ink_MessageDispatchEnum {
-                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
-                            #( #decode_message )*
+                impl ::ink_lang::reflect::DecodeDispatch for __ink_MessageDecoder {
+                    fn decode_dispatch<I>(input: &mut I)
+                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
+                    where
+                        I: ::scale::Input,
+                    {
+                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
+                        {
+                            #( #message_match , )*
                             _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
-                                    "encountered unknown ink! message selector"
-                                )
+                                ::ink_lang::reflect::DispatchError::UnknownSelector
                             )
                         }
                     }
                 }
 
-                impl ::ink_lang::Execute for __ink_MessageDispatchEnum {
-                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
+                impl ::scale::Decode for __ink_MessageDecoder {
+                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+                    where
+                        I: ::scale::Input,
+                    {
+                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
+                            .map_err(::core::convert::Into::into)
+                    }
+                }
+
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
+                    #[allow(clippy::nonminimal_bool)]
+                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match self {
-                            #( #execute_variants )*
+                            #( #message_execute ),*
                         }
                     }
                 }
+
+                impl ::ink_lang::reflect::ContractMessageDecoder for #storage_ident {
+                    type Type = __ink_MessageDecoder;
+                }
             };
-        }
+        )
     }
 
-    /// Generates one match arm of the dispatch constructor for the `execute` implementation.
+    /// Generates code to express if any dispatchable ink! message accepts payment.
     ///
-    /// # Note
-    ///
-    /// This is basically the code per ink! constructor that is going to be executed after
-    /// the dispatch has already taken place.
-    fn generate_dispatch_execute_constructor_arm(
+    /// This information can be used to speed-up dispatch since denying of payment
+    /// can be generalized to work before dispatch happens if none of the ink! messages
+    /// accept payment anyways.
+    fn any_message_accepts_payment_expr(
         &self,
-        cws: ir::CallableWithSelector<'_, ir::Constructor>,
+        message_spans: &[proc_macro2::Span],
     ) -> TokenStream2 {
-        let ident = self.generate_dispatch_variant_ident(cws);
-        let constructor = cws.callable();
-        let arg_pats = constructor.inputs().map(|arg| &arg.pat).collect::<Vec<_>>();
-        let arg_inputs = if arg_pats.len() == 1 {
-            quote! { #(#arg_pats),* }
-        } else {
-            quote! { ( #(#arg_pats),* ) }
-        };
-        let selector_id = cws.composed_selector().into_be_u32().hex_padded_suffixed();
-        let namespace =
-            Self::dispatch_trait_impl_namespace(ir::CallableKind::Constructor);
-        let is_dynamic_storage_allocation_enabled = self
-            .contract
-            .config()
-            .is_dynamic_storage_allocator_enabled();
-        quote! {
-            Self::#ident(#(#arg_pats),*) => {
-                ::ink_lang::execute_constructor::<#namespace::<#selector_id>, _>(
-                    ::ink_lang::EnablesDynamicStorageAllocator(#is_dynamic_storage_allocation_enabled),
-                    move || {
-                        <#namespace::<#selector_id> as ::ink_lang::Constructor>::CALLABLE(
-                            #arg_inputs
-                        )
-                    }
-                )
-            }
-        }
-    }
+        assert_eq!(message_spans.len(), self.query_amount_messages());
 
-    /// Returns an iterator over all ink! constructors of the ink! contract.
-    fn contract_constructors(
-        &self,
-    ) -> impl Iterator<Item = ir::CallableWithSelector<ir::Constructor>> {
-        self.contract
-            .module()
-            .impls()
-            .map(|impl_item| impl_item.iter_constructors())
-            .flatten()
-    }
-
-    /// Generates the entire dispatch variant enum for all ink! messages.
-    fn generate_constructor_dispatch_enum(&self) -> TokenStream2 {
+        let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
-        let message_variants = self
-            .contract_constructors()
-            .map(|message| self.generate_dispatch_variant_arm(message));
-        let decode_message = self
-            .contract_constructors()
-            .map(|message| self.generate_dispatch_variant_decode(message));
-        let execute_variants = self
-            .contract_constructors()
-            .map(|cws| self.generate_dispatch_execute_constructor_arm(cws));
-        quote! {
-            const _: () = {
-                #[doc(hidden)]
-                pub enum __ink_ConstructorDispatchEnum {
-                    #( #message_variants ),*
-                }
-
-                impl ::ink_lang::ConstructorDispatcher for #storage_ident {
-                    type Type = __ink_ConstructorDispatchEnum;
-                }
-
-                impl ::scale::Decode for __ink_ConstructorDispatchEnum {
-                    fn decode<I: ::scale::Input>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error> {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)? {
-                            #( #decode_message )*
-                            _invalid => ::core::result::Result::Err(
-                                <::scale::Error as ::core::convert::From<&'static ::core::primitive::str>>::from(
-                                    "encountered unknown ink! constructor selector"
-                                )
-                            )
-                        }
-                    }
-                }
-
-                impl ::ink_lang::Execute for __ink_ConstructorDispatchEnum {
-                    fn execute(self) -> ::core::result::Result<(), ::ink_lang::DispatchError> {
-                        match self {
-                            #( #execute_variants )*
-                        }
-                    }
-                }
-            };
-        }
+        let count_messages = self.query_amount_messages();
+        let message_is_payable = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::PAYABLE
+            )
+        });
+        quote_spanned!(span=>
+            { false #( || #message_is_payable )* }
+        )
     }
 }

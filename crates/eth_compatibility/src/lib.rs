@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #![no_std]
+
 use ink_env::{
     DefaultEnvironment,
     Environment,
@@ -92,7 +93,7 @@ impl ECDSAPublicKey {
     /// ```
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
-        use secp256k1::PublicKey;
+        use libsecp256k1::PublicKey;
 
         // Transform compressed public key into uncompressed.
         let pub_key = PublicKey::parse_compressed(&self.0)

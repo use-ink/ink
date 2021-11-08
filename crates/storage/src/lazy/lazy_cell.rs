@@ -22,6 +22,7 @@ use crate::traits::{
     pull_spread_root_opt,
     ExtKeyPtr,
     KeyPtr,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -94,10 +95,10 @@ fn debug_impl_works() -> ink_env::Result<()> {
             format!("{:?}", &c3),
             "LazyCell { \
             key: Some(Key(0x_\
-                0000000000000000_\
-                0000000000000000_\
-                0000000000000000_\
-                0000000000000000)\
+                00000000_00000000_\
+                00000000_00000000_\
+                00000000_00000000_\
+                00000000_00000000)\
             ), \
             cache: None \
         }",
@@ -164,8 +165,7 @@ where
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        Self::lazy(*root_key)
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -194,6 +194,16 @@ where
                 }
             }
         }
+    }
+}
+
+impl<T> SpreadAllocate for LazyCell<T>
+where
+    T: SpreadLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 }
 

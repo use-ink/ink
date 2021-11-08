@@ -196,7 +196,7 @@ impl ItemMod {
                      #[ink(namespace = N:string)] on the implementation block to \
                      disambiguate overlapping selectors.",
                     kind,
-                    selector.as_bytes(),
+                    selector.to_bytes(),
                 )
                 .into_combine(format_err!(
                     first_span,
@@ -782,33 +782,6 @@ mod tests {
             "encountered ink! messages with overlapping selectors (= [04, C4, 94, 46])\n\
             hint: use #[ink(selector = S:u32)] on the callable or #[ink(namespace = N:string)] \
             on the implementation block to disambiguate overlapping selectors.",
-        );
-    }
-
-    #[test]
-    fn namespaced_overlapping_trait_impls_works() {
-        assert!(
-            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
-                mod my_module {
-                    #[ink(storage)]
-                    pub struct MyStorage {}
-
-                    #[ink(namespace = "first")]
-                    impl first::MyTrait for MyStorage {
-                        #[ink(constructor)]
-                        fn my_constructor() -> Self {}
-
-                        #[ink(message)]
-                        fn my_message(&self) {}
-                    }
-
-                    impl second::MyTrait for MyStorage {
-                        #[ink(message)]
-                        fn my_message(&self) {}
-                    }
-                }
-            })
-            .is_ok()
         );
     }
 

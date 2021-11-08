@@ -18,7 +18,9 @@ use crate::traits::{
     forward_pull_packed,
     forward_push_packed,
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_prelude::vec::Vec;
@@ -94,14 +96,21 @@ where
     fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
         <T as scale::Encode>::using_encoded(&self.inner, f)
     }
+
+    #[inline]
+    fn encoded_size(&self) -> usize {
+        <T as scale::Encode>::encoded_size(&self.inner)
+    }
 }
+
+impl<T> scale::EncodeLike<T> for Pack<T> where T: scale::Encode + PackedLayout {}
 
 impl<T> scale::Decode for Pack<T>
 where
     T: scale::Decode + PackedLayout,
 {
     fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
-        Ok(Self::new(<T as scale::Decode>::decode(input)?))
+        <T as scale::Decode>::decode(input).map(Self::new)
     }
 }
 
@@ -182,6 +191,18 @@ where
     }
 }
 
+impl<T> SpreadAllocate for Pack<T>
+where
+    T: PackedLayout + Default,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            inner: T::default(),
+            key: Some(*ptr.key()),
+        }
+    }
+}
+
 impl<T> PackedLayout for Pack<T>
 where
     T: PackedLayout,
@@ -194,6 +215,15 @@ where
     }
     fn clear_packed(&self, at: &Key) {
         <T as PackedLayout>::clear_packed(Self::as_inner(self), at)
+    }
+}
+
+impl<T> PackedAllocate for Pack<T>
+where
+    T: PackedAllocate + Default,
+{
+    fn allocate_packed(&mut self, at: &Key) {
+        <T as PackedAllocate>::allocate_packed(Self::as_inner_mut(self), at)
     }
 }
 

@@ -21,6 +21,7 @@ use super::{
 use crate::traits::{
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 
@@ -39,7 +40,7 @@ const _: () = {
         T: PackedLayout + Ord + TypeInfo + 'static,
     {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![FieldLayout::new(
+            Layout::Struct(StructLayout::new([FieldLayout::new(
                 "elements",
                 <ChildrenVec<T> as StorageLayout>::layout(key_ptr),
             )]))
@@ -96,5 +97,16 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.elements, ptr);
+    }
+}
+
+impl<T> SpreadAllocate for BinaryHeap<T>
+where
+    T: PackedLayout + Ord,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            elements: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }

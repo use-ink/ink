@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// The `synstructure` crate currently expands to code that has a single
-// `panic` inside an `if` block. We have to allow the following `clippy`
-// lint until the fixing PR has been merged:
-// PR: https://github.com/mystor/synstructure/pull/50
-#![allow(clippy::if_then_panic)]
-
 use crate::storage_layout_derive;
 
 #[test]
@@ -31,7 +25,7 @@ fn unit_struct_works() {
                 impl ::ink_storage::traits::StorageLayout for UnitStruct {
                     fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(vec![])
+                            ::ink_metadata::layout::StructLayout::new([])
                         )
                     }
                 }
@@ -51,7 +45,7 @@ fn tuple_struct_works() {
                 impl ::ink_storage::traits::StorageLayout for TupleStruct {
                     fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(vec![
+                            ::ink_metadata::layout::StructLayout::new([
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::None,
                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
@@ -88,7 +82,7 @@ fn named_fields_struct_works() {
                 impl ::ink_storage::traits::StorageLayout for NamedFieldsStruct {
                     fn layout(__key_ptr: &mut ::ink_storage::traits::KeyPtr) -> ::ink_metadata::layout::Layout {
                         ::ink_metadata::layout::Layout::Struct(
-                            ::ink_metadata::layout::StructLayout::new(vec![
+                            ::ink_metadata::layout::StructLayout::new([
                                 ::ink_metadata::layout::FieldLayout::new(
                                     ::core::option::Option::Some("a"),
                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
@@ -124,13 +118,13 @@ fn clike_enum_works() {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
                                 ::ink_metadata::layout::LayoutKey::from(dispatch_key),
-                                vec![
+                                [
                                     {
                                         let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::StructLayout::new([]),
                                         )
                                     },
                                     {
@@ -138,7 +132,7 @@ fn clike_enum_works() {
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::StructLayout::new([]),
                                         )
                                     },
                                     {
@@ -146,7 +140,7 @@ fn clike_enum_works() {
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::StructLayout::new([]),
                                         )
                                     },
                                 ]
@@ -181,13 +175,13 @@ fn mixed_enum_works() {
                         ::ink_metadata::layout::Layout::Enum(
                             ::ink_metadata::layout::EnumLayout::new(
                                 ::ink_metadata::layout::LayoutKey::from(dispatch_key),
-                                vec![
+                                [
                                     {
                                         let mut __variant_key_ptr = *__key_ptr;
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(0usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![]),
+                                            ::ink_metadata::layout::StructLayout::new([]),
                                         )
                                     },
                                     {
@@ -195,7 +189,7 @@ fn mixed_enum_works() {
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(1usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![
+                                            ::ink_metadata::layout::StructLayout::new([
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::None,
                                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),
@@ -216,7 +210,7 @@ fn mixed_enum_works() {
                                         let mut __key_ptr = &mut __variant_key_ptr;
                                         (
                                             ::ink_metadata::layout::Discriminant::from(2usize),
-                                            ::ink_metadata::layout::StructLayout::new(vec![
+                                            ::ink_metadata::layout::StructLayout::new([
                                                 ::ink_metadata::layout::FieldLayout::new(
                                                     ::core::option::Option::Some("a"),
                                                     <bool as ::ink_storage::traits::StorageLayout>::layout(__key_ptr),

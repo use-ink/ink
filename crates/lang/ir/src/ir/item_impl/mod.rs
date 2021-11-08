@@ -292,7 +292,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             }
         }
         let (ink_attrs, other_attrs) = ir::partition_attributes(item_impl.attrs)?;
-        let mut namespace = None;
+        let mut namespace: Option<ir::Namespace> = None;
         if !ink_attrs.is_empty() {
             let normalized =
                 ir::InkAttribute::from_expanded(ink_attrs).map_err(|err| {
@@ -307,6 +307,12 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
                 }
             })?;
             namespace = normalized.namespace();
+        }
+        if namespace.is_some() && is_trait_impl {
+            return Err(format_err!(
+                impl_block_span,
+                "namespace ink! property is not allowed on ink! trait implementation blocks",
+            ))
         }
         Ok(Self {
             attrs: other_attrs,

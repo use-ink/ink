@@ -49,6 +49,7 @@ pub use self::{
 };
 use crate::traits::{
     KeyPtr,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_primitives::Key;
@@ -101,6 +102,17 @@ where
 
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.cell, ptr)
+    }
+}
+
+impl<T> SpreadAllocate for Lazy<T>
+where
+    T: SpreadLayout,
+{
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            cell: <LazyCell<T> as SpreadAllocate>::allocate_spread(ptr),
+        }
     }
 }
 

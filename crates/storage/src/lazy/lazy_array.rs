@@ -23,6 +23,7 @@ use crate::traits::{
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -375,16 +376,18 @@ where
 {
     const FOOTPRINT: u64 = N as u64;
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let offset_key = ExtKeyPtr::next_for::<Self>(ptr);
+        let mut root_key = Key::default();
         for (index, entry) in self.cached_entries().iter().enumerate() {
             if let Some(entry) = entry {
-                let key = offset_key + (index as u64);
-                entry.push_packed_root(&key);
+                offset_key.add_assign_using(index as u64, &mut root_key);
+                entry.push_packed_root(&root_key);
             }
         }
     }
@@ -398,13 +401,26 @@ where
     }
 }
 
+impl<T, const N: usize> SpreadAllocate for LazyArray<T, N>
+where
+    T: PackedLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
+    }
+}
+
 impl<T, const N: usize> LazyArray<T, N> {
     /// Returns the offset key for the given index if not out of bounds.
     pub fn key_at(&self, at: Index) -> Option<Key> {
         if at >= self.capacity() {
             return None
         }
-        self.key.as_ref().map(|key| key + at as u64)
+        self.key.map(|mut key| {
+            key += at as u64;
+            key
+        })
     }
 }
 
@@ -585,6 +601,12 @@ mod tests {
         assert_cached_entries(&default_larray, &[]);
     }
 
+    fn add_key(key: &Key, offset: u64) -> Key {
+        let mut result = *key;
+        result += offset;
+        result
+    }
+
     #[test]
     fn lazy_works() {
         let key = Key::from([0x42; 32]);
@@ -592,7 +614,7 @@ mod tests {
         // Key must be Some.
         assert_eq!(larray.key(), Some(&key));
         assert_eq!(larray.key_at(0), Some(key));
-        assert_eq!(larray.key_at(1), Some(key + 1u64));
+        assert_eq!(larray.key_at(1), Some(add_key(&key, 1)));
         assert_eq!(larray.capacity(), 4);
         // Cached elements must be empty.
         assert_cached_entries(&larray, &[]);

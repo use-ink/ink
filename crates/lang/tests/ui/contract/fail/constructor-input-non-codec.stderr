@@ -1,0 +1,37 @@
+error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
+  --> tests/ui/contract/fail/constructor-input-non-codec.rs:13:28
+   |
+13 |         pub fn constructor(_input: NonCodecType) -> Self {
+   |                            ^^^^^^^^^^^^^^^^^^^^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
+   |
+   = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
+note: required by a bound in `DispatchInput`
+  --> src/codegen/dispatch/type_check.rs:41:8
+   |
+41 |     T: scale::Decode + 'static;
+   |        ^^^^^^^^^^^^^ required by this bound in `DispatchInput`
+
+error[E0277]: the trait bound `NonCodecType: WrapperTypeDecode` is not satisfied
+   --> tests/ui/contract/fail/constructor-input-non-codec.rs:13:9
+    |
+13  | /         pub fn constructor(_input: NonCodecType) -> Self {
+14  | |             Self {}
+15  | |         }
+    | |_________^ the trait `WrapperTypeDecode` is not implemented for `NonCodecType`
+    |
+    = note: required because of the requirements on the impl of `parity_scale_codec::Decode` for `NonCodecType`
+note: required by a bound in `parity_scale_codec::Decode::decode`
+   --> $CARGO/parity-scale-codec-2.3.1/src/codec.rs
+    |
+    |     fn decode<I: Input>(input: &mut I) -> Result<Self, Error>;
+    |                  ^^^^^ required by this bound in `parity_scale_codec::Decode::decode`
+
+error[E0277]: the trait bound `NonCodecType: WrapperTypeEncode` is not satisfied
+  --> tests/ui/contract/fail/constructor-input-non-codec.rs:13:9
+   |
+13 | /         pub fn constructor(_input: NonCodecType) -> Self {
+14 | |             Self {}
+15 | |         }
+   | |_________^ the trait `WrapperTypeEncode` is not implemented for `NonCodecType`
+   |
+   = note: required because of the requirements on the impl of `Encode` for `NonCodecType`

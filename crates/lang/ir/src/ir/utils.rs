@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::Selector;
 use crate::format_err;
 use proc_macro2::Span;
 use syn::spanned::Spanned as _;
@@ -41,4 +42,16 @@ pub fn ensure_pub_visibility(
         ))
     }
     Ok(())
+}
+
+/// Returns a local ID unique to the ink! trait definition for the identifier.
+///
+/// # Note
+///
+/// - The returned value is equal to the selector of the message identifier.
+/// - Used from within ink! trait definitions as well as ink! trait implementation blocks.
+pub fn local_message_id(ident: &syn::Ident) -> u32 {
+    let input = ident.to_string().into_bytes();
+    let selector = Selector::compute(&input);
+    selector.into_be_u32()
 }

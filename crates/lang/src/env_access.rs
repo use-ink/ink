@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
@@ -29,48 +30,10 @@ use ink_env::{
     RentStatus,
     Result,
 };
+use ink_eth_compatibility::ECDSAPublicKey;
 use ink_primitives::Key;
 
-use crate::ChainExtensionInstance;
-use ink_eth_compatibility::ECDSAPublicKey;
-
-/// The environment of the compiled ink! smart contract.
-pub trait ContractEnv {
-    /// The environment type.
-    type Env: ::ink_env::Environment;
-}
-
-/// Simplifies interaction with the host environment via `self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait Env {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env(self) -> Self::EnvAccess;
-}
-
-/// Simplifies interaction with the host environment via `Self`.
-///
-/// # Note
-///
-/// This is generally implemented for storage structs that include
-/// their environment in order to allow the different dispatch functions
-/// to use it for returning the contract's output.
-pub trait StaticEnv {
-    /// The access wrapper.
-    type EnvAccess;
-
-    /// Accesses the environment with predefined environmental types.
-    fn env() -> Self::EnvAccess;
-}
-
-/// A typed accessor to the environment.
+/// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
@@ -144,7 +107,7 @@ where
     ///
     /// For more details visit: [`ink_env::caller`]
     pub fn caller(self) -> T::AccountId {
-        ink_env::caller::<T>().expect("couldn't decode caller")
+        ink_env::caller::<T>()
     }
 
     /// Returns the transferred balance for the contract execution.
@@ -181,7 +144,7 @@ where
     ///
     /// For more details visit: [`ink_env::transferred_balance`]
     pub fn transferred_balance(self) -> T::Balance {
-        ink_env::transferred_balance::<T>().expect("couldn't decode transferred balance")
+        ink_env::transferred_balance::<T>()
     }
 
     /// Returns the price for the specified amount of gas.
@@ -224,7 +187,7 @@ where
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
     pub fn weight_to_fee(self, gas: u64) -> T::Balance {
-        ink_env::weight_to_fee::<T>(gas).expect("couldn't decode weight fee")
+        ink_env::weight_to_fee::<T>(gas)
     }
 
     /// Returns the amount of gas left for the contract execution.
@@ -263,7 +226,7 @@ where
     ///
     /// For more details visit: [`ink_env::gas_left`]
     pub fn gas_left(self) -> u64 {
-        ink_env::gas_left::<T>().expect("couldn't decode gas left")
+        ink_env::gas_left::<T>()
     }
 
     /// Returns the timestamp of the current block.
@@ -305,7 +268,7 @@ where
     ///
     /// For more details visit: [`ink_env::block_timestamp`]
     pub fn block_timestamp(self) -> T::Timestamp {
-        ink_env::block_timestamp::<T>().expect("couldn't decode block time stamp")
+        ink_env::block_timestamp::<T>()
     }
 
     /// Returns the account ID of the executed contract.
@@ -351,7 +314,7 @@ where
     ///
     /// For more details visit: [`ink_env::account_id`]
     pub fn account_id(self) -> T::AccountId {
-        ink_env::account_id::<T>().expect("couldn't decode contract account ID")
+        ink_env::account_id::<T>()
     }
 
     /// Returns the balance of the executed contract.
@@ -385,7 +348,7 @@ where
     ///
     /// For more details visit: [`ink_env::balance`]
     pub fn balance(self) -> T::Balance {
-        ink_env::balance::<T>().expect("couldn't decode contract balance")
+        ink_env::balance::<T>()
     }
 
     /// Returns the current rent allowance for the executed contract.
@@ -420,7 +383,7 @@ where
     ///
     /// For more details visit: [`ink_env::rent_allowance`]
     pub fn rent_allowance(self) -> T::Balance {
-        ink_env::rent_allowance::<T>().expect("couldn't decode contract rent allowance")
+        ink_env::rent_allowance::<T>()
     }
 
     /// Sets the rent allowance of the executed contract to the new value.
@@ -551,7 +514,7 @@ where
     ///
     /// For more details visit: [`ink_env::block_number`]
     pub fn block_number(self) -> T::BlockNumber {
-        ink_env::block_number::<T>().expect("couldn't decode block number")
+        ink_env::block_number::<T>()
     }
 
     /// Returns the minimum balance that is required for creating an account.
@@ -584,7 +547,7 @@ where
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
     pub fn minimum_balance(self) -> T::Balance {
-        ink_env::minimum_balance::<T>().expect("couldn't decode minimum account balance")
+        ink_env::minimum_balance::<T>()
     }
 
     /// Returns the tombstone deposit for the contracts chain.
@@ -617,7 +580,7 @@ where
     ///
     /// For more details visit: [`ink_env::tombstone_deposit`]
     pub fn tombstone_deposit(self) -> T::Balance {
-        ink_env::tombstone_deposit::<T>().expect("couldn't decode tombstone deposits")
+        ink_env::tombstone_deposit::<T>()
     }
 
     /// Instantiates another contract.
@@ -651,7 +614,7 @@ where
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}
     /// };
-    /// use other_contract::OtherContract;
+    /// use other_contract::OtherContractRef;
     /// #
     /// #     #[ink(storage)]
     /// #     pub struct MyContract { }
@@ -666,7 +629,7 @@ where
     /// /// Instantiates another contract.
     /// #[ink(message)]
     /// pub fn instantiate_contract(&self) -> AccountId {
-    ///     let create_params = build_create::<DefaultEnvironment, OtherContract>()
+    ///     let create_params = build_create::<DefaultEnvironment, OtherContractRef>()
     ///         .code_hash(Hash::from([0x42; 32]))
     ///         .gas_limit(4000)
     ///         .endowment(25)

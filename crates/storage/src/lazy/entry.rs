@@ -21,7 +21,9 @@ use crate::traits::{
     push_spread_root_opt,
     ExtKeyPtr,
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use core::{
@@ -100,19 +102,33 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
+    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         Self::pull_spread_root(root_key)
     }
 
+    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.push_spread_root(root_key)
     }
 
+    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.clear_spread_root(root_key)
+    }
+}
+
+impl<T> SpreadAllocate for StorageEntry<T>
+where
+    T: SpreadLayout,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
+        Self::pull_spread_root(root_key)
     }
 }
 
@@ -170,6 +186,16 @@ where
     #[inline]
     fn clear_packed(&self, at: &Key) {
         PackedLayout::clear_packed(&self.value, at)
+    }
+}
+
+impl<T> PackedAllocate for StorageEntry<T>
+where
+    T: PackedAllocate,
+{
+    #[inline]
+    fn allocate_packed(&mut self, at: &Key) {
+        PackedAllocate::allocate_packed(&mut self.value, at)
     }
 }
 

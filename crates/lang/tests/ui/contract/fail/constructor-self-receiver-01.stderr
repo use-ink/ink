@@ -1,0 +1,5 @@
+error: ink! constructors must have no `self` receiver
+  --> tests/ui/contract/fail/constructor-self-receiver-01.rs:10:28
+   |
+10 |         pub fn constructor(&self) -> Self {
+   |                            ^^^^^

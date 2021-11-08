@@ -1,4 +1,4 @@
-100
+110
 
 ABI
 AST
@@ -37,8 +37,8 @@ defrag
 defragmentation
 deploy
 dereferencing
-deserializes
-dispatchable
+deserialize/S
+dispatchable/S
 encodable
 evaluable
 fuzzer
@@ -66,6 +66,7 @@ v3
 validator
 variadic
 versa
+versioned
 versioning
 Verbatim
 metadata
@@ -96,4 +97,9 @@ runtime/S
 struct/S
 vec/S
 vector/S
+implementer/S
+deduplicated
 wildcard/S
+natively
+payability
+unpayable

@@ -1,0 +1,5 @@
+error: encountered conflicting ink! attribute argument
+ --> tests/ui/contract/fail/event-conflicting-storage.rs:9:11
+  |
+9 |     #[ink(storage)]
+  |           ^^^^^^^

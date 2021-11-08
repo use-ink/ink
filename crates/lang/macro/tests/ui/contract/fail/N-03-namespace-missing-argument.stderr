@@ -1,5 +1,0 @@
-error: encountered #[ink(namespace)] that is missing its string parameter. Did you mean #[ink(namespace = name: str)] ?
- --> $DIR/N-03-namespace-missing-argument.rs:8:11
-  |
-8 |     #[ink(namespace)]
-  |           ^^^^^^^^^

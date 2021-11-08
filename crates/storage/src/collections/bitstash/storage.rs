@@ -27,6 +27,7 @@ use crate::{
         forward_push_packed,
         KeyPtr,
         PackedLayout,
+        SpreadAllocate,
         SpreadLayout,
     },
 };
@@ -43,7 +44,7 @@ const _: () = {
 
     impl StorageLayout for BitStash {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new(
                     "counts",
                     <StorageVec<CountFree> as StorageLayout>::layout(key_ptr),
@@ -99,5 +100,14 @@ impl SpreadLayout for BitStash {
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.counts, ptr);
         SpreadLayout::clear_spread(&self.free, ptr);
+    }
+}
+
+impl SpreadAllocate for BitStash {
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            counts: SpreadAllocate::allocate_spread(ptr),
+            free: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }

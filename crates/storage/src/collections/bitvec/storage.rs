@@ -23,6 +23,7 @@ use crate::{
         forward_push_packed,
         KeyPtr,
         PackedLayout,
+        SpreadAllocate,
         SpreadLayout,
     },
     Pack,
@@ -44,7 +45,7 @@ const _: () = {
 
     impl StorageLayout for StorageBitvec {
         fn layout(key_ptr: &mut KeyPtr) -> Layout {
-            Layout::Struct(StructLayout::new(vec![
+            Layout::Struct(StructLayout::new([
                 FieldLayout::new("len", <Lazy<u32> as StorageLayout>::layout(key_ptr)),
                 FieldLayout::new(
                     "elems",
@@ -96,5 +97,14 @@ impl SpreadLayout for StorageBitvec {
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         SpreadLayout::clear_spread(&self.len, ptr);
         SpreadLayout::clear_spread(&self.bits, ptr);
+    }
+}
+
+impl SpreadAllocate for StorageBitvec {
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        Self {
+            len: SpreadAllocate::allocate_spread(ptr),
+            bits: SpreadAllocate::allocate_spread(ptr),
+        }
     }
 }

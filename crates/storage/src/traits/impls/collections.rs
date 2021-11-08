@@ -14,12 +14,15 @@
 
 use crate::traits::{
     impls::{
+        forward_allocate_packed,
         forward_clear_packed,
         forward_pull_packed,
         forward_push_packed,
     },
     KeyPtr,
+    PackedAllocate,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
 use ink_prelude::{
@@ -58,6 +61,17 @@ where
     }
 }
 
+impl<K, V> SpreadAllocate for StdBTreeMap<K, V>
+where
+    K: PackedAllocate + Ord,
+    V: PackedAllocate,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        forward_allocate_packed::<Self>(ptr)
+    }
+}
+
 impl<K, V> PackedLayout for StdBTreeMap<K, V>
 where
     K: PackedLayout + Ord,
@@ -86,6 +100,20 @@ where
     }
 }
 
+impl<K, V> PackedAllocate for StdBTreeMap<K, V>
+where
+    K: PackedAllocate + Ord,
+    V: PackedAllocate,
+{
+    fn allocate_packed(&mut self, at: &Key) {
+        // We cannot mutate keys in a map so we can forward allocate signals
+        // only to the values of a map.
+        for val in self.values_mut() {
+            <V as PackedAllocate>::allocate_packed(val, at);
+        }
+    }
+}
+
 impl<T> SpreadLayout for StdBTreeSet<T>
 where
     T: PackedLayout + Ord,
@@ -109,6 +137,16 @@ where
     }
 }
 
+impl<T> SpreadAllocate for StdBTreeSet<T>
+where
+    T: PackedAllocate + Ord,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        forward_allocate_packed::<Self>(ptr)
+    }
+}
+
 impl<T> PackedLayout for StdBTreeSet<T>
 where
     T: PackedLayout + Ord,
@@ -127,6 +165,16 @@ where
 
     #[inline(always)]
     fn pull_packed(&mut self, _at: &Key) {
+        // We cannot mutate keys in a set so we cannot forward pull signals.
+    }
+}
+
+impl<T> PackedAllocate for StdBTreeSet<T>
+where
+    T: PackedAllocate + Ord,
+{
+    #[inline(always)]
+    fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a set so we cannot forward pull signals.
     }
 }
@@ -154,6 +202,16 @@ where
     }
 }
 
+impl<T> SpreadAllocate for StdBinaryHeap<T>
+where
+    T: PackedAllocate + Ord,
+{
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        forward_allocate_packed::<Self>(ptr)
+    }
+}
+
 impl<T> PackedLayout for StdBinaryHeap<T>
 where
     T: PackedLayout + Ord,
@@ -172,6 +230,16 @@ where
 
     #[inline(always)]
     fn pull_packed(&mut self, _at: &Key) {
+        // We cannot mutate keys in a heap so we cannot forward pull signals.
+    }
+}
+
+impl<T> PackedAllocate for StdBinaryHeap<T>
+where
+    T: PackedAllocate + Ord,
+{
+    #[inline(always)]
+    fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a heap so we cannot forward pull signals.
     }
 }
@@ -200,6 +268,17 @@ macro_rules! impl_push_at_for_collection {
                 fn pull_packed(&mut self, at: &Key) {
                     for elem in self {
                         <T as PackedLayout>::pull_packed(elem, at)
+                    }
+                }
+            }
+
+            impl<T> PackedAllocate for $collection<T>
+            where
+                T: PackedAllocate,
+            {
+                fn allocate_packed(&mut self, at: &Key) {
+                    for elem in self {
+                        <T as PackedAllocate>::allocate_packed(elem, at)
                     }
                 }
             }

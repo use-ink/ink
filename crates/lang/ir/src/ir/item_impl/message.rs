@@ -19,7 +19,10 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir;
+use crate::ir::{
+    self,
+    utils,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -278,6 +281,17 @@ impl Message {
             syn::ReturnType::Default => None,
             syn::ReturnType::Type(_, return_type) => Some(return_type),
         }
+    }
+
+    /// Returns a local ID unique to the ink! message with respect to its implementation block.
+    ///
+    /// # Note
+    ///
+    /// It is a compile error if two ink! trait messages share the same local ID.
+    /// Although the above scenario is very unlikely since the local ID is computed
+    /// solely by the identifier of the ink! message.
+    pub fn local_id(&self) -> u32 {
+        utils::local_message_id(self.ident())
     }
 }
 
@@ -675,7 +689,7 @@ mod tests {
             },
         ];
         for item_method in item_methods {
-            assert_try_from_fails(item_method, "ink! messages must have explicit ABI")
+            assert_try_from_fails(item_method, "ink! messages must not have explicit ABI")
         }
     }
 
