@@ -46,7 +46,7 @@ where
     /// The expected return type.
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
-    exec_input: Option<ExecutionInput<Args>>,
+    exec_input: ExecutionInput<Args>,
 }
 
 impl<E, Args, R> CallParams<E, Args, R>
@@ -79,7 +79,7 @@ where
 
     /// Returns the execution input.
     #[inline]
-    pub(crate) fn exec_input(&self) -> &Option<ExecutionInput<Args>> {
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
 }
@@ -430,7 +430,7 @@ where
                 .transferred_value
                 .unwrap_or_else(|| E::Balance::from(0u32)),
             _return_type: Default::default(),
-            exec_input: Some(self.exec_input.value()),
+            exec_input: self.exec_input.value(),
         }
     }
 }
@@ -459,7 +459,7 @@ where
                 .transferred_value
                 .unwrap_or_else(|| E::Balance::from(0u32)),
             _return_type: Default::default(),
-            exec_input: None,
+            exec_input: Default::default(),
         }
     }
 }
