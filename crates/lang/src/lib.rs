@@ -16,7 +16,7 @@
 
 #[macro_use]
 #[doc(hidden)]
-mod result_info;
+pub mod result_info;
 
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
