@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates&#x2F;storage&#x2F;src&#x2F;collections&#x2F;stash&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_storage/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates&#x2F;storage&#x2F;src&#x2F;collections&#x2F;stash&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_storage/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -714,7 +714,7 @@
     }
 
     <span class="doccomment">/// Returns the vacant entry if the entry is vacant, otherwise returns `None`.</span>
-    <span class="kw">fn</span> <span class="ident">try_to_vacant_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">VacantEntry</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_to_vacant_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">VacantEntry</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Entry::Occupied</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             <span class="ident">Entry::Vacant</span>(<span class="ident">vacant_entry</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">vacant_entry</span>),
@@ -791,7 +791,7 @@
     <span class="doccomment">/// Avoid unbounded iteration over big storage stashes.</span>
     <span class="doccomment">/// Prefer using methods like `Iterator::take` in order to limit the number</span>
     <span class="doccomment">/// of yielded elements.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">IterMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">IterMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">IterMut::new</span>(<span class="self">self</span>)
     }
 
@@ -834,7 +834,7 @@
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the element at the given index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">at</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">len_entries</span>() {
             <span class="comment">// Bail out early if the index is out of bounds.</span>
             <span class="kw">return</span> <span class="prelude-val">None</span>
@@ -890,7 +890,7 @@
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The `removed_index` points to the index of the removed vacant entry.</span>
-    <span class="kw">fn</span> <span class="ident">remove_vacant_entry</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">removed_index</span>: <span class="ident">Index</span>, <span class="ident">vacant_entry</span>: <span class="ident">VacantEntry</span>) {
+    <span class="kw">fn</span> <span class="ident">remove_vacant_entry</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">removed_index</span>: <span class="ident">Index</span>, <span class="ident">vacant_entry</span>: <span class="ident">VacantEntry</span>) {
         <span class="kw">let</span> <span class="ident">prev_vacant</span> <span class="op">=</span> <span class="ident">vacant_entry</span>.<span class="ident">prev</span>;
         <span class="kw">let</span> <span class="ident">next_vacant</span> <span class="op">=</span> <span class="ident">vacant_entry</span>.<span class="ident">next</span>;
         <span class="kw">if</span> <span class="ident">prev_vacant</span> <span class="op">==</span> <span class="ident">removed_index</span> <span class="op">&amp;&amp;</span> <span class="ident">next_vacant</span> <span class="op">==</span> <span class="ident">removed_index</span> {
@@ -973,7 +973,7 @@
 
     <span class="doccomment">/// Updates links from and to neighboring vacant entries.</span>
     <span class="kw">fn</span> <span class="ident">update_neighboring_vacant_entry_links</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
         <span class="ident">prev</span>: <span class="ident">Index</span>,
         <span class="ident">next</span>: <span class="ident">Index</span>,
         <span class="ident">at</span>: <span class="ident">Index</span>,
@@ -1010,7 +1010,7 @@
     <span class="doccomment">/// Put the element into the stash at the next vacant position.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns the stash index that the element was put into.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) -&gt; <span class="ident">Index</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">put</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">T</span>) -&gt; <span class="ident">Index</span> {
         <span class="kw">let</span> <span class="ident">new_entry</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Entry::Occupied</span>(<span class="ident">new_value</span>));
         <span class="kw">let</span> <span class="ident">new_index</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_vacant_index</span>() {
             <span class="comment">// Put the new element to the most recent vacant index if not all entries are occupied.</span>
@@ -1039,7 +1039,7 @@
     }
 
     <span class="doccomment">/// Takes the element stored at the given index if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="comment">// Cases:</span>
         <span class="comment">// - There are vacant entries already.</span>
         <span class="comment">// - There are no vacant entries before.</span>
@@ -1090,7 +1090,7 @@
     <span class="doccomment">/// The caller must ensure that `at` refers to an occupied index. Behavior is</span>
     <span class="doccomment">/// unspecified if `at` refers to a vacant index and could seriously damage the</span>
     <span class="doccomment">/// contract storage integrity.</span>
-    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">remove_occupied</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">remove_occupied</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">at</span>: <span class="ident">Index</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// This function is written similar to [`Stash::take`], with the exception</span>
         <span class="comment">// that the caller has to ensure that `at` refers to an occupied entry whereby</span>
         <span class="comment">// the procedure can avoid loading the occupied entry which might be handy if</span>
@@ -1133,7 +1133,7 @@
     <span class="doccomment">///   value to keep gas costs within certain bounds.</span>
     <span class="doccomment">/// - The call to the given callback takes place before the reinsertion</span>
     <span class="doccomment">///   of the shifted occupied entry.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">defrag</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_iterations</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">callback</span>: <span class="ident">C</span>) -&gt; <span class="ident">u32</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">defrag</span><span class="op">&lt;</span><span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">max_iterations</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">callback</span>: <span class="ident">C</span>) -&gt; <span class="ident">u32</span>
     <span class="kw">where</span>
         <span class="ident">C</span>: <span class="ident">FnMut</span>(<span class="ident">Index</span>, <span class="ident">Index</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>),
     {
