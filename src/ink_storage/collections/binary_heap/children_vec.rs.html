@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates&#x2F;storage&#x2F;src&#x2F;collections&#x2F;binary_heap&#x2F;children_vec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>children_vec.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_storage/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates&#x2F;storage&#x2F;src&#x2F;collections&#x2F;binary_heap&#x2F;children_vec.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>children_vec.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../ink_storage/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -515,7 +515,7 @@
     <span class="doccomment">/// The element in a `Children` is an `Option&lt;T&gt;`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns `None` if `index` is out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">child_info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_child_mut</span>(<span class="ident">index</span>)<span class="question-mark">?</span>;
         <span class="ident">child_info</span>.<span class="ident">child</span>.<span class="ident">as_mut</span>()
     }
@@ -525,7 +525,7 @@
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If one or both indices are out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">a</span>: <span class="ident">u32</span>, <span class="ident">b</span>: <span class="ident">u32</span>) {
         <span class="kw">if</span> <span class="ident">a</span> <span class="op">==</span> <span class="ident">b</span> {
             <span class="kw">return</span>
         }
@@ -546,7 +546,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The last element of the heap is put into the slot at `index`.</span>
     <span class="doccomment">/// Returns `None` and does not mutate the heap if it is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -574,7 +574,7 @@
     }
 
     <span class="doccomment">/// Returns an exclusive reference to the first element if any.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -588,7 +588,7 @@
     <span class="doccomment">/// Use this method to clear the heap instead of e.g. iterative `pop()`.</span>
     <span class="doccomment">/// This method performs significantly better and does not actually read</span>
     <span class="doccomment">/// any of the elements (whereas `pop()` does).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span>
         }
@@ -597,7 +597,7 @@
     }
 
     <span class="doccomment">/// Appends an element to the back of the heap.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) {
         <span class="macro">assert!</span>(
             <span class="self">self</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">core::u32::MAX</span>,
             <span class="string">&quot;cannot push more elements into the storage heap&quot;</span>
@@ -619,7 +619,7 @@
     <span class="doccomment">/// Returns information about the child at the heap index if any.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The returned `ChildInfoMut` contains a mutable reference to the value `T`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_child_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChildInfoMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">get_child_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ChildInfoMut</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">storage_index</span> <span class="op">=</span> <span class="ident">children::get_children_storage_index</span>(<span class="ident">index</span>);
         <span class="kw">let</span> <span class="ident">child_pos</span> <span class="op">=</span> <span class="ident">children::get_child_pos</span>(<span class="ident">index</span>);
         <span class="kw">let</span> <span class="ident">children</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">children</span>.<span class="ident">get_mut</span>(<span class="ident">storage_index</span>)<span class="question-mark">?</span>;
@@ -632,7 +632,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If there is already a child in storage which `index` resolves to</span>
     <span class="doccomment">/// then `value` is inserted there. Otherwise a new child is created.</span>
-    <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>, <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">u32</span>, <span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_child_mut</span>(<span class="ident">index</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">info</span> {
             <span class="kw-2">*</span><span class="ident">info</span>.<span class="ident">child</span> <span class="op">=</span> <span class="ident">value</span>;
@@ -652,7 +652,7 @@
     <span class="doccomment">/// Pops the last element from the heap and returns it.</span>
     <span class="comment">//</span>
     <span class="doccomment">/// Returns `None` if the heap is empty.</span>
-    <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">pop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>
         }
@@ -677,18 +677,18 @@
 {
     <span class="kw">const</span> <span class="ident">FOOTPRINT</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span> <span class="op">+</span> <span class="op">&lt;</span><span class="ident">StorageVec</span><span class="op">&lt;</span><span class="ident">Children</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::FOOTPRINT</span>;
 
-    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">pull_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>);
         <span class="kw">let</span> <span class="ident">children</span> <span class="op">=</span> <span class="ident">SpreadLayout::pull_spread</span>(<span class="ident">ptr</span>);
         <span class="self">Self</span> { <span class="ident">len</span>, <span class="ident">children</span> }
     }
 
-    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">children</span>, <span class="ident">ptr</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) {
+    <span class="kw">fn</span> <span class="ident">clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) {
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">len</span>, <span class="ident">ptr</span>);
         <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">children</span>, <span class="ident">ptr</span>);
     }
@@ -698,7 +698,7 @@
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">SpreadLayout</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PackedLayout</span>,
 {
-    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">allocate_spread</span>(<span class="ident">ptr</span>: <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">len</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
             <span class="ident">children</span>: <span class="ident">SpreadAllocate::allocate_spread</span>(<span class="ident">ptr</span>),
@@ -745,7 +745,7 @@
 {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">Iterator</span><span class="op">&gt;</span><span class="ident">::nth</span>(<span class="self">self</span>, <span class="number">0</span>)
     }
 
@@ -758,7 +758,7 @@
         <span class="self">self</span>.<span class="ident">remaining</span>() <span class="kw">as</span> <span class="ident">usize</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">nth</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">begin</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">end</span>);
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">u32</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">begin</span> <span class="op">+</span> <span class="ident">n</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">end</span> {
