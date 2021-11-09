@@ -118,11 +118,6 @@ impl CallFlags {
     /// This value is used to forward the call flag information to the
     /// `contracts` pallet.
     pub(crate) const fn into_u32(self) -> u32 {
-        const FORWARD_INPUT: u32 = 0b0000_0001;
-        const CLONE_INPUT: u32 = 0b0000_0010;
-        const TAIL_CALL: u32 = 0b0000_0100;
-        const ALLOW_REENTRY: u32 = 0b0000_1000;
-
         self.forward_input as u32
             | ((self.clone_input as u32) << 1)
             | ((self.tail_call as u32) << 2)
