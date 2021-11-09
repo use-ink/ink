@@ -123,20 +123,10 @@ impl CallFlags {
         const TAIL_CALL: u32 = 0b0000_0100;
         const ALLOW_REENTRY: u32 = 0b0000_1000;
 
-        let mut value: u32 = 0b0000_0000;
-        if self.forward_input {
-            value |= FORWARD_INPUT;
-        }
-        if self.clone_input {
-            value |= CLONE_INPUT;
-        }
-        if self.tail_call {
-            value |= TAIL_CALL;
-        }
-        if self.allow_reentry {
-            value |= ALLOW_REENTRY;
-        }
-        value
+        self.forward_input as u32
+            | ((self.clone_input as u32) << 1)
+            | ((self.tail_call as u32) << 2)
+            | ((self.allow_reentry as u32) << 3)
     }
 
     /// Returns `true` if input forwarding is set.
