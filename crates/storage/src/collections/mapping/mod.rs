@@ -14,21 +14,20 @@
 
 //! A simple mapping to contract storage.
 //!
-//! This mapping doesn't actually "own" any data. Instead it is just a simple wrapper around the
-//! contract storage facilities.
+//! # Note
+//!
+//! This mapping doesn't actually "own" any data.
+//! Instead it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
-    clear_spread_root,
     pull_packed_root_opt,
-    pull_spread_root,
     push_packed_root,
-    push_spread_root,
     ExtKeyPtr,
     KeyPtr,
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
 };
-
 use core::marker::PhantomData;
 
 use ink_env::hash::{
@@ -42,7 +41,7 @@ use ink_primitives::Key;
 #[derive(Default)]
 pub struct Mapping<K, V> {
     offset_key: Key,
-    _marker: PhantomData<(K, V)>,
+    _marker: PhantomData<fn() -> (K, V)>,
 }
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {
@@ -53,29 +52,27 @@ impl<K, V> core::fmt::Debug for Mapping<K, V> {
     }
 }
 
-impl<K, V> Mapping<K, V>
-where
-    K: PackedLayout,
-    V: PackedLayout,
-{
+impl<K, V> Mapping<K, V> {
     /// Creates a new empty `Mapping`.
-    ///
-    /// TODO [#961]: Ideally we improve how this is initialized by extending the
-    /// `SpreadLayout`/`PackedLayout` traits for non-caching data structures.
-    pub fn new(offset_key: Key) -> Self {
+    fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
             _marker: Default::default(),
         }
     }
+}
 
+impl<K, V> Mapping<K, V>
+where
+    K: PackedLayout,
+    V: PackedLayout,
+{
     /// Insert the given `value` to the contract storage.
-    pub fn insert<Q, R>(&mut self, key: &Q, value: &R)
+    #[inline]
+    pub fn insert<Q, R>(&mut self, key: Q, value: &R)
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
-        V: core::borrow::Borrow<R>,
-        R: PackedLayout,
+        Q: scale::EncodeLike<K>,
+        R: scale::EncodeLike<V> + PackedLayout,
     {
         push_packed_root(value, &self.storage_key(key));
     }
@@ -83,22 +80,21 @@ where
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    pub fn get<Q>(&self, key: &Q) -> Option<V>
+    #[inline]
+    pub fn get<Q>(&self, key: Q) -> Option<V>
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
         pull_packed_root_opt(&self.storage_key(key))
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
     ///
-    /// This key is a combination of the `Mapping`'s internal `offset_key` and the user provided
-    /// `key`.
-    fn storage_key<Q>(&self, key: &Q) -> Key
+    /// This key is a combination of the `Mapping`'s internal `offset_key`
+    /// and the user provided `key`.
+    fn storage_key<Q>(&self, key: Q) -> Key
     where
-        K: core::borrow::Borrow<Q>,
-        Q: scale::Encode,
+        Q: scale::EncodeLike<K>,
     {
         let encodedable_key = (&self.offset_key, key);
         let mut output = <Blake2x256 as HashOutput>::Type::default();
@@ -113,20 +109,32 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
 
     #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        pull_spread_root::<Self>(root_key)
+        // Note: There is no need to pull anything from the storage for the
+        //       mapping type since it initializes itself entirely by the
+        //       given key pointer.
+        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
     #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
-        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        push_spread_root::<Self>(self, root_key);
+        // Note: The mapping type does not store any state in its associated
+        //       storage region, therefore only the pointer has to be incremented.
+        ptr.advance_by(Self::FOOTPRINT);
     }
 
     #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
-        let root_key = ExtKeyPtr::next_for::<Self>(ptr);
-        clear_spread_root::<Self>(self, root_key);
+        // Note: The mapping type is not aware of its elements, therefore
+        //       it is not possible to clean up after itself.
+        ptr.advance_by(Self::FOOTPRINT);
+    }
+}
+
+impl<K, V> SpreadAllocate for Mapping<K, V> {
+    #[inline]
+    fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        // Note: The mapping type initializes itself entirely by the key pointer.
+        Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 }
 

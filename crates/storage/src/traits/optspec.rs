@@ -102,17 +102,19 @@ pub fn pull_packed_root_opt<T>(root_key: &Key) -> Option<T>
 where
     T: PackedLayout,
 {
-    match ink_env::get_contract_storage::<T>(root_key)
-        .expect("decoding does not match expected type")
-    {
-        Some(mut value) => {
-            // In case the contract storage is occupied we handle
-            // the Option<T> as if it was a T.
+    ink_env::get_contract_storage::<T>(root_key)
+        .unwrap_or_else(|error| {
+            panic!(
+                "failed to pull packed from root key {}: {:?}",
+                root_key, error
+            )
+        })
+        .map(|mut value| {
+            // In case the contract storage is occupied at the root key
+            // we handle the Option<T> as if it was a T.
             <T as PackedLayout>::pull_packed(&mut value, root_key);
-            Some(value)
-        }
-        None => None,
-    }
+            value
+        })
 }
 
 pub fn push_packed_root_opt<T>(entity: Option<&T>, root_key: &Key)
@@ -128,7 +130,7 @@ where
             super::push_packed_root(value, root_key)
         }
         None => {
-            // Clear the associated storage cell.
+            // Clear the associated storage cell since the entity is `None`.
             ink_env::clear_contract_storage(root_key);
         }
     }
