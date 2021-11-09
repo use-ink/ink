@@ -376,6 +376,112 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -430,6 +536,112 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
         <span class="self">self</span>.<span class="ident">value</span>
+    }
+}
+
+<span class="doccomment">/// The flags used to change the behavior of a contract call.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallFlags</span> {
+    <span class="ident">forward_input</span>: <span class="ident">bool</span>,
+    <span class="ident">clone_input</span>: <span class="ident">bool</span>,
+    <span class="ident">tail_call</span>: <span class="ident">bool</span>,
+    <span class="ident">allow_reentry</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">CallFlags</span> {
+    <span class="doccomment">/// Forwards the input for the current function to the callee.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A forwarding call will consume the current contracts input. Any attempt to</span>
+    <span class="doccomment">/// access the input after this call returns (e.g. by trying another forwarding call)</span>
+    <span class="doccomment">/// will lead to a contract revert.</span>
+    <span class="doccomment">/// Consider using [`Self::set_clone_input`] in order to preserve the input.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_forward_input</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">forward_input</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span> <span class="op">=</span> <span class="ident">forward_input</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Identical to [`Self::set_forward_input`] but without consuming the input.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This adds some additional weight costs to the call.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This implies [`Self::set_forward_input`] and takes precedence when both are set.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_clone_input</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">clone_input</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">clone_input</span> <span class="op">=</span> <span class="ident">clone_input</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Do not return from the call but rather return the result of the callee to the</span>
+    <span class="doccomment">/// callers caller.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This makes the current contract completely transparent to its caller by replacing</span>
+    <span class="doccomment">/// this contracts potential output with the callee ones. Any code after the contract</span>
+    <span class="doccomment">/// calls has been invoked can be safely considered unreachable.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_tail_call</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tail_call</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">tail_call</span> <span class="op">=</span> <span class="ident">tail_call</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Allow the callee to reenter into the current contract.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Without this flag any reentrancy into the current contract that originates from</span>
+    <span class="doccomment">/// the callee (or any of its callees) is denied. This includes the first callee:</span>
+    <span class="doccomment">/// You cannot call into yourself with this flag set.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">set_allow_reentry</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">allow_reentry</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">allow_reentry</span> <span class="op">=</span> <span class="ident">allow_reentry</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Returns the underlying `u32` representation of the call flags.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This value is used to forward the call flag information to the</span>
+    <span class="doccomment">/// `contracts` pallet.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">into_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span> <span class="kw">as</span> <span class="ident">u32</span>
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">clone_input</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">1</span>)
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">tail_call</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">2</span>)
+            <span class="op">|</span> ((<span class="self">self</span>.<span class="ident">allow_reentry</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">3</span>)
+    }
+
+    <span class="doccomment">/// Returns `true` if input forwarding is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_forward_input`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">forward_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">forward_input</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if input cloning is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_clone_input`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">clone_input</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">clone_input</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if the tail call property is set.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_tail_call`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">tail_call</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">tail_call</span>
+    }
+
+    <span class="doccomment">/// Returns `true` if call reentry is allowed.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Self::set_allow_reentry`] for more information.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">allow_reentry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">allow_reentry</span>
     }
 }
 

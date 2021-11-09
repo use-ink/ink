@@ -264,7 +264,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::call::Selector</span>;
 
 <span class="doccomment">/// The input data for a smart contract execution.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The selector for the smart contract execution.</span>
     <span class="ident">selector</span>: <span class="ident">Selector</span>,
@@ -319,7 +319,7 @@
 <span class="doccomment">/// arguments. The potentially heap allocating encoding is done right at the end</span>
 <span class="doccomment">/// where we can leverage the static environmental buffer instead of allocating</span>
 <span class="doccomment">/// heap memory.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArgumentList</span><span class="op">&lt;</span><span class="ident">Head</span>, <span class="ident">Rest</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The first argument of the argument list.</span>
     <span class="ident">head</span>: <span class="ident">Head</span>,
@@ -348,7 +348,7 @@
 }
 
 <span class="doccomment">/// The end of an argument list.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ArgumentListEnd</span>;
 
 <span class="doccomment">/// An empty argument list.</span>

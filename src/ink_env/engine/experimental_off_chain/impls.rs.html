@@ -518,6 +518,7 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
+<span id="521">521</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -945,6 +946,7 @@
     {
         <span class="kw">let</span> <span class="ident">_gas_limit</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">gas_limit</span>();
         <span class="kw">let</span> <span class="ident">_callee</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">callee</span>();
+        <span class="kw">let</span> <span class="ident">_call_flags</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">call_flags</span>().<span class="ident">into_u32</span>();
         <span class="kw">let</span> <span class="ident">_transferred_value</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">transferred_value</span>();
         <span class="kw">let</span> <span class="ident">_input</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">exec_input</span>();
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)

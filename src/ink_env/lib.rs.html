@@ -159,6 +159,9 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -247,7 +250,10 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">api</span>::<span class="kw-2">*</span>,
-    <span class="ident">backend::ReturnFlags</span>,
+    <span class="ident">backend</span>::{
+        <span class="ident">CallFlags</span>,
+        <span class="ident">ReturnFlags</span>,
+    },
     <span class="ident">error</span>::{
         <span class="ident">Error</span>,
         <span class="prelude-ty">Result</span>,
