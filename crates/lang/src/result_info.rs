@@ -30,6 +30,8 @@ pub trait IsResultTypeFallback {
 impl<T> IsResultTypeFallback for IsResultType<T> {}
 
 /// Returns `true` if the given type is a `Result` type.
+#[macro_export]
+#[doc(hidden)]
 macro_rules! is_result_type {
     ( $T:ty $(,)? ) => {{
         #[allow(unused_imports)]
@@ -65,6 +67,8 @@ impl<T> IsResultErrFallback for IsResultErr<'_, T> {}
 /// # Note
 ///
 /// This given expression is not required to be of type `Result`.
+#[macro_export]
+#[doc(hidden)]
 macro_rules! is_result_err {
     ( $e:expr $(,)? ) => {{
         #[allow(unused_imports)]

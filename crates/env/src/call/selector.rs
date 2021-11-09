@@ -15,7 +15,9 @@
 use derive_more::From;
 
 /// The function selector.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, From, scale::Decode, scale::Encode)]
+#[derive(
+    Default, Debug, Copy, Clone, PartialEq, Eq, From, scale::Decode, scale::Encode,
+)]
 pub struct Selector {
     /// The 4 underlying bytes.
     bytes: [u8; 4],
