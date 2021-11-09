@@ -26,7 +26,6 @@ use crate::{
     },
     types::{
         AccountId,
-        Key,
     },
 };
 use std::panic::panic_any;
@@ -89,7 +88,7 @@ define_error_codes! {
     NewContractNotFunded = 6,
     /// No code could be found at the supplied code hash.
     CodeNotFound = 7,
-    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    /// The account that was called is no contract, but a plain account.
     NotCallable = 8,
     /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
@@ -244,9 +243,6 @@ impl Engine {
         self.transfer(beneficiary, value)
             .expect("transfer did not work");
 
-        // What is currently missing is to set a tombstone with a code hash here
-        // and remove the contract storage subsequently.
-
         // Encode the result of the termination and panic with it.
         // This enables testing for the proper result and makes sure this
         // method returns `Never`.
@@ -299,29 +295,6 @@ impl Engine {
         set_output(output, callee)
     }
 
-    /// Restores a tombstone to the original smart contract.
-    ///
-    /// # Params
-    ///
-    /// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored contract.
-    /// - `code_hash`: Encoded code hash of the to-be-restored contract.
-    /// - `rent_allowance`: The encoded rent allowance of the restored contract
-    ///                     upon successful restoration.
-    /// - `filtered_keys`: Storage keys that will be ignored for the tombstone hash
-    ///                    match calculation that decide whether the original contract
-    ///                    storage and the storage of the restorer contract is equal.
-    pub fn restore_to(
-        &mut self,
-        _account_id: &[u8],
-        _code_hash: &[u8],
-        _rent_allowance: &[u8],
-        filtered_keys: &[&[u8]],
-    ) {
-        let _filtered_keys: Vec<crate::Key> =
-            filtered_keys.iter().map(|k| Key::from_bytes(k)).collect();
-        unimplemented!("off-chain environment does not yet support `restore_to`");
-    }
-
     /// Records the given debug message and appends to stdout.
     pub fn debug_message(&mut self, message: &str) {
         self.debug_info.record_debug_message(String::from(message));
@@ -360,16 +333,8 @@ impl Engine {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
 
-    pub fn rent_allowance(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `rent_allowance`");
-    }
-
     pub fn minimum_balance(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `minimum_balance`");
-    }
-
-    pub fn tombstone_deposit(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `tombstone_deposit`");
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -399,10 +364,6 @@ impl Engine {
 
     pub fn weight_to_fee(&self, _gas: u64, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `weight_to_fee`");
-    }
-
-    pub fn set_rent_allowance(&mut self, _value: &[u8]) {
-        unimplemented!("off-chain environment does not yet support `set_rent_allowance`");
     }
 
     pub fn random(&self, _subject: &[u8], _output: &mut &mut [u8]) {

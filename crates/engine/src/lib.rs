@@ -24,7 +24,6 @@ mod types;
 mod tests;
 
 pub use types::AccountError;
-use types::Key;
 
 use derive_more::From;
 

@@ -54,5 +54,3 @@ pub type OffHash = TypedEncoded<type_marker::Hash>;
 pub type OffTimestamp = TypedEncoded<type_marker::OffTimestamp>;
 /// Off-chain environment block number type.
 pub type OffBlockNumber = TypedEncoded<type_marker::BlockNumber>;
-/// Off-chain environment rent fraction type.
-pub type OffRentFraction = TypedEncoded<type_marker::RentFraction>;

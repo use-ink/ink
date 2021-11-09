@@ -104,8 +104,6 @@ pub use self::{
         Hash,
         NoChainExtension,
         Perbill,
-        RentParams,
-        RentStatus,
     },
 };
 
