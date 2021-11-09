@@ -97,7 +97,6 @@ impl Storage<'_> {
                 derive(::ink_storage::traits::StorageLayout)
             )]
             #[derive(::ink_storage::traits::SpreadLayout)]
-            #[derive(::ink_storage::traits::SpreadAllocate)]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
             pub struct #ident {
                 #( #fields ),*
