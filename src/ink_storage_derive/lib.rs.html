@@ -172,6 +172,46 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -225,6 +265,7 @@
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
 
 <span class="kw">mod</span> <span class="ident">packed_layout</span>;
+<span class="kw">mod</span> <span class="ident">spread_allocate</span>;
 <span class="kw">mod</span> <span class="ident">spread_layout</span>;
 <span class="kw">mod</span> <span class="ident">storage_layout</span>;
 
@@ -233,6 +274,7 @@
 
 <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">packed_layout::packed_layout_derive</span>,
+    <span class="ident">spread_allocate::spread_allocate_derive</span>,
     <span class="ident">spread_layout::spread_layout_derive</span>,
     <span class="ident">storage_layout::storage_layout_derive</span>,
 };
@@ -306,6 +348,44 @@
     <span class="doccomment">/// ```</span>
     <span class="ident">packed_layout_derive</span>
 );
+
+<span class="macro">synstructure::decl_derive!</span>(
+    [<span class="ident">SpreadAllocate</span>] =&gt;
+    <span class="doccomment">/// Derives `ink_storage`&#39;s `SpreadAllocate` trait for the given `struct`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// As of now `enum` types are not supported!</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use ink_primitives::Key;</span>
+    <span class="doccomment">/// use ink_storage::traits::{</span>
+    <span class="doccomment">///     SpreadAllocate,</span>
+    <span class="doccomment">///     SpreadLayout,</span>
+    <span class="doccomment">///     allocate_spread_root,</span>
+    <span class="doccomment">///};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// #[derive(SpreadAllocate, SpreadLayout)]</span>
+    <span class="doccomment">/// # #[derive(Debug, PartialEq)]</span>
+    <span class="doccomment">/// struct NamedFields {</span>
+    <span class="doccomment">///     a: u32,</span>
+    <span class="doccomment">///     b: [u32; 32],</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let allocated: NamedFields = allocate_spread_root(&amp;Key::from([0x42; 32]));</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///     allocated,</span>
+    <span class="doccomment">///     NamedFields {</span>
+    <span class="doccomment">///         a: 0,</span>
+    <span class="doccomment">///         b: [0; 32],</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// ```</span>
+    <span class="ident">spread_allocate_derive</span>
+);
+
 <span class="macro">synstructure::decl_derive!</span>(
     [<span class="ident">StorageLayout</span>] =&gt;
     <span class="doccomment">/// Derives `ink_storage`&#39;s `StorageLayout` trait for the given `struct` or `enum`.</span>

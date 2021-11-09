@@ -1288,7 +1288,7 @@
                 .<span class="ident">is_dynamic_storage_allocator_enabled</span>();
             <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
                 <span class="self">Self</span>::#<span class="ident">constructor_ident</span>(<span class="ident">input</span>) =&gt; {
-                    <span class="ident">::ink_lang::codegen::execute_constructor</span>::<span class="op">&lt;</span>#<span class="ident">storage_ident</span>, <span class="kw">_</span><span class="op">&gt;</span>(
+                    <span class="ident">::ink_lang::codegen::execute_constructor</span>::<span class="op">&lt;</span>#<span class="ident">storage_ident</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                         <span class="ident">::ink_lang::codegen::ExecuteConstructorConfig</span> {
                             <span class="ident">dynamic_storage_alloc</span>: #<span class="ident">is_dynamic_storage_allocation_enabled</span>
                         },

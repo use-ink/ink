@@ -110,6 +110,10 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -151,8 +155,8 @@
                 <span class="macro">quote!</span> { <span class="kw">use</span> <span class="ident">::ink_lang::codegen::EmitEvent</span> <span class="kw">as</span> <span class="kw">_</span>; }
             });
         <span class="macro">quote_spanned!</span>(<span class="ident">storage_span</span> =&gt;
-            #<span class="ident">access_env_impls</span>
             #<span class="ident">storage_struct</span>
+            #<span class="ident">access_env_impls</span>
 
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="comment">// Used to make `self.env()` and `Self::env()` available in message code.</span>
@@ -217,6 +221,10 @@
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="kw">impl</span> <span class="ident">::ink_lang::reflect::ContractName</span> <span class="kw">for</span> #<span class="ident">ident</span> {
                     <span class="kw">const</span> <span class="ident">NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>);
+                }
+
+                <span class="kw">impl</span> <span class="ident">::ink_lang::codegen::ContractRootKey</span> <span class="kw">for</span> #<span class="ident">ident</span> {
+                    <span class="kw">const</span> <span class="ident">ROOT_KEY</span>: <span class="ident">::ink_primitives::Key</span> <span class="op">=</span> <span class="ident">::ink_primitives::Key::new</span>([<span class="number">0x00</span>; <span class="number">32</span>]);
                 }
             };
         )
