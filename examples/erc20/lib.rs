@@ -4,14 +4,9 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc20 {
-    use ink_primitives::{
-        Key,
-        KeyPtr,
-    };
     use ink_storage::{
         collections::mapping::Mapping,
         lazy::Lazy,
-        traits::SpreadAllocate,
     };
 
     /// A simple ERC-20 contract.
@@ -59,16 +54,6 @@ mod erc20 {
 
     /// The ERC-20 result type.
     pub type Result<T> = core::result::Result<T, Error>;
-
-    impl SpreadAllocate for Erc20 {
-        fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-            Self {
-                total_supply: SpreadAllocate::allocate_spread(ptr),
-                balances: SpreadAllocate::allocate_spread(ptr),
-                allowances: SpreadAllocate::allocate_spread(ptr),
-            }
-        }
-    }
 
     impl Erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
