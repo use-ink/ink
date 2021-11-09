@@ -15,7 +15,7 @@
 use crate::call::Selector;
 
 /// The input data for a smart contract execution.
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ExecutionInput<Args> {
     /// The selector for the smart contract execution.
     selector: Selector,
@@ -70,7 +70,7 @@ impl<'a, Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
 /// arguments. The potentially heap allocating encoding is done right at the end
 /// where we can leverage the static environmental buffer instead of allocating
 /// heap memory.
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ArgumentList<Head, Rest> {
     /// The first argument of the argument list.
     head: Head,
@@ -99,7 +99,7 @@ impl<T> Argument<T> {
 }
 
 /// The end of an argument list.
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ArgumentListEnd;
 
 /// An empty argument list.
