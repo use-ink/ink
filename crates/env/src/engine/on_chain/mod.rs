@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod buffer;
 mod ext;
 mod impls;
 
@@ -24,6 +23,7 @@ use self::{
     ext::Error,
 };
 use super::OnInstance;
+use crate::buffer;
 
 /// The on-chain environment.
 pub struct EnvInstance {

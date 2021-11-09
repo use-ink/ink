@@ -227,6 +227,12 @@ impl EnvBackend for EnvInstance {
         )
     }
 
+    fn return_value_scoped(&mut self, _flags: ReturnFlags, _return_value: &[u8]) -> ! {
+        unimplemented!(
+            "the experimental off chain env does not implement `seal_return_value`"
+        )
+    }
+
     fn debug_message(&mut self, message: &str) {
         self.engine.debug_message(message)
     }

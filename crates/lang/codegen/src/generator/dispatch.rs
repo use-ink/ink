@@ -650,10 +650,9 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::Output
             );
-            let accepts_payment = quote_spanned!(message_span=>
-                false ||
-                !#any_message_accept_payment ||
-                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+            let deny_payment = quote_spanned!(message_span=>
+                #any_message_accept_payment &&
+                !<#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
@@ -666,34 +665,31 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
-            let is_dynamic_storage_allocation_enabled = self
-                .contract
-                .config()
-                .is_dynamic_storage_allocator_enabled();
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    let config = ::ink_lang::codegen::ExecuteMessageConfig {
-                        payable: #accepts_payment,
-                        mutates: #mutates_storage,
-                        dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
-                    };
-                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
-                        ::core::mem::ManuallyDrop::new(
-                            ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
-                        );
+                    mutates = #mutates_storage;
+
+                    if #deny_payment {
+                        ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
+                    }
                     let result: #message_output = #message_callable(&mut contract, input);
                     let failure = ::ink_lang::is_result_type!(#message_output)
                         && ::ink_lang::is_result_err!(result);
-                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
-                        !failure,
-                        &contract,
-                        config,
-                        &result,
-                    )?;
+                    enc_return_value = scoped_buffer.take_encoded(&result);
+
+                    if failure {
+                        // if result is error it stops execution and returns an error to caller
+                        ::ink_env::return_value_scoped(::ink_env::ReturnFlags::default().set_reverted(true), enc_return_value);
+                    }
+
                     ::core::result::Result::Ok(())
                 }
             )
         });
+        let is_dynamic_storage_allocation_enabled = self
+            .contract
+            .config()
+            .is_dynamic_storage_allocator_enabled();
 
         quote_spanned!(span=>
             const _: () = {
@@ -733,9 +729,35 @@ impl Dispatch<'_> {
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        use ::core::convert::From;
+                        use ::core::default::Default;
+
+                        if #is_dynamic_storage_allocation_enabled {
+                            ::ink_storage::alloc::initialize(::ink_storage::alloc::ContractPhase::Call);
+                        }
+
+                        const CAPACITY: usize = 1 << 14;
+                        let mut local_buffer: [u8; CAPACITY] = [0; CAPACITY];
+                        let mut scoped_buffer = ::ink_env::buffer::ScopedBuffer::from(&mut local_buffer[..]);
+                        let enc_return_value;
+
+                        let root_key = <#storage_ident as ::ink_lang::codegen::ContractRootKey>::ROOT_KEY;
+                        let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                            ::core::mem::ManuallyDrop::new(
+                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&root_key)
+                            );
+                        let mutates;
                         match self {
                             #( #message_execute ),*
+                        }?;
+
+                        if mutates {
+                            ::ink_storage::traits::push_spread_root::<#storage_ident>(&contract, &root_key);
                         }
+                        if #is_dynamic_storage_allocation_enabled {
+                            ::ink_storage::alloc::finalize();
+                        }
+                        ::ink_env::return_value_scoped(::ink_env::ReturnFlags::default(), enc_return_value);
                     }
                 }
 

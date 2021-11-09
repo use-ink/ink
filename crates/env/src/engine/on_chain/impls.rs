@@ -298,6 +298,10 @@ impl EnvBackend for EnvInstance {
         ext::return_value(flags, enc_return_value);
     }
 
+    fn return_value_scoped(&mut self, flags: ReturnFlags, return_value: &[u8]) -> ! {
+        ext::return_value(flags, return_value);
+    }
+
     fn debug_message(&mut self, content: &str) {
         ext::debug_message(content)
     }

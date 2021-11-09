@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Utilities to encode value into buffer
+
 /// A static buffer with 16 kB of capacity.
 pub struct StaticBuffer {
     /// The static buffer with a total capacity of 16 kB.
@@ -170,7 +172,7 @@ impl<'a> ScopedBuffer<'a> {
     /// Appends the encoding of `value` to the scoped buffer.
     ///
     /// Does not return the buffer immediately so that other values can be appended
-    /// afterwards. The [`take_appended`] method shall be used to return the buffer
+    /// afterwards. The `take_appended` method shall be used to return the buffer
     /// that includes all appended encodings as a single buffer.
     pub fn append_encoded<T>(&mut self, value: &T)
     where
@@ -185,7 +187,7 @@ impl<'a> ScopedBuffer<'a> {
         let _ = core::mem::replace(&mut self.buffer, buffer);
     }
 
-    /// Returns the buffer containing all encodings appended via [`append_encoded`]
+    /// Returns the buffer containing all encodings appended via `append_encoded`
     /// in a single byte buffer.
     pub fn take_appended(&mut self) -> &'a mut [u8] {
         debug_assert_ne!(self.offset, 0);

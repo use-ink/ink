@@ -175,6 +175,12 @@ impl EnvBackend for EnvInstance {
         std::process::exit(flags.into_u32() as i32)
     }
 
+    fn return_value_scoped(&mut self, flags: ReturnFlags, return_value: &[u8]) -> ! {
+        let ctx = self.exec_context_mut().expect(UNINITIALIZED_EXEC_CONTEXT);
+        ctx.output = Some(return_value.to_vec());
+        std::process::exit(flags.into_u32() as i32)
+    }
+
     fn debug_message(&mut self, message: &str) {
         self.debug_buf.debug_message(message)
     }

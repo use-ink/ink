@@ -220,6 +220,17 @@ pub trait EnvBackend {
     where
         R: scale::Encode;
 
+    /// Returns the buffer to the caller of the executed contract.
+    ///
+    /// # Note
+    ///
+    /// Calling this method will end contract execution immediately.
+    /// It will return the given return value back to its caller.
+    ///
+    /// The `flags` parameter can be used to revert the state changes of the
+    /// entire execution if necessary.
+    fn return_value_scoped(&mut self, flags: ReturnFlags, return_value: &[u8]) -> !;
+
     /// Emit a custom debug message.
     ///
     /// The message is appended to the debug buffer which is then supplied to the calling RPC

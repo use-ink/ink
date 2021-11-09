@@ -64,6 +64,7 @@ extern crate ink_allocator;
 mod api;
 mod arithmetic;
 mod backend;
+pub mod buffer;
 pub mod call;
 pub mod chain_extension;
 mod engine;

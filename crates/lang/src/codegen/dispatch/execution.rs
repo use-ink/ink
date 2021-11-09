@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::{
-    ContractEnv,
-    DispatchError,
-};
+use crate::reflect::DispatchError;
 use core::{
-    any::TypeId,
     convert::Infallible,
     mem::ManuallyDrop,
 };
@@ -33,7 +29,6 @@ use ink_storage::{
     alloc,
     alloc::ContractPhase,
     traits::{
-        pull_spread_root,
         push_spread_root,
         SpreadAllocate,
         SpreadLayout,
@@ -299,98 +294,4 @@ pub struct ExecuteMessageConfig {
     ///
     /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
     pub dynamic_storage_alloc: bool,
-}
-
-/// Initiates an ink! message call with the given configuration.
-///
-/// Returns the contract state pulled from the root storage region upon success.
-///
-/// # Note
-///
-/// This work around that splits executing an ink! message into initiate
-/// and finalize phases was needed due to the fact that `is_result_type`
-/// and `is_result_err` macros do not work in generic contexts.
-#[inline(always)]
-pub fn initiate_message<Contract>(
-    config: ExecuteMessageConfig,
-) -> Result<Contract, DispatchError>
-where
-    Contract: SpreadLayout + ContractEnv,
-{
-    if !config.payable {
-        deny_payment::<<Contract as ContractEnv>::Env>()?;
-    }
-    if config.dynamic_storage_alloc {
-        alloc::initialize(ContractPhase::Call);
-    }
-    let root_key = Key::from([0x00; 32]);
-    let contract = pull_spread_root::<Contract>(&root_key);
-    Ok(contract)
-}
-
-/// Finalizes an ink! message call with the given configuration.
-///
-/// This dispatches into fallible and infallible message finalization
-/// depending on the given `success` state.
-///
-/// - If the message call was successful the return value is simply returned
-///   and cached storage is pushed back to the contract storage.
-/// - If the message call failed the return value result is returned instead
-///   and the transaction is signalled to be reverted.
-///
-/// # Note
-///
-/// This work around that splits executing an ink! message into initiate
-/// and finalize phases was needed due to the fact that `is_result_type`
-/// and `is_result_err` macros do not work in generic contexts.
-#[inline]
-pub fn finalize_message<Contract, R>(
-    success: bool,
-    contract: &Contract,
-    config: ExecuteMessageConfig,
-    result: &R,
-) -> Result<(), DispatchError>
-where
-    Contract: SpreadLayout,
-    R: scale::Encode + 'static,
-{
-    if success {
-        finalize_infallible_message(contract, config, result)
-    } else {
-        finalize_fallible_message(result)
-    }
-}
-
-#[inline]
-fn finalize_infallible_message<Contract, R>(
-    contract: &Contract,
-    config: ExecuteMessageConfig,
-    result: &R,
-) -> Result<(), DispatchError>
-where
-    Contract: SpreadLayout,
-    R: scale::Encode + 'static,
-{
-    if config.mutates {
-        let root_key = Key::from([0x00; 32]);
-        push_spread_root::<Contract>(contract, &root_key);
-    }
-    if config.dynamic_storage_alloc {
-        alloc::finalize();
-    }
-    if TypeId::of::<R>() != TypeId::of::<()>() {
-        // In case the return type is `()` we do not return a value.
-        ink_env::return_value::<R>(ReturnFlags::default(), result)
-    }
-    Ok(())
-}
-
-#[inline]
-fn finalize_fallible_message<R>(result: &R) -> !
-where
-    R: scale::Encode + 'static,
-{
-    // There is no need to push back the intermediate results of the
-    // contract since the transaction is going to be reverted.
-    ink_env::return_value::<R>(ReturnFlags::default().set_reverted(true), result)
 }
