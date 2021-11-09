@@ -7,10 +7,12 @@ mod erc20 {
     use ink_storage::{
         collections::mapping::Mapping,
         lazy::Lazy,
+        traits::{SpreadAllocate}
     };
 
     /// A simple ERC-20 contract.
     #[ink(storage)]
+    #[derive(SpreadAllocate)]
     pub struct Erc20 {
         /// Total token supply.
         total_supply: Lazy<Balance>,
