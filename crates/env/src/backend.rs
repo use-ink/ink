@@ -73,7 +73,7 @@ impl CallFlags {
     /// access the input after this call returns (e.g. by trying another forwarding call)
     /// will lead to a contract revert.
     /// Consider using [`Self::set_clone_input`] in order to preserve the input.
-    pub fn set_forward_input(mut self, forward_input: bool) -> Self {
+    pub const fn set_forward_input(mut self, forward_input: bool) -> Self {
         self.forward_input = forward_input;
         self
     }
@@ -85,7 +85,7 @@ impl CallFlags {
     /// # Note
     ///
     /// This implies [`Self::set_forward_input`] and takes precedence when both are set.
-    pub fn set_clone_input(mut self, clone_input: bool) -> Self {
+    pub const fn set_clone_input(mut self, clone_input: bool) -> Self {
         self.clone_input = clone_input;
         self
     }
@@ -98,7 +98,7 @@ impl CallFlags {
     /// This makes the current contract completely transparent to its caller by replacing
     /// this contracts potential output with the callee ones. Any code after the contract
     /// calls has been invoked can be safely considered unreachable.
-    pub fn set_tail_call(mut self, tail_call: bool) -> Self {
+    pub const fn set_tail_call(mut self, tail_call: bool) -> Self {
         self.tail_call = tail_call;
         self
     }
@@ -108,7 +108,7 @@ impl CallFlags {
     /// Without this flag any reentrancy into the current contract that originates from
     /// the callee (or any of its callees) is denied. This includes the first callee:
     /// You cannot call into yourself with this flag set.
-    pub fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
+    pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
         self.allow_reentry = allow_reentry;
         self
     }
@@ -117,7 +117,7 @@ impl CallFlags {
     ///
     /// This value is used to forward the call flag information to the
     /// `contracts` pallet.
-    pub(crate) fn into_u32(self) -> u32 {
+    pub(crate) const fn into_u32(self) -> u32 {
         const FORWARD_INPUT: u32 = 0b0000_0001;
         const CLONE_INPUT: u32 = 0b0000_0010;
         const TAIL_CALL: u32 = 0b0000_0100;
@@ -144,7 +144,7 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_forward_input`] for more information.
-    pub fn forward_input(&self) -> bool {
+    pub const fn forward_input(&self) -> bool {
         self.forward_input
     }
 
@@ -153,7 +153,7 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_clone_input`] for more information.
-    pub fn clone_input(&self) -> bool {
+    pub const fn clone_input(&self) -> bool {
         self.clone_input
     }
 
@@ -162,7 +162,7 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_tail_call`] for more information.
-    pub fn tail_call(&self) -> bool {
+    pub const fn tail_call(&self) -> bool {
         self.tail_call
     }
 
@@ -171,7 +171,7 @@ impl CallFlags {
     /// # Note
     ///
     /// See [`Self::set_allow_reentry`] for more information.
-    pub fn allow_reentry(&self) -> bool {
+    pub const fn allow_reentry(&self) -> bool {
         self.allow_reentry
     }
 }
