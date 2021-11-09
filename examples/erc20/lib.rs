@@ -7,7 +7,7 @@ mod erc20 {
     use ink_storage::{
         collections::mapping::Mapping,
         lazy::Lazy,
-        traits::{SpreadAllocate}
+        traits::SpreadAllocate,
     };
 
     /// A simple ERC-20 contract.
@@ -61,7 +61,9 @@ mod erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|contract| Self::new_init(contract, initial_supply))
+            ink_lang::codegen::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply)
+            })
         }
 
         /// Default initializes the ERC-20 contract with the specified initial supply.
