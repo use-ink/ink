@@ -15,6 +15,7 @@
 use crate::{
     ir,
     ir::idents_lint,
+    Callable,
 };
 use core::convert::TryFrom;
 use proc_macro2::{
@@ -239,6 +240,37 @@ impl ItemMod {
         }
         Ok(())
     }
+
+    /// Ensures that at most one wildcard selector exists among ink! messages.
+    fn ensure_only_one_wildcard_selector(items: &[ir::Item]) -> Result<(), syn::Error> {
+        let mut wildcard_selector: Option<&ir::Message> = None;
+        for item_impl in items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
+        {
+            for message in item_impl.iter_messages() {
+                if !message.is_wildcard_selector() {
+                    continue
+                }
+                match wildcard_selector {
+                    None => wildcard_selector = Some(message.callable()),
+                    Some(overlap) => {
+                        use crate::error::ExtError as _;
+                        return Err(format_err!(
+                            message.callable().span(),
+                            "encountered ink! messages with overlapping wildcard selectors",
+                        )
+                        .into_combine(format_err!(
+                            overlap.span(),
+                            "first ink! message with overlapping wildcard selector here",
+                        )))
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::ItemMod> for ItemMod {
@@ -278,6 +310,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_contains_message(module_span, &items)?;
         Self::ensure_contains_constructor(module_span, &items)?;
         Self::ensure_no_overlapping_selectors(&items)?;
+        Self::ensure_only_one_wildcard_selector(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,

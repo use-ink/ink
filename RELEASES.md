@@ -7,6 +7,10 @@ This is the 7th release candidate for ink! 3.0.
     - Some of those traits and their carried information can be used for static reflection of ink!
       smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
       publicly usable by ink! smart contract authors.
+- Added basic support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
+  - This enables writing upgradable smart contracts using the proxy pattern.
+    We added a new example illustrating this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/delegator) example.
+  - The wildcard selector is not yet supported to be annotated in a trait.
 
 ## Changed
 - Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).

@@ -86,6 +86,8 @@ impl<'a> InkTraitMessage<'a> {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Selector(_) => Ok(()),
+                    ir::AttributeArg::WildcardSelector =>
+                        Err(Some(format_err!(arg.span(), "wildcard selectors are currently only supported for plain ink! messages, but not yet in traits."))),
                     _ => Err(None),
                 }
             },

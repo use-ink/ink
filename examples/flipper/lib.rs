@@ -23,13 +23,13 @@ pub mod flipper {
         }
 
         /// Flips the current value of the Flipper's boolean.
-        #[ink(message)]
+        #[ink(message, selector = "_")]
         pub fn flip(&mut self) {
             self.value = !self.value;
         }
 
         /// Returns the current value of the Flipper's boolean.
-        #[ink(message)]
+        #[ink(message, selector = "_")]
         pub fn get(&self) -> bool {
             self.value
         }

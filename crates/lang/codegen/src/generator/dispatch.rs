@@ -24,6 +24,7 @@ use ir::{
     Callable,
     HexLiteral as _,
 };
+use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -112,6 +113,23 @@ impl Dispatch<'_> {
             .map(|item_impl| item_impl.iter_messages())
             .flatten()
             .count()
+    }
+
+    /// Returns the index of the ink! message which has a wildcard selector, if existent.
+    fn query_wildcard_message(&self) -> Option<usize> {
+        let mut wildcard_selectors = self
+            .contract
+            .module()
+            .impls()
+            .map(|item_impl| item_impl.iter_messages())
+            .flatten()
+            .positions(|item| item.is_wildcard_selector());
+        let next = wildcard_selectors.next();
+        assert!(
+            wildcard_selectors.next().is_none(),
+            "found more than one wildcard selector, contracts must have at most one."
+        );
+        next
     }
 
     /// Generates code for the [`ink_lang::ContractDispatchables`] trait implementation.
@@ -631,6 +649,26 @@ impl Dispatch<'_> {
                 }
             )
         });
+        let wildcard_index = self.query_wildcard_message();
+        let possibly_wildcard_selector_message = match wildcard_index {
+            Some(index) => {
+                let message_span = message_spans[index];
+                let message_ident = message_variant_ident(index);
+                let message_input =
+                    expand_message_input(message_span, storage_ident, index);
+                quote! {
+                    ::core::result::Result::Ok(Self::#message_ident(
+                        <#message_input as ::scale::Decode>::decode(input)
+                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
+                    ))
+                }
+            }
+            None => {
+                quote! {
+                    ::core::result::Result::Err(::ink_lang::reflect::DispatchError::UnknownSelector)
+                }
+            }
+        };
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
         let message_execute = (0..count_messages).map(|index| {
@@ -713,9 +751,7 @@ impl Dispatch<'_> {
                             .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
                         {
                             #( #message_match , )*
-                            _invalid => ::core::result::Result::Err(
-                                ::ink_lang::reflect::DispatchError::UnknownSelector
-                            )
+                            _invalid => #possibly_wildcard_selector_message
                         }
                     }
                 }

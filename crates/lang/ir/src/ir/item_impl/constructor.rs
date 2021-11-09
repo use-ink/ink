@@ -158,6 +158,12 @@ impl Constructor {
                     ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
                         Ok(())
                     }
+                    ir::AttributeArg::WildcardSelector => {
+                        Err(Some(format_err!(
+                            arg.span(),
+                            "wildcard selectors are not allowed for constructors"
+                        )))
+                    }
                     ir::AttributeArg::Payable => {
                         Err(Some(format_err!(
                             arg.span(),
@@ -205,6 +211,10 @@ impl Callable for Constructor {
 
     fn is_payable(&self) -> bool {
         true
+    }
+
+    fn is_wildcard_selector(&self) -> bool {
+        false
     }
 
     fn visibility(&self) -> Visibility {

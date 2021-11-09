@@ -100,6 +100,8 @@ pub struct Message {
     pub(super) item: syn::ImplItemMethod,
     /// If the ink! message can receive funds.
     is_payable: bool,
+    /// If the ink! message is a wildcard selector.
+    is_wildcard_selector: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -187,6 +189,7 @@ impl Message {
                 match arg.kind() {
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
+                    | ir::AttributeArg::WildcardSelector
                     | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
@@ -205,7 +208,15 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
+        let is_wildcard_selector = ink_attrs.is_wildcard_selector();
+        if is_wildcard_selector && selector.is_some() {
+            return Err(format_err!(
+                method_item.span(),
+                "ink! message cannot contain wildcard selector and specified selector"
+            ))
+        }
         Ok(Self {
+            is_wildcard_selector,
             is_payable,
             selector,
             item: syn::ImplItemMethod {
@@ -231,6 +242,10 @@ impl Callable for Message {
 
     fn is_payable(&self) -> bool {
         self.is_payable
+    }
+
+    fn is_wildcard_selector(&self) -> bool {
+        self.is_wildcard_selector
     }
 
     fn visibility(&self) -> Visibility {

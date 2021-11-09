@@ -280,6 +280,12 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Payable))
     }
 
+    /// Returns `true` if the ink! attribute contains the wildcard selector.
+    pub fn is_wildcard_selector(&self) -> bool {
+        self.args()
+            .any(|arg| matches!(arg.kind(), AttributeArg::WildcardSelector))
+    }
+
     /// Returns `true` if the ink! attribute contains the `anonymous` argument.
     pub fn is_anonymous(&self) -> bool {
         self.args()
@@ -342,6 +348,8 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
+    /// `#[ink(selector = "_")]`
+    WildcardSelector,
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(extension = N: u32)]`
@@ -395,6 +403,11 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
+    /// `#[ink(selector = "_")]`
+    ///
+    /// Applied on ink! messages to define a fallback messages that is invoked
+    /// if no other ink! message matches a given selector.
+    WildcardSelector,
     /// `#[ink(selector = 0xDEADBEEF)]`
     ///
     /// Applied on ink! constructors or messages to manually control their
@@ -451,6 +464,9 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Selector => {
                 write!(f, "selector = S:[u8; 4]")
             }
+            Self::WildcardSelector => {
+                write!(f, "selector = \"_\"")
+            }
             Self::Extension => {
                 write!(f, "extension = N:u32)")
             }
@@ -476,6 +492,7 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
+            Self::WildcardSelector => AttributeArgKind::WildcardSelector,
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -498,6 +515,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Selector(selector) => {
                 write!(f, "selector = {:?}", selector.to_bytes())
             }
+            Self::WildcardSelector => write!(f, "selector = \"_\""),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -809,6 +827,21 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                 match &meta {
                     syn::Meta::NameValue(name_value) => {
                         if name_value.path.is_ident("selector") {
+                            if let syn::Lit::Str(lit_str) = &name_value.lit {
+                                let argument = lit_str.value();
+                                if argument != "_" {
+                                    return Err(format_err!(
+                                        name_value,
+                                        "#[ink(selector = ..)] attributes with string inputs are deprecated (except for the wildcard selector \"_\"). \
+                                        use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
+                                    ))
+                                }
+                                return Ok(AttributeFrag {
+                                    ast: meta,
+                                    arg: AttributeArg::WildcardSelector,
+                                })
+                            }
+
                             if let syn::Lit::Int(lit_int) = &name_value.lit {
                                 let selector_u32 = lit_int.base10_parse::<u32>()
                                     .map_err(|error| {
@@ -823,13 +856,6 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     ast: meta,
                                     arg: AttributeArg::Selector(selector),
                                 })
-                            }
-                            if let syn::Lit::Str(_) = &name_value.lit {
-                                return Err(format_err!(
-                                    name_value,
-                                    "#[ink(selector = ..)] attributes with string inputs are deprecated. \
-                                    use an integer instead, e.g. #[ink(selector = 1)] or #[ink(selector = 0xC0DECAFE)]."
-                                ))
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
