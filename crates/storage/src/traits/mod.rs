@@ -68,6 +68,7 @@ pub use self::{
 use ink_primitives::Key;
 pub use ink_storage_derive::{
     PackedLayout,
+    SpreadAllocate,
     SpreadLayout,
     StorageLayout,
 };

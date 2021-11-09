@@ -39,8 +39,8 @@ impl GenerateCode for Storage<'_> {
                 quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
         quote_spanned!(storage_span =>
-            #access_env_impls
             #storage_struct
+            #access_env_impls
 
             const _: () = {
                 // Used to make `self.env()` and `Self::env()` available in message code.
@@ -105,6 +105,10 @@ impl Storage<'_> {
             const _: () = {
                 impl ::ink_lang::reflect::ContractName for #ident {
                     const NAME: &'static str = ::core::stringify!(#ident);
+                }
+
+                impl ::ink_lang::codegen::ContractRootKey for #ident {
+                    const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
                 }
             };
         )
