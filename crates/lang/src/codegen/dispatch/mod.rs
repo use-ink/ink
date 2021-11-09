@@ -20,10 +20,10 @@ pub use self::{
     execution::{
         deny_payment,
         execute_constructor,
-        initialize_contract,
-        ContractRootKey,
         finalize_message,
+        initialize_contract,
         initiate_message,
+        ContractRootKey,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
     },

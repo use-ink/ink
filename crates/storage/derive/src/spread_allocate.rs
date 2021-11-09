@@ -33,10 +33,7 @@ pub fn spread_allocate_derive(mut s: synstructure::Structure) -> TokenStream2 {
 
 /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
 fn derive_struct(s: synstructure::Structure) -> TokenStream2 {
-    assert!(
-        s.variants().len() == 1,
-        "can only operate on structs"
-    );
+    assert!(s.variants().len() == 1, "can only operate on structs");
     let variant = &s.variants()[0];
     let allocate_body = variant.construct(|field, _index| {
         let ty = &field.ty;
