@@ -64,7 +64,7 @@ fn struct_works() {
             struct NamedFields {
                 a: i32,
                 b: [u8; 32],
-                d: Box<i32>,
+                c: Box<i32>,
             }
         }
         expands to {
@@ -74,7 +74,7 @@ fn struct_works() {
                         NamedFields {
                             a: <i32 as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
                             b: <[u8; 32] as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
-                            d: <Box<i32> as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
+                            c: <Box<i32> as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr),
                         }
                     }
                 }
