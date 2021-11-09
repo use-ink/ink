@@ -53,6 +53,7 @@ multi
 postfix
 prefilled
 recurse
+reentrancy
 refcount
 scalability
 scalable

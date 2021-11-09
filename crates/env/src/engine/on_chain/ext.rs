@@ -219,18 +219,6 @@ mod sys {
             salt_len: u32,
         ) -> ReturnCode;
 
-        pub fn seal_call(
-            callee_ptr: Ptr32<[u8]>,
-            callee_len: u32,
-            gas: u64,
-            transferred_value_ptr: Ptr32<[u8]>,
-            transferred_value_len: u32,
-            input_ptr: Ptr32<[u8]>,
-            input_len: u32,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        ) -> ReturnCode;
-
         pub fn seal_transfer(
             account_id_ptr: Ptr32<[u8]>,
             account_id_len: u32,
@@ -350,6 +338,17 @@ mod sys {
 
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
+        pub fn seal_call(
+            flags: u32,
+            callee_ptr: Ptr32<[u8]>,
+            gas: u64,
+            transferred_value_ptr: Ptr32<[u8]>,
+            input_data_ptr: Ptr32<[u8]>,
+            input_data_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
+
         pub fn seal_rent_params(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
@@ -413,6 +412,7 @@ pub fn instantiate(
 }
 
 pub fn call(
+    flags: u32,
     callee: &[u8],
     gas_limit: u64,
     value: &[u8],
@@ -423,11 +423,10 @@ pub fn call(
     let ret_code = {
         unsafe {
             sys::seal_call(
+                flags,
                 Ptr32::from_slice(callee),
-                callee.len() as u32,
                 gas_limit,
                 Ptr32::from_slice(value),
-                value.len() as u32,
                 Ptr32::from_slice(input),
                 input.len() as u32,
                 Ptr32Mut::from_slice(output),

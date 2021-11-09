@@ -229,9 +229,16 @@ impl EnvInstance {
         let gas_limit = params.gas_limit();
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
-        let enc_input = scope.take_encoded(params.exec_input());
+        let call_flags = params.call_flags();
+        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
         let output = &mut scope.take_rest();
+        let flags = params.call_flags().into_u32();
         let call_result = ext::call(
+            flags,
             enc_callee,
             gas_limit,
             enc_transferred_value,
