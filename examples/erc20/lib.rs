@@ -74,11 +74,7 @@ mod erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
-            let root_key = Key::from([0x00; 32]);
-            let mut key_ptr = KeyPtr::from(root_key);
-            let mut instance = Self::allocate_spread(&mut key_ptr);
-            instance.new_init(initial_supply);
-            instance
+            ink_lang::codegen::initialize_contract(|contract| Self::new_init(contract, initial_supply))
         }
 
         /// Default initializes the ERC-20 contract with the specified initial supply.
