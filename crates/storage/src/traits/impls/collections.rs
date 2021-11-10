@@ -163,7 +163,7 @@ where
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn pull_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a set so we cannot forward pull signals.
     }
@@ -173,7 +173,7 @@ impl<T> PackedAllocate for StdBTreeSet<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline(always)]
+    #[inline]
     fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a set so we cannot forward pull signals.
     }
@@ -228,7 +228,7 @@ where
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn pull_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a heap so we cannot forward pull signals.
     }
@@ -238,7 +238,7 @@ impl<T> PackedAllocate for StdBinaryHeap<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline(always)]
+    #[inline]
     fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a heap so we cannot forward pull signals.
     }
