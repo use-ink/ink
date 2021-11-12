@@ -109,7 +109,7 @@ mod erc20 {
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
         ///
-        /// Returns `0` if no allowance has been set `0`.
+        /// Returns `0` if no allowance has been set.
         #[ink(message)]
         pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
             self.allowance_impl(&owner, &spender)
@@ -117,7 +117,7 @@ mod erc20 {
 
         /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
         ///
-        /// Returns `0` if no allowance has been set `0`.
+        /// Returns `0` if no allowance has been set.
         ///
         /// # Note
         ///
