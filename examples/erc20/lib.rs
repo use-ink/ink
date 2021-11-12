@@ -5,8 +5,10 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     use ink_storage::{
-        collections::mapping::Mapping,
-        lazy::Lazy,
+        lazy::{
+            Lazy,
+            Mapping,
+        },
         traits::SpreadAllocate,
     };
 
