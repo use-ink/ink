@@ -381,15 +381,15 @@
         $(
             <span class="macro">impl_always_packed_layout!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>, <span class="ident">deep</span>: <span class="bool-val">false</span>);
             <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::traits::PackedLayout</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">pull_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">push_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">clear_packed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
             }
             <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::traits::PackedAllocate</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">allocate_packed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_at</span>: <span class="kw-2">&amp;</span><span class="ident">::ink_primitives::Key</span>) {}
             }
         )<span class="op">*</span>

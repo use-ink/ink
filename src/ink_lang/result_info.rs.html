@@ -167,7 +167,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IsResultErr</span><span class="op">&lt;</span><span class="lifetime">&#39;lt</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;lt</span> <span class="ident">T</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="ident">IsResultErr</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">::core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="comment">// We need to allow for dead code at this point because</span>
     <span class="comment">// the Rust compiler thinks this function is unused even</span>
     <span class="comment">// though it acts as the specialized case for detection.</span>
@@ -178,7 +178,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IsResultErrFallback</span> {
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
