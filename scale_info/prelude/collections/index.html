@@ -229,7 +229,7 @@ number of times each key has been seen, they will have to perform some
 conditional logic on whether this is the first time the key has been seen or
 not. Normally, this would require a <code>find</code> followed by an <code>insert</code>,
 effectively duplicating the search effort on each insertion.</p>
-<p>When a user calls <code>map.entry(&amp;key)</code>, the map will search for the key and
+<p>When a user calls <code>map.entry(key)</code>, the map will search for the key and
 then yield a variant of the <code>Entry</code> enum.</p>
 <p>If a <code>Vacant(entry)</code> is yielded, then the key <em>was not</em> found. In this case
 the only valid operation is to <code>insert</code> a value into the entry. When this is
