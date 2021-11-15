@@ -18,7 +18,7 @@ echo "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline"
 curl --silent \
     -X POST \
     -F "token=${CI_JOB_TOKEN}" \
-    -F "ref=master" \
+    -F "ref=cmichi-post-comment-in-pr" \
     -F "variables[TRGR_PROJECT]=${TRGR_PROJECT}" \
     -F "variables[TRGR_REF]=${TRGR_REF}" \
     "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/trigger/pipeline" | \
