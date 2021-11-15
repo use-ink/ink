@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Mapping","A mapping of key-value pairs directly into contract storage."]]});

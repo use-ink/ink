@@ -319,6 +319,8 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -346,6 +348,7 @@
 <span class="doccomment">//! extra care has to be taken when operating directly on them.</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">lazy_hmap</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">mapping</span>;
 
 <span class="kw">mod</span> <span class="ident">cache_cell</span>;
 <span class="kw">mod</span> <span class="ident">entry</span>;
@@ -367,6 +370,7 @@
     <span class="ident">lazy_cell::LazyCell</span>,
     <span class="ident">lazy_hmap::LazyHashMap</span>,
     <span class="ident">lazy_imap::LazyIndexMap</span>,
+    <span class="ident">mapping::Mapping</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traits</span>::{
     <span class="ident">KeyPtr</span>,
