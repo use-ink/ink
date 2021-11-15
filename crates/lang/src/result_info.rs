@@ -44,7 +44,7 @@ macro_rules! is_result_type {
 pub struct IsResultErr<'lt, T>(pub &'lt T);
 
 impl<T, E> IsResultErr<'_, ::core::result::Result<T, E>> {
-    #[inline]
+    #[inline(always)]
     // We need to allow for dead code at this point because
     // the Rust compiler thinks this function is unused even
     // though it acts as the specialized case for detection.
@@ -55,7 +55,7 @@ impl<T, E> IsResultErr<'_, ::core::result::Result<T, E>> {
 }
 
 pub trait IsResultErrFallback {
-    #[inline]
+    #[inline(always)]
     fn value(&self) -> bool {
         false
     }

@@ -80,10 +80,10 @@ where
         Default::default()
     }
 
-    #[inline]
+    #[inline(always)]
     fn push_spread(&self, _ptr: &mut KeyPtr) {}
 
-    #[inline]
+    #[inline(always)]
     fn clear_spread(&self, _ptr: &mut KeyPtr) {}
 }
 

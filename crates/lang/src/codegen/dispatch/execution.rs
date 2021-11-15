@@ -220,12 +220,12 @@ impl<C> ConstructorReturnType<C> for private::Seal<C> {
     type Error = Infallible;
     type ReturnValue = ();
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
     }
 
-    #[inline]
+    #[inline(always)]
     fn return_value(&self) -> &Self::ReturnValue {
         &()
     }
@@ -236,12 +236,12 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     type Error = E;
     type ReturnValue = Result<C, E>;
 
-    #[inline]
+    #[inline(always)]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
     }
 
-    #[inline]
+    #[inline(always)]
     fn return_value(&self) -> &Self::ReturnValue {
         &self.0
     }
@@ -310,7 +310,7 @@ pub struct ExecuteMessageConfig {
 /// This work around that splits executing an ink! message into initiate
 /// and finalize phases was needed due to the fact that `is_result_type`
 /// and `is_result_err` macros do not work in generic contexts.
-#[inline]
+#[inline(always)]
 pub fn initiate_message<Contract>(
     config: ExecuteMessageConfig,
 ) -> Result<Contract, DispatchError>

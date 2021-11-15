@@ -98,16 +98,16 @@ impl SpreadAllocate for Header {
 }
 
 impl PackedLayout for Header {
-    #[inline]
+    #[inline(always)]
     fn pull_packed(&mut self, _at: &Key) {}
-    #[inline]
+    #[inline(always)]
     fn push_packed(&self, _at: &Key) {}
-    #[inline]
+    #[inline(always)]
     fn clear_packed(&self, _at: &Key) {}
 }
 
 impl PackedAllocate for Header {
-    #[inline]
+    #[inline(always)]
     fn allocate_packed(&mut self, _at: &Key) {}
 }
 

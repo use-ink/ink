@@ -144,7 +144,7 @@ impl Key {
 }
 
 impl scale::Encode for Key {
-    #[inline]
+    #[inline(always)]
     fn size_hint(&self) -> usize {
         32
     }
@@ -165,7 +165,7 @@ impl scale::Encode for Key {
         f(self.as_ref())
     }
 
-    #[inline]
+    #[inline(always)]
     fn encoded_size(&self) -> usize {
         self.size_hint()
     }
@@ -183,7 +183,7 @@ impl scale::Decode for Key {
         Ok(Self::from(bytes))
     }
 
-    #[inline]
+    #[inline(always)]
     fn encoded_fixed_size() -> Option<usize> {
         Some(32)
     }
