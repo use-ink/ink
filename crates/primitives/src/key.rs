@@ -179,8 +179,9 @@ impl scale::Decode for Key {
     where
         I: scale::Input,
     {
-        let bytes = <[u8; 32] as scale::Decode>::decode(input)?;
-        Ok(Self::from(bytes))
+        let mut key = Key { 0: [0; 32] };
+        input.read(key.0.as_mut_slice())?;
+        Ok(key)
     }
 
     #[inline]
