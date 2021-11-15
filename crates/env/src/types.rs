@@ -211,21 +211,18 @@ pub type RentFraction = Perbill;
 /// This is a mirror of the `AccountId` type used in the default configuration
 /// of PALLET contracts.
 #[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Ord,
-    PartialOrd,
-    Hash,
-    Encode,
-    Decode,
-    From,
-    Default,
+    Debug, Copy, Clone, PartialEq, Eq, Ord, PartialOrd, Hash, Encode, From, Default,
 )]
 #[cfg_attr(feature = "std", derive(TypeInfo))]
 pub struct AccountId([u8; 32]);
+
+impl Decode for AccountId {
+    fn decode<I: scale::Input>(input: &mut I) -> Result<Self, scale::Error> {
+        let mut account_id = AccountId { 0: [0; 32] };
+        input.read(account_id.0.as_mut_slice())?;
+        Ok(account_id)
+    }
+}
 
 impl AsRef<[u8; 32]> for AccountId {
     #[inline]
