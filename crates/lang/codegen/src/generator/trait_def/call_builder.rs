@@ -215,11 +215,11 @@ impl CallBuilder<'_> {
                 E: ::ink_env::Environment,
                 <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::PackedLayout,
             {
-                #[inline(always)]
+                #[inline]
                 fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
-                #[inline(always)]
+                #[inline]
                 fn push_packed(&self, _at: &::ink_primitives::Key) {}
-                #[inline(always)]
+                #[inline]
                 fn clear_packed(&self, _at: &::ink_primitives::Key) {}
             }
         )

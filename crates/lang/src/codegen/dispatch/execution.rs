@@ -215,12 +215,12 @@ impl<C> ConstructorReturnType<C> for private::Seal<C> {
     type Error = Infallible;
     type ReturnValue = ();
 
-    #[inline(always)]
+    #[inline]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
     }
 
-    #[inline(always)]
+    #[inline]
     fn return_value(&self) -> &Self::ReturnValue {
         &()
     }
@@ -231,12 +231,12 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     type Error = E;
     type ReturnValue = Result<C, E>;
 
-    #[inline(always)]
+    #[inline]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
     }
 
-    #[inline(always)]
+    #[inline]
     fn return_value(&self) -> &Self::ReturnValue {
         &self.0
     }

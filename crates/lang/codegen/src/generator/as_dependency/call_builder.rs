@@ -188,7 +188,7 @@ impl CallBuilder<'_> {
             impl ::ink_lang::codegen::TraitCallForwarderFor<#trait_info> for #cb_ident {
                 type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder;
 
-                #[inline(always)]
+                #[inline]
                 fn forward(&self) -> &Self::Forwarder {
                     // SAFETY:
                     //
@@ -201,7 +201,7 @@ impl CallBuilder<'_> {
                     }
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn forward_mut(&mut self) -> &mut Self::Forwarder {
                     // SAFETY:
                     //
@@ -214,14 +214,14 @@ impl CallBuilder<'_> {
                     }
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn build(&self) -> &<Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     <_ as ::ink_lang::codegen::TraitCallBuilder>::call(
                         <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::forward(self)
                     )
                 }
 
-                #[inline(always)]
+                #[inline]
                 fn build_mut(&mut self)
                     -> &mut <Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder
                 {
