@@ -44,7 +44,6 @@ pub struct EnvAccess<'a, T> {
 }
 
 impl<'a, T> Default for EnvAccess<'a, T> {
-    #[inline]
     fn default() -> Self {
         Self {
             marker: Default::default(),

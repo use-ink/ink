@@ -88,22 +88,18 @@ impl<T> scale::Encode for Reverse<T>
 where
     T: PackedLayout + Ord + scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         <T as scale::Encode>::size_hint(self.value())
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <T as scale::Encode>::encode_to(self.value(), dest)
     }
 
-    #[inline]
     fn encode(&self) -> Vec<u8> {
         <T as scale::Encode>::encode(self.value())
     }
 
-    #[inline]
     fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
         <T as scale::Encode>::using_encoded(self.value(), f)
     }

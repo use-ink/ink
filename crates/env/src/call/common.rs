@@ -23,7 +23,6 @@ use core::marker::PhantomData;
 pub struct ReturnType<T>(PhantomData<fn() -> T>);
 
 impl<T> Clone for ReturnType<T> {
-    #[inline]
     fn clone(&self) -> Self {
         Self(Default::default())
     }
@@ -32,7 +31,6 @@ impl<T> Clone for ReturnType<T> {
 impl<T> Copy for ReturnType<T> {}
 
 impl<T> Default for ReturnType<T> {
-    #[inline]
     fn default() -> Self {
         Self(Default::default())
     }
@@ -44,7 +42,6 @@ pub struct Set<T>(pub T);
 
 impl<T> Set<T> {
     /// Returns the set value.
-    #[inline]
     pub fn value(self) -> T {
         self.0
     }
@@ -55,7 +52,6 @@ impl<T> Set<T> {
 pub struct Unset<T>(PhantomData<fn() -> T>);
 
 impl<T> Clone for Unset<T> {
-    #[inline]
     fn clone(&self) -> Self {
         Self(Default::default())
     }
@@ -64,7 +60,6 @@ impl<T> Clone for Unset<T> {
 impl<T> Copy for Unset<T> {}
 
 impl<T> Default for Unset<T> {
-    #[inline]
     fn default() -> Self {
         Self(Default::default())
     }
@@ -87,7 +82,6 @@ pub trait Unwrap {
 impl<T> Unwrap for Unset<T> {
     type Output = T;
 
-    #[inline]
     fn unwrap_or_else<F>(self, f: F) -> Self::Output
     where
         F: FnOnce() -> Self::Output,
@@ -99,7 +93,6 @@ impl<T> Unwrap for Unset<T> {
 impl<T> Unwrap for Set<T> {
     type Output = T;
 
-    #[inline]
     fn unwrap_or_else<F>(self, _: F) -> Self::Output
     where
         F: FnOnce() -> Self::Output,

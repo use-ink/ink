@@ -128,7 +128,6 @@ impl ContractRef<'_> {
         let ref_ident = self.generate_contract_ref_ident();
         quote_spanned!(span=>
             impl ::ink_env::call::FromAccountId<Environment> for #ref_ident {
-                #[inline]
                 fn from_account_id(account_id: AccountId) -> Self {
                     Self { inner: <<#storage_ident
                         as ::ink_lang::codegen::ContractCallBuilder>::Type
@@ -138,7 +137,6 @@ impl ContractRef<'_> {
             }
 
             impl ::ink_lang::ToAccountId<Environment> for #ref_ident {
-                #[inline]
                 fn to_account_id(&self) -> AccountId {
                     <<#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type
                         as ::ink_lang::ToAccountId<Environment>>::to_account_id(&self.inner)
@@ -160,12 +158,10 @@ impl ContractRef<'_> {
                 impl ::ink_lang::codegen::TraitCallBuilder for #ref_ident {
                     type Builder = <#storage_ident as ::ink_lang::codegen::ContractCallBuilder>::Type;
 
-                    #[inline]
                     fn call(&self) -> &Self::Builder {
                         &self.inner
                     }
 
-                    #[inline]
                     fn call_mut(&mut self) -> &mut Self::Builder {
                         &mut self.inner
                     }
@@ -260,7 +256,6 @@ impl ContractRef<'_> {
             type #output_ident =
                 <<Self::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder as #trait_path>::#output_ident;
 
-            #[inline]
             fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
@@ -345,7 +340,6 @@ impl ContractRef<'_> {
         let output_type = message.output().map(|ty| quote! { -> #ty });
         quote_spanned!(span=>
             #( #attrs )*
-            #[inline]
             pub fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings : #input_types )*
@@ -383,7 +377,6 @@ impl ContractRef<'_> {
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         quote_spanned!(span =>
             #( #attrs )*
-            #[inline]
             #[allow(clippy::type_complexity)]
             pub fn #constructor_ident(
                 #( #input_bindings : #input_types ),*

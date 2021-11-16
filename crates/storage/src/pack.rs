@@ -77,27 +77,22 @@ impl<T> scale::Encode for Pack<T>
 where
     T: scale::Encode + PackedLayout,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         <T as scale::Encode>::size_hint(&self.inner)
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <T as scale::Encode>::encode_to(&self.inner, dest)
     }
 
-    #[inline]
     fn encode(&self) -> Vec<u8> {
         <T as scale::Encode>::encode(&self.inner)
     }
 
-    #[inline]
     fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
         <T as scale::Encode>::using_encoded(&self.inner, f)
     }
 
-    #[inline]
     fn encoded_size(&self) -> usize {
         <T as scale::Encode>::encoded_size(&self.inner)
     }

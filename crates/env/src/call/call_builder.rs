@@ -54,31 +54,26 @@ where
     E: Environment,
 {
     /// Returns the account ID of the called contract instance.
-    #[inline]
     pub(crate) fn callee(&self) -> &E::AccountId {
         &self.callee
     }
 
     /// Returns the call flags.
-    #[inline]
     pub(crate) fn call_flags(&self) -> &CallFlags {
         &self.call_flags
     }
 
     /// Returns the chosen gas limit for the called contract execution.
-    #[inline]
     pub(crate) fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
-    #[inline]
     pub(crate) fn transferred_value(&self) -> &E::Balance {
         &self.transferred_value
     }
 
     /// Returns the execution input.
-    #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
@@ -240,7 +235,6 @@ where
     E: Environment,
 {
     /// Sets the called smart contract instance account ID to the given value.
-    #[inline]
     pub fn callee(
         self,
         callee: E::AccountId,
@@ -264,7 +258,6 @@ where
     E: Environment,
 {
     /// The flags used to change the behavior of the contract call.
-    #[inline]
     pub fn call_flags(
         self,
         call_flags: CallFlags,
@@ -287,7 +280,6 @@ where
     E: Environment,
 {
     /// Sets the maximum allowed gas costs for the call.
-    #[inline]
     pub fn gas_limit(
         self,
         gas_limit: u64,
@@ -310,7 +302,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn transferred_value(
         self,
         transferred_value: E::Balance,
@@ -351,7 +342,6 @@ where
     /// Either use `.returns::<()>` to signal that the call does not return a value
     /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
     /// type `T`.
-    #[inline]
     pub fn returns<R>(
         self,
     ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<R>>

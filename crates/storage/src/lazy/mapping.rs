@@ -68,7 +68,6 @@ where
     V: PackedLayout,
 {
     /// Insert the given `value` to the contract storage.
-    #[inline]
     pub fn insert<Q, R>(&mut self, key: Q, value: &R)
     where
         Q: scale::EncodeLike<K>,
@@ -80,7 +79,6 @@ where
     /// Get the `value` at `key` from the contract storage.
     ///
     /// Returns `None` if no `value` exists at the given `key`.
-    #[inline]
     pub fn get<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -107,7 +105,6 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         // Note: There is no need to pull anything from the storage for the
         //       mapping type since it initializes itself entirely by the
@@ -115,14 +112,12 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
         Self::new(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 
-    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         // Note: The mapping type does not store any state in its associated
         //       storage region, therefore only the pointer has to be incremented.
         ptr.advance_by(Self::FOOTPRINT);
     }
 
-    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         // Note: The mapping type is not aware of its elements, therefore
         //       it is not possible to clean up after itself.
@@ -131,7 +126,6 @@ impl<K, V> SpreadLayout for Mapping<K, V> {
 }
 
 impl<K, V> SpreadAllocate for Mapping<K, V> {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         // Note: The mapping type initializes itself entirely by the key pointer.
         Self::new(*ExtKeyPtr::next_for::<Self>(ptr))

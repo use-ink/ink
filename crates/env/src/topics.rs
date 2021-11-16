@@ -223,12 +223,10 @@ impl<X> scale::Encode for PrefixedValue<'_, '_, X>
 where
     X: scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         self.prefix.size_hint() + self.value.size_hint()
     }
 
-    #[inline]
     fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
         self.prefix.encode_to(dest);
         self.value.encode_to(dest);

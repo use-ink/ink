@@ -229,7 +229,6 @@ impl<T, const N: usize> Default for EntryArray<T, N> {
 
 impl<T, const N: usize> EntryArray<T, N> {
     /// Returns the constant capacity of the lazy array.
-    #[inline]
     pub fn capacity() -> u32 {
         array_capacity::<T, N>()
     }
@@ -340,7 +339,6 @@ impl<T, const N: usize> LazyArray<T, N> {
     }
 
     /// Returns the constant capacity of the lazy array.
-    #[inline]
     pub fn capacity(&self) -> u32 {
         array_capacity::<T, N>()
     }
@@ -376,7 +374,6 @@ where
 {
     const FOOTPRINT: u64 = N as u64;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
@@ -392,7 +389,6 @@ where
         }
     }
 
-    #[inline]
     fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
@@ -405,7 +401,6 @@ impl<T, const N: usize> SpreadAllocate for LazyArray<T, N>
 where
     T: PackedLayout,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }

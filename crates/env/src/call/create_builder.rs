@@ -75,25 +75,21 @@ where
     E: Environment,
 {
     /// The code hash of the contract.
-    #[inline]
     pub(crate) fn code_hash(&self) -> &E::Hash {
         &self.code_hash
     }
 
     /// The gas limit for the contract instantiation.
-    #[inline]
     pub(crate) fn gas_limit(&self) -> u64 {
         self.gas_limit
     }
 
     /// The endowment for the instantiated contract.
-    #[inline]
     pub(crate) fn endowment(&self) -> &E::Balance {
         &self.endowment
     }
 
     /// The raw encoded input data.
-    #[inline]
     pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
         &self.exec_input
     }
@@ -105,7 +101,6 @@ where
     Salt: AsRef<[u8]>,
 {
     /// The salt for determining the hash for the contract account ID.
-    #[inline]
     pub(crate) fn salt_bytes(&self) -> &Salt {
         &self.salt_bytes
     }
@@ -119,7 +114,6 @@ where
     R: FromAccountId<E>,
 {
     /// Instantiates the contract and returns its account ID back to the caller.
-    #[inline]
     pub fn instantiate(&self) -> Result<R, crate::Error> {
         crate::instantiate_contract(self).map(FromAccountId::from_account_id)
     }
@@ -218,7 +212,6 @@ where
     E: Environment,
 {
     /// Sets the used code hash for the contract instantiation.
-    #[inline]
     pub fn code_hash(
         self,
         code_hash: E::Hash,
@@ -241,7 +234,6 @@ where
     E: Environment,
 {
     /// Sets the maximum allowed gas costs for the contract instantiation.
-    #[inline]
     pub fn gas_limit(
         self,
         gas_limit: u64,
@@ -264,7 +256,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn endowment(
         self,
         endowment: E::Balance,
@@ -295,7 +286,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn exec_input<Args>(
         self,
         exec_input: ExecutionInput<Args>,
@@ -319,7 +309,6 @@ where
     E: Environment,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn salt_bytes<Salt>(
         self,
         salt: Salt,
@@ -354,7 +343,6 @@ where
     GasLimit: Unwrap<Output = u64>,
 {
     /// Sets the value transferred upon the execution of the call.
-    #[inline]
     pub fn params(self) -> CreateParams<E, Args, Salt, R> {
         CreateParams {
             code_hash: self.code_hash.value(),
@@ -385,7 +373,6 @@ where
     R: FromAccountId<E>,
 {
     /// Instantiates the contract using the given instantiation parameters.
-    #[inline]
     pub fn instantiate(self) -> Result<R, Error> {
         self.params().instantiate()
     }

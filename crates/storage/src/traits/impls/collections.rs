@@ -45,17 +45,14 @@ where
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
     }
 
-    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
@@ -66,7 +63,6 @@ where
     K: PackedAllocate + Ord,
     V: PackedAllocate,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         forward_allocate_packed::<Self>(ptr)
     }
@@ -121,17 +117,14 @@ where
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
     }
 
-    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
@@ -141,7 +134,6 @@ impl<T> SpreadAllocate for StdBTreeSet<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         forward_allocate_packed::<Self>(ptr)
     }
@@ -163,7 +155,6 @@ where
         }
     }
 
-    #[inline]
     fn pull_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a set so we cannot forward pull signals.
     }
@@ -173,7 +164,6 @@ impl<T> PackedAllocate for StdBTreeSet<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline]
     fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a set so we cannot forward pull signals.
     }
@@ -186,17 +176,14 @@ where
     const FOOTPRINT: u64 = 1;
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         forward_pull_packed::<Self>(ptr)
     }
 
-    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         forward_push_packed::<Self>(self, ptr)
     }
 
-    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         forward_clear_packed::<Self>(self, ptr)
     }
@@ -206,7 +193,6 @@ impl<T> SpreadAllocate for StdBinaryHeap<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         forward_allocate_packed::<Self>(ptr)
     }
@@ -228,7 +214,6 @@ where
         }
     }
 
-    #[inline]
     fn pull_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a heap so we cannot forward pull signals.
     }
@@ -238,7 +223,6 @@ impl<T> PackedAllocate for StdBinaryHeap<T>
 where
     T: PackedAllocate + Ord,
 {
-    #[inline]
     fn allocate_packed(&mut self, _at: &Key) {
         // We cannot mutate keys in a heap so we cannot forward pull signals.
     }

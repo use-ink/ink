@@ -112,19 +112,16 @@ where
     }
 
     /// Returns the capacity of the small vector.
-    #[inline]
     pub fn capacity(&self) -> u32 {
         self.elems.capacity()
     }
 
     /// Returns the number of elements in the vector, also referred to as its length.
-    #[inline]
     pub fn len(&self) -> u32 {
         *self.len
     }
 
     /// Returns `true` if the vector contains no elements.
-    #[inline]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }

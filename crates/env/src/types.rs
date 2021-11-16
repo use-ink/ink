@@ -58,7 +58,6 @@ pub trait FromLittleEndian {
 impl FromLittleEndian for u8 {
     type Bytes = [u8; 1];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         Self::from_le_bytes(bytes)
     }
@@ -67,7 +66,6 @@ impl FromLittleEndian for u8 {
 impl FromLittleEndian for u16 {
     type Bytes = [u8; 2];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         Self::from_le_bytes(bytes)
     }
@@ -76,7 +74,6 @@ impl FromLittleEndian for u16 {
 impl FromLittleEndian for u32 {
     type Bytes = [u8; 4];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         Self::from_le_bytes(bytes)
     }
@@ -85,7 +82,6 @@ impl FromLittleEndian for u32 {
 impl FromLittleEndian for u64 {
     type Bytes = [u8; 8];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         Self::from_le_bytes(bytes)
     }
@@ -94,7 +90,6 @@ impl FromLittleEndian for u64 {
 impl FromLittleEndian for u128 {
     type Bytes = [u8; 16];
 
-    #[inline]
     fn from_le_bytes(bytes: Self::Bytes) -> Self {
         Self::from_le_bytes(bytes)
     }
@@ -228,28 +223,24 @@ pub type RentFraction = Perbill;
 pub struct AccountId([u8; 32]);
 
 impl AsRef<[u8; 32]> for AccountId {
-    #[inline]
     fn as_ref(&self) -> &[u8; 32] {
         &self.0
     }
 }
 
 impl AsMut<[u8; 32]> for AccountId {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8; 32] {
         &mut self.0
     }
 }
 
 impl AsRef<[u8]> for AccountId {
-    #[inline]
     fn as_ref(&self) -> &[u8] {
         &self.0[..]
     }
 }
 
 impl AsMut<[u8]> for AccountId {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8] {
         &mut self.0[..]
     }

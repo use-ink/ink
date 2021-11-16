@@ -53,28 +53,24 @@ impl Key {
     ///
     /// This constructor only exists since it is not yet possible to define
     /// the `From` trait implementation as const.
-    #[inline]
     pub const fn new(bytes: [u8; 32]) -> Self {
         Self(bytes)
     }
 }
 
 impl From<[u8; 32]> for Key {
-    #[inline]
     fn from(bytes: [u8; 32]) -> Self {
         Self::new(bytes)
     }
 }
 
 impl AsRef<[u8; 32]> for Key {
-    #[inline]
     fn as_ref(&self) -> &[u8; 32] {
         &self.0
     }
 }
 
 impl AsMut<[u8; 32]> for Key {
-    #[inline]
     fn as_mut(&mut self) -> &mut [u8; 32] {
         &mut self.0
     }
@@ -144,12 +140,10 @@ impl Key {
 }
 
 impl scale::Encode for Key {
-    #[inline]
     fn size_hint(&self) -> usize {
         32
     }
 
-    #[inline]
     fn encode_to<O>(&self, output: &mut O)
     where
         O: scale::Output + ?Sized,
@@ -157,7 +151,6 @@ impl scale::Encode for Key {
         output.write(self.as_ref());
     }
 
-    #[inline]
     fn using_encoded<R, F>(&self, f: F) -> R
     where
         F: FnOnce(&[u8]) -> R,
@@ -165,7 +158,6 @@ impl scale::Encode for Key {
         f(self.as_ref())
     }
 
-    #[inline]
     fn encoded_size(&self) -> usize {
         self.size_hint()
     }
@@ -174,7 +166,6 @@ impl scale::Encode for Key {
 impl scale::EncodeLike<[u8; 32]> for Key {}
 
 impl scale::Decode for Key {
-    #[inline]
     fn decode<I>(input: &mut I) -> Result<Self, scale::Error>
     where
         I: scale::Input,
@@ -183,7 +174,6 @@ impl scale::Decode for Key {
         Ok(Self::from(bytes))
     }
 
-    #[inline]
     fn encoded_fixed_size() -> Option<usize> {
         Some(32)
     }
@@ -315,7 +305,6 @@ impl Key {
     /// # Note
     ///
     /// This will overwrite the contents of the `result` key.
-    #[inline]
     pub fn add_assign_using<T>(&self, rhs: T, result: &mut Key)
     where
         T: Into<u64>,
@@ -332,7 +321,6 @@ impl Key {
 }
 
 impl AddAssign<u64> for Key {
-    #[inline]
     fn add_assign(&mut self, rhs: u64) {
         cfg_if! {
             if #[cfg(target_endian = "little")] {
@@ -345,7 +333,6 @@ impl AddAssign<u64> for Key {
 }
 
 impl AddAssign<&u64> for Key {
-    #[inline]
     fn add_assign(&mut self, rhs: &u64) {
         <Self as AddAssign<u64>>::add_assign(self, *rhs)
     }

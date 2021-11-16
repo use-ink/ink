@@ -102,7 +102,6 @@ mod erc20 {
         ///
         /// Prefer to call this method over `balance_of` since this
         /// works using references which are more efficient in Wasm.
-        #[inline]
         fn balance_of_impl(&self, owner: &AccountId) -> Balance {
             self.balances.get(owner).unwrap_or_default()
         }
@@ -123,7 +122,6 @@ mod erc20 {
         ///
         /// Prefer to call this method over `allowance` since this
         /// works using references which are more efficient in Wasm.
-        #[inline]
         fn allowance_impl(&self, owner: &AccountId, spender: &AccountId) -> Balance {
             self.allowances.get((owner, spender)).unwrap_or_default()
         }
@@ -527,12 +525,10 @@ mod erc20 {
     where
         X: scale::Encode,
     {
-        #[inline]
         fn size_hint(&self) -> usize {
             self.prefix.size_hint() + self.value.size_hint()
         }
 
-        #[inline]
         fn encode_to<T: scale::Output + ?Sized>(&self, dest: &mut T) {
             self.prefix.encode_to(dest);
             self.value.encode_to(dest);

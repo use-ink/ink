@@ -34,7 +34,6 @@ macro_rules! impl_layout_for_tuple {
             const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool =
                 false $(|| <$frag as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP)*;
 
-            #[inline]
             fn push_spread(&self, ptr: &mut KeyPtr) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -43,7 +42,6 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
-            #[inline]
             fn clear_spread(&self, ptr: &mut KeyPtr) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -52,7 +50,6 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
-            #[inline]
             fn pull_spread(ptr: &mut KeyPtr) -> Self {
                 (
                     $(
@@ -68,7 +65,6 @@ macro_rules! impl_layout_for_tuple {
                 $frag: SpreadAllocate,
             )*
         {
-            #[inline]
             fn allocate_spread(ptr: &mut KeyPtr) -> Self {
                 (
                     $(
@@ -84,7 +80,6 @@ macro_rules! impl_layout_for_tuple {
                 $frag: PackedLayout,
             )*
         {
-            #[inline]
             fn push_packed(&self, at: &Key) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -93,7 +88,6 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
-            #[inline]
             fn clear_packed(&self, at: &Key) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -102,7 +96,6 @@ macro_rules! impl_layout_for_tuple {
                 )*
             }
 
-            #[inline]
             fn pull_packed(&mut self, at: &Key) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;
@@ -118,7 +111,6 @@ macro_rules! impl_layout_for_tuple {
                 $frag: PackedAllocate,
             )*
         {
-            #[inline]
             fn allocate_packed(&mut self, at: &Key) {
                 #[allow(non_snake_case)]
                 let ($($frag),*,) = self;

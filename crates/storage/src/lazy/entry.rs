@@ -102,19 +102,16 @@ where
 {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         Self::pull_spread_root(root_key)
     }
 
-    #[inline]
     fn push_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.push_spread_root(root_key)
     }
 
-    #[inline]
     fn clear_spread(&self, ptr: &mut KeyPtr) {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         self.clear_spread_root(root_key)
@@ -125,7 +122,6 @@ impl<T> SpreadAllocate for StorageEntry<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         let root_key = ExtKeyPtr::next_for::<Self>(ptr);
         Self::pull_spread_root(root_key)
@@ -136,22 +132,18 @@ impl<T> scale::Encode for StorageEntry<T>
 where
     T: scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         <Option<T> as scale::Encode>::size_hint(&self.value)
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, dest: &mut O) {
         <Option<T> as scale::Encode>::encode_to(&self.value, dest)
     }
 
-    #[inline]
     fn encode(&self) -> Vec<u8> {
         <Option<T> as scale::Encode>::encode(&self.value)
     }
 
-    #[inline]
     fn using_encoded<R, F: FnOnce(&[u8]) -> R>(&self, f: F) -> R {
         <Option<T> as scale::Encode>::using_encoded(&self.value, f)
     }
@@ -173,17 +165,14 @@ impl<T> PackedLayout for StorageEntry<T>
 where
     T: PackedLayout,
 {
-    #[inline]
     fn pull_packed(&mut self, at: &Key) {
         PackedLayout::pull_packed(&mut self.value, at)
     }
 
-    #[inline]
     fn push_packed(&self, at: &Key) {
         PackedLayout::push_packed(&self.value, at)
     }
 
-    #[inline]
     fn clear_packed(&self, at: &Key) {
         PackedLayout::clear_packed(&self.value, at)
     }
@@ -193,7 +182,6 @@ impl<T> PackedAllocate for StorageEntry<T>
 where
     T: PackedAllocate,
 {
-    #[inline]
     fn allocate_packed(&mut self, at: &Key) {
         PackedAllocate::allocate_packed(&mut self.value, at)
     }

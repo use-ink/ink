@@ -122,7 +122,6 @@ impl ChainExtension<'_> {
 
         quote_spanned!(span=>
             #( #attrs )*
-            #[inline]
             pub fn #ident(self, #inputs) -> #returned_type
             where
                 #where_output_is_result

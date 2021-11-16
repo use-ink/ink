@@ -39,7 +39,6 @@ macro_rules! define_error_codes {
         }
 
         impl From<ReturnCode> for Result {
-            #[inline]
             fn from(return_code: ReturnCode) -> Self {
                 match return_code.0 {
                     0 => Ok(()),

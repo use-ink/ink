@@ -171,7 +171,6 @@ impl CallForwarder<'_> {
                 const FOOTPRINT: ::core::primitive::u64 = 1;
                 const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = false;
 
-                #[inline]
                 fn pull_spread(ptr: &mut ::ink_primitives::KeyPtr) -> Self {
                     Self {
                         builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
@@ -179,13 +178,11 @@ impl CallForwarder<'_> {
                     }
                 }
 
-                #[inline]
                 fn push_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::SpreadLayout>::push_spread(&self.builder, ptr)
                 }
 
-                #[inline]
                 fn clear_spread(&self, ptr: &mut ::ink_primitives::KeyPtr) {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_storage::traits::SpreadLayout>::clear_spread(&self.builder, ptr)
@@ -210,11 +207,8 @@ impl CallForwarder<'_> {
                 E: ::ink_env::Environment,
                 <E as ::ink_env::Environment>::AccountId: ::ink_storage::traits::PackedLayout,
             {
-                #[inline]
                 fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
-                #[inline]
                 fn push_packed(&self, _at: &::ink_primitives::Key) {}
-                #[inline]
                 fn clear_packed(&self, _at: &::ink_primitives::Key) {}
             }
         )
@@ -237,7 +231,6 @@ impl CallForwarder<'_> {
                 E: ::ink_env::Environment,
                 <E as ::ink_env::Environment>::AccountId: ::core::clone::Clone,
             {
-                #[inline]
                 fn clone(&self) -> Self {
                     Self {
                         builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
@@ -275,7 +268,6 @@ impl CallForwarder<'_> {
             where
                 E: ::ink_env::Environment,
             {
-                #[inline]
                 fn from_account_id(account_id: <E as ::ink_env::Environment>::AccountId) -> Self {
                     Self { builder: <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_env::call::FromAccountId<E>>::from_account_id(account_id) }
@@ -286,7 +278,6 @@ impl CallForwarder<'_> {
             where
                 E: ::ink_env::Environment,
             {
-                #[inline]
                 fn to_account_id(&self) -> <E as ::ink_env::Environment>::AccountId {
                     <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder
                         as ::ink_lang::ToAccountId<E>>::to_account_id(&self.builder)
@@ -317,12 +308,10 @@ impl CallForwarder<'_> {
             {
                 type Builder = #call_builder_ident<E>;
 
-                #[inline]
                 fn call(&self) -> &<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &self.builder
                 }
 
-                #[inline]
                 fn call_mut(&mut self) -> &mut <Self as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     &mut self.builder
                 }
@@ -409,7 +398,6 @@ impl CallForwarder<'_> {
             type #output_ident = #output_type;
 
             #( #attrs )*
-            #[inline]
             fn #message_ident(
                 & #mut_tok self
                 #( , #input_bindings : #input_types )*

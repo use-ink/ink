@@ -27,7 +27,6 @@ pub struct KeyPtr {
 }
 
 impl From<Key> for KeyPtr {
-    #[inline]
     fn from(key: Key) -> Self {
         Self { key, last_shift: 0 }
     }
@@ -35,7 +34,6 @@ impl From<Key> for KeyPtr {
 
 impl KeyPtr {
     /// Advances the key pointer by the given amount and returns the old value.
-    #[inline]
     pub fn advance_by(&mut self, new_shift: u64) -> &Key {
         let old_shift = core::mem::replace(&mut self.last_shift, new_shift);
         self.key += old_shift;

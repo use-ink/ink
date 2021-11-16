@@ -35,7 +35,6 @@ static mut INNER: InnerAlloc = InnerAlloc::new();
 pub struct BumpAllocator;
 
 unsafe impl GlobalAlloc for BumpAllocator {
-    #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         match INNER.alloc(layout) {
             Some(start) => start as *mut u8,
@@ -43,7 +42,6 @@ unsafe impl GlobalAlloc for BumpAllocator {
         }
     }
 
-    #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         // A new page in Wasm is guaranteed to already be zero initialized, so we can just use our
         // regular `alloc` call here and save a bit of work.
@@ -52,7 +50,6 @@ unsafe impl GlobalAlloc for BumpAllocator {
         self.alloc(layout)
     }
 
-    #[inline]
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {}
 }
 
@@ -142,7 +139,6 @@ impl InnerAlloc {
 /// This function rounds up to the next page. For example, if we have an allocation of
 /// `size = PAGE_SIZE / 2` this function will indicate that one page is required to satisfy
 /// the allocation.
-#[inline]
 fn required_pages(size: usize) -> Option<usize> {
     size.checked_add(PAGE_SIZE - 1)
         .and_then(|num| num.checked_div(PAGE_SIZE))

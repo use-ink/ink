@@ -25,7 +25,6 @@ pub struct ExecutionInput<Args> {
 
 impl ExecutionInput<EmptyArgumentList> {
     /// Creates a new execution input with the given selector.
-    #[inline]
     pub fn new(selector: Selector) -> Self {
         Self {
             selector,
@@ -34,7 +33,6 @@ impl ExecutionInput<EmptyArgumentList> {
     }
 
     /// Pushes an argument to the execution input.
-    #[inline]
     pub fn push_arg<T>(
         self,
         arg: T,
@@ -51,7 +49,6 @@ impl ExecutionInput<EmptyArgumentList> {
 
 impl<'a, Head, Rest> ExecutionInput<ArgumentList<Argument<Head>, Rest>> {
     /// Pushes an argument to the execution input.
-    #[inline]
     pub fn push_arg<T>(self, arg: T) -> ExecutionInput<ArgsList<T, ArgsList<Head, Rest>>>
     where
         T: scale::Encode,
@@ -92,7 +89,6 @@ pub struct Argument<T> {
 
 impl<T> Argument<T> {
     /// Creates a new argument.
-    #[inline]
     fn new(arg: T) -> Self {
         Self { arg }
     }
@@ -107,7 +103,6 @@ pub type EmptyArgumentList = ArgumentList<ArgumentListEnd, ArgumentListEnd>;
 
 impl EmptyArgumentList {
     /// Creates a new empty argument list.
-    #[inline]
     pub fn empty() -> EmptyArgumentList {
         ArgumentList {
             head: ArgumentListEnd,
@@ -116,7 +111,6 @@ impl EmptyArgumentList {
     }
 
     /// Pushes the first argument to the empty argument list.
-    #[inline]
     pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
     where
         T: scale::Encode,
@@ -130,7 +124,6 @@ impl EmptyArgumentList {
 
 impl<Head, Rest> ArgumentList<Argument<Head>, Rest> {
     /// Pushes another argument to the argument list.
-    #[inline]
     pub fn push_arg<T>(self, arg: T) -> ArgumentList<Argument<T>, Self>
     where
         T: scale::Encode,
@@ -146,24 +139,20 @@ impl<T> scale::Encode for Argument<T>
 where
     T: scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         <T as scale::Encode>::size_hint(&self.arg)
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         <T as scale::Encode>::encode_to(&self.arg, output)
     }
 }
 
 impl scale::Encode for EmptyArgumentList {
-    #[inline]
     fn size_hint(&self) -> usize {
         0
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, _output: &mut O) {}
 }
 
@@ -172,12 +161,10 @@ where
     Head: scale::Encode,
     Rest: scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         scale::Encode::size_hint(&self.head) + scale::Encode::size_hint(&self.rest)
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         // We reverse the order of encoding because we build up the list of
         // arguments in reverse order, too. This way we encode the arguments
@@ -192,12 +179,10 @@ impl<Args> scale::Encode for ExecutionInput<Args>
 where
     Args: scale::Encode,
 {
-    #[inline]
     fn size_hint(&self) -> usize {
         scale::Encode::size_hint(&self.selector) + scale::Encode::size_hint(&self.args)
     }
 
-    #[inline]
     fn encode_to<O: scale::Output + ?Sized>(&self, output: &mut O) {
         scale::Encode::encode_to(&self.selector, output);
         scale::Encode::encode_to(&self.args, output);

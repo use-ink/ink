@@ -31,7 +31,6 @@ pub struct CacheCell<T: ?Sized> {
 
 impl<T> CacheCell<T> {
     /// Creates a new cache cell from the given value.
-    #[inline]
     pub fn new(value: T) -> Self {
         Self {
             inner: UnsafeCell::new(value),
@@ -55,7 +54,6 @@ where
 }
 
 impl<T> From<T> for CacheCell<T> {
-    #[inline]
     fn from(value: T) -> Self {
         Self::new(value)
     }
@@ -65,7 +63,6 @@ impl<T> Default for CacheCell<T>
 where
     T: Default,
 {
-    #[inline]
     fn default() -> Self {
         Self::new(<T as Default>::default())
     }
@@ -76,7 +73,6 @@ where
     T: ?Sized,
 {
     /// Returns a shared reference to the inner value.
-    #[inline]
     pub fn as_inner(&self) -> &T {
         // SAFETY: This is safe since we are returning a shared reference back
         //         to the caller while this method itself accesses `self` as
@@ -85,7 +81,6 @@ where
     }
 
     /// Returns an exclusive reference to the inner value.
-    #[inline]
     pub fn as_inner_mut(&mut self) -> &mut T {
         // SAFETY: This is safe since we are returning the exclusive reference
         //         of the inner value through the `get_mut` API which itself
@@ -95,7 +90,6 @@ where
     }
 
     /// Returns a mutable pointer to the inner value.
-    #[inline]
     pub fn get_ptr(&self) -> NonNull<T> {
         // SAFETY: The inner `T` of the internal `UnsafeCell` exists and thus
         //         the pointer that we get returned to it via `UnsafeCell::get`

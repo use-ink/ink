@@ -265,7 +265,6 @@ where
 {
     const FOOTPRINT: u64 = 1;
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
@@ -278,7 +277,6 @@ where
         }
     }
 
-    #[inline]
     fn clear_spread(&self, _ptr: &mut KeyPtr) {
         // Low-level lazy abstractions won't perform automated clean-up since
         // they generally are not aware of their entire set of associated
@@ -294,7 +292,6 @@ where
     H: CryptoHash,
     Key: From<<H as HashOutput>::Type>,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }

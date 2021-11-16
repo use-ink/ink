@@ -75,15 +75,12 @@ where
 {
     const FOOTPRINT: u64 = 0;
 
-    #[inline]
     fn pull_spread(_ptr: &mut KeyPtr) -> Self {
         Default::default()
     }
 
-    #[inline]
     fn push_spread(&self, _ptr: &mut KeyPtr) {}
 
-    #[inline]
     fn clear_spread(&self, _ptr: &mut KeyPtr) {}
 }
 
@@ -91,7 +88,6 @@ impl<T> SpreadAllocate for Memory<T>
 where
     T: Default,
 {
-    #[inline]
     fn allocate_spread(_ptr: &mut KeyPtr) -> Self {
         Default::default()
     }
@@ -99,26 +95,22 @@ where
 
 impl<T> Memory<T> {
     /// Creates a new memory instance.
-    #[inline]
     pub fn new(inner: T) -> Self {
         Self { inner }
     }
 
     /// Returns a shared reference to the inner `T`.
-    #[inline]
     pub fn get(memory: &Self) -> &T {
         &memory.inner
     }
 
     /// Returns an exclusive reference to the inner `T`.
-    #[inline]
     pub fn get_mut(memory: &mut Self) -> &mut T {
         &mut memory.inner
     }
 }
 
 impl<T> From<T> for Memory<T> {
-    #[inline]
     fn from(inner: T) -> Self {
         Self::new(inner)
     }
@@ -128,7 +120,6 @@ impl<T> Default for Memory<T>
 where
     T: Default,
 {
-    #[inline]
     fn default() -> Self {
         Self::new(<T as Default>::default())
     }
@@ -146,14 +137,12 @@ where
 impl<T> Deref for Memory<T> {
     type Target = T;
 
-    #[inline]
     fn deref(&self) -> &Self::Target {
         Self::get(self)
     }
 }
 
 impl<T> DerefMut for Memory<T> {
-    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         Self::get_mut(self)
     }
@@ -163,7 +152,6 @@ impl<T> AsRef<T> for Memory<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn as_ref(&self) -> &T {
         Self::get(self)
     }
@@ -173,7 +161,6 @@ impl<T> convert::AsMut<T> for Memory<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn as_mut(&mut self) -> &mut T {
         Self::get_mut(self)
     }
@@ -183,7 +170,6 @@ impl<T> Borrow<T> for Memory<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn borrow(&self) -> &T {
         Self::get(self)
     }
@@ -193,7 +179,6 @@ impl<T> BorrowMut<T> for Memory<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn borrow_mut(&mut self) -> &mut T {
         Self::get_mut(self)
     }

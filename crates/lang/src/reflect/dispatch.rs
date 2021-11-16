@@ -538,7 +538,6 @@ impl Display for DispatchError {
 
 impl DispatchError {
     /// Returns a string representation of the error.
-    #[inline]
     fn as_str(&self) -> &'static str {
         match self {
             Self::InvalidSelector => "unable to decode selector",
@@ -551,7 +550,6 @@ impl DispatchError {
 }
 
 impl From<DispatchError> for scale::Error {
-    #[inline]
     fn from(error: DispatchError) -> Self {
         Self::from(error.as_str())
     }

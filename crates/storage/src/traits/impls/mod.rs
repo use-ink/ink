@@ -23,17 +23,14 @@ macro_rules! impl_always_packed_layout {
             const FOOTPRINT: ::core::primitive::u64 = 1_u64;
             const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
 
-            #[inline]
             fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
                 $crate::traits::impls::forward_pull_packed::<Self>(ptr)
             }
 
-            #[inline]
             fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
                 $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
             }
 
-            #[inline]
             fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
                 $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
             }
@@ -46,7 +43,6 @@ macro_rules! impl_always_packed_layout {
                 $frag: $crate::traits::PackedAllocate,
             )+
         {
-            #[inline]
             fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
                 $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
             }
@@ -60,17 +56,14 @@ macro_rules! impl_always_packed_layout {
             const FOOTPRINT: ::core::primitive::u64 = 1_u64;
             const REQUIRES_DEEP_CLEAN_UP: ::core::primitive::bool = $deep;
 
-            #[inline]
             fn pull_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
                 $crate::traits::impls::forward_pull_packed::<Self>(ptr)
             }
 
-            #[inline]
             fn push_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
                 $crate::traits::impls::forward_push_packed::<Self>(self, ptr)
             }
 
-            #[inline]
             fn clear_spread(&self, ptr: &mut $crate::traits::KeyPtr) {
                 $crate::traits::impls::forward_clear_packed::<Self>(self, ptr)
             }
@@ -80,7 +73,6 @@ macro_rules! impl_always_packed_layout {
         where
             Self: $crate::traits::PackedLayout + ::core::default::Default,
         {
-            #[inline]
             fn allocate_spread(ptr: &mut $crate::traits::KeyPtr) -> Self {
                 $crate::traits::impls::forward_allocate_packed::<Self>(ptr)
             }
@@ -123,7 +115,6 @@ const fn max(a: u64, b: u64) -> u64 {
 ///
 /// Use this utility function to use a packed pull operation for the type
 /// instead of a spread storage layout pull operation.
-#[inline]
 pub fn forward_pull_packed<T>(ptr: &mut KeyPtr) -> T
 where
     T: PackedLayout,
@@ -140,7 +131,6 @@ where
 ///
 /// Use this utility function to use a packed allocate operation for the type
 /// instead of a spread storage layout allocation operation.
-#[inline]
 pub fn forward_allocate_packed<T>(ptr: &mut KeyPtr) -> T
 where
     T: PackedAllocate + Default,
@@ -157,7 +147,6 @@ where
 ///
 /// Use this utility function to use a packed push operation for the type
 /// instead of a spread storage layout push operation.
-#[inline]
 pub fn forward_push_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,
@@ -174,7 +163,6 @@ where
 ///
 /// Use this utility function to use a packed clear operation for the type
 /// instead of a spread storage layout clear operation.
-#[inline]
 pub fn forward_clear_packed<T>(entity: &T, ptr: &mut KeyPtr)
 where
     T: PackedLayout,

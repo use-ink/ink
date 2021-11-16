@@ -83,7 +83,6 @@ pub struct ChainExtensionMethod<I, O, ErrorCode> {
 
 impl ChainExtensionMethod<(), (), ()> {
     /// Creates a new chain extension method instance.
-    #[inline]
     pub fn build(func_id: u32) -> Self {
         Self {
             func_id,
@@ -100,7 +99,6 @@ impl<O, ErrorCode> ChainExtensionMethod<(), O, ErrorCode> {
     /// `I` represents the input type of the chain extension method.
     /// All tuple types that may act as input parameters for the chain extension method are valid.
     /// Examples include `()`, `i32`, `(u8, [u8; 5], i32)`, etc.
-    #[inline]
     pub fn input<I>(self) -> ChainExtensionMethod<I, O, ErrorCode>
     where
         I: scale::Encode,
@@ -118,7 +116,6 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     /// # Note
     ///
     /// This indicates that the chain extension method return value might represent a failure.
-    #[inline]
     pub fn output_result<T, E>(self) -> ChainExtensionMethod<I, Result<T, E>, ErrorCode>
     where
         Result<T, E>: scale::Decode,
@@ -138,7 +135,6 @@ impl<I, ErrorCode> ChainExtensionMethod<I, (), ErrorCode> {
     /// When using the `#[ink::chain_extension]` procedural macro to define
     /// this chain extension method the above constraint is enforced at
     /// compile time.
-    #[inline]
     pub fn output<O>(self) -> ChainExtensionMethod<I, state::NoResult<O>, ErrorCode>
     where
         O: scale::Decode,
@@ -160,7 +156,6 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     /// code that represents failure.
     ///
     /// The output of the chain extension method call is always decoded and returned in this case.
-    #[inline]
     pub fn ignore_error_code(self) -> ChainExtensionMethod<I, O, state::IgnoreErrorCode> {
         ChainExtensionMethod {
             func_id: self.func_id,
@@ -174,7 +169,6 @@ impl<I, O> ChainExtensionMethod<I, O, ()> {
     ///
     /// This will handle the returned status code and only loads and decodes the value
     /// returned as the output of the chain extension method call in case of success.
-    #[inline]
     pub fn handle_error_code<ErrorCode>(
         self,
     ) -> ChainExtensionMethod<I, O, state::HandleErrorCode<ErrorCode>>
@@ -261,7 +255,6 @@ where
     /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
     /// # }
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> Result<T, E> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, T, E, ErrorCode, _, _>(
@@ -315,7 +308,6 @@ where
     /// #     fn from(_error: scale::Error) -> Self { Self {} }
     /// # }
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> Result<T, E> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, T, E, E, _, _>(
@@ -372,7 +364,6 @@ where
     /// #     fn from_status_code(status_code: u32) -> Result<(), Self> { Ok(()) }
     /// # }
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> Result<O, ErrorCode> {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, ErrorCode, ErrorCode, _, _>(
@@ -421,7 +412,6 @@ where
     ///     .ignore_error_code()
     ///     .call(&(true, 42));
     /// ```
-    #[inline]
     pub fn call(self, input: &I) -> O {
         <EnvInstance as OnInstance>::on_instance(|instance| {
             EnvBackend::call_chain_extension::<I, O, (), (), _, _>(

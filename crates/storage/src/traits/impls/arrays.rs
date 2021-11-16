@@ -41,7 +41,6 @@ where
         }
     }
 
-    #[inline]
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
         array_init::<_, T, N>(|_| <T as SpreadLayout>::pull_spread(ptr))
     }
@@ -51,7 +50,6 @@ impl<T, const N: usize> SpreadAllocate for [T; N]
 where
     T: SpreadAllocate,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         array_init::<_, T, N>(|_| <T as SpreadAllocate>::allocate_spread(ptr))
     }
@@ -61,21 +59,18 @@ impl<T, const N: usize> PackedLayout for [T; N]
 where
     T: PackedLayout,
 {
-    #[inline]
     fn push_packed(&self, at: &Key) {
         for elem in self {
             <T as PackedLayout>::push_packed(elem, at)
         }
     }
 
-    #[inline]
     fn clear_packed(&self, at: &Key) {
         for elem in self {
             <T as PackedLayout>::clear_packed(elem, at)
         }
     }
 
-    #[inline]
     fn pull_packed(&mut self, at: &Key) {
         for elem in self {
             <T as PackedLayout>::pull_packed(elem, at)
@@ -87,7 +82,6 @@ impl<T, const N: usize> PackedAllocate for [T; N]
 where
     T: PackedAllocate,
 {
-    #[inline]
     fn allocate_packed(&mut self, at: &Key) {
         for elem in self {
             <T as PackedAllocate>::allocate_packed(elem, at)

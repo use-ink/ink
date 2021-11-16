@@ -35,15 +35,11 @@ macro_rules! impl_layout_for_primitive {
         $(
             impl_always_packed_layout!($ty, deep: false);
             impl $crate::traits::PackedLayout for $ty {
-                #[inline]
                 fn pull_packed(&mut self, _at: &::ink_primitives::Key) {}
-                #[inline]
                 fn push_packed(&self, _at: &::ink_primitives::Key) {}
-                #[inline]
                 fn clear_packed(&self, _at: &::ink_primitives::Key) {}
             }
             impl $crate::traits::PackedAllocate for $ty {
-                #[inline]
                 fn allocate_packed(&mut self, _at: &::ink_primitives::Key) {}
             }
         )*
@@ -105,7 +101,6 @@ impl<T> SpreadAllocate for Option<T>
 where
     T: SpreadLayout,
 {
-    #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
         ptr.advance_by(<T as SpreadLayout>::FOOTPRINT);
         None
@@ -116,21 +111,18 @@ impl<T> PackedLayout for Option<T>
 where
     T: PackedLayout,
 {
-    #[inline]
     fn push_packed(&self, at: &Key) {
         if let Some(value) = self {
             <T as PackedLayout>::push_packed(value, at)
         }
     }
 
-    #[inline]
     fn clear_packed(&self, at: &Key) {
         if let Some(value) = self {
             <T as PackedLayout>::clear_packed(value, at)
         }
     }
 
-    #[inline]
     fn pull_packed(&mut self, at: &Key) {
         if let Some(value) = self {
             <T as PackedLayout>::pull_packed(value, at)
@@ -142,7 +134,6 @@ impl<T> PackedAllocate for Option<T>
 where
     T: PackedAllocate,
 {
-    #[inline]
     fn allocate_packed(&mut self, at: &Key) {
         // Note: Maybe this is not needed since `Option<T>` is alwyas default
         //       initialized as `None` so this cannot really occur.
@@ -204,7 +195,6 @@ where
     T: PackedLayout,
     E: PackedLayout,
 {
-    #[inline]
     fn push_packed(&self, at: &Key) {
         match self {
             Ok(value) => <T as PackedLayout>::push_packed(value, at),
@@ -212,7 +202,6 @@ where
         }
     }
 
-    #[inline]
     fn clear_packed(&self, at: &Key) {
         match self {
             Ok(value) => <T as PackedLayout>::clear_packed(value, at),
@@ -220,7 +209,6 @@ where
         }
     }
 
-    #[inline]
     fn pull_packed(&mut self, at: &Key) {
         match self {
             Ok(value) => <T as PackedLayout>::pull_packed(value, at),
@@ -262,17 +250,14 @@ impl<T> PackedLayout for Box<T>
 where
     T: PackedLayout,
 {
-    #[inline]
     fn push_packed(&self, at: &Key) {
         <T as PackedLayout>::push_packed(&*self, at)
     }
 
-    #[inline]
     fn clear_packed(&self, at: &Key) {
         <T as PackedLayout>::clear_packed(&*self, at)
     }
 
-    #[inline]
     fn pull_packed(&mut self, at: &Key) {
         <T as PackedLayout>::pull_packed(&mut *self, at)
     }
@@ -282,7 +267,6 @@ impl<T> PackedAllocate for Box<T>
 where
     T: PackedAllocate,
 {
-    #[inline]
     fn allocate_packed(&mut self, at: &Key) {
         <T as PackedAllocate>::allocate_packed(&mut *self, at)
     }

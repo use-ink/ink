@@ -233,7 +233,6 @@ where
     /// let r = s.binary_search(&1);
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
     /// ```
-    #[inline]
     pub fn binary_search(&self, x: &T) -> Result<u32, u32>
     where
         T: Ord,
@@ -285,7 +284,6 @@ where
     // The binary_search implementation is ported from
     // https://github.com/rust-lang/rust/blob/c5e344f7747dbd7e7d4b209e3c480deb5979a56f/library/core/src/slice/mod.rs#L2191
     // and attempts to remain as close to the source as possible.
-    #[inline]
     pub fn binary_search_by<'a, F>(&'a self, mut f: F) -> Result<u32, u32>
     where
         F: FnMut(&'a T) -> core::cmp::Ordering,
@@ -365,7 +363,6 @@ where
     /// let r = s.binary_search_by_key(&1, |&(a, b)| b);
     /// assert!(match r { Ok(1..=4) => true, _ => false, });
     /// ```
-    #[inline]
     pub fn binary_search_by_key<'a, B, F>(&'a self, b: &B, mut f: F) -> Result<u32, u32>
     where
         F: FnMut(&'a T) -> B,
@@ -490,7 +487,6 @@ where
     /// Won't return the old element back to the caller.
     /// Prefer this operation over other method of overriding an element
     /// in the storage vector since this is more efficient.
-    #[inline]
     pub fn set(&mut self, index: u32, new_value: T) -> Result<(), IndexOutOfBounds> {
         if self.within_bounds(index).is_none() {
             return Err(IndexOutOfBounds)

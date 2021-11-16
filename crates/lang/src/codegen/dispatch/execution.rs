@@ -58,7 +58,6 @@ pub trait ContractRootKey {
 /// # Errors
 ///
 /// If the caller did send some amount of transferred value to the callee.
-#[inline]
 pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,
@@ -87,7 +86,6 @@ pub struct ExecuteConstructorConfig {
 ///
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
-#[inline]
 pub fn execute_constructor<Contract, F, R>(
     config: ExecuteConstructorConfig,
     f: F,
@@ -139,7 +137,6 @@ where
 ///   If `R` is `()` then `Contract` is returned and if `R` is any type of
 ///   `Result<(), E>` then `Result<Contract, E>` is returned.
 ///   Other return types for `F` than the ones listed above are not allowed.
-#[inline]
 pub fn initialize_contract<Contract, F, R>(
     initializer: F,
 ) -> <R as InitializerReturnType<Contract>>::Wrapped
@@ -220,12 +217,10 @@ impl<C> ConstructorReturnType<C> for private::Seal<C> {
     type Error = Infallible;
     type ReturnValue = ();
 
-    #[inline]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         Ok(&self.0)
     }
 
-    #[inline]
     fn return_value(&self) -> &Self::ReturnValue {
         &()
     }
@@ -236,12 +231,10 @@ impl<C, E> ConstructorReturnType<C> for private::Seal<Result<C, E>> {
     type Error = E;
     type ReturnValue = Result<C, E>;
 
-    #[inline]
     fn as_result(&self) -> Result<&C, &Self::Error> {
         self.0.as_ref()
     }
 
-    #[inline]
     fn return_value(&self) -> &Self::ReturnValue {
         &self.0
     }
@@ -262,7 +255,6 @@ pub trait InitializerReturnType<C>: private::Sealed {
 impl<C> InitializerReturnType<C> for () {
     type Wrapped = C;
 
-    #[inline]
     fn into_wrapped(self, wrapped: C) -> C {
         wrapped
     }
@@ -270,7 +262,6 @@ impl<C> InitializerReturnType<C> for () {
 impl<C, E> InitializerReturnType<C> for Result<(), E> {
     type Wrapped = Result<C, E>;
 
-    #[inline]
     fn into_wrapped(self, wrapped: C) -> Self::Wrapped {
         self.map(|_| wrapped)
     }
@@ -310,7 +301,6 @@ pub struct ExecuteMessageConfig {
 /// This work around that splits executing an ink! message into initiate
 /// and finalize phases was needed due to the fact that `is_result_type`
 /// and `is_result_err` macros do not work in generic contexts.
-#[inline]
 pub fn initiate_message<Contract>(
     config: ExecuteMessageConfig,
 ) -> Result<Contract, DispatchError>
@@ -343,7 +333,6 @@ where
 /// This work around that splits executing an ink! message into initiate
 /// and finalize phases was needed due to the fact that `is_result_type`
 /// and `is_result_err` macros do not work in generic contexts.
-#[inline]
 pub fn finalize_message<Contract, R>(
     success: bool,
     contract: &Contract,
@@ -361,7 +350,6 @@ where
     }
 }
 
-#[inline]
 fn finalize_infallible_message<Contract, R>(
     contract: &Contract,
     config: ExecuteMessageConfig,
@@ -385,7 +373,6 @@ where
     Ok(())
 }
 
-#[inline]
 fn finalize_fallible_message<R>(result: &R) -> !
 where
     R: scale::Encode + 'static,
