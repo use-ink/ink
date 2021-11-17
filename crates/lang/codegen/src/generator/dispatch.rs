@@ -649,13 +649,12 @@ impl Dispatch<'_> {
                 }
             )
         });
-        let wildcard_index = self.query_wildcard_message();
-        let possibly_wildcard_selector_message = match wildcard_index {
-            Some(index) => {
-                let message_span = message_spans[index];
-                let message_ident = message_variant_ident(index);
+        let possibly_wildcard_selector_message = match self.query_wildcard_message() {
+            Some(wildcard_index) => {
+                let message_span = message_spans[wildcard_index];
+                let message_ident = message_variant_ident(wildcard_index);
                 let message_input =
-                    expand_message_input(message_span, storage_ident, index);
+                    expand_message_input(message_span, storage_ident, wildcard_index);
                 quote! {
                     ::core::result::Result::Ok(Self::#message_ident(
                         <#message_input as ::scale::Decode>::decode(input)

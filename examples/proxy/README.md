@@ -26,6 +26,6 @@ In order to test it out you need to do the following:
 1. Now you are able to run the operations provided by the `flipper` smart contract via
    the `proxy` contract.
 
-To upgrade the address of the smart contract where calls are forwarded to you would
+To change the address of the smart contract where calls are forwarded to you would
 switch the metadata (i.e. the `Contract ABI`) back to the `proxy` contract
-and then invoke the `upgrade` message.
+and then invoke the `change_forward_address` message.

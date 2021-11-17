@@ -29,11 +29,16 @@ pub mod proxy {
             }
         }
 
-        /// Forward everything to the next contract
+        /// Changes the `AccountId` of the contract where any call that does
+        /// not match a selector of this contract is forwarded to.
         #[ink(message)]
-        pub fn upgrade(&mut self, new_forward_addr: AccountId) {
-            assert_eq!(self.env().caller(), self.admin);
-            self.forward_to = new_forward_addr;
+        pub fn change_forward_address(&mut self, new_address: AccountId) {
+            assert_eq!(
+                self.env().caller(),
+                self.admin,
+                "caller does not have sufficient permissions"
+            );
+            self.forward_to = new_address;
         }
 
         /// Fallback message for a contract call that doesn't match any
