@@ -838,4 +838,73 @@ mod tests {
             .is_ok()
         );
     }
+
+    #[test]
+    fn overlapping_wildcard_selectors_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = "_")]
+                        pub fn my_message1(&self) {}
+
+                        #[ink(message, selector = "_")]
+                        pub fn my_message2(&self) {}
+                    }
+                }
+            },
+            "encountered ink! messages with overlapping wildcard selectors",
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_on_constructor_fails() {
+        let item = syn::parse_quote! {
+            mod my_module {
+                #[ink(storage)]
+                pub struct MyStorage {}
+
+                impl MyStorage {
+                    #[ink(constructor, selector = "_")]
+                    pub fn my_constructor() -> Self {}
+
+                    #[ink(message)]
+                    pub fn my_message(&self) {}
+                }
+            }
+        };
+        let errs: syn::Error = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item)
+            .expect_err("must result in Err");
+        assert!(errs
+            .to_compile_error()
+            .to_string()
+            .contains("wildcard selectors are not allowed for constructors"));
+    }
+
+    #[test]
+    fn overlap_between_wildcard_selector_and_composed_selector_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = "_", selector = 0xCAFEBABE)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "ink! message cannot contain wildcard selector and specified selector",
+        );
+    }
 }

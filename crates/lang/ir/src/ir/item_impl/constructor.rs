@@ -588,4 +588,18 @@ mod tests {
             )
         }
     }
+
+    #[test]
+    fn try_from_wildcard_constructor_fails() {
+        let item: syn::ImplItemMethod = syn::parse_quote! {
+            #[ink(constructor, selector = "_")]
+            pub fn my_constructor() -> Self {}
+        };
+        let errs: syn::Error = <ir::Constructor as TryFrom<_>>::try_from(item)
+            .expect_err("must result in Err");
+        assert!(errs
+            .to_compile_error()
+            .to_string()
+            .contains("wildcard selectors are not allowed for constructors"));
+    }
 }
