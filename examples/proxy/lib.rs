@@ -1,3 +1,18 @@
+//! This example demonstrates how the Proxy/Forward pattern can be
+//! implemented in ink!.
+//!
+//! What the contract does is:
+//!
+//!   * Any call to this contract that does not match a selector
+//!     of it is forwarded to a specified address.
+//!   * The instantiator of the contract can modify this specified
+//!     `forward_to` address at any point.
+//!
+//! Using this pattern it is possible to implement upgradable contracts.
+//!
+//! Note though that the contract to which calls are forwarded still
+//! contains it's own state.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use ink_lang as ink;
@@ -36,7 +51,9 @@ pub mod proxy {
             assert_eq!(
                 self.env().caller(),
                 self.admin,
-                "caller does not have sufficient permissions"
+                "caller {:?} does not have sufficient permissions, only {:?} does",
+                self.env().caller(),
+                self.admin,
             );
             self.forward_to = new_address;
         }
@@ -49,8 +66,7 @@ pub mod proxy {
         /// - We allow payable messages here and would forward any optionally supplied
         ///   value as well.
         /// - If the self receiver were `forward(&mut self)` here, this would not
-        ///   imply that the contract to which we forward to does not mutate it's own
-        ///   state.
+        ///   have any effect whatsover on the contract we forward to.
         #[ink(message, payable, selector = "_")]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
@@ -63,7 +79,12 @@ pub mod proxy {
                 .gas_limit(0)
                 .transferred_value(self.env().transferred_balance())
                 .fire()
-                .expect("cross-contract call failed");
+                .unwrap_or_else(|err| {
+                    panic!(
+                        "cross-contract call to {:?} failed due to {:?}",
+                        self.forward_to, err
+                    )
+                });
             unreachable!(
                 "the forwarded call will never return since `tail_call` was set"
             );
