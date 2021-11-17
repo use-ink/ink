@@ -187,7 +187,7 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_prelude::collections::BTreeMap;
+    use ink_storage::lazy::Mapping;
     use ink_storage::traits::{
         PackedLayout,
         SpreadLayout,
@@ -236,6 +236,7 @@ mod erc1155 {
         PartialOrd,
         Eq,
         PartialEq,
+        Default,
         PackedLayout,
         SpreadLayout,
         scale::Encode,
@@ -252,9 +253,9 @@ mod erc1155 {
     #[derive(Default)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
-        balances: BTreeMap<(AccountId, TokenId), Balance>,
+        balances: Mapping<(AccountId, TokenId), Balance>,
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
-        approvals: BTreeMap<Approval, ()>,
+        approvals: Mapping<Approval, ()>,
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
@@ -281,7 +282,7 @@ mod erc1155 {
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances.insert((caller, self.token_id_nonce), value);
+            self.balances.insert((caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -308,7 +309,7 @@ mod erc1155 {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
-            self.balances.insert((caller, token_id), value);
+            self.balances.insert((caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -333,14 +334,22 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
         ) {
-            self.balances
-                .entry((from, token_id))
-                .and_modify(|b| *b -= value);
+            // self.balances
+            //     .entry((from, token_id))
+            //     .and_modify(|b| *b -= value);
 
-            self.balances
-                .entry((to, token_id))
-                .and_modify(|b| *b += value)
-                .or_insert(value);
+            let mut sender_balance = self.balances.get((from, token_id)).expect("TODO");
+            sender_balance -= value;
+            self.balances.insert((from, token_id), &sender_balance);
+
+            // self.balances
+            //     .entry((to, token_id))
+            //     .and_modify(|b| *b += value)
+            //     .or_insert(value);
+
+            let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
+            recipient_balance += value;
+            self.balances.insert((to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
@@ -507,7 +516,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance {
-            *self.balances.get(&(owner, token_id)).unwrap_or(&0)
+            self.balances.get(&(owner, token_id)).unwrap_or(0)
         }
 
         #[ink(message)]
@@ -541,9 +550,11 @@ mod erc1155 {
             };
 
             if approved {
-                self.approvals.insert(approval, ());
+                self.approvals.insert(approval, &());
             } else {
-                self.approvals.remove(&approval);
+                // self.approvals.remove(&approval);
+                // TODO: How should this be expressed with the `Mapping`?
+                self.approvals.insert(approval, &());
             }
 
             self.env().emit_event(ApprovalForAll {
