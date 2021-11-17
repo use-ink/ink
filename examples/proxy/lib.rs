@@ -44,10 +44,11 @@ pub mod proxy {
         /// Fallback message for a contract call that doesn't match any
         /// of the other message selectors.
         ///
-        /// *Note:*
+        /// # Note:
+        ///
         /// - We allow payable messages here and would forward any optionally supplied
         ///   value as well.
-        /// - If the self receiver would be `forward(&mut self)` here, this would not
+        /// - If the self receiver were `forward(&mut self)` here, this would not
         ///   imply that the contract to which we forward to does not mutate it's own
         ///   state.
         #[ink(message, payable, selector = "_")]
