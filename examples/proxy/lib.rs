@@ -4,7 +4,7 @@ use ink_lang as ink;
 
 #[ink::contract]
 pub mod proxy {
-    /// A simple proxy contract, enabling upgradable smart contracts.
+    /// A simple proxy contract.
     #[ink(storage)]
     pub struct Proxy {
         /// The `AccountId` of a contract where any call that does not match a

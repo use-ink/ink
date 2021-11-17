@@ -1,6 +1,14 @@
 # Proxy Smart Contract
 
-The proxy smart contract is our showcase _for an upgradable smart contract_.
+The proxy smart contract forwards any call that does not match a
+selector of itself to another, specified contract.
+
+The instantiator of the proxy contract on a blockchain can change
+the address to which calls are forwarded.
+
+This allows building upgradable contracts following the proxy pattern.
+Note though that the state is still stored in the contract to which
+calls are forwarded.
 
 In order to test it out you need to do the following:
 
