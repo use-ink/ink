@@ -60,7 +60,7 @@ pub mod proxy {
                         .set_tail_call(true),
                 )
                 .gas_limit(0)
-                .transferred_value(self.env().transferred_value())
+                .transferred_value(self.env().transferred_balance())
                 .fire()
                 .expect("cross-contract call failed");
             unreachable!(
