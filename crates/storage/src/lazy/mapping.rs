@@ -20,6 +20,7 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
+    clear_packed_root,
     pull_packed_root_opt,
     push_packed_root,
     ExtKeyPtr,
@@ -74,7 +75,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
     {
-        push_packed_root(value, &self.storage_key(key));
+        push_packed_root(value, &self.storage_key(&key));
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -85,14 +86,27 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        pull_packed_root_opt(&self.storage_key(key))
+        pull_packed_root_opt(&self.storage_key(&key))
+    }
+
+    /// Clears the value at `key` from storage.
+    ///
+    /// Returns the value at the key if it previously existed, otherwise returns `None`.
+    pub fn remove<Q>(&self, key: Q) -> Option<V>
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        let storage_key = self.storage_key(&key);
+        let v = self.get(key)?;
+        clear_packed_root(&v, &storage_key);
+        Some(v)
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
     ///
     /// This key is a combination of the `Mapping`'s internal `offset_key`
     /// and the user provided `key`.
-    fn storage_key<Q>(&self, key: Q) -> Key
+    fn storage_key<Q>(&self, key: &Q) -> Key
     where
         Q: scale::EncodeLike<K>,
     {
@@ -181,6 +195,19 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
             assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_remove_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.remove(&1), Some(2));
+            assert_eq!(mapping.remove(&1), None);
 
             Ok(())
         })
