@@ -1,6 +1,6 @@
 error: ink! message cannot contain wildcard selector and specified selector
   --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:9
    |
-14 | /         #[ink(message, selector = 0xCAFEBABA, selector = "_")]
+14 | /         #[ink(message, selector = 0xCAFEBABA, selector = _)]
 15 | |         pub fn message(&self) {}
    | |________________________________^

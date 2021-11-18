@@ -348,7 +348,7 @@ pub enum AttributeArgKind {
     Constructor,
     /// `#[ink(payable)]`
     Payable,
-    /// `#[ink(selector = "_")]`
+    /// `#[ink(selector = _)]`
     WildcardSelector,
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
@@ -403,7 +403,7 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// `#[ink(selector = "_")]`
+    /// `#[ink(selector = _)]`
     ///
     /// Applied on ink! messages to define a fallback messages that is invoked
     /// if no other ink! message matches a given selector.

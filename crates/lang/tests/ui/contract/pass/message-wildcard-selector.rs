@@ -17,7 +17,7 @@ mod contract {
         #[ink(message, selector = 1)]
         pub fn message_1(&self) {}
 
-        #[ink(message, selector = "_")]
+        #[ink(message, selector = _)]
         pub fn message_2(&self) {}
     }
 }

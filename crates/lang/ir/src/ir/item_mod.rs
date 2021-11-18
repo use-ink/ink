@@ -851,10 +851,10 @@ mod tests {
                         #[ink(constructor)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = "_")]
+                        #[ink(message, selector = _)]
                         pub fn my_message1(&self) {}
 
-                        #[ink(message, selector = "_")]
+                        #[ink(message, selector = _)]
                         pub fn my_message2(&self) {}
                     }
                 }
@@ -871,7 +871,7 @@ mod tests {
                 pub struct MyStorage {}
 
                 impl MyStorage {
-                    #[ink(constructor, selector = "_")]
+                    #[ink(constructor, selector = _)]
                     pub fn my_constructor() -> Self {}
 
                     #[ink(message)]
@@ -899,7 +899,7 @@ mod tests {
                         #[ink(constructor)]
                         pub fn my_constructor() -> Self {}
 
-                        #[ink(message, selector = "_", selector = 0xCAFEBABE)]
+                        #[ink(message, selector = _, selector = 0xCAFEBABE)]
                         pub fn my_message(&self) {}
                     }
                 }

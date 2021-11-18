@@ -3,7 +3,7 @@ mod foo {
 
     #[ink::trait_definition]
     pub trait TraitDefinition {
-        #[ink(message, selector = "_")]
+        #[ink(message, selector = _)]
         fn message1(&self);
     }
 }

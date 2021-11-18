@@ -67,7 +67,7 @@ pub mod proxy {
         ///   value as well.
         /// - If the self receiver were `forward(&mut self)` here, this would not
         ///   have any effect whatsover on the contract we forward to.
-        #[ink(message, payable, selector = "_")]
+        #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
                 .callee(self.forward_to)

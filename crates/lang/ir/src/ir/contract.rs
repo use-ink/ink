@@ -17,7 +17,11 @@ use crate::{
     ir,
 };
 use core::convert::TryFrom;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{
+    Group as Group2,
+    TokenStream as TokenStream2,
+    TokenTree as TokenTree2,
+};
 
 /// An ink! contract definition consisting of the ink! configuration and module.
 ///
@@ -63,6 +67,16 @@ impl Contract {
         ink_config: TokenStream2,
         ink_module: TokenStream2,
     ) -> Result<Self, syn::Error> {
+        let ink_module = ink_module
+            .into_iter()
+            .map(|tt| {
+                match tt {
+                    TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
+                    _ => tt,
+                }
+            })
+            .collect();
+
         let config = syn::parse2::<ast::AttributeArgs>(ink_config)?;
         let module = syn::parse2::<syn::ItemMod>(ink_module)?;
         let ink_config = ir::Config::try_from(config)?;
@@ -114,4 +128,36 @@ impl Contract {
     pub fn config(&self) -> &ir::Config {
         &self.config
     }
+}
+
+fn transform_wildcard_selector_to_string(grp: Group2) -> TokenTree2 {
+    let mut found_selector = false;
+    let mut found_equal = false;
+
+    let new_grp: TokenStream2 = grp
+        .stream()
+        .into_iter()
+        .map(|tt| {
+            match tt {
+                TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
+                TokenTree2::Ident(ident)
+                    if found_selector && found_equal && ident == "_" =>
+                {
+                    let mut lit = proc_macro2::Literal::string("_");
+                    lit.set_span(ident.span());
+                    TokenTree2::Literal(lit)
+                }
+                TokenTree2::Ident(ident) if ident == "selector" => {
+                    found_selector = true;
+                    TokenTree2::Ident(ident)
+                }
+                TokenTree2::Punct(punct) if punct.as_char() == '=' => {
+                    found_equal = true;
+                    TokenTree2::Punct(punct)
+                }
+                _ => tt,
+            }
+        })
+        .collect();
+    TokenTree2::Group(Group2::new(grp.delimiter(), new_grp))
 }

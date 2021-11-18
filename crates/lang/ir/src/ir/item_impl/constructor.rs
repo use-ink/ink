@@ -592,7 +592,7 @@ mod tests {
     #[test]
     fn try_from_wildcard_constructor_fails() {
         let item: syn::ImplItemMethod = syn::parse_quote! {
-            #[ink(constructor, selector = "_")]
+            #[ink(constructor, selector = _)]
             pub fn my_constructor() -> Self {}
         };
         let errs: syn::Error = <ir::Constructor as TryFrom<_>>::try_from(item)

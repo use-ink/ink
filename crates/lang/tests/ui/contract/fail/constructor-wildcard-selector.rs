@@ -6,7 +6,7 @@ mod contract {
     pub struct Contract {}
 
     impl Contract {
-        #[ink(constructor, selector = "_")]
+        #[ink(constructor, selector = _)]
         pub fn constructor() -> Self {
             Self {}
         }
