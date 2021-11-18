@@ -68,8 +68,10 @@ It's a simple Substrate blockchain which includes the Substrate module for smart
 
 The [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) can be used to deploy your contract to a chain and interact with it.
 
-We also have [a demonstration testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fcanvas-rpc.parity.io) running.
-You can request some tokens to play with from our [Faucet](https://riot.im/app/#/room/#canvas_faucet:matrix.parity.io) and deploy your contracts via the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload).
+We also have a live testnet: a parachain of [Canvas](https://github.com/paritytech/canvas) is running
+on the Rococo testnet. Canvas is a Substrate project which supports ink! smart contracts.
+You can request some tokens to play with from the [Rococo Faucet](https://wiki.polkadot.network/docs/learn-DOT#getting-rococo-tokens)
+and deploy your contracts via the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload).
 
 
 ## Usage
