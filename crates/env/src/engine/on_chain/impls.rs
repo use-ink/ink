@@ -151,6 +151,21 @@ where
     {
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
+        let result = Self::push_topic_encoded(encoded);
+        self.scoped_buffer.append_encoded(&result);
+    }
+
+    fn output(mut self) -> Self::Output {
+        let encoded_topics = self.scoped_buffer.take_appended();
+        (self.scoped_buffer, encoded_topics)
+    }
+}
+
+impl<'a, E> TopicsBuilder<'a, E>
+where
+    E: Environment,
+{
+    fn push_topic_encoded(encoded: &mut [u8]) -> <E as Environment>::Hash {
         let len_encoded = encoded.len();
         let mut result = <E as Environment>::Hash::clear();
         let len_result = result.as_ref().len();
@@ -162,12 +177,7 @@ where
             let copy_len = core::cmp::min(hash_output.len(), len_result);
             result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
         }
-        self.scoped_buffer.append_encoded(&result);
-    }
-
-    fn output(mut self) -> Self::Output {
-        let encoded_topics = self.scoped_buffer.take_appended();
-        (self.scoped_buffer, encoded_topics)
+        result
     }
 }
 
