@@ -25,8 +25,11 @@ use core::{
     result::Result,
 };
 use proc_macro2::{
+    Group as Group2,
     Ident,
     Span,
+    TokenStream as TokenStream2,
+    TokenTree as TokenTree2,
 };
 use std::collections::HashMap;
 use syn::spanned::Spanned;
@@ -741,13 +744,64 @@ impl From<InkAttribute> for Attribute {
     }
 }
 
+/// This function replaces occurrences of a `TokenTree::Ident` of the verbatim `_`
+/// with the String literal `"_"`.
+///
+/// This is done because `syn::Attribute::parse_meta` does not support parsing
+/// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
+/// which requires a more in-depth rewrite of our IR parsing.
+fn transform_wildcard_selector_to_string(grp: Group2) -> TokenTree2 {
+    let mut found_selector = false;
+    let mut found_equal = false;
+
+    let new_grp: TokenStream2 = grp
+        .stream()
+        .into_iter()
+        .map(|tt| {
+            match tt {
+                TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
+                TokenTree2::Ident(ident)
+                    if found_selector && found_equal && ident == "_" =>
+                {
+                    let mut lit = proc_macro2::Literal::string("_");
+                    lit.set_span(ident.span());
+                    TokenTree2::Literal(lit)
+                }
+                TokenTree2::Ident(ident) if ident == "selector" => {
+                    found_selector = true;
+                    TokenTree2::Ident(ident)
+                }
+                TokenTree2::Punct(punct) if punct.as_char() == '=' => {
+                    found_equal = true;
+                    TokenTree2::Punct(punct)
+                }
+                _ => tt,
+            }
+        })
+        .collect();
+    TokenTree2::Group(Group2::new(grp.delimiter(), new_grp))
+}
+
 impl TryFrom<syn::Attribute> for InkAttribute {
     type Error = syn::Error;
 
-    fn try_from(attr: syn::Attribute) -> Result<Self, Self::Error> {
+    fn try_from(mut attr: syn::Attribute) -> Result<Self, Self::Error> {
         if !attr.path.is_ident("ink") {
             return Err(format_err_spanned!(attr, "unexpected non-ink! attribute"))
         }
+
+        let ts: TokenStream2 = attr
+            .tokens
+            .into_iter()
+            .map(|tt| {
+                match tt {
+                    TokenTree2::Group(grp) => transform_wildcard_selector_to_string(grp),
+                    _ => tt,
+                }
+            })
+            .collect();
+        attr.tokens = ts;
+
         match attr.parse_meta().map_err(|_| {
             format_err_spanned!(attr, "unexpected ink! attribute structure")
         })? {
@@ -830,7 +884,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
                                 let argument = lit_str.value();
                                 // We've pre-processed the verbatim `_` to `"_"`. This was done
-                                // because `syn::parse_meta` does not support verbatim's.
+                                // because `syn::Attribute::parse_meta` does not support verbatim.
                                 if argument != "_" {
                                     return Err(format_err!(
                                         name_value,
