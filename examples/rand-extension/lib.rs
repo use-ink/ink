@@ -15,7 +15,7 @@ pub trait FetchRandom {
     /// Note: this gives the operation a corresponding `func_id` (1101 in this case),
     /// and the chain-side chain extension will get the `func_id` to do further operations.
     #[ink(extension = 1101, returns_result = false)]
-    fn fetch_random() -> [u8; 32];
+    fn fetch_random(subject: [u8; 32]) -> [u8; 32];
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -88,9 +88,9 @@ mod rand_extension {
 
         /// Update the value from the runtimes random source.
         #[ink(message)]
-        pub fn update(&mut self) -> Result<(), RandomReadErr> {
+        pub fn update(&mut self, subject: [u8; 32]) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed
-            let new_random = self.env().extension().fetch_random()?;
+            let new_random = self.env().extension().fetch_random(subject)?;
             self.value = new_random;
             // Emit the `RandomUpdated` event when the random seed
             // is successfully fetched.
