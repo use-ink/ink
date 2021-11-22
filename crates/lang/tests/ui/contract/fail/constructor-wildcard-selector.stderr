@@ -3,6 +3,7 @@ error: encountered conflicting ink! attribute argument
   |
 9 |         #[ink(constructor, selector = _)]
   |                            ^^^^^^^^^^^^
+
 error: wildcard selectors are not allowed for constructors
  --> tests/ui/contract/fail/constructor-wildcard-selector.rs:9:28
   |
