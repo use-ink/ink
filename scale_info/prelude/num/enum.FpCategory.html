@@ -21,18 +21,18 @@ their documentation for more.</p>
 <span class="macro">assert_eq!</span>(<span class="ident">zero</span>.<span class="ident">classify</span>(), <span class="ident">FpCategory::Zero</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">nan</span>.<span class="ident">classify</span>(), <span class="ident">FpCategory::Nan</span>);
 <span class="macro">assert_eq!</span>(<span class="ident">sub</span>.<span class="ident">classify</span>(), <span class="ident">FpCategory::Subnormal</span>);</code></pre></div>
-</div></details><h2 id="variants" class="variants small-section-header">Variants<a href="#variants" class="anchor"></a></h2><div id="variant.Nan" class="variant small-section-header"><a href="#variant.Nan" class="anchor field"></a><code>Nan</code></div><div class="docblock"><p>NaN (not a number): this value results from calculations like <code>(-1.0).sqrt()</code>.</p>
+</div></details><h2 id="variants" class="variants small-section-header">Variants<a href="#variants" class="anchor"></a></h2><h3 id="variant.Nan" class="variant small-section-header"><a href="#variant.Nan" class="anchor field"></a><code>Nan</code></h3><div class="docblock"><p>NaN (not a number): this value results from calculations like <code>(-1.0).sqrt()</code>.</p>
 <p>See <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">the documentation for <code>f32</code></a> for more information on the unusual properties
 of NaN.</p>
-</div><div id="variant.Infinite" class="variant small-section-header"><a href="#variant.Infinite" class="anchor field"></a><code>Infinite</code></div><div class="docblock"><p>Positive or negative infinity, which often results from dividing a nonzero number
+</div><h3 id="variant.Infinite" class="variant small-section-header"><a href="#variant.Infinite" class="anchor field"></a><code>Infinite</code></h3><div class="docblock"><p>Positive or negative infinity, which often results from dividing a nonzero number
 by zero.</p>
-</div><div id="variant.Zero" class="variant small-section-header"><a href="#variant.Zero" class="anchor field"></a><code>Zero</code></div><div class="docblock"><p>Positive or negative zero.</p>
+</div><h3 id="variant.Zero" class="variant small-section-header"><a href="#variant.Zero" class="anchor field"></a><code>Zero</code></h3><div class="docblock"><p>Positive or negative zero.</p>
 <p>See <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">the documentation for <code>f32</code></a> for more information on the signedness of zeroes.</p>
-</div><div id="variant.Subnormal" class="variant small-section-header"><a href="#variant.Subnormal" class="anchor field"></a><code>Subnormal</code></div><div class="docblock"><p>“Subnormal” or “denormal” floating point representation (less precise, relative to
+</div><h3 id="variant.Subnormal" class="variant small-section-header"><a href="#variant.Subnormal" class="anchor field"></a><code>Subnormal</code></h3><div class="docblock"><p>“Subnormal” or “denormal” floating point representation (less precise, relative to
 their magnitude, than <a href="enum.FpCategory.html#variant.Normal"><code>Normal</code></a>).</p>
 <p>Subnormal numbers are larger in magnitude than <a href="enum.FpCategory.html#variant.Zero"><code>Zero</code></a> but smaller in magnitude than all
 <a href="enum.FpCategory.html#variant.Normal"><code>Normal</code></a> numbers.</p>
-</div><div id="variant.Normal" class="variant small-section-header"><a href="#variant.Normal" class="anchor field"></a><code>Normal</code></div><div class="docblock"><p>A regular floating point number, not any of the exceptional categories.</p>
+</div><h3 id="variant.Normal" class="variant small-section-header"><a href="#variant.Normal" class="anchor field"></a><code>Normal</code></h3><div class="docblock"><p>A regular floating point number, not any of the exceptional categories.</p>
 <p>The smallest positive normal numbers are <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html#associatedconstant.MIN_POSITIVE" title="f32::MIN_POSITIVE"><code>f32::MIN_POSITIVE</code></a> and <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html#associatedconstant.MIN_POSITIVE" title="f64::MIN_POSITIVE"><code>f64::MIN_POSITIVE</code></a>,
 and the largest positive normal numbers are <a href="https://doc.rust-lang.org/nightly/std/primitive.f32.html#associatedconstant.MAX" title="f32::MAX"><code>f32::MAX</code></a> and <a href="https://doc.rust-lang.org/nightly/std/primitive.f64.html#associatedconstant.MAX" title="f64::MAX"><code>f64::MAX</code></a>. (Unlike signed
 integers, floating point numbers are symmetric in their range, so negating any of these

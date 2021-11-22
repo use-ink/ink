@@ -2,10 +2,10 @@
     Deploy,
     Call,
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The phase in which a contract execution can be.</p>
-</div></details><h2 id="variants" class="variants small-section-header">Variants<a href="#variants" class="anchor"></a></h2><div id="variant.Deploy" class="variant small-section-header"><a href="#variant.Deploy" class="anchor field"></a><code>Deploy</code></div><div class="docblock"><p>Initializes the global dynamic storage allocator from scratch.</p>
+</div></details><h2 id="variants" class="variants small-section-header">Variants<a href="#variants" class="anchor"></a></h2><h3 id="variant.Deploy" class="variant small-section-header"><a href="#variant.Deploy" class="anchor field"></a><code>Deploy</code></h3><div class="docblock"><p>Initializes the global dynamic storage allocator from scratch.</p>
 <p>Upon initialization, it will be created from scratch as if the
 contract has been deployed for the first time.</p>
-</div><div id="variant.Call" class="variant small-section-header"><a href="#variant.Call" class="anchor field"></a><code>Call</code></div><div class="docblock"><p>Initializes the global dynamic storage allocator from storage.</p>
+</div><h3 id="variant.Call" class="variant small-section-header"><a href="#variant.Call" class="anchor field"></a><code>Call</code></h3><div class="docblock"><p>Initializes the global dynamic storage allocator from storage.</p>
 <p>Upon initialization, the dynamic storage allocator will be pulled
 from the contract storage with the assumption that a former
 contract deployment has already taken place in the past.</p>
