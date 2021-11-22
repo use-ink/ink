@@ -101,7 +101,7 @@ pub struct Message {
     /// If the ink! message can receive funds.
     is_payable: bool,
     /// If the ink! message is a wildcard selector.
-    is_wildcard_selector: bool,
+    has_wildcard_selector: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -216,7 +216,7 @@ impl TryFrom<syn::ImplItemMethod> for Message {
             ))
         }
         Ok(Self {
-            is_wildcard_selector,
+            has_wildcard_selector,
             is_payable,
             selector,
             item: syn::ImplItemMethod {

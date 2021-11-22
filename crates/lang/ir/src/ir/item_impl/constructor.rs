@@ -213,7 +213,7 @@ impl Callable for Constructor {
         true
     }
 
-    fn is_wildcard_selector(&self) -> bool {
+    fn has_wildcard_selector(&self) -> bool {
         false
     }
 
@@ -596,7 +596,7 @@ mod tests {
             pub fn my_constructor() -> Self {}
         };
         let errs: syn::Error = <ir::Constructor as TryFrom<_>>::try_from(item)
-            .expect_err("must result in Err");
+            .expect_err("having a wildcard selector on a constructor must result in an Err");
         assert!(errs
             .to_compile_error()
             .to_string()

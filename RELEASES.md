@@ -10,7 +10,7 @@ This is the 7th release candidate for ink! 3.0.
 - Added basic support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
   - This enables writing upgradable smart contracts using the proxy pattern.
     We added a new example illustrating this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
-  - Annotating a wildcard selector in traits is not yet supported.
+  - Annotating a wildcard selector in traits is not supported.
 
 ## Changed
 - Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).

@@ -116,7 +116,7 @@ where
         <C as Callable>::is_payable(self.callable)
     }
 
-    fn is_wildcard_selector(&self) -> bool {
+    fn has_wildcard_selector(&self) -> bool {
         <C as Callable>::is_wildcard_selector(self.callable)
     }
 
@@ -167,7 +167,7 @@ pub trait Callable {
     fn is_payable(&self) -> bool;
 
     /// Returns `true` if the ink! callable is flagged as a wildcard selector.
-    fn is_wildcard_selector(&self) -> bool;
+    fn has_wildcard_selector(&self) -> bool;
 
     /// Returns the visibility of the ink! callable.
     fn visibility(&self) -> Visibility;

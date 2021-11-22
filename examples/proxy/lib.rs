@@ -73,7 +73,7 @@ pub mod proxy {
                 .callee(self.forward_to)
                 .call_flags(
                     ink_env::CallFlags::default()
-                        .set_clone_input(true)
+                        .set_forward_input(true)
                         .set_tail_call(true),
                 )
                 .gas_limit(0)
