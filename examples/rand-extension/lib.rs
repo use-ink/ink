@@ -146,7 +146,7 @@ mod rand_extension {
             assert_eq!(rand_extension.get(), [0; 32]);
 
             // when
-            rand_extension.update().expect("update must work");
+            rand_extension.update([0_u8; 32]).expect("update must work");
 
             // then
             assert_eq!(rand_extension.get(), [1; 32]);
