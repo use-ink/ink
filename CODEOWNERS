@@ -18,5 +18,5 @@
 
 # CI
 /.github/ @paritytech/ci @HCastano @cmichi
-/scripts/.ci @paritytech/ci @HCastano @cmichi
+/scripts/.ci/ @paritytech/ci @HCastano @cmichi
 /.gitlab-ci.yml @paritytech/ci @HCastano @cmichi
