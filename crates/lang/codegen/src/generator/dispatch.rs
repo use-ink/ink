@@ -123,7 +123,7 @@ impl Dispatch<'_> {
             .impls()
             .map(|item_impl| item_impl.iter_messages())
             .flatten()
-            .positions(|item| item.is_wildcard_selector());
+            .positions(|item| item.has_wildcard_selector());
         let next = wildcard_selectors.next();
         assert!(
             wildcard_selectors.next().is_none(),

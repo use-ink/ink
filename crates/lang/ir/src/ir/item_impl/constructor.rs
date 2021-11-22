@@ -596,7 +596,9 @@ mod tests {
             pub fn my_constructor() -> Self {}
         };
         let errs: syn::Error = <ir::Constructor as TryFrom<_>>::try_from(item)
-            .expect_err("having a wildcard selector on a constructor must result in an Err");
+            .expect_err(
+                "having a wildcard selector on a constructor must result in an Err",
+            );
         assert!(errs
             .to_compile_error()
             .to_string()

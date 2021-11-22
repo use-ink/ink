@@ -281,7 +281,7 @@ impl InkAttribute {
     }
 
     /// Returns `true` if the ink! attribute contains the wildcard selector.
-    pub fn is_wildcard_selector(&self) -> bool {
+    pub fn has_wildcard_selector(&self) -> bool {
         self.args()
             .any(|arg| matches!(arg.kind(), AttributeArg::WildcardSelector))
     }

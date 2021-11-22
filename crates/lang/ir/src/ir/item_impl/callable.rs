@@ -117,7 +117,7 @@ where
     }
 
     fn has_wildcard_selector(&self) -> bool {
-        <C as Callable>::is_wildcard_selector(self.callable)
+        <C as Callable>::has_wildcard_selector(self.callable)
     }
 
     fn visibility(&self) -> Visibility {

@@ -208,8 +208,8 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
-        let is_wildcard_selector = ink_attrs.is_wildcard_selector();
-        if is_wildcard_selector && selector.is_some() {
+        let has_wildcard_selector = ink_attrs.has_wildcard_selector();
+        if has_wildcard_selector && selector.is_some() {
             return Err(format_err!(
                 method_item.span(),
                 "ink! message cannot contain wildcard selector and specified selector"
@@ -244,8 +244,8 @@ impl Callable for Message {
         self.is_payable
     }
 
-    fn is_wildcard_selector(&self) -> bool {
-        self.is_wildcard_selector
+    fn has_wildcard_selector(&self) -> bool {
+        self.has_wildcard_selector
     }
 
     fn visibility(&self) -> Visibility {

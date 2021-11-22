@@ -250,7 +250,7 @@ impl ItemMod {
             .filter_map(ir::InkItem::filter_map_impl_block)
         {
             for message in item_impl.iter_messages() {
-                if !message.is_wildcard_selector() {
+                if !message.has_wildcard_selector() {
                     continue
                 }
                 match wildcard_selector {
