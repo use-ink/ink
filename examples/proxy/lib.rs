@@ -47,19 +47,15 @@ pub mod proxy {
         /// Changes the `AccountId` of the contract where any call that does
         /// not match a selector of this contract is forwarded to.
         #[ink(message)]
-        pub fn change_forward_address(
-            &mut self,
-            new_address: AccountId,
-        ) -> Result<(), String> {
-            if self.env().caller() != self.admin {
-                return Err(format!(
-                    "caller {:?} does not have sufficient permissions, only {:?} does",
-                    self.env().caller(),
-                    self.admin
-                ))
-            }
+        pub fn change_forward_address(&mut self, new_address: AccountId) {
+            assert_eq!(
+                self.env().caller(),
+                self.admin,
+                "caller {:?} does not have sufficient permissions, only {:?} does",
+                self.env().caller(),
+                self.admin,
+            );
             self.forward_to = new_address;
-            Ok(())
         }
 
         /// Fallback message for a contract call that doesn't match any
