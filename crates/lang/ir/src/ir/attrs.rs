@@ -1214,7 +1214,7 @@ mod tests {
                 #[ink(selector = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from([0, 0, 0, 42]),
+                SelectorOrWildcard::Selector(Selector::from([0, 0, 0, 42])),
             )])),
         );
         assert_attribute_try_from(
@@ -1222,7 +1222,7 @@ mod tests {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                Selector::from([0xDE, 0xAD, 0xBE, 0xEF]),
+                SelectorOrWildcard::Selector(Selector::from([0xDE, 0xAD, 0xBE, 0xEF])),
             )])),
         );
     }
