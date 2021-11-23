@@ -103,6 +103,9 @@ workflow:
     PIPELINE_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
       file:                        false
+    GITHUB_SSH_PRIV_KEY:
+      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_SSH_PRIV_KEY@kv
+      file:                        true
 
 #### stage:                        check
 
@@ -444,10 +447,10 @@ publish-docs:
   script:
     - rm -rf /tmp/*
     # Set git config
-    - rm -rf .git/config
+    - git config core.sshCommand "ssh -i ${GITHUB_SSH_PRIV_KEY} -F /dev/null -o StrictHostKeyChecking=no"
     - git config user.email "devops-team@parity.io"
     - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+    - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     - git fetch origin gh-pages
     # saving README and docs
