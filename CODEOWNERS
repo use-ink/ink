@@ -20,6 +20,6 @@
 * @Robbepop @cmichi @ascjones @HCastano
 
 # CI
-/.github/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
+/.github/workflows/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
 /scripts/.ci/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
 /.gitlab-ci.yml @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
