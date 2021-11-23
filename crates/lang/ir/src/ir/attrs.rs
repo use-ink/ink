@@ -802,7 +802,7 @@ fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
             }
         })
         .collect();
-    TokenTree2::Group(Group2::new(grp.delimiter(), new_grp))
+    TokenTree2::Group(Group2::new(group.delimiter(), new_group))
 }
 
 impl TryFrom<syn::Attribute> for InkAttribute {
