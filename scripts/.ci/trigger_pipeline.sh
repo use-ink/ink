@@ -51,6 +51,10 @@ TIMEOUT_MINUTES=60
 
 SEQ_END=$(( (TIMEOUT_MINUTES * 60) / POLL_SLEEP ))
 for i in $(seq 1 $SEQ_END); do
+    curl \
+        --header "PRIVATE-TOKEN: ${PIPELINE_TOKEN}" \
+        "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/pipelines/${PIPELINE_ID}"
+
     STATUS=$(get_status);
     echo "Triggered pipeline status is ${STATUS}";
     if [[ ${STATUS} =~ ^(pending|running|created)$ ]]; then
