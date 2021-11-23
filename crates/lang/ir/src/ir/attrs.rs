@@ -267,13 +267,11 @@ impl InkAttribute {
         })
     }
 
-    /// Returns the non-wildcard selector of the ink! attribute if any.
-    pub fn selector(&self) -> Option<ir::Selector> {
+    /// Returns the selector of the ink! attribute if any.
+    pub fn selector(&self) -> Option<SelectorOrWildcard> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArg::Selector(SelectorOrWildcard::Selector(selector)) =
-                arg.kind()
-            {
-                return Some(*selector)
+            if let ir::AttributeArg::Selector(selector) = arg.kind() {
+                return Some(selector.clone())
             }
             None
         })
@@ -515,9 +513,7 @@ impl core::fmt::Display for AttributeArg {
             Self::Message => write!(f, "message"),
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
-            Self::Selector(selector) => {
-                write!(f, "selector = {}", selector)
-            }
+            Self::Selector(selector) => core::fmt::Display::fmt(&selector, f),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -534,14 +530,24 @@ impl core::fmt::Display for AttributeArg {
 /// Either a wildcard selector or a specified selector.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SelectorOrWildcard {
+    /// A wildcard selector. If no other selector matches, the message/constructor
+    /// annotated with the wildcard selector will be invoked.
     Wildcard,
+    /// A user provided selector.
     Selector(ir::Selector),
+}
+
+impl SelectorOrWildcard {
+    /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
+    fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
+        SelectorOrWildcard::Selector(Selector::from(bytes))
+    }
 }
 
 impl core::fmt::Display for SelectorOrWildcard {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
-            Self::Selector(selector) => write!(f, "{:?}", selector.to_bytes()),
+            Self::Selector(selector) => core::fmt::Debug::fmt(&selector, f),
             Self::Wildcard => write!(f, "_"),
         }
     }
@@ -1221,7 +1227,7 @@ mod tests {
                 #[ink(selector = 0xDEADBEEF)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::Selector(Selector::from([0xDE, 0xAD, 0xBE, 0xEF])),
+                SelectorOrWildcard::selector([0xDE, 0xAD, 0xBE, 0xEF]),
             )])),
         );
     }

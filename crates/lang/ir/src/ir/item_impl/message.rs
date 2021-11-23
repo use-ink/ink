@@ -21,6 +21,7 @@ use super::{
 };
 use crate::ir::{
     self,
+    attrs::SelectorOrWildcard,
     utils,
 };
 use core::convert::TryFrom;
@@ -100,15 +101,13 @@ pub struct Message {
     pub(super) item: syn::ImplItemMethod,
     /// If the ink! message can receive funds.
     is_payable: bool,
-    /// If the ink! message is a wildcard selector.
-    has_wildcard_selector: bool,
     /// An optional user provided selector.
     ///
     /// # Note
     ///
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
-    selector: Option<ir::Selector>,
+    selector: Option<SelectorOrWildcard>,
 }
 
 impl quote::ToTokens for Message {
@@ -207,15 +206,7 @@ impl TryFrom<syn::ImplItemMethod> for Message {
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
-        let has_wildcard_selector = ink_attrs.has_wildcard_selector();
-        if has_wildcard_selector && selector.is_some() {
-            return Err(format_err!(
-                method_item.span(),
-                "ink! message cannot contain wildcard selector and specified selector"
-            ))
-        }
         Ok(Self {
-            has_wildcard_selector,
             is_payable,
             selector,
             item: syn::ImplItemMethod {
@@ -236,15 +227,21 @@ impl Callable for Message {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        self.selector.as_ref()
+        if let Some(SelectorOrWildcard::Selector(selector)) = self.selector.as_ref() {
+            return Some(&selector)
+        }
+        None
+    }
+
+    fn has_wildcard_selector(&self) -> bool {
+        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
+            return true
+        }
+        false
     }
 
     fn is_payable(&self) -> bool {
         self.is_payable
-    }
-
-    fn has_wildcard_selector(&self) -> bool {
-        self.has_wildcard_selector
     }
 
     fn visibility(&self) -> Visibility {

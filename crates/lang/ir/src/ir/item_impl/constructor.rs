@@ -19,7 +19,10 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir;
+use crate::{
+    ir,
+    ir::attrs::SelectorOrWildcard,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -64,15 +67,13 @@ use syn::spanned::Spanned as _;
 pub struct Constructor {
     /// The underlying Rust method item.
     pub(super) item: syn::ImplItemMethod,
-    /// If the ink! constructor is a wildcard selector.
-    has_wildcard_selector: bool,
     /// An optional user provided selector.
     ///
     /// # Note
     ///
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
-    selector: Option<ir::Selector>,
+    selector: Option<SelectorOrWildcard>,
 }
 
 impl quote::ToTokens for Constructor {
@@ -182,15 +183,7 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let selector = ink_attrs.selector();
-        let has_wildcard_selector = ink_attrs.has_wildcard_selector();
-        if has_wildcard_selector && selector.is_some() {
-            return Err(format_err!(
-                method_item.span(),
-                "ink! constructor cannot contain wildcard selector and specified selector"
-            ))
-        }
         Ok(Constructor {
-            has_wildcard_selector,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
@@ -210,15 +203,21 @@ impl Callable for Constructor {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        self.selector.as_ref()
+        if let Some(SelectorOrWildcard::Selector(selector)) = self.selector.as_ref() {
+            return Some(&selector)
+        }
+        None
+    }
+
+    fn has_wildcard_selector(&self) -> bool {
+        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
+            return true
+        }
+        false
     }
 
     fn is_payable(&self) -> bool {
         true
-    }
-
-    fn has_wildcard_selector(&self) -> bool {
-        self.has_wildcard_selector
     }
 
     fn visibility(&self) -> Visibility {
