@@ -36,7 +36,7 @@ echo "Now we're polling it to obtain the distinguished status."
 
 function get_status() {
     curl --silent \
-        --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}"
+        -F "token=${CI_JOB_TOKEN}" \
         "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/pipelines/${PIPELINE_ID}" | \
             jq --raw-output ".status";
 }
@@ -52,7 +52,7 @@ TIMEOUT_MINUTES=60
 SEQ_END=$(( (TIMEOUT_MINUTES * 60) / POLL_SLEEP ))
 for i in $(seq 1 $SEQ_END); do
     curl \
-        --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}"
+        -F "token=${CI_JOB_TOKEN}" \
         "https://${CI_SERVER_HOST}/api/v4/projects/${DWNSTRM_ID}/pipelines/${PIPELINE_ID}"
 
     STATUS=$(get_status);
