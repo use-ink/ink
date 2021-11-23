@@ -765,10 +765,10 @@ impl From<InkAttribute> for Attribute {
     }
 }
 
-/// This function replaces occurrences of a `TokenTree::Ident` of the verbatim `_`
-/// with the String literal `"_"`.
+/// This function replaces occurrences of a `TokenTree::Ident` of the sequence
+/// `selector = _` with the sequence `selector = "_"`.
 ///
-/// This is done because `syn::Attribute::parse_meta` does not support parsing
+/// This is done because `syn::Attribute::parse_meta` does not support parsing a
 /// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
 /// which requires a more in-depth rewrite of our IR parsing.
 fn transform_wildcard_selector_to_string(grp: Group2) -> TokenTree2 {
@@ -786,6 +786,8 @@ fn transform_wildcard_selector_to_string(grp: Group2) -> TokenTree2 {
                 {
                     let mut lit = proc_macro2::Literal::string("_");
                     lit.set_span(ident.span());
+                    found_selector = false;
+                    found_equal = false;
                     TokenTree2::Literal(lit)
                 }
                 TokenTree2::Ident(ident) if ident == "selector" => {
