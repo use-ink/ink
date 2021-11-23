@@ -106,7 +106,7 @@ workflow:
 
 #### stage:                        check
 
-check-std:
+.check-std:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -115,7 +115,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
+.check-wasm:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -127,7 +127,7 @@ check-wasm:
 
 #### stage:                        workspace
 
-build-std:
+.build-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -139,7 +139,7 @@ build-std:
         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
       done
 
-build-wasm:
+.build-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -151,7 +151,7 @@ build-wasm:
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
-test:
+.test:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -174,7 +174,7 @@ test:
       # experimental engine feature we need this command.
     - cargo test --verbose --features std --no-fail-fast --workspace
 
-docs:
+.docs:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -196,7 +196,7 @@ docs:
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
 
-spellcheck:
+.spellcheck:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -204,7 +204,7 @@ spellcheck:
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -253,7 +253,7 @@ codecov:
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
     - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
-clippy-std:
+.clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -265,7 +265,7 @@ clippy-std:
         cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
+.clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -277,7 +277,7 @@ clippy-wasm:
         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
-fmt:
+.fmt:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -290,7 +290,7 @@ fmt:
 
 #### stage:                        examples
 
-examples-test:
+.examples-test:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -305,7 +305,7 @@ examples-test:
         cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
       done
 
-examples-test-experimental-engine:
+.examples-test-experimental-engine:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -320,7 +320,7 @@ examples-test-experimental-engine:
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
-examples-fmt:
+.examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -333,7 +333,7 @@ examples-fmt:
         cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
 
-examples-clippy-std:
+.examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -348,7 +348,7 @@ examples-clippy-std:
         cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
-examples-clippy-wasm:
+.examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -360,7 +360,7 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
-examples-contract-build:
+.examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -377,7 +377,7 @@ examples-contract-build:
         popd;
       done
 
-examples-contract-build-delegator:
+.examples-contract-build-delegator:
     stage:                         examples
     <<:                            *docker-env
     <<:                            *test-refs
@@ -385,7 +385,7 @@ examples-contract-build-delegator:
         - cargo contract -V
         - cd examples/delegator/ && ./build-all.sh
 
-examples-docs:
+.examples-docs:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -424,7 +424,7 @@ ink-waterfall:
 
 #### stage:                        publish
 
-publish-docs:
+.publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
@@ -476,7 +476,7 @@ publish-docs:
 
 #### stage:                        fuzz
 
-fuzz-tests:
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
   <<:                              *vault-secrets
