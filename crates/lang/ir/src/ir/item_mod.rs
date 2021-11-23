@@ -901,7 +901,7 @@ mod tests {
                     }
                 }
             },
-            "ink! message cannot contain wildcard selector and specified selector",
+            "encountered ink! attribute arguments with equal kinds",
         );
     }
 }
