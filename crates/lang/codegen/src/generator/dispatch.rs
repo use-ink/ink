@@ -24,7 +24,6 @@ use ir::{
     Callable,
     HexLiteral as _,
 };
-use itertools::Itertools;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     quote,
@@ -117,8 +116,7 @@ impl Dispatch<'_> {
 
     /// Returns the index of the ink! message which has a wildcard selector, if existent.
     fn query_wildcard_message(&self) -> Option<usize> {
-        let mut wildcard_selectors = self
-            .contract
+        self.contract
             .module()
             .impls()
             .map(|item_impl| item_impl.iter_messages())
@@ -128,8 +126,7 @@ impl Dispatch<'_> {
 
     /// Returns the index of the ink! constructor which has a wildcard selector, if existent.
     fn query_wildcard_constructor(&self) -> Option<usize> {
-        let mut wildcard_selectors = self
-            .contract
+        self.contract
             .module()
             .impls()
             .map(|item_impl| item_impl.iter_constructors())
