@@ -76,7 +76,7 @@ pub enum MetadataVersioned {
 
 impl From<InkProject> for MetadataVersioned {
     fn from(ink_project: InkProject) -> Self {
-        MetadataVersioned::v2(ink_project)
+        MetadataVersioned::V2(ink_project)
     }
 }
 
