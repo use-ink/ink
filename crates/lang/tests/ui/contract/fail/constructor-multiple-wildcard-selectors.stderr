@@ -1,11 +1,15 @@
-error: encountered ink! constructors with overlapping wildcard selectors
-  --> tests/ui/contract/fail/constructors-multiple-wildcard-selectors.rs:18:9
+error: encountered ink! constructor with overlapping wildcard selectors
+  --> tests/ui/contract/fail/constructor-multiple-wildcard-selectors.rs:15:9
    |
-18 |         pub fn message2(&self) {}
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+15 | /         pub fn constructor2() -> Self {
+16 | |             Self {}
+17 | |         }
+   | |_________^
 
-error: first ink! message with overlapping wildcard selector here
-  --> tests/ui/contract/fail/message-multiple-wildcard-selectors.rs:15:9
+error: first ink! constructor with overlapping wildcard selector here
+  --> tests/ui/contract/fail/constructor-multiple-wildcard-selectors.rs:10:9
    |
-15 |         pub fn message1(&self) {}
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+10 | /         pub fn constructor1() -> Self {
+11 | |             Self {}
+12 | |         }
+   | |_________^

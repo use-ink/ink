@@ -241,7 +241,8 @@ impl ItemMod {
         Ok(())
     }
 
-    /// Ensures that at most one wildcard selector exists among ink! messages.
+    /// Ensures that at most one wildcard selector exists among ink! messages, as well as
+    /// ink! constructors.
     fn ensure_only_one_wildcard_selector(items: &[ir::Item]) -> Result<(), syn::Error> {
         let mut wildcard_selector: Option<&ir::Message> = None;
         for item_impl in items
@@ -264,6 +265,26 @@ impl ItemMod {
                         .into_combine(format_err!(
                             overlap.span(),
                             "first ink! message with overlapping wildcard selector here",
+                        )))
+                    }
+                }
+            }
+            let mut wildcard_selector: Option<&ir::Constructor> = None;
+            for constructor in item_impl.iter_constructors() {
+                if !constructor.has_wildcard_selector() {
+                    continue
+                }
+                match wildcard_selector {
+                    None => wildcard_selector = Some(constructor.callable()),
+                    Some(overlap) => {
+                        use crate::error::ExtError as _;
+                        return Err(format_err!(
+                            constructor.callable().span(),
+                            "encountered ink! constructor with overlapping wildcard selectors",
+                        )
+                            .into_combine(format_err!(
+                            overlap.span(),
+                            "first ink! constructor with overlapping wildcard selector here",
                         )))
                     }
                 }

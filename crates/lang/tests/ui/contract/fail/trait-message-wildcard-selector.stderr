@@ -3,11 +3,13 @@ error: encountered conflicting ink! attribute argument
   |
 6 |         #[ink(message, selector = _)]
   |                        ^^^^^^^^^^^^
+
 error: wildcard selectors are only supported for inherent ink! messages or constructors, not for traits.
  --> tests/ui/contract/fail/trait-message-wildcard-selector.rs:6:24
   |
 6 |         #[ink(message, selector = _)]
   |                        ^^^^^^^^^^^^
+
 error[E0432]: unresolved import `super::foo::TraitDefinition`
   --> tests/ui/contract/fail/trait-message-wildcard-selector.rs:15:9
    |
