@@ -16,7 +16,10 @@
 #   eyou can use them for mentioning unlike an email.
 # - The latest matching rule, if multiple, takes precedence.
 
+# All of the core team members are global code owners.
+* @Robbepop @cmichi @ascjones @HCastano
+
 # CI
-/.github/ @paritytech/ci @HCastano @cmichi
-/scripts/.ci/ @paritytech/ci @HCastano @cmichi
-/.gitlab-ci.yml @paritytech/ci @HCastano @cmichi
+/.github/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
+/scripts/.ci/ @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
+/.gitlab-ci.yml @paritytech/ci @Robbepop @cmichi @ascjones @HCastano
