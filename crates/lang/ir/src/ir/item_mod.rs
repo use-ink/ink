@@ -864,27 +864,24 @@ mod tests {
     }
 
     #[test]
-    fn wildcard_selector_on_constructor_fails() {
-        let item = syn::parse_quote! {
-            mod my_module {
-                #[ink(storage)]
-                pub struct MyStorage {}
+    fn wildcard_selector_on_constructor_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
 
-                impl MyStorage {
-                    #[ink(constructor, selector = _)]
-                    pub fn my_constructor() -> Self {}
+                    impl MyStorage {
+                        #[ink(constructor, selector = _)]
+                        pub fn my_constructor() -> Self {}
 
-                    #[ink(message)]
-                    pub fn my_message(&self) {}
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
                 }
-            }
-        };
-        let errs: syn::Error = <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(item)
-            .expect_err("must result in Err");
-        assert!(errs
-            .to_compile_error()
-            .to_string()
-            .contains("wildcard selectors are not allowed for constructors"));
+            })
+            .is_ok()
+        );
     }
 
     #[test]

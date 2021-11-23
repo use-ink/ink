@@ -1,6 +1,11 @@
-error: ink! message cannot contain wildcard selector and specified selector
-  --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:9
+error: encountered ink! attribute arguments with equal kinds
+  --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:47
    |
-14 | /         #[ink(message, selector = 0xCAFEBABA, selector = _)]
-15 | |         pub fn message(&self) {}
-   | |________________________________^
+14 |         #[ink(message, selector = 0xCAFEBABA, selector = _)]
+   |                                               ^^^^^^^^^^^^
+
+error: first equal ink! attribute argument with equal kind here
+  --> tests/ui/contract/fail/message-selector-and-wildcard-selector.rs:14:24
+   |
+14 |         #[ink(message, selector = 0xCAFEBABA, selector = _)]
+   |                        ^^^^^^^^^^^^^^^^^^^^^

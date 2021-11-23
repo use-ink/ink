@@ -19,10 +19,7 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::{
-    ir,
-    ir::attrs::SelectorOrWildcard,
-};
+use crate::ir;
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -67,6 +64,8 @@ use syn::spanned::Spanned as _;
 pub struct Constructor {
     /// The underlying Rust method item.
     pub(super) item: syn::ImplItemMethod,
+    /// If the ink! constructor is a wildcard selector.
+    has_wildcard_selector: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -158,15 +157,8 @@ impl Constructor {
             &ir::AttributeArgKind::Constructor,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Constructor
-                    | ir::AttributeArg::Selector(SelectorOrWildcard::Selector(_)) => {
+                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
                         Ok(())
-                    }
-                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) => {
-                        Err(Some(format_err!(
-                            arg.span(),
-                            "wildcard selectors are not allowed for constructors"
-                        )))
                     }
                     ir::AttributeArg::Payable => {
                         Err(Some(format_err!(
@@ -190,7 +182,15 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
         let selector = ink_attrs.selector();
+        let has_wildcard_selector = ink_attrs.has_wildcard_selector();
+        if has_wildcard_selector && selector.is_some() {
+            return Err(format_err!(
+                method_item.span(),
+                "ink! constructor cannot contain wildcard selector and specified selector"
+            ))
+        }
         Ok(Constructor {
+            has_wildcard_selector,
             selector,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
@@ -218,7 +218,7 @@ impl Callable for Constructor {
     }
 
     fn has_wildcard_selector(&self) -> bool {
-        false
+        self.has_wildcard_selector
     }
 
     fn visibility(&self) -> Visibility {
@@ -594,18 +594,11 @@ mod tests {
     }
 
     #[test]
-    fn try_from_wildcard_constructor_fails() {
+    fn try_from_wildcard_constructor_works() {
         let item: syn::ImplItemMethod = syn::parse_quote! {
             #[ink(constructor, selector = _)]
             pub fn my_constructor() -> Self {}
         };
-        let errs: syn::Error = <ir::Constructor as TryFrom<_>>::try_from(item)
-            .expect_err(
-                "having a wildcard selector on a constructor must result in an Err",
-            );
-        assert!(errs
-            .to_compile_error()
-            .to_string()
-            .contains("wildcard selectors are not allowed for constructors"));
+        assert!(<ir::Constructor as TryFrom<_>>::try_from(item).is_ok());
     }
 }
