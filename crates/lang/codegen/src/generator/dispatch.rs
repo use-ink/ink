@@ -123,13 +123,7 @@ impl Dispatch<'_> {
             .impls()
             .map(|item_impl| item_impl.iter_messages())
             .flatten()
-            .positions(|item| item.has_wildcard_selector());
-        let next = wildcard_selectors.next();
-        assert!(
-            wildcard_selectors.next().is_none(),
-            "found more than one wildcard selector message, contracts must have at most one."
-        );
-        next
+            .position(|item| item.has_wildcard_selector())
     }
 
     /// Returns the index of the ink! constructor which has a wildcard selector, if existent.
@@ -140,13 +134,7 @@ impl Dispatch<'_> {
             .impls()
             .map(|item_impl| item_impl.iter_constructors())
             .flatten()
-            .positions(|item| item.has_wildcard_selector());
-        let next = wildcard_selectors.next();
-        assert!(
-            wildcard_selectors.next().is_none(),
-            "found more than one wildcard selector constructor, contracts must have at most one."
-        );
-        next
+            .position(|item| item.has_wildcard_selector())
     }
 
     /// Generates code for the [`ink_lang::ContractDispatchables`] trait implementation.

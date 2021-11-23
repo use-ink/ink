@@ -267,7 +267,7 @@ impl InkAttribute {
         })
     }
 
-    /// Returns the selector of the ink! attribute if any.
+    /// Returns the non-wildcard selector of the ink! attribute if any.
     pub fn selector(&self) -> Option<ir::Selector> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(SelectorOrWildcard::Selector(selector)) =
