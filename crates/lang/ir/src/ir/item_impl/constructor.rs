@@ -19,7 +19,10 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir;
+use crate::{
+    ir,
+    ir::attrs::SelectorOrWildcard,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -155,10 +158,11 @@ impl Constructor {
             &ir::AttributeArgKind::Constructor,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
+                    ir::AttributeArg::Constructor
+                    | ir::AttributeArg::Selector(SelectorOrWildcard::Selector(_)) => {
                         Ok(())
                     }
-                    ir::AttributeArg::WildcardSelector => {
+                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) => {
                         Err(Some(format_err!(
                             arg.span(),
                             "wildcard selectors are not allowed for constructors"

@@ -16,6 +16,7 @@ use super::super::InkAttribute;
 use crate::{
     ir::{
         self,
+        attrs::SelectorOrWildcard,
         utils,
     },
     InputsIter,
@@ -83,11 +84,11 @@ impl<'a> InkTraitMessage<'a> {
             &ir::AttributeArgKind::Message,
             |arg| {
                 match arg.kind() {
+                    ir::AttributeArg::Selector(SelectorOrWildcard::Wildcard) =>
+                        Err(Some(format_err!(arg.span(), "wildcard selectors are only supported for plain ink! messages, not for traits."))),
                     ir::AttributeArg::Message
                     | ir::AttributeArg::Payable
                     | ir::AttributeArg::Selector(_) => Ok(()),
-                    ir::AttributeArg::WildcardSelector =>
-                        Err(Some(format_err!(arg.span(), "wildcard selectors are only supported for plain ink! messages, not for traits."))),
                     _ => Err(None),
                 }
             },

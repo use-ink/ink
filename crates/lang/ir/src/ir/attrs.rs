@@ -270,8 +270,11 @@ impl InkAttribute {
     /// Returns the selector of the ink! attribute if any.
     pub fn selector(&self) -> Option<ir::Selector> {
         self.args().find_map(|arg| {
-            if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(*selector)
+            if let ir::AttributeArg::Selector(selector_or_wildcard) = arg.kind() {
+                match selector_or_wildcard {
+                    SelectorOrWildcard::Selector(selector) => return Some(*selector),
+                    _ => (),
+                }
             }
             None
         })
@@ -285,8 +288,12 @@ impl InkAttribute {
 
     /// Returns `true` if the ink! attribute contains the wildcard selector.
     pub fn has_wildcard_selector(&self) -> bool {
-        self.args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::WildcardSelector))
+        self.args().any(|arg| {
+            matches!(
+                arg.kind(),
+                AttributeArg::Selector(SelectorOrWildcard::Wildcard)
+            )
+        })
     }
 
     /// Returns `true` if the ink! attribute contains the `anonymous` argument.
@@ -352,7 +359,6 @@ pub enum AttributeArgKind {
     /// `#[ink(payable)]`
     Payable,
     /// `#[ink(selector = _)]`
-    WildcardSelector,
     /// `#[ink(selector = 0xDEADBEEF)]`
     Selector,
     /// `#[ink(extension = N: u32)]`
@@ -406,16 +412,15 @@ pub enum AttributeArg {
     /// Applied on ink! constructors or messages in order to specify that they
     /// can receive funds from callers.
     Payable,
-    /// `#[ink(selector = _)]`
+    /// Can be either one of:
     ///
-    /// Applied on ink! messages to define a fallback messages that is invoked
-    /// if no other ink! message matches a given selector.
-    WildcardSelector,
-    /// `#[ink(selector = 0xDEADBEEF)]`
-    ///
-    /// Applied on ink! constructors or messages to manually control their
-    /// selectors.
-    Selector(Selector),
+    /// - `#[ink(selector = 0xDEADBEEF)]`
+    ///   Applied on ink! constructors or messages to manually control their
+    ///   selectors.
+    /// - `#[ink(selector = _)]`
+    ///   Applied on ink! messages to define a fallback messages that is invoked
+    ///   if no other ink! message matches a given selector.
+    Selector(SelectorOrWildcard),
     /// `#[ink(namespace = "my_namespace")]`
     ///
     /// Applied on ink! trait implementation blocks to disambiguate other trait
@@ -465,10 +470,7 @@ impl core::fmt::Display for AttributeArgKind {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector => {
-                write!(f, "selector = S:[u8; 4]")
-            }
-            Self::WildcardSelector => {
-                write!(f, "selector = \"_\"")
+                write!(f, "selector = S:[u8; 4] || _")
             }
             Self::Extension => {
                 write!(f, "extension = N:u32)")
@@ -495,7 +497,6 @@ impl AttributeArg {
             Self::Constructor => AttributeArgKind::Constructor,
             Self::Payable => AttributeArgKind::Payable,
             Self::Selector(_) => AttributeArgKind::Selector,
-            Self::WildcardSelector => AttributeArgKind::WildcardSelector,
             Self::Extension(_) => AttributeArgKind::Extension,
             Self::Namespace(_) => AttributeArgKind::Namespace,
             Self::Implementation => AttributeArgKind::Implementation,
@@ -516,9 +517,8 @@ impl core::fmt::Display for AttributeArg {
             Self::Constructor => write!(f, "constructor"),
             Self::Payable => write!(f, "payable"),
             Self::Selector(selector) => {
-                write!(f, "selector = {:?}", selector.to_bytes())
+                write!(f, "selector = {}", selector)
             }
-            Self::WildcardSelector => write!(f, "selector = \"_\""),
             Self::Extension(extension) => {
                 write!(f, "extension = {:?}", extension.into_u32())
             }
@@ -528,6 +528,22 @@ impl core::fmt::Display for AttributeArg {
             Self::Implementation => write!(f, "impl"),
             Self::HandleStatus(value) => write!(f, "handle_status = {:?}", value),
             Self::ReturnsResult(value) => write!(f, "returns_result = {:?}", value),
+        }
+    }
+}
+
+/// Either a wildcard selector or a specified selector.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum SelectorOrWildcard {
+    Wildcard,
+    Selector(ir::Selector),
+}
+
+impl core::fmt::Display for SelectorOrWildcard {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
+        match self {
+            Self::Selector(selector) => write!(f, "{:?}", selector.to_bytes()),
+            Self::Wildcard => write!(f, "_"),
         }
     }
 }
@@ -894,7 +910,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 }
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::WildcardSelector,
+                                    arg: AttributeArg::Selector(SelectorOrWildcard::Wildcard),
                                 })
                             }
 
@@ -910,7 +926,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let selector = Selector::from(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(selector),
+                                    arg: AttributeArg::Selector(SelectorOrWildcard::Selector(selector)),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
