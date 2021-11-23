@@ -271,7 +271,7 @@ impl InkAttribute {
     pub fn selector(&self) -> Option<SelectorOrWildcard> {
         self.args().find_map(|arg| {
             if let ir::AttributeArg::Selector(selector) = arg.kind() {
-                return Some(selector.clone())
+                return Some(*selector)
             }
             None
         })
@@ -528,7 +528,7 @@ impl core::fmt::Display for AttributeArg {
 }
 
 /// Either a wildcard selector or a specified selector.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SelectorOrWildcard {
     /// A wildcard selector. If no other selector matches, the message/constructor
     /// annotated with the wildcard selector will be invoked.
@@ -771,11 +771,11 @@ impl From<InkAttribute> for Attribute {
 /// This is done because `syn::Attribute::parse_meta` does not support parsing a
 /// verbatim like `_`. For this we would need to switch to `syn::Attribute::parse_args`,
 /// which requires a more in-depth rewrite of our IR parsing.
-fn transform_wildcard_selector_to_string(grp: Group2) -> TokenTree2 {
+fn transform_wildcard_selector_to_string(group: Group2) -> TokenTree2 {
     let mut found_selector = false;
     let mut found_equal = false;
 
-    let new_grp: TokenStream2 = grp
+    let new_group: TokenStream2 = group
         .stream()
         .into_iter()
         .map(|tt| {

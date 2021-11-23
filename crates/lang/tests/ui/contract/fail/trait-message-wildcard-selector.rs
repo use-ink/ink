@@ -4,7 +4,7 @@ mod foo {
     #[ink::trait_definition]
     pub trait TraitDefinition {
         #[ink(message, selector = _)]
-        fn message1(&self);
+        fn message(&self);
     }
 }
 
@@ -26,7 +26,7 @@ pub mod contract {
 
     impl TraitDefinition for Contract {
         #[ink(message)]
-        fn message1(&self) {}
+        fn message(&self) {}
     }
 }
 
