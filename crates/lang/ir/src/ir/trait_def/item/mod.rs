@@ -359,7 +359,7 @@ impl InkItemTrait {
             let ident = callable.ident();
             let ink_attrs = callable.ink_attrs();
             let selector = match ink_attrs.selector() {
-                Some(SelectorOrWildcard::Selector(manual_selector)) => manual_selector,
+                Some(SelectorOrWildcard::UserProvided(manual_selector)) => manual_selector,
                 _ => Selector::compose(trait_prefix, ident),
             };
             let (duplicate_selector, duplicate_ident) = match callable {

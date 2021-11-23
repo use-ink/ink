@@ -534,20 +534,20 @@ pub enum SelectorOrWildcard {
     /// annotated with the wildcard selector will be invoked.
     Wildcard,
     /// A user provided selector.
-    Selector(ir::Selector),
+    UserProvided(ir::Selector),
 }
 
 impl SelectorOrWildcard {
     /// Create a new `SelectorOrWildcard::Selector` from the supplied bytes.
     fn selector(bytes: [u8; 4]) -> SelectorOrWildcard {
-        SelectorOrWildcard::Selector(Selector::from(bytes))
+        SelectorOrWildcard::UserProvided(Selector::from(bytes))
     }
 }
 
 impl core::fmt::Display for SelectorOrWildcard {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> Result<(), core::fmt::Error> {
         match self {
-            Self::Selector(selector) => core::fmt::Debug::fmt(&selector, f),
+            Self::UserProvided(selector) => core::fmt::Debug::fmt(&selector, f),
             Self::Wildcard => write!(f, "_"),
         }
     }
@@ -933,7 +933,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                 let selector = Selector::from(selector_u32.to_be_bytes());
                                 return Ok(AttributeFrag {
                                     ast: meta,
-                                    arg: AttributeArg::Selector(SelectorOrWildcard::Selector(selector)),
+                                    arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
                                 })
                             }
                             return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
@@ -1221,7 +1221,7 @@ mod tests {
                 #[ink(selector = 42)]
             },
             Ok(test::Attribute::Ink(vec![AttributeArg::Selector(
-                SelectorOrWildcard::Selector(Selector::from([0, 0, 0, 42])),
+                SelectorOrWildcard::UserProvided(Selector::from([0, 0, 0, 42])),
             )])),
         );
         assert_attribute_try_from(

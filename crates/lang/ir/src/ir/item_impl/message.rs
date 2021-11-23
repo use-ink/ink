@@ -227,7 +227,7 @@ impl Callable for Message {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        if let Some(SelectorOrWildcard::Selector(selector)) = self.selector.as_ref() {
+        if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
             return Some(selector)
         }
         None
