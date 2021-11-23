@@ -4,6 +4,13 @@
 #
 # pipelines can be triggered manually in the web
 
+default:
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - unknown_failure
+      - api_failure
 
 stages:
   - check
@@ -67,23 +74,11 @@ workflow:
     - ./scripts/.ci/pre_cache.sh
     - sccache -s
   interruptible:                   true
-  retry:
-    max: 2
-    when:
-      - runner_system_failure
-      - unknown_failure
-      - api_failure
   tags:
     - linux-docker
 
 .kubernetes-env:                   &kubernetes-env
   interruptible:                   true
-  retry:
-    max: 2
-    when:
-      - runner_system_failure
-      - unknown_failure
-      - api_failure
   tags:
     - kubernetes-parity-build
 
