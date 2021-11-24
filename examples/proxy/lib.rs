@@ -31,25 +31,6 @@ pub mod proxy {
         admin: AccountId,
     }
 
-    /// Error which is returned if a caller tries to invoke
-    /// [`Proxy::change_forward_address`] while not being the
-    /// admin account stored in the storage of this contract.
-    #[derive(scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub struct NotAdminErr {
-        admin: AccountId,
-    }
-
-    impl core::fmt::Display for NotAdminErr {
-        fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-            let msg = ink_prelude::format!(
-                "caller does not have sufficient permissions, only {:?} does",
-                self.admin
-            );
-            write!(f, "{}", msg)
-        }
-    }
-
     impl Proxy {
         /// Instantiate this contract with an address of the `logic` contract.
         ///
@@ -65,25 +46,16 @@ pub mod proxy {
 
         /// Changes the `AccountId` of the contract where any call that does
         /// not match a selector of this contract is forwarded to.
-        ///
-        /// Returns a [`NotAdminErr`] in case the caller is not the
-        /// admin account stored in the storage of this contract.
-        ///
-        /// # Note:
-        ///
-        /// Returning an `Result::Err` here will result in the transaction
-        /// being reverted, in that sense it is equal to e.g. placing an
-        /// `assert!` here instead.
         #[ink(message)]
-        pub fn change_forward_address(
-            &mut self,
-            new_address: AccountId,
-        ) -> Result<(), NotAdminErr> {
-            if self.env().caller() != self.admin {
-                return Err(NotAdminErr { admin: self.admin })
-            }
+        pub fn change_forward_address(&mut self, new_address: AccountId) {
+            assert_eq!(
+                self.env().caller(),
+                self.admin,
+                "caller {:?} does not have sufficient permissions, only {:?} does",
+                self.env().caller(),
+                self.admin,
+            );
             self.forward_to = new_address;
-            Ok(())
         }
 
         /// Fallback message for a contract call that doesn't match any
