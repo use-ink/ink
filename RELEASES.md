@@ -1,4 +1,4 @@
-# Version 3.0-rc7 (UNRELEASED)
+# Version 3.0-rc7
 
 This is the 7th release candidate for ink! 3.0.
 
@@ -20,7 +20,7 @@ This is the 7th release candidate for ink! 3.0.
   - **Note:** The default behavior of cross-contract calls now disallows reentering the calling contract.
   - **Note:** In order to support this you currently have to enable the `unstable-interface` of
     the `contracts` pallet, [like here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml#L104-L108).
-- ink! contract definitions via `#[ink::contract]`:
+- ink! contract definitions via `#[ink::contract]` ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - ink! smart contracts now generate two contract types. Given `MyContract`:
     - `MyContract` will still be the storage struct.
       However, it can now additionally be used as static dependency in other smart contracts.
@@ -28,26 +28,35 @@ This is the 7th release candidate for ink! 3.0.
     - `MyContractRef` is pretty much the same of what we had gotten with the old `ink-as-dependency`.
       It is a typed thin-wrapper around an `AccountId` that is mirroring the ink! smart contract's API
       and implemented traits.
-- ink! trait definitions via `#[ink::trait_definition]`:
+- ink! trait definitions via `#[ink::trait_definition]` ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - ink! trait definitions no longer can define trait constructors.
     - ink! trait implementations now inherit `selector` and `payable` properties for trait messages.
         - Now explicitly setting `selector` or `payable` property for an implemented ink! trait method
           will only act as a guard that the set property is in fact the same as defined by the ink!
           trait definition.
-- Improved some ink! specific compile errors:
+- Improved some ink! specific compile errors ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - For example, when using ink! messages and constructors that have inputs or
       outputs that cannot be encoded or decoded using the SCALE codec.
-- Simplified selector computation for ink! trait methods.
+- Simplified selector computation for ink! trait methods ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - Now selectors are encoded as `blake2b({namespace}::{trait_identifier}::{message_identifier})[0..4]`.
       If no `namespace` is set for the ink! trait definition then the formula is
       `blake2b({trait_identifier}::{message_identifier})[0..4]`.
       Where `trait_identifier` and `message_identifier` both refer to the identifiers of the ink! trait
       definition and ink! trait message respectively.
+- We switched to Rust edition 2021 ‒ [#977](https://github.com/paritytech/ink/pull/977).
+- Update chain extension example to show argument passing ‒ [#1029](https://github.com/paritytech/ink/pull/1029).
 
 ## Fixed
-- Contracts that are compiled as root (the default) now properly revert the transaction if a message
-  returned `Result::Err`.
-    - This does not apply to ink! smart contracts that are used as dependencies. Therefore it is still possible to match against a result return type for a called dependency.
+- Contracts that are compiled as root (the default) now properly revert the transaction
+  if a message returns `Result::Err` ‒ [#975](https://github.com/paritytech/ink/pull/975)[#998](https://github.com/paritytech/ink/pull/998).
+    - This does not apply to ink! smart contracts that are used as dependencies.
+      Therefore, it is still possible to match against a result return type
+      for a called dependency.
+- We implemented a number of Wasm contract size improvements:
+    - Simple Mapping Storage Primitive ‒ [#946](https://github.com/paritytech/ink/pull/946).
+    - Remove `always` from `inline` to allow compiler decide that to do ‒ [#1012](https://github.com/paritytech/ink/pull/1012).
+    - Add a way to allocate a storage facility using spread (and packed) layouts ‒ [#978](https://github.com/paritytech/ink/pull/978).
+    - Extract non-generic part of `push_topic` to reduce code size ‒ [#1026](https://github.com/paritytech/ink/pull/1026).
 
 # Version 3.0-rc6
 
