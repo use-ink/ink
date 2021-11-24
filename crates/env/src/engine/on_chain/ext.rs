@@ -18,7 +18,6 @@
 
 use crate::ReturnFlags;
 use core::marker::PhantomData;
-use ink_primitives::Key;
 
 macro_rules! define_error_codes {
     (
