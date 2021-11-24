@@ -24,9 +24,7 @@ use crate::{
         DebugInfo,
         EmittedEvent,
     },
-    types::{
-        AccountId,
-    },
+    types::AccountId,
 };
 use std::panic::panic_any;
 

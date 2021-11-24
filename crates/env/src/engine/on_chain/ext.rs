@@ -195,7 +195,6 @@ type Result = core::result::Result<(), Error>;
 
 mod sys {
     use super::{
-        Key,
         Ptr32,
         Ptr32Mut,
         ReturnCode,
