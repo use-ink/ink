@@ -86,8 +86,9 @@ mod rand_extension {
             Self::new(Default::default())
         }
 
-        /// Seed a random value by passing some known argument `subject` to the runtime's random
-        /// source. Then, update the current value with the new random value
+        /// Seed a random value by passing some known argument `subject` to the runtime's
+        /// random source. Then, update the current `value` stored in this contract with the
+        /// new random value.
         #[ink(message)]
         pub fn update(&mut self, subject: [u8; 32]) -> Result<(), RandomReadErr> {
             // Get the on-chain random seed
