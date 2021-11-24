@@ -497,150 +497,6 @@
 <span id="496">496</span>
 <span id="497">497</span>
 <span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -677,10 +533,6 @@
         <span class="ident">HashOutput</span>,
     },
     <span class="ident">topics::Topics</span>,
-    <span class="ident">types</span>::{
-        <span class="ident">RentParams</span>,
-        <span class="ident">RentStatus</span>,
-    },
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
@@ -788,56 +640,6 @@
     })
 }
 
-<span class="doccomment">/// Returns the current rent allowance for the executed contract.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
-    })
-}
-
-<span class="doccomment">/// Returns information needed for rent calculations.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_params</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentParams</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::rent_params</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
-    })
-}
-
-<span class="doccomment">/// Returns information about the required deposit and resulting rent.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Parameters</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.</span>
-<span class="doccomment">///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   The `current_*` fields of `RentStatus` do **not** consider changes to the code&#39;s</span>
-<span class="doccomment">///   `refcount` made during the currently running call.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rent_status</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::rent_status</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">at_refcount</span>)
-    })
-}
-
 <span class="doccomment">/// Returns the current block number.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
@@ -866,20 +668,6 @@
     })
 }
 
-<span class="doccomment">/// Returns the tombstone deposit for the contracts chain.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tombstone_deposit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T::Balance</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::tombstone_deposit</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
-    })
-}
-
 <span class="doccomment">/// Emits an event with the given event data.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">event</span>: <span class="ident">Event</span>)
 <span class="kw">where</span>
@@ -888,16 +676,6 @@
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
         <span class="ident">TypedEnvBackend::emit_event</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">event</span>)
-    })
-}
-
-<span class="doccomment">/// Sets the rent allowance of the executed contract to the new value.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">new_value</span>: <span class="ident">T::Balance</span>)
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::set_rent_allowance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">new_value</span>)
     })
 }
 
@@ -949,7 +727,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If the called account does not exist.</span>
 <span class="doccomment">/// - If the called account is not a contract.</span>
-<span class="doccomment">/// - If the called contract is a tombstone.</span>
 <span class="doccomment">/// - If arguments passed to the called contract message are invalid.</span>
 <span class="doccomment">/// - If the called contract execution has trapped.</span>
 <span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
@@ -974,7 +751,6 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// - If the called account does not exist.</span>
 <span class="doccomment">/// - If the called account is not a contract.</span>
-<span class="doccomment">/// - If the called contract is a tombstone.</span>
 <span class="doccomment">/// - If arguments passed to the called contract message are invalid.</span>
 <span class="doccomment">/// - If the called contract execution has trapped.</span>
 <span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
@@ -1018,74 +794,10 @@
     })
 }
 
-<span class="doccomment">/// Restores a smart contract in tombstone state.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Params</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `account_id`: Account ID of the to-be-restored contract.</span>
-<span class="doccomment">/// - `code_hash`: Code hash of the to-be-restored contract.</span>
-<span class="doccomment">/// - `rent_allowance`: Rent allowance of the restored contract</span>
-<span class="doccomment">///                     upon successful restoration.</span>
-<span class="doccomment">/// - `filtered_keys`: Storage keys to be excluded when calculating the tombstone hash,</span>
-<span class="doccomment">///                    which is used to decide whether the original contract and the</span>
-<span class="doccomment">///                    to-be-restored contract have matching storage.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Usage</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A smart contract that has too few funds to pay for its storage fees</span>
-<span class="doccomment">/// can eventually be evicted. An evicted smart contract `C` leaves behind</span>
-<span class="doccomment">/// a tombstone associated with a hash that has been computed partially</span>
-<span class="doccomment">/// by its storage contents.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// To restore contract `C` back to a fully working contract the normal</span>
-<span class="doccomment">/// process is to write another contract `C2` with the only purpose to</span>
-<span class="doccomment">/// eventually have the absolutely same contract storage as `C` did when</span>
-<span class="doccomment">/// it was evicted.</span>
-<span class="doccomment">/// For that purpose `C2` can use other storage keys that have not been in</span>
-<span class="doccomment">/// use by contract `C`.</span>
-<span class="doccomment">/// Once `C2` contract storage matches the storage of `C` when it was evicted</span>
-<span class="doccomment">/// `C2` can invoke this method in order to initiate restoration of `C`.</span>
-<span class="doccomment">/// A tombstone hash is calculated for `C2` and if it matches the tombstone</span>
-<span class="doccomment">/// hash of `C` the restoration is going to be successful.</span>
-<span class="doccomment">/// The `filtered_keys` argument can be used to ignore the extraneous keys</span>
-<span class="doccomment">/// used by `C2` but not used by `C`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The process of such a smart contract restoration can generally be very expensive.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `filtered_keys` can be used to ignore certain storage regions</span>
-<span class="doccomment">///   in the restorer contract to not influence the hash calculations.</span>
-<span class="doccomment">/// - Does *not* perform restoration right away but defers it to the end of</span>
-<span class="doccomment">///   the contract execution.</span>
-<span class="doccomment">/// - Restoration is canceled if there is no tombstone in the destination</span>
-<span class="doccomment">///   address or if the hashes don&#39;t match. No changes are made in this case.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">account_id</span>: <span class="ident">T::AccountId</span>,
-    <span class="ident">code_hash</span>: <span class="ident">T::Hash</span>,
-    <span class="ident">rent_allowance</span>: <span class="ident">T::Balance</span>,
-    <span class="ident">filtered_keys</span>: <span class="kw-2">&amp;</span>[<span class="ident">Key</span>],
-) <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::restore_contract</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-            <span class="ident">instance</span>,
-            <span class="ident">account_id</span>,
-            <span class="ident">code_hash</span>,
-            <span class="ident">rent_allowance</span>,
-            <span class="ident">filtered_keys</span>,
-        )
-    })
-}
-
-<span class="doccomment">/// Terminates the existence of the currently executed smart contract</span>
-<span class="doccomment">/// without creating a tombstone.</span>
+<span class="doccomment">/// Terminates the existence of the currently executed smart contract.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This removes the calling account and transfers all remaining balance</span>
 <span class="doccomment">/// to the given beneficiary.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// No tombstone will be created, this function kills a contract completely!</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>

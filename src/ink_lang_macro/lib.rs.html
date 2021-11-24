@@ -1145,10 +1145,6 @@
 <span id="1144">1144</span>
 <span id="1145">1145</span>
 <span id="1146">1146</span>
-<span id="1147">1147</span>
-<span id="1148">1148</span>
-<span id="1149">1149</span>
-<span id="1150">1150</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1371,7 +1367,6 @@
 <span class="doccomment">///         type Hash = [u8; 32];</span>
 <span class="doccomment">///         type Timestamp = u64;</span>
 <span class="doccomment">///         type BlockNumber = u32;</span>
-<span class="doccomment">///         type RentFraction = ::ink_env::Perbill;</span>
 <span class="doccomment">///         type ChainExtension = ::ink_env::NoChainExtension;</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///     ```</span>
@@ -1391,7 +1386,6 @@
 <span class="doccomment">///         #     type Timestamp = u64;</span>
 <span class="doccomment">///         #     type BlockNumber = u32;</span>
 <span class="doccomment">///         #     type ChainExtension = ::ink_env::NoChainExtension;</span>
-<span class="doccomment">///         #     type RentFraction = ::ink_env::Perbill;</span>
 <span class="doccomment">///         # }</span>
 <span class="doccomment">///         #</span>
 <span class="doccomment">///         # #[ink(storage)]</span>
@@ -2133,7 +2127,6 @@
 <span class="doccomment">///     type Hash = &lt;DefaultEnvironment as Environment&gt;::Hash;</span>
 <span class="doccomment">///     type BlockNumber = &lt;DefaultEnvironment as Environment&gt;::BlockNumber;</span>
 <span class="doccomment">///     type Timestamp = &lt;DefaultEnvironment as Environment&gt;::Timestamp;</span>
-<span class="doccomment">///     type RentFraction = &lt;DefaultEnvironment as Environment&gt;::RentFraction;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     type ChainExtension = RuntimeReadWrite;</span>
 <span class="doccomment">/// }</span>
@@ -2277,7 +2270,6 @@
 <span class="doccomment">/// #     type Hash = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Hash;</span>
 <span class="doccomment">/// #     type BlockNumber = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::BlockNumber;</span>
 <span class="doccomment">/// #     type Timestamp = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::Timestamp;</span>
-<span class="doccomment">/// #     type RentFraction = &lt;ink_env::DefaultEnvironment as ink_env::Environment&gt;::RentFraction;</span>
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// #     type ChainExtension = RuntimeReadWrite;</span>
 <span class="doccomment">/// # }</span>

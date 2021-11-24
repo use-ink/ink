@@ -425,64 +425,6 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -508,10 +450,6 @@
         <span class="ident">HashOutput</span>,
     },
     <span class="ident">topics::Topics</span>,
-    <span class="ident">types</span>::{
-        <span class="ident">RentParams</span>,
-        <span class="ident">RentStatus</span>,
-    },
     <span class="ident">Environment</span>,
     <span class="prelude-ty">Result</span>,
 };
@@ -821,30 +759,6 @@
     <span class="doccomment">/// For more details visit: [`balance`][`crate::balance`]</span>
     <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
 
-    <span class="doccomment">/// Returns the current rent allowance for the executed contract.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`rent_allowance`][`crate::rent_allowance`]</span>
-    <span class="kw">fn</span> <span class="ident">rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
-
-    <span class="doccomment">/// Returns information needed for rent calculations.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`RentParams`][`crate::RentParams`]</span>
-    <span class="kw">fn</span> <span class="ident">rent_params</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentParams</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Returns information about the required deposit and resulting rent.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`RentStatus`][`crate::RentStatus`]</span>
-    <span class="kw">fn</span> <span class="ident">rent_status</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">at_refcount</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">core::num::NonZeroU32</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RentStatus</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>;
-
     <span class="doccomment">/// Returns the current block number.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
@@ -859,13 +773,6 @@
     <span class="doccomment">/// For more details visit: [`minimum_balance`][`crate::minimum_balance`]</span>
     <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
 
-    <span class="doccomment">/// Returns the tombstone deposit of the contract chain.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`tombstone_deposit`][`crate::tombstone_deposit`]</span>
-    <span class="kw">fn</span> <span class="ident">tombstone_deposit</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
-
     <span class="doccomment">/// Emits an event with the given event data.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
@@ -875,15 +782,6 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Environment</span>,
         <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>;
-
-    <span class="doccomment">/// Sets the rent allowance of the executed contract to the new value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`set_rent_allowance`][`crate::set_rent_allowance`]</span>
-    <span class="kw">fn</span> <span class="ident">set_rent_allowance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">T::Balance</span>)
-    <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>;
 
     <span class="doccomment">/// Invokes a contract message.</span>
     <span class="doccomment">///</span>
@@ -925,20 +823,6 @@
         <span class="ident">T</span>: <span class="ident">Environment</span>,
         <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
         <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Restores a smart contract tombstone.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`restore_contract`][`crate::restore_contract`]</span>
-    <span class="kw">fn</span> <span class="ident">restore_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">account_id</span>: <span class="ident">T::AccountId</span>,
-        <span class="ident">code_hash</span>: <span class="ident">T::Hash</span>,
-        <span class="ident">rent_allowance</span>: <span class="ident">T::Balance</span>,
-        <span class="ident">filtered_keys</span>: <span class="kw-2">&amp;</span>[<span class="ident">Key</span>],
-    ) <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>;
 
     <span class="doccomment">/// Terminates a smart contract.</span>
     <span class="doccomment">///</span>
