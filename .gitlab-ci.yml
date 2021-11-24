@@ -451,6 +451,7 @@ publish-docs:
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    - ssh-add -l
     - git fetch origin as-gh-pages
     # saving README and docs
     - cp -r ./crate-docs/ /tmp/doc/
