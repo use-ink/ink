@@ -42,7 +42,7 @@ pub mod proxy {
 
     impl core::fmt::Display for NotAdminErr {
         fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-            let msg = ink_env::format!(
+            let msg = ink_prelude::format!(
                 "caller does not have sufficient permissions, only {:?} does",
                 self.admin
             );
