@@ -105,7 +105,7 @@ workflow:
       file:                        false
     GITHUB_SSH_PRIV_KEY:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_SSH_PRIV_KEY@kv
-      file:                        false
+      file:                        true
 
 #### stage:                        check
 
