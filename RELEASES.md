@@ -2,6 +2,9 @@
 
 This is the 7th release candidate for ink! 3.0.
 
+## Removed
+- Removed the state rent API ‒ [#1036](https://github.com/paritytech/ink/pull/1036).
+
 ## Added
 - The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang`.
     - Some of those traits and their carried information can be used for static reflection of ink!
