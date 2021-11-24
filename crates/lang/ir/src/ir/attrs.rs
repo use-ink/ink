@@ -1411,9 +1411,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(handle_status = "string")]
             },
-            Err(
-                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]"
-            ),
+            Err("expected `bool` value type for `flag` in #[ink(handle_status = flag)]"),
         );
     }
 
