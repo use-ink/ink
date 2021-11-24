@@ -142,7 +142,7 @@ workflow:
         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
       done
 
-build-wasm:
+.build-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
