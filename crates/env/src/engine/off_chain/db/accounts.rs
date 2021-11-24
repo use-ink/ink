@@ -150,7 +150,6 @@ impl AccountsDb {
         &mut self,
         account_id: T::AccountId,
         initial_balance: T::Balance,
-        rent_allowance: T::Balance,
     ) where
         T: Environment,
     {
@@ -158,7 +157,7 @@ impl AccountsDb {
             OffAccountId::new(&account_id),
             Account {
                 balance: OffBalance::new(&initial_balance),
-                kind: AccountKind::Contract(ContractAccount::new::<T>(rent_allowance)),
+                kind: AccountKind::Contract(ContractAccount::new::<T>()),
             },
         );
     }
@@ -217,28 +216,6 @@ impl Account {
         }
     }
 
-    /// Returns the rent allowance of the contract account or an error.
-    pub fn rent_allowance<T>(&self) -> Result<T::Balance>
-    where
-        T: Environment,
-    {
-        self.contract_or_err()
-            .and_then(|contract| contract.rent_allowance.decode().map_err(Into::into))
-    }
-
-    /// Sets the rent allowance for the contract account or returns an error.
-    pub fn set_rent_allowance<T>(&mut self, new_rent_allowance: T::Balance) -> Result<()>
-    where
-        T: Environment,
-    {
-        self.contract_or_err_mut().and_then(|contract| {
-            contract
-                .rent_allowance
-                .assign(&new_rent_allowance)
-                .map_err(Into::into)
-        })
-    }
-
     /// Sets the contract storage of key to the new value.
     pub fn set_storage<T>(&mut self, at: Key, new_value: &T) -> Result<()>
     where
@@ -285,20 +262,17 @@ pub enum AccountKind {
 
 /// Extraneous fields for contract accounts.
 pub struct ContractAccount {
-    /// The contract's rent allowance.
-    rent_allowance: OffBalance,
     /// The contract storage.
     pub storage: ContractStorage,
 }
 
 impl ContractAccount {
-    /// Creates a new contract account with the given initial rent allowance.
-    pub fn new<T>(rent_allowance: T::Balance) -> Self
+    /// Creates a new contract account.
+    pub fn new<T>() -> Self
     where
         T: Environment,
     {
         Self {
-            rent_allowance: OffBalance::new(&rent_allowance),
             storage: ContractStorage::new(),
         }
     }

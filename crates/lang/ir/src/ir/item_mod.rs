@@ -15,6 +15,7 @@
 use crate::{
     ir,
     ir::idents_lint,
+    Callable,
 };
 use core::convert::TryFrom;
 use proc_macro2::{
@@ -239,6 +240,58 @@ impl ItemMod {
         }
         Ok(())
     }
+
+    /// Ensures that at most one wildcard selector exists among ink! messages, as well as
+    /// ink! constructors.
+    fn ensure_only_one_wildcard_selector(items: &[ir::Item]) -> Result<(), syn::Error> {
+        let mut wildcard_selector: Option<&ir::Message> = None;
+        for item_impl in items
+            .iter()
+            .filter_map(ir::Item::map_ink_item)
+            .filter_map(ir::InkItem::filter_map_impl_block)
+        {
+            for message in item_impl.iter_messages() {
+                if !message.has_wildcard_selector() {
+                    continue
+                }
+                match wildcard_selector {
+                    None => wildcard_selector = Some(message.callable()),
+                    Some(overlap) => {
+                        use crate::error::ExtError as _;
+                        return Err(format_err!(
+                            message.callable().span(),
+                            "encountered ink! messages with overlapping wildcard selectors",
+                        )
+                        .into_combine(format_err!(
+                            overlap.span(),
+                            "first ink! message with overlapping wildcard selector here",
+                        )))
+                    }
+                }
+            }
+            let mut wildcard_selector: Option<&ir::Constructor> = None;
+            for constructor in item_impl.iter_constructors() {
+                if !constructor.has_wildcard_selector() {
+                    continue
+                }
+                match wildcard_selector {
+                    None => wildcard_selector = Some(constructor.callable()),
+                    Some(overlap) => {
+                        use crate::error::ExtError as _;
+                        return Err(format_err!(
+                            constructor.callable().span(),
+                            "encountered ink! constructor with overlapping wildcard selectors",
+                        )
+                            .into_combine(format_err!(
+                            overlap.span(),
+                            "first ink! constructor with overlapping wildcard selector here",
+                        )))
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 impl TryFrom<syn::ItemMod> for ItemMod {
@@ -278,6 +331,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         Self::ensure_contains_message(module_span, &items)?;
         Self::ensure_contains_constructor(module_span, &items)?;
         Self::ensure_no_overlapping_selectors(&items)?;
+        Self::ensure_only_one_wildcard_selector(&items)?;
         Ok(Self {
             attrs: other_attrs,
             vis: module.vis,
@@ -803,6 +857,72 @@ mod tests {
                 }
             })
             .is_ok()
+        );
+    }
+
+    #[test]
+    fn overlapping_wildcard_selectors_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _)]
+                        pub fn my_message1(&self) {}
+
+                        #[ink(message, selector = _)]
+                        pub fn my_message2(&self) {}
+                    }
+                }
+            },
+            "encountered ink! messages with overlapping wildcard selectors",
+        );
+    }
+
+    #[test]
+    fn wildcard_selector_on_constructor_works() {
+        assert!(
+            <ir::ItemMod as TryFrom<syn::ItemMod>>::try_from(syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor, selector = _)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            })
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn overlap_between_wildcard_selector_and_composed_selector_fails() {
+        assert_fail(
+            syn::parse_quote! {
+                mod my_module {
+                    #[ink(storage)]
+                    pub struct MyStorage {}
+
+                    impl MyStorage {
+                        #[ink(constructor)]
+                        pub fn my_constructor() -> Self {}
+
+                        #[ink(message, selector = _, selector = 0xCAFEBABE)]
+                        pub fn my_message(&self) {}
+                    }
+                }
+            },
+            "encountered ink! attribute arguments with equal kinds",
         );
     }
 }

@@ -1,0 +1,11 @@
+error: encountered ink! attribute arguments with equal kinds
+ --> tests/ui/contract/fail/constructor-selector-and-wildcard-selector.rs:9:51
+  |
+9 |         #[ink(constructor, selector = 0xCAFEBABA, selector = _)]
+  |                                                   ^^^^^^^^^^^^
+
+error: first equal ink! attribute argument with equal kind here
+ --> tests/ui/contract/fail/constructor-selector-and-wildcard-selector.rs:9:28
+  |
+9 |         #[ink(constructor, selector = 0xCAFEBABA, selector = _)]
+  |                            ^^^^^^^^^^^^^^^^^^^^^

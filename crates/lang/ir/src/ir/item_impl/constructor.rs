@@ -19,7 +19,10 @@ use super::{
     InputsIter,
     Visibility,
 };
-use crate::ir;
+use crate::{
+    ir,
+    ir::attrs::SelectorOrWildcard,
+};
 use core::convert::TryFrom;
 use proc_macro2::{
     Ident,
@@ -70,7 +73,7 @@ pub struct Constructor {
     ///
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
-    selector: Option<ir::Selector>,
+    selector: Option<SelectorOrWildcard>,
 }
 
 impl quote::ToTokens for Constructor {
@@ -200,7 +203,17 @@ impl Callable for Constructor {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        self.selector.as_ref()
+        if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
+            return Some(selector)
+        }
+        None
+    }
+
+    fn has_wildcard_selector(&self) -> bool {
+        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
+            return true
+        }
+        false
     }
 
     fn is_payable(&self) -> bool {
@@ -577,5 +590,14 @@ mod tests {
                 "encountered conflicting ink! attribute argument",
             )
         }
+    }
+
+    #[test]
+    fn try_from_wildcard_constructor_works() {
+        let item: syn::ImplItemMethod = syn::parse_quote! {
+            #[ink(constructor, selector = _)]
+            pub fn my_constructor() -> Self {}
+        };
+        assert!(<ir::Constructor as TryFrom<_>>::try_from(item).is_ok());
     }
 }

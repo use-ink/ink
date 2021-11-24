@@ -110,7 +110,6 @@ pub trait ContractName {
 ///     type Hash = <DefaultEnvironment as Environment>::Hash;
 ///     type BlockNumber = u32;
 ///     type Timestamp = u64;
-///     type RentFraction = <DefaultEnvironment as Environment>::RentFraction;
 ///     type ChainExtension = <DefaultEnvironment as Environment>::ChainExtension;
 /// }
 ///

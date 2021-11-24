@@ -42,7 +42,7 @@ pub enum Error {
     NewContractNotFunded,
     /// No code could be found at the supplied code hash.
     CodeNotFound,
-    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    /// The account that was called is no contract, but a plain account.
     NotCallable,
     /// An unknown error has occurred.
     Unknown,

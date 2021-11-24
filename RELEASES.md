@@ -2,11 +2,18 @@
 
 This is the 7th release candidate for ink! 3.0.
 
+## Removed
+- Removed the state rent API ‒ [#1036](https://github.com/paritytech/ink/pull/1036).
+
 ## Added
 - The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang`.
     - Some of those traits and their carried information can be used for static reflection of ink!
       smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
       publicly usable by ink! smart contract authors.
+- Added basic support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
+  - This enables writing upgradable smart contracts using the proxy pattern.
+    We added a new example illustrating this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
+  - Annotating a wildcard selector in traits is not supported.
 
 ## Changed
 - Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).

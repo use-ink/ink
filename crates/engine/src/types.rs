@@ -49,6 +49,7 @@ pub struct Key(Vec<u8>);
 
 impl Key {
     /// Creates a new `Key` from the given raw bytes.
+    #[allow(dead_code)]
     pub fn from_bytes(bytes: &[u8]) -> Self {
         Self(bytes.to_vec())
     }
