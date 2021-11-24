@@ -29,7 +29,8 @@ impl ChainExtension<Runtime> for FetchRandomExtension {
         match func_id {
             1101 => {
                 let mut env = env.buf_in_buf_out();
-                let random_seed = crate::RandomnessCollectiveFlip::random_seed().0;
+                let arg: [u8; 32] = env.read_as()?;
+                let random_seed = crate::RandomnessCollectiveFlip::random(&arg).0;
                 let random_slice = random_seed.encode();
                 trace!(
                     target: "runtime",
