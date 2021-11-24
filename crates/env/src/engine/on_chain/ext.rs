@@ -334,10 +334,7 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
-    }
 
-    #[link(wasm_import_module = "__unstable__")]
-    extern "C" {
         pub fn seal_call(
             flags: u32,
             callee_ptr: Ptr32<[u8]>,
@@ -348,7 +345,10 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
+    }
 
+    #[link(wasm_import_module = "__unstable__")]
+    extern "C" {
         pub fn seal_rent_params(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,

@@ -13,13 +13,11 @@ This is the 7th release candidate for ink! 3.0.
   - Annotating a wildcard selector in traits is not supported.
 
 ## Changed
-- Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).
+- Upgraded to the `seal_call` v1 API ‒ [#960](https://github.com/paritytech/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
     The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.CallFlags.html).
   - **Note:** The default behavior of cross-contract calls now disallows reentering the calling contract.
-  - **Note:** In order to support this you currently have to enable the `unstable-interface` of
-    the `contracts` pallet, [like here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml#L104-L108).
 - ink! contract definitions via `#[ink::contract]`:
     - ink! smart contracts now generate two contract types. Given `MyContract`:
     - `MyContract` will still be the storage struct.
