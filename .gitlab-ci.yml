@@ -109,7 +109,7 @@ workflow:
 
 #### stage:                        check
 
-check-std:
+.check-std:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -118,7 +118,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
+.check-wasm:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -130,7 +130,7 @@ check-wasm:
 
 #### stage:                        workspace
 
-build-std:
+.build-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -154,7 +154,7 @@ build-wasm:
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
-test:
+.test:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -199,7 +199,7 @@ docs:
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
 
-spellcheck:
+.spellcheck:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -207,7 +207,7 @@ spellcheck:
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -256,7 +256,7 @@ codecov:
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
     - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
-clippy-std:
+.clippy-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -268,7 +268,7 @@ clippy-std:
         cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
+.clippy-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -280,7 +280,7 @@ clippy-wasm:
         cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
       done
 
-fmt:
+.fmt:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -293,7 +293,7 @@ fmt:
 
 #### stage:                        examples
 
-examples-test:
+.examples-test:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -308,7 +308,7 @@ examples-test:
         cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
       done
 
-examples-test-experimental-engine:
+.examples-test-experimental-engine:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -323,7 +323,7 @@ examples-test-experimental-engine:
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
-examples-fmt:
+.examples-fmt:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -336,7 +336,7 @@ examples-fmt:
         cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
       done
 
-examples-clippy-std:
+.examples-clippy-std:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -351,7 +351,7 @@ examples-clippy-std:
         cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
 
-examples-clippy-wasm:
+.examples-clippy-wasm:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -363,7 +363,7 @@ examples-clippy-wasm:
         cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
 
-examples-contract-build:
+.examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -380,7 +380,7 @@ examples-contract-build:
         popd;
       done
 
-examples-contract-build-delegator:
+.examples-contract-build-delegator:
     stage:                         examples
     <<:                            *docker-env
     <<:                            *test-refs
@@ -388,7 +388,7 @@ examples-contract-build-delegator:
         - cargo contract -V
         - cd examples/delegator/ && ./build-all.sh
 
-examples-docs:
+.examples-docs:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -409,7 +409,7 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -437,11 +437,7 @@ publish-docs:
       artifacts:                   true
   variables:
     GIT_DEPTH:                     100
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "web"
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-    - if: $CI_COMMIT_REF_NAME == "master"
-    - if: $CI_COMMIT_REF_NAME == "tags"
+  <<:                              *test-refs
   before_script:
     - unset CARGO_TARGET_DIR
   script:
@@ -455,12 +451,12 @@ publish-docs:
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    - git fetch origin gh-pages
+    - git fetch origin as-gh-pages
     # saving README and docs
     - cp -r ./crate-docs/ /tmp/doc/
     - cp README.md /tmp/doc/
     - cp -r .images/ /tmp/doc/
-    - git checkout gh-pages
+    - git checkout as-gh-pages
     - mv _config.yml /tmp/doc/
     # remove everything and restore generated docs, README and Jekyll config
     - rm -rf ./*
@@ -475,14 +471,15 @@ publish-docs:
     # job as failed subsequently.
     # We don't want to mark the entire job as failed if there's nothing to
     # publish though, hence the `|| true`.
-    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to gh-pages" || true
-    - git push origin gh-pages --force
+    - git commit -m "Updated docs for ${CI_COMMIT_REF_NAME} and pushed to as-gh-pages" || true
+    - ssh-add -l
+    - git push origin as-gh-pages --force
   after_script:
     - rm -rf .git/ ./*
 
 #### stage:                        fuzz
 
-fuzz-tests:
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
   <<:                              *vault-secrets
