@@ -14,6 +14,8 @@
 
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use synstructure::VariantInfo;
+
 
 /// Derives `ink_storage`'s `SpreadAllocate` trait for the given type.
 pub fn spread_allocate_derive(mut s: synstructure::Structure) -> TokenStream2 {
@@ -22,9 +24,7 @@ pub fn spread_allocate_derive(mut s: synstructure::Structure) -> TokenStream2 {
         .underscore_const(true);
     match s.ast().data {
         syn::Data::Struct(_) => derive_struct(s),
-        syn::Data::Enum(_) => {
-            panic!("cannot derive `SpreadAllocate` for `enum` types")
-        }
+        syn::Data::Enum(_) => derive_enum_struct(s),
         syn::Data::Union(_) => {
             panic!("cannot derive `SpreadAllocate` for `union` types")
         }
@@ -35,17 +35,35 @@ pub fn spread_allocate_derive(mut s: synstructure::Structure) -> TokenStream2 {
 fn derive_struct(s: synstructure::Structure) -> TokenStream2 {
     assert!(s.variants().len() == 1, "can only operate on structs");
     let variant = &s.variants()[0];
-    let allocate_body = variant.construct(|field, _index| {
-        let ty = &field.ty;
-        quote! {
-            <#ty as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
-        }
-    });
+    let allocate_body = allocate_body(variant);
     s.gen_impl(quote! {
         gen impl ::ink_storage::traits::SpreadAllocate for @Self {
             fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
                 #allocate_body
             }
+        }
+    })
+}
+
+/// Derives `ink_storage`'s `SpreadAllocate` trait for the given `enum`.
+fn derive_enum_struct(s: synstructure::Structure) -> TokenStream2 {
+    let variant = &s.variants()[0];
+    let allocate_body = allocate_body(variant);
+    s.gen_impl(quote! {
+        gen impl ::ink_storage::traits::SpreadAllocate for @Self
+            where Self:Default {
+            fn allocate_spread(__key_ptr: &mut ::ink_primitives::KeyPtr) -> Self {
+                #allocate_body
+            }
+        }
+    })
+}
+
+fn allocate_body(variant: &VariantInfo) -> TokenStream2 {
+    variant.construct(|field, _index| {
+        let ty = &field.ty;
+        quote! {
+            <#ty as ::ink_storage::traits::SpreadAllocate>::allocate_spread(__key_ptr)
         }
     })
 }

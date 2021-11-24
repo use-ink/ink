@@ -137,7 +137,7 @@ synstructure::decl_derive!(
 
 synstructure::decl_derive!(
     [SpreadAllocate] =>
-    /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct`.
+    /// Derives `ink_storage`'s `SpreadAllocate` trait for the given `struct` or `enum`.
     ///
     /// # Note
     ///
