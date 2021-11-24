@@ -27,7 +27,7 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.
+/// Generates `#[cfg(…)]` code to guard against compilation under `ink-as-dependency`.
 #[derive(From)]
 pub struct NotAsDependencyCfg<'a> {
     contract: &'a ir::Contract,
@@ -44,7 +44,7 @@ impl GenerateCode for NotAsDependencyCfg<'_> {
     }
 }
 
-/// Generates `#[cfg(..)]` code to only allow compilation when `ink-as-dependency` is enabled.
+/// Generates `#[cfg(…)]` code to only allow compilation when `ink-as-dependency` is enabled.
 ///
 /// The `ink-as-dependency` can be enabled mainly by 2 different ways:
 ///

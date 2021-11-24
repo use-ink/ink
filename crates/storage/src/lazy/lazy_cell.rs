@@ -628,7 +628,7 @@ mod tests {
             {
                 // Step 2: Pull the values from the step before.
                 //
-                // 1. Change the first values `None` to `Some(...)`.
+                // 1. Change the first values `None` to `Some(…)`.
                 // 2. Push the first value again to contract storage.
                 //
                 // We prevent the intermediate instance from clearing the storage preemptively

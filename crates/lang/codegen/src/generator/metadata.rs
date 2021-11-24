@@ -384,12 +384,12 @@ mod tests {
         assert_eq!(
             extract_doc_attributes(&[syn::parse_quote!(
                 /**
-                 * Multi-line comments ...
+                 * Multi-line comments…
                  * May span many lines
                  */
             )]),
             vec![r"
-                 * Multi-line comments ...
+                 * Multi-line comments…
                  * May span many lines
                  "
             .to_string()],

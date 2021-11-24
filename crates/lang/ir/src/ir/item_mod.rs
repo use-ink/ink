@@ -305,7 +305,7 @@ impl TryFrom<syn::ItemMod> for ItemMod {
             None => {
                 return Err(format_err_spanned!(
                     module,
-                    "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ ... }}`",
+                    "out-of-line ink! modules are not supported, use `#[ink::contract] mod name {{ … }}`",
                 ))
             }
         };
@@ -731,7 +731,7 @@ mod tests {
             syn::parse_quote! {
                 mod my_module;
             },
-            "out-of-line ink! modules are not supported, use `#[ink::contract] mod name { ... }`",
+            "out-of-line ink! modules are not supported, use `#[ink::contract] mod name { … }`",
         )
     }
 

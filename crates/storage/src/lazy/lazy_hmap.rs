@@ -103,7 +103,7 @@ pub struct LazyHashMap<K, V, H> {
 /// by querying the cache another time -- but this would be an additional
 /// search. So what we do instead is to save a reference to the inserted
 /// cache value in the `Occupied`. As a consequence all Entry API operations
-/// (`get`, `remove`, ...) need to distinguish both cases.
+/// (`get`, `remove`, …) need to distinguish both cases.
 enum EntryOrMutableValue<E, V> {
     /// An occupied `EntryMap` entry that holds a value.
     /// This represents the case where the key was in the cache.

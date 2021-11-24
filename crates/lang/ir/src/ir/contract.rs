@@ -83,7 +83,7 @@ impl Contract {
     /// ```no_compile
     /// #[ink::contract]
     /// mod my_contract {
-    ///     // ... definitions
+    ///     // …definitions
     /// }
     /// ```
     pub fn module(&self) -> &ir::ItemMod {

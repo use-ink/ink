@@ -210,8 +210,8 @@ impl InkAttribute {
         Ok(())
     }
 
-    /// Converts a sequence of `#[ink(..)]` attributes into a single flattened
-    /// `#[ink(..)]` attribute that contains all of the input arguments.
+    /// Converts a sequence of `#[ink(…)]` attributes into a single flattened
+    /// `#[ink(…)]` attribute that contains all of the input arguments.
     ///
     /// # Example
     ///
@@ -574,7 +574,7 @@ impl Namespace {
 }
 
 /// Returns `true` if the given iterator yields at least one attribute of the form
-/// `#[ink(..)]` or `#[ink]`.
+/// `#[ink(…)]` or `#[ink]`.
 ///
 /// # Note
 ///
@@ -1412,7 +1412,7 @@ mod tests {
                 #[ink(handle_status = "string")]
             },
             Err(
-                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]",
+                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]"
             ),
         );
     }
