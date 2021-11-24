@@ -75,10 +75,7 @@ pub mod give_me {
                 "received payment: {}",
                 self.env().transferred_value()
             );
-            assert!(
-                self.env().transferred_value() == 10,
-                "payment was not ten"
-            );
+            assert!(self.env().transferred_value() == 10, "payment was not ten");
         }
     }
 
