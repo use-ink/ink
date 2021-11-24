@@ -26,9 +26,10 @@ curl --silent \
 
 PIPELINE_ID=$(cat pipeline | jq ".id")
 PIPELINE_URL=$(cat pipeline | jq ".web_url")
-echo
+echo ""
 echo "ink-waterfall pipeline ${PIPELINE_URL} was successfully triggered."
 echo "Now we're polling it to obtain the distinguished status."
+echo ""
 
 # This is a workaround for a Gitlab bug, waits here until
 # https://gitlab.com/gitlab-org/gitlab/-/issues/326137 gets fixed.
