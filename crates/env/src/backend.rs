@@ -298,8 +298,8 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// # Note
     ///
-    /// For more details visit: [`transferred_balance`][`crate::transferred_balance`]
-    fn transferred_balance<T: Environment>(&mut self) -> T::Balance;
+    /// For more details visit: [`transferred_value`][`crate::transferred_value`]
+    fn transferred_value<T: Environment>(&mut self) -> T::Balance;
 
     /// Returns the price for the specified amount of gas.
     ///

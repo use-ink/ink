@@ -13,6 +13,7 @@ This is the 7th release candidate for ink! 3.0.
   - Annotating a wildcard selector in traits is not supported.
 
 ## Changed
+- Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1037](https://github.com/paritytech/ink/pull/1037).
 - Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
