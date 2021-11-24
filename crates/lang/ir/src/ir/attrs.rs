@@ -936,7 +936,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
+                            return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
@@ -970,7 +970,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     ),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `u32` integer type for `N` in #[ink(extension = N)]"))
+                            return Err(format_err!(name_value, "expected `u32` integer type for `N` in #[ink(extension = N)]"))
                         }
                         if name_value.path.is_ident("handle_status") {
                             if let syn::Lit::Bool(lit_bool) = &name_value.lit {
@@ -980,7 +980,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::HandleStatus(value),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]"))
+                            return Err(format_err!(name_value, "expected `bool` value type for `flag` in #[ink(handle_status = flag)]"))
                         }
                         if name_value.path.is_ident("returns_result") {
                             if let syn::Lit::Bool(lit_bool) = &name_value.lit {
@@ -990,7 +990,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::ReturnsResult(value),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"))
+                            return Err(format_err!(name_value, "expected `bool` value type for `flag` in #[ink(returns_result = flag)]"))
                         }
                         Err(format_err_spanned!(
                             meta,
@@ -1266,7 +1266,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = true)]
             },
-            Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
+            Err("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
     }
 
@@ -1333,7 +1333,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = "string")]
             },
-            Err("expecteded `u32` integer type for `N` in #[ink(extension = N)]"),
+            Err("expected `u32` integer type for `N` in #[ink(extension = N)]"),
         );
     }
 
@@ -1412,7 +1412,7 @@ mod tests {
                 #[ink(handle_status = "string")]
             },
             Err(
-                "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]",
+                "expected `bool` value type for `flag` in #[ink(handle_status = flag)]",
             ),
         );
     }
@@ -1457,7 +1457,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(returns_result = "string")]
             },
-            Err("expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"),
+            Err("expected `bool` value type for `flag` in #[ink(returns_result = flag)]"),
         );
     }
 
