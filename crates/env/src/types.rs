@@ -43,8 +43,6 @@ use scale::{
 };
 #[cfg(feature = "std")]
 use scale_info::TypeInfo;
-use sp_arithmetic::PerThing;
-pub use sp_arithmetic::Perbill;
 
 /// Allows to instantiate a type from its little-endian bytes representation.
 pub trait FromLittleEndian {
@@ -167,9 +165,6 @@ pub trait Environment {
     ///
     /// [chain_extension]: https://paritytech.github.io/ink/ink_lang/attr.chain_extension.html
     type ChainExtension;
-
-    /// The fraction of the deposit costs that should be used as rent per block.
-    type RentFraction: 'static + scale::Codec + Clone + PartialEq + Eq + Ord + PerThing;
 }
 
 /// Placeholder for chains that have no defined chain extension.
@@ -189,7 +184,6 @@ impl Environment for DefaultEnvironment {
     type Timestamp = Timestamp;
     type BlockNumber = BlockNumber;
     type ChainExtension = NoChainExtension;
-    type RentFraction = RentFraction;
 }
 
 /// The default balance type.
@@ -200,9 +194,6 @@ pub type Timestamp = u64;
 
 /// The default block number type.
 pub type BlockNumber = u32;
-
-/// The default rent fraction type.
-pub type RentFraction = Perbill;
 
 /// The default environment `AccountId` type.
 ///
