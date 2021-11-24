@@ -130,55 +130,6 @@ where
     })
 }
 
-/// Sets the rent allowance of the contract account to the given rent allowance.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-/// - If the underlying `new_rent_allowance` type does not match.
-pub fn set_contract_rent_allowance<T>(
-    account_id: T::AccountId,
-    new_rent_allowance: T::Balance,
-) -> Result<()>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .accounts
-            .get_account_mut::<T>(&account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
-            .map_err(Into::into)
-            .and_then(|account| {
-                account
-                    .set_rent_allowance::<T>(new_rent_allowance)
-                    .map_err(Into::into)
-            })
-    })
-}
-
-/// Returns the rent allowance of the contract account.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-/// - If the returned rent allowance cannot be properly decoded.
-pub fn get_contract_rent_allowance<T>(account_id: T::AccountId) -> Result<T::Balance>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .accounts
-            .get_account::<T>(&account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
-            .map_err(Into::into)
-            .and_then(|account| account.rent_allowance::<T>().map_err(Into::into))
-    })
-}
-
 /// Registers a new chain extension.
 pub fn register_chain_extension<E>(extension: E)
 where

@@ -18,7 +18,6 @@
 
 use crate::ReturnFlags;
 use core::marker::PhantomData;
-use ink_primitives::Key;
 
 macro_rules! define_error_codes {
     (
@@ -74,7 +73,7 @@ define_error_codes! {
     NewContractNotFunded = 6,
     /// No code could be found at the supplied code hash.
     CodeNotFound = 7,
-    /// The account that was called is either no contract (e.g. user account) or is a tombstone.
+    /// The account that was called is no contract.
     NotCallable = 8,
      /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
@@ -195,7 +194,6 @@ type Result = core::result::Result<(), Error>;
 
 mod sys {
     use super::{
-        Key,
         Ptr32,
         Ptr32Mut,
         ReturnCode,
@@ -245,16 +243,6 @@ mod sys {
         ) -> ReturnCode;
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
-        pub fn seal_restore_to(
-            dest_ptr: Ptr32<[u8]>,
-            dest_len: u32,
-            code_hash_ptr: Ptr32<[u8]>,
-            code_hash_len: u32,
-            rent_allowance_ptr: Ptr32<[u8]>,
-            rent_allowance_len: u32,
-            delta_ptr: Ptr32<[Key]>,
-            delta_count: u32,
-        );
         pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
         pub fn seal_call_chain_extension(
@@ -286,20 +274,10 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         );
         pub fn seal_now(output_ptr: Ptr32Mut<[u8]>, output_len_ptr: Ptr32Mut<u32>);
-        pub fn seal_rent_allowance(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
         pub fn seal_minimum_balance(
             output_ptr: Ptr32Mut<[u8]>,
             output_len_ptr: Ptr32Mut<u32>,
         );
-        pub fn seal_tombstone_deposit(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-
-        pub fn seal_set_rent_allowance(value_ptr: Ptr32<[u8]>, value_len: u32);
 
         pub fn seal_hash_keccak_256(
             input_ptr: Ptr32<[u8]>,
@@ -349,17 +327,6 @@ mod sys {
 
     #[link(wasm_import_module = "__unstable__")]
     extern "C" {
-        pub fn seal_rent_params(
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-
-        pub fn seal_rent_status(
-            at_refcount: u32,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-        );
-
         pub fn seal_ecdsa_recover(
             // 65 bytes of ecdsa signature
             signature_ptr: Ptr32<[u8]>,
@@ -490,37 +457,6 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
     ret_code.into()
 }
 
-/// Restores a tombstone to the original smart contract.
-///
-/// # Params
-///
-/// - `account_id`: Encoded bytes of the `AccountId` of the to-be-restored contract.
-/// - `code_hash`: Encoded code hash of the to-be-restored contract.
-/// - `rent_allowance`: The encoded rent allowance of the restored contract
-///                     upon successful restoration.
-/// - `filtered_keys`: Storage keys that will be ignored for the tombstone hash
-///                    match calculation that decide whether the original contract
-///                    storage and the storage of the restorer contract is equal.
-pub fn restore_to(
-    account_id: &[u8],
-    code_hash: &[u8],
-    rent_allowance: &[u8],
-    filtered_keys: &[Key],
-) {
-    unsafe {
-        sys::seal_restore_to(
-            Ptr32::from_slice(account_id),
-            account_id.len() as u32,
-            Ptr32::from_slice(code_hash),
-            code_hash.len() as u32,
-            Ptr32::from_slice(rent_allowance),
-            rent_allowance.len() as u32,
-            Ptr32::from_slice(filtered_keys),
-            filtered_keys.len() as u32,
-        )
-    }
-}
-
 pub fn terminate(beneficiary: &[u8]) -> ! {
     unsafe {
         sys::seal_terminate(Ptr32::from_slice(beneficiary), beneficiary.len() as u32)
@@ -593,9 +529,7 @@ impl_seal_wrapper_for! {
     (gas_left => seal_gas_left),
     (value_transferred => seal_value_transferred),
     (now => seal_now),
-    (rent_allowance => seal_rent_allowance),
     (minimum_balance => seal_minimum_balance),
-    (tombstone_deposit => seal_tombstone_deposit),
 }
 
 pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
@@ -604,37 +538,6 @@ pub fn weight_to_fee(gas: u64, output: &mut &mut [u8]) {
         unsafe {
             sys::seal_weight_to_fee(
                 gas,
-                Ptr32Mut::from_slice(output),
-                Ptr32Mut::from_ref(&mut output_len),
-            )
-        };
-    }
-    extract_from_slice(output, output_len as usize);
-}
-
-pub fn set_rent_allowance(value: &[u8]) {
-    unsafe { sys::seal_set_rent_allowance(Ptr32::from_slice(value), value.len() as u32) }
-}
-
-pub fn rent_params(output: &mut &mut [u8]) {
-    let mut output_len = output.len() as u32;
-    {
-        unsafe {
-            sys::seal_rent_params(
-                Ptr32Mut::from_slice(output),
-                Ptr32Mut::from_ref(&mut output_len),
-            )
-        };
-    }
-    extract_from_slice(output, output_len as usize);
-}
-
-pub fn rent_status(at_refcount: Option<core::num::NonZeroU32>, output: &mut &mut [u8]) {
-    let mut output_len = output.len() as u32;
-    {
-        unsafe {
-            sys::seal_rent_status(
-                at_refcount.map_or(0, |rc| rc.get()),
                 Ptr32Mut::from_slice(output),
                 Ptr32Mut::from_ref(&mut output_len),
             )

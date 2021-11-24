@@ -82,41 +82,6 @@ where
     })
 }
 
-/// Sets the rent allowance of the contract account to the given rent allowance.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-/// - If the underlying `new_rent_allowance` type does not match.
-pub fn set_contract_rent_allowance<T>(
-    _account_id: T::AccountId,
-    _new_rent_allowance: T::Balance,
-) -> Result<()>
-where
-    T: Environment,
-{
-    unimplemented!(
-        "off-chain environment does not yet support `set_contract_rent_allowance`"
-    );
-}
-
-/// Returns the rent allowance of the contract account.
-///
-/// # Errors
-///
-/// - If `account` does not exist.
-/// - If the underlying `account` type does not match.
-/// - If the returned rent allowance cannot be properly decoded.
-pub fn get_contract_rent_allowance<T>(_account_id: T::AccountId) -> Result<T::Balance>
-where
-    T: Environment,
-{
-    unimplemented!(
-        "off-chain environment does not yet support `get_contract_rent_allowance`"
-    );
-}
-
 /// Set the entropy hash of the current block.
 ///
 /// # Note

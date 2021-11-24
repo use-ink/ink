@@ -34,10 +34,6 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
-    types::{
-        RentParams,
-        RentStatus,
-    },
     Environment,
     Result,
 };
@@ -145,56 +141,6 @@ where
     })
 }
 
-/// Returns the current rent allowance for the executed contract.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-pub fn rent_allowance<T>() -> T::Balance
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::rent_allowance::<T>(instance)
-    })
-}
-
-/// Returns information needed for rent calculations.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-pub fn rent_params<T>() -> Result<RentParams<T>>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::rent_params::<T>(instance)
-    })
-}
-
-/// Returns information about the required deposit and resulting rent.
-///
-/// # Parameters
-///
-/// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
-///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
-///
-///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-///   `refcount` made during the currently running call.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-pub fn rent_status<T>(at_refcount: Option<core::num::NonZeroU32>) -> Result<RentStatus<T>>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::rent_status::<T>(instance, at_refcount)
-    })
-}
-
 /// Returns the current block number.
 ///
 /// # Errors
@@ -223,20 +169,6 @@ where
     })
 }
 
-/// Returns the tombstone deposit for the contracts chain.
-///
-/// # Errors
-///
-/// If the returned value cannot be properly decoded.
-pub fn tombstone_deposit<T>() -> T::Balance
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::tombstone_deposit::<T>(instance)
-    })
-}
-
 /// Emits an event with the given event data.
 pub fn emit_event<T, Event>(event: Event)
 where
@@ -245,16 +177,6 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::emit_event::<T, Event>(instance, event)
-    })
-}
-
-/// Sets the rent allowance of the executed contract to the new value.
-pub fn set_rent_allowance<T>(new_value: T::Balance)
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::set_rent_allowance::<T>(instance, new_value)
     })
 }
 
@@ -306,7 +228,6 @@ pub fn clear_contract_storage(key: &Key) {
 ///
 /// - If the called account does not exist.
 /// - If the called account is not a contract.
-/// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
@@ -331,7 +252,6 @@ where
 ///
 /// - If the called account does not exist.
 /// - If the called account is not a contract.
-/// - If the called contract is a tombstone.
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
@@ -375,74 +295,10 @@ where
     })
 }
 
-/// Restores a smart contract in tombstone state.
-///
-/// # Params
-///
-/// - `account_id`: Account ID of the to-be-restored contract.
-/// - `code_hash`: Code hash of the to-be-restored contract.
-/// - `rent_allowance`: Rent allowance of the restored contract
-///                     upon successful restoration.
-/// - `filtered_keys`: Storage keys to be excluded when calculating the tombstone hash,
-///                    which is used to decide whether the original contract and the
-///                    to-be-restored contract have matching storage.
-///
-/// # Usage
-///
-/// A smart contract that has too few funds to pay for its storage fees
-/// can eventually be evicted. An evicted smart contract `C` leaves behind
-/// a tombstone associated with a hash that has been computed partially
-/// by its storage contents.
-///
-/// To restore contract `C` back to a fully working contract the normal
-/// process is to write another contract `C2` with the only purpose to
-/// eventually have the absolutely same contract storage as `C` did when
-/// it was evicted.
-/// For that purpose `C2` can use other storage keys that have not been in
-/// use by contract `C`.
-/// Once `C2` contract storage matches the storage of `C` when it was evicted
-/// `C2` can invoke this method in order to initiate restoration of `C`.
-/// A tombstone hash is calculated for `C2` and if it matches the tombstone
-/// hash of `C` the restoration is going to be successful.
-/// The `filtered_keys` argument can be used to ignore the extraneous keys
-/// used by `C2` but not used by `C`.
-///
-/// The process of such a smart contract restoration can generally be very expensive.
-///
-/// # Note
-///
-/// - `filtered_keys` can be used to ignore certain storage regions
-///   in the restorer contract to not influence the hash calculations.
-/// - Does *not* perform restoration right away but defers it to the end of
-///   the contract execution.
-/// - Restoration is canceled if there is no tombstone in the destination
-///   address or if the hashes don't match. No changes are made in this case.
-pub fn restore_contract<T>(
-    account_id: T::AccountId,
-    code_hash: T::Hash,
-    rent_allowance: T::Balance,
-    filtered_keys: &[Key],
-) where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::restore_contract::<T>(
-            instance,
-            account_id,
-            code_hash,
-            rent_allowance,
-            filtered_keys,
-        )
-    })
-}
-
-/// Terminates the existence of the currently executed smart contract
-/// without creating a tombstone.
+/// Terminates the existence of the currently executed smart contract.
 ///
 /// This removes the calling account and transfers all remaining balance
 /// to the given beneficiary.
-///
-/// No tombstone will be created, this function kills a contract completely!
 ///
 /// # Note
 ///
