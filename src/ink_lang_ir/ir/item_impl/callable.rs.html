@@ -651,6 +651,13 @@
 <span id="650">650</span>
 <span id="651">651</span>
 <span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -769,6 +776,10 @@
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::is_payable</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
 
+    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::has_wildcard_selector</span>(<span class="self">self</span>.<span class="ident">callable</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span> {
         <span class="op">&lt;</span><span class="ident">C</span> <span class="kw">as</span> <span class="ident">Callable</span><span class="op">&gt;</span><span class="ident">::visibility</span>(<span class="self">self</span>.<span class="ident">callable</span>)
     }
@@ -814,6 +825,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Flagging as payable is done using the `#[ink(payable)]` attribute.</span>
     <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+
+    <span class="doccomment">/// Returns `true` if the ink! callable is flagged as a wildcard selector.</span>
+    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 
     <span class="doccomment">/// Returns the visibility of the ink! callable.</span>
     <span class="kw">fn</span> <span class="ident">visibility</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Visibility</span>;

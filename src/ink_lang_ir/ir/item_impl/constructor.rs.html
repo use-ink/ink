@@ -580,6 +580,28 @@
 <span id="579">579</span>
 <span id="580">580</span>
 <span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -601,7 +623,10 @@
     <span class="ident">InputsIter</span>,
     <span class="ident">Visibility</span>,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ir</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">ir</span>,
+    <span class="ident">ir::attrs::SelectorOrWildcard</span>,
+};
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Ident</span>,
@@ -652,7 +677,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This overrides the computed selector, even when using a manual namespace</span>
     <span class="doccomment">/// for the parent implementation block.</span>
-    <span class="ident">selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span>,
+    <span class="ident">selector</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SelectorOrWildcard</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">quote::ToTokens</span> <span class="kw">for</span> <span class="ident">Constructor</span> {
@@ -782,7 +807,17 @@
     }
 
     <span class="kw">fn</span> <span class="ident">user_provided_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ir::Selector</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">as_ref</span>()
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SelectorOrWildcard::UserProvided</span>(<span class="ident">selector</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">as_ref</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">selector</span>)
+        }
+        <span class="prelude-val">None</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">has_wildcard_selector</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">SelectorOrWildcard::Wildcard</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span> {
+            <span class="kw">return</span> <span class="bool-val">true</span>
+        }
+        <span class="bool-val">false</span>
     }
 
     <span class="kw">fn</span> <span class="ident">is_payable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
@@ -1159,6 +1194,15 @@
                 <span class="string">&quot;encountered conflicting ink! attribute argument&quot;</span>,
             )
         }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">try_from_wildcard_constructor_works</span>() {
+        <span class="kw">let</span> <span class="ident">item</span>: <span class="ident">syn::ImplItemMethod</span> <span class="op">=</span> <span class="macro">syn::parse_quote!</span> {
+            <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">constructor</span>, <span class="ident">selector</span> <span class="op">=</span> <span class="kw">_</span>)]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">my_constructor</span>() -&gt; <span class="self">Self</span> {}
+        };
+        <span class="macro">assert!</span>(<span class="op">&lt;</span><span class="ident">ir::Constructor</span> <span class="kw">as</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::try_from</span>(<span class="ident">item</span>).<span class="ident">is_ok</span>());
     }
 }
 </code></pre></div>

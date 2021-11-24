@@ -195,6 +195,9 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -213,6 +216,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ir</span>::{
         <span class="self">self</span>,
+        <span class="ident">attrs::SelectorOrWildcard</span>,
         <span class="ident">utils</span>,
     },
     <span class="ident">InputsIter</span>,
@@ -280,6 +284,8 @@
             <span class="kw-2">&amp;</span><span class="ident">ir::AttributeArgKind::Message</span>,
             <span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
                 <span class="kw">match</span> <span class="ident">arg</span>.<span class="ident">kind</span>() {
+                    <span class="ident">ir::AttributeArg::Selector</span>(<span class="ident">SelectorOrWildcard::Wildcard</span>) =&gt;
+                        <span class="prelude-val">Err</span>(<span class="prelude-val">Some</span>(<span class="macro">format_err!</span>(<span class="ident">arg</span>.<span class="ident">span</span>(), <span class="string">&quot;wildcard selectors are only supported for inherent ink! messages or constructors, not for traits.&quot;</span>))),
                     <span class="ident">ir::AttributeArg::Message</span>
                     <span class="op">|</span> <span class="ident">ir::AttributeArg::Payable</span>
                     <span class="op">|</span> <span class="ident">ir::AttributeArg::Selector</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
