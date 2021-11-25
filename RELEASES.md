@@ -62,8 +62,7 @@ The other examples will be migrated to this new data structure as a next step.
 
 ## Fixed
 - Contracts now revert the transaction if an ink! message returns `Result::Err` ‒ [#975](https://github.com/paritytech/ink/pull/975), [#998](https://github.com/paritytech/ink/pull/998).
-    - **Note:** This does not apply to ink! smart contracts which are used as dependencies of a contract!<br/>
-      It is still possible to match against a `Result` return type for a called dependency contract
+    - It is still possible to match against a `Result` return type for a called dependency contract
       ‒ i.e. a sub-contract specified in the contract's `Cargo.toml`.
 - We implemented a number of Wasm contract size improvements:
     - Simple Mapping Storage Primitive ‒ [#946](https://github.com/paritytech/ink/pull/946).
