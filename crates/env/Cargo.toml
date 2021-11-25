@@ -30,6 +30,7 @@ static_assertions = "1.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 libsecp256k1 = { version = "0.7.0", default-features = false }
+rlibc = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 ink_engine = { version = "3.0.0-rc6", path = "../engine/", default-features = false, optional = true }
