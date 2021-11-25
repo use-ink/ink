@@ -15,6 +15,14 @@ significant since it has been migrated to use a new [`Mapping`](https://parityte
 data structure, which we introduce with this release candidate.
 The other examples will be migrated to this new data structure as a next step.
 
+## Compatibility
+
+You need to upgrade to a new version of the `contracts` pallet in order to use
+this ink! release. This is because we upgraded to a newer `seal_call` API.
+Specifically you need to upgrade to at least the pallet version
+[e9fca0f](https://github.com/paritytech/substrate/commit/e9fca0f4d7a65998206f29baf0133a7931452104)
+(or newer than Nov 24).
+
 ## Removed
 - Removed the state rent API ‒ [#1036](https://github.com/paritytech/ink/pull/1036).
 
