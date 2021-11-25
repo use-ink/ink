@@ -24,7 +24,7 @@ use crate::{
 use std::collections::HashMap;
 
 /// Record for an emitted event.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EmittedEvent {
     /// Recorded topics of the emitted event.
     pub topics: Vec<Vec<u8>>,

@@ -88,7 +88,7 @@ impl<'a> Events<'a> {
         let base_event_ident =
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
         quote! {
-            #[derive(::scale::Encode, ::scale::Decode)]
+            #[derive(::scale::Encode, ::scale::Decode, Debug)]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*
             }

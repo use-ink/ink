@@ -38,6 +38,7 @@ use crate::{
     Result,
 };
 use ink_primitives::Key;
+use static_assertions::_core::fmt::Debug;
 
 /// Returns the address of the caller of the executed contract.
 ///
@@ -174,7 +175,7 @@ where
 pub fn emit_event<T, Event>(event: Event)
 where
     T: Environment,
-    Event: Topics + scale::Encode,
+    Event: Topics + scale::Encode + Debug,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::emit_event::<T, Event>(instance, event)

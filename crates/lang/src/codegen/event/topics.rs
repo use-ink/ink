@@ -59,6 +59,7 @@ where
 pub trait RespectTopicLimit<const N: usize> {}
 
 /// Represents an the amount of topics for an ink! event definition.
+#[derive(Debug)]
 pub struct EventTopics<const N: usize>;
 
 macro_rules! impl_is_smaller_or_equals {

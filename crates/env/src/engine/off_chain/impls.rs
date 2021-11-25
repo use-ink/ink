@@ -42,6 +42,7 @@ use crate::{
 use core::convert::TryInto;
 use ink_primitives::Key;
 use num_traits::Bounded;
+use core::fmt::Debug;
 
 const UNINITIALIZED_EXEC_CONTEXT: &str = "uninitialized execution context: \
 a possible source of error could be that you are using `#[test]` instead of `#[ink::test]`.";
@@ -403,7 +404,7 @@ impl TypedEnvBackend for EnvInstance {
     fn emit_event<T, Event>(&mut self, new_event: Event)
     where
         T: Environment,
-        Event: Topics + scale::Encode,
+        Event: Topics + scale::Encode + Debug,
     {
         self.emitted_events.record::<T, Event>(new_event)
     }

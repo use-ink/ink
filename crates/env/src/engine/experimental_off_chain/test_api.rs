@@ -27,7 +27,7 @@ use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
 /// Record for an emitted event.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EmittedEvent {
     /// Recorded topics of the emitted event.
     pub topics: Vec<Vec<u8>>,

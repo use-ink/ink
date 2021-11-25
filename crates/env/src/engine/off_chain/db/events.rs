@@ -26,6 +26,7 @@ use crate::{
     Clear,
     Environment,
 };
+use core::fmt::Debug;
 
 #[derive(Default)]
 pub struct TopicsBuilder {
@@ -83,7 +84,7 @@ impl EmittedEvent {
     pub fn new<T, E>(emitted_event: E) -> Self
     where
         T: Environment,
-        E: Topics + scale::Encode,
+        E: Topics + scale::Encode + Debug,
     {
         let topics = emitted_event.topics::<T, _>(TopicsBuilder::default().into());
         Self {
@@ -115,7 +116,7 @@ impl EmittedEventsRecorder {
     pub fn record<T, E>(&mut self, new_event: E)
     where
         T: Environment,
-        E: Topics + scale::Encode,
+        E: Topics + scale::Encode + Debug,
     {
         self.emitted_events
             .push(EmittedEvent::new::<T, E>(new_event));
