@@ -10,9 +10,6 @@ impl ink_env::Environment for CustomEnv {
     type Timestamp = u64;
     type BlockNumber = u64;
     type ChainExtension = ();
-    // Too lazy to define a test type that fits the required trait bounds.
-    type RentFraction =
-        <ink_env::DefaultEnvironment as ink_env::Environment>::RentFraction;
 }
 
 #[ink::contract(env = super::CustomEnv)]

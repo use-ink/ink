@@ -21,6 +21,7 @@ use super::{
 };
 use crate::ir::{
     self,
+    attrs::SelectorOrWildcard,
     utils,
 };
 use core::convert::TryFrom;
@@ -106,7 +107,7 @@ pub struct Message {
     ///
     /// This overrides the computed selector, even when using a manual namespace
     /// for the parent implementation block.
-    selector: Option<ir::Selector>,
+    selector: Option<SelectorOrWildcard>,
 }
 
 impl quote::ToTokens for Message {
@@ -226,7 +227,17 @@ impl Callable for Message {
     }
 
     fn user_provided_selector(&self) -> Option<&ir::Selector> {
-        self.selector.as_ref()
+        if let Some(SelectorOrWildcard::UserProvided(selector)) = self.selector.as_ref() {
+            return Some(selector)
+        }
+        None
+    }
+
+    fn has_wildcard_selector(&self) -> bool {
+        if let Some(SelectorOrWildcard::Wildcard) = self.selector {
+            return true
+        }
+        false
     }
 
     fn is_payable(&self) -> bool {

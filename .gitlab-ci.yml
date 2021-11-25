@@ -4,6 +4,13 @@
 #
 # pipelines can be triggered manually in the web
 
+default:
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - unknown_failure
+      - api_failure
 
 stages:
   - check
@@ -67,23 +74,11 @@ workflow:
     - ./scripts/.ci/pre_cache.sh
     - sccache -s
   interruptible:                   true
-  retry:
-    max: 2
-    when:
-      - runner_system_failure
-      - unknown_failure
-      - api_failure
   tags:
     - linux-docker
 
 .kubernetes-env:                   &kubernetes-env
   interruptible:                   true
-  retry:
-    max: 2
-    when:
-      - runner_system_failure
-      - unknown_failure
-      - api_failure
   tags:
     - kubernetes-parity-build
 
@@ -107,6 +102,9 @@ workflow:
       file:                        false
     PIPELINE_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
+      file:                        false
+    GITHUB_SSH_PRIV_KEY:
+      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_SSH_PRIV_KEY@kv
       file:                        false
 
 #### stage:                        check
@@ -447,12 +445,15 @@ publish-docs:
   before_script:
     - unset CARGO_TARGET_DIR
   script:
-    - rm -rf /tmp/*
+    # Setup ssh
+    - eval $(ssh-agent)
+    - ssh-add - <<< ${GITHUB_SSH_PRIV_KEY}
+    - mkdir ~/.ssh && touch ~/.ssh/known_hosts
+    - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
     # Set git config
-    - rm -rf .git/config
     - git config user.email "devops-team@parity.io"
     - git config user.name "${GITHUB_USER}"
-    - git config remote.origin.url "https://${GITHUB_TOKEN}@github.com/paritytech/ink.git"
+    - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
     - git fetch origin gh-pages
     # saving README and docs

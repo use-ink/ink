@@ -36,10 +36,6 @@ use crate::{
         Topics,
         TopicsBuilderBackend,
     },
-    types::{
-        RentParams,
-        RentStatus,
-    },
     Clear,
     EnvBackend,
     Environment,
@@ -149,19 +145,24 @@ where
     where
         T: scale::Encode,
     {
+        fn inner<E: Environment>(encoded: &mut [u8]) -> <E as Environment>::Hash {
+            let len_encoded = encoded.len();
+            let mut result = <E as Environment>::Hash::clear();
+            let len_result = result.as_ref().len();
+            if len_encoded <= len_result {
+                result.as_mut()[..len_encoded].copy_from_slice(encoded);
+            } else {
+                let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
+                <Blake2x256 as CryptoHash>::hash(encoded, &mut hash_output);
+                let copy_len = core::cmp::min(hash_output.len(), len_result);
+                result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+            }
+            result
+        }
+
         let mut split = self.scoped_buffer.split();
         let encoded = split.take_encoded(topic_value);
-        let len_encoded = encoded.len();
-        let mut result = <E as Environment>::Hash::clear();
-        let len_result = result.as_ref().len();
-        if len_encoded <= len_result {
-            result.as_mut()[..len_encoded].copy_from_slice(encoded);
-        } else {
-            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
-            <Blake2x256 as CryptoHash>::hash(encoded, &mut hash_output);
-            let copy_len = core::cmp::min(hash_output.len(), len_result);
-            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
-        }
+        let result = inner::<E>(encoded);
         self.scoped_buffer.append_encoded(&result);
     }
 
@@ -376,20 +377,12 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_little_endian::<T::Balance>(ext::balance)
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
-        self.get_property_little_endian::<T::Balance>(ext::rent_allowance)
-    }
-
     fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
         self.get_property_little_endian::<T::BlockNumber>(ext::block_number)
     }
 
     fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
         self.get_property_little_endian::<T::Balance>(ext::minimum_balance)
-    }
-
-    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
-        self.get_property_little_endian::<T::Balance>(ext::tombstone_deposit)
     }
 
     fn emit_event<T, Event>(&mut self, event: Event)
@@ -401,33 +394,6 @@ impl TypedEnvBackend for EnvInstance {
             event.topics::<T, _>(TopicsBuilder::from(self.scoped_buffer()).into());
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
-    }
-
-    fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
-    where
-        T: Environment,
-    {
-        let buffer = self.scoped_buffer().take_encoded(&new_value);
-        ext::set_rent_allowance(&buffer[..])
-    }
-
-    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
-    where
-        T: Environment,
-    {
-        self.get_property::<RentParams<T>>(ext::rent_params)
-    }
-
-    fn rent_status<T>(
-        &mut self,
-        at_refcount: Option<core::num::NonZeroU32>,
-    ) -> Result<RentStatus<T>>
-    where
-        T: Environment,
-    {
-        let output = &mut self.scoped_buffer().take_rest();
-        ext::rent_status(at_refcount, output);
-        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn invoke_contract<T, Args>(
@@ -488,27 +454,6 @@ impl TypedEnvBackend for EnvInstance {
         )?;
         let account_id = scale::Decode::decode(&mut &out_address[..])?;
         Ok(account_id)
-    }
-
-    fn restore_contract<T>(
-        &mut self,
-        account_id: T::AccountId,
-        code_hash: T::Hash,
-        rent_allowance: T::Balance,
-        filtered_keys: &[Key],
-    ) where
-        T: Environment,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_account_id = scope.take_encoded(&account_id);
-        let enc_code_hash = scope.take_encoded(&code_hash);
-        let enc_rent_allowance = scope.take_encoded(&rent_allowance);
-        ext::restore_to(
-            enc_account_id,
-            enc_code_hash,
-            enc_rent_allowance,
-            filtered_keys,
-        );
     }
 
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !

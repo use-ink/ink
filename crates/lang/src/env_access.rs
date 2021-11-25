@@ -26,12 +26,9 @@ use ink_env::{
     },
     Environment,
     Error,
-    RentParams,
-    RentStatus,
     Result,
 };
 use ink_eth_compatibility::ECDSAPublicKey;
-use ink_primitives::Key;
 
 /// The API behind the `self.env()` and `Self::env()` syntax in ink!.
 ///
@@ -351,132 +348,6 @@ where
         ink_env::balance::<T>()
     }
 
-    /// Returns the current rent allowance for the executed contract.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Returns the amount of the contract's balance which
-    /// /// can be used for paying rent.
-    /// #[ink(message)]
-    /// pub fn rent_allowance(&self) -> Balance {
-    ///     self.env().rent_allowance()
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::rent_allowance`]
-    pub fn rent_allowance(self) -> T::Balance {
-        ink_env::rent_allowance::<T>()
-    }
-
-    /// Sets the rent allowance of the executed contract to the new value.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Limits the amount of contract balance which can be used for paying rent
-    /// /// to half of the contract's total balance.
-    /// #[ink(message)]
-    /// pub fn limit_rent_allowance(&self) {
-    ///     self.env().set_rent_allowance(self.env().balance() / 2);
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::set_rent_allowance`]
-    pub fn set_rent_allowance(self, new_value: T::Balance) {
-        ink_env::set_rent_allowance::<T>(new_value)
-    }
-
-    /// Returns information needed for rent calculations.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Returns the balance every contract needs to deposit on this chain
-    /// /// to stay alive indefinitely.
-    /// #[ink(message)]
-    /// pub fn deposit_per_contract(&self) -> Balance {
-    ///     self.env().rent_params().deposit_per_contract
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::RentParams`]
-    pub fn rent_params(self) -> RentParams<T> {
-        ink_env::rent_params::<T>().expect("couldn't decode contract rent params")
-    }
-
-    /// Returns information about the required deposit and resulting rent.
-    ///
-    /// # Parameters
-    ///
-    /// - `at_refcount`: The `refcount` assumed for the returned `custom_refcount_*` fields.
-    ///   If `None` is supplied the `custom_refcount_*` fields will also be `None`.
-    ///
-    ///   The `current_*` fields of `RentStatus` do **not** consider changes to the code's
-    ///   `refcount` made during the currently running call.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::RentStatus`]
-    pub fn rent_status(
-        self,
-        at_refcount: Option<core::num::NonZeroU32>,
-    ) -> RentStatus<T> {
-        ink_env::rent_status::<T>(at_refcount)
-            .expect("couldn't decode contract rent params")
-    }
-
     /// Returns the current block number.
     ///
     /// # Example
@@ -548,39 +419,6 @@ where
     /// For more details visit: [`ink_env::minimum_balance`]
     pub fn minimum_balance(self) -> T::Balance {
         ink_env::minimum_balance::<T>()
-    }
-
-    /// Returns the tombstone deposit for the contracts chain.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// #[ink(message)]
-    /// pub fn tombstone_deposit(&self) -> Balance {
-    ///     self.env().tombstone_deposit()
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::tombstone_deposit`]
-    pub fn tombstone_deposit(self) -> T::Balance {
-        ink_env::tombstone_deposit::<T>()
     }
 
     /// Instantiates another contract.
@@ -779,57 +617,7 @@ where
         ink_env::eval_contract::<T, Args, R>(params)
     }
 
-    /// Restores a smart contract from its tombstone state.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Simple resurrection of a contract.
-    /// #[ink(message)]
-    /// pub fn resurrect(&self, contract: AccountId) {
-    ///     self.env().restore_contract(
-    ///         contract,
-    ///         Hash::from([0x42; 32]),
-    ///         1000,
-    ///         &[]
-    ///     )
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::restore_contract`]
-    pub fn restore_contract(
-        self,
-        account_id: T::AccountId,
-        code_hash: T::Hash,
-        rent_allowance: T::Balance,
-        filtered_keys: &[Key],
-    ) {
-        ink_env::restore_contract::<T>(
-            account_id,
-            code_hash,
-            rent_allowance,
-            filtered_keys,
-        )
-    }
-
-    /// Terminates the existence of a contract without creating a tombstone.
+    /// Terminates the existence of a contract.
     ///
     /// # Example
     ///
