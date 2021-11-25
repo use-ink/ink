@@ -194,7 +194,6 @@ impl EnvInstance {
         self.accounts.add_contract_account::<T>(
             contract_account_id.clone(),
             T::Balance::from(0u32),
-            T::Balance::from(20u32),
         );
         // Initialize the execution context for the first contract execution.
         use crate::call::Selector;

@@ -15,6 +15,9 @@ significant since it has been migrated to use a new [`Mapping`](https://parityte
 data structure, which we introduce with this release candidate.
 The other examples will be migrated to this new data structure as a next step.
 
+## Removed
+- Removed the state rent API ‒ [#1036](https://github.com/paritytech/ink/pull/1036).
+
 ## Added
 - Added support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
     - This enables writing upgradable smart contracts using the proxy/forward pattern.
@@ -26,7 +29,7 @@ The other examples will be migrated to this new data structure as a next step.
       publicly usable by ink! smart contract authors.
 
 ## Changed
-- Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).
+- Upgraded to the `seal_call` v1 API ‒ [#960](https://github.com/paritytech/ink/pull/960).
   - This API now enables control over the behavior of cross-contract calls, e.g. to forward/clone input,
     enable tail calls and control reentrancy.
     The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.CallFlags.html).

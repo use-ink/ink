@@ -21,9 +21,9 @@ pub mod give_me {
         /// Insufficient funds to execute transfer.
         InsufficientFunds,
         /// Transfer failed because it would have brought the contract's
-        /// balance below the subsistence threshold.
-        /// This is necessary to keep enough funds in the contract to
-        /// allow for a tombstone to be created.
+        /// balance below the subsistence threshold. No transfer is
+        /// allowed to do this. Use `self.env().terminate()` to recover
+        /// the deposit.
         BelowSubsistenceThreshold,
     }
 
