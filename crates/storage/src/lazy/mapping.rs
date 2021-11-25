@@ -20,7 +20,6 @@
 //! Instead it is just a simple wrapper around the contract storage facilities.
 
 use crate::traits::{
-    clear_packed_root,
     pull_packed_root_opt,
     push_packed_root,
     ExtKeyPtr,
@@ -97,9 +96,17 @@ where
         Q: scale::EncodeLike<K>,
     {
         let storage_key = self.storage_key(&key);
-        let v = self.get(key)?;
-        clear_packed_root(&v, &storage_key);
-        Some(v)
+        let value = self.get(key)?;
+
+        if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            // There are types which need to perform some action before being cleared
+            // (e.g `storage::Box`), here we indicate to those types that they should
+            // start tidying up.
+            <V as PackedLayout>::clear_packed(&value, &storage_key);
+        }
+        ink_env::clear_contract_storage(&storage_key);
+
+        Some(value)
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
