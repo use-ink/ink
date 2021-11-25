@@ -552,9 +552,7 @@ mod erc1155 {
             if approved {
                 self.approvals.insert(approval, &());
             } else {
-                // self.approvals.remove(&approval);
-                // TODO: How should this be expressed with the `Mapping`?
-                self.approvals.insert(approval, &());
+                self.approvals.clear_entry(&approval);
             }
 
             self.env().emit_event(ApprovalForAll {
@@ -664,9 +662,9 @@ mod erc1155 {
 
         fn init_contract() -> Contract {
             let mut erc = Contract::new();
-            erc.balances.insert((alice(), 1), 10);
-            erc.balances.insert((alice(), 2), 20);
-            erc.balances.insert((bob(), 1), 10);
+            erc.balances.insert((alice(), 1), &10);
+            erc.balances.insert((alice(), 2), &20);
+            erc.balances.insert((bob(), 1), &10);
 
             erc
         }
