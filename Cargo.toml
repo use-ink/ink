@@ -10,6 +10,7 @@ members = [
     "crates/prelude",
     "crates/primitives",
     "crates/env",
+    "crates/eth_compatibility",
     "crates/storage",
     "crates/storage/derive",
 ]
