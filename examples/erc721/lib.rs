@@ -59,6 +59,9 @@ mod erc721 {
         hashmap::Entry,
         HashMap as StorageHashMap,
     };
+
+    use ink_storage::{ lazy::{ Mapping }, traits::SpreadAllocate,};
+
     use scale::{
         Decode,
         Encode,
@@ -68,14 +71,14 @@ mod erc721 {
     pub type TokenId = u32;
 
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct Erc721 {
         /// Mapping from token to owner.
-        token_owner: StorageHashMap<TokenId, AccountId>,
+        token_owner: Mapping<TokenId, AccountId>,
         /// Mapping from token to approvals users.
-        token_approvals: StorageHashMap<TokenId, AccountId>,
+        token_approvals: Mapping<TokenId, AccountId>,
         /// Mapping from owner to number of owned token.
-        owned_tokens_count: StorageHashMap<AccountId, u32>,
+        owned_tokens_count: Mapping<AccountId, u32>,
         /// Mapping from owner to operator approvals.
         operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
     }
@@ -130,12 +133,17 @@ mod erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {
-                token_owner: Default::default(),
-                token_approvals: Default::default(),
-                owned_tokens_count: Default::default(),
-                operator_approvals: Default::default(),
-            }
+            // ink_lang::codegen::initialize_contract(|contract| {
+                Self {
+                    token_owner: Default::default(),
+                    // TODO: How should this be properly initialized?
+                    // The type signature matches the above map, and they're both Default
+                    // initialized to the same root key [0u8; 32]
+                    token_approvals: Mapping::new([1u8; 32].into()),
+                    owned_tokens_count: Default::default(),
+                    operator_approvals: Default::default(),
+                }
+            // })
         }
 
         /// Returns the balance of the owner.
@@ -149,13 +157,13 @@ mod erc721 {
         /// Returns the owner of the token.
         #[ink(message)]
         pub fn owner_of(&self, id: TokenId) -> Option<AccountId> {
-            self.token_owner.get(&id).cloned()
+            self.token_owner.get(&id)
         }
 
         /// Returns the approved account ID for this token if any.
         #[ink(message)]
         pub fn get_approved(&self, id: TokenId) -> Option<AccountId> {
-            self.token_approvals.get(&id).cloned()
+            self.token_approvals.get(&id)
         }
 
         /// Returns `true` if the operator is approved by the owner.
@@ -228,15 +236,18 @@ mod erc721 {
                 owned_tokens_count,
                 ..
             } = self;
-            let occupied = match token_owner.entry(id) {
-                Entry::Vacant(_) => return Err(Error::TokenNotFound),
-                Entry::Occupied(occupied) => occupied,
-            };
-            if occupied.get() != &caller {
+
+            // let occupied = match token_owner.entry(id) {
+            //     Entry::Vacant(_) => return Err(Error::TokenNotFound),
+            //     Entry::Occupied(occupied) => occupied,
+            // };
+
+            let owner = token_owner.get(&id).ok_or(Error::TokenNotFound)?;
+            if owner != caller {
                 return Err(Error::NotOwner)
             };
             decrease_counter_of(owned_tokens_count, &caller)?;
-            occupied.remove_entry();
+            token_owner.clear_entry(&id);
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
@@ -281,12 +292,13 @@ mod erc721 {
                 owned_tokens_count,
                 ..
             } = self;
-            let occupied = match token_owner.entry(id) {
-                Entry::Vacant(_) => return Err(Error::TokenNotFound),
-                Entry::Occupied(occupied) => occupied,
-            };
+
+            if token_owner.get(&id).is_none() {
+                return Err(Error::TokenNotFound)
+            }
+
             decrease_counter_of(owned_tokens_count, from)?;
-            occupied.remove_entry();
+            token_owner.clear_entry(&id);
             Ok(())
         }
 
@@ -297,16 +309,19 @@ mod erc721 {
                 owned_tokens_count,
                 ..
             } = self;
-            let vacant_token_owner = match token_owner.entry(id) {
-                Entry::Vacant(vacant) => vacant,
-                Entry::Occupied(_) => return Err(Error::TokenExists),
-            };
+
+            if token_owner.get(&id).is_some() {
+                return Err(Error::TokenExists)
+            }
+
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed)
             };
             let entry = owned_tokens_count.entry(*to);
             increase_counter_of(entry);
-            vacant_token_owner.insert(*to);
+
+            token_owner.insert(&id, to);
+
             Ok(())
         }
 
@@ -342,6 +357,10 @@ mod erc721 {
 
         /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
+            dbg!(self.token_approvals.get(&id));
+            dbg!(self.token_approvals.get(&0));
+            dbg!(self.token_approvals.get(&2));
+
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             if !(owner == Some(caller)
@@ -353,26 +372,37 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            if self.token_approvals.insert(id, *to).is_some() {
+            // if self.token_approvals.insert(id, *to).is_some() {
+            //     return Err(Error::CannotInsert)
+            // };
+
+            dbg!(&id);
+            if self.token_approvals.get(&id).is_some() {
                 return Err(Error::CannotInsert)
-            };
+            } else {
+                self.token_approvals.insert(&id, to);
+            }
+
             self.env().emit_event(Approval {
                 from: caller,
                 to: *to,
                 id,
             });
+
             Ok(())
         }
 
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
-            if !self.token_approvals.contains_key(&id) {
-                return Ok(())
-            };
-            match self.token_approvals.take(&id) {
-                Some(_res) => Ok(()),
-                None => Err(Error::CannotRemove),
-            }
+            Ok(self.token_approvals.clear_entry(&id))
+
+            // if !self.token_approvals.contains_key(&id) {
+            //     return Ok(())
+            // };
+            // match self.token_approvals.take(&id) {
+            //     Some(_res) => Ok(()),
+            //     None => Err(Error::CannotRemove),
+            // }
         }
 
         // Returns the total number of tokens from an account.
@@ -394,7 +424,7 @@ mod erc721 {
             let owner = self.owner_of(id);
             from != Some(AccountId::from([0x0; 32]))
                 && (from == owner
-                    || from == self.token_approvals.get(&id).cloned()
+                    || from == self.token_approvals.get(&id)
                     || self.approved_for_all(
                         owner.expect("Error with AccountId"),
                         from.expect("Error with AccountId"),
@@ -403,16 +433,17 @@ mod erc721 {
 
         /// Returns true if token `id` exists or false if it does not.
         fn exists(&self, id: TokenId) -> bool {
-            self.token_owner.get(&id).is_some() && self.token_owner.contains_key(&id)
+            self.token_owner.get(&id).is_some()
         }
     }
 
     fn decrease_counter_of(
-        hmap: &mut StorageHashMap<AccountId, u32>,
+        map: &mut Mapping<AccountId, u32>,
         of: &AccountId,
     ) -> Result<(), Error> {
-        let count = (*hmap).get_mut(of).ok_or(Error::CannotFetchValue)?;
+        let count = (*map).get(of).ok_or(Error::CannotFetchValue)?;
         *count -= 1;
+        map.insert(&of, count);
         Ok(())
     }
 
@@ -439,8 +470,10 @@ mod erc721 {
                     .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
+            dbg!(erc721.get_approved(1));
             // Token 1 does not exists.
             assert_eq!(erc721.owner_of(1), None);
+            dbg!(erc721.get_approved(1));
             // Alice does not owns tokens.
             assert_eq!(erc721.balance_of(accounts.alice), 0);
             // Create token Id 1.
@@ -535,7 +568,9 @@ mod erc721 {
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
+            dbg!(erc721.get_approved(1));
             assert_eq!(erc721.mint(1), Ok(()));
+            dbg!(erc721.get_approved(1));
             // Token Id 1 is owned by Alice.
             assert_eq!(erc721.owner_of(1), Some(accounts.alice));
             // Approve token Id 1 transfer for Bob on behalf of Alice.
