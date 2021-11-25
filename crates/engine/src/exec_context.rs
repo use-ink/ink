@@ -22,14 +22,14 @@ use super::types::{
 pub struct ExecContext {
     /// The caller of the contract execution. Might be user or another contract.
     ///
-    /// We don't know the specifics of the AccountId ‒ like how many bytes or what
+    /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a caller might
     /// panic when it has not been set.
     pub caller: Option<AccountId>,
     /// The callee of the contract execution. Might be user or another contract.
     ///
-    /// We don't know the specifics of the AccountId ‒ like how many bytes or what
+    /// We don't know the specifics of the `AccountId` ‒ like how many bytes or what
     /// type of default `AccountId` makes sense ‒ they are left to be initialized
     /// by the crate which uses the `engine`. Methods which require a callee might
     /// panic when it has not been set.
