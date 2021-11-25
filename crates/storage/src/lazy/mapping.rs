@@ -206,7 +206,7 @@ mod tests {
 
     impl<T> PackedLayout for DeepClean<T>
     where
-        T: PackedLayout + scale::Encode + scale::Decode,
+        T: PackedLayout + scale::EncodeLike<T>,
     {
         fn pull_packed(&mut self, at: &Key) {
             <T as PackedLayout>::pull_packed(&mut self.0, at);
