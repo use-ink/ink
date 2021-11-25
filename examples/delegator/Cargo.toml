@@ -1,21 +1,21 @@
 [package]
 name = "delegator"
-version = "3.0.0-rc6"
+version = "3.0.0-rc7"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
 
 [dependencies]
-ink_primitives = { version = "3.0.0-rc6", path = "../../crates/primitives", default-features = false }
-ink_metadata = { version = "3.0.0-rc6", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
-ink_env = { version = "3.0.0-rc6", path = "../../crates/env", default-features = false }
-ink_storage = { version = "3.0.0-rc6", path = "../../crates/storage", default-features = false }
-ink_lang = { version = "3.0.0-rc6", path = "../../crates/lang", default-features = false }
+ink_primitives = { version = "3.0.0-rc7", path = "../../crates/primitives", default-features = false }
+ink_metadata = { version = "3.0.0-rc7", path = "../../crates/metadata", default-features = false, features = ["derive"], optional = true }
+ink_env = { version = "3.0.0-rc7", path = "../../crates/env", default-features = false }
+ink_storage = { version = "3.0.0-rc7", path = "../../crates/storage", default-features = false }
+ink_lang = { version = "3.0.0-rc7", path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
 
-adder = { version = "3.0.0-rc6", path = "adder", default-features = false, features = ["ink-as-dependency"] }
-subber = { version = "3.0.0-rc6", path = "subber", default-features = false, features = ["ink-as-dependency"] }
-accumulator = { version = "3.0.0-rc6", path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
+adder = { version = "3.0.0-rc7", path = "adder", default-features = false, features = ["ink-as-dependency"] }
+subber = { version = "3.0.0-rc7", path = "subber", default-features = false, features = ["ink-as-dependency"] }
+accumulator = { version = "3.0.0-rc7", path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
 scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 [lib]
