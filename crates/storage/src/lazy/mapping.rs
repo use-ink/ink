@@ -89,24 +89,19 @@ where
     }
 
     /// Clears the value at `key` from storage.
-    ///
-    /// Returns the value at the key if it previously existed, otherwise returns `None`.
-    pub fn remove<Q>(&self, key: Q) -> Option<V>
+    pub fn clear_entry<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
     {
         let storage_key = self.storage_key(&key);
-        let value = self.get(key)?;
-
         if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
-            // There are types which need to perform some action before being cleared
-            // (e.g `storage::Box`), here we indicate to those types that they should
-            // start tidying up.
-            <V as PackedLayout>::clear_packed(&value, &storage_key);
+            // There are types which need to perform some action before being cleared. Here we
+            // indicate to those types that they should start tidying up.
+            if let Some(value) = self.get(key) {
+                <V as PackedLayout>::clear_packed(&value, &storage_key);
+            }
         }
         ink_env::clear_contract_storage(&storage_key);
-
-        Some(value)
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
@@ -185,6 +180,45 @@ const _: () = {
 mod tests {
     use super::*;
 
+    /// A dummy type which `REQUIRES_DEEP_CLEAN_UP`
+    #[derive(PartialEq, Debug, scale::Encode, scale::Decode)]
+    struct DeepClean<T>(T);
+
+    impl<T> SpreadLayout for DeepClean<T>
+    where
+        T: PackedLayout,
+    {
+        const FOOTPRINT: u64 = 1;
+        const REQUIRES_DEEP_CLEAN_UP: bool = true;
+
+        fn pull_spread(ptr: &mut KeyPtr) -> Self {
+            DeepClean(<T as SpreadLayout>::pull_spread(ptr))
+        }
+
+        fn push_spread(&self, ptr: &mut KeyPtr) {
+            <T as SpreadLayout>::push_spread(&self.0, ptr)
+        }
+
+        fn clear_spread(&self, ptr: &mut KeyPtr) {
+            <T as SpreadLayout>::clear_spread(&self.0, ptr)
+        }
+    }
+
+    impl<T> PackedLayout for DeepClean<T>
+    where
+        T: PackedLayout + scale::Encode + scale::Decode,
+    {
+        fn pull_packed(&mut self, at: &Key) {
+            <T as PackedLayout>::pull_packed(&mut self.0, at);
+        }
+        fn push_packed(&self, at: &Key) {
+            <T as PackedLayout>::push_packed(&self.0, at);
+        }
+        fn clear_packed(&self, at: &Key) {
+            <T as PackedLayout>::clear_packed(&self.0, at);
+        }
+    }
+
     #[test]
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -209,12 +243,46 @@ mod tests {
     }
 
     #[test]
-    fn can_remove_entries() {
+    fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            let mut deep_mapping: Mapping<u8, DeepClean<u8>> =
+                Mapping::new([1u8; 32].into());
+
             mapping.insert(&1, &2);
-            assert_eq!(mapping.remove(&1), Some(2));
-            assert_eq!(mapping.remove(&1), None);
+            assert_eq!(mapping.get(&1), Some(2));
+
+            deep_mapping.insert(&1, &DeepClean(2));
+            assert_eq!(deep_mapping.get(&1), Some(DeepClean(2)));
+
+            // When
+            mapping.clear_entry(&1);
+            deep_mapping.clear_entry(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+            assert_eq!(deep_mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_clear_unexistent_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // Given
+            let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            let deep_mapping: Mapping<u8, DeepClean<u8>> = Mapping::new([1u8; 32].into());
+
+            // When
+            mapping.clear_entry(&1);
+            deep_mapping.clear_entry(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+            assert_eq!(deep_mapping.get(&1), None);
 
             Ok(())
         })
