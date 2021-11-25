@@ -2,15 +2,28 @@
 
 This is the 7th release candidate for ink! 3.0.
 
+Since our last release candidate we implemented a number of contract size improvements.
+With those improvements the size of our `erc20` example has reduced significantly:
+
+|          |             | Release Build with `cargo-contract` |
+|:---------|:------------|:------------------------------------|
+| `erc20`  | `3.0.0-rc6` | 29.3 K                              |
+| `erc20`  | `3.0.0-rc7` | 10.4 K                              |
+
+The savings apply partly to our other examples; for `erc20` they are most
+significant since it has been migrated to use a new [`Mapping`](https://paritytech.github.io/ink/ink_storage/lazy/struct.Mapping.html)
+data structure, which we introduce with this release candidate.
+The other examples will be migrated to this new data structure as a next step.
+
 ## Added
-- The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang`.
+- Added support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
+    - This enables writing upgradable smart contracts using the proxy/forward pattern.
+      We added a new example to illustrate this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
+    - Annotating a wildcard selector in traits is not supported.
+- The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang` ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - Some of those traits and their carried information can be used for static reflection of ink!
       smart contracts. Those types and traits reside in the new `ink_lang::reflect` module and is
       publicly usable by ink! smart contract authors.
-- Added basic support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
-  - This enables writing upgradable smart contracts using the proxy pattern.
-    We added a new example illustrating this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
-  - Annotating a wildcard selector in traits is not supported.
 
 ## Changed
 - Upgraded to the unstable `seal_call` API ‒ [#960](https://github.com/paritytech/ink/pull/960).
@@ -18,10 +31,8 @@ This is the 7th release candidate for ink! 3.0.
     enable tail calls and control reentrancy.
     The crate documentation contains more details on the [`CallFlags`](https://paritytech.github.io/ink/ink_env/struct.CallFlags.html).
   - **Note:** The default behavior of cross-contract calls now disallows reentering the calling contract.
-  - **Note:** In order to support this you currently have to enable the `unstable-interface` of
-    the `contracts` pallet, [like here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml#L104-L108).
-- ink! contract definitions via `#[ink::contract]` ‒ [#665](https://github.com/paritytech/ink/pull/665).
-    - ink! smart contracts now generate two contract types. Given `MyContract`:
+- ink! contract definitions via `#[ink::contract]` ‒ [#665](https://github.com/paritytech/ink/pull/665).<br/>
+  For ink! smart contracts we now generate two contract types. Given `MyContract`:
     - `MyContract` will still be the storage struct.
       However, it can now additionally be used as static dependency in other smart contracts.
       Static dependencies can be envisioned as being directly embedded into a smart contract.
@@ -35,8 +46,8 @@ This is the 7th release candidate for ink! 3.0.
           will only act as a guard that the set property is in fact the same as defined by the ink!
           trait definition.
 - Improved some ink! specific compile errors ‒ [#665](https://github.com/paritytech/ink/pull/665).
-    - For example, when using ink! messages and constructors that have inputs or
-      outputs that cannot be encoded or decoded using the SCALE codec.
+    - For example, when using ink! messages and constructors which have inputs (or
+      outputs) that cannot be encoded (or decoded) using the SCALE codec.
 - Simplified selector computation for ink! trait methods ‒ [#665](https://github.com/paritytech/ink/pull/665).
     - Now selectors are encoded as `blake2b({namespace}::{trait_identifier}::{message_identifier})[0..4]`.
       If no `namespace` is set for the ink! trait definition then the formula is
@@ -47,14 +58,13 @@ This is the 7th release candidate for ink! 3.0.
 - Update chain extension example to show argument passing ‒ [#1029](https://github.com/paritytech/ink/pull/1029).
 
 ## Fixed
-- Contracts that are compiled as root (the default) now properly revert the transaction
-  if a message returns `Result::Err` ‒ [#975](https://github.com/paritytech/ink/pull/975)[#998](https://github.com/paritytech/ink/pull/998).
-    - This does not apply to ink! smart contracts that are used as dependencies.
-      Therefore, it is still possible to match against a result return type
-      for a called dependency.
+- Contracts now revert the transaction if an ink! message returns `Result::Err` ‒ [#975](https://github.com/paritytech/ink/pull/975), [#998](https://github.com/paritytech/ink/pull/998).
+    - **Note:** This does not apply to ink! smart contracts which are used as dependencies of a contract!<br/>
+      It is still possible to match against a `Result` return type for a called dependency contract
+      ‒ i.e. a sub-contract specified in the contract's `Cargo.toml`.
 - We implemented a number of Wasm contract size improvements:
     - Simple Mapping Storage Primitive ‒ [#946](https://github.com/paritytech/ink/pull/946).
-    - Remove `always` from `inline` to allow compiler decide that to do ‒ [#1012](https://github.com/paritytech/ink/pull/1012).
+    - Remove `always` from `inline` to allow compiler decide that to do ‒ [#1012](https://github.com/paritytech/ink/pull/1012) (thanks [@xgreenx](https://github.com/xgreenx)).
     - Add a way to allocate a storage facility using spread (and packed) layouts ‒ [#978](https://github.com/paritytech/ink/pull/978).
     - Extract non-generic part of `push_topic` to reduce code size ‒ [#1026](https://github.com/paritytech/ink/pull/1026).
 
