@@ -29,7 +29,6 @@ arrayref = "0.3"
 static_assertions = "1.1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-secp256k1 = { version = "0.20.3", default-features = false }
 rlibc = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
