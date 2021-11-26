@@ -35,8 +35,6 @@ use crate::{
     EnvBackend,
     Environment,
     Error,
-    RentParams,
-    RentStatus,
     Result,
     ReturnFlags,
     TypedEnvBackend,
@@ -354,30 +352,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn rent_allowance<T: Environment>(&mut self) -> T::Balance {
-        self.get_property::<T::Balance>(Engine::rent_allowance)
-            .unwrap_or_else(|error| {
-                panic!("could not read `rent_allowance` property: {:?}", error)
-            })
-    }
-
-    fn rent_params<T>(&mut self) -> Result<RentParams<T>>
-    where
-        T: Environment,
-    {
-        unimplemented!("off-chain environment does not support rent params")
-    }
-
-    fn rent_status<T>(
-        &mut self,
-        _at_refcount: Option<core::num::NonZeroU32>,
-    ) -> Result<RentStatus<T>>
-    where
-        T: Environment,
-    {
-        unimplemented!("off-chain environment does not support rent status")
-    }
-
     fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
         self.get_property::<T::BlockNumber>(Engine::block_number)
             .unwrap_or_else(|error| {
@@ -392,13 +366,6 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn tombstone_deposit<T: Environment>(&mut self) -> T::Balance {
-        self.get_property::<T::Balance>(Engine::tombstone_deposit)
-            .unwrap_or_else(|error| {
-                panic!("could not read `tombstone_deposit` property: {:?}", error)
-            })
-    }
-
     fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: Environment,
@@ -408,14 +375,6 @@ impl TypedEnvBackend for EnvInstance {
         let enc_topics = event.topics::<T, _>(builder.into());
         let enc_data = &scale::Encode::encode(&event)[..];
         self.engine.deposit_event(&enc_topics[..], enc_data);
-    }
-
-    fn set_rent_allowance<T>(&mut self, new_value: T::Balance)
-    where
-        T: Environment,
-    {
-        let buffer = &scale::Encode::encode(&new_value)[..];
-        self.engine.set_rent_allowance(buffer)
     }
 
     fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
@@ -458,29 +417,6 @@ impl TypedEnvBackend for EnvInstance {
         let _input = params.exec_input();
         let _salt_bytes = params.salt_bytes();
         unimplemented!("off-chain environment does not support contract instantiation")
-    }
-
-    fn restore_contract<T>(
-        &mut self,
-        account_id: T::AccountId,
-        code_hash: T::Hash,
-        rent_allowance: T::Balance,
-        filtered_keys: &[Key],
-    ) where
-        T: Environment,
-    {
-        let enc_account_id = &scale::Encode::encode(&account_id)[..];
-        let enc_code_hash = &scale::Encode::encode(&code_hash)[..];
-        let enc_rent_allowance = &scale::Encode::encode(&rent_allowance)[..];
-
-        let filtered: Vec<&[u8]> =
-            filtered_keys.iter().map(|k| &k.as_ref()[..]).collect();
-        self.engine.restore_to(
-            enc_account_id,
-            enc_code_hash,
-            enc_rent_allowance,
-            &filtered[..],
-        );
     }
 
     fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !

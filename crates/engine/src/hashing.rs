@@ -49,7 +49,7 @@ pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     hasher.finalize_into(<&mut GenericArray<u8, _>>::from(&mut output[..]));
 }
 
-/// Conduct the SHA2 256-bit hash and place the result into `output`.
+/// Conduct the SHA-2 256-bit hash and place the result into `output`.
 pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
     use sha2::{
         digest::{

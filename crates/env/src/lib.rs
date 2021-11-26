@@ -44,6 +44,10 @@
 )]
 
 #[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
+#[allow(unused_extern_crates)]
+extern crate rlibc;
+
+#[cfg(all(not(feature = "std"), target_arch = "wasm32"))]
 #[allow(unused_variables)]
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -103,9 +107,6 @@ pub use self::{
         FromLittleEndian,
         Hash,
         NoChainExtension,
-        Perbill,
-        RentParams,
-        RentStatus,
     },
 };
 

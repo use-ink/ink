@@ -114,7 +114,7 @@ impl ECDSAPublicKey {
     }
 
     /// Returns the default Substrate's `AccountId` from the ECDSA compressed public key.
-    /// It hashes the compressed public key with the blake2b256 algorithm like in substrate.
+    /// It hashes the compressed public key with the `blake2b_256` algorithm like in substrate.
     ///
     /// # Example
     ///
