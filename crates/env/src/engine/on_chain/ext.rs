@@ -201,22 +201,6 @@ mod sys {
 
     #[link(wasm_import_module = "seal0")]
     extern "C" {
-        pub fn seal_instantiate(
-            init_code_ptr: Ptr32<[u8]>,
-            init_code_len: u32,
-            gas: u64,
-            endowment_ptr: Ptr32<[u8]>,
-            endowment_len: u32,
-            input_ptr: Ptr32<[u8]>,
-            input_len: u32,
-            address_ptr: Ptr32Mut<[u8]>,
-            address_len_ptr: Ptr32Mut<u32>,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-            salt_ptr: Ptr32<[u8]>,
-            salt_len: u32,
-        ) -> ReturnCode;
-
         pub fn seal_transfer(
             account_id_ptr: Ptr32<[u8]>,
             account_id_len: u32,
@@ -242,8 +226,6 @@ mod sys {
             output_len_ptr: Ptr32Mut<u32>,
         ) -> ReturnCode;
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
-
-        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
 
         pub fn seal_call_chain_extension(
             func_id: u32,
@@ -306,6 +288,22 @@ mod sys {
 
     #[link(wasm_import_module = "seal1")]
     extern "C" {
+        pub fn seal_instantiate(
+            init_code_ptr: Ptr32<[u8]>,
+            gas: u64,
+            endowment_ptr: Ptr32<[u8]>,
+            input_ptr: Ptr32<[u8]>,
+            input_len: u32,
+            address_ptr: Ptr32Mut<[u8]>,
+            address_len_ptr: Ptr32Mut<u32>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+            salt_ptr: Ptr32<[u8]>,
+            salt_len: u32,
+        ) -> ReturnCode;
+
+        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>) -> !;
+
         pub fn seal_random(
             subject_ptr: Ptr32<[u8]>,
             subject_len: u32,
@@ -358,10 +356,8 @@ pub fn instantiate(
         unsafe {
             sys::seal_instantiate(
                 Ptr32::from_slice(code_hash),
-                code_hash.len() as u32,
                 gas_limit,
                 Ptr32::from_slice(endowment),
-                endowment.len() as u32,
                 Ptr32::from_slice(input),
                 input.len() as u32,
                 Ptr32Mut::from_slice(out_address),
@@ -458,9 +454,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {
-    unsafe {
-        sys::seal_terminate(Ptr32::from_slice(beneficiary), beneficiary.len() as u32)
-    }
+    unsafe { sys::seal_terminate(Ptr32::from_slice(beneficiary)) }
 }
 
 pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
