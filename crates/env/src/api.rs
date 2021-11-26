@@ -324,9 +324,10 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract does not have sufficient funds.
+/// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the
-///   subsistence threshold.
+///   minimum balance. You need to use [`ink_env::terminate_contract`] in
+///   case this is your intention.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
     T: Environment,

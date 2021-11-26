@@ -62,24 +62,18 @@ define_error_codes! {
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
-    /// Transfer failed because it would have brought the sender's total balance
-    /// below the subsistence threshold.
-    BelowSubsistenceThreshold = 4,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.
-    TransferFailed = 5,
-    /// The newly created contract is below the subsistence threshold after executing
-    /// its constructor so no usable contract instance will be created.
-    NewContractNotFunded = 6,
+    TransferFailed = 4,
     /// No code could be found at the supplied code hash.
-    CodeNotFound = 7,
+    CodeNotFound = 5,
     /// The account that was called is no contract.
-    NotCallable = 8,
+    NotCallable = 6,
      /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
-    LoggingDisabled = 9,
-    /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoverFailed = 11,
+    LoggingDisabled = 7,
+    /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
+    EcdsaRecoverFailed = 8,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.

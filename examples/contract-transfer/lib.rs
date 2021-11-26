@@ -12,21 +12,6 @@ pub mod give_me {
     #[ink(storage)]
     pub struct GiveMe {}
 
-    /// The error types.
-    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum Error {
-        /// Returned if the transfer failed.
-        TransferFailed,
-        /// Insufficient funds to execute transfer.
-        InsufficientFunds,
-        /// Transfer failed because it would have brought the contract's
-        /// balance below the subsistence threshold. No transfer is
-        /// allowed to do this. Use `self.env().terminate()` to recover
-        /// the deposit.
-        BelowSubsistenceThreshold,
-    }
-
     impl GiveMe {
         /// Creates a new instance of this contract.
         #[ink(constructor)]
@@ -39,8 +24,8 @@ pub mod give_me {
         /// # Errors
         ///
         /// - Panics in case the requested transfer exceeds the contract balance.
-        /// - Panics in case the requested transfer would have brought the
-        ///   contract balance below the subsistence threshold.
+        /// - Panics in case the requested transfer would have brought this
+        ///   contract's balance below the minimum balance.
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]
         pub fn give_me(&mut self, value: Balance) {
@@ -50,13 +35,13 @@ pub mod give_me {
             assert!(value <= self.env().balance(), "insufficient funds!");
 
             match self.env().transfer(self.env().caller(), value) {
-                Err(ink_env::Error::BelowSubsistenceThreshold) => {
+                Err(_) => {
                     panic!(
-                        "requested transfer would have brought contract\
-                        below subsistence threshold!"
+                        "requested transfer failed. this can be the case if the contract does not\
+                         have sufficient free funds or if the transfer would have brought the\
+                         contract's balance below minimum balance."
                     )
                 }
-                Err(_) => panic!("transfer failed!"),
                 Ok(_) => {}
             }
         }
