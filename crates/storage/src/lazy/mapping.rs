@@ -89,7 +89,7 @@ where
     }
 
     /// Clears the value at `key` from storage.
-    pub fn clear_entry<Q>(&self, key: Q)
+    pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
     {
@@ -192,7 +192,7 @@ mod tests {
         const REQUIRES_DEEP_CLEAN_UP: bool = true;
 
         fn pull_spread(ptr: &mut KeyPtr) -> Self {
-            DeepClean(<T as SpreadLayout>::pull_spread(ptr))
+            Self(<T as SpreadLayout>::pull_spread(ptr))
         }
 
         fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -257,8 +257,8 @@ mod tests {
             assert_eq!(deep_mapping.get(&1), Some(DeepClean(2)));
 
             // When
-            mapping.clear_entry(&1);
-            deep_mapping.clear_entry(&1);
+            mapping.remove(&1);
+            deep_mapping.remove(&1);
 
             // Then
             assert_eq!(mapping.get(&1), None);
@@ -277,8 +277,8 @@ mod tests {
             let deep_mapping: Mapping<u8, DeepClean<u8>> = Mapping::new([1u8; 32].into());
 
             // When
-            mapping.clear_entry(&1);
-            deep_mapping.clear_entry(&1);
+            mapping.remove(&1);
+            deep_mapping.remove(&1);
 
             // Then
             assert_eq!(mapping.get(&1), None);
