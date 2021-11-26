@@ -201,22 +201,6 @@ mod sys {
 
     #[link(wasm_import_module = "seal0")]
     extern "C" {
-        pub fn seal_instantiate(
-            init_code_ptr: Ptr32<[u8]>,
-            init_code_len: u32,
-            gas: u64,
-            endowment_ptr: Ptr32<[u8]>,
-            endowment_len: u32,
-            input_ptr: Ptr32<[u8]>,
-            input_len: u32,
-            address_ptr: Ptr32Mut<[u8]>,
-            address_len_ptr: Ptr32Mut<u32>,
-            output_ptr: Ptr32Mut<[u8]>,
-            output_len_ptr: Ptr32Mut<u32>,
-            salt_ptr: Ptr32<[u8]>,
-            salt_len: u32,
-        ) -> ReturnCode;
-
         pub fn seal_transfer(
             account_id_ptr: Ptr32<[u8]>,
             account_id_len: u32,
@@ -306,6 +290,20 @@ mod sys {
 
     #[link(wasm_import_module = "seal1")]
     extern "C" {
+        pub fn seal_instantiate(
+            init_code_ptr: Ptr32<[u8]>,
+            gas: u64,
+            endowment_ptr: Ptr32<[u8]>,
+            input_ptr: Ptr32<[u8]>,
+            input_len: u32,
+            address_ptr: Ptr32Mut<[u8]>,
+            address_len_ptr: Ptr32Mut<u32>,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+            salt_ptr: Ptr32<[u8]>,
+            salt_len: u32,
+        ) -> ReturnCode;
+
         pub fn seal_random(
             subject_ptr: Ptr32<[u8]>,
             subject_len: u32,
@@ -358,10 +356,8 @@ pub fn instantiate(
         unsafe {
             sys::seal_instantiate(
                 Ptr32::from_slice(code_hash),
-                code_hash.len() as u32,
                 gas_limit,
                 Ptr32::from_slice(endowment),
-                endowment.len() as u32,
                 Ptr32::from_slice(input),
                 input.len() as u32,
                 Ptr32Mut::from_slice(out_address),
