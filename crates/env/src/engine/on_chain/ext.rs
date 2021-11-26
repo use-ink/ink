@@ -227,8 +227,6 @@ mod sys {
         ) -> ReturnCode;
         pub fn seal_clear_storage(key_ptr: Ptr32<[u8]>);
 
-        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>, beneficiary_len: u32) -> !;
-
         pub fn seal_call_chain_extension(
             func_id: u32,
             input_ptr: Ptr32<[u8]>,
@@ -303,6 +301,8 @@ mod sys {
             salt_ptr: Ptr32<[u8]>,
             salt_len: u32,
         ) -> ReturnCode;
+
+        pub fn seal_terminate(beneficiary_ptr: Ptr32<[u8]>) -> !;
 
         pub fn seal_random(
             subject_ptr: Ptr32<[u8]>,
@@ -454,9 +454,7 @@ pub fn get_storage(key: &[u8], output: &mut &mut [u8]) -> Result {
 }
 
 pub fn terminate(beneficiary: &[u8]) -> ! {
-    unsafe {
-        sys::seal_terminate(Ptr32::from_slice(beneficiary), beneficiary.len() as u32)
-    }
+    unsafe { sys::seal_terminate(Ptr32::from_slice(beneficiary)) }
 }
 
 pub fn call_chain_extension(func_id: u32, input: &[u8], output: &mut &mut [u8]) -> u32 {
