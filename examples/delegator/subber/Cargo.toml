@@ -41,4 +41,6 @@ std = [
 
     "accumulator/std",
 ]
-ink-as-dependency = []
+ink-as-dependency = [
+    "accumulator/ink-as-dependency",
+]
