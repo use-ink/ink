@@ -12,11 +12,11 @@ ink_storage = { version = "3.0.0-rc7", path = "../../crates/storage", default-fe
 ink_lang = { version = "3.0.0-rc7", path = "../../crates/lang", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "2", default-features = false, features = ["derive"] }
+scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 adder = { version = "3.0.0-rc7", path = "adder", default-features = false, features = ["ink-as-dependency"] }
 subber = { version = "3.0.0-rc7", path = "subber", default-features = false, features = ["ink-as-dependency"] }
 accumulator = { version = "3.0.0-rc7", path = "accumulator", default-features = false, features = ["ink-as-dependency"] }
-scale-info = { version = "1", default-features = false, features = ["derive"], optional = true }
 
 [lib]
 name = "delegator"
@@ -41,10 +41,3 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
-
-[workspace]
-members = [
-    "accumulator",
-    "adder",
-    "subber",
-]
