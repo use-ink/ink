@@ -60,7 +60,10 @@ mod erc721 {
         HashMap as StorageHashMap,
     };
 
-    use ink_storage::{ lazy::{ Mapping }, traits::SpreadAllocate,};
+    use ink_storage::{
+        lazy::Mapping,
+        traits::SpreadAllocate,
+    };
 
     use scale::{
         Decode,
@@ -134,15 +137,15 @@ mod erc721 {
         #[ink(constructor)]
         pub fn new() -> Self {
             // ink_lang::codegen::initialize_contract(|contract| {
-                Self {
-                    token_owner: Default::default(),
-                    // TODO: How should this be properly initialized?
-                    // The type signature matches the above map, and they're both Default
-                    // initialized to the same root key [0u8; 32]
-                    token_approvals: Mapping::new([1u8; 32].into()),
-                    owned_tokens_count: Default::default(),
-                    operator_approvals: Default::default(),
-                }
+            Self {
+                token_owner: Default::default(),
+                // TODO: How should this be properly initialized?
+                // The type signature matches the above map, and they're both Default
+                // initialized to the same root key [0u8; 32]
+                token_approvals: Mapping::new([1u8; 32].into()),
+                owned_tokens_count: Default::default(),
+                operator_approvals: Default::default(),
+            }
             // })
         }
 
@@ -246,8 +249,19 @@ mod erc721 {
             if owner != caller {
                 return Err(Error::NotOwner)
             };
-            decrease_counter_of(owned_tokens_count, &caller)?;
-            token_owner.clear_entry(&id);
+
+            // decrease_counter_of(owned_tokens_count, &caller)?;
+
+            let count = owned_tokens_count
+                .get(&caller)
+                .map(|mut c| {
+                    c -= 1;
+                    c
+                })
+                .ok_or(Error::CannotFetchValue)?;
+            owned_tokens_count.insert(&caller, &count);
+
+            token_owner.remove(&id);
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
@@ -297,8 +311,17 @@ mod erc721 {
                 return Err(Error::TokenNotFound)
             }
 
-            decrease_counter_of(owned_tokens_count, from)?;
-            token_owner.clear_entry(&id);
+            // decrease_counter_of(owned_tokens_count, from)?;
+            let count = owned_tokens_count
+                .get(&from)
+                .map(|mut c| {
+                    c -= 1;
+                    c
+                })
+                .ok_or(Error::CannotFetchValue)?;
+            owned_tokens_count.insert(&from, &count);
+
+            token_owner.remove(&id);
             Ok(())
         }
 
@@ -317,8 +340,18 @@ mod erc721 {
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed)
             };
-            let entry = owned_tokens_count.entry(*to);
-            increase_counter_of(entry);
+
+            // let entry = owned_tokens_count.entry(*to);
+            // increase_counter_of(entry);
+
+            let count = owned_tokens_count
+                .get(to)
+                .map(|mut c| {
+                    c += 1;
+                    c
+                })
+                .unwrap_or(1);
+            owned_tokens_count.insert(to, &count);
 
             token_owner.insert(&id, to);
 
@@ -407,7 +440,7 @@ mod erc721 {
 
         // Returns the total number of tokens from an account.
         fn balance_of_or_zero(&self, of: &AccountId) -> u32 {
-            *self.owned_tokens_count.get(of).unwrap_or(&0)
+            self.owned_tokens_count.get(of).unwrap_or(0)
         }
 
         /// Gets an operator on other Account's behalf.
@@ -435,21 +468,6 @@ mod erc721 {
         fn exists(&self, id: TokenId) -> bool {
             self.token_owner.get(&id).is_some()
         }
-    }
-
-    fn decrease_counter_of(
-        map: &mut Mapping<AccountId, u32>,
-        of: &AccountId,
-    ) -> Result<(), Error> {
-        let count = (*map).get(of).ok_or(Error::CannotFetchValue)?;
-        *count -= 1;
-        map.insert(&of, count);
-        Ok(())
-    }
-
-    /// Increase token counter from the `of` `AccountId`.
-    fn increase_counter_of(entry: Entry<AccountId, u32>) {
-        entry.and_modify(|v| *v += 1).or_insert(1);
     }
 
     /// Unit tests
