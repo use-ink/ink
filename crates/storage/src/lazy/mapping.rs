@@ -211,8 +211,7 @@ mod tests {
 
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            let mut deep_mapping: Mapping<u8, Pack<u8>> =
-                Mapping::new([1u8; 32].into());
+            let mut deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
 
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
