@@ -54,12 +54,6 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod erc721 {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::collections::{
-        hashmap::Entry,
-        HashMap as StorageHashMap,
-    };
-
     use ink_storage::{
         lazy::Mapping,
         traits::SpreadAllocate,
@@ -83,7 +77,7 @@ mod erc721 {
         /// Mapping from owner to number of owned token.
         owned_tokens_count: Mapping<AccountId, u32>,
         /// Mapping from owner to operator approvals.
-        operator_approvals: StorageHashMap<(AccountId, AccountId), bool>,
+        operator_approvals: Mapping<(AccountId, AccountId), bool>,
     }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -240,17 +234,10 @@ mod erc721 {
                 ..
             } = self;
 
-            // let occupied = match token_owner.entry(id) {
-            //     Entry::Vacant(_) => return Err(Error::TokenNotFound),
-            //     Entry::Occupied(occupied) => occupied,
-            // };
-
             let owner = token_owner.get(&id).ok_or(Error::TokenNotFound)?;
             if owner != caller {
                 return Err(Error::NotOwner)
             };
-
-            // decrease_counter_of(owned_tokens_count, &caller)?;
 
             let count = owned_tokens_count
                 .get(&caller)
@@ -373,27 +360,18 @@ mod erc721 {
                 operator: to,
                 approved,
             });
-            if self.approved_for_all(caller, to) {
-                let status = self
-                    .operator_approvals
-                    .get_mut(&(caller, to))
-                    .ok_or(Error::CannotFetchValue)?;
-                *status = approved;
-                Ok(())
+
+            if approved {
+                self.operator_approvals.insert((&caller, &to), &approved);
             } else {
-                match self.operator_approvals.insert((caller, to), approved) {
-                    Some(_) => Err(Error::CannotInsert),
-                    None => Ok(()),
-                }
+                self.operator_approvals.remove((&caller, &to));
             }
+
+            Ok(())
         }
 
         /// Approve the passed `AccountId` to transfer the specified token on behalf of the message's sender.
         fn approve_for(&mut self, to: &AccountId, id: TokenId) -> Result<(), Error> {
-            dbg!(self.token_approvals.get(&id));
-            dbg!(self.token_approvals.get(&0));
-            dbg!(self.token_approvals.get(&2));
-
             let caller = self.env().caller();
             let owner = self.owner_of(id);
             if !(owner == Some(caller)
@@ -427,7 +405,8 @@ mod erc721 {
 
         /// Removes existing approval from token `id`.
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
-            Ok(self.token_approvals.clear_entry(&id))
+            self.token_approvals.remove(&id);
+            Ok(())
 
             // if !self.token_approvals.contains_key(&id) {
             //     return Ok(())
@@ -445,10 +424,10 @@ mod erc721 {
 
         /// Gets an operator on other Account's behalf.
         fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            *self
+            self
                 .operator_approvals
-                .get(&(owner, operator))
-                .unwrap_or(&false)
+                .get((&owner, &operator))
+                .is_some()
         }
 
         /// Returns true if the `AccountId` `from` is the owner of token `id`
