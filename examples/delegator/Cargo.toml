@@ -41,3 +41,10 @@ std = [
     "accumulator/std",
 ]
 ink-as-dependency = []
+
+[workspace]
+members = [
+    "accumulator",
+    "adder",
+    "subber",
+]
