@@ -374,11 +374,6 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        pushd examples/delegator/$contract &&
-        cargo contract build &&
-        popd;
-      done
 
 examples-contract-build-delegator:
     stage:                         examples
