@@ -88,7 +88,6 @@ mod erc721 {
         TokenExists,
         TokenNotFound,
         CannotInsert,
-        CannotRemove,
         CannotFetchValue,
         NotAllowed,
     }
@@ -247,13 +246,14 @@ mod erc721 {
                 })
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(&caller, &count);
-
             token_owner.remove(&id);
+
             self.env().emit_event(Transfer {
                 from: Some(caller),
                 to: Some(AccountId::from([0x0; 32])),
                 id,
             });
+
             Ok(())
         }
 
@@ -307,8 +307,8 @@ mod erc721 {
                 })
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(&from, &count);
-
             token_owner.remove(&id);
+
             Ok(())
         }
 
@@ -328,9 +328,6 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            // let entry = owned_tokens_count.entry(*to);
-            // increase_counter_of(entry);
-
             let count = owned_tokens_count
                 .get(to)
                 .map(|mut c| {
@@ -338,8 +335,8 @@ mod erc721 {
                     c
                 })
                 .unwrap_or(1);
-            owned_tokens_count.insert(to, &count);
 
+            owned_tokens_count.insert(to, &count);
             token_owner.insert(&id, to);
 
             Ok(())
@@ -379,15 +376,11 @@ mod erc721 {
             {
                 return Err(Error::NotAllowed)
             };
+
             if *to == AccountId::from([0x0; 32]) {
                 return Err(Error::NotAllowed)
             };
 
-            // if self.token_approvals.insert(id, *to).is_some() {
-            //     return Err(Error::CannotInsert)
-            // };
-
-            dbg!(&id);
             if self.token_approvals.get(&id).is_some() {
                 return Err(Error::CannotInsert)
             } else {
@@ -407,14 +400,6 @@ mod erc721 {
         fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
             self.token_approvals.remove(&id);
             Ok(())
-
-            // if !self.token_approvals.contains_key(&id) {
-            //     return Ok(())
-            // };
-            // match self.token_approvals.take(&id) {
-            //     Some(_res) => Ok(()),
-            //     None => Err(Error::CannotRemove),
-            // }
         }
 
         // Returns the total number of tokens from an account.
