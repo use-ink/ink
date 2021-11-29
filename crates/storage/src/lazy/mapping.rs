@@ -180,45 +180,6 @@ const _: () = {
 mod tests {
     use super::*;
 
-    /// A dummy type which `REQUIRES_DEEP_CLEAN_UP`
-    #[derive(PartialEq, Debug, scale::Encode, scale::Decode)]
-    struct DeepClean<T>(T);
-
-    impl<T> SpreadLayout for DeepClean<T>
-    where
-        T: PackedLayout,
-    {
-        const FOOTPRINT: u64 = 1;
-        const REQUIRES_DEEP_CLEAN_UP: bool = true;
-
-        fn pull_spread(ptr: &mut KeyPtr) -> Self {
-            Self(<T as SpreadLayout>::pull_spread(ptr))
-        }
-
-        fn push_spread(&self, ptr: &mut KeyPtr) {
-            <T as SpreadLayout>::push_spread(&self.0, ptr)
-        }
-
-        fn clear_spread(&self, ptr: &mut KeyPtr) {
-            <T as SpreadLayout>::clear_spread(&self.0, ptr)
-        }
-    }
-
-    impl<T> PackedLayout for DeepClean<T>
-    where
-        T: PackedLayout + scale::EncodeLike<T>,
-    {
-        fn pull_packed(&mut self, at: &Key) {
-            <T as PackedLayout>::pull_packed(&mut self.0, at);
-        }
-        fn push_packed(&self, at: &Key) {
-            <T as PackedLayout>::push_packed(&self.0, at);
-        }
-        fn clear_packed(&self, at: &Key) {
-            <T as PackedLayout>::clear_packed(&self.0, at);
-        }
-    }
-
     #[test]
     fn insert_and_get_work() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -245,16 +206,19 @@ mod tests {
     #[test]
     fn can_clear_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
+            use crate::Pack;
+
             // Given
             let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            let mut deep_mapping: Mapping<u8, DeepClean<u8>> =
+            let mut deep_mapping: Mapping<u8, Pack<u8>> =
                 Mapping::new([1u8; 32].into());
 
             mapping.insert(&1, &2);
             assert_eq!(mapping.get(&1), Some(2));
 
-            deep_mapping.insert(&1, &DeepClean(2));
-            assert_eq!(deep_mapping.get(&1), Some(DeepClean(2)));
+            deep_mapping.insert(&1u8, &Pack::new(Pack::new(2u8)));
+            assert_eq!(deep_mapping.get(&1), Some(Pack::new(2u8)));
 
             // When
             mapping.remove(&1);
@@ -272,9 +236,12 @@ mod tests {
     #[test]
     fn can_clear_unexistent_entries() {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
+            use crate::Pack;
+
             // Given
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
-            let deep_mapping: Mapping<u8, DeepClean<u8>> = Mapping::new([1u8; 32].into());
+            let deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
 
             // When
             mapping.remove(&1);
