@@ -345,12 +345,12 @@ mod erc1155 {
         ) {
             let mut sender_balance = self
                 .balances
-                .get((from, token_id))
+                .get(&(from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
             self.balances.insert(&(from, token_id), &sender_balance);
 
-            let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
+            let mut recipient_balance = self.balances.get(&(to, token_id)).unwrap_or(0);
             recipient_balance += value;
             self.balances.insert(&(to, token_id), &recipient_balance);
 
