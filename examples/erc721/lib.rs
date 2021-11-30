@@ -409,10 +409,7 @@ mod erc721 {
 
         /// Gets an operator on other Account's behalf.
         fn approved_for_all(&self, owner: AccountId, operator: AccountId) -> bool {
-            self
-                .operator_approvals
-                .get((&owner, &operator))
-                .is_some()
+            self.operator_approvals.get((&owner, &operator)).is_some()
         }
 
         /// Returns true if the `AccountId` `from` is the owner of token `id`
