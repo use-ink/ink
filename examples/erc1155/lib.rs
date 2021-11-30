@@ -285,7 +285,7 @@ mod erc1155 {
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances.insert((caller, self.token_id_nonce), &value);
+            self.balances.insert(&(caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -312,7 +312,7 @@ mod erc1155 {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
-            self.balances.insert((caller, token_id), &value);
+            self.balances.insert(&(caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -344,11 +344,11 @@ mod erc1155 {
             let mut sender_balance = self.balances.get((from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
-            self.balances.insert((from, token_id), &sender_balance);
+            self.balances.insert(&(from, token_id), &sender_balance);
 
             let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
             recipient_balance += value;
-            self.balances.insert((to, token_id), &recipient_balance);
+            self.balances.insert(&(to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
@@ -549,7 +549,7 @@ mod erc1155 {
             };
 
             if approved {
-                self.approvals.insert(approval, &());
+                self.approvals.insert(&approval, &());
             } else {
                 self.approvals.remove(&approval);
             }
