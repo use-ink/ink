@@ -2,6 +2,7 @@
 
 use ink_lang as ink;
 
+// TODO: Should trigger CI quickfail
 #[ink::contract]
 pub mod flipper {
     #[ink(storage)]
