@@ -327,6 +327,10 @@ mod erc1155 {
         //
         // Should not be used directly since it's missing certain checks which are important to the
         // ERC-1155 standard (it is expected that the caller has already performed these).
+        //
+        // # Panics
+        //
+        // If `from` does not hold any amount any `token_id` tokens.
         fn perform_transfer(
             &mut self,
             from: AccountId,
@@ -334,18 +338,10 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
         ) {
-            // self.balances
-            //     .entry((from, token_id))
-            //     .and_modify(|b| *b -= value);
-
-            let mut sender_balance = self.balances.get((from, token_id)).expect("TODO");
+            let mut sender_balance = self.balances.get((from, token_id))
+                .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
             self.balances.insert((from, token_id), &sender_balance);
-
-            // self.balances
-            //     .entry((to, token_id))
-            //     .and_modify(|b| *b += value)
-            //     .or_insert(value);
 
             let mut recipient_balance = self.balances.get((to, token_id)).unwrap_or(0);
             recipient_balance += value;
@@ -552,7 +548,7 @@ mod erc1155 {
             if approved {
                 self.approvals.insert(approval, &());
             } else {
-                self.approvals.clear_entry(&approval);
+                self.approvals.remove(&approval);
             }
 
             self.env().emit_event(ApprovalForAll {
