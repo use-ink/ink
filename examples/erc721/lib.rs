@@ -129,17 +129,14 @@ mod erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_| {
-                Self {
-                    // TODO: How should this be properly initialized?
-                    //
-                    // Turns out that `token_owner` and `token_approvals` have the same type
-                    // signature and they're both Default initialized to ROOT_KEY [0u8; 32]. This
-                    // means that they end up operating on the same storage keys :(
-                    // token_approvals: Default::default(),
-                    token_approvals: Mapping::new([1u8; 32].into()),
-                    ..Default::default()
-                };
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                // TODO: How should this be properly initialized?
+                //
+                // Turns out that `token_owner` and `token_approvals` have the same type
+                // signature and they're both Default initialized to ROOT_KEY [0u8; 32]. This
+                // means that they end up operating on the same storage keys :(
+                // token_approvals: Default::default(),
+                contract.token_approvals = Mapping::new([1u8; 32].into());
             })
         }
 
