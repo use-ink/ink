@@ -191,6 +191,7 @@ mod erc1155 {
     use ink_storage::traits::{
         PackedLayout,
         SpreadLayout,
+        SpreadAllocate,
     };
 
     /// Indicate that a token transfer has occured.
@@ -250,7 +251,7 @@ mod erc1155 {
 
     /// An ERC-1155 contract.
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
         balances: Mapping<(AccountId, TokenId), Balance>,
@@ -265,7 +266,9 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Default::default()
+            ink_lang::codegen::initialize_contract(|_| {
+                Contract::default();
+            })
         }
 
         /// Create the initial supply for a token.
