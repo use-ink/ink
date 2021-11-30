@@ -13,7 +13,6 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            assert!(true);
             Self { value: init_value }
         }
 
