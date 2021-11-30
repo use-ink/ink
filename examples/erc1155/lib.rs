@@ -187,11 +187,13 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_storage::lazy::Mapping;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
-        SpreadAllocate,
+    use ink_storage::{
+        lazy::Mapping,
+        traits::{
+            PackedLayout,
+            SpreadAllocate,
+            SpreadLayout,
+        },
     };
 
     /// Indicate that a token transfer has occured.
@@ -341,7 +343,9 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
         ) {
-            let mut sender_balance = self.balances.get((from, token_id))
+            let mut sender_balance = self
+                .balances
+                .get((from, token_id))
                 .expect("Caller should have ensured that `from` holds `token_id`.");
             sender_balance -= value;
             self.balances.insert(&(from, token_id), &sender_balance);
