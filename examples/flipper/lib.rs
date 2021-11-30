@@ -2,7 +2,6 @@
 
 use ink_lang as ink;
 
-// TODO: Should trigger CI quickfail
 #[ink::contract]
 pub mod flipper {
     #[ink(storage)]
@@ -14,6 +13,7 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
+            assert!(true);
             Self { value: init_value }
         }
 
