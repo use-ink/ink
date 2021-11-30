@@ -129,17 +129,18 @@ mod erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            // ink_lang::codegen::initialize_contract(|contract| {
-            Self {
-                token_owner: Default::default(),
-                // TODO: How should this be properly initialized?
-                // The type signature matches the above map, and they're both Default
-                // initialized to the same root key [0u8; 32]
-                token_approvals: Mapping::new([1u8; 32].into()),
-                owned_tokens_count: Default::default(),
-                operator_approvals: Default::default(),
-            }
-            // })
+            ink_lang::codegen::initialize_contract(|_| {
+                Self {
+                    token_owner: Default::default(),
+                    // TODO: How should this be properly initialized?
+                    // The type signature matches the above map, and they're both Default
+                    // initialized to the same root key [0u8; 32]
+                    // token_approvals: Default::default(),
+                    token_approvals: Mapping::new([1u8; 32].into()),
+                    owned_tokens_count: Default::default(),
+                    operator_approvals: Default::default(),
+                };
+            })
         }
 
         /// Returns the balance of the owner.
@@ -298,7 +299,6 @@ mod erc721 {
                 return Err(Error::TokenNotFound)
             }
 
-            // decrease_counter_of(owned_tokens_count, from)?;
             let count = owned_tokens_count
                 .get(&from)
                 .map(|mut c| {
