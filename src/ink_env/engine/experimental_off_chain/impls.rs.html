@@ -456,6 +456,13 @@
 <span id="455">455</span>
 <span id="456">456</span>
 <span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -709,11 +716,13 @@
         <span class="ident">message_hash</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>],
         <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">33</span>],
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">libsecp256k1</span>::{
-            <span class="ident">recover</span>,
+        <span class="kw">use</span> <span class="ident">secp256k1</span>::{
+            <span class="ident">recovery</span>::{
+                <span class="ident">RecoverableSignature</span>,
+                <span class="ident">RecoveryId</span>,
+            },
             <span class="ident">Message</span>,
-            <span class="ident">RecoveryId</span>,
-            <span class="ident">Signature</span>,
+            <span class="ident">Secp256k1</span>,
         };
 
         <span class="comment">// In most implementations, the v is just 0 or 1 internally, but 27 was added</span>
@@ -723,17 +732,22 @@
         } <span class="kw">else</span> {
             <span class="ident">signature</span>[<span class="number">64</span>]
         };
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">Message::parse</span>(<span class="ident">message_hash</span>);
-        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span> <span class="ident">Signature::parse_standard_slice</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>[<span class="number">0</span>..<span class="number">64</span>])
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {}&quot;</span>, <span class="ident">error</span>));
-
-        <span class="kw">let</span> <span class="ident">recovery_id</span> <span class="op">=</span> <span class="ident">RecoveryId::parse</span>(<span class="ident">recovery_byte</span>)
+        <span class="kw">let</span> <span class="ident">recovery_id</span> <span class="op">=</span> <span class="ident">RecoveryId::from_i32</span>(<span class="ident">recovery_byte</span> <span class="kw">as</span> <span class="ident">i32</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the recovery id: {}&quot;</span>, <span class="ident">error</span>));
+        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">Message::from_slice</span>(<span class="ident">message_hash</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+            <span class="macro">panic!</span>(<span class="string">&quot;Unable to create the message from hash: {}&quot;</span>, <span class="ident">error</span>)
+        });
+        <span class="kw">let</span> <span class="ident">signature</span> <span class="op">=</span>
+            <span class="ident">RecoverableSignature::from_compact</span>(<span class="kw-2">&amp;</span><span class="ident">signature</span>[<span class="number">0</span>..<span class="number">64</span>], <span class="ident">recovery_id</span>)
+                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Unable to parse the signature: {}&quot;</span>, <span class="ident">error</span>)
+                });
 
-        <span class="kw">let</span> <span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">recover</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">recovery_id</span>);
+        <span class="kw">let</span> <span class="ident">secp</span> <span class="op">=</span> <span class="ident">Secp256k1::new</span>();
+        <span class="kw">let</span> <span class="ident">pub_key</span> <span class="op">=</span> <span class="ident">secp</span>.<span class="ident">recover</span>(<span class="kw-2">&amp;</span><span class="ident">message</span>, <span class="kw-2">&amp;</span><span class="ident">signature</span>);
         <span class="kw">match</span> <span class="ident">pub_key</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">pub_key</span>) =&gt; {
-                <span class="kw-2">*</span><span class="ident">output</span> <span class="op">=</span> <span class="ident">pub_key</span>.<span class="ident">serialize_compressed</span>();
+                <span class="kw-2">*</span><span class="ident">output</span> <span class="op">=</span> <span class="ident">pub_key</span>.<span class="ident">serialize</span>();
                 <span class="prelude-val">Ok</span>(())
             }
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">Error::EcdsaRecoverFailed</span>),
