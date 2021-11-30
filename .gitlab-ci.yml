@@ -169,6 +169,7 @@ examples-clippy-std:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
       done
+  allow_failure:                   true
 
 examples-clippy-wasm:
   stage:                           lint
@@ -181,6 +182,7 @@ examples-clippy-wasm:
     - for contract in ${DELEGATOR_SUBCONTRACTS}; do
         cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
       done
+  allow_failure:                   true
 
 
 #### stage:                        check
