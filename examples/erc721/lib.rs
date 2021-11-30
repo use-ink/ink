@@ -131,14 +131,14 @@ mod erc721 {
         pub fn new() -> Self {
             ink_lang::codegen::initialize_contract(|_| {
                 Self {
-                    token_owner: Default::default(),
                     // TODO: How should this be properly initialized?
-                    // The type signature matches the above map, and they're both Default
-                    // initialized to the same root key [0u8; 32]
+                    //
+                    // Turns out that `token_owner` and `token_approvals` have the same type
+                    // signature and they're both Default initialized to ROOT_KEY [0u8; 32]. This
+                    // means that they end up operating on the same storage keys :(
                     // token_approvals: Default::default(),
                     token_approvals: Mapping::new([1u8; 32].into()),
-                    owned_tokens_count: Default::default(),
-                    operator_approvals: Default::default(),
+                    ..Default::default()
                 };
             })
         }
