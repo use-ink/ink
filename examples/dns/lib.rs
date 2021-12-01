@@ -60,7 +60,7 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
         name_to_address: Mapping<Hash, AccountId>,
@@ -87,7 +87,9 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Default::default()
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                contract.default_address = Default::default();
+            })
         }
 
         /// Register specific name with caller as owner.
