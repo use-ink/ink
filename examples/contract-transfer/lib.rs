@@ -34,7 +34,7 @@ pub mod give_me {
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
-            if let Err(_) = self.env().transfer(self.env().caller(), value) {
+            if self.env().transfer(self.env().caller(), value).is_err() {
                 panic!(
                     "requested transfer failed. this can be the case if the contract does not\
                      have sufficient free funds or if the transfer would have brought the\
