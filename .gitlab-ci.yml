@@ -13,6 +13,7 @@ default:
       - api_failure
 
 stages:
+  - lint
   - check
   - workspace
   - examples
@@ -107,6 +108,91 @@ workflow:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_SSH_PRIV_KEY@kv
       file:                        false
 
+#### stage:                        lint
+#
+# Note: For all of these lints we `allow_failure` so that the rest of the build can
+# continue running despite them not passing. Merging is still disallowed since (most) of
+# the lint steps are marked as "Required" in GitHub.
+spellcheck:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
+    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
+  allow_failure:                   true
+
+fmt:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - cargo fmt --verbose --all -- --check
+    # For the UI tests we need to disable the license check
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/contract/{pass,fail}/*.rs
+    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
+  allow_failure:                   true
+
+examples-fmt:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    # Note that we disable the license header check for the examples, since they are unlicensed.
+    - for example in examples/*/; do
+        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
+      done
+  allow_failure:                   true
+
+clippy-std:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - for crate in ${ALL_CRATES}; do
+        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
+      done
+
+clippy-wasm:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - for crate in ${ALSO_WASM_CRATES}; do
+        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
+      done
+  allow_failure:                   true
+
+examples-clippy-std:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - for example in examples/*/; do
+        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
+      done
+  allow_failure:                   true
+
+examples-clippy-wasm:
+  stage:                           lint
+  <<:                              *docker-env
+  <<:                              *test-refs
+  script:
+    - for example in examples/*/; do
+        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
+        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
+      done
+  allow_failure:                   true
+
+
 #### stage:                        check
 
 check-std:
@@ -199,13 +285,6 @@ docs:
     # FIXME: remove me after CI image gets nonroot
     - chown -R nonroot:nonroot ./crate-docs
 
-spellcheck:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive .
-    - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
 
 codecov:
   stage:                           workspace
@@ -256,40 +335,6 @@ codecov:
     - rust-covfix lcov-lines.info --output lcov-lines-fixed.info
     - codecov --token "$CODECOV_TOKEN" --file lcov-lines-fixed.info --nonZero
 
-clippy-std:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-std
-      artifacts:                   false
-  script:
-    - for crate in ${ALL_CRATES}; do
-        cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
-      done
-
-clippy-wasm:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         check-wasm
-      artifacts:                   false
-  script:
-    - for crate in ${ALSO_WASM_CRATES}; do
-        cargo clippy --verbose --no-default-features --manifest-path crates/${crate}/Cargo.toml --target wasm32-unknown-unknown -- -D warnings;
-      done
-
-fmt:
-  stage:                           workspace
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - cargo fmt --verbose --all -- --check
-    # For the UI tests we need to disable the license check
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/contract/{pass,fail}/*.rs
-    - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
-
 
 #### stage:                        examples
 
@@ -323,45 +368,6 @@ examples-test-experimental-engine:
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-terminate/Cargo.toml
     - cargo test --no-default-features --features std, ink-experimental-engine --verbose --manifest-path examples/contract-transfer/Cargo.toml
 
-examples-fmt:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    # Note that we disable the license header check for the examples, since they are unlicensed.
-    - for example in examples/*/; do
-        cargo fmt --verbose --manifest-path ${example}/Cargo.toml -- --check --config=license_template_path="";
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo fmt --verbose --manifest-path examples/delegator/${contract}/Cargo.toml -- --check --config=license_template_path="";
-      done
-
-examples-clippy-std:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  needs:
-    - job:                         clippy-std
-      artifacts:                   false
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --all-targets --manifest-path ${example}/Cargo.toml -- -D warnings;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --all-targets --manifest-path examples/delegator/${contract}/Cargo.toml -- -D warnings;
-      done
-
-examples-clippy-wasm:
-  stage:                           examples
-  <<:                              *docker-env
-  <<:                              *test-refs
-  script:
-    - for example in examples/*/; do
-        cargo clippy --verbose --manifest-path ${example}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        cargo clippy --verbose --manifest-path examples/delegator/${contract}/Cargo.toml --no-default-features --target wasm32-unknown-unknown -- -D warnings;
-      done
 
 examples-contract-build:
   stage:                           examples
