@@ -74,7 +74,7 @@ where
         Q: scale::EncodeLike<K>,
         R: scale::EncodeLike<V> + PackedLayout,
     {
-        push_packed_root(value, &self.storage_key(key));
+        push_packed_root(value, &self.storage_key(&key));
     }
 
     /// Get the `value` at `key` from the contract storage.
@@ -85,14 +85,30 @@ where
     where
         Q: scale::EncodeLike<K>,
     {
-        pull_packed_root_opt(&self.storage_key(key))
+        pull_packed_root_opt(&self.storage_key(&key))
+    }
+
+    /// Clears the value at `key` from storage.
+    pub fn remove<Q>(&self, key: Q)
+    where
+        Q: scale::EncodeLike<K>,
+    {
+        let storage_key = self.storage_key(&key);
+        if <V as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP {
+            // There are types which need to perform some action before being cleared. Here we
+            // indicate to those types that they should start tidying up.
+            if let Some(value) = self.get(key) {
+                <V as PackedLayout>::clear_packed(&value, &storage_key);
+            }
+        }
+        ink_env::clear_contract_storage(&storage_key);
     }
 
     /// Returns a `Key` pointer used internally by the storage API.
     ///
     /// This key is a combination of the `Mapping`'s internal `offset_key`
     /// and the user provided `key`.
-    fn storage_key<Q>(&self, key: Q) -> Key
+    fn storage_key<Q>(&self, key: &Q) -> Key
     where
         Q: scale::EncodeLike<K>,
     {
@@ -181,6 +197,58 @@ mod tests {
         ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
             let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
             assert_eq!(mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_clear_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
+            use crate::Pack;
+
+            // Given
+            let mut mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            let mut deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
+
+            mapping.insert(&1, &2);
+            assert_eq!(mapping.get(&1), Some(2));
+
+            deep_mapping.insert(&1u8, &Pack::new(Pack::new(2u8)));
+            assert_eq!(deep_mapping.get(&1), Some(Pack::new(2u8)));
+
+            // When
+            mapping.remove(&1);
+            deep_mapping.remove(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+            assert_eq!(deep_mapping.get(&1), None);
+
+            Ok(())
+        })
+        .unwrap()
+    }
+
+    #[test]
+    fn can_clear_unexistent_entries() {
+        ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+            // We use `Pack` here since it `REQUIRES_DEEP_CLEAN_UP`
+            use crate::Pack;
+
+            // Given
+            let mapping: Mapping<u8, u8> = Mapping::new([0u8; 32].into());
+            let deep_mapping: Mapping<u8, Pack<u8>> = Mapping::new([1u8; 32].into());
+
+            // When
+            mapping.remove(&1);
+            deep_mapping.remove(&1);
+
+            // Then
+            assert_eq!(mapping.get(&1), None);
+            assert_eq!(deep_mapping.get(&1), None);
 
             Ok(())
         })
