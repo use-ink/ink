@@ -34,15 +34,12 @@ pub mod give_me {
 
             assert!(value <= self.env().balance(), "insufficient funds!");
 
-            match self.env().transfer(self.env().caller(), value) {
-                Err(_) => {
-                    panic!(
-                        "requested transfer failed. this can be the case if the contract does not\
-                         have sufficient free funds or if the transfer would have brought the\
-                         contract's balance below minimum balance."
-                    )
-                }
-                Ok(_) => {}
+            if let Err(_) = self.env().transfer(self.env().caller(), value) {
+                panic!(
+                    "requested transfer failed. this can be the case if the contract does not\
+                     have sufficient free funds or if the transfer would have brought the\
+                     contract's balance below minimum balance."
+                )
             }
         }
 
