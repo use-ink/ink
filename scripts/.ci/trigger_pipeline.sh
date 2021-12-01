@@ -42,7 +42,7 @@ function get_status() {
             jq --raw-output ".status";
 }
 
-echo "Waiting on ${PIPELINE_ID} status…"
+echo "Waiting on ${PIPELINE_ID} status..."
 
 # How long to sleep in between polling the pipeline status.
 POLL_SLEEP=5

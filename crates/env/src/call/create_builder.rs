@@ -145,7 +145,7 @@ where
 ///
 /// The below example shows instantiation of contract of type `MyContract`.
 ///
-/// The used constructor…
+/// The used constructor:
 ///
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 4000 units of gas for its execution
