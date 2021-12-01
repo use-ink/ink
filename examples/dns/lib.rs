@@ -11,6 +11,9 @@ mod dns {
         lazy::Lazy,
     };
 
+    use ink_storage::lazy::Mapping;
+    use ink_storage::traits::SpreadAllocate;
+
     /// Emitted whenever a new name is being registered.
     #[ink(event)]
     pub struct Register {
@@ -63,7 +66,7 @@ mod dns {
     #[derive(Default)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
-        name_to_address: StorageHashMap<Hash, AccountId>,
+        name_to_address: Mapping<Hash, AccountId>,
         /// A hashmap to store all name to owners mapping.
         name_to_owner: StorageHashMap<Hash, AccountId>,
         /// The default address.
@@ -113,7 +116,11 @@ mod dns {
             if caller != owner {
                 return Err(Error::CallerIsNotOwner)
             }
-            let old_address = self.name_to_address.insert(name, new_address);
+
+            let old_address = self.name_to_address.get(name);
+            self.name_to_address.insert(&name, &new_address);
+            // let old_address = self.name_to_address.insert(name, new_address);
+
             self.env().emit_event(SetAddress {
                 name,
                 from: caller,
@@ -157,10 +164,10 @@ mod dns {
 
         /// Returns the address given the hash or the default address.
         fn get_address_or_default(&self, name: Hash) -> AccountId {
-            *self
+            self
                 .name_to_address
                 .get(&name)
-                .unwrap_or(&*self.default_address)
+                .unwrap_or(*self.default_address)
         }
     }
 
