@@ -393,7 +393,6 @@ mod tests {
                  * Multi-line comments
                  * may span many,
                  * many lines
-                 */
                  "
             .to_string()],
         );
