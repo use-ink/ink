@@ -717,12 +717,12 @@
     <span class="doccomment">/// For more details visit: [`caller`][`crate::caller`]</span>
     <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::AccountId</span>;
 
-    <span class="doccomment">/// Returns the transferred balance for the contract execution.</span>
+    <span class="doccomment">/// Returns the transferred value for the contract execution.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`transferred_balance`][`crate::transferred_balance`]</span>
-    <span class="kw">fn</span> <span class="ident">transferred_balance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
+    <span class="doccomment">/// For more details visit: [`transferred_value`][`crate::transferred_value`]</span>
+    <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span>;
 
     <span class="doccomment">/// Returns the price for the specified amount of gas.</span>
     <span class="doccomment">///</span>

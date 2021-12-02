@@ -949,7 +949,7 @@
         <span class="ident">ink_env::caller</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
-    <span class="doccomment">/// Returns the transferred balance for the contract execution.</span>
+    <span class="doccomment">/// Returns the transferred value for the contract execution.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
@@ -967,11 +967,11 @@
     <span class="doccomment">/// #             Self {}</span>
     <span class="doccomment">/// #         }</span>
     <span class="doccomment">/// #</span>
-    <span class="doccomment">/// /// Allows funding the contract. Prints a debug message with the transferred balance.</span>
+    <span class="doccomment">/// /// Allows funding the contract. Prints a debug message with the transferred value.</span>
     <span class="doccomment">/// #[ink(message, payable)]</span>
     <span class="doccomment">/// pub fn fund(&amp;self) {</span>
     <span class="doccomment">///     let caller = self.env().caller();</span>
-    <span class="doccomment">///     let value = self.env().transferred_balance();</span>
+    <span class="doccomment">///     let value = self.env().transferred_value();</span>
     <span class="doccomment">///     ink_env::debug_println!(&quot;thanks for the funding of {:?} from {:?}&quot;, value, caller);</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// #</span>
@@ -981,9 +981,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// For more details visit: [`ink_env::transferred_balance`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_balance</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="ident">ink_env::transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+    <span class="doccomment">/// For more details visit: [`ink_env::transferred_value`]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
+        <span class="ident">ink_env::transferred_value</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
     <span class="doccomment">/// Returns the price for the specified amount of gas.</span>
@@ -1663,7 +1663,7 @@
     <span class="doccomment">///     let failed_result = self.env().ecdsa_recover(&amp;signature, &amp;[0; 32]);</span>
     <span class="doccomment">///     assert!(failed_result.is_err());</span>
     <span class="doccomment">///     if let Err(e) = failed_result {</span>
-    <span class="doccomment">///         assert_eq!(e, ink_env::Error::EcdsaRecoverFailed);</span>
+    <span class="doccomment">///         assert_eq!(e, ink_env::Error::EcdsaRecoveryFailed);</span>
     <span class="doccomment">///     }</span>
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// #</span>
@@ -1678,7 +1678,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">33</span>];
         <span class="ident">ink_env::ecdsa_recover</span>(<span class="ident">signature</span>, <span class="ident">message_hash</span>, <span class="kw-2">&amp;mut</span> <span class="ident">output</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">into</span>())
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::EcdsaRecoverFailed</span>)
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::EcdsaRecoveryFailed</span>)
     }
 }
 </code></pre></div>

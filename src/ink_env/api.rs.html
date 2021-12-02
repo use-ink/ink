@@ -552,17 +552,17 @@
     })
 }
 
-<span class="doccomment">/// Returns the transferred balance for the contract execution.</span>
+<span class="doccomment">/// Returns the transferred value for the contract execution.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Errors</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the returned value cannot be properly decoded.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_balance</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T::Balance</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="ident">T::Balance</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::transferred_balance</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
+        <span class="ident">TypedEnvBackend::transferred_value</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">instance</span>)
     })
 }
 

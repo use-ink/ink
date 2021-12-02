@@ -711,7 +711,7 @@
     <span class="doccomment">/// the respective ink! trait message calls of the called smart contract</span>
     <span class="doccomment">/// instance.</span>
     <span class="doccomment">/// The way these messages are built-up allows the caller to customize message</span>
-    <span class="doccomment">/// parameters such as gas limit and transferred balance.</span>
+    <span class="doccomment">/// parameters such as gas limit and transferred value.</span>
     <span class="kw">fn</span> <span class="ident">generate_ink_trait_impl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">ident</span>();

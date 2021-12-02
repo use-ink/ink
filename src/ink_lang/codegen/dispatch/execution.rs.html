@@ -460,7 +460,7 @@
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
-    <span class="kw">let</span> <span class="ident">transferred</span> <span class="op">=</span> <span class="ident">ink_env::transferred_balance</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>();
+    <span class="kw">let</span> <span class="ident">transferred</span> <span class="op">=</span> <span class="ident">ink_env::transferred_value</span>::<span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>();
     <span class="kw">if</span> <span class="ident">transferred</span> <span class="op">!</span><span class="op">=</span> <span class="op">&lt;</span><span class="ident">E</span> <span class="kw">as</span> <span class="ident">Environment</span><span class="op">&gt;</span><span class="ident">::Balance::from</span>(<span class="number">0_u32</span>) {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError::PaidUnpayableMessage</span>)
     }
