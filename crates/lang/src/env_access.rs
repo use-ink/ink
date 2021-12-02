@@ -443,7 +443,7 @@ where
     /// #
     /// #             #[ink(message)]
     /// #             pub fn some_operation(&self) {
-    /// #                 // …
+    /// #                 // ...
     /// #             }
     /// #         }
     /// #     }

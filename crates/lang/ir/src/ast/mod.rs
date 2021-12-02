@@ -20,7 +20,7 @@
 //! syntax.
 //!
 //! At the time of this writing we currently only use this for the argument
-//! parsing of ink! configuration header `#[ink(env = my::env::Types, …)]`
+//! parsing of ink! configuration header `#[ink(env = my::env::Types, ...)]`
 //! in order to be able to parse identifiers in `name = value` segments for
 //! the `value` part.
 

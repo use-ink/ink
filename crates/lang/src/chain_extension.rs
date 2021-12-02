@@ -14,7 +14,7 @@
 
 /// Trait implemented by chain extensions.
 ///
-/// Allows to use the `self.env().extension().my_chain_extension(…)` syntax.
+/// Allows to use the `self.env().extension().my_chain_extension(...)` syntax.
 ///
 /// # Note
 ///

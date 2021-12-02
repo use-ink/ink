@@ -157,7 +157,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #     #[ink(message)]
 ///         #     pub fn message(&self) {}
 ///         # }
-///         // …
+///         // ...
 ///     }
 ///     ```
 ///
@@ -191,7 +191,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #     #[ink(message)]
 ///         #     pub fn message(&self) {}
 ///         # }
-///         // …
+///         // ...
 ///     }
 ///     ```
 ///
@@ -249,7 +249,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #     #[ink(message)]
 ///         #     pub fn message(&self) {}
 ///         # }
-///         // …
+///         // ...
 ///     }
 ///     ```
 ///
@@ -395,7 +395,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         /// Returns the current value.
-///         #[ink(message, payable)] // …or specify payable inline.
+///         #[ink(message, payable)] // ...or specify payable inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
@@ -435,7 +435,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = 0xFEEDBEEF)] // …or specify selector inline.
+///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
@@ -825,7 +825,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
 ///
-///     // more definitions…
+///     // more definitions
 /// }
 /// ```
 ///
@@ -996,7 +996,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// shown below.
 ///
 /// Note that chain extension methods are accessible through `Self::extension()` or
-/// `self.extension()`. For example as in `Self::extension().read(…)` or `self.extension().read(…)`.
+/// `self.extension()`. For example as in `Self::extension().read(...)` or
+/// `self.extension().read(...)`.
 ///
 /// ```
 /// # use ink_lang as ink;

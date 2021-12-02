@@ -14,7 +14,7 @@
 
 use crate::reflect::ContractEventBase;
 
-/// Allows for `self.env().emit_event(…)` syntax in ink! implementation blocks.
+/// Allows for `self.env().emit_event(...)` syntax in ink! implementation blocks.
 pub trait EmitEvent<C>
 where
     C: ContractEventBase,
