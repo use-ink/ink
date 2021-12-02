@@ -625,6 +625,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
+                    #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
