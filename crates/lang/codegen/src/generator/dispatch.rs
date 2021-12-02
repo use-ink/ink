@@ -72,7 +72,7 @@ impl GenerateCode for Dispatch<'_> {
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructor_spans);
         let message_decoder_type = self.generate_message_decoder_type(&message_spans);
-        let entry_points = self.generate_entry_points(&message_spans);
+        let entry_points = self.generate_entry_points(&constructor_spans, &message_spans);
         quote! {
             #amount_dispatchables
             #contract_dispatchable_messages
@@ -299,7 +299,7 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    /// Generate code for the [`ink_lang::DispatchableMessageInfo`] trait implementations.
     ///
     /// These trait implementations store relevant dispatch information for every
     /// dispatchable ink! constructor of the ink! smart contract.
@@ -412,15 +412,26 @@ impl Dispatch<'_> {
     ///
     /// This generates the `deploy` and `call` functions with which the smart
     /// contract runtime mainly interacts with the ink! smart contract.
-    fn generate_entry_points(&self, message_spans: &[proc_macro2::Span]) -> TokenStream2 {
+    fn generate_entry_points(
+        &self,
+        constructor_spans: &[proc_macro2::Span],
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
+        let any_constructor_accept_payment =
+            self.any_constructor_accepts_payment_expr(constructor_spans);
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
             fn deploy() {
+                if !#any_constructor_accept_payment {
+                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
                     .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
@@ -436,11 +447,11 @@ impl Dispatch<'_> {
             #[cfg(not(test))]
             #[no_mangle]
             fn call() {
-                // TODO: Check if we need to do the smae for constructors
                 if !#any_message_accept_payment {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
+
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
                     .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
