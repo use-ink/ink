@@ -231,7 +231,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoverFailed),
+            Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
 

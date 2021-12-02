@@ -111,7 +111,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::EcdsaRecoverFailed => Self::EcdsaRecoverFailed,
+            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
 }
@@ -285,7 +285,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoverFailed),
+            Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
 
