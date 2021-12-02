@@ -6,7 +6,7 @@ mod contract {
     pub struct Contract {}
 
     impl Contract {
-        #[ink(constructor, payable)]
+        #[ink(constructor, selector = 0)]
         pub fn constructor() -> Self {
             Self {}
         }
@@ -16,4 +16,8 @@ mod contract {
     }
 }
 
-fn main() {}
+use contract::Contract;
+
+fn main() {
+    assert!(!<Contract as ::ink_lang::reflect::DispatchableConstructorInfo<0>>::PAYABLE);
+}
