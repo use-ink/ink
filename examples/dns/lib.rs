@@ -4,10 +4,11 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod dns {
-    #[cfg(not(feature = "ink-as-dependency"))]
-    use ink_storage::lazy::Lazy;
     use ink_storage::{
-        lazy::Mapping,
+        lazy::{
+            Lazy,
+            Mapping,
+        },
         traits::SpreadAllocate,
     };
 
