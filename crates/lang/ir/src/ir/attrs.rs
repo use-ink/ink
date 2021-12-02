@@ -431,7 +431,7 @@ pub enum AttributeArg {
     /// of them. This is useful if such an implementation block does not contain
     /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
     /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
-    /// as ink! implementation blocks thus allowing to access the environment etc..
+    /// as ink! implementation blocks thus allowing to access the environment, etc..
     /// Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,

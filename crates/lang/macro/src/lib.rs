@@ -513,7 +513,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     #[ink(storage)]
 ///     pub struct Erc20 {
 ///         total_supply: Balance,
-///         // more fields…
+///         // more fields...
 ///     }
 ///
 ///     impl Erc20 {
