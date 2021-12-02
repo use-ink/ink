@@ -821,7 +821,7 @@ where
     ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
     ///     assert!(failed_result.is_err());
     ///     if let Err(e) = failed_result {
-    ///         assert_eq!(e, ink_env::Error::EcdsaRecoverFailed);
+    ///         assert_eq!(e, ink_env::Error::EcdsaRecoveryFailed);
     ///     }
     /// }
     /// #
@@ -836,6 +836,6 @@ where
         let mut output = [0; 33];
         ink_env::ecdsa_recover(signature, message_hash, &mut output)
             .map(|_| output.into())
-            .map_err(|_| Error::EcdsaRecoverFailed)
+            .map_err(|_| Error::EcdsaRecoveryFailed)
     }
 }
