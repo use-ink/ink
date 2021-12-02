@@ -73,7 +73,7 @@ where
 /// Configuration for execution of ink! constructor.
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteConstructorConfig {
-    /// Yields `true` if the ink! message accepts payment.
+    /// Yields `true` if the ink! constructor accepts payment.
     ///
     /// # Note
     ///

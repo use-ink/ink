@@ -67,7 +67,7 @@ use syn::spanned::Spanned as _;
 pub struct Constructor {
     /// The underlying Rust method item.
     pub(super) item: syn::ImplItemMethod,
-    /// If the ink! message can receive funds.
+    /// If the ink! constructor can receive funds.
     is_payable: bool,
     /// An optional user provided selector.
     ///
