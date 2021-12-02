@@ -101,11 +101,14 @@ pub fn execute_constructor<Contract, F, R>(
     f: F,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout + ContractRootKey,
+    Contract: SpreadLayout + ContractRootKey + ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
 {
+    if !config.payable {
+        deny_payment::<<Contract as ContractEnv>::Env>()?;
+    }
     if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Deploy);
     }
