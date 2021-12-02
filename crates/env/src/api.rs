@@ -58,12 +58,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn transferred_value<T>() -> T::Balance
+pub fn transferred_balance<T>() -> T::Balance
 where
     T: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::transferred_value::<T>(instance)
+        TypedEnvBackend::transferred_balance::<T>(instance)
     })
 }
 

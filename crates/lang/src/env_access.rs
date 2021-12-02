@@ -129,7 +129,7 @@ where
     /// #[ink(message, payable)]
     /// pub fn fund(&self) {
     ///     let caller = self.env().caller();
-    ///     let value = self.env().transferred_value();
+    ///     let value = self.env().transferred_balance();
     ///     ink_env::debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
     /// }
     /// #
@@ -139,9 +139,9 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::transferred_value`]
-    pub fn transferred_value(self) -> T::Balance {
-        ink_env::transferred_value::<T>()
+    /// For more details visit: [`ink_env::transferred_balance`]
+    pub fn transferred_balance(self) -> T::Balance {
+        ink_env::transferred_balance::<T>()
     }
 
     /// Returns the price for the specified amount of gas.

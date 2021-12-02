@@ -324,7 +324,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
+    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 panic!("could not read `transferred_value` property: {:?}", error)

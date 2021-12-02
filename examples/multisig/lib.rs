@@ -483,7 +483,7 @@ mod multisig {
         ) -> Result<(), Error> {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
-            assert!(self.env().transferred_value() == t.transferred_value);
+            assert!(self.env().transferred_balance() == t.transferred_value);
             let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
                 .callee(t.callee)
                 .gas_limit(t.gas_limit)

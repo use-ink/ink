@@ -63,7 +63,7 @@ pub fn deny_payment<E>() -> Result<(), DispatchError>
 where
     E: Environment,
 {
-    let transferred = ink_env::transferred_value::<E>();
+    let transferred = ink_env::transferred_balance::<E>();
     if transferred != <E as Environment>::Balance::from(0_u32) {
         return Err(DispatchError::PaidUnpayableMessage)
     }
