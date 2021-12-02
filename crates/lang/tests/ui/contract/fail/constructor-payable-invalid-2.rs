@@ -16,4 +16,4 @@ mod contract {
     }
 }
 
-fn main() { }
+fn main() {}
