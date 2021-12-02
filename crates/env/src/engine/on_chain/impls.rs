@@ -357,7 +357,7 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_inplace::<T::AccountId>(ext::caller)
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
         self.get_property_little_endian::<T::Balance>(ext::value_transferred)
     }
 

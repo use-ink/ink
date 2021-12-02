@@ -76,7 +76,7 @@ pub mod proxy {
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .transferred_value(self.env().transferred_balance())
+                .transferred_value(self.env().transferred_value())
                 .fire()
                 .unwrap_or_else(|err| {
                     panic!(
