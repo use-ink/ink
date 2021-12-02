@@ -73,6 +73,14 @@ where
 /// Configuration for execution of ink! constructor.
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteConstructorConfig {
+    /// Yields `true` if the ink! message accepts payment.
+    ///
+    /// # Note
+    ///
+    /// If no ink! constructor within the same ink! smart contract
+    /// is payable then this flag will be `true` since the check
+    /// then is moved before the constructor dispatch as an optimization.
+    pub payable: bool,
     /// Yields `true` if the dynamic storage allocator has been enabled.
     ///
     /// # Note
