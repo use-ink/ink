@@ -54,7 +54,7 @@ impl<K, V> core::fmt::Debug for Mapping<K, V> {
 
 impl<K, V> Mapping<K, V> {
     /// Creates a new empty `Mapping`.
-    pub fn new(offset_key: Key) -> Self {
+    fn new(offset_key: Key) -> Self {
         Self {
             offset_key,
             _marker: Default::default(),

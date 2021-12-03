@@ -129,15 +129,9 @@ mod erc721 {
         /// Creates a new ERC-721 token contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
-                // TODO: How should this be properly initialized?
-                //
-                // Turns out that `token_owner` and `token_approvals` have the same type
-                // signature and they're both Default initialized to ROOT_KEY [0u8; 32]. This
-                // means that they end up operating on the same storage keys :(
-                // token_approvals: Default::default(),
-                contract.token_approvals = Mapping::new([1u8; 32].into());
-            })
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            ink_lang::codegen::initialize_contract(|_| {})
         }
 
         /// Returns the balance of the owner.
@@ -446,10 +440,8 @@ mod erc721 {
                     .expect("Cannot get accounts");
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
-            dbg!(erc721.get_approved(1));
             // Token 1 does not exists.
             assert_eq!(erc721.owner_of(1), None);
-            dbg!(erc721.get_approved(1));
             // Alice does not owns tokens.
             assert_eq!(erc721.balance_of(accounts.alice), 0);
             // Create token Id 1.
@@ -544,9 +536,7 @@ mod erc721 {
             // Create a new contract instance.
             let mut erc721 = Erc721::new();
             // Create token Id 1.
-            dbg!(erc721.get_approved(1));
             assert_eq!(erc721.mint(1), Ok(()));
-            dbg!(erc721.get_approved(1));
             // Token Id 1 is owned by Alice.
             assert_eq!(erc721.owner_of(1), Some(accounts.alice));
             // Approve token Id 1 transfer for Bob on behalf of Alice.
