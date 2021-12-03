@@ -268,9 +268,11 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|_| {
-                Contract::default();
-            })
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            //
+            // Not that `token_id_nonce` will be initialized to its `Default` value.
+            ink_lang::codegen::initialize_contract(|_| {})
         }
 
         /// Create the initial supply for a token.
