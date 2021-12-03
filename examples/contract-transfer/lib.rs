@@ -55,12 +55,9 @@ pub mod give_me {
         pub fn was_it_ten(&self) {
             ink_env::debug_println!(
                 "received payment: {}",
-                self.env().transferred_balance()
+                self.env().transferred_value()
             );
-            assert!(
-                self.env().transferred_balance() == 10,
-                "payment was not ten"
-            );
+            assert!(self.env().transferred_value() == 10, "payment was not ten");
         }
     }
 
@@ -119,16 +116,16 @@ pub mod give_me {
                 0xCA, 0xFE, 0xBA, 0xBE,
             ]));
             data.push_arg(&accounts.eve);
-            let mock_transferred_balance = 10;
+            let mock_transferred_value = 10;
 
             // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_balance` as the value which the contract
+            // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 accounts.eve,
                 contract_id(),
                 1000000,
-                mock_transferred_balance,
+                mock_transferred_value,
                 data,
             );
 
@@ -150,16 +147,16 @@ pub mod give_me {
                 0xCA, 0xFE, 0xBA, 0xBE,
             ]));
             data.push_arg(&accounts.eve);
-            let mock_transferred_balance = 13;
+            let mock_transferred_value = 13;
 
             // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_balance` as the value which the contract
+            // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
                 accounts.eve,
                 contract_id(),
                 1000000,
-                mock_transferred_balance,
+                mock_transferred_value,
                 data,
             );
 
@@ -259,7 +256,7 @@ pub mod give_me {
 
             // when
             // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_balance` as the value which the contract
+            // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             set_sender(accounts.eve);
             ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(10);
@@ -278,7 +275,7 @@ pub mod give_me {
 
             // when
             // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_balance` as the value which the contract
+            // the `mock_transferred_value` as the value which the contract
             // will see as transferred to it.
             set_sender(accounts.eve);
             ink_env::test::set_value_transferred::<ink_env::DefaultEnvironment>(13);

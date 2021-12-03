@@ -108,7 +108,7 @@ impl From<ext::Error> for Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::EcdsaRecoverFailed => Self::EcdsaRecoverFailed,
+            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
 }
@@ -357,7 +357,7 @@ impl TypedEnvBackend for EnvInstance {
         self.get_property_inplace::<T::AccountId>(ext::caller)
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
         self.get_property_little_endian::<T::Balance>(ext::value_transferred)
     }
 

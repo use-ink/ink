@@ -90,7 +90,7 @@ define_error_codes! {
      /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoverFailed = 11,
+    EcdsaRecoveryFailed = 11,
 }
 
 /// The raw return code returned by the host side.
@@ -421,7 +421,7 @@ impl Engine {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoverFailed),
+            Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
 }

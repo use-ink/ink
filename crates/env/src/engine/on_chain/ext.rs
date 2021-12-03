@@ -77,7 +77,7 @@ define_error_codes! {
     /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoverFailed = 11,
+    EcdsaRecoveryFailed = 11,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.

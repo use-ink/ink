@@ -481,7 +481,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         #[ink(message, payable)]
 ///         pub fn fund(&self) {
 ///             let caller = self.env().caller();
-///             let value = self.env().transferred_balance();
+///             let value = self.env().transferred_value();
 ///             debug_println!("thanks for the funding of {:?} from {:?}", value, caller);
 ///         }
 ///     }

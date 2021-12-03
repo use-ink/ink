@@ -231,7 +231,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoverFailed),
+            Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
 
@@ -332,12 +332,12 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
         self.exec_context()
             .expect(UNINITIALIZED_EXEC_CONTEXT)
             .transferred_value::<T>()
             .unwrap_or_else(|error| {
-                panic!("could not read `transferred_balance` property: {:?}", error)
+                panic!("could not read `transferred_value` property: {:?}", error)
             })
     }
 

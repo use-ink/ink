@@ -1,3 +1,10 @@
+# Version 3.0-rc8 (UNRELEASED)
+
+This is the 8th release candidate for ink! 3.0.
+
+## Change
+- Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1063](https://github.com/paritytech/ink/pull/1063).
+
 # Version 3.0-rc7
 
 This is the 7th release candidate for ink! 3.0.
