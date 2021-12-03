@@ -31,9 +31,13 @@ pub enum Error {
     CalleeReverted,
     /// The queried contract storage entry is missing.
     KeyNotFound,
+    /// Deprecated and no longer returned: There is only the minimum balance.
+    _BelowSubsistenceThreshold,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.
     TransferFailed,
+    /// Deprecated and no longer returned: Endowment is no longer required.
+    _EndowmentTooLow,
     /// No code could be found at the supplied code hash.
     CodeNotFound,
     /// The account that was called is no contract, but a plain account.
