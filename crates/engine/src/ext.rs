@@ -86,8 +86,8 @@ define_error_codes! {
     CodeNotFound = 7,
     /// The account that was called is no contract.
     NotCallable = 8,
-     /// The call to `seal_debug_message` had no effect because debug message
-     /// recording was disabled.
+    /// The call to `seal_debug_message` had no effect because debug message
+    /// recording was disabled.
     LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
     EcdsaRecoveryFailed = 11,
