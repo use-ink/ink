@@ -62,18 +62,22 @@ define_error_codes! {
     CalleeReverted = 2,
     /// The passed key does not exist in storage.
     KeyNotFound = 3,
+    /// Deprecated and no longer returned: There is only the minimum balance.
+    _BelowSubsistenceThreshold = 4,
     /// Transfer failed for other not further specified reason. Most probably
     /// reserved or locked balance of the sender that was preventing the transfer.
-    TransferFailed = 4,
+    TransferFailed = 5,
+    /// Deprecated and no longer returned: Endowment is no longer required.
+    _EndowmentTooLow = 6,
     /// No code could be found at the supplied code hash.
-    CodeNotFound = 5,
+    CodeNotFound = 7,
     /// The account that was called is no contract.
-    NotCallable = 6,
+    NotCallable = 8,
      /// The call to `seal_debug_message` had no effect because debug message
     /// recording was disabled.
-    LoggingDisabled = 7,
+    LoggingDisabled = 9,
     /// ECDSA public key recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoverFailed = 8,
+    EcdsaRecoverFailed = 11,
 }
 
 /// Thin-wrapper around a `u32` representing a pointer for Wasm32.
