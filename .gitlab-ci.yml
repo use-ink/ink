@@ -380,19 +380,7 @@ examples-contract-build:
         cargo contract build &&
         popd;
       done
-    - for contract in ${DELEGATOR_SUBCONTRACTS}; do
-        pushd examples/delegator/$contract &&
-        cargo contract build &&
-        popd;
-      done
-
-examples-contract-build-delegator:
-    stage:                         examples
-    <<:                            *docker-env
-    <<:                            *test-refs
-    script:
-        - cargo contract -V
-        - cd examples/delegator/ && ./build-all.sh
+    - cd examples/delegator/ && ./build-all.sh
 
 examples-docs:
   stage:                           examples
