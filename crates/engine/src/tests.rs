@@ -16,11 +16,9 @@ use crate::ext::{
     Engine,
     Error,
 };
-use secp256k1::{
-    recovery::RecoverableSignature,
+use libsecp256k1::{
     Message,
     PublicKey,
-    Secp256k1,
     SecretKey,
 };
 
@@ -238,12 +236,11 @@ fn ecdsa_recovery_test_from_contracts_pallet() {
 fn ecdsa_recovery_with_secp256k1_crate() {
     // given
     let mut engine = Engine::new();
-    let secp = Secp256k1::new();
     let seckey = [
         59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203,
         174, 253, 102, 39, 170, 146, 46, 252, 4, 143, 236, 12, 136, 28,
     ];
-    let pubkey = PublicKey::from_slice(&[
+    let pubkey = PublicKey::parse_compressed(&[
         2, 29, 21, 35, 7, 198, 183, 43, 14, 208, 65, 139, 14, 112, 205, 128, 231, 245,
         41, 91, 141, 134, 245, 114, 45, 63, 82, 19, 251, 210, 57, 79, 54,
     ])
@@ -252,14 +249,12 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let mut msg_hash = [0; 32];
     crate::hashing::sha2_256(b"Some message", &mut msg_hash);
 
-    let msg = Message::from_slice(&msg_hash).expect("message creation failed");
-    let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
-    let recoverable_signature: RecoverableSignature =
-        secp.sign_recoverable(&msg, &seckey);
+    let msg = Message::parse(&msg_hash);
+    let seckey = SecretKey::parse(&seckey).expect("secret key creation failed");
+    let (signature, recovery_id) = libsecp256k1::sign(&msg, &seckey);
 
-    let recovery_id = recoverable_signature.serialize_compact().0.to_i32() as u8;
-    let mut signature = recoverable_signature.serialize_compact().1.to_vec();
-    signature.push(recovery_id);
+    let mut signature = signature.serialize().to_vec();
+    signature.push(recovery_id.serialize());
     let signature_with_recovery_id: [u8; 65] = signature
         .try_into()
         .expect("unable to create signature with recovery id");
@@ -267,9 +262,9 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     // when
     let mut output = [0; 33];
     engine
-        .ecdsa_recover(&signature_with_recovery_id, msg.as_ref(), &mut output)
+        .ecdsa_recover(&signature_with_recovery_id, &msg.serialize(), &mut output)
         .expect("ecdsa recovery failed");
 
     // then
-    assert_eq!(output, pubkey.serialize());
+    assert_eq!(output, pubkey.serialize_compressed());
 }
