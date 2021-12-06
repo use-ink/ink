@@ -64,7 +64,7 @@ jobs:
           wasm-opt --version
           cargo -vV
           cargo contract --version
-          foreach ($example in Get-ChildItem "examples") {
+          foreach ($example in Get-ChildItem "examples\*\") {
               echo "Building example: $example";
               cargo contract build --manifest-path=$example/Cargo.toml;
           }
