@@ -1,0 +1,65 @@
+name: continuous-intergration/windows
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - '.gitlab-ci.yml'
+  push:
+    paths-ignore:
+      - 'README.md'
+      - '.gitlab-ci.yml'
+
+jobs:
+  check:
+    name: build-contract-template
+    strategy:
+      matrix:
+        platform:
+          - windows-latest
+        toolchain:
+          - nightly
+    runs-on: ${{ matrix.platform }}
+    env:
+      RUST_BACKTRACE: full
+    steps:
+
+      - uses: engineerd/configurator@v0.0.6
+        with:
+          name: "wasm-opt.exe"
+          url: "https://github.com/WebAssembly/binaryen/releases/download/version_103/binaryen-version_103-x86_64-windows.tar.gz"
+          pathInArchive: "binaryen-*/bin/wasm-opt.exe"
+
+      - name: Checkout sources & submodules
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Install toolchain
+        id: toolchain
+        uses: actions-rs/toolchain@master
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          components: rust-src
+          override: true
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v1.2.0
+
+      - name: Install `cargo-contract` `master`
+        uses: actions-rs/cargo@v1
+        with:
+            command: install
+            args: --git https://github.com/paritytech/cargo-contract.git
+
+      - name: Build contract template on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        run: |
+          wasm-opt --version
+          cargo -vV
+          cargo contract --version
+          for example in ink/examples/*/; do
+              echo "Building example: $example";
+              cargo contract build --manifest-path=$example/Carg.toml;
+          done;
