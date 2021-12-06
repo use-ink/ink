@@ -28,7 +28,7 @@ jobs:
         with:
           name: "wasm-opt.exe"
           url: "https://github.com/WebAssembly/binaryen/releases/download/version_103/binaryen-version_103-x86_64-windows.tar.gz"
-          pathInArchive: "binaryen-*/bin/wasm-opt.exe"
+          pathInArchive: "binaryen-/bin/wasm-opt.exe"
 
       - name: Checkout sources & submodules
         uses: actions/checkout@master
