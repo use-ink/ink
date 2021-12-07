@@ -66,13 +66,16 @@ jobs:
           done
           cd examples/delegator/ && ./build-all.sh
 
-      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        run: |
-            for example in examples/*/; do
-                echo "Testing example: $example";
-                cargo test --verbose --manifest-path=$example/Cargo.toml;
-            done
-            for contract in ${DELEGATOR_SUBCONTRACTS}; do
-                echo "Testing delegator contract: $contract";
-                cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-            done
+      # For the moment we don't test the examples on MacOS, since it takes a long
+      # time in the CI (about an hour).
+      #
+      # - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      #   run: |
+      #     for example in examples/*/; do
+      #         echo "Testing example: $example";
+      #         cargo test --verbose --manifest-path=$example/Cargo.toml;
+      #     done
+      #     for contract in ${DELEGATOR_SUBCONTRACTS}; do
+      #         echo "Testing delegator contract: $contract";
+      #         cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+      #     done

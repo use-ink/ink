@@ -68,15 +68,18 @@ jobs:
           }
           cd examples/delegator/ && ./build-all.sh
 
-      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        run: |
-            $delegator_subcontracts = "accumulator","adder","subber"
-            foreach ($contract in $delegator_subcontracts) {
-                echo "Testing delegator contract: $contract";
-                cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-            }
-            foreach ($example in Get-ChildItem  -Directory "examples\*") {
-                echo "Testing example: $example";
-                cargo test --verbose --manifest-path=$example/Cargo.toml;
-            }
+      # For the moment we don't test the examples on Windows, since it takes a long
+      # time in the CI (about an hour).
+      #
+      # - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      #   run: |
+      #      $delegator_subcontracts = "accumulator","adder","subber"
+      #      foreach ($contract in $delegator_subcontracts) {
+      #          echo "Testing delegator contract: $contract";
+      #          cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+      #      }
+      #      foreach ($example in Get-ChildItem  -Directory "examples\*") {
+      #          echo "Testing example: $example";
+      #          cargo test --verbose --manifest-path=$example/Cargo.toml;
+      #      }
 
