@@ -1,10 +1,59 @@
-# Version 3.0-rc8 (UNRELEASED)
+# Version 3.0-rc8
 
 This is the 8th release candidate for ink! 3.0.
 
-## Change
+## Compatibility
+
+You need to upgrade to a new version of the `contracts` pallet in order to use this
+ink! release. Specifically we recommend you upgrade to at least the pallet version
+[249dbbb](https://github.com/paritytech/substrate/commit/249dbbba6a1a277a3098c2a5b302645da16451ad)
+(or newer than Jan 17, 2022).
+
+For `substrate-contracts-node` we just issued a new release `v0.5.0`, which has been synchronized
+to the latest Substrate `master` and hence is compatible with this ink! release candidate.
+
+Also, the metadata changed with this release, so you need to have a recent version of
+the user interface you are using. For `polkadot-js/api` and `polkadot-js/apps` the metadata
+changes are supported since Jan 19, 2022.
+
+## Metadata Changes
+There are two metadata changes in this release candidate:
+
+### For messages and constructors: `label: Array` ➔ `name: String`
+
+The messages and constructors exposed by a contract were previously denoted with
+```json
+"name": ["foo", "bar"]
+```
+Now they are instead denoted with
+```json
+"label": "foo"
+```
+For public contract methods that are implemented from a trait, the trait name is prefixed to
+the method name with `::` as the separator. So e.g. `trait_name::get_owner`.
+
+The ink! PR which implemented this is [#923](https://github.com/paritytech/ink/pull/923),
+for the `polkadots-js/api` it was [#4255](https://github.com/paritytech/ink/pull/4255).
+
+### Constructors got a new field: `payable: bool`
+Constructors now have to be specified `payable` if it's intended for them to receive value
+(i.e. tokens). This is a breaking change, beforehand they were by default payable,
+now they are by default non-payable.
+
+The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/pull/1065),
+for the `polkadots-js/api` it was [#4432](https://github.com/paritytech/ink/pull/4432).
+
+## Changed
+- Make constructors non-payable by default, require specifying `payable` explicitly - [#1065](https://github.com/paritytech/ink/pull/1065).
+- Renamed the error code `EcdsaRecoverFailed` to `EcdsaRecoveryFailed` ‒ [#1064](https://github.com/paritytech/ink/pull/1064).
 - Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1063](https://github.com/paritytech/ink/pull/1063).
-- Allow specifying payable constructors - [#1065](https://github.com/paritytech/ink/pull/1065)
+- Removed the error codes `BelowSubsistenceThreshold` and `NewContractNotFunded` ‒ [#1062](https://github.com/paritytech/ink/pull/1062).
+- Updated ink! to use the most recent `contract` pallet API ‒ [#1053](https://github.com/paritytech/ink/pull/1053).
+- Explicitly link against `rlibc` to get non-buggy version of `memcpy` ‒ [#1049](https://github.com/paritytech/ink/pull/1049).
+- Changed the metadata field `label` to `name` for messages and constructors ‒ [#923](https://github.com/paritytech/ink/pull/923) (thanks [@xgreenx](https://github.com/xgreenx)).
+
+## Added
+- Added a `remove` method to the `Mapping` data structure ‒ [#1023](https://github.com/paritytech/ink/pull/1023).
 
 # Version 3.0-rc7
 
