@@ -91,7 +91,7 @@ where
 
     /// Returns the number of elements in the vector, also referred to as its length.
     pub fn len(&self) -> u32 {
-        *self.len
+        *Lazy::try_get(&self.len).unwrap_or(&0)
     }
 
     /// Returns `true` if the vector contains no elements.
