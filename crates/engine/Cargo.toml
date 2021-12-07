@@ -18,7 +18,7 @@ include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 
-sha2 = { version = "0.9" }
+sha2 = { version = "0.10" }
 sha3 = { version = "0.9" }
 blake2 = { version = "0.9" }
 
