@@ -26,6 +26,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       RUST_BACKTRACE: full
+      DELEGATOR_SUBCONTRACTS: "accumulator adder subber"
     steps:
 
       - uses: actions/setup-node@v2
@@ -55,13 +56,27 @@ jobs:
             command: install
             args: --git https://github.com/paritytech/cargo-contract.git
 
+      - name: Output versions
+        run: |
+            wasm-opt --version
+            cargo -vV
+            cargo contract --version
+
       - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         run: |
-          wasm-opt --version
-          cargo -vV
-          cargo contract --version
           for example in examples/*/; do
               echo "Building example: $example";
               cargo contract build --manifest-path=$example/Cargo.toml;
           done
           cd examples/delegator/ && ./build-all.sh
+
+      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        run: |
+            for example in examples/*/; do
+                echo "Testing example: $example";
+                cargo test --verbose --manifest-path=$example/Cargo.toml;
+            done
+            for contract in ${DELEGATOR_SUBCONTRACTS}; do
+                echo "Testing delegator contract: $contract";
+                cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+            done

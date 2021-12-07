@@ -54,11 +54,26 @@ jobs:
             command: install
             args: --git https://github.com/paritytech/cargo-contract.git
 
+      - name: Output versions
+        run: |
+            wasm-opt --version
+            cargo -vV
+            cargo contract --version
+
+      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        run: |
+            $delegator_subcontracts = "accumulator","adder","subber"
+            foreach ($contract in $delegator_subcontracts) {
+                echo "Testing delegator contract: $contract";
+                cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+            }
+            foreach ($example in Get-ChildItem  -Directory "examples\*") {
+                echo "Testing example: $example";
+                cargo test --verbose --manifest-path=$example/Cargo.toml;
+            }
+
       - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         run: |
-          wasm-opt --version
-          cargo -vV
-          cargo contract --version
           foreach ($example in Get-ChildItem  -Directory "examples\*") {
               echo "Building example: $example";
               cargo contract build --manifest-path=$example/Cargo.toml;
