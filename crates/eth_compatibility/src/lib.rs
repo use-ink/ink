@@ -95,7 +95,7 @@ impl ECDSAPublicKey {
     // which is incompatible with Windows.
     // We have https://github.com/paritytech/ink/issues/1068 for removing this
     // dependency altogether.
-    #[cfg(not(target_arch = "windows"))]
+    #[cfg(not(target_os = "windows"))]
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
         use libsecp256k1::PublicKey;
