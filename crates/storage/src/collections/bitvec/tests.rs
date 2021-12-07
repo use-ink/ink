@@ -205,7 +205,17 @@ fn spread_layout_clear_works() {
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
         SpreadLayout::clear_spread(&bv1, &mut KeyPtr::from(root_key));
-        let _ = <StorageBitvec as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+
+        let len_result = std::panic::catch_unwind(|| {
+            let instance = <StorageBitvec as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let _ = crate::Lazy::get(&instance.len);
+        });
+        assert!(len_result.is_err(), "Length shouldn't be in storage at this point.");
+
+        // In practice we wouldn't get the raw `len` field though, so no panic occurs
+        let instance = <StorageBitvec as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert!(instance.is_empty());
+
         Ok(())
     })
     .unwrap()

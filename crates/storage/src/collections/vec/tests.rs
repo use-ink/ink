@@ -375,7 +375,6 @@ fn spread_layout_push_pull_works() -> ink_env::Result<()> {
 }
 
 #[test]
-#[should_panic(expected = "encountered empty storage cell")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let vec1 = vec_from_slice(&[b'a', b'b', b'c', b'd']);
@@ -388,8 +387,17 @@ fn spread_layout_clear_works() {
         // loading another instance from this storage will panic since the
         // vector's length property cannot read a value:
         SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
-        let _ =
-            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+
+        let len_result = std::panic::catch_unwind(|| {
+            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let _ = Lazy::get(&instance.len);
+        });
+        assert!(len_result.is_err(), "Length shouldn't be in storage at this point.");
+
+        // In practice we wouldn't get the raw `len` field though, so no panic occurs
+        let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert!(instance.is_empty());
+
         Ok(())
     })
     .unwrap()
@@ -534,7 +542,6 @@ fn storage_is_cleared_completely_after_pull_lazy() {
 }
 
 #[test]
-#[should_panic(expected = "encountered empty storage cell")]
 #[cfg(not(feature = "ink-experimental-engine"))]
 fn drop_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
@@ -561,8 +568,16 @@ fn drop_works() {
         .expect("used cells must be returned");
         assert_eq!(used_cells, 0);
 
-        let _ =
-            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        let len_result = std::panic::catch_unwind(|| {
+            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let _ = Lazy::get(&instance.len);
+        });
+        assert!(len_result.is_err(), "Length shouldn't be in storage at this point.");
+
+        // In practice we wouldn't get the raw `len` field though, so no panic occurs
+        let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        assert!(instance.is_empty());
+
         Ok(())
     })
     .unwrap()
