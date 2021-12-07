@@ -60,6 +60,14 @@ jobs:
             cargo -vV
             cargo contract --version
 
+      - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        run: |
+          foreach ($example in Get-ChildItem  -Directory "examples\*") {
+              echo "Building example: $example";
+              cargo contract build --manifest-path=$example/Cargo.toml;
+          }
+          cd examples/delegator/ && ./build-all.sh
+
       - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         run: |
             $delegator_subcontracts = "accumulator","adder","subber"
@@ -72,10 +80,3 @@ jobs:
                 cargo test --verbose --manifest-path=$example/Cargo.toml;
             }
 
-      - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
-        run: |
-          foreach ($example in Get-ChildItem  -Directory "examples\*") {
-              echo "Building example: $example";
-              cargo contract build --manifest-path=$example/Cargo.toml;
-          }
-          cd examples/delegator/ && ./build-all.sh
