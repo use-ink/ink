@@ -197,7 +197,7 @@ where
             "cannot push more elements into the storage vector"
         );
         let last_index = self.len();
-        *self.len += 1;
+        Lazy::set(&mut self.len, last_index + 1);
         self.elems.put(last_index, Some(value));
     }
 
@@ -387,7 +387,7 @@ where
             return None
         }
         let last_index = self.len() - 1;
-        *self.len = last_index;
+        Lazy::set(&mut self.len, last_index);
         self.elems.put_get(last_index, None)
     }
 
@@ -404,7 +404,7 @@ where
             return None
         }
         let last_index = self.len() - 1;
-        *self.len = last_index;
+        Lazy::set(&mut self.len, last_index);
         self.elems.put(last_index, None);
         Some(())
     }
@@ -481,7 +481,7 @@ where
         let last_index = self.len() - 1;
         let last = self.elems.put_get(last_index, None);
         self.elems.put(n, last);
-        *self.len = last_index;
+        Lazy::set(&mut self.len, last_index);
         Some(())
     }
 
@@ -513,6 +513,6 @@ where
         for index in 0..self.len() {
             self.elems.put(index, None);
         }
-        *self.len = 0;
+        Lazy::set(&mut self.len, 0);
     }
 }
