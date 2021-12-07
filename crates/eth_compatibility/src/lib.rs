@@ -91,6 +91,11 @@ impl ECDSAPublicKey {
     ///
     /// assert_eq!(pub_key.to_eth_address().as_ref(), EXPECTED_ETH_ADDRESS.as_ref());
     /// ```
+    // We do not include this function on Windows, since it depends on `libsecp256k1`,
+    // which is incompatible with Windows.
+    // We have https://github.com/paritytech/ink/issues/1068 for removing this
+    // dependency altogether.
+    #[cfg(not(target_arch = "windows"))]
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
         use libsecp256k1::PublicKey;
