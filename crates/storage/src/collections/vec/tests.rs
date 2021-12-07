@@ -632,3 +632,82 @@ fn drop_works() {
     })
     .unwrap()
 }
+
+#[test]
+fn spread_allocate_drop_works() -> ink_env::Result<()> {
+    use crate::traits::{
+        KeyPtr,
+        SpreadAllocate,
+    };
+
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let setup_result = std::panic::catch_unwind(|| {
+            let root_key = Key::from([0x42; 32]);
+            let mut key_ptr = KeyPtr::from(root_key);
+            let instance =
+                <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
+            drop(instance)
+        });
+
+        assert!(setup_result.is_ok());
+
+        Ok(())
+    })
+}
+
+#[test]
+fn spread_allocate_push_works() -> ink_env::Result<()> {
+    use crate::traits::{
+        KeyPtr,
+        SpreadAllocate,
+    };
+
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let setup_result = std::panic::catch_unwind(|| {
+            let root_key = Key::from([0x42; 32]);
+            let mut key_ptr = KeyPtr::from(root_key);
+            let mut instance =
+                <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
+            instance.push(1u8);
+            dbg!(&instance);
+        });
+
+        assert!(setup_result.is_ok());
+
+        Ok(())
+    })
+}
+
+#[test]
+fn spread_allocate_vector_works() -> ink_env::Result<()> {
+    use crate::traits::{
+        KeyPtr,
+        SpreadAllocate,
+    };
+
+    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
+        let root_key = Key::from([0x42; 32]);
+        let mut key_ptr = KeyPtr::from(root_key);
+        let mut instance =
+        <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
+
+        instance.push(1);
+        assert_eq!(instance.pop(), Some(1));
+
+        instance.push(2);
+        assert!(instance.pop_drop().is_some());
+
+        instance.push(3);
+        assert!(instance.swap_remove_drop(0).is_some());
+
+        instance.push(4);
+        assert!(instance.set(0, 5).is_ok());
+
+        instance.clear();
+        assert!(instance.is_empty());
+
+        dbg!(&instance);
+
+        Ok(())
+    })
+}
