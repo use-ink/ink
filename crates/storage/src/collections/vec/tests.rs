@@ -389,13 +389,19 @@ fn spread_layout_clear_works() {
         SpreadLayout::clear_spread(&vec1, &mut KeyPtr::from(root_key));
 
         let len_result = std::panic::catch_unwind(|| {
-            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             let _ = Lazy::get(&instance.len);
         });
-        assert!(len_result.is_err(), "Length shouldn't be in storage at this point.");
+        assert!(
+            len_result.is_err(),
+            "Length shouldn't be in storage at this point."
+        );
 
         // In practice we wouldn't get the raw `len` field though, so no panic occurs
-        let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        let instance =
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert!(instance.is_empty());
 
         Ok(())
@@ -569,13 +575,19 @@ fn drop_works() {
         assert_eq!(used_cells, 0);
 
         let len_result = std::panic::catch_unwind(|| {
-            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+            let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(
+                &mut KeyPtr::from(root_key),
+            );
             let _ = Lazy::get(&instance.len);
         });
-        assert!(len_result.is_err(), "Length shouldn't be in storage at this point.");
+        assert!(
+            len_result.is_err(),
+            "Length shouldn't be in storage at this point."
+        );
 
         // In practice we wouldn't get the raw `len` field though, so no panic occurs
-        let instance = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        let instance =
+            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         assert!(instance.is_empty());
 
         Ok(())
@@ -704,7 +716,7 @@ fn spread_allocate_vector_works() -> ink_env::Result<()> {
         let root_key = Key::from([0x42; 32]);
         let mut key_ptr = KeyPtr::from(root_key);
         let mut instance =
-        <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
+            <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
 
         instance.push(1);
         assert_eq!(instance.pop(), Some(1));
