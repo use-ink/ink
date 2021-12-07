@@ -157,6 +157,17 @@ where
         lazy.cell.get().expect("encountered empty storage cell")
     }
 
+    /// Attempts to load a shared reference to a value in storage.
+    ///
+    /// If there is no value to load `None` is returned.
+    ///
+    /// This method may be useful in situations where a data structure has been
+    /// initialized with `SpreadAllocate`, but nothing has been written to its
+    /// storage yet.
+    pub fn try_get(lazy: &Self) -> Option<&T> {
+        lazy.cell.get()
+    }
+
     /// Returns an exclusive reference to the lazily loaded value.
     ///
     /// # Note
