@@ -38,9 +38,7 @@ pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
 /// Conduct the KECCAK 256-bit hash and place the result into `output`.
 pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     use sha3::{
-        digest::{
-            generic_array::GenericArray,
-        },
+        digest::generic_array::GenericArray,
         Digest as _,
     };
     let mut hasher = sha3::Keccak256::new();
