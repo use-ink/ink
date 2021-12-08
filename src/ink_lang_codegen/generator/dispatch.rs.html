@@ -828,13 +828,6 @@
 <span id="827">827</span>
 <span id="828">828</span>
 <span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -934,8 +927,7 @@
         <span class="self">self</span>.<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
             .<span class="ident">count</span>()
     }
 
@@ -946,8 +938,7 @@
         <span class="self">self</span>.<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             .<span class="ident">count</span>()
     }
 
@@ -956,8 +947,7 @@
         <span class="self">self</span>.<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             .<span class="ident">position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">has_wildcard_selector</span>())
     }
 
@@ -966,8 +956,7 @@
         <span class="self">self</span>.<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
             .<span class="ident">position</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">has_wildcard_selector</span>())
     }
 
@@ -1003,8 +992,7 @@
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="ident">message_spans</span>.<span class="ident">push</span>(<span class="ident">span</span>);
@@ -1070,8 +1058,7 @@
             .<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
                 <span class="ident">constructor_spans</span>.<span class="ident">push</span>(<span class="ident">span</span>);
@@ -1106,8 +1093,7 @@
             .<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">constructor_span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">constructor_ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
@@ -1146,8 +1132,7 @@
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">message_span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
@@ -1270,6 +1255,7 @@
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">test</span>))]</span>
             <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::nonminimal_bool</span>)]</span>
             <span class="kw">fn</span> <span class="ident">call</span>() {
                 <span class="kw">if</span> <span class="op">!</span>#<span class="ident">any_message_accept_payment</span> {
                     <span class="ident">::ink_lang::codegen::deny_payment</span>::<span class="op">&lt;</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()

@@ -880,7 +880,6 @@
 <span id="879">879</span>
 <span id="880">880</span>
 <span id="881">881</span>
-<span id="882">882</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1124,8 +1123,7 @@
             <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">at</span> <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">get_ptr</span>().<span class="ident">as_mut</span>() },
             <span class="prelude-val">Some</span>(<span class="ident">StorageEntry::new</span>(<span class="ident">new_value</span>, <span class="ident">EntryState::Mutated</span>)),
         )
-        .<span class="ident">map</span>(<span class="ident">StorageEntry::into_value</span>)
-        .<span class="ident">flatten</span>()
+        .<span class="ident">and_then</span>(<span class="ident">StorageEntry::into_value</span>)
     }
 
     <span class="doccomment">/// Inserts a new entry into the cache and returns an exclusive reference to it.</span>

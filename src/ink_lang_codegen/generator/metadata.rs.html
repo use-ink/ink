@@ -437,8 +437,6 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -549,8 +547,7 @@
         <span class="self">self</span>.<span class="ident">contract</span>
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_constructors</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">constructor</span><span class="op">|</span> <span class="ident"><span class="self">Self</span>::generate_constructor</span>(<span class="ident">constructor</span>))
     }
 
@@ -641,8 +638,7 @@
             .<span class="ident">module</span>()
             .<span class="ident">impls</span>()
             .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">trait_path</span>().<span class="ident">is_none</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
-            .<span class="ident">flatten</span>()
+            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">item_impl</span><span class="op">|</span> <span class="ident">item_impl</span>.<span class="ident">iter_messages</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">message</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
                 <span class="kw">let</span> <span class="ident">docs</span> <span class="op">=</span> <span class="ident">message</span>
