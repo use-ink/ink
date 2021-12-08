@@ -126,8 +126,7 @@ impl ItemImpls<'_> {
             .contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|constructor| {
                 let constructor_span = constructor.span();
                 let constructor_inputs = constructor.inputs().map(|input| {
@@ -147,8 +146,7 @@ impl ItemImpls<'_> {
             .contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .map(|message| {
                 let message_span = message.span();
                 let message_inputs = message.inputs().map(|input| {
