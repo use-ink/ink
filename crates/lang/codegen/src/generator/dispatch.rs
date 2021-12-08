@@ -433,6 +433,7 @@ impl Dispatch<'_> {
 
             #[cfg(not(test))]
             #[no_mangle]
+            #[allow(clippy::nonminimal_bool)]
             fn call() {
                 if !#any_message_accept_payment {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
