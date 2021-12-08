@@ -40,7 +40,6 @@ pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
     use sha3::{
         digest::{
             generic_array::GenericArray,
-            FixedOutput as _,
         },
         Digest as _,
     };
