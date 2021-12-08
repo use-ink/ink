@@ -54,7 +54,6 @@ pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
     use sha2::{
         digest::{
             generic_array::GenericArray,
-            FixedOutput as _,
         },
         Digest as _,
     };
