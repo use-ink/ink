@@ -52,10 +52,7 @@ pub fn keccak_256(input: &[u8], output: &mut [u8; 32]) {
 /// Conduct the SHA-2 256-bit hash and place the result into `output`.
 pub fn sha2_256(input: &[u8], output: &mut [u8; 32]) {
     use ::sha2::{
-        digest::{
-            generic_array::GenericArray,
-            FixedOutput as _,
-        },
+        digest::generic_array::GenericArray,
         Digest as _,
     };
     let mut hasher = ::sha2::Sha256::new();
