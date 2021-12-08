@@ -228,8 +228,7 @@ impl InkAttribute {
     {
         let args = attrs
             .into_iter()
-            .map(|attr| attr.args)
-            .flatten()
+            .flat_map(|attr| attr.args)
             .collect::<Vec<_>>();
         if args.is_empty() {
             return Err(format_err!(
