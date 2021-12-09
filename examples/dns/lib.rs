@@ -85,7 +85,9 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            ink_lang::initialize_contract(|contract: &mut Self| {
                 contract.default_address = Default::default();
             })
         }
