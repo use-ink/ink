@@ -108,8 +108,7 @@ impl Metadata<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|constructor| Self::generate_constructor(constructor))
     }
 
@@ -200,8 +199,7 @@ impl Metadata<'_> {
             .module()
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .map(|message| {
                 let span = message.span();
                 let docs = message
@@ -384,13 +382,15 @@ mod tests {
         assert_eq!(
             extract_doc_attributes(&[syn::parse_quote!(
                 /**
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  */
             )]),
             vec![r"
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  "
             .to_string()],
         );
