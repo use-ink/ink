@@ -229,8 +229,10 @@ fn spread_layout_clear_works() {
         // loading another instance from this storage will panic since the
         // heap's length property cannot read a value:
         SpreadLayout::clear_spread(&heap1, &mut KeyPtr::from(root_key));
-        let _ =
+        let instance =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        instance.len();
+
         Ok(())
     })
     .unwrap()
@@ -266,8 +268,12 @@ fn drop_works() {
         .expect("Used cells must be returned");
         assert_eq!(used_cells, 0);
 
-        let _ =
+        // We try and grab the length from storage, but it doesn't exist anymore
+        // so this will panic
+        let instance =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        instance.len();
+
         Ok(())
     })
     .unwrap()
@@ -300,8 +306,12 @@ fn drop_works() {
         .expect("Used cells must be returned");
         assert_eq!(used_cells, 0);
 
-        let _ =
+        // We try and grab the length from storage, but it doesn't exist anymore
+        // so this will panic
+        let instance =
             <BinaryHeap<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
+        instance.len();
+
         Ok(())
     })
     .unwrap()

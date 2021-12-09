@@ -138,7 +138,7 @@ fn spread_layout_push_pull_works() {
 }
 
 #[test]
-#[should_panic(expected = "encountered empty storage cell")]
+#[should_panic(expected = "index is out of bounds")]
 fn spread_layout_clear_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let default = filled_bitstash();
@@ -155,9 +155,9 @@ fn spread_layout_clear_works() {
             <BitStash as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
         // We have to prevent calling its destructor since that would also panic but
         // in an uncontrollable way.
-        let mut invalid = core::mem::ManuallyDrop::new(invalid);
+        let invalid = core::mem::ManuallyDrop::new(invalid);
         // Now interact with invalid instance.
-        let _ = invalid.put();
+        invalid.get(0);
         Ok(())
     })
     .unwrap()

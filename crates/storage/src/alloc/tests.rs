@@ -158,7 +158,7 @@ fn spread_pull_push_works() {
 }
 
 #[test]
-#[should_panic(expected = "encountered empty storage cell")]
+#[should_panic(expected = "index is out of bounds")]
 fn spread_clear_works() {
     run_default_test(|| {
         let alloc = spread_layout_alloc_setup();
