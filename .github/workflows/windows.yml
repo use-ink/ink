@@ -1,6 +1,10 @@
 name: continuous-intergration/windows
 
 on:
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - '.gitlab-ci.yml'
   push:
     branches:
       - master
