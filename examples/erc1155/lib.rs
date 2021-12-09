@@ -337,7 +337,7 @@ mod erc1155 {
         //
         // # Panics
         //
-        // If `from` does not hold any amount any `token_id` tokens.
+        // If `from` does not hold any `token_id` tokens.
         fn perform_transfer(
             &mut self,
             from: AccountId,
