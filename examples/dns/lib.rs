@@ -4,11 +4,12 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod dns {
-    #[cfg(not(feature = "ink-as-dependency"))]
     use ink_storage::{
-        collections::hashmap::Entry,
-        collections::HashMap as StorageHashMap,
-        lazy::Lazy,
+        lazy::{
+            Lazy,
+            Mapping,
+        },
+        traits::SpreadAllocate,
     };
 
     /// Emitted whenever a new name is being registered.
@@ -60,12 +61,12 @@ mod dns {
     /// to facilitate transfers, voting and DApp-related operations instead
     /// of resorting to long IP addresses that are hard to remember.
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct DomainNameService {
         /// A hashmap to store all name to addresses mapping.
-        name_to_address: StorageHashMap<Hash, AccountId>,
+        name_to_address: Mapping<Hash, AccountId>,
         /// A hashmap to store all name to owners mapping.
-        name_to_owner: StorageHashMap<Hash, AccountId>,
+        name_to_owner: Mapping<Hash, AccountId>,
         /// The default address.
         default_address: Lazy<AccountId>,
     }
@@ -87,21 +88,22 @@ mod dns {
         /// Creates a new domain name service contract.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Default::default()
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                contract.default_address = Default::default();
+            })
         }
 
         /// Register specific name with caller as owner.
         #[ink(message)]
         pub fn register(&mut self, name: Hash) -> Result<()> {
             let caller = self.env().caller();
-            let entry = self.name_to_owner.entry(name);
-            match entry {
-                Entry::Occupied(_) => return Err(Error::NameAlreadyExists),
-                Entry::Vacant(vacant) => {
-                    vacant.insert(caller);
-                    self.env().emit_event(Register { name, from: caller });
-                }
+            if self.name_to_owner.get(&name).is_some() {
+                return Err(Error::NameAlreadyExists)
             }
+
+            self.name_to_owner.insert(&name, &caller);
+            self.env().emit_event(Register { name, from: caller });
+
             Ok(())
         }
 
@@ -113,7 +115,10 @@ mod dns {
             if caller != owner {
                 return Err(Error::CallerIsNotOwner)
             }
-            let old_address = self.name_to_address.insert(name, new_address);
+
+            let old_address = self.name_to_address.get(name);
+            self.name_to_address.insert(&name, &new_address);
+
             self.env().emit_event(SetAddress {
                 name,
                 from: caller,
@@ -131,13 +136,17 @@ mod dns {
             if caller != owner {
                 return Err(Error::CallerIsNotOwner)
             }
-            let old_owner = self.name_to_owner.insert(name, to);
+
+            let old_owner = self.name_to_owner.get(&name);
+            self.name_to_owner.insert(&name, &to);
+
             self.env().emit_event(Transfer {
                 name,
                 from: caller,
                 old_owner,
                 new_owner: to,
             });
+
             Ok(())
         }
 
@@ -149,18 +158,16 @@ mod dns {
 
         /// Returns the owner given the hash or the default address.
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
-            *self
-                .name_to_owner
+            self.name_to_owner
                 .get(&name)
-                .unwrap_or(&*self.default_address)
+                .unwrap_or(*self.default_address)
         }
 
         /// Returns the address given the hash or the default address.
         fn get_address_or_default(&self, name: Hash) -> AccountId {
-            *self
-                .name_to_address
+            self.name_to_address
                 .get(&name)
-                .unwrap_or(&*self.default_address)
+                .unwrap_or(*self.default_address)
         }
     }
 
