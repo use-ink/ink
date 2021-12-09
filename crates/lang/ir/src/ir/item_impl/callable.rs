@@ -221,7 +221,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
+/// …then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
 /// the composed selector.
 ///
 /// ## Inherent implementation block
@@ -235,7 +235,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -251,7 +251,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -267,7 +267,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("::my_full::long_path::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -284,7 +284,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("my_namespace::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```

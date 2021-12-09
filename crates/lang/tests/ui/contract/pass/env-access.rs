@@ -16,7 +16,7 @@ mod contract {
             let _ = Self::env().gas_left();
             let _ = Self::env().minimum_balance();
             let _ = Self::env().random(&[]);
-            let _ = Self::env().transferred_balance();
+            let _ = Self::env().transferred_value();
             let _ = Self::env().weight_to_fee(0);
             Self {}
         }
@@ -31,7 +31,7 @@ mod contract {
             let _ = self.env().gas_left();
             let _ = self.env().minimum_balance();
             let _ = self.env().random(&[]);
-            let _ = self.env().transferred_balance();
+            let _ = self.env().transferred_value();
             let _ = self.env().weight_to_fee(0);
         }
     }

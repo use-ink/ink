@@ -111,7 +111,7 @@ impl From<ext::Error> for crate::Error {
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,
-            ext::Error::EcdsaRecoverFailed => Self::EcdsaRecoverFailed,
+            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
         }
     }
 }
@@ -285,7 +285,7 @@ impl EnvBackend for EnvInstance {
                 *output = pub_key.serialize();
                 Ok(())
             }
-            Err(_) => Err(Error::EcdsaRecoverFailed),
+            Err(_) => Err(Error::EcdsaRecoveryFailed),
         }
     }
 
@@ -324,7 +324,7 @@ impl TypedEnvBackend for EnvInstance {
             })
     }
 
-    fn transferred_balance<T: Environment>(&mut self) -> T::Balance {
+    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
         self.get_property::<T::Balance>(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 panic!("could not read `transferred_value` property: {:?}", error)

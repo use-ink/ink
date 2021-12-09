@@ -307,7 +307,7 @@ impl CallBuilder<'_> {
     /// the respective ink! trait message calls of the called smart contract
     /// instance.
     /// The way these messages are built-up allows the caller to customize message
-    /// parameters such as gas limit and transferred balance.
+    /// parameters such as gas limit and transferred value.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
         let trait_ident = self.trait_def.trait_def.item().ident();

@@ -50,7 +50,7 @@ pub enum Error {
     /// recording was disabled.
     LoggingDisabled,
     /// ECDSA pubkey recovery failed. Most probably wrong recovery id or signature.
-    EcdsaRecoverFailed,
+    EcdsaRecoveryFailed,
 }
 
 /// A result of environmental operations.

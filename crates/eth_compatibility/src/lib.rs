@@ -91,14 +91,19 @@ impl ECDSAPublicKey {
     ///
     /// assert_eq!(pub_key.to_eth_address().as_ref(), EXPECTED_ETH_ADDRESS.as_ref());
     /// ```
+    // We do not include this function on Windows, since it depends on `libsecp256k1`,
+    // which is incompatible with Windows.
+    // We have https://github.com/paritytech/ink/issues/1068 for removing this
+    // dependency altogether.
+    #[cfg(not(target_os = "windows"))]
     pub fn to_eth_address(&self) -> EthereumAddress {
         use ink_env::hash;
-        use secp256k1::PublicKey;
+        use libsecp256k1::PublicKey;
 
         // Transform compressed public key into uncompressed.
-        let pub_key = PublicKey::from_slice(&self.0)
+        let pub_key = PublicKey::parse_compressed(&self.0)
             .expect("Unable to parse the compressed ECDSA public key");
-        let uncompressed = pub_key.serialize_uncompressed();
+        let uncompressed = pub_key.serialize();
 
         // Hash the uncompressed public key by Keccak256 algorithm.
         let mut hash = <hash::Keccak256 as hash::HashOutput>::Type::default();
