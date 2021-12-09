@@ -48,7 +48,7 @@ impl GenerateCode for ItemImpls<'_> {
         let trait_message_property_guards = self.generate_trait_message_property_guards();
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
-                // Required to make `self.env().emit_event(..)` syntax available.
+                // Required to make `self.env().emit_event(...)` syntax available.
                 quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
         quote! {
