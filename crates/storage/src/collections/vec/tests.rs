@@ -672,6 +672,9 @@ fn drop_works() {
     .unwrap()
 }
 
+// We explicitly test that `Drop` works here since there was a bug in which a `StorageVec`
+// initialized with `SpreadAllocate` would panic on `Drop` due to an empty storage cell
+// for its length.
 #[test]
 fn spread_allocate_drop_works() -> ink_env::Result<()> {
     use crate::traits::{
@@ -686,29 +689,6 @@ fn spread_allocate_drop_works() -> ink_env::Result<()> {
             let instance =
                 <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
             drop(instance)
-        });
-
-        assert!(setup_result.is_ok());
-
-        Ok(())
-    })
-}
-
-#[test]
-fn spread_allocate_push_works() -> ink_env::Result<()> {
-    use crate::traits::{
-        KeyPtr,
-        SpreadAllocate,
-    };
-
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let setup_result = std::panic::catch_unwind(|| {
-            let root_key = Key::from([0x42; 32]);
-            let mut key_ptr = KeyPtr::from(root_key);
-            let mut instance =
-                <StorageVec<u8> as SpreadAllocate>::allocate_spread(&mut key_ptr);
-            instance.push(1u8);
-            dbg!(&instance);
         });
 
         assert!(setup_result.is_ok());
@@ -744,8 +724,6 @@ fn spread_allocate_vector_works() -> ink_env::Result<()> {
 
         instance.clear();
         assert!(instance.is_empty());
-
-        dbg!(&instance);
 
         Ok(())
     })
