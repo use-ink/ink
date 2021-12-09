@@ -776,7 +776,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "expecteded `u32` integer type for `N` in #[ink(extension = N)]",
+            error: "expected `u32` integer type for `N` in #[ink(extension = N)]",
             pub trait MyChainExtension {
                 #[ink(extension = "Hello, World!")]
                 fn has_self_receiver();
