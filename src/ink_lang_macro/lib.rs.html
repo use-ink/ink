@@ -1145,6 +1145,7 @@
 <span id="1144">1144</span>
 <span id="1145">1145</span>
 <span id="1146">1146</span>
+<span id="1147">1147</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1542,7 +1543,7 @@
 <span class="doccomment">///         }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///         /// Returns the current value.</span>
-<span class="doccomment">///         #[ink(message, payable)] // ... or specify payable inline.</span>
+<span class="doccomment">///         #[ink(message, payable)] // ...or specify payable inline.</span>
 <span class="doccomment">///         pub fn get(&amp;self) -&gt; bool {</span>
 <span class="doccomment">///             self.value</span>
 <span class="doccomment">///         }</span>
@@ -1582,7 +1583,7 @@
 <span class="doccomment">///         # }</span>
 <span class="doccomment">///         #</span>
 <span class="doccomment">///         /// Returns the current value.</span>
-<span class="doccomment">///         #[ink(message, selector = 0xFEEDBEEF)] // ... or specify selector inline.</span>
+<span class="doccomment">///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.</span>
 <span class="doccomment">///         pub fn get(&amp;self) -&gt; bool {</span>
 <span class="doccomment">///             self.value</span>
 <span class="doccomment">///         }</span>
@@ -1660,7 +1661,7 @@
 <span class="doccomment">///     #[ink(storage)]</span>
 <span class="doccomment">///     pub struct Erc20 {</span>
 <span class="doccomment">///         total_supply: Balance,</span>
-<span class="doccomment">///         // more fields ...</span>
+<span class="doccomment">///         // more fields...</span>
 <span class="doccomment">///     }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     impl Erc20 {</span>
@@ -1754,7 +1755,7 @@
 <span class="doccomment">///     #[ink(message)]</span>
 <span class="doccomment">///     fn transfer(&amp;mut self, amount: Balance, to: AccountId) -&gt; bool;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     // etc ...</span>
+<span class="doccomment">///     // etc.</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
@@ -1901,7 +1902,7 @@
 <span class="doccomment">/// fn key_access_for_account(key: &amp;[u8], account: &amp;[u8]) -&gt; Access;</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// ... or as multiple stand alone ink! attributes applied to the same item:</span>
+<span class="doccomment">/// …or as multiple stand alone ink! attributes applied to the same item:</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # type Access = i32;</span>
 <span class="doccomment">/// # use ink_lang as ink;</span>
@@ -1972,7 +1973,7 @@
 <span class="doccomment">/// pub trait MyChainExtension {</span>
 <span class="doccomment">///     type ErrorCode = MyErrorCode;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     // more definitions ...</span>
+<span class="doccomment">///     // more definitions</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
@@ -2143,7 +2144,8 @@
 <span class="doccomment">/// shown below.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note that chain extension methods are accessible through `Self::extension()` or</span>
-<span class="doccomment">/// `self.extension()`. For example as in `Self::extension().read(..)` or `self.extension().read(..)`.</span>
+<span class="doccomment">/// `self.extension()`. For example as in `Self::extension().read(...)` or</span>
+<span class="doccomment">/// `self.extension().read(...)`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use ink_lang as ink;</span>

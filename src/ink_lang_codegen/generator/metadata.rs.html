@@ -437,6 +437,8 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -821,13 +823,15 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">extract_doc_attributes</span>(<span class="kw-2">&amp;</span>[<span class="macro">syn::parse_quote!</span>(
                 <span class="doccomment">/**
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  */</span>
             )]),
             <span class="macro">vec!</span>[<span class="string">r&quot;
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  &quot;</span>
             .<span class="ident">to_string</span>()],
         );

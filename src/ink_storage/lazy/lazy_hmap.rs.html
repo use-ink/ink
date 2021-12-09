@@ -1464,7 +1464,7 @@
 <span class="doccomment">/// by querying the cache another time -- but this would be an additional</span>
 <span class="doccomment">/// search. So what we do instead is to save a reference to the inserted</span>
 <span class="doccomment">/// cache value in the `Occupied`. As a consequence all Entry API operations</span>
-<span class="doccomment">/// (`get`, `remove`, ...) need to distinguish both cases.</span>
+<span class="doccomment">/// (`get`, `remove`, …) need to distinguish both cases.</span>
 <span class="kw">enum</span> <span class="ident">EntryOrMutableValue</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="doccomment">/// An occupied `EntryMap` entry that holds a value.</span>
     <span class="doccomment">/// This represents the case where the key was in the cache.</span>

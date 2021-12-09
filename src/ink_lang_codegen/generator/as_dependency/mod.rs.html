@@ -122,7 +122,7 @@
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">quote::quote</span>;
 
-<span class="doccomment">/// Generates `#[cfg(..)]` code to guard against compilation under `ink-as-dependency`.</span>
+<span class="doccomment">/// Generates `#[cfg(...)]` code to guard against compilation under `ink-as-dependency`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">From</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NotAsDependencyCfg</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">contract</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ir::Contract</span>,
@@ -139,7 +139,7 @@
     }
 }
 
-<span class="doccomment">/// Generates `#[cfg(..)]` code to only allow compilation when `ink-as-dependency` is enabled.</span>
+<span class="doccomment">/// Generates `#[cfg(...)]` code to only allow compilation when `ink-as-dependency` is enabled.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The `ink-as-dependency` can be enabled mainly by 2 different ways:</span>
 <span class="doccomment">///</span>

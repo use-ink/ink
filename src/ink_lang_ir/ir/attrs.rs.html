@@ -1582,8 +1582,6 @@
 <span id="1581">1581</span>
 <span id="1582">1582</span>
 <span id="1583">1583</span>
-<span id="1584">1584</span>
-<span id="1585">1585</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1796,8 +1794,8 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Converts a sequence of `#[ink(..)]` attributes into a single flattened</span>
-    <span class="doccomment">/// `#[ink(..)]` attribute that contains all of the input arguments.</span>
+    <span class="doccomment">/// Converts a sequence of `#[ink(...)]` attributes into a single flattened</span>
+    <span class="doccomment">/// `#[ink(...)]` attribute that contains all of the input arguments.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
@@ -2016,8 +2014,8 @@
     <span class="doccomment">/// of them. This is useful if such an implementation block does not contain</span>
     <span class="doccomment">/// any other ink! attributes, so it would be flagged by ink! as a Rust item.</span>
     <span class="doccomment">/// Adding `#[ink(impl)]` on such implementation blocks makes them treated</span>
-    <span class="doccomment">/// as ink! implementation blocks thus allowing to access the environment</span>
-    <span class="doccomment">/// etc. Note that ink! messages and constructors still need to be explicitly</span>
+    <span class="doccomment">/// as ink! implementation blocks thus allowing to access the environment, etc..</span>
+    <span class="doccomment">/// Note that ink! messages and constructors still need to be explicitly</span>
     <span class="doccomment">/// flagged as such.</span>
     <span class="ident">Implementation</span>,
     <span class="doccomment">/// `#[ink(extension = N: u32)]`</span>
@@ -2159,7 +2157,7 @@
 }
 
 <span class="doccomment">/// Returns `true` if the given iterator yields at least one attribute of the form</span>
-<span class="doccomment">/// `#[ink(..)]` or `#[ink]`.</span>
+<span class="doccomment">/// `#[ink(...)]` or `#[ink]`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
@@ -2521,7 +2519,7 @@
                                     <span class="ident">arg</span>: <span class="ident">AttributeArg::Selector</span>(<span class="ident">SelectorOrWildcard::UserProvided</span>(<span class="ident">selector</span>)),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;namespace&quot;</span>) {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Str</span>(<span class="ident">lit_str</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
@@ -2555,7 +2553,7 @@
                                     ),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;handle_status&quot;</span>) {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
@@ -2565,7 +2563,7 @@
                                     <span class="ident">arg</span>: <span class="ident">AttributeArg::HandleStatus</span>(<span class="ident">value</span>),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expected `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>))
                         }
                         <span class="kw">if</span> <span class="ident">name_value</span>.<span class="ident">path</span>.<span class="ident">is_ident</span>(<span class="string">&quot;returns_result&quot;</span>) {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">syn::Lit::Bool</span>(<span class="ident">lit_bool</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">name_value</span>.<span class="ident">lit</span> {
@@ -2575,7 +2573,7 @@
                                     <span class="ident">arg</span>: <span class="ident">AttributeArg::ReturnsResult</span>(<span class="ident">value</span>),
                                 })
                             }
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>))
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err!</span>(<span class="ident">name_value</span>, <span class="string">&quot;expected `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>))
                         }
                         <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                             <span class="ident">meta</span>,
@@ -2851,7 +2849,7 @@
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">selector</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]&quot;</span>),
         );
     }
 
@@ -2918,7 +2916,7 @@
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">extension</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `u32` integer type for `N` in #[ink(extension = N)]&quot;</span>),
         );
     }
 
@@ -2996,9 +2994,7 @@
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">handle_status</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
-            <span class="prelude-val">Err</span>(
-                <span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>,
-            ),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `bool` value type for `flag` in #[ink(handle_status = flag)]&quot;</span>),
         );
     }
 
@@ -3042,7 +3038,7 @@
             <span class="macro">syn::parse_quote!</span> {
                 <span class="attribute">#[<span class="ident">ink</span>(<span class="ident">returns_result</span> <span class="op">=</span> <span class="string">&quot;string&quot;</span>)]</span>
             },
-            <span class="prelude-val">Err</span>(<span class="string">&quot;expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>),
+            <span class="prelude-val">Err</span>(<span class="string">&quot;expected `bool` value type for `flag` in #[ink(returns_result = flag)]&quot;</span>),
         );
     }
 
