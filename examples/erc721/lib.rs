@@ -77,7 +77,7 @@ mod erc721 {
         /// Mapping from owner to number of owned token.
         owned_tokens_count: Mapping<AccountId, u32>,
         /// Mapping from owner to operator approvals.
-        operator_approvals: Mapping<(AccountId, AccountId), bool>,
+        operator_approvals: Mapping<(AccountId, AccountId), ()>,
     }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -338,7 +338,7 @@ mod erc721 {
             });
 
             if approved {
-                self.operator_approvals.insert((&caller, &to), &approved);
+                self.operator_approvals.insert((&caller, &to), &());
             } else {
                 self.operator_approvals.remove((&caller, &to));
             }
