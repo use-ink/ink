@@ -16,7 +16,12 @@ include = ["Cargo.toml", "src/**/*.rs", "/README.md", "/LICENSE"]
 
 [dependencies]
 ink_env = { version = "3.0.0-rc7", path = "../env", default-features = false }
-secp256k1 = { version = "0.20.3", default-features = false }
+
+[target.'cfg(not(target_os = "windows"))'.dependencies]
+# We do not include `libsecp256k1` on Windows, since it's incompatible.
+# We have https://github.com/paritytech/ink/issues/1068 for removing
+# this dependency altogether.
+libsecp256k1 = { version = "0.7.0", default-features = false }
 
 [features]
 default = ["std"]

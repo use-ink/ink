@@ -241,8 +241,7 @@ impl<T, const N: usize> EntryArray<T, N> {
             unsafe { self.entries[at as usize].get_ptr().as_mut() },
             Some(StorageEntry::new(new_value, EntryState::Mutated)),
         )
-        .map(StorageEntry::into_value)
-        .flatten()
+        .and_then(StorageEntry::into_value)
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.

@@ -352,8 +352,7 @@ impl ItemImpl {
     /// Returns `None` if this is an inherent implementation block.
     pub fn trait_ident(&self) -> Option<&Ident> {
         self.trait_path()
-            .map(|trait_path| trait_path.segments.last())
-            .flatten()
+            .and_then(|trait_path| trait_path.segments.last())
             .map(|segment| &segment.ident)
     }
 
