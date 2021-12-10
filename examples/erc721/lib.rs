@@ -232,10 +232,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(&caller)
-                .map(|mut c| {
-                    c -= 1;
-                    c
-                })
+                .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(&caller, &count);
             token_owner.remove(&id);
@@ -292,10 +289,7 @@ mod erc721 {
 
             let count = owned_tokens_count
                 .get(&from)
-                .map(|mut c| {
-                    c -= 1;
-                    c
-                })
+                .map(|c| c - 1)
                 .ok_or(Error::CannotFetchValue)?;
             owned_tokens_count.insert(&from, &count);
             token_owner.remove(&id);
@@ -319,13 +313,7 @@ mod erc721 {
                 return Err(Error::NotAllowed)
             };
 
-            let count = owned_tokens_count
-                .get(to)
-                .map(|mut c| {
-                    c += 1;
-                    c
-                })
-                .unwrap_or(1);
+            let count = owned_tokens_count.get(to).map(|c| c + 1).unwrap_or(1);
 
             owned_tokens_count.insert(to, &count);
             token_owner.insert(&id, to);
