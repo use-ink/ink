@@ -168,30 +168,6 @@ mod multisig {
         next_id: TransactionId,
     }
 
-    #[ink(storage)]
-    #[derive(SpreadAllocate)]
-    pub struct Multisig {
-        /// Every entry in this map represents the confirmation of an owner for a
-        /// transaction. This is effectively a set rather than a map.
-        confirmations: Mapping<(TransactionId, AccountId), ()>,
-        /// The amount of confirmations for every transaction. This is a redundant
-        /// information and is kept in order to prevent iterating through the
-        /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: Mapping<TransactionId, u32>,
-        /// Map the transaction id to its unexecuted transaction.
-        transactions: Mapping<TransactionId, Transaction>,
-        /// We need to hold a list of all transactions so that we can clean up storage
-        /// when an owner is removed.
-        transaction_list: Lazy<Transactions>,
-        /// The list is a vector because iterating over it is necessary when cleaning
-        /// up the confirmation set.
-        owners: Vec<AccountId>,
-        /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: Mapping<AccountId, ()>,
-        /// Minimum number of owners that have to confirm a transaction to be executed.
-        requirement: Lazy<u32>,
-    }
-
     /// Emitted when an owner confirms a transaction.
     #[ink(event)]
     pub struct Confirmation {
@@ -269,6 +245,30 @@ mod multisig {
         new_requirement: u32,
     }
 
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Multisig {
+        /// Every entry in this map represents the confirmation of an owner for a
+        /// transaction. This is effectively a set rather than a map.
+        confirmations: Mapping<(TransactionId, AccountId), ()>,
+        /// The amount of confirmations for every transaction. This is a redundant
+        /// information and is kept in order to prevent iterating through the
+        /// confirmation set to check if a transaction is confirmed.
+        confirmation_count: Mapping<TransactionId, u32>,
+        /// Map the transaction id to its unexecuted transaction.
+        transactions: Mapping<TransactionId, Transaction>,
+        /// We need to hold a list of all transactions so that we can clean up storage
+        /// when an owner is removed.
+        transaction_list: Lazy<Transactions>,
+        /// The list is a vector because iterating over it is necessary when cleaning
+        /// up the confirmation set.
+        owners: Vec<AccountId>,
+        /// Redundant information to speed up the check whether a caller is an owner.
+        is_owner: Mapping<AccountId, ()>,
+        /// Minimum number of owners that have to confirm a transaction to be executed.
+        requirement: Lazy<u32>,
+    }
+
     impl Multisig {
         /// The only constructor of the contract.
         ///
@@ -280,14 +280,18 @@ mod multisig {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
-            owners.sort_unstable();
-            owners.dedup();
-            ensure_requirement_is_valid(owners.len() as u32, requirement);
             ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                owners.sort_unstable();
+                owners.dedup();
+                ensure_requirement_is_valid(owners.len() as u32, requirement);
+
                 for owner in &owners {
                     contract.is_owner.insert(owner, &());
                 }
+
                 contract.owners = owners;
+                contract.transaction_list = Default::default();
+                contract.requirement = requirement.into();
             })
         }
 
