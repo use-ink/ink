@@ -260,7 +260,7 @@ mod erc721 {
             if !self.approved_or_owner(Some(caller), id) {
                 return Err(Error::NotApproved)
             };
-            self.clear_approval(id)?;
+            self.clear_approval(id);
             self.remove_token_from(from, id)?;
             self.add_token_to(to, id)?;
             self.env().emit_event(Transfer {
@@ -376,9 +376,8 @@ mod erc721 {
         }
 
         /// Removes existing approval from token `id`.
-        fn clear_approval(&mut self, id: TokenId) -> Result<(), Error> {
+        fn clear_approval(&mut self, id: TokenId) {
             self.token_approvals.remove(&id);
-            Ok(())
         }
 
         // Returns the total number of tokens from an account.
