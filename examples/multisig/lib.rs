@@ -74,6 +74,7 @@ mod multisig {
         lazy::Mapping,
         traits::{
             PackedLayout,
+            SpreadAllocate,
             SpreadLayout,
         },
         Lazy,
@@ -168,6 +169,7 @@ mod multisig {
     }
 
     #[ink(storage)]
+    #[derive(SpreadAllocate)]
     pub struct Multisig {
         /// Every entry in this map represents the confirmation of an owner for a
         /// transaction. This is effectively a set rather than a map.
@@ -280,20 +282,13 @@ mod multisig {
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
             owners.sort_unstable();
             owners.dedup();
-            let mut is_owner = Mapping::default();
-            for owner in &owners {
-                is_owner.insert(owner, &());
-            }
             ensure_requirement_is_valid(owners.len() as u32, requirement);
-            Self {
-                confirmations: Default::default(),
-                confirmation_count: Default::default(),
-                transactions: Default::default(),
-                transaction_list: Default::default(),
-                owners,
-                is_owner,
-                requirement: requirement.into(),
-            }
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                for owner in &owners {
+                    contract.is_owner.insert(owner, &());
+                }
+                contract.owners = owners;
+            })
         }
 
         /// Add a new owner to the contract.
