@@ -126,7 +126,7 @@ impl Metadata<'_> {
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         quote_spanned!(span=>
-            ::ink_metadata::ConstructorSpec::from_name(::core::stringify!(#ident))
+            ::ink_metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
                     #( #selector_bytes ),*
                 ])
@@ -214,7 +214,7 @@ impl Metadata<'_> {
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let ret_ty = Self::generate_return_type(message.output());
                 quote_spanned!(span =>
-                    ::ink_metadata::MessageSpec::from_name(::core::stringify!(#ident))
+                    ::ink_metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -273,11 +273,9 @@ impl Metadata<'_> {
                         as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_return_type(message.output());
+                let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
-                    ::ink_metadata::MessageSpec::from_trait_and_name(
-                        ::core::stringify!(#trait_ident),
-                        ::core::stringify!(#message_ident)
-                    )
+                    ::ink_metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([
                             #( #message_args ),*
