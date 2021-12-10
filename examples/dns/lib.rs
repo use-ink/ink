@@ -87,7 +87,7 @@ mod dns {
         pub fn new() -> Self {
             // This call is required in order to correctly initialize the
             // `Mapping`s of our contract.
-            ink_lang::initialize_contract(|contract: &mut Self| {
+            ink_lang::utils::initialize_contract(|contract: &mut Self| {
                 contract.default_address = Default::default();
             })
         }

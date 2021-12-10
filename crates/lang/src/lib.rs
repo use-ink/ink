@@ -20,7 +20,13 @@ pub mod result_info;
 
 #[cfg_attr(not(feature = "show-codegen-docs"), doc(hidden))]
 pub mod codegen;
-pub use codegen::initialize_contract;
+
+/// Utility functions for contract development.
+pub mod utils {
+    // We want to expose this function without making users go through
+    // the `codgen` module
+    pub use super::codegen::initialize_contract;
+}
 
 pub mod reflect;
 

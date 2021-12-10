@@ -62,7 +62,7 @@ mod erc20 {
         pub fn new(initial_supply: Balance) -> Self {
             // This call is required in order to correctly initialize the
             // `Mapping`s of our contract.
-            ink_lang::initialize_contract(|contract| {
+            ink_lang::utils::initialize_contract(|contract| {
                 Self::new_init(contract, initial_supply)
             })
         }
