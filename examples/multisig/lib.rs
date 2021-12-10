@@ -262,7 +262,7 @@ mod multisig {
         transaction_list: Lazy<Transactions>,
         /// The list is a vector because iterating over it is necessary when cleaning
         /// up the confirmation set.
-        owners: Vec<AccountId>,
+        owners: Lazy<Vec<AccountId>>,
         /// Redundant information to speed up the check whether a caller is an owner.
         is_owner: Mapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
@@ -289,7 +289,7 @@ mod multisig {
                     contract.is_owner.insert(owner, &());
                 }
 
-                contract.owners = owners;
+                contract.owners = owners.into();
                 contract.transaction_list = Default::default();
                 contract.requirement = requirement.into();
             })
@@ -368,7 +368,8 @@ mod multisig {
             let len = self.owners.len() as u32 - 1;
             let requirement = u32::min(len, *self.requirement);
             ensure_requirement_is_valid(len, requirement);
-            self.owners.swap_remove(self.owner_index(&owner) as usize);
+            let owner_index = self.owner_index(&owner) as usize;
+            self.owners.swap_remove(owner_index);
             self.is_owner.remove(&owner);
             Lazy::set(&mut self.requirement, requirement);
             self.clean_owner_confirmations(&owner);
