@@ -840,6 +840,7 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
+<span id="842">842</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1230,7 +1231,8 @@
         <span class="ident">ink_env::block_number</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
-    <span class="doccomment">/// Returns the minimum balance that is required for creating an account.</span>
+    <span class="doccomment">/// Returns the minimum balance that is required for creating an account</span>
+    <span class="doccomment">/// (i.e. the chain&#39;s existential deposit).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>

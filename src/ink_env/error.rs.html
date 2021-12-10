@@ -54,8 +54,6 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -89,15 +87,13 @@
     <span class="ident">CalleeReverted</span>,
     <span class="doccomment">/// The queried contract storage entry is missing.</span>
     <span class="ident">KeyNotFound</span>,
-    <span class="doccomment">/// Transfer failed because it would have brought the sender&#39;s total balance</span>
-    <span class="doccomment">/// below the subsistence threshold.</span>
-    <span class="ident">BelowSubsistenceThreshold</span>,
+    <span class="doccomment">/// Deprecated and no longer returned: There is only the minimum balance.</span>
+    <span class="ident">_BelowSubsistenceThreshold</span>,
     <span class="doccomment">/// Transfer failed for other not further specified reason. Most probably</span>
     <span class="doccomment">/// reserved or locked balance of the sender that was preventing the transfer.</span>
     <span class="ident">TransferFailed</span>,
-    <span class="doccomment">/// The newly created contract is below the subsistence threshold after executing</span>
-    <span class="doccomment">/// its constructor so no usable contract instance will be created.</span>
-    <span class="ident">NewContractNotFunded</span>,
+    <span class="doccomment">/// Deprecated and no longer returned: Endowment is no longer required.</span>
+    <span class="ident">_EndowmentTooLow</span>,
     <span class="doccomment">/// No code could be found at the supplied code hash.</span>
     <span class="ident">CodeNotFound</span>,
     <span class="doccomment">/// The account that was called is no contract, but a plain account.</span>

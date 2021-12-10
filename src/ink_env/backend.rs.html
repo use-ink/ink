@@ -425,6 +425,7 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
+<span id="427">427</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -766,7 +767,8 @@
     <span class="doccomment">/// For more details visit: [`block_number`][`crate::block_number`]</span>
     <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::BlockNumber</span>;
 
-    <span class="doccomment">/// Returns the minimum balance that is required for creating an account.</span>
+    <span class="doccomment">/// Returns the minimum balance that is required for creating an account</span>
+    <span class="doccomment">/// (i.e. the chain&#39;s existential deposit).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
     <span class="doccomment">///</span>
