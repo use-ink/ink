@@ -25,7 +25,7 @@ pub mod give_me {
         ///
         /// - Panics in case the requested transfer exceeds the contract balance.
         /// - Panics in case the requested transfer would have brought this
-        ///   contract's balance below the minimum balance (i.e. the chain's
+        ///   contract's balance below the minimum balance (i.e. the chains
         ///   existential deposit).
         /// - Panics in case the transfer failed for another reason.
         #[ink(message)]

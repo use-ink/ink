@@ -101,7 +101,7 @@ impl ChainSpec {
     }
 
     /// Returns the minimum balance that is required for creating an account
-    /// (i.e. the chain's existential deposit).
+    /// (i.e. the chains existential deposit).
     pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
         T: Environment,

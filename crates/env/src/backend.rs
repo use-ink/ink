@@ -340,7 +340,7 @@ pub trait TypedEnvBackend: EnvBackend {
     fn block_number<T: Environment>(&mut self) -> T::BlockNumber;
 
     /// Returns the minimum balance that is required for creating an account
-    /// (i.e. the chain's existential deposit).
+    /// (i.e. the chains existential deposit).
     ///
     /// # Note
     ///
