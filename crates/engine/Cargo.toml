@@ -20,7 +20,7 @@ derive_more = { version = "0.99", default-features = false, features = ["from", 
 
 sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
-blake2 = { version = "0.9" }
+blake2 = { version = "0.10" }
 
 # ECDSA for the off-chain environment.
 secp256k1 = { version = "0.20.3", features = ["recovery"] }
