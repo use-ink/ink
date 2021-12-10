@@ -126,6 +126,8 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -197,12 +199,14 @@
     <span class="doccomment">/// Version 0 placeholder. Represents the original non-versioned metadata format.</span>
     <span class="ident">V0</span>(<span class="ident">MetadataVersionDeprecated</span>),
     <span class="doccomment">/// Version 1 of the contract metadata.</span>
-    <span class="ident">V1</span>(<span class="ident">InkProject</span>),
+    <span class="ident">V1</span>(<span class="ident">MetadataVersionDeprecated</span>),
+    <span class="doccomment">/// Version 2 of the contract metadata.</span>
+    <span class="ident">V2</span>(<span class="ident">InkProject</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InkProject</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MetadataVersioned</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ink_project</span>: <span class="ident">InkProject</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">MetadataVersioned::V1</span>(<span class="ident">ink_project</span>)
+        <span class="ident">MetadataVersioned::V2</span>(<span class="ident">ink_project</span>)
     }
 }
 

@@ -437,8 +437,6 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -567,7 +565,7 @@
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-            <span class="ident">::ink_metadata::ConstructorSpec::from_name</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+            <span class="ident">::ink_metadata::ConstructorSpec::from_label</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
                 .<span class="ident">selector</span>([
                     #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span>
                 ])
@@ -655,7 +653,7 @@
                 <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
                 <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
                 <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
-                    <span class="ident">::ink_metadata::MessageSpec::from_name</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
+                    <span class="ident">::ink_metadata::MessageSpec::from_label</span>(<span class="macro">::core::stringify!</span>(#<span class="ident">ident</span>))
                         .<span class="ident">selector</span>([
                             #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span>
                         ])
@@ -714,11 +712,9 @@
                         <span class="kw">as</span> <span class="ident">::ink_lang::reflect::TraitMessageInfo</span><span class="op">&lt;</span>#<span class="ident">local_id</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::SELECTOR</span>
                 }};
                 <span class="kw">let</span> <span class="ident">ret_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::generate_return_type</span>(<span class="ident">message</span>.<span class="ident">output</span>());
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> [<span class="ident">trait_ident</span>.<span class="ident">to_string</span>(), <span class="ident">message_ident</span>.<span class="ident">to_string</span>()].<span class="ident">join</span>(<span class="string">&quot;::&quot;</span>);
                 <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
-                    <span class="ident">::ink_metadata::MessageSpec::from_trait_and_name</span>(
-                        <span class="macro">::core::stringify!</span>(#<span class="ident">trait_ident</span>),
-                        <span class="macro">::core::stringify!</span>(#<span class="ident">message_ident</span>)
-                    )
+                    <span class="ident">::ink_metadata::MessageSpec::from_label</span>(#<span class="ident">label</span>)
                         .<span class="ident">selector</span>(#<span class="ident">selector</span>)
                         .<span class="ident">args</span>([
                             #( #<span class="ident">message_args</span> ),<span class="op">*</span>
