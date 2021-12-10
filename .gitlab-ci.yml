@@ -113,7 +113,7 @@ workflow:
 # Note: For all of these lints we `allow_failure` so that the rest of the build can
 # continue running despite them not passing. Merging is still disallowed since (most) of
 # the lint steps are marked as "Required" in GitHub.
-spellcheck:
+.spellcheck:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -122,7 +122,7 @@ spellcheck:
     - cargo spellcheck check -vvvv --cfg=.config/cargo_spellcheck.toml --checkers hunspell --code 1 -- recursive examples/
   allow_failure:                   true
 
-fmt:
+.fmt:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -133,7 +133,7 @@ fmt:
     - cargo fmt --verbose --all -- --check --config=license_template_path="" crates/lang/tests/ui/trait_def/{pass,fail}/*.rs
   allow_failure:                   true
 
-examples-fmt:
+.examples-fmt:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -147,7 +147,7 @@ examples-fmt:
       done
   allow_failure:                   true
 
-clippy-std:
+.clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -156,7 +156,7 @@ clippy-std:
         cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
+.clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -166,7 +166,7 @@ clippy-wasm:
       done
   allow_failure:                   true
 
-examples-clippy-std:
+.examples-clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -179,7 +179,7 @@ examples-clippy-std:
       done
   allow_failure:                   true
 
-examples-clippy-wasm:
+.examples-clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -204,7 +204,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
+.check-wasm:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
