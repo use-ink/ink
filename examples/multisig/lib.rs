@@ -750,7 +750,6 @@ mod multisig {
             let transaction = contract.transactions.get(0).unwrap();
             assert_eq!(transaction, Transaction::change_requirement(1));
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
-            // assert_eq!(contract.confirmations.len(), 1);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
             contract
         }
@@ -770,8 +769,6 @@ mod multisig {
             assert!(contract.is_owner.get(&accounts.charlie).is_none());
             assert!(contract.is_owner.get(&accounts.django).is_none());
             assert!(contract.is_owner.get(&accounts.frank).is_none());
-            // assert_eq!(contract.confirmations.len(), 0);
-            // assert_eq!(contract.confirmation_count.len(), 0);
             assert_eq!(contract.transaction_list.transactions.len(), 0);
         }
 
@@ -975,7 +972,6 @@ mod multisig {
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 3);
             contract.confirmations.get(&(0, accounts.bob)).unwrap();
-            // assert_eq!(contract.confirmations.len(), 2);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 2);
         }
 
@@ -990,7 +986,6 @@ mod multisig {
             // Confirm by Eve
             set_sender(accounts.eve);
             contract.confirm_transaction(0);
-            // assert_eq!(contract.confirmations.len(), 3);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 3);
             // Revoke from Eve
             contract.revoke_confirmation(0);
@@ -1009,7 +1004,6 @@ mod multisig {
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 2);
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
-            // assert_eq!(contract.confirmations.len(), 1);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
@@ -1029,7 +1023,6 @@ mod multisig {
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 3);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_none());
-            // assert_eq!(contract.confirmations.len(), 0);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 0);
         }
 
@@ -1041,7 +1034,6 @@ mod multisig {
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 2);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_some());
-            // assert_eq!(contract.confirmations.len(), 1);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
