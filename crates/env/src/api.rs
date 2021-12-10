@@ -155,7 +155,8 @@ where
     })
 }
 
-/// Returns the minimum balance that is required for creating an account.
+/// Returns the minimum balance that is required for creating an account
+/// (i.e. the chain's existential deposit).
 ///
 /// # Errors
 ///
