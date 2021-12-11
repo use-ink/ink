@@ -16,7 +16,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use synstructure::VariantInfo;
 
-
 /// Derives `ink_storage`'s `SpreadAllocate` trait for the given type.
 pub fn spread_allocate_derive(mut s: synstructure::Structure) -> TokenStream2 {
     s.bind_with(|_| synstructure::BindStyle::Move)
