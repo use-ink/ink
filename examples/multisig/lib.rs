@@ -32,9 +32,9 @@
 //! A call of `execute_transaction` is always required. This can be called by anyone.
 //!
 //! All the messages that are declared as only callable by the wallet must go through
-//! the usual submit, confirm, execute cycle as any other transaction that should be
+//! the usual confirm, execute cycle as any other transaction that should be
 //! called by the wallet. For example, to add an owner you would submit a transaction
-//! that calls the wallets own `add_owner` message through `submit_transaction`.
+//! that calls the wallets own `add_owner` message through `confirm_transaction`.
 //!
 //! ### Owner Management
 //!
@@ -48,7 +48,7 @@
 //!
 //! ### Transaction Management
 //!
-//! `submit_transaction`, `cancel_transaction`, `confirm_transaction`,
+//! `confirm_transaction`, `cancel_transaction`,
 //! `revoke_confirmation` and `execute_transaction` are the bread and butter messages
 //! of this contract. Use them to dispatch arbitrary messages to other contracts
 //! with the wallet as a sender.
@@ -64,20 +64,26 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod multisig {
-    use ink_env::call::{
-        build_call,
-        utils::ReturnType,
-        ExecutionInput,
-    };
-    use ink_prelude::vec::Vec;
-    use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-            Stash as StorageStash,
-            Vec as StorageVec,
+    use ink_env::{
+        call::{
+            build_call,
+            utils::ReturnType,
+            ExecutionInput,
         },
+        hash::{
+            Blake2x256,
+            HashOutput,
+        },
+    };
+    use ink_prelude::{
+        vec,
+        vec::Vec,
+    };
+    use ink_storage::{
+        lazy::Mapping,
         traits::{
             PackedLayout,
+            SpreadAllocate,
             SpreadLayout,
         },
         Lazy,
@@ -85,9 +91,10 @@ mod multisig {
     use scale::Output;
 
     /// Tune this to your liking but be wary that allowing too many owners will not perform well.
-    const MAX_OWNERS: u32 = 50;
+    const MAX_OWNERS: u32 = 10;
 
-    type TransactionId = u32;
+    type TransactionId = Hash;
+    type OwnersSetHash = Hash;
     const WRONG_TRANSACTION_ID: &str =
         "The user specified an invalid transaction id. Abort.";
 
@@ -103,16 +110,20 @@ mod multisig {
     }
 
     /// Indicates whether a transaction is already confirmed or needs further confirmations.
-    #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
+    #[derive(scale::Encode, scale::Decode, Clone, SpreadLayout, PackedLayout)]
     #[cfg_attr(
         feature = "std",
         derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
     )]
     pub enum ConfirmationStatus {
-        /// The transaction is already confirmed.
-        Confirmed,
-        /// Indicates how many confirmations are remaining.
-        ConfirmationsNeeded(u32),
+        /// The transaction is already fully confirmed.
+        FullyConfirmed(OwnersSetHash),
+        /// Indicates who confirmed the transaction.
+        ///
+        /// # Note: It means that there are not enough confirmations.
+        PartialConfirmed(OwnersSetHash, Vec<AccountId>),
+        /// The transaction is canceled.
+        Canceled(OwnersSetHash),
     }
 
     /// A Transaction is what every `owner` can submit for confirmation by other owners.
@@ -141,6 +152,31 @@ mod multisig {
         pub gas_limit: u64,
     }
 
+    /// The owner can confirm transaction by `Transaction` itself or by `TransactionId`.
+    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+    )]
+    pub enum TransactionToConfirm {
+        Transaction(Transaction),
+        TransactionId(TransactionId),
+    }
+
+    impl TransactionToConfirm {
+        fn to_transaction_id(&self) -> TransactionId {
+            match self {
+                TransactionToConfirm::Transaction(tx) => {
+                    // Hash from the transaction is a `TransactionId`
+                    let mut output = <Blake2x256 as HashOutput>::Type::default();
+                    ink_env::hash_encoded::<Blake2x256, _>(&tx, &mut output);
+                    output.into()
+                }
+                TransactionToConfirm::TransactionId(tx_id) => tx_id.clone(),
+            }
+        }
+    }
+
     /// Errors that can occur upon calling this contract.
     #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(::scale_info::TypeInfo))]
@@ -150,24 +186,21 @@ mod multisig {
     }
 
     #[ink(storage)]
+    #[derive(SpreadAllocate)]
     pub struct Multisig {
-        /// Every entry in this map represents the confirmation of an owner for a
-        /// transaction. This is effectively a set rather than a map.
-        confirmations: StorageHashMap<(TransactionId, AccountId), ()>,
-        /// The amount of confirmations for every transaction. This is a redundant
-        /// information and is kept in order to prevent iterating through the
-        /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: StorageHashMap<TransactionId, u32>,
-        /// Just the list of transactions. It is a stash as stable ids are necessary
-        /// for referencing them in confirmation calls.
-        transactions: StorageStash<Transaction>,
-        /// The list is a vector because iterating over it is necessary when cleaning
-        /// up the confirmation set.
-        owners: StorageVec<AccountId>,
+        /// Map the transaction id to its unexecuted transaction.
+        transactions: Mapping<TransactionId, Transaction>,
+        /// Map the transaction id to the status of the transaction.
+        /// `PartialConfirmed` status tracks who confirmed transaction.
+        transaction_status: Mapping<TransactionId, ConfirmationStatus>,
+        /// The hash of current owners set.
+        owners_set_hash: OwnersSetHash,
+        /// The list is a vector because it is used to calculate `self.owners_set_hash`.
+        owners: Lazy<Vec<AccountId>>,
         /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: StorageHashMap<AccountId, ()>,
+        is_owner: Mapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
-        requirement: Lazy<u32>,
+        requirement: u32,
     }
 
     /// Emitted when an owner confirms a transaction.
@@ -175,7 +208,7 @@ mod multisig {
     pub struct Confirmation {
         /// The transaction that was confirmed.
         #[ink(topic)]
-        transaction: TransactionId,
+        transaction_id: TransactionId,
         /// The owner that sent the confirmation.
         #[ink(topic)]
         from: AccountId,
@@ -187,9 +220,9 @@ mod multisig {
     /// Emitted when an owner revoked a confirmation.
     #[ink(event)]
     pub struct Revokation {
-        /// The transaction that was revoked.
+        /// The transaction id that was revoked.
         #[ink(topic)]
-        transaction: TransactionId,
+        transaction_id: TransactionId,
         /// The owner that sent the revocation.
         #[ink(topic)]
         from: AccountId,
@@ -198,25 +231,25 @@ mod multisig {
     /// Emitted when an owner submits a transaction.
     #[ink(event)]
     pub struct Submission {
-        /// The transaction that was submitted.
+        /// The id of transaction that was submitted.
         #[ink(topic)]
-        transaction: TransactionId,
+        transaction_id: TransactionId,
     }
 
     /// Emitted when a transaction was canceled.
     #[ink(event)]
     pub struct Cancelation {
-        /// The transaction that was canceled.
+        /// The transaction id that was canceled.
         #[ink(topic)]
-        transaction: TransactionId,
+        transaction_id: TransactionId,
     }
 
     /// Emitted when a transaction was executed.
     #[ink(event)]
     pub struct Execution {
-        /// The transaction that was executed.
+        /// The transaction id that was executed.
         #[ink(topic)]
-        transaction: TransactionId,
+        transaction_id: TransactionId,
         /// Indicates whether the transaction executed successfully. If so the `Ok` value holds
         /// the output in bytes. The Option is `None` when the transaction was executed through
         /// `invoke_transaction` rather than `evaluate_transaction`.
@@ -257,20 +290,20 @@ mod multisig {
         ///
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
-        pub fn new(requirement: u32, owners: Vec<AccountId>) -> Self {
-            let is_owner: StorageHashMap<_, _, _> =
-                owners.iter().copied().map(|owner| (owner, ())).collect();
-            let owners: StorageVec<_> = owners.iter().copied().collect();
-            ensure_requirement_is_valid(owners.len(), requirement);
-            assert!(is_owner.len() == owners.len());
-            Self {
-                confirmations: StorageHashMap::default(),
-                confirmation_count: StorageHashMap::default(),
-                transactions: StorageStash::default(),
-                owners,
-                is_owner,
-                requirement: Lazy::new(requirement),
-            }
+        pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                owners.sort_unstable();
+                owners.dedup();
+                ensure_requirement_is_valid(owners.len() as u32, requirement);
+
+                for owner in &owners {
+                    contract.is_owner.insert(owner, &());
+                }
+
+                contract.owners_set_hash = owners_set_hash(&owners);
+                contract.owners = owners.into();
+                contract.requirement = requirement.into();
+            })
         }
 
         /// Add a new owner to the contract.
@@ -284,7 +317,7 @@ mod multisig {
         /// # Examples
         ///
         /// Since this message must be send by the wallet itself it has to be build as a
-        /// `Transaction` and dispatched through `submit_transaction` and `invoke_transaction`:
+        /// `Transaction` and dispatched through `confirm_transaction` and `invoke_transaction`:
         /// ```no_run
         /// use ink_env::{DefaultEnvironment as Env, AccountId, call::{CallParams, Selector}, test::CallData};
         /// use multisig::{Transaction, ConfirmationStatus};
@@ -305,13 +338,13 @@ mod multisig {
         /// };
         ///
         /// // submit the transaction for confirmation
-        /// let mut submit = CallParams::<Env, _, _>::eval(
+        /// let mut confirm = CallParams::<Env, _, _>::eval(
         ///     wallet_id,
-        ///     Selector::new([86, 244, 13, 223]) // submit_transaction
+        ///     Selector::new([86, 244, 13, 223]) // confirm_transaction
         /// );
-        /// let (id, _): (u32, ConfirmationStatus)  = submit.push_arg(&transaction)
+        /// let (id, _): (u32, ConfirmationStatus)  = confirm.push_arg(&transaction)
         ///     .fire()
-        ///     .expect("submit_transaction won't panic.");
+        ///     .expect("confirm_transaction won't panic.");
         ///
         /// // wait until all required owners have confirmed and then execute the transaction
         /// let mut invoke = CallParams::<Env, _, ()>::invoke(
@@ -324,9 +357,10 @@ mod multisig {
         pub fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
-            self.is_owner.insert(new_owner, ());
+            ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
+            self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
+            self.owners_set_hash = owners_set_hash(&self.owners);
             self.env().emit_event(OwnerAddition { owner: new_owner });
         }
 
@@ -343,13 +377,14 @@ mod multisig {
         pub fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
-            let len = self.owners.len() - 1;
-            let requirement = u32::min(len, *self.requirement);
+            let len = self.owners.len() as u32 - 1;
+            let requirement = u32::min(len, self.requirement);
             ensure_requirement_is_valid(len, requirement);
-            self.owners.swap_remove(self.owner_index(&owner));
-            self.is_owner.take(&owner);
-            Lazy::set(&mut self.requirement, requirement);
-            self.clean_owner_confirmations(&owner);
+            let owner_index = self.owner_index(&owner) as usize;
+            self.owners.swap_remove(owner_index);
+            self.is_owner.remove(&owner);
+            self.owners_set_hash = owners_set_hash(&self.owners);
+            self.requirement = requirement;
             self.env().emit_event(OwnerRemoval { owner });
         }
 
@@ -366,10 +401,10 @@ mod multisig {
             self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
             let owner_index = self.owner_index(&old_owner);
-            self.owners[owner_index] = new_owner;
-            self.is_owner.take(&old_owner);
-            self.is_owner.insert(new_owner, ());
-            self.clean_owner_confirmations(&old_owner);
+            self.owners[owner_index as usize] = new_owner;
+            self.is_owner.remove(&old_owner);
+            self.is_owner.insert(new_owner, &());
+            self.owners_set_hash = owners_set_hash(&self.owners);
             self.env().emit_event(OwnerRemoval { owner: old_owner });
             self.env().emit_event(OwnerAddition { owner: new_owner });
         }
@@ -384,28 +419,9 @@ mod multisig {
         #[ink(message)]
         pub fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement_is_valid(self.owners.len(), new_requirement);
-            Lazy::set(&mut self.requirement, new_requirement);
+            ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
+            self.requirement = new_requirement;
             self.env().emit_event(RequirementChange { new_requirement });
-        }
-
-        /// Add a new transaction candidate to the contract.
-        ///
-        /// This also confirms the transaction for the caller. This can be called by any owner.
-        #[ink(message)]
-        pub fn submit_transaction(
-            &mut self,
-            transaction: Transaction,
-        ) -> (TransactionId, ConfirmationStatus) {
-            self.ensure_caller_is_owner();
-            let trans_id = self.transactions.put(transaction);
-            self.env().emit_event(Submission {
-                transaction: trans_id,
-            });
-            (
-                trans_id,
-                self.confirm_by_caller(self.env().caller(), trans_id),
-            )
         }
 
         /// Remove a transaction from the contract.
@@ -418,13 +434,18 @@ mod multisig {
         pub fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
             if self.take_transaction(trans_id).is_some() {
+                self.transaction_status.insert(
+                    trans_id,
+                    &ConfirmationStatus::Canceled(self.owners_set_hash.clone()),
+                );
                 self.env().emit_event(Cancelation {
-                    transaction: trans_id,
+                    transaction_id: trans_id,
                 });
             }
         }
 
-        /// Confirm a transaction for the sender that was submitted by any owner.
+        /// Confirm a transaction for the sender by any owner. If it is a new transaction,
+        /// it will be added to `self.transactions`.
         ///
         /// This can be called by any owner.
         ///
@@ -434,11 +455,60 @@ mod multisig {
         #[ink(message)]
         pub fn confirm_transaction(
             &mut self,
-            trans_id: TransactionId,
+            trans_to_confirm: TransactionToConfirm,
         ) -> ConfirmationStatus {
             self.ensure_caller_is_owner();
-            self.ensure_transaction_exists(trans_id);
-            self.confirm_by_caller(self.env().caller(), trans_id)
+
+            let trans_id = trans_to_confirm.to_transaction_id();
+            if self.transactions.get(&trans_id).is_none() {
+                match trans_to_confirm {
+                    TransactionToConfirm::Transaction(tx) => {
+                        self.transactions.insert(trans_id, &tx);
+                        // We want to override status here in case if it was canceled before or executed
+                        self.transaction_status.insert(
+                            trans_id,
+                            &ConfirmationStatus::PartialConfirmed(
+                                self.owners_set_hash,
+                                vec![],
+                            ),
+                        );
+                        self.env().emit_event(Submission {
+                            transaction_id: trans_id,
+                        });
+                    }
+                    TransactionToConfirm::TransactionId(_) => {
+                        panic!("It is a new transaction you should submit a body of the transaction")
+                    }
+                }
+            }
+
+            // We know that it exists in PartialConfirmed or FullyConfirmed state
+            let status = self.transaction_status.get(&trans_id).unwrap();
+
+            // We only need to confirm partial transactions, if it is FullyConfirmed but in `self.transactions`
+            // it means that it is not executed
+            if let ConfirmationStatus::PartialConfirmed(hash, mut set) = status {
+                let caller = self.env().caller();
+                self.actualize_confirmations_and_remove_caller(&hash, &mut set, &caller);
+                set.push(caller);
+
+                let new_status = {
+                    if set.len() >= self.requirement as usize {
+                        ConfirmationStatus::FullyConfirmed(self.owners_set_hash)
+                    } else {
+                        ConfirmationStatus::PartialConfirmed(self.owners_set_hash, set)
+                    }
+                };
+                self.transaction_status.insert(trans_id, &new_status);
+
+                self.env().emit_event(Confirmation {
+                    transaction_id: trans_id,
+                    from: caller,
+                    status: new_status.clone(),
+                });
+                return new_status
+            }
+            status
         }
 
         /// Revoke the senders confirmation.
@@ -449,20 +519,23 @@ mod multisig {
         ///
         /// If `trans_id` is no valid transaction id.
         #[ink(message)]
-        pub fn revoke_confirmation(&mut self, trans_id: TransactionId) {
+        pub fn revoke_confirmation(&mut self, trans_to_conf: TransactionToConfirm) {
             self.ensure_caller_is_owner();
-            let caller = self.env().caller();
-            if self.confirmations.take(&(trans_id, caller)).is_some() {
-                self.confirmation_count
-                    .entry(trans_id)
-                    .and_modify(|v| {
-                        if *v > 0 {
-                            *v -= 1;
-                        }
-                    })
-                    .or_insert(1);
+            let trans_id = trans_to_conf.to_transaction_id();
+
+            // The user can revoke only transaction that is in partial confirmed state
+            if let Some(ConfirmationStatus::PartialConfirmed(hash, mut set)) =
+                self.transaction_status.get(&trans_id)
+            {
+                let caller = self.env().caller();
+                self.actualize_confirmations_and_remove_caller(&hash, &mut set, &caller);
+
+                let new_status =
+                    ConfirmationStatus::PartialConfirmed(self.owners_set_hash, set);
+                self.transaction_status.insert(trans_id, &new_status);
+
                 self.env().emit_event(Revokation {
-                    transaction: trans_id,
+                    transaction_id: trans_id,
                     from: caller,
                 });
             }
@@ -495,7 +568,7 @@ mod multisig {
                 .fire()
                 .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
-                transaction: trans_id,
+                transaction_id: trans_id,
                 result: result.map(|_| None),
             });
             result
@@ -524,107 +597,37 @@ mod multisig {
                 .fire()
                 .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {
-                transaction: trans_id,
+                transaction_id: trans_id,
                 result: result.clone().map(Some),
             });
             result
         }
 
-        /// Set the `transaction` as confirmed by `confirmer`.
-        /// Idempotent operation regarding an already confirmed `transaction`
-        /// by `confirmer`.
-        fn confirm_by_caller(
-            &mut self,
-            confirmer: AccountId,
-            transaction: TransactionId,
-        ) -> ConfirmationStatus {
-            let count = self.confirmation_count.entry(transaction).or_insert(0);
-            let new_confirmation = self
-                .confirmations
-                .insert((transaction, confirmer), ())
-                .is_none();
-            if new_confirmation {
-                *count += 1;
-            }
-            let status = {
-                if *count >= *self.requirement {
-                    ConfirmationStatus::Confirmed
-                } else {
-                    ConfirmationStatus::ConfirmationsNeeded(*self.requirement - *count)
-                }
-            };
-            if new_confirmation {
-                self.env().emit_event(Confirmation {
-                    transaction,
-                    from: confirmer,
-                    status,
-                });
-            }
-            status
-        }
-
         /// Get the index of `owner` in `self.owners`.
         /// Panics if `owner` is not found in `self.owners`.
         fn owner_index(&self, owner: &AccountId) -> u32 {
-            self.owners.iter().position(|x| *x == *owner).expect(
+            self.owners.iter().position(|x| x == owner).expect(
                 "This is only called after it was already verified that the id is
                  actually an owner.",
             ) as u32
         }
 
         /// Remove the transaction identified by `trans_id` from `self.transactions`.
-        /// Also removes all confirmation state associated with it.
         fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
-            let transaction = self.transactions.take(trans_id);
+            let transaction = self.transactions.get(&trans_id);
             if transaction.is_some() {
-                self.clean_transaction_confirmations(trans_id);
+                self.transactions.remove(&trans_id);
             }
             transaction
-        }
-
-        /// Remove all confirmation state associated with `owner`.
-        /// Also adjusts the `self.confirmation_count` variable.
-        fn clean_owner_confirmations(&mut self, owner: &AccountId) {
-            use ::ink_storage::collections::stash::Entry as StashEntry;
-            for (trans_id, _) in
-                self.transactions
-                    .entries()
-                    .enumerate()
-                    .filter_map(|(n, entry)| {
-                        match entry {
-                            StashEntry::Vacant(_) => None,
-                            StashEntry::Occupied(value) => Some((n as u32, value)),
-                        }
-                    })
-            {
-                if self.confirmations.take(&(trans_id, *owner)).is_some() {
-                    *self.confirmation_count.entry(trans_id).or_insert(0) += 1;
-                }
-            }
-        }
-
-        /// This removes all confirmation state associated with `transaction`.
-        fn clean_transaction_confirmations(&mut self, transaction: TransactionId) {
-            for owner in self.owners.iter() {
-                self.confirmations.take(&(transaction, *owner));
-            }
-            self.confirmation_count.take(&transaction);
         }
 
         /// Panic if transaction `trans_id` is not confirmed by at least
         /// `self.requirement` owners.
         fn ensure_confirmed(&self, trans_id: TransactionId) {
-            assert!(
-                self.confirmation_count
-                    .get(&trans_id)
-                    .expect(WRONG_TRANSACTION_ID)
-                    >= &self.requirement
-            );
-        }
-
-        /// Panic if the transaction `trans_id` does not exit.
-        fn ensure_transaction_exists(&self, trans_id: TransactionId) {
-            self.transactions.get(trans_id).expect(WRONG_TRANSACTION_ID);
+            assert!(match self.transaction_status.get(&trans_id) {
+                Some(ConfirmationStatus::FullyConfirmed(_)) => true,
+                _ => false,
+            });
         }
 
         /// Panic if the sender is no owner of the wallet.
@@ -639,12 +642,39 @@ mod multisig {
 
         /// Panic if `owner` is not an owner,
         fn ensure_owner(&self, owner: &AccountId) {
-            assert!(self.is_owner.contains_key(owner));
+            assert!(self.is_owner(owner));
         }
 
         /// Panic if `owner` is an owner.
         fn ensure_no_owner(&self, owner: &AccountId) {
-            assert!(!self.is_owner.contains_key(owner));
+            assert!(!self.is_owner(owner));
+        }
+
+        fn is_owner(&self, owner: &AccountId) -> bool {
+            self.is_owner.get(&owner).is_some()
+        }
+
+        fn actualize_confirmations_and_remove_caller(
+            &self,
+            owners_set_hash: &OwnersSetHash,
+            owners: &mut Vec<AccountId>,
+            caller: &AccountId,
+        ) {
+            // It means that set of owners changed and we need to actualize confirmations
+            if owners_set_hash != &self.owners_set_hash {
+                for i in (0..owners.len()).rev() {
+                    if !self.is_owner(&owners[i]) {
+                        owners.swap_remove(i);
+                    }
+                }
+            }
+
+            for i in 0..owners.len() {
+                if &owners[i] == caller {
+                    owners.swap_remove(i);
+                    break
+                }
+            }
         }
     }
 
@@ -652,6 +682,13 @@ mod multisig {
     /// requirement invariant.
     fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
         assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
+    }
+
+    /// Calculate the hash of owners set
+    fn owners_set_hash(owners: &Vec<AccountId>) -> OwnersSetHash {
+        let mut output = <Blake2x256 as HashOutput>::Type::default();
+        ink_env::hash_encoded::<Blake2x256, _>(&owners, &mut output);
+        output.into()
     }
 
     #[cfg(test)]
