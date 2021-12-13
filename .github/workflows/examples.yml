@@ -9,6 +9,11 @@ on:
     paths-ignore:
       - 'README.md'
       - '.gitlab-ci.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/examples.yml'
 
 jobs:
   check:
