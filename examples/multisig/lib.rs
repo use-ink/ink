@@ -291,7 +291,7 @@ mod multisig {
 
                 contract.owners = owners.into();
                 contract.transaction_list = Default::default();
-                contract.requirement = requirement.into();
+                contract.requirement = requirement;
             })
         }
 
