@@ -266,7 +266,7 @@ mod multisig {
         /// Redundant information to speed up the check whether a caller is an owner.
         is_owner: Mapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
-        requirement: Lazy<u32>,
+        requirement: u32,
     }
 
     impl Multisig {
@@ -346,7 +346,7 @@ mod multisig {
         pub fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement_is_valid(self.owners.len() as u32 + 1, *self.requirement);
+            ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
             self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
@@ -366,12 +366,12 @@ mod multisig {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
             let len = self.owners.len() as u32 - 1;
-            let requirement = u32::min(len, *self.requirement);
+            let requirement = u32::min(len, self.requirement);
             ensure_requirement_is_valid(len, requirement);
             let owner_index = self.owner_index(&owner) as usize;
             self.owners.swap_remove(owner_index);
             self.is_owner.remove(&owner);
-            Lazy::set(&mut self.requirement, requirement);
+            self.requirement = requirement;
             self.clean_owner_confirmations(&owner);
             self.env().emit_event(OwnerRemoval { owner });
         }
@@ -408,7 +408,7 @@ mod multisig {
         pub fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
             ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
-            Lazy::set(&mut self.requirement, new_requirement);
+            self.requirement = new_requirement;
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
@@ -577,10 +577,10 @@ mod multisig {
                 self.confirmation_count.insert(&transaction, &count);
             }
             let status = {
-                if count >= *self.requirement {
+                if count >= self.requirement {
                     ConfirmationStatus::Confirmed
                 } else {
-                    ConfirmationStatus::ConfirmationsNeeded(*self.requirement - count)
+                    ConfirmationStatus::ConfirmationsNeeded(self.requirement - count)
                 }
             };
             if new_confirmation {
@@ -644,7 +644,7 @@ mod multisig {
                 self.confirmation_count
                     .get(&trans_id)
                     .expect(WRONG_TRANSACTION_ID)
-                    >= *self.requirement
+                    >= self.requirement
             );
         }
 
@@ -761,7 +761,7 @@ mod multisig {
             let contract = build_contract();
 
             assert_eq!(contract.owners.len(), 3);
-            assert_eq!(*contract.requirement, 2);
+            assert_eq!(contract.requirement, 2);
             assert!(contract.owners.iter().eq(owners.iter()));
             assert!(contract.is_owner.get(&accounts.alice).is_some());
             assert!(contract.is_owner.get(&accounts.bob).is_some());
@@ -895,10 +895,10 @@ mod multisig {
         #[ink::test]
         fn change_requirement_works() {
             let mut contract = build_contract();
-            assert_eq!(*contract.requirement, 2);
+            assert_eq!(contract.requirement, 2);
             set_from_wallet();
             contract.change_requirement(3);
-            assert_eq!(*contract.requirement, 3);
+            assert_eq!(contract.requirement, 3);
             assert_eq!(test::recorded_events().count(), 1);
         }
 
