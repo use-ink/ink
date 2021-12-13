@@ -30,15 +30,7 @@ jobs:
     steps:
 
       - uses: actions/setup-node@v2
-        if: runner.os == 'macOS'
-        run: npm install wasm-opt -g
-
-      - uses: engineerd/configurator@v0.0.6
-        if: runner.os == 'Windows'
-        with:
-          name: "wasm-opt.exe"
-          url: "https://github.com/WebAssembly/binaryen/releases/download/version_103/binaryen-version_103-x86_64-windows.tar.gz"
-          pathInArchive: "binaryen-/bin/wasm-opt.exe"
+      - run: npm install wasm-opt -g
 
       - name: Checkout sources & submodules
         uses: actions/checkout@master
