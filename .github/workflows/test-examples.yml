@@ -24,6 +24,9 @@ jobs:
           - windows-latest
         toolchain:
           - nightly
+        job:
+          - build
+          - test
     runs-on: ${{ matrix.platform }}
     env:
       RUST_BACKTRACE: full
@@ -62,27 +65,28 @@ jobs:
             cargo -vV
             cargo contract --version
 
-      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         if: runner.os == 'Windows'
         run: |
            $delegator_subcontracts = "accumulator","adder","subber"
            foreach ($contract in $delegator_subcontracts) {
-               echo "Testing delegator contract: $contract";
-               cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+               echo "Processing delegator contract: $contract";
+               cargo ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+           }     
+          foreach ($example in Get-ChildItem  -Directory "examples\*") {
+               echo "Processing example: $example";
+               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            }
-           foreach ($example in Get-ChildItem  -Directory "examples\*") {
-               echo "Testing example: $example";
-               cargo test --verbose --manifest-path=$example/Cargo.toml;
-           }
+            
 
-      - name: Test examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         if: runner.os == 'macOS'
         run: |
            for example in examples/*/; do
-               echo "Testing example: $example";
-               cargo test --verbose --manifest-path=$example/Cargo.toml;
+               echo "Processing example: $example";
+               cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            done
            for contract in ${DELEGATOR_SUBCONTRACTS}; do
-               echo "Testing delegator contract: $contract";
-               cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+               echo "Processing delegator contract: $contract";
+               cargo ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
            done
