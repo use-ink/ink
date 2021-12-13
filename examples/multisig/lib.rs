@@ -631,7 +631,7 @@ mod multisig {
                 if self.confirmations.get(&key).is_some() {
                     self.confirmations.remove(&key);
                     let mut count = self.confirmation_count.get(&trans_id).unwrap_or(0);
-                    count += 1;
+                    count -= 1;
                     self.confirmation_count.insert(&trans_id, &count);
                 }
             }
