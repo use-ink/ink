@@ -194,7 +194,7 @@ cargo contract build
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
 
-For information on how to instantiate this file to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
+For information on how to upload this file to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 
 
 ## How it Works
