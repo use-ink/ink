@@ -41,7 +41,7 @@ More relevant links:
 * Talk to us on [Element][k2] or in [Discord][l2]
   on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
-* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract deployment and interaction
+* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 
 
@@ -68,12 +68,12 @@ It's a simple Substrate blockchain which includes the Substrate module for smart
 
 We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-crown)
 called [Canvas](https://github.com/paritytech/canvas/). Canvas is a Substrate based
-parachain which supports ink! smart contracts. For further instructions on testing with
-the Canvas deployment on Rococo, follow the instructions in the
+parachain which supports ink! smart contracts. For further instructions on using this
+testnet, follow the instructions in the
 [Canvas README](https://github.com/paritytech/canvas#rococo-deployment).
 
 For both types of chains the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload)
-can be used to deploy your contract to a chain and interact with it.
+can be used to instantiate your contract to a chain and interact with it.
 
 ## Usage
 
@@ -105,7 +105,7 @@ cargo +nightly contract build
 ```
 
 As a result you'll get a file `target/flipper.wasm` file, a `metadata.json` file and a `<contract-name>.contract` file in the `target` folder of your contract.
-The `.contract` file combines the Wasm and metadata into one file and needs to be used when deploying the contract.
+The `.contract` file combines the Wasm and metadata into one file and needs to be used when instantiating the contract.
 
 
 ## Hello, World! ‒ The Flipper
@@ -194,7 +194,7 @@ cargo contract build
 
 You should now have an `<name>.contract` file in the `target` folder of the contract.
 
-For information on how to deploy this to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
+For information on how to upload this file to a chain, please have a look at the [Play with It](#play-with-it) section or our [smart contracts workshop](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1).
 
 
 ## How it Works

@@ -108,7 +108,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// - on-chain mode: `no_std` and WebAssembly as target
 /// - off-chain mode: `std`
 ///
-/// We generally use the on-chain mode for actual smart contract deployment
+/// We generally use the on-chain mode for actual smart contract instantiation
 /// whereas we use the off-chain mode for smart contract testing using the
 /// off-chain environment provided by the `ink_env` crate.
 ///

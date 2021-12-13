@@ -328,7 +328,7 @@ mod erc20 {
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                     .expect("Cannot get accounts");
-            // Alice owns all the tokens on deployment
+            // Alice owns all the tokens on contract instantiation
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             // Bob does not owns tokens
             assert_eq!(erc20.balance_of(accounts.bob), 0);
@@ -649,7 +649,7 @@ mod erc20 {
             );
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
-            // Alice owns all the tokens on deployment
+            // Alice owns all the tokens on contract instantiation
             assert_eq!(erc20.balance_of(accounts.alice), 100);
             // Bob does not owns tokens
             assert_eq!(erc20.balance_of(accounts.bob), 0);
