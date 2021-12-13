@@ -141,7 +141,7 @@ synstructure::decl_derive!(
     ///
     /// # Note
     ///
-    /// As of now `enum` types are not supported!
+    /// As of now `enum` types are only supported if they derive the `Default` trait
     ///
     /// # Examples
     ///
