@@ -1,4 +1,4 @@
-name: continuous-intergration/build-examples
+name: continuous-intergration/examples
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   check:
-    name: build-examples
+    name: examples
     strategy:
       matrix:
         platform:
@@ -72,12 +72,11 @@ jobs:
            foreach ($contract in $delegator_subcontracts) {
                echo "Processing delegator contract: $contract";
                cargo ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-           }     
+           }
           foreach ($example in Get-ChildItem  -Directory "examples\*") {
                echo "Processing example: $example";
                cargo ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            }
-            
 
       - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         if: runner.os == 'macOS'
