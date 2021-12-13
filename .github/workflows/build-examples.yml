@@ -1,4 +1,4 @@
-name: continuous-intergration/windows
+name: continuous-intergration/build-examples
 
 on:
   pull_request:
@@ -20,6 +20,7 @@ jobs:
     strategy:
       matrix:
         platform:
+          - macos-latest
           - windows-latest
         toolchain:
           - nightly
@@ -28,7 +29,12 @@ jobs:
       RUST_BACKTRACE: full
     steps:
 
+      - uses: actions/setup-node@v2
+        if: runner.os == 'macOS'
+        run: npm install wasm-opt -g
+
       - uses: engineerd/configurator@v0.0.6
+        if: runner.os == 'Windows'
         with:
           name: "wasm-opt.exe"
           url: "https://github.com/WebAssembly/binaryen/releases/download/version_103/binaryen-version_103-x86_64-windows.tar.gz"
@@ -65,12 +71,22 @@ jobs:
             cargo contract --version
 
       - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        if: runner.os == 'Windows'
         run: |
           foreach ($example in Get-ChildItem  -Directory "examples\*") {
               echo "Building example: $example";
               cargo contract build --manifest-path=$example/Cargo.toml;
           }
           cd examples/delegator/ && ./build-all.sh
+
+      - name: Build examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        if: runner.os == 'macOS'
+        run: |
+            for example in examples/*/; do
+                echo "Building example: $example";
+                cargo contract build --manifest-path=$example/Cargo.toml;
+            done
+            cd examples/delegator/ && ./build-all.sh
 
       # For the moment we don't test the examples on Windows, since it takes a long
       # time in the CI (about an hour).
