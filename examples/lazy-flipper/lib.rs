@@ -12,9 +12,12 @@ pub mod flipper {
 
     #[ink(storage)]
     #[derive(SpreadAllocate, Default)]
+    // #[derive(Default)]
     pub struct Flipper {
         map: Mapping<bool, ()>,
+        map2: Mapping<bool, ()>,
         lazy: Lazy<()>,
+        vec: ink_storage::collections::Vec<()>,
     }
 
     impl Flipper {

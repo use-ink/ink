@@ -30,6 +30,6 @@ impl ExtKeyPtr for KeyPtr {
     where
         T: SpreadLayout,
     {
-        self.advance_by(<T as SpreadLayout>::FOOTPRINT)
+        dbg!(self.advance_by(<T as SpreadLayout>::FOOTPRINT))
     }
 }

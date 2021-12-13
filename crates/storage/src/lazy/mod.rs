@@ -109,9 +109,10 @@ where
 
 impl<T> SpreadAllocate for Lazy<T>
 where
-    T: SpreadLayout,
+    T: SpreadAllocate,
 {
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
+        // Self::new(<T as SpreadAllocate>::allocate_spread(ptr))
         Self {
             cell: <LazyCell<T> as SpreadAllocate>::allocate_spread(ptr),
         }

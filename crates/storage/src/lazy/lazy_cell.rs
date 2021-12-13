@@ -199,11 +199,13 @@ where
 
 impl<T> SpreadAllocate for LazyCell<T>
 where
-    T: SpreadLayout,
+    T: SpreadAllocate, // SpreadLayout,
 {
     #[inline]
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
+        Self::new(Some(<T as SpreadAllocate>::allocate_spread(ptr)))
+        // Self::new(Some(Default::default()))
+        // Self::lazy(*ExtKeyPtr::next_for::<Self>(ptr))
     }
 }
 
