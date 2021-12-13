@@ -82,11 +82,11 @@ jobs:
       - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
         if: runner.os == 'macOS'
         run: |
-           for example in examples/*/; do
-               echo "Processing example: $example";
-               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
-           done
            for contract in ${DELEGATOR_SUBCONTRACTS}; do
                echo "Processing delegator contract: $contract";
                cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+           done
+           for example in examples/*/; do
+               echo "Processing example: $example";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
            done
