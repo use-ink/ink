@@ -38,10 +38,19 @@ use ink_primitives::Key;
 
 /// A mapping of key-value pairs directly into contract storage.
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-#[derive(Default)]
 pub struct Mapping<K, V> {
     offset_key: Key,
     _marker: PhantomData<fn() -> (K, V)>,
+}
+
+/// We implement this manually because the derived implementation adds trait bounds.
+impl<K, V> Default for Mapping<K, V> {
+    fn default() -> Self {
+        Self {
+            offset_key: Default::default(),
+            _marker: Default::default(),
+        }
+    }
 }
 
 impl<K, V> core::fmt::Debug for Mapping<K, V> {

@@ -71,13 +71,10 @@ mod multisig {
     };
     use ink_prelude::vec::Vec;
     use ink_storage::{
-        collections::{
-            HashMap as StorageHashMap,
-            Stash as StorageStash,
-            Vec as StorageVec,
-        },
+        lazy::Mapping,
         traits::{
             PackedLayout,
+            SpreadAllocate,
             SpreadLayout,
         },
         Lazy,
@@ -149,25 +146,26 @@ mod multisig {
         TransactionFailed,
     }
 
-    #[ink(storage)]
-    pub struct Multisig {
-        /// Every entry in this map represents the confirmation of an owner for a
-        /// transaction. This is effectively a set rather than a map.
-        confirmations: StorageHashMap<(TransactionId, AccountId), ()>,
-        /// The amount of confirmations for every transaction. This is a redundant
-        /// information and is kept in order to prevent iterating through the
-        /// confirmation set to check if a transaction is confirmed.
-        confirmation_count: StorageHashMap<TransactionId, u32>,
-        /// Just the list of transactions. It is a stash as stable ids are necessary
-        /// for referencing them in confirmation calls.
-        transactions: StorageStash<Transaction>,
-        /// The list is a vector because iterating over it is necessary when cleaning
-        /// up the confirmation set.
-        owners: StorageVec<AccountId>,
-        /// Redundant information to speed up the check whether a caller is an owner.
-        is_owner: StorageHashMap<AccountId, ()>,
-        /// Minimum number of owners that have to confirm a transaction to be executed.
-        requirement: Lazy<u32>,
+    /// This is a book keeping struct that stores a list of all transaction ids and
+    /// also the next id to use. We need it for cleaning up the storage.
+    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Default)]
+    #[cfg_attr(
+        feature = "std",
+        derive(
+            Debug,
+            PartialEq,
+            Eq,
+            scale_info::TypeInfo,
+            ink_storage::traits::StorageLayout
+        )
+    )]
+    pub struct Transactions {
+        /// Just store all transaction ids packed.
+        transactions: Vec<TransactionId>,
+        /// We just increment this whenever a new transaction is created.
+        /// We never decrement or defragment. For now, the contract becomes defunct
+        /// when the ids are exhausted.
+        next_id: TransactionId,
     }
 
     /// Emitted when an owner confirms a transaction.
@@ -247,6 +245,30 @@ mod multisig {
         new_requirement: u32,
     }
 
+    #[ink(storage)]
+    #[derive(SpreadAllocate)]
+    pub struct Multisig {
+        /// Every entry in this map represents the confirmation of an owner for a
+        /// transaction. This is effectively a set rather than a map.
+        confirmations: Mapping<(TransactionId, AccountId), ()>,
+        /// The amount of confirmations for every transaction. This is a redundant
+        /// information and is kept in order to prevent iterating through the
+        /// confirmation set to check if a transaction is confirmed.
+        confirmation_count: Mapping<TransactionId, u32>,
+        /// Map the transaction id to its unexecuted transaction.
+        transactions: Mapping<TransactionId, Transaction>,
+        /// We need to hold a list of all transactions so that we can clean up storage
+        /// when an owner is removed.
+        transaction_list: Lazy<Transactions>,
+        /// The list is a vector because iterating over it is necessary when cleaning
+        /// up the confirmation set.
+        owners: Lazy<Vec<AccountId>>,
+        /// Redundant information to speed up the check whether a caller is an owner.
+        is_owner: Mapping<AccountId, ()>,
+        /// Minimum number of owners that have to confirm a transaction to be executed.
+        requirement: u32,
+    }
+
     impl Multisig {
         /// The only constructor of the contract.
         ///
@@ -257,20 +279,20 @@ mod multisig {
         ///
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
-        pub fn new(requirement: u32, owners: Vec<AccountId>) -> Self {
-            let is_owner: StorageHashMap<_, _, _> =
-                owners.iter().copied().map(|owner| (owner, ())).collect();
-            let owners: StorageVec<_> = owners.iter().copied().collect();
-            ensure_requirement_is_valid(owners.len(), requirement);
-            assert!(is_owner.len() == owners.len());
-            Self {
-                confirmations: StorageHashMap::default(),
-                confirmation_count: StorageHashMap::default(),
-                transactions: StorageStash::default(),
-                owners,
-                is_owner,
-                requirement: Lazy::new(requirement),
-            }
+        pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                owners.sort_unstable();
+                owners.dedup();
+                ensure_requirement_is_valid(owners.len() as u32, requirement);
+
+                for owner in &owners {
+                    contract.is_owner.insert(owner, &());
+                }
+
+                contract.owners = owners.into();
+                contract.transaction_list = Default::default();
+                contract.requirement = requirement;
+            })
         }
 
         /// Add a new owner to the contract.
@@ -324,8 +346,8 @@ mod multisig {
         pub fn add_owner(&mut self, new_owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_no_owner(&new_owner);
-            ensure_requirement_is_valid(self.owners.len() + 1, *self.requirement);
-            self.is_owner.insert(new_owner, ());
+            ensure_requirement_is_valid(self.owners.len() as u32 + 1, self.requirement);
+            self.is_owner.insert(new_owner, &());
             self.owners.push(new_owner);
             self.env().emit_event(OwnerAddition { owner: new_owner });
         }
@@ -343,12 +365,13 @@ mod multisig {
         pub fn remove_owner(&mut self, owner: AccountId) {
             self.ensure_from_wallet();
             self.ensure_owner(&owner);
-            let len = self.owners.len() - 1;
-            let requirement = u32::min(len, *self.requirement);
+            let len = self.owners.len() as u32 - 1;
+            let requirement = u32::min(len, self.requirement);
             ensure_requirement_is_valid(len, requirement);
-            self.owners.swap_remove(self.owner_index(&owner));
-            self.is_owner.take(&owner);
-            Lazy::set(&mut self.requirement, requirement);
+            let owner_index = self.owner_index(&owner) as usize;
+            self.owners.swap_remove(owner_index);
+            self.is_owner.remove(&owner);
+            self.requirement = requirement;
             self.clean_owner_confirmations(&owner);
             self.env().emit_event(OwnerRemoval { owner });
         }
@@ -366,9 +389,9 @@ mod multisig {
             self.ensure_owner(&old_owner);
             self.ensure_no_owner(&new_owner);
             let owner_index = self.owner_index(&old_owner);
-            self.owners[owner_index] = new_owner;
-            self.is_owner.take(&old_owner);
-            self.is_owner.insert(new_owner, ());
+            self.owners[owner_index as usize] = new_owner;
+            self.is_owner.remove(&old_owner);
+            self.is_owner.insert(new_owner, &());
             self.clean_owner_confirmations(&old_owner);
             self.env().emit_event(OwnerRemoval { owner: old_owner });
             self.env().emit_event(OwnerAddition { owner: new_owner });
@@ -384,8 +407,8 @@ mod multisig {
         #[ink(message)]
         pub fn change_requirement(&mut self, new_requirement: u32) {
             self.ensure_from_wallet();
-            ensure_requirement_is_valid(self.owners.len(), new_requirement);
-            Lazy::set(&mut self.requirement, new_requirement);
+            ensure_requirement_is_valid(self.owners.len() as u32, new_requirement);
+            self.requirement = new_requirement;
             self.env().emit_event(RequirementChange { new_requirement });
         }
 
@@ -398,7 +421,11 @@ mod multisig {
             transaction: Transaction,
         ) -> (TransactionId, ConfirmationStatus) {
             self.ensure_caller_is_owner();
-            let trans_id = self.transactions.put(transaction);
+            let trans_id = self.transaction_list.next_id;
+            self.transaction_list.next_id =
+                trans_id.checked_add(1).expect("Transaction ids exhausted.");
+            self.transactions.insert(trans_id, &transaction);
+            self.transaction_list.transactions.push(trans_id);
             self.env().emit_event(Submission {
                 transaction: trans_id,
             });
@@ -452,15 +479,18 @@ mod multisig {
         pub fn revoke_confirmation(&mut self, trans_id: TransactionId) {
             self.ensure_caller_is_owner();
             let caller = self.env().caller();
-            if self.confirmations.take(&(trans_id, caller)).is_some() {
+            if self.confirmations.get(&(trans_id, caller)).is_some() {
+                self.confirmations.remove(&(trans_id, caller));
+                let mut confirmation_count = self
+                    .confirmation_count
+                    .get(&trans_id)
+                    .expect(
+                    "There is a entry in `self.confirmations`. Hence a count must exit.",
+                );
+                // Will not underflow as there is at least one confirmation
+                confirmation_count -= 1;
                 self.confirmation_count
-                    .entry(trans_id)
-                    .and_modify(|v| {
-                        if *v > 0 {
-                            *v -= 1;
-                        }
-                    })
-                    .or_insert(1);
+                    .insert(&trans_id, &confirmation_count);
                 self.env().emit_event(Revokation {
                     transaction: trans_id,
                     from: caller,
@@ -538,19 +568,19 @@ mod multisig {
             confirmer: AccountId,
             transaction: TransactionId,
         ) -> ConfirmationStatus {
-            let count = self.confirmation_count.entry(transaction).or_insert(0);
-            let new_confirmation = self
-                .confirmations
-                .insert((transaction, confirmer), ())
-                .is_none();
+            let mut count = self.confirmation_count.get(&transaction).unwrap_or(0);
+            let key = (transaction, confirmer);
+            let new_confirmation = self.confirmations.get(&key).is_none();
             if new_confirmation {
-                *count += 1;
+                count += 1;
+                self.confirmations.insert(&key, &());
+                self.confirmation_count.insert(&transaction, &count);
             }
             let status = {
-                if *count >= *self.requirement {
+                if count >= self.requirement {
                     ConfirmationStatus::Confirmed
                 } else {
-                    ConfirmationStatus::ConfirmationsNeeded(*self.requirement - *count)
+                    ConfirmationStatus::ConfirmationsNeeded(self.requirement - count)
                 }
             };
             if new_confirmation {
@@ -575,9 +605,20 @@ mod multisig {
         /// Remove the transaction identified by `trans_id` from `self.transactions`.
         /// Also removes all confirmation state associated with it.
         fn take_transaction(&mut self, trans_id: TransactionId) -> Option<Transaction> {
-            let transaction = self.transactions.take(trans_id);
+            let transaction = self.transactions.get(&trans_id);
             if transaction.is_some() {
-                self.clean_transaction_confirmations(trans_id);
+                self.transactions.remove(&trans_id);
+                let pos = self
+                    .transaction_list
+                    .transactions
+                    .iter()
+                    .position(|t| t == &trans_id)
+                    .expect("The transaction exists hence it must also be in the list.");
+                self.transaction_list.transactions.swap_remove(pos);
+                for owner in self.owners.iter() {
+                    self.confirmations.remove(&(trans_id, *owner));
+                }
+                self.confirmation_count.remove(&trans_id);
             }
             transaction
         }
@@ -585,30 +626,15 @@ mod multisig {
         /// Remove all confirmation state associated with `owner`.
         /// Also adjusts the `self.confirmation_count` variable.
         fn clean_owner_confirmations(&mut self, owner: &AccountId) {
-            use ::ink_storage::collections::stash::Entry as StashEntry;
-            for (trans_id, _) in
-                self.transactions
-                    .entries()
-                    .enumerate()
-                    .filter_map(|(n, entry)| {
-                        match entry {
-                            StashEntry::Vacant(_) => None,
-                            StashEntry::Occupied(value) => Some((n as u32, value)),
-                        }
-                    })
-            {
-                if self.confirmations.take(&(trans_id, *owner)).is_some() {
-                    *self.confirmation_count.entry(trans_id).or_insert(0) += 1;
+            for trans_id in &self.transaction_list.transactions {
+                let key = (*trans_id, *owner);
+                if self.confirmations.get(&key).is_some() {
+                    self.confirmations.remove(&key);
+                    let mut count = self.confirmation_count.get(&trans_id).unwrap_or(0);
+                    count -= 1;
+                    self.confirmation_count.insert(&trans_id, &count);
                 }
             }
-        }
-
-        /// This removes all confirmation state associated with `transaction`.
-        fn clean_transaction_confirmations(&mut self, transaction: TransactionId) {
-            for owner in self.owners.iter() {
-                self.confirmations.take(&(transaction, *owner));
-            }
-            self.confirmation_count.take(&transaction);
         }
 
         /// Panic if transaction `trans_id` is not confirmed by at least
@@ -618,7 +644,7 @@ mod multisig {
                 self.confirmation_count
                     .get(&trans_id)
                     .expect(WRONG_TRANSACTION_ID)
-                    >= &self.requirement
+                    >= self.requirement
             );
         }
 
@@ -639,12 +665,12 @@ mod multisig {
 
         /// Panic if `owner` is not an owner,
         fn ensure_owner(&self, owner: &AccountId) {
-            assert!(self.is_owner.contains_key(owner));
+            assert!(self.is_owner.get(owner).is_some());
         }
 
         /// Panic if `owner` is an owner.
         fn ensure_no_owner(&self, owner: &AccountId) {
-            assert!(!self.is_owner.contains_key(owner));
+            assert!(self.is_owner.get(owner).is_none());
         }
     }
 
@@ -719,13 +745,12 @@ mod multisig {
             let accounts = default_accounts();
             set_from_owner();
             contract.submit_transaction(Transaction::change_requirement(1));
-            assert_eq!(contract.transactions.len(), 1);
+            assert_eq!(contract.transaction_list.transactions.len(), 1);
             assert_eq!(test::recorded_events().count(), 2);
             let transaction = contract.transactions.get(0).unwrap();
-            assert_eq!(*transaction, Transaction::change_requirement(1));
+            assert_eq!(transaction, Transaction::change_requirement(1));
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
-            assert_eq!(contract.confirmations.len(), 1);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
             contract
         }
 
@@ -736,7 +761,7 @@ mod multisig {
             let contract = build_contract();
 
             assert_eq!(contract.owners.len(), 3);
-            assert_eq!(*contract.requirement, 2);
+            assert_eq!(contract.requirement, 2);
             assert!(contract.owners.iter().eq(owners.iter()));
             assert!(contract.is_owner.get(&accounts.alice).is_some());
             assert!(contract.is_owner.get(&accounts.bob).is_some());
@@ -744,9 +769,7 @@ mod multisig {
             assert!(contract.is_owner.get(&accounts.charlie).is_none());
             assert!(contract.is_owner.get(&accounts.django).is_none());
             assert!(contract.is_owner.get(&accounts.frank).is_none());
-            assert_eq!(contract.confirmations.len(), 0);
-            assert_eq!(contract.confirmation_count.len(), 0);
-            assert_eq!(contract.transactions.len(), 0);
+            assert_eq!(contract.transaction_list.transactions.len(), 0);
         }
 
         #[ink::test]
@@ -872,10 +895,10 @@ mod multisig {
         #[ink::test]
         fn change_requirement_works() {
             let mut contract = build_contract();
-            assert_eq!(*contract.requirement, 2);
+            assert_eq!(contract.requirement, 2);
             set_from_wallet();
             contract.change_requirement(3);
-            assert_eq!(*contract.requirement, 3);
+            assert_eq!(contract.requirement, 3);
             assert_eq!(test::recorded_events().count(), 1);
         }
 
@@ -921,7 +944,7 @@ mod multisig {
             let mut contract = submit_transaction();
             set_from_wallet();
             contract.cancel_transaction(0);
-            assert_eq!(contract.transactions.len(), 0);
+            assert_eq!(contract.transaction_list.transactions.len(), 0);
             assert_eq!(test::recorded_events().count(), 3);
         }
 
@@ -930,7 +953,7 @@ mod multisig {
             let mut contract = submit_transaction();
             set_from_wallet();
             contract.cancel_transaction(1);
-            assert_eq!(contract.transactions.len(), 1);
+            assert_eq!(contract.transaction_list.transactions.len(), 1);
             assert_eq!(test::recorded_events().count(), 2);
         }
 
@@ -949,8 +972,7 @@ mod multisig {
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 3);
             contract.confirmations.get(&(0, accounts.bob)).unwrap();
-            assert_eq!(contract.confirmations.len(), 2);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 2);
         }
 
         #[ink::test]
@@ -964,15 +986,14 @@ mod multisig {
             // Confirm by Eve
             set_sender(accounts.eve);
             contract.confirm_transaction(0);
-            assert_eq!(contract.confirmations.len(), 3);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 3);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 3);
             // Revoke from Eve
             contract.revoke_confirmation(0);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 2);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 2);
             // Revoke from Bob
             set_sender(accounts.bob);
             contract.revoke_confirmation(0);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
         #[ink::test]
@@ -983,8 +1004,7 @@ mod multisig {
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 2);
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
-            assert_eq!(contract.confirmations.len(), 1);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
         #[ink::test]
@@ -1003,8 +1023,7 @@ mod multisig {
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 3);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_none());
-            assert_eq!(contract.confirmations.len(), 0);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 0);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 0);
         }
 
         #[ink::test]
@@ -1015,8 +1034,7 @@ mod multisig {
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 2);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_some());
-            assert_eq!(contract.confirmations.len(), 1);
-            assert_eq!(*contract.confirmation_count.get(&0).unwrap(), 1);
+            assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
 
         #[ink::test]
