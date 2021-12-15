@@ -14,30 +14,34 @@
 
 //! Implementations of supported cryptographic hash functions.
 
-/// Helper routine implementing variable size BLAKE-2b hash computation.
-fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
-    use ::blake2::digest::{
-        Update as _,
-        VariableOutput as _,
-    };
-
-    let mut blake2 = blake2::Blake2bVar::new(size).expect(
-        "The provided `size` is bigger than the maximum `OutputSize` for `Blake2Var` (32-bytes).",
-    );
-    blake2.update(input);
-    blake2.finalize_variable(output).expect(
-        "The provided `output` size does not match the hasher (`Blake2Var`) output size.",
-    );
-}
-
 /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
-    blake2b_var(32, input, output)
+    use ::blake2::digest::{
+        consts::U32,
+        Digest as _,
+    };
+
+    type Blake2b128 = ::blake2::Blake2b<U32>;
+
+    let mut blake2 = Blake2b128::new();
+    blake2.update(input);
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Conduct the BLAKE-2 128-bit hash and place the result into `output`.
 pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
-    blake2b_var(16, input, output)
+    use ::blake2::digest::{
+        consts::U16,
+        Digest as _,
+    };
+
+    type Blake2b128 = ::blake2::Blake2b<U16>;
+
+    let mut blake2 = Blake2b128::new();
+    blake2.update(input);
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Conduct the KECCAK 256-bit hash and place the result into `output`.

@@ -19,17 +19,16 @@ use syn::spanned::Spanned as _;
 /// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
     use ::blake2::digest::{
-        Update as _,
-        VariableOutput as _,
+        consts::U32,
+        Digest as _,
     };
 
-    let mut blake2 = blake2::Blake2bVar::new(32).expect(
-        "The maximum `OutputSize` for `Blake2bVar` is 32-bytes, so this must succeed.",
-    );
+    type Blake2b256 = ::blake2::Blake2b<U32>;
+
+    let mut blake2 = Blake2b256::new();
     blake2.update(input);
-    blake2.finalize_variable(output).expect(
-        "The function signature requires that the output is 32-bytes, so this must succeed.",
-    );
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Computes the BLAKE2b-256 bit hash of a string or byte string literal.
