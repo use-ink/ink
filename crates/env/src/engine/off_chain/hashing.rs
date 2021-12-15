@@ -20,9 +20,14 @@ fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
         Update as _,
         VariableOutput as _,
     };
-    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], size);
+
+    let mut blake2 = blake2::Blake2bVar::new(size).expect(
+        "The provided `size` is bigger than the maximum `OutputSize` for `Blake2Var` (32-bytes).",
+    );
     blake2.update(input);
-    blake2.finalize_variable(|result| output.copy_from_slice(result));
+    blake2.finalize_variable(output).expect(
+        "The provided `output` size does not match the hasher (`Blake2Var`) output size.",
+    );
 }
 
 /// Conduct the BLAKE-2 256-bit hash and place the result into `output`.

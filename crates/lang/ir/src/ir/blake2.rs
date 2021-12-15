@@ -22,9 +22,14 @@ pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
         Update as _,
         VariableOutput as _,
     };
-    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], 32);
+
+    let mut blake2 = blake2::Blake2bVar::new(32).expect(
+        "The maximum `OutputSize` for `Blake2bVar` is 32-bytes, so this must succeed.",
+    );
     blake2.update(input);
-    blake2.finalize_variable(|result| output.copy_from_slice(result));
+    blake2.finalize_variable(output).expect(
+        "The function signature requires that the output is 32-bytes, so this must succeed.",
+    );
 }
 
 /// Computes the BLAKE2b-256 bit hash of a string or byte string literal.
