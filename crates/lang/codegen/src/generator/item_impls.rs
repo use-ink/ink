@@ -16,7 +16,7 @@ use core::iter;
 
 use crate::GenerateCode;
 use derive_more::From;
-use heck::CamelCase as _;
+use heck::ToLowerCamelCase as _;
 use ir::{
     Callable as _,
     HexLiteral,
@@ -186,7 +186,8 @@ impl ItemImpls<'_> {
         let vis = message.visibility();
         let receiver = message.receiver();
         let ident = message.ident();
-        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
+        let output_ident =
+            format_ident!("{}Output", ident.to_string().to_lower_camel_case());
         let inputs = message.inputs();
         let output = message
             .output()
