@@ -82,6 +82,10 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -103,12 +107,16 @@
 <span class="doccomment">/// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blake2b_256</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>; <span class="number">32</span>]) {
     <span class="kw">use</span> <span class="ident">::blake2::digest</span>::{
-        <span class="ident">Update</span> <span class="kw">as</span> <span class="kw">_</span>,
-        <span class="ident">VariableOutput</span> <span class="kw">as</span> <span class="kw">_</span>,
+        <span class="ident">consts::U32</span>,
+        <span class="ident">Digest</span> <span class="kw">as</span> <span class="kw">_</span>,
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blake2</span> <span class="op">=</span> <span class="ident">blake2::VarBlake2b::new_keyed</span>(<span class="kw-2">&amp;</span>[], <span class="number">32</span>);
+
+    <span class="kw">type</span> <span class="ident">Blake2b256</span> <span class="op">=</span> <span class="ident">::blake2::Blake2b</span><span class="op">&lt;</span><span class="ident">U32</span><span class="op">&gt;</span>;
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blake2</span> <span class="op">=</span> <span class="ident">Blake2b256::new</span>();
     <span class="ident">blake2</span>.<span class="ident">update</span>(<span class="ident">input</span>);
-    <span class="ident">blake2</span>.<span class="ident">finalize_variable</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="ident">output</span>.<span class="ident">copy_from_slice</span>(<span class="ident">result</span>));
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">blake2</span>.<span class="ident">finalize</span>();
+    <span class="ident">output</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">result</span>);
 }
 
 <span class="doccomment">/// Computes the BLAKE2b-256 bit hash of a string or byte string literal.</span>
