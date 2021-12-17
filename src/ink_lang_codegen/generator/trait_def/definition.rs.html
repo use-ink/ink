@@ -70,6 +70,7 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -87,7 +88,7 @@
 <span class="doccomment">//! Generates the ink! trait definition item.</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TraitDefinition</span>;
-<span class="kw">use</span> <span class="ident">heck::CamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">heck::ToLowerCamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2::TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>;
 <span class="kw">use</span> <span class="ident">quote</span>::{
     <span class="ident">format_ident</span>,
@@ -106,7 +107,8 @@
             <span class="ident">syn::ReturnType::Default</span> =&gt; <span class="macro">quote!</span> { () },
             <span class="ident">syn::ReturnType::Type</span>(<span class="kw">_</span>, <span class="ident">ty</span>) =&gt; <span class="macro">quote!</span> { #<span class="ident">ty</span> },
         };
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
+        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span>
+            <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_lower_camel_case</span>());
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
             <span class="doccomment">/// Output type of the respective trait message.</span>
             <span class="kw">type</span> #<span class="ident">output_ident</span>: <span class="ident">::ink_lang::codegen::ImpliesReturn</span><span class="op">&lt;</span>#<span class="ident">output</span><span class="op">&gt;</span>;

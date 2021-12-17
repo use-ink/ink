@@ -117,7 +117,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="ident">heck::CamelCase</span>;
+<span class="kw">use</span> <span class="ident">heck::ToLowerCamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{
     <span class="ident">Span</span>,
     <span class="ident">TokenStream</span> <span class="kw">as</span> <span class="ident">TokenStream2</span>,
@@ -130,7 +130,7 @@
 
 <span class="doccomment">/// Returns the associated output type for an ink! trait message.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output_ident</span>(<span class="ident">message_name</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Ident</span>) -&gt; <span class="ident">syn::Ident</span> {
-    <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">message_name</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>())
+    <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">message_name</span>.<span class="ident">to_string</span>().<span class="ident">to_lower_camel_case</span>())
 }
 
 <span class="doccomment">/// Returns the sequence of artificial input parameter bindings for the message.</span>

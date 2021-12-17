@@ -312,6 +312,7 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
+<span id="314">314</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2021 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -330,7 +331,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
-<span class="kw">use</span> <span class="ident">heck::CamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use</span> <span class="ident">heck::ToLowerCamelCase</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="kw">use</span> <span class="ident">ir</span>::{
     <span class="ident">Callable</span> <span class="kw">as</span> <span class="kw">_</span>,
     <span class="ident">HexLiteral</span>,
@@ -500,7 +501,8 @@
         <span class="kw">let</span> <span class="ident">vis</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">visibility</span>();
         <span class="kw">let</span> <span class="ident">receiver</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">receiver</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_camel_case</span>());
+        <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span>
+            <span class="macro">format_ident!</span>(<span class="string">&quot;{}Output&quot;</span>, <span class="ident">ident</span>.<span class="ident">to_string</span>().<span class="ident">to_lower_camel_case</span>());
         <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">inputs</span>();
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>
             .<span class="ident">output</span>()
