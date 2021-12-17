@@ -14,25 +14,34 @@
 
 //! Implementations of supported cryptographic hash functions.
 
-/// Helper routine implementing variable size BLAKE2b hash computation.
-fn blake2b_var(size: usize, input: &[u8], output: &mut [u8]) {
-    use blake2::digest::{
-        Update as _,
-        VariableOutput as _,
-    };
-    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], size);
-    blake2.update(input);
-    blake2.finalize_variable(|result| output.copy_from_slice(result));
-}
-
 /// Conduct the BLAKE2 256-bit hash and place the result into `output`.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
-    blake2b_var(32, input, output)
+    use ::blake2::digest::{
+        consts::U32,
+        Digest as _,
+    };
+
+    type Blake2b256 = ::blake2::Blake2b<U32>;
+
+    let mut blake2 = Blake2b256::new();
+    blake2.update(input);
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Conduct the BLAKE2 128-bit hash and place the result into `output`.
 pub fn blake2b_128(input: &[u8], output: &mut [u8; 16]) {
-    blake2b_var(16, input, output)
+    use ::blake2::digest::{
+        consts::U16,
+        Digest as _,
+    };
+
+    type Blake2b128 = ::blake2::Blake2b<U16>;
+
+    let mut blake2 = Blake2b128::new();
+    blake2.update(input);
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Conduct the KECCAK 256-bit hash and place the result into `output`.
