@@ -48,11 +48,15 @@
 extern crate quickcheck_macros;
 
 pub mod alloc;
+pub mod traits;
+
+#[allow(dead_code)]
 pub(crate) mod collections;
+#[allow(dead_code)]
 pub(crate) mod lazy;
+
 mod memory;
 mod pack;
-pub mod traits;
 
 #[cfg(test)]
 mod hashmap_entry_api_tests;
