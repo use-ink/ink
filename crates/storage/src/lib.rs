@@ -48,8 +48,8 @@
 extern crate quickcheck_macros;
 
 pub mod alloc;
-pub mod collections;
-pub mod lazy;
+pub(crate) mod collections;
+pub(crate) mod lazy;
 mod memory;
 mod pack;
 pub mod traits;
@@ -63,8 +63,13 @@ mod test_utils;
 #[doc(inline)]
 pub use self::{
     alloc::Box,
-    collections::Vec,
-    lazy::Lazy,
+    lazy::Mapping,
     memory::Memory,
     pack::Pack,
+};
+
+#[doc(inline)]
+pub(crate) use self::{
+    collections::Vec,
+    lazy::Lazy,
 };
