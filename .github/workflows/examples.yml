@@ -28,6 +28,25 @@ jobs:
         job:
           - build
           - test
+        contract:
+          - examples/delegator/accumulator
+          - examples/delegator/adder
+          - examples/delegator/subber
+          - examples/delegator
+          - examples/contract-transfer
+          - examples/contract-terminate
+          - examples/dns
+          - examples/erc1155
+          - examples/erc20
+          - examples/erc721
+          - examples/flipper
+          - examples/incrementer
+          - examples/multisig
+          - examples/proxy
+          - examples/rand-extension
+          - examples/trait-erc20
+          - examples/trait-flipper
+          - examples/trait-incrementer
     runs-on: ${{ matrix.platform }}
     env:
       RUST_BACKTRACE: full
@@ -66,27 +85,14 @@ jobs:
             cargo -vV
             cargo contract --version
 
-      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}-${{ matrix.contract }}
         if: runner.os == 'Windows'
         run: |
-           $delegator_subcontracts = "accumulator","adder","subber"
-           foreach ($contract in $delegator_subcontracts) {
-               echo "Processing delegator contract: $contract";
-               cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-           }
-           foreach ($example in Get-ChildItem  -Directory "examples\*") {
-               echo "Processing example: $example";
-               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
-           }
+            echo "Processing delegator contract: ${{ matrix.contract }}";
+            cargo contract ${{ matrix.job }} --verbose --manifest-path ${{ matrix.contract }}/Cargo.toml;
 
-      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}-${{ matrix.contract }}
         if: runner.os == 'macOS'
         run: |
-           for contract in ${DELEGATOR_SUBCONTRACTS}; do
-               echo "Processing delegator contract: $contract";
-               cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
-           done
-           for example in examples/*/; do
-               echo "Processing example: $example";
-               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
-           done
+            echo "Processing delegator contract: ${{ matrix.contract }}";
+            cargo contract ${{ matrix.job }} --verbose --manifest-path ${{ matrix.contract }}/Cargo.toml;
