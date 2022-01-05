@@ -465,6 +465,7 @@ where
 
     /// Provides in-place mutable access to an occupied entry before any
     /// potential inserts into the map.
+    #[must_use]
     pub fn and_modify<F>(self, f: F) -> Self
     where
         F: FnOnce(&mut V),

@@ -138,6 +138,7 @@ impl ContractSpecBuilder<Invalid> {
 
 impl<S> ContractSpecBuilder<S> {
     /// Sets the messages of the contract specification.
+    #[must_use]
     pub fn messages<M>(self, messages: M) -> Self
     where
         M: IntoIterator<Item = MessageSpec>,
@@ -153,6 +154,7 @@ impl<S> ContractSpecBuilder<S> {
     }
 
     /// Sets the events of the contract specification.
+    #[must_use]
     pub fn events<E>(self, events: E) -> Self
     where
         E: IntoIterator<Item = EventSpec>,
@@ -168,6 +170,7 @@ impl<S> ContractSpecBuilder<S> {
     }
 
     /// Sets the documentation of the contract specification.
+    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -320,6 +323,7 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
 
 impl<S> ConstructorSpecBuilder<S> {
     /// Sets the input arguments of the message specification.
+    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
@@ -331,6 +335,7 @@ impl<S> ConstructorSpecBuilder<S> {
     }
 
     /// Sets the documentation of the message specification.
+    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -538,6 +543,7 @@ impl<M, S, P> MessageSpecBuilder<S, M, P, Missing<state::Returns>> {
 
 impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     /// Sets the input arguments of the message specification.
+    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
@@ -549,6 +555,7 @@ impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     }
 
     /// Sets the documentation of the message specification.
+    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -611,6 +618,7 @@ pub struct EventSpecBuilder {
 
 impl EventSpecBuilder {
     /// Sets the input arguments of the event specification.
+    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = EventParamSpec>,
@@ -622,6 +630,7 @@ impl EventSpecBuilder {
     }
 
     /// Sets the input arguments of the event specification.
+    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -930,6 +939,7 @@ pub struct EventParamSpecBuilder {
 
 impl EventParamSpecBuilder {
     /// Sets the type of the event parameter.
+    #[must_use]
     pub fn of_type(self, spec: TypeSpec) -> Self {
         let mut this = self;
         this.spec.ty = spec;
@@ -937,6 +947,7 @@ impl EventParamSpecBuilder {
     }
 
     /// If the event parameter is indexed.
+    #[must_use]
     pub fn indexed(self, is_indexed: bool) -> Self {
         let mut this = self;
         this.spec.indexed = is_indexed;
@@ -944,6 +955,7 @@ impl EventParamSpecBuilder {
     }
 
     /// Sets the documentation of the event parameter.
+    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -997,6 +1009,7 @@ impl ReturnTypeSpec {
     /// ReturnTypeSpec::new(None); // no return type;
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
+    #[must_use]
     pub fn new<T>(ty: T) -> Self
     where
         T: Into<Option<TypeSpec>>,
@@ -1078,6 +1091,7 @@ pub struct MessageParamSpecBuilder {
 
 impl MessageParamSpecBuilder {
     /// Sets the type of the message parameter.
+    #[must_use]
     pub fn of_type(self, ty: TypeSpec) -> Self {
         let mut this = self;
         this.spec.ty = ty;
