@@ -28,7 +28,7 @@ impl Default for ECDSAPublicKey {
         // Default is not implemented for [u8; 33], so we can't derive it for ECDSAPublicKey
         // But clippy thinks that it is possible. So it is workaround for clippy.
         let empty = [0; 33];
-        Self { 0: empty }
+        Self(empty)
     }
 }
 
@@ -46,7 +46,7 @@ impl AsMut<[u8; 33]> for ECDSAPublicKey {
 
 impl From<[u8; 33]> for ECDSAPublicKey {
     fn from(bytes: [u8; 33]) -> Self {
-        Self { 0: bytes }
+        Self(bytes)
     }
 }
 
@@ -68,7 +68,7 @@ impl AsMut<[u8; 20]> for EthereumAddress {
 
 impl From<[u8; 20]> for EthereumAddress {
     fn from(bytes: [u8; 20]) -> Self {
-        Self { 0: bytes }
+        Self(bytes)
     }
 }
 
