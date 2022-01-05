@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// - on-chain mode: `no_std` and WebAssembly as target
 /// - off-chain mode: `std`
 ///
-/// We generally use the on-chain mode for actual smart contract deployment
+/// We generally use the on-chain mode for actual smart contract instantiation
 /// whereas we use the off-chain mode for smart contract testing using the
 /// off-chain environment provided by the `ink_env` crate.
 ///

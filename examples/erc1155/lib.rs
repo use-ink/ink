@@ -62,7 +62,7 @@ macro_rules! ensure {
 ///
 /// The interface is defined here: <https://eips.ethereum.org/EIPS/eip-1155>.
 ///
-/// The goal of ERC-1155 is to allow a single deployed contract to manage a variety of assets.
+/// The goal of ERC-1155 is to allow a single contract to manage a variety of assets.
 /// These assets can be fungible, non-fungible, or a combination.
 ///
 /// By tracking multiple assets the ERC-1155 standard is able to support batch transfers, which
@@ -280,9 +280,9 @@ mod erc1155 {
         /// The initial supply will be provided to the caller (a.k.a the minter), and the
         /// `token_id` will be assigned by the smart contract.
         ///
-        /// Note that as implemented anyone can create tokens. If you were to deploy this to a
-        /// production environment you'd probably want to lock down the addresses that are allowed
-        /// to create tokens.
+        /// Note that as implemented anyone can create tokens. If you were to instantiate
+        /// this contract in a production environment you'd probably want to lock down
+        /// the addresses that are allowed to create tokens.
         #[ink(message)]
         pub fn create(&mut self, value: Balance) -> TokenId {
             let caller = self.env().caller();
@@ -308,9 +308,9 @@ mod erc1155 {
         /// It is assumed that the token has already been `create`-ed. The newly minted supply will
         /// be assigned to the caller (a.k.a the minter).
         ///
-        /// Note that as implemented anyone can mint tokens. If you were to deploy this to a
-        /// production environment you'd probably want to lock down the addresses that are allowed
-        /// to mint tokens.
+        /// Note that as implemented anyone can mint tokens. If you were to instantiate
+        /// this contract in a production environment you'd probably want to lock down
+        /// the addresses that are allowed to mint tokens.
         #[ink(message)]
         pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<()> {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);

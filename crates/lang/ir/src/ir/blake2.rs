@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,12 +19,16 @@ use syn::spanned::Spanned as _;
 /// Computes the BLAKE-2b 256-bit hash for the given input and stores it in output.
 pub fn blake2b_256(input: &[u8], output: &mut [u8; 32]) {
     use ::blake2::digest::{
-        Update as _,
-        VariableOutput as _,
+        consts::U32,
+        Digest as _,
     };
-    let mut blake2 = blake2::VarBlake2b::new_keyed(&[], 32);
+
+    type Blake2b256 = ::blake2::Blake2b<U32>;
+
+    let mut blake2 = Blake2b256::new();
     blake2.update(input);
-    blake2.finalize_variable(|result| output.copy_from_slice(result));
+    let result = blake2.finalize();
+    output.copy_from_slice(&result);
 }
 
 /// Computes the BLAKE2b-256 bit hash of a string or byte string literal.

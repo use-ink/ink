@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 //! Generates the ink! trait definition item.
 
 use super::TraitDefinition;
-use heck::CamelCase as _;
+use heck::ToLowerCamelCase as _;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{
     format_ident,
@@ -34,7 +34,8 @@ impl<'a> TraitDefinition<'a> {
             syn::ReturnType::Default => quote! { () },
             syn::ReturnType::Type(_, ty) => quote! { #ty },
         };
-        let output_ident = format_ident!("{}Output", ident.to_string().to_camel_case());
+        let output_ident =
+            format_ident!("{}Output", ident.to_string().to_lower_camel_case());
         quote_spanned!(span =>
             /// Output type of the respective trait message.
             type #output_ident: ::ink_lang::codegen::ImpliesReturn<#output>;

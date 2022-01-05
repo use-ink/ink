@@ -1,0 +1,92 @@
+name: continuous-intergration/examples
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+        - v*
+    paths-ignore:
+      - 'README.md'
+      - '.gitlab-ci.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/examples.yml'
+
+jobs:
+  check:
+    name: examples
+    strategy:
+      matrix:
+        platform:
+          - macos-latest
+          - windows-latest
+        toolchain:
+          - nightly
+        job:
+          - build
+          - test
+    runs-on: ${{ matrix.platform }}
+    env:
+      RUST_BACKTRACE: full
+    steps:
+
+      - uses: actions/setup-node@v2
+      - run: npm install wasm-opt -g
+
+      - name: Checkout sources & submodules
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Install toolchain
+        id: toolchain
+        uses: actions-rs/toolchain@master
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          components: rust-src
+          override: true
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v1.2.0
+
+      - name: Install `cargo-contract` `master`
+        uses: actions-rs/cargo@v1
+        with:
+            command: install
+            args: --git https://github.com/paritytech/cargo-contract.git
+
+      - name: Output versions
+        run: |
+            wasm-opt --version
+            cargo -vV
+            cargo contract --version
+
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        if: runner.os == 'Windows'
+        run: |
+           $delegator_subcontracts = "accumulator","adder","subber"
+           foreach ($contract in $delegator_subcontracts) {
+               echo "Processing delegator contract: $contract";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+           }
+           foreach ($example in Get-ChildItem  -Directory "examples\*") {
+               echo "Processing example: $example";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+           }
+
+      - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
+        if: runner.os == 'macOS'
+        run: |
+           for contract in ${DELEGATOR_SUBCONTRACTS}; do
+               echo "Processing delegator contract: $contract";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
+           done
+           for example in examples/*/; do
+               echo "Processing example: $example";
+               cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+           done

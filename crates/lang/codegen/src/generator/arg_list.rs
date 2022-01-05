@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use heck::CamelCase;
+use heck::ToLowerCamelCase as _;
 use proc_macro2::{
     Span,
     TokenStream as TokenStream2,
@@ -25,7 +25,7 @@ use quote::{
 
 /// Returns the associated output type for an ink! trait message.
 pub fn output_ident(message_name: &syn::Ident) -> syn::Ident {
-    format_ident!("{}Output", message_name.to_string().to_camel_case())
+    format_ident!("{}Output", message_name.to_string().to_lower_camel_case())
 }
 
 /// Returns the sequence of artificial input parameter bindings for the message.
