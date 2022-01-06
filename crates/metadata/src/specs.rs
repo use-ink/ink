@@ -112,6 +112,7 @@ pub enum Valid {}
 pub enum Invalid {}
 
 /// A builder for contracts.
+#[must_use]
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The to-be-constructed contract specification.
     spec: ContractSpec,
@@ -138,7 +139,6 @@ impl ContractSpecBuilder<Invalid> {
 
 impl<S> ContractSpecBuilder<S> {
     /// Sets the messages of the contract specification.
-    #[must_use]
     pub fn messages<M>(self, messages: M) -> Self
     where
         M: IntoIterator<Item = MessageSpec>,
@@ -154,7 +154,6 @@ impl<S> ContractSpecBuilder<S> {
     }
 
     /// Sets the events of the contract specification.
-    #[must_use]
     pub fn events<E>(self, events: E) -> Self
     where
         E: IntoIterator<Item = EventSpec>,
@@ -170,7 +169,6 @@ impl<S> ContractSpecBuilder<S> {
     }
 
     /// Sets the documentation of the contract specification.
-    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -286,6 +284,7 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
+#[must_use]
 pub struct ConstructorSpecBuilder<Selector> {
     spec: ConstructorSpec,
     marker: PhantomData<fn() -> Selector>,
@@ -323,7 +322,6 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
 
 impl<S> ConstructorSpecBuilder<S> {
     /// Sets the input arguments of the message specification.
-    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
@@ -335,7 +333,6 @@ impl<S> ConstructorSpecBuilder<S> {
     }
 
     /// Sets the documentation of the message specification.
-    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -475,6 +472,7 @@ where
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
 #[allow(clippy::type_complexity)]
+#[must_use]
 pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
@@ -543,7 +541,6 @@ impl<M, S, P> MessageSpecBuilder<S, M, P, Missing<state::Returns>> {
 
 impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     /// Sets the input arguments of the message specification.
-    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = MessageParamSpec>,
@@ -555,7 +552,6 @@ impl<S, M, P, R> MessageSpecBuilder<S, M, P, R> {
     }
 
     /// Sets the documentation of the message specification.
-    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -612,13 +608,13 @@ pub struct EventSpec<F: Form = MetaForm> {
 }
 
 /// An event specification builder.
+#[must_use]
 pub struct EventSpecBuilder {
     spec: EventSpec,
 }
 
 impl EventSpecBuilder {
     /// Sets the input arguments of the event specification.
-    #[must_use]
     pub fn args<A>(self, args: A) -> Self
     where
         A: IntoIterator<Item = EventParamSpec>,
@@ -630,7 +626,6 @@ impl EventSpecBuilder {
     }
 
     /// Sets the input arguments of the event specification.
-    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -932,6 +927,7 @@ where
 }
 
 /// Used to construct an event parameter specification.
+#[must_use]
 pub struct EventParamSpecBuilder {
     /// The built-up event parameter specification.
     spec: EventParamSpec,
@@ -939,7 +935,6 @@ pub struct EventParamSpecBuilder {
 
 impl EventParamSpecBuilder {
     /// Sets the type of the event parameter.
-    #[must_use]
     pub fn of_type(self, spec: TypeSpec) -> Self {
         let mut this = self;
         this.spec.ty = spec;
@@ -947,7 +942,6 @@ impl EventParamSpecBuilder {
     }
 
     /// If the event parameter is indexed.
-    #[must_use]
     pub fn indexed(self, is_indexed: bool) -> Self {
         let mut this = self;
         this.spec.indexed = is_indexed;
@@ -955,7 +949,6 @@ impl EventParamSpecBuilder {
     }
 
     /// Sets the documentation of the event parameter.
-    #[must_use]
     pub fn docs<D>(self, docs: D) -> Self
     where
         D: IntoIterator<Item = &'static str>,
@@ -1084,6 +1077,7 @@ where
 }
 
 /// Used to construct a message parameter specification.
+#[must_use]
 pub struct MessageParamSpecBuilder {
     /// The to-be-constructed message parameter specification.
     spec: MessageParamSpec,
@@ -1091,7 +1085,6 @@ pub struct MessageParamSpecBuilder {
 
 impl MessageParamSpecBuilder {
     /// Sets the type of the message parameter.
-    #[must_use]
     pub fn of_type(self, ty: TypeSpec) -> Self {
         let mut this = self;
         this.spec.ty = ty;
