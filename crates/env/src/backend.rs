@@ -53,6 +53,7 @@ impl ReturnFlags {
 }
 
 /// The flags used to change the behavior of a contract call.
+#[must_use]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct CallFlags {
     forward_input: bool,
@@ -70,7 +71,6 @@ impl CallFlags {
     /// access the input after this call returns (e.g. by trying another forwarding call)
     /// will lead to a contract revert.
     /// Consider using [`Self::set_clone_input`] in order to preserve the input.
-    #[must_use]
     pub const fn set_forward_input(mut self, forward_input: bool) -> Self {
         self.forward_input = forward_input;
         self
@@ -83,7 +83,6 @@ impl CallFlags {
     /// # Note
     ///
     /// This implies [`Self::set_forward_input`] and takes precedence when both are set.
-    #[must_use]
     pub const fn set_clone_input(mut self, clone_input: bool) -> Self {
         self.clone_input = clone_input;
         self
@@ -97,7 +96,6 @@ impl CallFlags {
     /// This makes the current contract completely transparent to its caller by replacing
     /// this contracts potential output with the callee ones. Any code after the contract
     /// calls has been invoked can be safely considered unreachable.
-    #[must_use]
     pub const fn set_tail_call(mut self, tail_call: bool) -> Self {
         self.tail_call = tail_call;
         self
@@ -108,7 +106,6 @@ impl CallFlags {
     /// Without this flag any reentrancy into the current contract that originates from
     /// the callee (or any of its callees) is denied. This includes the first callee:
     /// You cannot call into yourself with this flag set.
-    #[must_use]
     pub const fn set_allow_reentry(mut self, allow_reentry: bool) -> Self {
         self.allow_reentry = allow_reentry;
         self
