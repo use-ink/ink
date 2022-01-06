@@ -96,10 +96,10 @@ workflow:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_EMAIL@kv
       file:                        false
     GITHUB_USER:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_USER@kv
+      vault:                       cicd/gitlab/parity/GITHUB_USER@kv
       file:                        false
     GITHUB_TOKEN:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_TOKEN@kv
+      vault:                       cicd/gitlab/parity/GITHUB_TOKEN@kv
       file:                        false
     PIPELINE_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
