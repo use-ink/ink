@@ -267,7 +267,7 @@ impl Engine {
 
         let balance_in_storage = self
             .database
-            .get_balance(&contract.as_bytes().to_vec())
+            .get_balance(&contract.as_bytes())
             .expect("currently executing contract must exist");
         let balance = scale::Encode::encode(&balance_in_storage);
         set_output(output, &balance[..])
