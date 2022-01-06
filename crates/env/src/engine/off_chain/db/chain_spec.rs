@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -100,7 +100,8 @@ impl ChainSpec {
         self.gas_price = OffBalance::new(&gas_price)
     }
 
-    /// Returns the minimum balance that is required for creating an account.
+    /// Returns the minimum balance that is required for creating an account
+    /// (i.e. the chain's existential deposit).
     pub fn minimum_balance<T>(&self) -> Result<T::Balance>
     where
         T: Environment,

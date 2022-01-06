@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,8 +97,7 @@ impl Dispatch<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .count()
     }
 
@@ -109,8 +108,7 @@ impl Dispatch<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .count()
     }
 
@@ -119,8 +117,7 @@ impl Dispatch<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .position(|item| item.has_wildcard_selector())
     }
 
@@ -129,8 +126,7 @@ impl Dispatch<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .position(|item| item.has_wildcard_selector())
     }
 
@@ -166,8 +162,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .map(|message| {
                 let span = message.span();
                 message_spans.push(span);
@@ -233,8 +228,7 @@ impl Dispatch<'_> {
             .contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|constructor| {
                 let span = constructor.span();
                 constructor_spans.push(span);
@@ -269,8 +263,7 @@ impl Dispatch<'_> {
             .contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|constructor| {
                 let constructor_span = constructor.span();
                 let constructor_ident = constructor.ident();
@@ -311,8 +304,7 @@ impl Dispatch<'_> {
             .module()
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .map(|message| {
                 let message_span = message.span();
                 let message_ident = message.ident();
@@ -446,6 +438,7 @@ impl Dispatch<'_> {
 
             #[cfg(not(test))]
             #[no_mangle]
+            #[allow(clippy::nonminimal_bool)]
             fn call() {
                 if !#any_message_accept_payment {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()

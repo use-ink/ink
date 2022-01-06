@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ impl Contract {
     /// ```no_compile
     /// #[ink::contract]
     /// mod my_contract {
-    ///     // ... definitions
+    ///     // ...definitions
     /// }
     /// ```
     pub fn module(&self) -> &ir::ItemMod {

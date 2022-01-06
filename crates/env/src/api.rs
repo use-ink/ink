@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -155,7 +155,8 @@ where
     })
 }
 
-/// Returns the minimum balance that is required for creating an account.
+/// Returns the minimum balance that is required for creating an account
+/// (i.e. the chain's existential deposit).
 ///
 /// # Errors
 ///
@@ -324,9 +325,10 @@ where
 ///
 /// # Errors
 ///
-/// - If the contract does not have sufficient funds.
+/// - If the contract does not have sufficient free funds.
 /// - If the transfer had brought the sender's total balance below the
-///   subsistence threshold.
+///   minimum balance. You need to use [`terminate_contract`] in case
+///   this is your intention.
 pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
 where
     T: Environment,

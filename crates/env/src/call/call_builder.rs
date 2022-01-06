@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ where
 /// ## Example 1: No Return Value
 ///
 /// The below example shows calling of a message of another contract that does
-/// not return any value back to its caller. The called function ...
+/// not return any value back to its caller. The called function:
 ///
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution
@@ -165,7 +165,7 @@ where
 /// ## Example 2: With Return Value
 ///
 /// The below example shows calling of a message of another contract that does
-/// return a `i32` value back to its caller. The called function ...
+/// return a `i32` value back to its caller. The called function:
 ///
 /// - has a selector equal to `0xDEADBEEF`
 /// - is provided with 5000 units of gas for its execution

@@ -46,7 +46,7 @@ mod delegator {
     ///
     /// # Note
     ///
-    /// In order to deploy the `delegator` smart contract we first
+    /// In order to instantiate the `delegator` smart contract we first
     /// have to manually put the code of the `accumulator`, `adder`
     /// and `subber` smart contracts, receive their code hashes from
     /// the signalled events and put their code hash into our

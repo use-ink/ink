@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// - on-chain mode: `no_std` and WebAssembly as target
 /// - off-chain mode: `std`
 ///
-/// We generally use the on-chain mode for actual smart contract deployment
+/// We generally use the on-chain mode for actual smart contract instantiation
 /// whereas we use the off-chain mode for smart contract testing using the
 /// off-chain environment provided by the `ink_env` crate.
 ///
@@ -395,7 +395,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         }
 ///
 ///         /// Returns the current value.
-///         #[ink(message, payable)] // ... or specify payable inline.
+///         #[ink(message, payable)] // ...or specify payable inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
@@ -435,7 +435,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///         # }
 ///         #
 ///         /// Returns the current value.
-///         #[ink(message, selector = 0xFEEDBEEF)] // ... or specify selector inline.
+///         #[ink(message, selector = 0xFEEDBEEF)] // ...or specify selector inline.
 ///         pub fn get(&self) -> bool {
 ///             self.value
 ///         }
@@ -513,7 +513,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     #[ink(storage)]
 ///     pub struct Erc20 {
 ///         total_supply: Balance,
-///         // more fields ...
+///         // more fields...
 ///     }
 ///
 ///     impl Erc20 {
@@ -607,7 +607,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     #[ink(message)]
 ///     fn transfer(&mut self, amount: Balance, to: AccountId) -> bool;
 ///
-///     // etc ...
+///     // etc.
 /// }
 /// ```
 ///
@@ -754,7 +754,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// fn key_access_for_account(key: &[u8], account: &[u8]) -> Access;
 /// # }
 /// ```
-/// ... or as multiple stand alone ink! attributes applied to the same item:
+/// …or as multiple stand alone ink! attributes applied to the same item:
 /// ```
 /// # type Access = i32;
 /// # use ink_lang as ink;
@@ -825,7 +825,7 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// pub trait MyChainExtension {
 ///     type ErrorCode = MyErrorCode;
 ///
-///     // more definitions ...
+///     // more definitions
 /// }
 /// ```
 ///
@@ -996,7 +996,8 @@ pub fn test(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// shown below.
 ///
 /// Note that chain extension methods are accessible through `Self::extension()` or
-/// `self.extension()`. For example as in `Self::extension().read(..)` or `self.extension().read(..)`.
+/// `self.extension()`. For example as in `Self::extension().read(...)` or
+/// `self.extension().read(...)`.
 ///
 /// ```
 /// # use ink_lang as ink;

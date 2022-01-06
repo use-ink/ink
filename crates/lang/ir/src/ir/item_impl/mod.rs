@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -352,8 +352,7 @@ impl ItemImpl {
     /// Returns `None` if this is an inherent implementation block.
     pub fn trait_ident(&self) -> Option<&Ident> {
         self.trait_path()
-            .map(|trait_path| trait_path.segments.last())
-            .flatten()
+            .and_then(|trait_path| trait_path.segments.last())
             .map(|segment| &segment.ident)
     }
 

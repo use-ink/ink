@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,8 +108,7 @@ impl Metadata<'_> {
         self.contract
             .module()
             .impls()
-            .map(|item_impl| item_impl.iter_constructors())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_constructors())
             .map(|constructor| Self::generate_constructor(constructor))
     }
 
@@ -127,7 +126,7 @@ impl Metadata<'_> {
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
         quote_spanned!(span=>
-            ::ink_metadata::ConstructorSpec::from_name(::core::stringify!(#ident))
+            ::ink_metadata::ConstructorSpec::from_label(::core::stringify!(#ident))
                 .selector([
                     #( #selector_bytes ),*
                 ])
@@ -200,8 +199,7 @@ impl Metadata<'_> {
             .module()
             .impls()
             .filter(|item_impl| item_impl.trait_path().is_none())
-            .map(|item_impl| item_impl.iter_messages())
-            .flatten()
+            .flat_map(|item_impl| item_impl.iter_messages())
             .map(|message| {
                 let span = message.span();
                 let docs = message
@@ -216,7 +214,7 @@ impl Metadata<'_> {
                 let args = message.inputs().map(Self::generate_dispatch_argument);
                 let ret_ty = Self::generate_return_type(message.output());
                 quote_spanned!(span =>
-                    ::ink_metadata::MessageSpec::from_name(::core::stringify!(#ident))
+                    ::ink_metadata::MessageSpec::from_label(::core::stringify!(#ident))
                         .selector([
                             #( #selector_bytes ),*
                         ])
@@ -275,11 +273,9 @@ impl Metadata<'_> {
                         as ::ink_lang::reflect::TraitMessageInfo<#local_id>>::SELECTOR
                 }};
                 let ret_ty = Self::generate_return_type(message.output());
+                let label = [trait_ident.to_string(), message_ident.to_string()].join("::");
                 quote_spanned!(message_span=>
-                    ::ink_metadata::MessageSpec::from_trait_and_name(
-                        ::core::stringify!(#trait_ident),
-                        ::core::stringify!(#message_ident)
-                    )
+                    ::ink_metadata::MessageSpec::from_label(#label)
                         .selector(#selector)
                         .args([
                             #( #message_args ),*
@@ -384,13 +380,15 @@ mod tests {
         assert_eq!(
             extract_doc_attributes(&[syn::parse_quote!(
                 /**
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  */
             )]),
             vec![r"
-                 * Multi-line comments ...
-                 * May span many lines
+                 * Multi-line comments
+                 * may span many,
+                 * many lines
                  "
             .to_string()],
         );

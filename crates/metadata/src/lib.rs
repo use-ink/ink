@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,12 +69,14 @@ pub enum MetadataVersioned {
     /// Version 0 placeholder. Represents the original non-versioned metadata format.
     V0(MetadataVersionDeprecated),
     /// Version 1 of the contract metadata.
-    V1(InkProject),
+    V1(MetadataVersionDeprecated),
+    /// Version 2 of the contract metadata.
+    V2(InkProject),
 }
 
 impl From<InkProject> for MetadataVersioned {
     fn from(ink_project: InkProject) -> Self {
-        MetadataVersioned::V1(ink_project)
+        MetadataVersioned::V2(ink_project)
     }
 }
 

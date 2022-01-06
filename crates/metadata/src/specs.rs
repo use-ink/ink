@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -220,10 +220,10 @@ impl ContractSpec {
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct ConstructorSpec<F: Form = MetaForm> {
-    /// The name of the message.
+    /// The label of the constructor.
     ///
-    /// In case of a trait provided constructor the trait name is prefixed.
-    pub name: Vec<F::String>,
+    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    pub label: F::String,
     /// The selector hash of the message.
     pub selector: Selector,
     /// The parameters of the deployment handler.
@@ -237,7 +237,7 @@ impl IntoPortable for ConstructorSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         ConstructorSpec {
-            name: registry.map_into_portable(self.name),
+            label: self.label.into_portable(registry),
             selector: self.selector,
             args: self
                 .args
@@ -253,11 +253,11 @@ impl<F> ConstructorSpec<F>
 where
     F: Form,
 {
-    /// Returns the name of the message.
+    /// Returns the label of the constructor.
     ///
-    /// In case of a trait provided constructor the trait name is prefixed.
-    pub fn name(&self) -> &[F::String] {
-        &self.name
+    /// In case of a trait provided constructor the label is prefixed with the trait label.
+    pub fn label(&self) -> &F::String {
+        &self.label
     }
 
     /// Returns the selector hash of the message.
@@ -290,36 +290,18 @@ pub struct ConstructorSpecBuilder<Selector> {
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
-    fn from_name_segments<T>(
-        segments: T,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>>
-    where
-        T: IntoIterator<Item = &'static str>,
-    {
+    pub fn from_label(
+        label: &'static str,
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
         ConstructorSpecBuilder {
             spec: Self {
-                name: segments.into_iter().collect(),
+                label,
                 selector: Selector::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
             },
             marker: PhantomData,
         }
-    }
-
-    /// Creates a new constructor spec builder.
-    pub fn from_name(
-        name: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
-        Self::from_name_segments([name])
-    }
-
-    /// Creates a new constructor spec builder for a trait provided constructor.
-    pub fn from_trait_and_name(
-        trait_name: &'static str,
-        constructor_name: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
-        Self::from_name_segments([trait_name, constructor_name])
     }
 }
 
@@ -375,11 +357,11 @@ impl ConstructorSpecBuilder<state::Selector> {
 ))]
 #[serde(rename_all = "camelCase")]
 pub struct MessageSpec<F: Form = MetaForm> {
-    /// The name of the message and some optional prefixes.
+    /// The label of the message.
     ///
     /// In case of trait provided messages and constructors the prefix
-    /// by convention in ink! is the name of the trait.
-    name: Vec<F::String>,
+    /// by convention in ink! is the label of the trait.
+    label: F::String,
     /// The selector hash of the message.
     selector: Selector,
     /// If the message is allowed to mutate the contract state.
@@ -413,9 +395,9 @@ mod state {
 }
 
 impl MessageSpec {
-    /// Creates a new message spec from the given name segments.
-    fn from_name_segments(
-        segments: Vec<&'static str>,
+    /// Creates a new message spec builder.
+    pub fn from_label(
+        label: &'static str,
     ) -> MessageSpecBuilder<
         Missing<state::Selector>,
         Missing<state::Mutates>,
@@ -424,7 +406,7 @@ impl MessageSpec {
     > {
         MessageSpecBuilder {
             spec: Self {
-                name: segments,
+                label,
                 selector: Selector::default(),
                 mutates: false,
                 payable: false,
@@ -435,43 +417,18 @@ impl MessageSpec {
             marker: PhantomData,
         }
     }
-
-    /// Creates a new message spec builder.
-    pub fn from_name(
-        name: &'static str,
-    ) -> MessageSpecBuilder<
-        Missing<state::Selector>,
-        Missing<state::Mutates>,
-        Missing<state::IsPayable>,
-        Missing<state::Returns>,
-    > {
-        Self::from_name_segments(vec![name])
-    }
-
-    /// Creates a new message spec builder for a trait provided message.
-    pub fn from_trait_and_name(
-        trait_name: &'static str,
-        message_name: &'static str,
-    ) -> MessageSpecBuilder<
-        Missing<state::Selector>,
-        Missing<state::Mutates>,
-        Missing<state::IsPayable>,
-        Missing<state::Returns>,
-    > {
-        Self::from_name_segments(vec![trait_name, message_name])
-    }
 }
 
 impl<F> MessageSpec<F>
 where
     F: Form,
 {
-    /// Returns the name of the message and some optional prefixes.
+    /// Returns the label of the message.
     ///
     /// In case of trait provided messages and constructors the prefix
-    /// by convention in ink! is the name of the trait.
-    pub fn name(&self) -> &[F::String] {
-        &self.name
+    /// by convention in ink! is the label of the trait.
+    pub fn label(&self) -> &F::String {
+        &self.label
     }
 
     /// Returns the selector hash of the message.
@@ -617,7 +574,7 @@ impl IntoPortable for MessageSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageSpec {
-            name: registry.map_into_portable(self.name),
+            label: self.label.into_portable(registry),
             selector: self.selector,
             mutates: self.mutates,
             payable: self.payable,
@@ -639,8 +596,8 @@ impl IntoPortable for MessageSpec {
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventSpec<F: Form = MetaForm> {
-    /// The name of the event.
-    name: F::String,
+    /// The label of the event.
+    label: F::String,
     /// The event arguments.
     args: Vec<EventParamSpec<F>>,
     /// The event documentation.
@@ -686,7 +643,7 @@ impl IntoPortable for EventSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventSpec {
-            name: self.name.into_portable(registry),
+            label: self.label.into_portable(registry),
             args: self
                 .args
                 .into_iter()
@@ -699,10 +656,10 @@ impl IntoPortable for EventSpec {
 
 impl EventSpec {
     /// Creates a new event specification builder.
-    pub fn new(name: &'static str) -> EventSpecBuilder {
+    pub fn new(label: &'static str) -> EventSpecBuilder {
         EventSpecBuilder {
             spec: Self {
-                name,
+                label,
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -714,9 +671,9 @@ impl<F> EventSpec<F>
 where
     F: Form,
 {
-    /// Returns the name of the event.
-    pub fn name(&self) -> &F::String {
-        &self.name
+    /// Returns the label of the event.
+    pub fn label(&self) -> &F::String {
+        &self.label
     }
 
     /// The event arguments.
@@ -892,15 +849,15 @@ where
     }
 }
 
-/// Describes a pair of parameter name and type.
+/// Describes a pair of parameter label and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct EventParamSpec<F: Form = MetaForm> {
-    /// The name of the parameter.
-    name: F::String,
+    /// The label of the parameter.
+    label: F::String,
     /// If the event parameter is indexed.
     indexed: bool,
     /// The type of the parameter.
@@ -915,7 +872,7 @@ impl IntoPortable for EventParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         EventParamSpec {
-            name: self.name.into_portable(registry),
+            label: self.label.into_portable(registry),
             indexed: self.indexed,
             ty: self.ty.into_portable(registry),
             docs: registry.map_into_portable(self.docs),
@@ -925,10 +882,10 @@ impl IntoPortable for EventParamSpec {
 
 impl EventParamSpec {
     /// Creates a new event parameter specification builder.
-    pub fn new(name: &'static str) -> EventParamSpecBuilder {
+    pub fn new(label: &'static str) -> EventParamSpecBuilder {
         EventParamSpecBuilder {
             spec: Self {
-                name,
+                label,
                 // By default event parameters are not indexed.
                 indexed: false,
                 // We initialize every parameter type as `()`.
@@ -944,9 +901,9 @@ impl<F> EventParamSpec<F>
 where
     F: Form,
 {
-    /// Returns the name of the parameter.
-    pub fn name(&self) -> &F::String {
-        &self.name
+    /// Returns the label of the parameter.
+    pub fn label(&self) -> &F::String {
+        &self.label
     }
 
     /// Returns true if the event parameter is indexed.
@@ -1060,15 +1017,15 @@ where
     }
 }
 
-/// Describes a pair of parameter name and type.
+/// Describes a pair of parameter label and type.
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(bound(
     serialize = "F::Type: Serialize, F::String: Serialize",
     deserialize = "F::Type: DeserializeOwned, F::String: DeserializeOwned"
 ))]
 pub struct MessageParamSpec<F: Form = MetaForm> {
-    /// The name of the parameter.
-    name: F::String,
+    /// The label of the parameter.
+    label: F::String,
     /// The type of the parameter.
     #[serde(rename = "type")]
     ty: TypeSpec<F>,
@@ -1079,7 +1036,7 @@ impl IntoPortable for MessageParamSpec {
 
     fn into_portable(self, registry: &mut Registry) -> Self::Output {
         MessageParamSpec {
-            name: self.name.into_portable(registry),
+            label: self.label.into_portable(registry),
             ty: self.ty.into_portable(registry),
         }
     }
@@ -1087,10 +1044,10 @@ impl IntoPortable for MessageParamSpec {
 
 impl MessageParamSpec {
     /// Constructs a new message parameter specification via builder.
-    pub fn new(name: &'static str) -> MessageParamSpecBuilder {
+    pub fn new(label: &'static str) -> MessageParamSpecBuilder {
         MessageParamSpecBuilder {
             spec: Self {
-                name,
+                label,
                 // Uses `()` type by default.
                 ty: TypeSpec::new::<()>(),
             },
@@ -1102,9 +1059,9 @@ impl<F> MessageParamSpec<F>
 where
     F: Form,
 {
-    /// Returns the name of the parameter.
-    pub fn name(&self) -> &F::String {
-        &self.name
+    /// Returns the label of the parameter.
+    pub fn label(&self) -> &F::String {
+        &self.label
     }
 
     /// Returns the type of the parameter.

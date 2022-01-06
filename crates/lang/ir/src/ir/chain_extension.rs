@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -776,7 +776,7 @@ mod tests {
             }
         );
         assert_ink_chain_extension_eq_err!(
-            error: "expecteded `u32` integer type for `N` in #[ink(extension = N)]",
+            error: "expected `u32` integer type for `N` in #[ink(extension = N)]",
             pub trait MyChainExtension {
                 #[ink(extension = "Hello, World!")]
                 fn has_self_receiver();

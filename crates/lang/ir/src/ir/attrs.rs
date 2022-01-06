@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -210,8 +210,8 @@ impl InkAttribute {
         Ok(())
     }
 
-    /// Converts a sequence of `#[ink(..)]` attributes into a single flattened
-    /// `#[ink(..)]` attribute that contains all of the input arguments.
+    /// Converts a sequence of `#[ink(...)]` attributes into a single flattened
+    /// `#[ink(...)]` attribute that contains all of the input arguments.
     ///
     /// # Example
     ///
@@ -228,8 +228,7 @@ impl InkAttribute {
     {
         let args = attrs
             .into_iter()
-            .map(|attr| attr.args)
-            .flatten()
+            .flat_map(|attr| attr.args)
             .collect::<Vec<_>>();
         if args.is_empty() {
             return Err(format_err!(
@@ -431,8 +430,8 @@ pub enum AttributeArg {
     /// of them. This is useful if such an implementation block does not contain
     /// any other ink! attributes, so it would be flagged by ink! as a Rust item.
     /// Adding `#[ink(impl)]` on such implementation blocks makes them treated
-    /// as ink! implementation blocks thus allowing to access the environment
-    /// etc. Note that ink! messages and constructors still need to be explicitly
+    /// as ink! implementation blocks thus allowing to access the environment, etc..
+    /// Note that ink! messages and constructors still need to be explicitly
     /// flagged as such.
     Implementation,
     /// `#[ink(extension = N: u32)]`
@@ -574,7 +573,7 @@ impl Namespace {
 }
 
 /// Returns `true` if the given iterator yields at least one attribute of the form
-/// `#[ink(..)]` or `#[ink]`.
+/// `#[ink(...)]` or `#[ink]`.
 ///
 /// # Note
 ///
@@ -936,7 +935,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::Selector(SelectorOrWildcard::UserProvided(selector)),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
+                            return Err(format_err!(name_value, "expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"))
                         }
                         if name_value.path.is_ident("namespace") {
                             if let syn::Lit::Str(lit_str) = &name_value.lit {
@@ -970,7 +969,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     ),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `u32` integer type for `N` in #[ink(extension = N)]"))
+                            return Err(format_err!(name_value, "expected `u32` integer type for `N` in #[ink(extension = N)]"))
                         }
                         if name_value.path.is_ident("handle_status") {
                             if let syn::Lit::Bool(lit_bool) = &name_value.lit {
@@ -980,7 +979,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::HandleStatus(value),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]"))
+                            return Err(format_err!(name_value, "expected `bool` value type for `flag` in #[ink(handle_status = flag)]"))
                         }
                         if name_value.path.is_ident("returns_result") {
                             if let syn::Lit::Bool(lit_bool) = &name_value.lit {
@@ -990,7 +989,7 @@ impl TryFrom<syn::NestedMeta> for AttributeFrag {
                                     arg: AttributeArg::ReturnsResult(value),
                                 })
                             }
-                            return Err(format_err!(name_value, "expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"))
+                            return Err(format_err!(name_value, "expected `bool` value type for `flag` in #[ink(returns_result = flag)]"))
                         }
                         Err(format_err_spanned!(
                             meta,
@@ -1266,7 +1265,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(selector = true)]
             },
-            Err("expecteded 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
+            Err("expected 4-digit hexcode for `selector` argument, e.g. #[ink(selector = 0xC0FEBABE]"),
         );
     }
 
@@ -1333,7 +1332,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(extension = "string")]
             },
-            Err("expecteded `u32` integer type for `N` in #[ink(extension = N)]"),
+            Err("expected `u32` integer type for `N` in #[ink(extension = N)]"),
         );
     }
 
@@ -1411,9 +1410,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(handle_status = "string")]
             },
-            Err(
-                "expecteded `bool` value type for `flag` in #[ink(handle_status = flag)]",
-            ),
+            Err("expected `bool` value type for `flag` in #[ink(handle_status = flag)]"),
         );
     }
 
@@ -1457,7 +1454,7 @@ mod tests {
             syn::parse_quote! {
                 #[ink(returns_result = "string")]
             },
-            Err("expecteded `bool` value type for `flag` in #[ink(returns_result = flag)]"),
+            Err("expected `bool` value type for `flag` in #[ink(returns_result = flag)]"),
         );
     }
 

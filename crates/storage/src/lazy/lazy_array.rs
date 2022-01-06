@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -241,8 +241,7 @@ impl<T, const N: usize> EntryArray<T, N> {
             unsafe { self.entries[at as usize].get_ptr().as_mut() },
             Some(StorageEntry::new(new_value, EntryState::Mutated)),
         )
-        .map(StorageEntry::into_value)
-        .flatten()
+        .and_then(StorageEntry::into_value)
     }
 
     /// Inserts a new entry into the cache and returns an exclusive reference to it.

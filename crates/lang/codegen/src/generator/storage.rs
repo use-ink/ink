@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ impl GenerateCode for Storage<'_> {
         let storage_struct = self.generate_storage_struct();
         let use_emit_event =
             self.contract.module().events().next().is_some().then(|| {
-                // Required to allow for `self.env().emit_event(..)` in messages and constructors.
+                // Required to allow for `self.env().emit_event(...)` in messages and constructors.
                 quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
         quote_spanned!(storage_span =>

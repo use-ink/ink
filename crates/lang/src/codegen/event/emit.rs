@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 use crate::reflect::ContractEventBase;
 
-/// Allows for `self.env().emit_event(..)` syntax in ink! implementation blocks.
+/// Allows for `self.env().emit_event(...)` syntax in ink! implementation blocks.
 pub trait EmitEvent<C>
 where
     C: ContractEventBase,

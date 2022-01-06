@@ -3,134 +3,221 @@ use ink_lang as ink;
 #[ink::contract]
 mod erc20 {
     use ink_storage::{
-        collections::HashMap as StorageHashMap,
-        Lazy,
+        lazy::{
+            Lazy,
+            Mapping,
+        },
+        traits::SpreadAllocate,
     };
 
+    /// A simple ERC-20 contract.
     #[ink(storage)]
+    #[derive(SpreadAllocate)]
     pub struct Erc20 {
+        /// Total token supply.
         total_supply: Lazy<Balance>,
-        balances: StorageHashMap<AccountId, Balance>,
-        allowances: StorageHashMap<(AccountId, AccountId), Balance>,
+        /// Mapping from owner to number of owned token.
+        balances: Mapping<AccountId, Balance>,
+        /// Mapping of the token amount which an account is allowed to withdraw
+        /// from another account.
+        allowances: Mapping<(AccountId, AccountId), Balance>,
     }
 
+    /// Event emitted when a token transfer occurs.
     #[ink(event)]
-    pub struct Transferred {
+    pub struct Transfer {
         #[ink(topic)]
         from: Option<AccountId>,
         #[ink(topic)]
         to: Option<AccountId>,
-        #[ink(topic)]
-        amount: Balance,
+        value: Balance,
     }
 
+    /// Event emitted when an approval occurs that `spender` is allowed to withdraw
+    /// up to the amount of `value` tokens from `owner`.
     #[ink(event)]
-    pub struct Approved {
+    pub struct Approval {
         #[ink(topic)]
         owner: AccountId,
         #[ink(topic)]
         spender: AccountId,
-        #[ink(topic)]
-        amount: Balance,
+        value: Balance,
     }
 
+    /// The ERC-20 error types.
+    #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        /// Returned if not enough balance to fulfill a request is available.
+        InsufficientBalance,
+        /// Returned if not enough allowance to fulfill a request is available.
+        InsufficientAllowance,
+    }
+
+    /// The ERC-20 result type.
+    pub type Result<T> = core::result::Result<T, Error>;
+
     impl Erc20 {
+        /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
-            let caller = Self::env().caller();
-            let mut balances = StorageHashMap::new();
-            balances.insert(caller, initial_supply);
-            let instance = Self {
-                total_supply: Lazy::new(initial_supply),
-                balances,
-                allowances: Default::default(),
-            };
-            Self::env().emit_event(Transferred {
-                from: None,
-                to: Some(caller),
-                amount: initial_supply,
-            });
-            instance
+            ink_lang::codegen::initialize_contract(|contract| {
+                Self::new_init(contract, initial_supply)
+            })
         }
 
+        /// Default initializes the ERC-20 contract with the specified initial supply.
+        fn new_init(&mut self, initial_supply: Balance) {
+            let caller = Self::env().caller();
+            self.balances.insert(&caller, &initial_supply);
+            Lazy::set(&mut self.total_supply, initial_supply);
+            Self::env().emit_event(Transfer {
+                from: None,
+                to: Some(caller),
+                value: initial_supply,
+            });
+        }
+
+        /// Returns the total token supply.
         #[ink(message)]
         pub fn total_supply(&self) -> Balance {
             *self.total_supply
         }
 
+        /// Returns the account balance for the specified `owner`.
+        ///
+        /// Returns `0` if the account is non-existent.
         #[ink(message)]
         pub fn balance_of(&self, owner: AccountId) -> Balance {
-            self.balance_of_or_zero(&owner)
+            self.balance_of_impl(&owner)
         }
 
+        /// Returns the account balance for the specified `owner`.
+        ///
+        /// Returns `0` if the account is non-existent.
+        ///
+        /// # Note
+        ///
+        /// Prefer to call this method over `balance_of` since this
+        /// works using references which are more efficient in Wasm.
+        #[inline]
+        fn balance_of_impl(&self, owner: &AccountId) -> Balance {
+            self.balances.get(owner).unwrap_or_default()
+        }
+
+        /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+        ///
+        /// Returns `0` if no allowance has been set.
         #[ink(message)]
-        pub fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+            self.allowance_impl(&owner, &spender)
+        }
+
+        /// Returns the amount which `spender` is still allowed to withdraw from `owner`.
+        ///
+        /// Returns `0` if no allowance has been set.
+        ///
+        /// # Note
+        ///
+        /// Prefer to call this method over `allowance` since this
+        /// works using references which are more efficient in Wasm.
+        #[inline]
+        fn allowance_impl(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+            self.allowances.get((owner, spender)).unwrap_or_default()
+        }
+
+        /// Transfers `value` amount of tokens from the caller's account to account `to`.
+        ///
+        /// On success a `Transfer` event is emitted.
+        ///
+        /// # Errors
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
+        /// the caller's account balance.
+        #[ink(message)]
+        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {
             let from = self.env().caller();
-            self.transfer_from_to(from, to, amount)
+            self.transfer_from_to(&from, &to, value)
         }
 
+        /// Allows `spender` to withdraw from the caller's account multiple times, up to
+        /// the `value` amount.
+        ///
+        /// If this function is called again it overwrites the current allowance with `value`.
+        ///
+        /// An `Approval` event is emitted.
         #[ink(message)]
-        pub fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
+        pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {
             let owner = self.env().caller();
-            self.allowances.insert((owner, spender), amount);
-            self.env().emit_event(Approved {
+            self.allowances.insert((&owner, &spender), &value);
+            self.env().emit_event(Approval {
                 owner,
                 spender,
-                amount,
+                value,
             });
-            true
+            Ok(())
         }
 
+        /// Transfers `value` tokens on the behalf of `from` to the account `to`.
+        ///
+        /// This can be used to allow a contract to transfer tokens on ones behalf and/or
+        /// to charge fees in sub-currencies, for example.
+        ///
+        /// On success a `Transfer` event is emitted.
+        ///
+        /// # Errors
+        ///
+        /// Returns `InsufficientAllowance` error if there are not enough tokens allowed
+        /// for the caller to withdraw from `from`.
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
+        /// the account balance of `from`.
         #[ink(message)]
         pub fn transfer_from(
             &mut self,
             from: AccountId,
             to: AccountId,
-            amount: Balance,
-        ) -> bool {
+            value: Balance,
+        ) -> Result<()> {
             let caller = self.env().caller();
-            let allowance = self.allowance_of_or_zero(&from, &caller);
-            if allowance < amount {
-                return false
+            let allowance = self.allowance_impl(&from, &caller);
+            if allowance < value {
+                return Err(Error::InsufficientAllowance)
             }
-            self.allowances.insert((from, caller), allowance - amount);
-            self.transfer_from_to(from, to, amount)
+            self.transfer_from_to(&from, &to, value)?;
+            self.allowances
+                .insert((&from, &caller), &(allowance - value));
+            Ok(())
         }
 
+        /// Transfers `value` amount of tokens from the caller's account to account `to`.
+        ///
+        /// On success a `Transfer` event is emitted.
+        ///
+        /// # Errors
+        ///
+        /// Returns `InsufficientBalance` error if there are not enough tokens on
+        /// the caller's account balance.
         fn transfer_from_to(
             &mut self,
-            from: AccountId,
-            to: AccountId,
-            amount: Balance,
-        ) -> bool {
-            let from_balance = self.balance_of_or_zero(&from);
-            if from_balance < amount {
-                return false
+            from: &AccountId,
+            to: &AccountId,
+            value: Balance,
+        ) -> Result<()> {
+            let from_balance = self.balance_of_impl(from);
+            if from_balance < value {
+                return Err(Error::InsufficientBalance)
             }
-            let to_balance = self.balance_of_or_zero(&to);
-            self.balances.insert(from.clone(), from_balance - amount);
-            self.balances.insert(to.clone(), to_balance + amount);
-            self.env().emit_event(Transferred {
-                from: Some(from),
-                to: Some(to),
-                amount,
+
+            self.balances.insert(from, &(from_balance - value));
+            let to_balance = self.balance_of_impl(to);
+            self.balances.insert(to, &(to_balance + value));
+            self.env().emit_event(Transfer {
+                from: Some(*from),
+                to: Some(*to),
+                value,
             });
-            true
-        }
-
-        fn balance_of_or_zero(&self, owner: &AccountId) -> Balance {
-            self.balances.get(owner).copied().unwrap_or_default()
-        }
-
-        fn allowance_of_or_zero(
-            &self,
-            owner: &AccountId,
-            spender: &AccountId,
-        ) -> Balance {
-            self.allowances
-                .get(&(*owner, *spender))
-                .copied()
-                .unwrap_or_default()
+            Ok(())
         }
     }
 }

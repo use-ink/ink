@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -105,9 +105,9 @@ impl From<ext::Error> for crate::Error {
             ext::Error::CalleeTrapped => Self::CalleeTrapped,
             ext::Error::CalleeReverted => Self::CalleeReverted,
             ext::Error::KeyNotFound => Self::KeyNotFound,
-            ext::Error::BelowSubsistenceThreshold => Self::BelowSubsistenceThreshold,
+            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
             ext::Error::TransferFailed => Self::TransferFailed,
-            ext::Error::NewContractNotFunded => Self::NewContractNotFunded,
+            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
             ext::Error::CodeNotFound => Self::CodeNotFound,
             ext::Error::NotCallable => Self::NotCallable,
             ext::Error::LoggingDisabled => Self::LoggingDisabled,

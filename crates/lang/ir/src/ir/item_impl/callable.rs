@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -221,7 +221,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
+/// …then the selector of `my_message` is simply `0xDEADBEEF` since it overrides
 /// the composed selector.
 ///
 /// ## Inherent implementation block
@@ -235,7 +235,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -251,7 +251,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -267,7 +267,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("::my_full::long_path::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```
@@ -284,7 +284,7 @@ pub trait Callable {
 /// }
 /// ```
 ///
-/// ... then the selector of `my_message` is composed such as:
+/// …then the selector of `my_message` is composed such as:
 /// ```no_compile
 /// BLAKE2("my_namespace::MyTrait::my_message".to_string().as_bytes())[0..4]
 /// ```

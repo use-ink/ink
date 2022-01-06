@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -308,8 +308,7 @@ where
         let prev = self
             .entries
             .get_mut(prev_vacant)
-            .map(Entry::try_to_vacant_mut)
-            .flatten()
+            .and_then(Entry::try_to_vacant_mut)
             .expect("`prev` must point to an existing entry at this point");
         if prev_vacant == next_vacant {
             // There is only one other vacant entry left.
@@ -325,8 +324,7 @@ where
             let next = self
                 .entries
                 .get_mut(next_vacant)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
+                .and_then(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing entry at this point");
             debug_assert_eq!(next.prev, removed_index);
             next.prev = prev_vacant;
@@ -353,8 +351,7 @@ where
             let root_vacant = self
                 .entries
                 .get(index)
-                .map(|entry| entry.try_to_vacant())
-                .flatten()
+                .and_then(|entry| entry.try_to_vacant())
                 .expect("last_vacant must point to an existing vacant entry");
             // Form the linked vacant entries in a way that makes it more likely
             // for them to refill the stash from low indices.
@@ -390,8 +387,7 @@ where
             let entry = self
                 .entries
                 .get_mut(next)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
+                .and_then(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing vacant entry at this point");
             entry.prev = at;
             entry.next = at;
@@ -400,14 +396,12 @@ where
             // different look-ups to update them.
             self.entries
                 .get_mut(prev)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
+                .and_then(Entry::try_to_vacant_mut)
                 .expect("`prev` must point to an existing vacant entry at this point")
                 .next = at;
             self.entries
                 .get_mut(next)
-                .map(Entry::try_to_vacant_mut)
-                .flatten()
+                .and_then(Entry::try_to_vacant_mut)
                 .expect("`next` must point to an existing vacant entry at this point")
                 .prev = at;
         }

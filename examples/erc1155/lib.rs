@@ -62,7 +62,7 @@ macro_rules! ensure {
 ///
 /// The interface is defined here: <https://eips.ethereum.org/EIPS/eip-1155>.
 ///
-/// The goal of ERC-1155 is to allow a single deployed contract to manage a variety of assets.
+/// The goal of ERC-1155 is to allow a single contract to manage a variety of assets.
 /// These assets can be fungible, non-fungible, or a combination.
 ///
 /// By tracking multiple assets the ERC-1155 standard is able to support batch transfers, which
@@ -187,10 +187,13 @@ pub trait Erc1155TokenReceiver {
 mod erc1155 {
     use super::*;
 
-    use ink_prelude::collections::BTreeMap;
-    use ink_storage::traits::{
-        PackedLayout,
-        SpreadLayout,
+    use ink_storage::{
+        lazy::Mapping,
+        traits::{
+            PackedLayout,
+            SpreadAllocate,
+            SpreadLayout,
+        },
     };
 
     /// Indicate that a token transfer has occured.
@@ -236,6 +239,7 @@ mod erc1155 {
         PartialOrd,
         Eq,
         PartialEq,
+        Default,
         PackedLayout,
         SpreadLayout,
         scale::Encode,
@@ -249,12 +253,12 @@ mod erc1155 {
 
     /// An ERC-1155 contract.
     #[ink(storage)]
-    #[derive(Default)]
+    #[derive(Default, SpreadAllocate)]
     pub struct Contract {
         /// Tracks the balances of accounts across the different tokens that they might be holding.
-        balances: BTreeMap<(AccountId, TokenId), Balance>,
+        balances: Mapping<(AccountId, TokenId), Balance>,
         /// Which accounts (called operators) have been approved to spend funds on behalf of an owner.
-        approvals: BTreeMap<Approval, ()>,
+        approvals: Mapping<Approval, ()>,
         /// A unique identifier for the tokens which have been minted (and are therefore supported)
         /// by this contract.
         token_id_nonce: TokenId,
@@ -264,7 +268,11 @@ mod erc1155 {
         /// Initialize a default instance of this ERC-1155 implementation.
         #[ink(constructor)]
         pub fn new() -> Self {
-            Default::default()
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            //
+            // Not that `token_id_nonce` will be initialized to its `Default` value.
+            ink_lang::codegen::initialize_contract(|_| {})
         }
 
         /// Create the initial supply for a token.
@@ -272,16 +280,16 @@ mod erc1155 {
         /// The initial supply will be provided to the caller (a.k.a the minter), and the
         /// `token_id` will be assigned by the smart contract.
         ///
-        /// Note that as implemented anyone can create tokens. If you were to deploy this to a
-        /// production environment you'd probably want to lock down the addresses that are allowed
-        /// to create tokens.
+        /// Note that as implemented anyone can create tokens. If you were to instantiate
+        /// this contract in a production environment you'd probably want to lock down
+        /// the addresses that are allowed to create tokens.
         #[ink(message)]
         pub fn create(&mut self, value: Balance) -> TokenId {
             let caller = self.env().caller();
 
             // Given that TokenId is a `u128` the likelihood of this overflowing is pretty slim.
             self.token_id_nonce += 1;
-            self.balances.insert((caller, self.token_id_nonce), value);
+            self.balances.insert(&(caller, self.token_id_nonce), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -300,15 +308,15 @@ mod erc1155 {
         /// It is assumed that the token has already been `create`-ed. The newly minted supply will
         /// be assigned to the caller (a.k.a the minter).
         ///
-        /// Note that as implemented anyone can mint tokens. If you were to deploy this to a
-        /// production environment you'd probably want to lock down the addresses that are allowed
-        /// to mint tokens.
+        /// Note that as implemented anyone can mint tokens. If you were to instantiate
+        /// this contract in a production environment you'd probably want to lock down
+        /// the addresses that are allowed to mint tokens.
         #[ink(message)]
         pub fn mint(&mut self, token_id: TokenId, value: Balance) -> Result<()> {
             ensure!(token_id <= self.token_id_nonce, Error::UnexistentToken);
 
             let caller = self.env().caller();
-            self.balances.insert((caller, token_id), value);
+            self.balances.insert(&(caller, token_id), &value);
 
             // Emit transfer event but with mint semantics
             self.env().emit_event(TransferSingle {
@@ -326,6 +334,10 @@ mod erc1155 {
         //
         // Should not be used directly since it's missing certain checks which are important to the
         // ERC-1155 standard (it is expected that the caller has already performed these).
+        //
+        // # Panics
+        //
+        // If `from` does not hold any `token_id` tokens.
         fn perform_transfer(
             &mut self,
             from: AccountId,
@@ -333,14 +345,16 @@ mod erc1155 {
             token_id: TokenId,
             value: Balance,
         ) {
-            self.balances
-                .entry((from, token_id))
-                .and_modify(|b| *b -= value);
+            let mut sender_balance = self
+                .balances
+                .get(&(from, token_id))
+                .expect("Caller should have ensured that `from` holds `token_id`.");
+            sender_balance -= value;
+            self.balances.insert(&(from, token_id), &sender_balance);
 
-            self.balances
-                .entry((to, token_id))
-                .and_modify(|b| *b += value)
-                .or_insert(value);
+            let mut recipient_balance = self.balances.get(&(to, token_id)).unwrap_or(0);
+            recipient_balance += value;
+            self.balances.insert(&(to, token_id), &recipient_balance);
 
             let caller = self.env().caller();
             self.env().emit_event(TransferSingle {
@@ -507,7 +521,7 @@ mod erc1155 {
 
         #[ink(message)]
         fn balance_of(&self, owner: AccountId, token_id: TokenId) -> Balance {
-            *self.balances.get(&(owner, token_id)).unwrap_or(&0)
+            self.balances.get(&(owner, token_id)).unwrap_or(0)
         }
 
         #[ink(message)]
@@ -541,7 +555,7 @@ mod erc1155 {
             };
 
             if approved {
-                self.approvals.insert(approval, ());
+                self.approvals.insert(&approval, &());
             } else {
                 self.approvals.remove(&approval);
             }
@@ -653,9 +667,9 @@ mod erc1155 {
 
         fn init_contract() -> Contract {
             let mut erc = Contract::new();
-            erc.balances.insert((alice(), 1), 10);
-            erc.balances.insert((alice(), 2), 20);
-            erc.balances.insert((bob(), 1), 10);
+            erc.balances.insert((alice(), 1), &10);
+            erc.balances.insert((alice(), 2), &20);
+            erc.balances.insert((bob(), 1), &10);
 
             erc
         }

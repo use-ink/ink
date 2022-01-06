@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Parity Technologies (UK) Ltd.
+// Copyright 2018-2022 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 //! syntax.
 //!
 //! At the time of this writing we currently only use this for the argument
-//! parsing of ink! configuration header `#[ink(env = my::env::Types, etc...)]`
+//! parsing of ink! configuration header `#[ink(env = my::env::Types, ...)]`
 //! in order to be able to parse identifiers in `name = value` segments for
 //! the `value` part.
 
