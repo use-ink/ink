@@ -112,6 +112,7 @@ pub enum Valid {}
 pub enum Invalid {}
 
 /// A builder for contracts.
+#[must_use]
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The to-be-constructed contract specification.
     spec: ContractSpec,
@@ -283,6 +284,7 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
+#[must_use]
 pub struct ConstructorSpecBuilder<Selector> {
     spec: ConstructorSpec,
     marker: PhantomData<fn() -> Selector>,
@@ -470,6 +472,7 @@ where
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
 #[allow(clippy::type_complexity)]
+#[must_use]
 pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
@@ -605,6 +608,7 @@ pub struct EventSpec<F: Form = MetaForm> {
 }
 
 /// An event specification builder.
+#[must_use]
 pub struct EventSpecBuilder {
     spec: EventSpec,
 }
@@ -923,6 +927,7 @@ where
 }
 
 /// Used to construct an event parameter specification.
+#[must_use]
 pub struct EventParamSpecBuilder {
     /// The built-up event parameter specification.
     spec: EventParamSpec,
@@ -997,6 +1002,7 @@ impl ReturnTypeSpec {
     /// ReturnTypeSpec::new(None); // no return type;
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
+    #[must_use]
     pub fn new<T>(ty: T) -> Self
     where
         T: Into<Option<TypeSpec>>,
@@ -1071,6 +1077,7 @@ where
 }
 
 /// Used to construct a message parameter specification.
+#[must_use]
 pub struct MessageParamSpecBuilder {
     /// The to-be-constructed message parameter specification.
     spec: MessageParamSpec,
