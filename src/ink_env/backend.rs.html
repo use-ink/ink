@@ -427,6 +427,8 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -465,6 +467,7 @@
 
 <span class="kw">impl</span> <span class="ident">ReturnFlags</span> {
     <span class="doccomment">/// Sets the bit to indicate that the execution is going to be reverted.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_reverted</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">has_reverted</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">has_reverted</span> {
             <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">value</span> <span class="op">|</span><span class="op">=</span> <span class="ident">has_reverted</span> <span class="kw">as</span> <span class="ident">u32</span>,
@@ -481,6 +484,7 @@
 }
 
 <span class="doccomment">/// The flags used to change the behavior of a contract call.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallFlags</span> {
     <span class="ident">forward_input</span>: <span class="ident">bool</span>,

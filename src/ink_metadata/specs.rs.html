@@ -1091,6 +1091,13 @@
 <span id="1089">1089</span>
 <span id="1090">1090</span>
 <span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1205,6 +1212,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Invalid</span> {}
 
 <span class="doccomment">/// A builder for contracts.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContractSpecBuilder</span><span class="op">&lt;</span><span class="ident">S</span> <span class="op">=</span> <span class="ident">Invalid</span><span class="op">&gt;</span> {
     <span class="doccomment">/// The to-be-constructed contract specification.</span>
     <span class="ident">spec</span>: <span class="ident">ContractSpec</span>,
@@ -1376,6 +1384,7 @@
 <span class="doccomment">/// Some fields are guarded by a type-state pattern to fail at</span>
 <span class="doccomment">/// compile-time instead of at run-time. This is useful to better</span>
 <span class="doccomment">/// debug code-gen macros.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConstructorSpecBuilder</span><span class="op">&lt;</span><span class="ident">Selector</span><span class="op">&gt;</span> {
     <span class="ident">spec</span>: <span class="ident">ConstructorSpec</span>,
     <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; <span class="ident">Selector</span><span class="op">&gt;</span>,
@@ -1563,6 +1572,7 @@
 <span class="doccomment">/// compile-time instead of at run-time. This is useful to better</span>
 <span class="doccomment">/// debug code-gen macros.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageSpecBuilder</span><span class="op">&lt;</span><span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span><span class="op">&gt;</span> {
     <span class="ident">spec</span>: <span class="ident">MessageSpec</span>,
     <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() -&gt; (<span class="ident">Selector</span>, <span class="ident">Mutates</span>, <span class="ident">IsPayable</span>, <span class="ident">Returns</span>)<span class="op">&gt;</span>,
@@ -1698,6 +1708,7 @@
 }
 
 <span class="doccomment">/// An event specification builder.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventSpecBuilder</span> {
     <span class="ident">spec</span>: <span class="ident">EventSpec</span>,
 }
@@ -2016,6 +2027,7 @@
 }
 
 <span class="doccomment">/// Used to construct an event parameter specification.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventParamSpecBuilder</span> {
     <span class="doccomment">/// The built-up event parameter specification.</span>
     <span class="ident">spec</span>: <span class="ident">EventParamSpec</span>,
@@ -2090,6 +2102,7 @@
     <span class="doccomment">/// ReturnTypeSpec::new(None); // no return type;</span>
     <span class="doccomment">/// ReturnTypeSpec::new(TypeSpec::new::&lt;i32&gt;()); // return type of `i32`</span>
     <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">ty</span>: <span class="ident">T</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeSpec</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -2164,6 +2177,7 @@
 }
 
 <span class="doccomment">/// Used to construct a message parameter specification.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageParamSpecBuilder</span> {
     <span class="doccomment">/// The to-be-constructed message parameter specification.</span>
     <span class="ident">spec</span>: <span class="ident">MessageParamSpec</span>,

@@ -1360,6 +1360,7 @@
 <span id="1358">1358</span>
 <span id="1359">1359</span>
 <span id="1360">1360</span>
+<span id="1361">1361</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -2174,6 +2175,7 @@
 
     <span class="doccomment">/// Provides in-place mutable access to an occupied entry before any</span>
     <span class="doccomment">/// potential inserts into the map.</span>
+    <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_modify</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">V</span>),
