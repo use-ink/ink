@@ -36,6 +36,7 @@ pub struct ReturnFlags {
 
 impl ReturnFlags {
     /// Sets the bit to indicate that the execution is going to be reverted.
+    #[must_use]
     pub fn set_reverted(mut self, has_reverted: bool) -> Self {
         match has_reverted {
             true => self.value |= has_reverted as u32,
@@ -52,6 +53,7 @@ impl ReturnFlags {
 }
 
 /// The flags used to change the behavior of a contract call.
+#[must_use]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct CallFlags {
     forward_input: bool,

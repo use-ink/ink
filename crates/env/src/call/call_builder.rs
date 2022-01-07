@@ -265,6 +265,7 @@ where
 {
     /// The flags used to change the behavior of the contract call.
     #[inline]
+    #[must_use]
     pub fn call_flags(
         self,
         call_flags: CallFlags,
