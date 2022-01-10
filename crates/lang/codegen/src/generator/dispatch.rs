@@ -418,6 +418,7 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
+            #[allow(clippy::nonminimal_bool)]
             fn deploy() {
                 if !#any_constructor_accept_payment {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
