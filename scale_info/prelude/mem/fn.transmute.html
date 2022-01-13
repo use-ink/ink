@@ -54,7 +54,7 @@ advanced, very unsafe Rust!</p>
 <p>Don’t despair: many uses of <code>transmute</code> can be achieved through other means.
 Below are common applications of <code>transmute</code> which can be replaced with safer
 constructs.</p>
-<p>Turning raw bytes(<code>&amp;[u8]</code>) to <code>u32</code>, <code>f64</code>, etc.:</p>
+<p>Turning raw bytes (<code>&amp;[u8]</code>) into <code>u32</code>, <code>f64</code>, etc.:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">raw_bytes</span> <span class="op">=</span> [<span class="number">0x78</span>, <span class="number">0x56</span>, <span class="number">0x34</span>, <span class="number">0x12</span>];
 
@@ -202,5 +202,5 @@ be possible at all without violating the container invariants.</p>
          <span class="ident">slice::from_raw_parts_mut</span>(<span class="ident">ptr</span>.<span class="ident">add</span>(<span class="ident">mid</span>), <span class="ident">len</span> <span class="op">-</span> <span class="ident">mid</span>))
     }
 }</code></pre></div>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (1409c015b 2022-01-11)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (1bd4fdc94 2022-01-12)" ></div>
 </body></html>
