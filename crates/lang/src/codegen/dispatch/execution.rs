@@ -49,8 +49,26 @@ use ink_storage::{
 /// - This trait is automatically implemented by the ink! codegen.
 /// - The existence of this trait allows to customize the root key in future
 ///   versions of ink! if needed.
+///
+///   TODO: We're gonna hijack this for a sec
 pub trait ContractRootKey {
     const ROOT_KEY: Key;
+}
+
+use scale::Encode as _;
+
+pub trait StorageValue: ContractRootKey {
+    type Value: scale::Encode + scale::Decode;
+
+    fn write(&mut self, value: &Self::Value) {
+        ink_env::set_contract_storage(&Self::ROOT_KEY, &value.encode());
+    }
+
+    fn read(&self) -> Self::Value {
+        ink_env::get_contract_storage(&Self::ROOT_KEY)
+            .expect("TODO")
+            .expect("TODO")
+    }
 }
 
 /// Returns `Ok` if the caller did not transfer additional value to the callee.
