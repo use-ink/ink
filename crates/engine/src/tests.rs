@@ -17,7 +17,7 @@ use crate::ext::{
     Error,
 };
 use secp256k1::{
-    recovery::RecoverableSignature,
+    ecdsa::RecoverableSignature,
     Message,
     PublicKey,
     Secp256k1,
