@@ -198,7 +198,7 @@ impl EnvBackend for EnvInstance {
         output: &mut [u8; 33],
     ) -> Result<()> {
         use secp256k1::{
-            recovery::{
+            ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
@@ -225,7 +225,7 @@ impl EnvBackend for EnvInstance {
                 });
 
         let secp = Secp256k1::new();
-        let pub_key = secp.recover(&message, &signature);
+        let pub_key = secp.recover_ecdsa(&message, &signature);
         match pub_key {
             Ok(pub_key) => {
                 *output = pub_key.serialize();

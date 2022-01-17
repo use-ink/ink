@@ -17,7 +17,7 @@ use crate::ext::{
     Error,
 };
 use secp256k1::{
-    recovery::RecoverableSignature,
+    ecdsa::RecoverableSignature,
     Message,
     PublicKey,
     Secp256k1,
@@ -255,7 +255,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let msg = Message::from_slice(&msg_hash).expect("message creation failed");
     let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
     let recoverable_signature: RecoverableSignature =
-        secp.sign_recoverable(&msg, &seckey);
+        secp.sign_ecdsa_recoverable(&msg, &seckey);
 
     let recovery_id = recoverable_signature.serialize_compact().0.to_i32() as u8;
     let mut signature = recoverable_signature.serialize_compact().1.to_vec();
