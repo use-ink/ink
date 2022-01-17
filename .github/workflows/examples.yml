@@ -77,6 +77,7 @@ jobs:
            foreach ($example in Get-ChildItem  -Directory "examples\*") {
                echo "Processing example: $example";
                cargo contract ${{ matrix.job }} --verbose --manifest-path=$example/Cargo.toml;
+               cargo clean --manifest-path=$example/Cargo.toml;
            }
 
       - name: ${{ matrix.job }} examples on ${{ matrix.platform }}-${{ matrix.toolchain }}
