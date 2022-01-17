@@ -74,12 +74,6 @@ where
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteConstructorConfig {
     /// Yields `true` if the ink! constructor accepts payment.
-    ///
-    /// # Note
-    ///
-    /// If no ink! constructor within the same ink! smart contract
-    /// is payable then this flag will be `true` since the check
-    /// then is moved before the constructor dispatch as an optimization.
     pub payable: bool,
     /// Yields `true` if the dynamic storage allocator has been enabled.
     ///
@@ -291,12 +285,6 @@ impl<C, E> InitializerReturnType<C> for Result<(), E> {
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteMessageConfig {
     /// Yields `true` if the ink! message accepts payment.
-    ///
-    /// # Note
-    ///
-    /// If no ink! message within the same ink! smart contract
-    /// is payable then this flag will be `true` since the check
-    /// then is moved before the message dispatch as an optimization.
     pub payable: bool,
     /// Yields `true` if the ink! message might mutate contract storage.
     ///

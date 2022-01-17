@@ -548,8 +548,6 @@ impl Dispatch<'_> {
             }
         };
 
-        let any_constructor_accept_payment =
-            self.any_constructor_accepts_payment_expr(constructor_spans);
         let constructor_execute = (0..count_constructors).map(|index| {
             let constructor_span = constructor_spans[index];
             let constructor_ident = constructor_variant_ident(index);
@@ -562,7 +560,6 @@ impl Dispatch<'_> {
             );
             let accepts_payment = quote_spanned!(constructor_span=>
                 false ||
-                !#any_constructor_accept_payment ||
                 <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
@@ -716,8 +713,6 @@ impl Dispatch<'_> {
             }
         };
 
-        let any_message_accept_payment =
-            self.any_message_accepts_payment_expr(message_spans);
         let message_execute = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
@@ -737,7 +732,6 @@ impl Dispatch<'_> {
             );
             let accepts_payment = quote_spanned!(message_span=>
                 false ||
-                !#any_message_accept_payment ||
                 <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
