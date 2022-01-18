@@ -38,9 +38,13 @@ impl GenerateCode for Storage<'_> {
                 // Required to allow for `self.env().emit_event(...)` in messages and constructors.
                 quote! { use ::ink_lang::codegen::EmitEvent as _; }
             });
+
+        let new_storage_structs = self.generate_storage_value_structs();
+
         quote_spanned!(storage_span =>
             #storage_struct
             #access_env_impls
+            #new_storage_structs
 
             const _: () = {
                 // Used to make `self.env()` and `Self::env()` available in message code.
@@ -111,6 +115,43 @@ impl Storage<'_> {
                     const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
                 }
             };
+        )
+    }
+
+    fn generate_storage_value_structs(&self) -> TokenStream2 {
+        let storage = self.contract.module().storage();
+        let span = storage.span();
+        let _ident = storage.ident();
+        let _attrs = storage.attrs();
+        let fields = storage.fields();
+
+        use heck::ToUpperCamelCase as _;
+
+        let field_structs = fields.into_iter().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let struct_ident = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            let input = format!("{}:{}", ident, struct_ident);
+            let mut storage_key = [0u8; 32];
+            ir::blake2b_256(input.as_bytes(), &mut storage_key);
+
+            // TODO: Ensure spans line up properly
+            quote!(
+                pub struct #struct_ident {
+                    __private: ()
+                }
+
+                impl ::ink_lang::codegen::ContractRootKey for #struct_ident {
+                    const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([#(#storage_key,)*]);
+                }
+            )
+        });
+
+        quote_spanned!( span =>
+            #(#field_structs)*
         )
     }
 }
