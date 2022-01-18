@@ -34,6 +34,7 @@ pub use self::{
         DispatchOutput,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
+        StorageValue,
     },
     env::{
         Env,

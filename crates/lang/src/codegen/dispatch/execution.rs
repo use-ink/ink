@@ -57,6 +57,7 @@ pub trait ContractRootKey {
 
 use scale::Encode as _;
 
+// TODO: Figure out the right place for this
 pub trait StorageValue: ContractRootKey {
     type Value: scale::Encode + scale::Decode;
 

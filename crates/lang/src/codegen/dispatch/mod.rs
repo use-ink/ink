@@ -26,6 +26,7 @@ pub use self::{
         ContractRootKey,
         ExecuteConstructorConfig,
         ExecuteMessageConfig,
+        StorageValue,
     },
     info::ContractCallBuilder,
     type_check::{

@@ -121,18 +121,20 @@ impl Storage<'_> {
     fn generate_storage_value_structs(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();
-        let _ident = storage.ident();
+        let ident = storage.ident();
         let _attrs = storage.attrs();
         let fields = storage.fields();
 
         use heck::ToUpperCamelCase as _;
 
-        let field_structs = fields.into_iter().map(|field| {
+        // TODO: Stop cloning in places where we use `fields`
+        let field_structs = fields.clone().into_iter().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             let struct_ident = quote::format_ident!(
                 "__ink_StorageValue{}",
                 ident.to_string().to_upper_camel_case()
             );
+            let ty = &field.ty;
 
             let input = format!("{}:{}", ident, struct_ident);
             let mut storage_key = [0u8; 32];
@@ -147,10 +149,54 @@ impl Storage<'_> {
                 impl ::ink_lang::codegen::ContractRootKey for #struct_ident {
                     const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([#(#storage_key,)*]);
                 }
+
+                impl ::ink_lang::codegen::StorageValue for #struct_ident {
+                    type Value = #ty;
+                }
             )
         });
 
+        let new_contract_ident = quote::format_ident!("{}2", &ident);
+        let new_pairs = fields.clone().into_iter().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            quote! {
+                #ident: #ty
+            }
+        });
+
+        let getter_methods = fields.clone().into_iter().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            let getter_mut = quote::format_ident!("{}_mut", ident);
+
+            quote! {
+                pub fn #ident(&self) -> &#ty { return &self.#ident }
+                pub fn #getter_mut(&mut self) -> &mut #ty { return &mut self.#ident }
+            }
+        });
+
+        let new_contract = quote! {
+           pub struct #new_contract_ident {
+               #(#new_pairs,)*
+           }
+
+           impl #new_contract_ident {
+                #(#getter_methods)*
+           }
+        };
+
         quote_spanned!( span =>
+            #new_contract
+
             #(#field_structs)*
         )
     }
