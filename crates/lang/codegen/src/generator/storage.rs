@@ -125,18 +125,10 @@ impl Storage<'_> {
         let _attrs = storage.attrs();
         let fields = storage.fields();
 
-        let original_fields = fields.clone().into_iter().map(|field| {
-            let ident = &field.ident;
-            let ty = &field.ty;
-            quote! {
-                #ident: #ty
-            }
-        });
-
         use heck::ToUpperCamelCase as _;
 
         // TODO: Stop cloning in places where we use `fields`
-        let field_structs = fields.clone().into_iter().map(|field| {
+        let field_structs = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             let struct_ident = quote::format_ident!(
                 "__ink_StorageValue{}",
@@ -165,7 +157,7 @@ impl Storage<'_> {
         });
 
         let new_contract_ident = quote::format_ident!("{}2", &ident);
-        let new_pairs = fields.clone().into_iter().map(|field| {
+        let internal_fields = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             let ty = quote::format_ident!(
                 "__ink_StorageValue{}",
@@ -177,7 +169,7 @@ impl Storage<'_> {
             }
         });
 
-        let getter_methods = fields.clone().into_iter().map(|field| {
+        let getter_methods = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             let ty = quote::format_ident!(
                 "__ink_StorageValue{}",
@@ -192,7 +184,7 @@ impl Storage<'_> {
             }
         });
 
-        let generated_pairs_init = fields.clone().into_iter().map(|field| {
+        let generated_pairs_init = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             let internal_ty = quote::format_ident!(
                 "__ink_StorageValue{}",
@@ -204,7 +196,7 @@ impl Storage<'_> {
             }
         });
 
-        let initial_storage_write = fields.clone().into_iter().map(|field| {
+        let initial_storage_write = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             quote! {
                 self.#ident.write(#ident)
@@ -213,11 +205,11 @@ impl Storage<'_> {
 
         let new_contract = quote! {
            pub struct #new_contract_ident {
-               #(#new_pairs,)*
+               #(#internal_fields,)*
            }
 
            impl #new_contract_ident {
-               pub fn initialize(&self, #(#original_fields)*) {
+               pub fn initialize(&self, #(#fields)*) {
                    let s = Self {
                        #(#generated_pairs_init,)*
                    };
