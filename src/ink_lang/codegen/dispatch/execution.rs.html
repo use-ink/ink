@@ -396,7 +396,6 @@
 <span id="393">393</span>
 <span id="394">394</span>
 <span id="395">395</span>
-<span id="396">396</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -472,6 +471,8 @@
 <span class="doccomment">/// Configuration for execution of ink! constructor.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExecuteConstructorConfig</span> {
+    <span class="doccomment">/// Yields `true` if the ink! constructor accepts payment.</span>
+    <span class="kw">pub</span> <span class="ident">payable</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Yields `true` if the dynamic storage allocator has been enabled.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Note</span>
@@ -492,11 +493,14 @@
     <span class="ident">f</span>: <span class="ident">F</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DispatchError</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">Contract</span>: <span class="ident">SpreadLayout</span> <span class="op">+</span> <span class="ident">ContractRootKey</span>,
+    <span class="ident">Contract</span>: <span class="ident">SpreadLayout</span> <span class="op">+</span> <span class="ident">ContractRootKey</span> <span class="op">+</span> <span class="ident">ContractEnv</span>,
     <span class="ident">F</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">R</span>,
     <span class="op">&lt;</span><span class="ident">private::Seal</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">ConstructorReturnType</span><span class="op">&lt;</span><span class="ident">Contract</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::ReturnValue</span>: <span class="ident">scale::Encode</span>,
     <span class="ident">private::Seal</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>: <span class="ident">ConstructorReturnType</span><span class="op">&lt;</span><span class="ident">Contract</span><span class="op">&gt;</span>,
 {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">config</span>.<span class="ident">payable</span> {
+        <span class="ident">deny_payment</span>::<span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">Contract</span> <span class="kw">as</span> <span class="ident">ContractEnv</span><span class="op">&gt;</span><span class="ident">::Env</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+    }
     <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">dynamic_storage_alloc</span> {
         <span class="ident">alloc::initialize</span>(<span class="ident">ContractPhase::Deploy</span>);
     }
@@ -679,12 +683,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExecuteMessageConfig</span> {
     <span class="doccomment">/// Yields `true` if the ink! message accepts payment.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Note</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If no ink! message within the same ink! smart contract</span>
-    <span class="doccomment">/// is payable then this flag will be `true` since the check</span>
-    <span class="doccomment">/// then is moved before the message dispatch as an optimization.</span>
     <span class="kw">pub</span> <span class="ident">payable</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Yields `true` if the ink! message might mutate contract storage.</span>
     <span class="doccomment">///</span>

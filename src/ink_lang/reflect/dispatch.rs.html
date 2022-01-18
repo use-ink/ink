@@ -652,6 +652,10 @@
 <span id="649">649</span>
 <span id="650">650</span>
 <span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -673,7 +677,7 @@
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// - This is automatically implemented by all ink! smart contracts.</span>
-<span class="doccomment">/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  </span>
+<span class="doccomment">/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.</span>
 <span class="doccomment">///   This explicitly includes ink! messages from ink! trait implementations.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Usage</span>
@@ -993,8 +997,12 @@
     <span class="doccomment">/// The closure that can be used to dispatch into the dispatchable ink! constructor.</span>
     <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Storage</span>;
 
+    <span class="doccomment">/// Yields `true` if the dispatchable ink! constructor is payable.</span>
+    <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">bool</span>;
+
     <span class="doccomment">/// The selectors of the dispatchable ink! constructor.</span>
     <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
+
     <span class="doccomment">/// The label of the dispatchable ink! constructor.</span>
     <span class="kw">const</span> <span class="ident">LABEL</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 }
