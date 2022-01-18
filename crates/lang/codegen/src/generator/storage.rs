@@ -125,6 +125,14 @@ impl Storage<'_> {
         let _attrs = storage.attrs();
         let fields = storage.fields();
 
+        let original_fields = fields.clone().into_iter().map(|field| {
+            let ident = &field.ident;
+            let ty = &field.ty;
+            quote! {
+                #ident: #ty
+            }
+        });
+
         use heck::ToUpperCamelCase as _;
 
         // TODO: Stop cloning in places where we use `fields`
@@ -179,8 +187,27 @@ impl Storage<'_> {
             let getter_mut = quote::format_ident!("{}_mut", ident);
 
             quote! {
-                pub fn #ident(&self) -> &#ty { return &self.#ident }
-                pub fn #getter_mut(&mut self) -> &mut #ty { return &mut self.#ident }
+                pub fn #ident(&self) -> &#ty { &self.#ident }
+                pub fn #getter_mut(&mut self) -> &mut #ty { &mut self.#ident }
+            }
+        });
+
+        let generated_pairs_init = fields.clone().into_iter().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let internal_ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            quote! {
+                #ident: #internal_ty { __private: (), }
+            }
+        });
+
+        let initial_storage_write = fields.clone().into_iter().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            quote! {
+                self.#ident.write(#ident)
             }
         });
 
@@ -190,7 +217,16 @@ impl Storage<'_> {
            }
 
            impl #new_contract_ident {
-                #(#getter_methods)*
+               pub fn initialize(&self, #(#original_fields)*) {
+                   let s = Self {
+                       #(#generated_pairs_init,)*
+                   };
+
+                   #(#initial_storage_write;)*
+                   s
+               }
+
+               #(#getter_methods)*
            }
         };
 
