@@ -439,6 +439,8 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -563,6 +565,7 @@
             .<span class="ident">iter</span>()
             .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> <span class="ident">attr</span>.<span class="ident">extract_docs</span>());
         <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">composed_selector</span>().<span class="ident">hex_lits</span>();
+        <span class="kw">let</span> <span class="ident">is_payable</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">is_payable</span>();
         <span class="kw">let</span> <span class="ident">constructor</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">callable</span>();
         <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">inputs</span>().<span class="ident">map</span>(<span class="ident"><span class="self">Self</span>::generate_dispatch_argument</span>);
@@ -574,6 +577,7 @@
                 .<span class="ident">args</span>([
                     #( #<span class="ident">args</span> ),<span class="op">*</span>
                 ])
+                .<span class="ident">payable</span>(#<span class="ident">is_payable</span>)
                 .<span class="ident">docs</span>([
                     #( #<span class="ident">docs</span> ),<span class="op">*</span>
                 ])
