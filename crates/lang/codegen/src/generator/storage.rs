@@ -199,17 +199,19 @@ impl Storage<'_> {
         let initial_storage_write = fields.clone().map(|field| {
             let ident = field.ident.as_ref().unwrap();
             quote! {
-                self.#ident.write(#ident)
+                self.#ident.write(&#ident)
             }
         });
 
         let new_contract = quote! {
+           use ::ink_lang::codegen::StorageValue;
+
            pub struct #new_contract_ident {
                #(#internal_fields,)*
            }
 
            impl #new_contract_ident {
-               pub fn initialize(&self, #(#fields)*) {
+               pub fn initialize(&mut self, #(#fields)*) -> Self {
                    let s = Self {
                        #(#generated_pairs_init,)*
                    };
