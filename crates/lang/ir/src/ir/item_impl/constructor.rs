@@ -67,6 +67,8 @@ use syn::spanned::Spanned as _;
 pub struct Constructor {
     /// The underlying Rust method item.
     pub(super) item: syn::ImplItemMethod,
+    /// If the ink! constructor can receive funds.
+    is_payable: bool,
     /// An optional user provided selector.
     ///
     /// # Note
@@ -158,15 +160,9 @@ impl Constructor {
             &ir::AttributeArgKind::Constructor,
             |arg| {
                 match arg.kind() {
-                    ir::AttributeArg::Constructor | ir::AttributeArg::Selector(_) => {
-                        Ok(())
-                    }
-                    ir::AttributeArg::Payable => {
-                        Err(Some(format_err!(
-                            arg.span(),
-                            "constructors are implicitly payable"
-                        )))
-                    }
+                    ir::AttributeArg::Constructor
+                    | ir::AttributeArg::Payable
+                    | ir::AttributeArg::Selector(_) => Ok(()),
                     _ => Err(None),
                 }
             },
@@ -182,9 +178,11 @@ impl TryFrom<syn::ImplItemMethod> for Constructor {
         Self::ensure_valid_return_type(&method_item)?;
         Self::ensure_no_self_receiver(&method_item)?;
         let (ink_attrs, other_attrs) = Self::sanitize_attributes(&method_item)?;
+        let is_payable = ink_attrs.is_payable();
         let selector = ink_attrs.selector();
         Ok(Constructor {
             selector,
+            is_payable,
             item: syn::ImplItemMethod {
                 attrs: other_attrs,
                 ..method_item
@@ -217,7 +215,7 @@ impl Callable for Constructor {
     }
 
     fn is_payable(&self) -> bool {
-        true
+        self.is_payable
     }
 
     fn visibility(&self) -> Visibility {
@@ -299,6 +297,52 @@ mod tests {
                 .map(syn::FnArg::Typed)
                 .collect::<Vec<_>>();
             assert_eq!(actual_inputs, expected_inputs);
+        }
+    }
+
+    #[test]
+    fn is_payable_works() {
+        let test_inputs: Vec<(bool, syn::ImplItemMethod)> = vec![
+            // Not payable.
+            (
+                false,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    fn my_constructor() -> Self {}
+                },
+            ),
+            // Normalized ink! attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor, payable)]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+            // Different ink! attributes.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    #[ink(payable)]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+            // Another ink! attribute, separate and normalized attribute.
+            (
+                true,
+                syn::parse_quote! {
+                    #[ink(constructor)]
+                    #[ink(selector = 0xDEADBEEF, payable)]
+                    pub fn my_constructor() -> Self {}
+                },
+            ),
+        ];
+        for (expect_payable, item_method) in test_inputs {
+            let is_payable = <ir::Constructor as TryFrom<_>>::try_from(item_method)
+                .unwrap()
+                .is_payable();
+            assert_eq!(is_payable, expect_payable);
         }
     }
 
@@ -575,12 +619,6 @@ mod tests {
             syn::parse_quote! {
                 #[ink(constructor)]
                 #[ink(event)]
-                fn my_constructor() -> Self {}
-            },
-            // constructor + payable
-            syn::parse_quote! {
-                #[ink(constructor)]
-                #[ink(payable)]
                 fn my_constructor() -> Self {}
             },
         ];

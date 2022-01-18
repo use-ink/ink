@@ -73,6 +73,8 @@ where
 /// Configuration for execution of ink! constructor.
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteConstructorConfig {
+    /// Yields `true` if the ink! constructor accepts payment.
+    pub payable: bool,
     /// Yields `true` if the dynamic storage allocator has been enabled.
     ///
     /// # Note
@@ -93,11 +95,14 @@ pub fn execute_constructor<Contract, F, R>(
     f: F,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout + ContractRootKey,
+    Contract: SpreadLayout + ContractRootKey + ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
 {
+    if !config.payable {
+        deny_payment::<<Contract as ContractEnv>::Env>()?;
+    }
     if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Deploy);
     }
@@ -280,12 +285,6 @@ impl<C, E> InitializerReturnType<C> for Result<(), E> {
 #[derive(Debug, Copy, Clone)]
 pub struct ExecuteMessageConfig {
     /// Yields `true` if the ink! message accepts payment.
-    ///
-    /// # Note
-    ///
-    /// If no ink! message within the same ink! smart contract
-    /// is payable then this flag will be `true` since the check
-    /// then is moved before the message dispatch as an optimization.
     pub payable: bool,
     /// Yields `true` if the ink! message might mutate contract storage.
     ///

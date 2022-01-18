@@ -19,7 +19,7 @@ use core::fmt::Display;
 /// # Note
 ///
 /// - This is automatically implemented by all ink! smart contracts.
-/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.  
+/// - All ink! constructors and ink! messages of an ink! smart contract are dispatchables.
 ///   This explicitly includes ink! messages from ink! trait implementations.
 ///
 /// # Usage
@@ -339,8 +339,12 @@ pub trait DispatchableConstructorInfo<const ID: u32> {
     /// The closure that can be used to dispatch into the dispatchable ink! constructor.
     const CALLABLE: fn(Self::Input) -> Self::Storage;
 
+    /// Yields `true` if the dispatchable ink! constructor is payable.
+    const PAYABLE: bool;
+
     /// The selectors of the dispatchable ink! constructor.
     const SELECTOR: [u8; 4];
+
     /// The label of the dispatchable ink! constructor.
     const LABEL: &'static str;
 }
