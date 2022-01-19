@@ -14,7 +14,7 @@ pub mod give_me {
 
     impl GiveMe {
         /// Creates a new instance of this contract.
-        #[ink(constructor)]
+        #[ink(constructor, payable)]
         pub fn new() -> Self {
             Self {}
         }
