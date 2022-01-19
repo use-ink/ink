@@ -19,7 +19,7 @@ changes are supported since Jan 19, 2022.
 ## Metadata Changes
 There are two metadata changes in this release candidate:
 
-### For messages and constructors: `label: Array` ➔ `name: String`
+### For messages and constructors: `name: Array` ➔ `label: String`
 
 The messages and constructors exposed by a contract were previously denoted with
 ```json
@@ -50,7 +50,7 @@ for the `polkadots-js/api` it was [#4432](https://github.com/paritytech/ink/pull
 - Removed the error codes `BelowSubsistenceThreshold` and `NewContractNotFunded` ‒ [#1062](https://github.com/paritytech/ink/pull/1062).
 - Updated ink! to use the most recent `contract` pallet API ‒ [#1053](https://github.com/paritytech/ink/pull/1053).
 - Explicitly link against `rlibc` to get non-buggy version of `memcpy` ‒ [#1049](https://github.com/paritytech/ink/pull/1049).
-- Changed the metadata field `label` to `name` for messages and constructors ‒ [#923](https://github.com/paritytech/ink/pull/923) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Changed the metadata field `name` to `label` for messages and constructors ‒ [#923](https://github.com/paritytech/ink/pull/923) (thanks [@xgreenx](https://github.com/xgreenx)).
 
 ## Added
 - Added a `remove` method to the `Mapping` data structure ‒ [#1023](https://github.com/paritytech/ink/pull/1023).
