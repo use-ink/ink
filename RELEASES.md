@@ -33,17 +33,18 @@ For public contract methods that are implemented from a trait, the trait name is
 the method name with `::` as the separator. So e.g. `trait_name::get_owner`.
 
 The ink! PR which implemented this is [#923](https://github.com/paritytech/ink/pull/923),
-for the `polkadots-js/api` it was [#4255](https://github.com/paritytech/ink/pull/4255).
+for the `polkadots-js/api` it was [polkadot-js/api#4255](https://github.com/polkadot-js/api/pull/4255).
 
 ### Constructors got a new field: `payable: bool`
 Constructors now have to be specified `payable` if it's intended for them to receive value
 (i.e. tokens). This is a breaking change, beforehand they were by default payable,
 now they are by default non-payable.
 
-The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/pull/1065),
-for the `polkadots-js/api` it was [#4432](https://github.com/paritytech/ink/pull/4432).
+The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/pull/1065), the PR that updated the ink!
+metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for the `polkadots-js/api` it was [polkadot-js/api#4432](https://github.com/polkadot-js/api/pull/4432).
 
 ## Changed
+- Update metadate to support payable constructors - [#1100](https://github.com/paritytech/ink/pull/1100).
 - Make constructors non-payable by default, require specifying `payable` explicitly - [#1065](https://github.com/paritytech/ink/pull/1065).
 - Renamed the error code `EcdsaRecoverFailed` to `EcdsaRecoveryFailed` ‒ [#1064](https://github.com/paritytech/ink/pull/1064).
 - Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1063](https://github.com/paritytech/ink/pull/1063).
