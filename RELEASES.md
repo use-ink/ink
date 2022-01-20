@@ -49,7 +49,7 @@ metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for 
 - Renamed the error code `EcdsaRecoverFailed` to `EcdsaRecoveryFailed` ‒ [#1064](https://github.com/paritytech/ink/pull/1064).
 - Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1063](https://github.com/paritytech/ink/pull/1063).
 - Removed the error codes `BelowSubsistenceThreshold` and `NewContractNotFunded` ‒ [#1062](https://github.com/paritytech/ink/pull/1062).
-- Updated ink! to use the most recent `contract` pallet API ‒ [#1053](https://github.com/paritytech/ink/pull/1053).
+- Updated ink! to use the most recent `contracts` pallet API ‒ [#1053](https://github.com/paritytech/ink/pull/1053).
 - Explicitly link against `rlibc` to get non-buggy version of `memcpy` ‒ [#1049](https://github.com/paritytech/ink/pull/1049).
 - Changed the metadata field `name` to `label` for messages and constructors ‒ [#923](https://github.com/paritytech/ink/pull/923) (thanks [@xgreenx](https://github.com/xgreenx)).
 
