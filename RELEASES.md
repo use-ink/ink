@@ -33,7 +33,7 @@ For public contract methods that are implemented from a trait, the trait name is
 the method name with `::` as the separator. So e.g. `trait_name::get_owner`.
 
 The ink! PR which implemented this is [#923](https://github.com/paritytech/ink/pull/923),
-for the `polkadots-js/api` it was [polkadot-js/api#4255](https://github.com/polkadot-js/api/pull/4255).
+for the `polkadot-js/api` it was [polkadot-js/api#4255](https://github.com/polkadot-js/api/pull/4255).
 
 ### Constructors got a new field: `payable: bool`
 Constructors now have to be specified `payable` if it's intended for them to receive value
@@ -41,7 +41,7 @@ Constructors now have to be specified `payable` if it's intended for them to rec
 now they are by default non-payable.
 
 The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/pull/1065), the PR that updated the ink!
-metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for the `polkadots-js/api` it was [polkadot-js/api#4432](https://github.com/polkadot-js/api/pull/4432).
+metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for the `polkadot-js/api` it was [polkadot-js/api#4432](https://github.com/polkadot-js/api/pull/4432).
 
 ## Changed
 - Update metadate to support payable constructors - [#1100](https://github.com/paritytech/ink/pull/1100).
