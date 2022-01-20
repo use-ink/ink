@@ -13,25 +13,20 @@ pub mod flipper {
         /// Creates a new flipper smart contract initialized with the given value.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
-        }
-
-        /// Creates a new flipper smart contract initialized to `false`.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
+            Self::initialize(init_value)
         }
 
         /// Flips the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn flip(&mut self) {
-            self.value = !self.value;
+            let flipped = !self.value().read();
+            self.value_mut().write(&flipped);
         }
 
         /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
-            self.value
+            self.value().read()
         }
     }
 
