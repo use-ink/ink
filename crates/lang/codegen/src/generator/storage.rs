@@ -177,10 +177,10 @@ impl Storage<'_> {
            use ::ink_lang::codegen::StorageValue;
 
            #(#attrs)*
-           // #[cfg_attr(
-           //     feature = "std",
-           //     derive(::ink_storage::traits::StorageLayout)
-           // )]
+           #[cfg_attr(
+               feature = "std",
+               derive(::ink_storage::traits::StorageLayout)
+           )]
            pub struct #ident {
                #(#internal_fields,)*
            }
@@ -245,6 +245,10 @@ impl Storage<'_> {
 
             // TODO: Ensure spans line up properly
             quote!(
+                #[cfg_attr(
+                    feature = "std",
+                    derive(::ink_storage::traits::StorageLayout)
+                )]
                 pub struct #struct_ident {
                     __private: ()
                 }
