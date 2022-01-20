@@ -64,6 +64,7 @@ pub trait StorageValue: ContractRootKey {
         ink_env::set_contract_storage(&Self::ROOT_KEY, &value.encode());
     }
 
+    // TODO: Maybe change to `get()`
     fn read(&self) -> Self::Value {
         ink_env::get_contract_storage(&Self::ROOT_KEY)
             .expect("TODO")
@@ -107,13 +108,63 @@ pub struct ExecuteConstructorConfig {
 ///
 /// The closure is supposed to already contain all the arguments that the real
 /// constructor message requires and forwards them.
+// #[inline]
+// pub fn execute_constructor<Contract, F, R>(
+//     config: ExecuteConstructorConfig,
+//     f: F,
+// ) -> Result<(), DispatchError>
+// where
+//     Contract: SpreadLayout + ContractRootKey + ContractEnv,
+//     F: FnOnce() -> R,
+//     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
+//     private::Seal<R>: ConstructorReturnType<Contract>,
+// {
+//     if !config.payable {
+//         deny_payment::<<Contract as ContractEnv>::Env>()?;
+//     }
+//     if config.dynamic_storage_alloc {
+//         alloc::initialize(ContractPhase::Deploy);
+//     }
+//     let result = ManuallyDrop::new(private::Seal(f()));
+//     match result.as_result() {
+//         Ok(contract) => {
+//             // Constructor is infallible or is fallible but succeeded.
+//             //
+//             // This requires us to sync back the changes of the contract storage.
+//             let root_key = <Contract as ContractRootKey>::ROOT_KEY;
+//             push_spread_root::<Contract>(contract, &root_key);
+//             if config.dynamic_storage_alloc {
+//                 alloc::finalize();
+//             }
+//             Ok(())
+//         }
+//         Err(_) => {
+//             // Constructor is fallible and failed.
+//             //
+//             // We need to revert the state of the transaction.
+//             ink_env::return_value::<
+//                 <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue,
+//             >(
+//                 ReturnFlags::default().set_reverted(true),
+//                 result.return_value(),
+//             )
+//         }
+//     }
+// }
+
+/// Executes the given ink! constructor.
+///
+/// # Note
+///
+/// The closure is supposed to already contain all the arguments that the real
+/// constructor message requires and forwards them.
 #[inline]
 pub fn execute_constructor<Contract, F, R>(
     config: ExecuteConstructorConfig,
     f: F,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout + ContractRootKey + ContractEnv,
+    Contract: ContractEnv,
     F: FnOnce() -> R,
     <private::Seal<R> as ConstructorReturnType<Contract>>::ReturnValue: scale::Encode,
     private::Seal<R>: ConstructorReturnType<Contract>,
@@ -126,12 +177,13 @@ where
     }
     let result = ManuallyDrop::new(private::Seal(f()));
     match result.as_result() {
-        Ok(contract) => {
+        Ok(_contract) => {
             // Constructor is infallible or is fallible but succeeded.
             //
             // This requires us to sync back the changes of the contract storage.
-            let root_key = <Contract as ContractRootKey>::ROOT_KEY;
-            push_spread_root::<Contract>(contract, &root_key);
+            //
+            // let root_key = <Contract as ContractRootKey>::ROOT_KEY;
+            // push_spread_root::<Contract>(contract, &root_key);
             if config.dynamic_storage_alloc {
                 alloc::finalize();
             }
@@ -330,9 +382,11 @@ pub struct ExecuteMessageConfig {
 #[inline]
 pub fn initiate_message<Contract>(
     config: ExecuteMessageConfig,
-) -> Result<Contract, DispatchError>
+    // ) -> Result<Contract, DispatchError>
+) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout + ContractEnv,
+    // Contract: SpreadLayout + ContractEnv,
+    Contract: ContractEnv,
 {
     if !config.payable {
         deny_payment::<<Contract as ContractEnv>::Env>()?;
@@ -340,9 +394,9 @@ where
     if config.dynamic_storage_alloc {
         alloc::initialize(ContractPhase::Call);
     }
-    let root_key = Key::from([0x00; 32]);
-    let contract = pull_spread_root::<Contract>(&root_key);
-    Ok(contract)
+    // let root_key = Key::from([0x00; 32]);
+    // let contract = pull_spread_root::<Contract>(&root_key);
+    Ok(())
 }
 
 /// Finalizes an ink! message call with the given configuration.
@@ -361,36 +415,37 @@ where
 /// and finalize phases was needed due to the fact that `is_result_type`
 /// and `is_result_err` macros do not work in generic contexts.
 #[inline]
-pub fn finalize_message<Contract, R>(
+pub fn finalize_message<R>(
     success: bool,
-    contract: &Contract,
+    // contract: &Contract,
     config: ExecuteMessageConfig,
     result: &R,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout,
+    // Contract: SpreadLayout,
     R: scale::Encode + 'static,
 {
     if success {
-        finalize_infallible_message(contract, config, result)
+        // finalize_infallible_message(contract, config, result)
+        finalize_infallible_message(config, result)
     } else {
         finalize_fallible_message(result)
     }
 }
 
 #[inline]
-fn finalize_infallible_message<Contract, R>(
-    contract: &Contract,
+fn finalize_infallible_message<R>(
+    // contract: &Contract,
     config: ExecuteMessageConfig,
     result: &R,
 ) -> Result<(), DispatchError>
 where
-    Contract: SpreadLayout,
+    // Contract: SpreadLayout,
     R: scale::Encode + 'static,
 {
     if config.mutates {
-        let root_key = Key::from([0x00; 32]);
-        push_spread_root::<Contract>(contract, &root_key);
+        // let root_key = Key::from([0x00; 32]);
+        // push_spread_root::<Contract>(contract, &root_key);
     }
     if config.dynamic_storage_alloc {
         alloc::finalize();

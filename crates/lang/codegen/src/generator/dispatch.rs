@@ -757,16 +757,21 @@ impl Dispatch<'_> {
                         mutates: #mutates_storage,
                         dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
                     };
-                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                    // TODO: Do we need `ManuallyDrop` here?
+                    let mut contract = <#storage_ident>::__ink_new();
+                    // let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                    // let mut contract: ::core::mem::ManuallyDrop<()> =
                         ::core::mem::ManuallyDrop::new(
                             ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
                         );
+                    // let result: #message_output = #message_callable(&mut contract, input);
                     let result: #message_output = #message_callable(&mut contract, input);
                     let failure = ::ink_lang::is_result_type!(#message_output)
                         && ::ink_lang::is_result_err!(result);
-                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
+                    // ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
+                    ::ink_lang::codegen::finalize_message::<#message_output>(
                         !failure,
-                        &contract,
+                        // &contract,
                         config,
                         &result,
                     )?;
