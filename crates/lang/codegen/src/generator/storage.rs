@@ -88,23 +88,126 @@ impl Storage<'_> {
     }
 
     /// Generates the storage struct definition.
+    // fn generate_storage_struct(&self) -> TokenStream2 {
+    //     let storage = self.contract.module().storage();
+    //     let span = storage.span();
+    //     let ident = storage.ident();
+    //     let attrs = storage.attrs();
+    //     let fields = storage.fields();
+    //     quote_spanned!( span =>
+    //         #(#attrs)*
+    //         #[cfg_attr(
+    //             feature = "std",
+    //             derive(::ink_storage::traits::StorageLayout)
+    //         )]
+    //         #[derive(::ink_storage::traits::SpreadLayout)]
+    //         #[cfg_attr(test, derive(::core::fmt::Debug))]
+    //         pub struct #ident {
+    //             #( #fields ),*
+    //         }
+
+    //         const _: () = {
+    //             impl ::ink_lang::reflect::ContractName for #ident {
+    //                 const NAME: &'static str = ::core::stringify!(#ident);
+    //             }
+
+    //             impl ::ink_lang::codegen::ContractRootKey for #ident {
+    //                 const ROOT_KEY: ::ink_primitives::Key = ::ink_primitives::Key::new([0x00; 32]);
+    //             }
+    //         };
+    //     )
+    // }
+
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();
         let ident = storage.ident();
         let attrs = storage.attrs();
         let fields = storage.fields();
-        quote_spanned!( span =>
-            #(#attrs)*
-            #[cfg_attr(
-                feature = "std",
-                derive(::ink_storage::traits::StorageLayout)
-            )]
-            #[derive(::ink_storage::traits::SpreadLayout)]
-            #[cfg_attr(test, derive(::core::fmt::Debug))]
-            pub struct #ident {
-                #( #fields ),*
+
+        use heck::ToUpperCamelCase as _;
+
+        let internal_fields = fields.clone().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            quote! {
+                #ident: #ty
             }
+        });
+
+        let generated_pairs_init = fields.clone().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let internal_ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            quote! {
+                #ident: #internal_ty { __private: (), }
+            }
+        });
+
+        let initial_storage_write = fields.clone().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            quote! {
+                s.#ident.write(&#ident)
+            }
+        });
+
+        let getter_methods = fields.clone().map(|field| {
+            let ident = field.ident.as_ref().unwrap();
+            let ty = quote::format_ident!(
+                "__ink_StorageValue{}",
+                ident.to_string().to_upper_camel_case()
+            );
+
+            let getter_mut = quote::format_ident!("{}_mut", ident);
+
+            quote! {
+                pub fn #ident(&self) -> &#ty { &self.#ident }
+                pub fn #getter_mut(&mut self) -> &mut #ty { &mut self.#ident }
+            }
+        });
+
+        let new_contract = quote! {
+           use ::ink_lang::codegen::StorageValue;
+
+           #(#attrs)*
+           // #[cfg_attr(
+           //     feature = "std",
+           //     derive(::ink_storage::traits::StorageLayout)
+           // )]
+           pub struct #ident {
+               #(#internal_fields,)*
+           }
+
+           impl #ident {
+               pub fn __ink_new() -> Self {
+                   Self {
+                       #(#generated_pairs_init,)*
+                   }
+               }
+
+               pub fn initialize(#(#fields)*) -> Self {
+                   let mut s = Self::__ink_new();
+                   // let mut s = Self {
+                   //     #(#generated_pairs_init,)*
+                   // };
+
+                   #(#initial_storage_write;)*
+                   s
+               }
+
+               #(#getter_methods)*
+           }
+        };
+
+        quote_spanned!( span =>
+            #new_contract
 
             const _: () = {
                 impl ::ink_lang::reflect::ContractName for #ident {
@@ -156,76 +259,10 @@ impl Storage<'_> {
             )
         });
 
-        let new_contract_ident = quote::format_ident!("{}2", &ident);
-        let internal_fields = fields.clone().map(|field| {
-            let ident = field.ident.as_ref().unwrap();
-            let ty = quote::format_ident!(
-                "__ink_StorageValue{}",
-                ident.to_string().to_upper_camel_case()
-            );
-
-            quote! {
-                #ident: #ty
-            }
-        });
-
-        let getter_methods = fields.clone().map(|field| {
-            let ident = field.ident.as_ref().unwrap();
-            let ty = quote::format_ident!(
-                "__ink_StorageValue{}",
-                ident.to_string().to_upper_camel_case()
-            );
-
-            let getter_mut = quote::format_ident!("{}_mut", ident);
-
-            quote! {
-                pub fn #ident(&self) -> &#ty { &self.#ident }
-                pub fn #getter_mut(&mut self) -> &mut #ty { &mut self.#ident }
-            }
-        });
-
-        let generated_pairs_init = fields.clone().map(|field| {
-            let ident = field.ident.as_ref().unwrap();
-            let internal_ty = quote::format_ident!(
-                "__ink_StorageValue{}",
-                ident.to_string().to_upper_camel_case()
-            );
-
-            quote! {
-                #ident: #internal_ty { __private: (), }
-            }
-        });
-
-        let initial_storage_write = fields.clone().map(|field| {
-            let ident = field.ident.as_ref().unwrap();
-            quote! {
-                self.#ident.write(&#ident)
-            }
-        });
-
-        let new_contract = quote! {
-           use ::ink_lang::codegen::StorageValue;
-
-           pub struct #new_contract_ident {
-               #(#internal_fields,)*
-           }
-
-           impl #new_contract_ident {
-               pub fn initialize(&mut self, #(#fields)*) -> Self {
-                   let s = Self {
-                       #(#generated_pairs_init,)*
-                   };
-
-                   #(#initial_storage_write;)*
-                   s
-               }
-
-               #(#getter_methods)*
-           }
-        };
+        let _new_contract_ident = quote::format_ident!("{}2", &ident);
 
         quote_spanned!( span =>
-            #new_contract
+            // #new_contract
 
             #(#field_structs)*
         )
