@@ -196,23 +196,11 @@ fn test_call_setup_works() {
         let root_key = Key::from([0xFE; 32]);
         DynamicAllocator::push_spread(&allocator, &mut KeyPtr::from(root_key));
         alloc::initialize(ContractPhase::Call);
-
-        let alloc_result = std::panic::catch_unwind(|| {
-            let res = alloc();
-            dbg!(&res);
-            // vec is dropped which should clear the cells
-        });
-
-        dbg!(&alloc_result);
-
-        // panic!();
-        // assert_eq!(alloc(), DynamicAllocation(2));
-        // assert_eq!(alloc(), DynamicAllocation(3));
+        assert_eq!(alloc(), DynamicAllocation(2));
+        assert_eq!(alloc(), DynamicAllocation(3));
+        free(DynamicAllocation(0));
+        free(DynamicAllocation(2));
         Ok(())
-
-        // free(DynamicAllocation(0));
-        // free(DynamicAllocation(2));
-        // Ok(())
     })
     .unwrap();
 }
