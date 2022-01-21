@@ -66,14 +66,13 @@ mod test_utils;
 
 #[doc(inline)]
 pub use self::{
-    alloc::Box,
     lazy::Mapping,
     memory::Memory,
-    pack::Pack,
 };
 
 #[doc(inline)]
 pub(crate) use self::{
     collections::Vec,
     lazy::Lazy,
+    pack::Pack,
 };
