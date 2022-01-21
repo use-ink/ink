@@ -71,13 +71,12 @@ mod multisig {
     };
     use ink_prelude::vec::Vec;
     use ink_storage::{
-        lazy::Mapping,
         traits::{
             PackedLayout,
             SpreadAllocate,
             SpreadLayout,
         },
-        Lazy,
+        Mapping,
     };
     use scale::Output;
 
@@ -148,7 +147,9 @@ mod multisig {
 
     /// This is a book keeping struct that stores a list of all transaction ids and
     /// also the next id to use. We need it for cleaning up the storage.
-    #[derive(scale::Encode, scale::Decode, SpreadLayout, PackedLayout, Default)]
+    #[derive(
+        scale::Encode, scale::Decode, SpreadLayout, PackedLayout, SpreadAllocate, Default,
+    )]
     #[cfg_attr(
         feature = "std",
         derive(
@@ -259,10 +260,10 @@ mod multisig {
         transactions: Mapping<TransactionId, Transaction>,
         /// We need to hold a list of all transactions so that we can clean up storage
         /// when an owner is removed.
-        transaction_list: Lazy<Transactions>,
+        transaction_list: Transactions,
         /// The list is a vector because iterating over it is necessary when cleaning
         /// up the confirmation set.
-        owners: Lazy<Vec<AccountId>>,
+        owners: Vec<AccountId>,
         /// Redundant information to speed up the check whether a caller is an owner.
         is_owner: Mapping<AccountId, ()>,
         /// Minimum number of owners that have to confirm a transaction to be executed.
