@@ -290,7 +290,7 @@ mod multisig {
                     contract.is_owner.insert(owner, &());
                 }
 
-                contract.owners = owners.into();
+                contract.owners = owners;
                 contract.transaction_list = Default::default();
                 contract.requirement = requirement;
             })
