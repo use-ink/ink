@@ -221,7 +221,8 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```ignore
-    /// // TODO
+    /// # // TODO [#XYZ]: We currently ignore this test since we stopped exposing `StorageVec`
+    /// # // publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
@@ -267,7 +268,8 @@ where
     /// found; the fourth could match any position in `[1, 4]`.
     ///
     /// ```ignore
-    /// // TODO
+    /// # // TODO [#XYZ]: We currently ignore this test since we stopped exposing `StorageVec`
+    /// # // publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
@@ -341,7 +343,8 @@ where
     /// fourth could match any position in `[1, 4]`.
     ///
     /// ```ignore
-    /// // TODO
+    /// # // TODO [#XYZ]: We currently ignore this test since we stopped exposing `StorageVec`
+    /// # // publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<(i32, i32)> = [

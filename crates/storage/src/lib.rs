@@ -50,6 +50,8 @@ extern crate quickcheck_macros;
 pub mod alloc;
 pub mod traits;
 
+// TODO [#XYZ]: We allow `dead_code` here since we're purposefully hiding the collections and will
+// remove them at a later time.
 #[allow(dead_code)]
 pub(crate) mod collections;
 #[allow(dead_code)]

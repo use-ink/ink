@@ -107,7 +107,8 @@ where
     /// # Example
     ///
     /// ```ignore
-    /// // TODO
+    /// # // TODO [#XYZ]: We currently ignore this test since we stopped exposing the `collections`
+    /// # // module publicly.
     /// use ink_storage::collections::BinaryHeap;
     /// let mut heap = BinaryHeap::new();
     /// assert!(heap.peek_mut().is_none());
