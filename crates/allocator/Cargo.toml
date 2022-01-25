@@ -1,6 +1,6 @@
 [package]
 name = "ink_allocator"
-version = "3.0.0-rc7"
+version = "3.0.0-rc8"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 

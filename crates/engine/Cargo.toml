@@ -1,6 +1,6 @@
 [package]
 name = "ink_engine"
-version = "3.0.0-rc7"
+version = "3.0.0-rc8"
 authors = ["Parity Technologies <admin@parity.io>", "Michael Müller <michi@parity.io>"]
 edition = "2021"
 
@@ -23,7 +23,7 @@ sha3 = { version = "0.10" }
 blake2 = { version = "0.10" }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.20.3", features = ["recovery"] }
+secp256k1 = { version = "0.21.2", features = ["recovery"] }
 
 [features]
 default = ["std"]

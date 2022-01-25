@@ -122,6 +122,7 @@ impl Metadata<'_> {
             .iter()
             .filter_map(|attr| attr.extract_docs());
         let selector_bytes = constructor.composed_selector().hex_lits();
+        let is_payable = constructor.is_payable();
         let constructor = constructor.callable();
         let ident = constructor.ident();
         let args = constructor.inputs().map(Self::generate_dispatch_argument);
@@ -133,6 +134,7 @@ impl Metadata<'_> {
                 .args([
                     #( #args ),*
                 ])
+                .payable(#is_payable)
                 .docs([
                     #( #docs ),*
                 ])

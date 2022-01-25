@@ -112,6 +112,7 @@ pub enum Valid {}
 pub enum Invalid {}
 
 /// A builder for contracts.
+#[must_use]
 pub struct ContractSpecBuilder<S = Invalid> {
     /// The to-be-constructed contract specification.
     spec: ContractSpec,
@@ -226,6 +227,8 @@ pub struct ConstructorSpec<F: Form = MetaForm> {
     pub label: F::String,
     /// The selector hash of the message.
     pub selector: Selector,
+    /// If the constructor accepts any `value` from the caller.
+    pub payable: bool,
     /// The parameters of the deployment handler.
     pub args: Vec<MessageParamSpec<F>>,
     /// The deployment handler documentation.
@@ -239,6 +242,7 @@ impl IntoPortable for ConstructorSpec {
         ConstructorSpec {
             label: self.label.into_portable(registry),
             selector: self.selector,
+            payable: self.payable,
             args: self
                 .args
                 .into_iter()
@@ -265,6 +269,11 @@ where
         &self.selector
     }
 
+    /// Returns if the constructor is payable by the caller.
+    pub fn payable(&self) -> &bool {
+        &self.payable
+    }
+
     /// Returns the parameters of the deployment handler.
     pub fn args(&self) -> &[MessageParamSpec<F>] {
         &self.args
@@ -283,20 +292,22 @@ where
 /// Some fields are guarded by a type-state pattern to fail at
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
-pub struct ConstructorSpecBuilder<Selector> {
+#[must_use]
+pub struct ConstructorSpecBuilder<Selector, IsPayable> {
     spec: ConstructorSpec,
-    marker: PhantomData<fn() -> Selector>,
+    marker: PhantomData<fn() -> (Selector, IsPayable)>,
 }
 
 impl ConstructorSpec {
     /// Creates a new constructor spec builder.
     pub fn from_label(
         label: &'static str,
-    ) -> ConstructorSpecBuilder<Missing<state::Selector>> {
+    ) -> ConstructorSpecBuilder<Missing<state::Selector>, Missing<state::IsPayable>> {
         ConstructorSpecBuilder {
             spec: Self {
                 label,
                 selector: Selector::default(),
+                payable: Default::default(),
                 args: Vec::new(),
                 docs: Vec::new(),
             },
@@ -305,9 +316,12 @@ impl ConstructorSpec {
     }
 }
 
-impl ConstructorSpecBuilder<Missing<state::Selector>> {
+impl<P> ConstructorSpecBuilder<Missing<state::Selector>, P> {
     /// Sets the function selector of the message.
-    pub fn selector(self, selector: [u8; 4]) -> ConstructorSpecBuilder<state::Selector> {
+    pub fn selector(
+        self,
+        selector: [u8; 4],
+    ) -> ConstructorSpecBuilder<state::Selector, P> {
         ConstructorSpecBuilder {
             spec: ConstructorSpec {
                 selector: selector.into(),
@@ -318,7 +332,23 @@ impl ConstructorSpecBuilder<Missing<state::Selector>> {
     }
 }
 
-impl<S> ConstructorSpecBuilder<S> {
+impl<S> ConstructorSpecBuilder<S, Missing<state::IsPayable>> {
+    /// Sets if the constructor is payable, thus accepting value for the caller.
+    pub fn payable(
+        self,
+        is_payable: bool,
+    ) -> ConstructorSpecBuilder<S, state::IsPayable> {
+        ConstructorSpecBuilder {
+            spec: ConstructorSpec {
+                payable: is_payable,
+                ..self.spec
+            },
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<S, P> ConstructorSpecBuilder<S, P> {
     /// Sets the input arguments of the message specification.
     pub fn args<A>(self, args: A) -> Self
     where
@@ -342,7 +372,7 @@ impl<S> ConstructorSpecBuilder<S> {
     }
 }
 
-impl ConstructorSpecBuilder<state::Selector> {
+impl ConstructorSpecBuilder<state::Selector, state::IsPayable> {
     /// Finishes construction of the constructor.
     pub fn done(self) -> ConstructorSpec {
         self.spec
@@ -366,7 +396,7 @@ pub struct MessageSpec<F: Form = MetaForm> {
     selector: Selector,
     /// If the message is allowed to mutate the contract state.
     mutates: bool,
-    /// If the message is payable by the caller.
+    /// If the message accepts any `value` from the caller.
     payable: bool,
     /// The parameters of the message.
     args: Vec<MessageParamSpec<F>>,
@@ -470,6 +500,7 @@ where
 /// compile-time instead of at run-time. This is useful to better
 /// debug code-gen macros.
 #[allow(clippy::type_complexity)]
+#[must_use]
 pub struct MessageSpecBuilder<Selector, Mutates, IsPayable, Returns> {
     spec: MessageSpec,
     marker: PhantomData<fn() -> (Selector, Mutates, IsPayable, Returns)>,
@@ -505,7 +536,7 @@ impl<S, P, R> MessageSpecBuilder<S, Missing<state::Mutates>, P, R> {
 }
 
 impl<S, M, R> MessageSpecBuilder<S, M, Missing<state::IsPayable>, R> {
-    /// Sets if the message is mutable, thus taking `&mut self` or not thus taking `&self`.
+    /// Sets if the message is payable, thus accepting value for the caller.
     pub fn payable(
         self,
         is_payable: bool,
@@ -605,6 +636,7 @@ pub struct EventSpec<F: Form = MetaForm> {
 }
 
 /// An event specification builder.
+#[must_use]
 pub struct EventSpecBuilder {
     spec: EventSpec,
 }
@@ -923,6 +955,7 @@ where
 }
 
 /// Used to construct an event parameter specification.
+#[must_use]
 pub struct EventParamSpecBuilder {
     /// The built-up event parameter specification.
     spec: EventParamSpec,
@@ -997,6 +1030,7 @@ impl ReturnTypeSpec {
     /// ReturnTypeSpec::new(None); // no return type;
     /// ReturnTypeSpec::new(TypeSpec::new::<i32>()); // return type of `i32`
     /// ```
+    #[must_use]
     pub fn new<T>(ty: T) -> Self
     where
         T: Into<Option<TypeSpec>>,
@@ -1071,6 +1105,7 @@ where
 }
 
 /// Used to construct a message parameter specification.
+#[must_use]
 pub struct MessageParamSpecBuilder {
     /// The to-be-constructed message parameter specification.
     spec: MessageParamSpec,

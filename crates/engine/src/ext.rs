@@ -267,7 +267,7 @@ impl Engine {
 
         let balance_in_storage = self
             .database
-            .get_balance(&contract.as_bytes().to_vec())
+            .get_balance(contract.as_bytes())
             .expect("currently executing contract must exist");
         let balance = scale::Encode::encode(&balance_in_storage);
         set_output(output, &balance[..])
@@ -386,7 +386,7 @@ impl Engine {
         output: &mut [u8; 33],
     ) -> Result {
         use secp256k1::{
-            recovery::{
+            ecdsa::{
                 RecoverableSignature,
                 RecoveryId,
             },
@@ -415,7 +415,7 @@ impl Engine {
                 });
 
         let secp = Secp256k1::new();
-        let pub_key = secp.recover(&message, &signature);
+        let pub_key = secp.recover_ecdsa(&message, &signature);
         match pub_key {
             Ok(pub_key) => {
                 *output = pub_key.serialize();

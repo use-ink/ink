@@ -26,6 +26,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
     let label = "foo";
     let cs = ConstructorSpec::from_label(label)
         .selector(123_456_789u32.to_be_bytes())
+        .payable(true)
         .done();
     let mut registry = Registry::new();
     let portable_spec = cs.into_portable(&mut registry);
@@ -40,6 +41,7 @@ fn spec_constructor_selector_must_serialize_to_hex() {
         json,
         json!({
             "label": "foo",
+            "payable": true,
             "selector": "0x075bcd15",
             "args": [],
             "docs": []
@@ -55,6 +57,7 @@ fn spec_contract_json() {
         .constructors(vec![
             ConstructorSpec::from_label("new")
                 .selector([94u8, 189u8, 136u8, 214u8])
+                .payable(true)
                 .args(vec![MessageParamSpec::new("init_value")
                     .of_type(TypeSpec::with_name_segs::<i32, _>(
                         vec!["i32"].into_iter().map(AsRef::as_ref),
@@ -64,6 +67,7 @@ fn spec_contract_json() {
                 .done(),
             ConstructorSpec::from_label("default")
                 .selector([2u8, 34u8, 255u8, 24u8])
+                .payable(Default::default())
                 .args(Vec::new())
                 .docs(Vec::new())
                 .done(),
@@ -120,12 +124,14 @@ fn spec_contract_json() {
                     ],
                     "docs": [],
                     "label": "new",
+                    "payable": true,
                     "selector": "0x5ebd88d6"
                 },
                 {
                     "args": [],
                     "docs": [],
                     "label": "default",
+                    "payable": false,
                     "selector": "0x0222ff18"
                 }
             ],
@@ -177,6 +183,7 @@ fn trim_docs() {
     let cs = ConstructorSpec::from_label(label)
         .selector(123_456_789u32.to_be_bytes())
         .docs(vec![" foobar      "])
+        .payable(Default::default())
         .done();
     let mut registry = Registry::new();
     let compact_spec = cs.into_portable(&mut registry);
@@ -191,6 +198,7 @@ fn trim_docs() {
         json,
         json!({
             "label": "foo",
+            "payable": false,
             "selector": "0x075bcd15",
             "args": [],
             "docs": ["foobar"]

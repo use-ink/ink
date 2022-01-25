@@ -72,7 +72,7 @@ impl GenerateCode for Dispatch<'_> {
         let constructor_decoder_type =
             self.generate_constructor_decoder_type(&constructor_spans);
         let message_decoder_type = self.generate_message_decoder_type(&message_spans);
-        let entry_points = self.generate_entry_points(&message_spans);
+        let entry_points = self.generate_entry_points(&constructor_spans, &message_spans);
         quote! {
             #amount_dispatchables
             #contract_dispatchable_messages
@@ -267,6 +267,7 @@ impl Dispatch<'_> {
             .map(|constructor| {
                 let constructor_span = constructor.span();
                 let constructor_ident = constructor.ident();
+                let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
                 let input_bindings = generator::input_bindings(constructor.inputs());
@@ -280,6 +281,7 @@ impl Dispatch<'_> {
                         const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
                             #storage_ident::#constructor_ident( #( #input_bindings ),* )
                         };
+                        const PAYABLE: ::core::primitive::bool = #payable;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
                     }
@@ -290,7 +292,7 @@ impl Dispatch<'_> {
         )
     }
 
-    /// Generate code for the [`ink_lang::DispatchableConstructorInfo`] trait implementations.
+    /// Generate code for the [`ink_lang::DispatchableMessageInfo`] trait implementations.
     ///
     /// These trait implementations store relevant dispatch information for every
     /// dispatchable ink! constructor of the ink! smart contract.
@@ -402,15 +404,27 @@ impl Dispatch<'_> {
     ///
     /// This generates the `deploy` and `call` functions with which the smart
     /// contract runtime mainly interacts with the ink! smart contract.
-    fn generate_entry_points(&self, message_spans: &[proc_macro2::Span]) -> TokenStream2 {
+    fn generate_entry_points(
+        &self,
+        constructor_spans: &[proc_macro2::Span],
+        message_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
+        let any_constructor_accept_payment =
+            self.any_constructor_accepts_payment_expr(constructor_spans);
         let any_message_accept_payment =
             self.any_message_accepts_payment_expr(message_spans);
         quote_spanned!(span=>
             #[cfg(not(test))]
             #[no_mangle]
+            #[allow(clippy::nonminimal_bool)]
             fn deploy() {
+                if !#any_constructor_accept_payment {
+                    ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
+                        .unwrap_or_else(|error| ::core::panic!("{}", error))
+                }
+
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
                     .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
@@ -431,6 +445,7 @@ impl Dispatch<'_> {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
+
                 ::ink_env::decode_input::<
                         <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
                     .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
@@ -532,6 +547,7 @@ impl Dispatch<'_> {
                 }
             }
         };
+
         let constructor_execute = (0..count_constructors).map(|index| {
             let constructor_span = constructor_spans[index];
             let constructor_ident = constructor_variant_ident(index);
@@ -542,14 +558,24 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
+            let accepts_payment = quote_spanned!(constructor_span=>
+                false ||
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::PAYABLE
+            );
             let is_dynamic_storage_allocation_enabled = self
                 .contract
                 .config()
                 .is_dynamic_storage_allocator_enabled();
+
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
                         ::ink_lang::codegen::ExecuteConstructorConfig {
+                            payable: #accepts_payment,
                             dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
                         },
                         move || { #constructor_callable(input) }
@@ -590,6 +616,7 @@ impl Dispatch<'_> {
                 }
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
+                    #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match self {
                             #( #constructor_execute ),*
@@ -685,8 +712,7 @@ impl Dispatch<'_> {
                 }
             }
         };
-        let any_message_accept_payment =
-            self.any_message_accepts_payment_expr(message_spans);
+
         let message_execute = (0..count_messages).map(|index| {
             let message_span = message_spans[index];
             let message_ident = message_variant_ident(index);
@@ -706,7 +732,6 @@ impl Dispatch<'_> {
             );
             let accepts_payment = quote_spanned!(message_span=>
                 false ||
-                !#any_message_accept_payment ||
                 <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
@@ -724,6 +749,7 @@ impl Dispatch<'_> {
                 .contract
                 .config()
                 .is_dynamic_storage_allocator_enabled();
+
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
                     let config = ::ink_lang::codegen::ExecuteMessageConfig {
@@ -752,7 +778,6 @@ impl Dispatch<'_> {
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
-                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
                 pub enum __ink_MessageDecoder {
                     #( #message_variants ),*
                 }
@@ -824,6 +849,35 @@ impl Dispatch<'_> {
         });
         quote_spanned!(span=>
             { false #( || #message_is_payable )* }
+        )
+    }
+
+    /// Generates code to express if any dispatchable ink! constructor accepts payment.
+    ///
+    /// This information can be used to speed-up dispatch since denying of payment
+    /// can be generalized to work before dispatch happens if none of the ink! constructors
+    /// accept payment anyways.
+    fn any_constructor_accepts_payment_expr(
+        &self,
+        constructor_spans: &[proc_macro2::Span],
+    ) -> TokenStream2 {
+        assert_eq!(constructor_spans.len(), self.query_amount_constructors());
+
+        let span = self.contract.module().storage().span();
+        let storage_ident = self.contract.module().storage().ident();
+        let count_constructors = self.query_amount_constructors();
+        let constructor_is_payable = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::PAYABLE
+            )
+        });
+        quote_spanned!(span=>
+            { false #( || #constructor_is_payable )* }
         )
     }
 }

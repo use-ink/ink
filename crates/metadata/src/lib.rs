@@ -71,12 +71,14 @@ pub enum MetadataVersioned {
     /// Version 1 of the contract metadata.
     V1(MetadataVersionDeprecated),
     /// Version 2 of the contract metadata.
-    V2(InkProject),
+    V2(MetadataVersionDeprecated),
+    /// Version 3 of the contract metadata.
+    V3(InkProject),
 }
 
 impl From<InkProject> for MetadataVersioned {
     fn from(ink_project: InkProject) -> Self {
-        MetadataVersioned::V2(ink_project)
+        MetadataVersioned::V3(ink_project)
     }
 }
 
