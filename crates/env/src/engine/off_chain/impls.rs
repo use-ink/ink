@@ -147,27 +147,23 @@ impl EnvBackend for EnvInstance {
         }
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
-    where
-        T: scale::Decode,
-    {
-        self.exec_context()
-            .map(|exec_ctx| &exec_ctx.call_data)
-            .map(scale::Encode::encode)
-            .map_err(Into::into)
-            .and_then(|encoded| {
-                <T as scale::Decode>::decode(&mut &encoded[..])
-                    .map_err(|_| scale::Error::from("could not decode input call data"))
-                    .map_err(Into::into)
-            })
+    fn input_bytes(&mut self) -> &[u8] {
+        let encoded = self
+            .exec_context()
+            .map(|exec_ctx| exec_ctx.call_data.to_bytes())
+            .unwrap();
+        encoded
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        let ctx = self.exec_context_mut().expect(UNINITIALIZED_EXEC_CONTEXT);
-        ctx.output = Some(return_value.encode());
+        // Some UI tests use `return_value`, but they don't use `#[ink::test]`
+        // In that case only exit from the process to avoid panic that context is uninitialized
+        if let Ok(ctx) = self.exec_context_mut() {
+            ctx.output = Some(return_value.encode());
+        }
         std::process::exit(flags.into_u32() as i32)
     }
 

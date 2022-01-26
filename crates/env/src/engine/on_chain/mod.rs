@@ -18,12 +18,25 @@ mod impls;
 
 use self::{
     buffer::{
+        EncodeScope,
         ScopedBuffer,
         StaticBuffer,
     },
     ext::Error,
 };
 use super::OnInstance;
+
+/// The buffer with static size of 16 kB for the input of the contract.
+///
+/// If input requires more than that they will fail.
+///
+/// Please note that this is still an implementation detail and
+/// might change. Users should generally avoid storing too big values
+/// into single storage entries.
+struct InputBuffer {
+    initialized: bool,
+    buffer: StaticBuffer,
+}
 
 /// The on-chain environment.
 pub struct EnvInstance {
@@ -37,15 +50,23 @@ pub struct EnvInstance {
     /// might change. Users should generally avoid storing too big values
     /// into single storage entries.
     buffer: StaticBuffer,
+
+    /// Please note that this variable should be initialized only one time.
+    /// After it should be used only for read only.
+    input_buffer: InputBuffer,
 }
 
-impl OnInstance for EnvInstance {
+impl<'a> OnInstance<'a> for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self) -> R,
+        F: FnOnce(&'a mut Self) -> R,
     {
         static mut INSTANCE: EnvInstance = EnvInstance {
             buffer: StaticBuffer::new(),
+            input_buffer: InputBuffer {
+                initialized: false,
+                buffer: StaticBuffer::new(),
+            },
         };
         f(unsafe { &mut INSTANCE })
     }

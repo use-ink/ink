@@ -209,20 +209,15 @@ impl EnvBackend for EnvInstance {
         self.engine.clear_storage(key.as_ref())
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
-    where
-        T: scale::Decode,
-    {
+    fn input_bytes(&mut self) -> &[u8] {
         unimplemented!("the experimental off chain env does not implement `seal_input`")
     }
 
-    fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
+    fn return_value<R>(&mut self, flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!(
-            "the experimental off chain env does not implement `seal_return_value`"
-        )
+        std::process::exit(flags.into_u32() as i32)
     }
 
     fn debug_message(&mut self, message: &str) {

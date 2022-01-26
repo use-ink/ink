@@ -48,6 +48,9 @@ std = [
 ]
 show-codegen-docs = []
 
+# Enable debugging during decoding and execution of messages or constructors.
+ink-debug = []
+
 # Due to https://github.com/rust-lang/cargo/issues/6915 features that affect a dev-dependency
 # currently can't be enabled by a parent crate, hence `["ink_env/ink-experimental-engine"]` does
 # not work.

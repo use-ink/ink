@@ -14,6 +14,7 @@
 
 use super::{
     ext,
+    EncodeScope,
     EnvInstance,
     Error as ExtError,
     ScopedBuffer,
@@ -206,16 +207,6 @@ impl EnvInstance {
         <T as FromLittleEndian>::from_le_bytes(result)
     }
 
-    /// Returns the contract property value.
-    fn get_property<T>(&mut self, ext_fn: fn(output: &mut &mut [u8])) -> Result<T>
-    where
-        T: scale::Decode,
-    {
-        let full_scope = &mut self.scoped_buffer().take_rest();
-        ext_fn(full_scope);
-        scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
-    }
-
     /// Reusable implementation for invoking another contract message.
     fn invoke_contract_impl<T, Args, RetType, R>(
         &mut self,
@@ -283,20 +274,22 @@ impl EnvBackend for EnvInstance {
         ext::clear_storage(key.as_ref())
     }
 
-    fn decode_input<T>(&mut self) -> Result<T>
-    where
-        T: scale::Decode,
-    {
-        self.get_property::<T>(ext::input)
+    fn input_bytes(&mut self) -> &[u8] {
+        if !self.input_buffer.initialized {
+            ext::input(&mut &mut self.input_buffer.buffer[..]);
+            self.input_buffer.initialized = true;
+        }
+        &self.input_buffer.buffer[..]
     }
 
     fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        let mut scope = self.scoped_buffer();
-        let enc_return_value = scope.take_encoded(return_value);
-        ext::return_value(flags, enc_return_value);
+        let mut scope = EncodeScope::from(&mut self.buffer[..]);
+        scale::Encode::encode_to(&return_value, &mut scope);
+        let size = scope.len();
+        ext::return_value(flags, &self.buffer[..size]);
     }
 
     fn debug_message(&mut self, content: &str) {

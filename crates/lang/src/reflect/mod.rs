@@ -36,15 +36,15 @@ pub use self::{
     },
     dispatch::{
         ContractAmountDispatchables,
-        ContractConstructorDecoder,
+        ContractConstructorExecutor,
         ContractDispatchableConstructors,
         ContractDispatchableMessages,
-        ContractMessageDecoder,
-        DecodeDispatch,
+        ContractMessageExecutor,
         DispatchError,
         DispatchableConstructorInfo,
         DispatchableMessageInfo,
         ExecuteDispatchable,
+        Result,
     },
     event::ContractEventBase,
     trait_def::{

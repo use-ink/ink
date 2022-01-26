@@ -59,16 +59,6 @@ pub fn input_types_tuple(inputs: ir::InputsIter) -> TokenStream2 {
     }
 }
 
-/// Returns a tuple expression representing the bindings yielded by the inputs.
-pub fn input_bindings_tuple(inputs: ir::InputsIter) -> TokenStream2 {
-    let input_bindings = input_bindings(inputs);
-    match input_bindings.len() {
-        0 => quote! { _ },
-        1 => quote! { #( #input_bindings ),* },
-        _ => quote! { ( #( #input_bindings ),* ) },
-    }
-}
-
 /// Builds up the `ink_env::call::utils::ArgumentList` type structure for the given types.
 pub fn generate_argument_list<'b, Args>(args: Args) -> TokenStream2
 where

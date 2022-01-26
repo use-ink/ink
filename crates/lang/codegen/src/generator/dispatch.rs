@@ -37,11 +37,6 @@ use syn::spanned::Spanned as _;
 /// by inspecting the first four bytes (selector) of the given input bytes.
 ///
 /// As this happens on every contract execution this code must be highly optimized.
-/// For that purpose a so-called dispatch enum is being generated that has a
-/// specialized `scale::Decode` implementation taking the first four bytes of
-/// the input stream in order to identify the enum variant that it is going to
-/// produce out of the rest of the input buffer.
-///
 /// The rest of the input buffer is then automatically decoded directly into the
 /// expected input types of the respective ink! constructor or message.
 #[derive(From)]
@@ -69,9 +64,9 @@ impl GenerateCode for Dispatch<'_> {
             self.generate_dispatchable_constructor_infos();
         let contract_dispatchable_messages_infos =
             self.generate_dispatchable_message_infos();
-        let constructor_decoder_type =
-            self.generate_constructor_decoder_type(&constructor_spans);
-        let message_decoder_type = self.generate_message_decoder_type(&message_spans);
+        let constructor_executor_type =
+            self.generate_constructor_executor_type(&constructor_spans);
+        let message_executor_type = self.generate_message_executor_type(&message_spans);
         let entry_points = self.generate_entry_points(&constructor_spans, &message_spans);
         quote! {
             #amount_dispatchables
@@ -79,8 +74,8 @@ impl GenerateCode for Dispatch<'_> {
             #contract_dispatchable_constructors
             #contract_dispatchable_constructor_infos
             #contract_dispatchable_messages_infos
-            #constructor_decoder_type
-            #message_decoder_type
+            #constructor_executor_type
+            #message_executor_type
 
             #[cfg(not(test))]
             #cfg_not_as_dependency
@@ -270,17 +265,28 @@ impl Dispatch<'_> {
                 let payable = constructor.is_payable();
                 let selector_id = constructor.composed_selector().into_be_u32().hex_padded_suffixed();
                 let selector_bytes = constructor.composed_selector().hex_lits();
-                let input_bindings = generator::input_bindings(constructor.inputs());
+                let input_bindings = constructor.inputs()
+                    .map(|arg| {
+                        let arg_span = arg.span();
+                        quote_spanned! (arg_span =>
+                            ::ink_lang::codegen::utils::unwrap_constructor(
+                                ::scale::Decode::decode(&mut _input),
+                                ::ink_lang::reflect::DispatchError::InvalidParameters,
+                            )
+                        )
+                    })
+                    .collect::<Vec<_>>();
                 let input_tuple_type = generator::input_types_tuple(constructor.inputs());
-                let input_tuple_bindings = generator::input_bindings_tuple(constructor.inputs());
                 quote_spanned!(constructor_span=>
                     impl ::ink_lang::reflect::DispatchableConstructorInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Storage = #storage_ident;
 
-                        const CALLABLE: fn(Self::Input) -> Self::Storage = |#input_tuple_bindings| {
-                            #storage_ident::#constructor_ident( #( #input_bindings ),* )
-                        };
+                        const CALLABLE: fn(&[u8]) -> ::ink_lang::reflect::Result<Self::Storage> =
+                            |mut _input| {
+                                let result = #storage_ident::#constructor_ident( #( #input_bindings ),* );
+                                ::core::result::Result::Ok(result)
+                            };
                         const PAYABLE: ::core::primitive::bool = #payable;
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const LABEL: &'static ::core::primitive::str = ::core::stringify!(#constructor_ident);
@@ -316,18 +322,29 @@ impl Dispatch<'_> {
                     .output()
                     .map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
-                let input_bindings = generator::input_bindings(message.inputs());
+                let input_bindings = message.inputs()
+                    .map(|arg| {
+                        let arg_span = arg.span();
+                        quote_spanned! (arg_span =>
+                            ::ink_lang::codegen::utils::unwrap_message(
+                                ::scale::Decode::decode(&mut _input),
+                                ::ink_lang::reflect::DispatchError::InvalidParameters,
+                            )
+                        )
+                    })
+                    .collect::<Vec<_>>();
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
-                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 quote_spanned!(message_span=>
                     impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
                         type Input = #input_tuple_type;
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
 
-                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                            |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                        const CALLABLE: fn(&mut Self::Storage, &[u8])
+                                -> ::ink_lang::reflect::Result<Self::Output> =
+                            |storage, mut _input| {
+                                let result = #storage_ident::#message_ident( storage #( , #input_bindings )* );
+                                ::core::result::Result::Ok(result)
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
                         const PAYABLE: ::core::primitive::bool = #payable;
@@ -373,9 +390,18 @@ impl Dispatch<'_> {
                     .output()
                     .map(quote::ToTokens::to_token_stream)
                     .unwrap_or_else(|| quote! { () });
-                let input_bindings = generator::input_bindings(message.inputs());
+                let input_bindings = message.inputs()
+                    .map(|arg| {
+                        let arg_span = arg.span();
+                        quote_spanned! (arg_span =>
+                            ::ink_lang::codegen::utils::unwrap_message(
+                                ::scale::Decode::decode(&mut _input),
+                                ::ink_lang::reflect::DispatchError::InvalidParameters,
+                            )
+                        )
+                    })
+                    .collect::<Vec<_>>();
                 let input_tuple_type = generator::input_types_tuple(message.inputs());
-                let input_tuple_bindings = generator::input_bindings_tuple(message.inputs());
                 let label = format!("{}::{}", trait_ident, message_ident);
                 quote_spanned!(message_span=>
                     impl ::ink_lang::reflect::DispatchableMessageInfo<#selector_id> for #storage_ident {
@@ -383,9 +409,11 @@ impl Dispatch<'_> {
                         type Output = #output_tuple_type;
                         type Storage = #storage_ident;
 
-                        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
-                            |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                        const CALLABLE: fn(&mut Self::Storage, &[u8])
+                                -> ::ink_lang::reflect::Result<Self::Output> =
+                            |storage, mut _input| {
+                                let result = #storage_ident::#message_ident( storage #( , #input_bindings )* );
+                                ::core::result::Result::Ok(result)
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;
@@ -425,132 +453,55 @@ impl Dispatch<'_> {
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
 
-                ::ink_env::decode_input::<
-                        <#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type>()
-                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink_lang::reflect::ContractConstructorDecoder>::Type
-                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! constructor failed: {}", error)
-                    })
+                let input = ::ink_env::input_bytes();
+                <<#storage_ident as ::ink_lang::reflect::ContractConstructorExecutor>::Type
+                    as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(input).unwrap()
             }
 
             #[cfg(not(test))]
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn call() {
-                if !#any_message_accept_payment {
+                if !(#any_message_accept_payment) {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
-
-                ::ink_env::decode_input::<
-                        <#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type>()
-                    .map_err(|_| ::ink_lang::reflect::DispatchError::CouldNotReadInput)
-                    .and_then(|decoder| {
-                        <<#storage_ident as ::ink_lang::reflect::ContractMessageDecoder>::Type
-                            as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(decoder)
-                    })
-                    .unwrap_or_else(|error| {
-                        ::core::panic!("dispatching ink! message failed: {}", error)
-                    })
+                let input = ::ink_env::input_bytes();
+                <<#storage_ident as ::ink_lang::reflect::ContractMessageExecutor>::Type
+                    as ::ink_lang::reflect::ExecuteDispatchable>::execute_dispatchable(input).unwrap()
             }
         )
     }
 
-    /// Generates code for the ink! constructor decoder type of the ink! smart contract.
+    /// Generates code for the ink! constructor executor type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `deploy`
+    /// This type can be used in order to execute the input bytes received by a call to `deploy`
     /// into one of the available dispatchable ink! constructors and their arguments.
-    fn generate_constructor_decoder_type(
+    fn generate_constructor_executor_type(
         &self,
         constructor_spans: &[proc_macro2::Span],
     ) -> TokenStream2 {
         assert_eq!(constructor_spans.len(), self.query_amount_constructors());
 
-        /// Expands into the token sequence to represent the
-        /// input type of the ink! constructor at the given index.
-        fn expand_constructor_input(
-            span: proc_macro2::Span,
-            storage_ident: &syn::Ident,
-            constructor_index: usize,
-        ) -> TokenStream2 {
-            quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#constructor_index]
-                }>>::Input
-            )
-        }
-
-        /// Returns the n-th ink! constructor identifier for the decoder type.
-        fn constructor_variant_ident(n: usize) -> syn::Ident {
-            quote::format_ident!("Constructor{}", n)
-        }
+        let any_constructor_accept_payment =
+            self.any_constructor_accepts_payment_expr(constructor_spans);
 
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let count_constructors = self.query_amount_constructors();
-        let constructors_variants = (0..count_constructors).map(|index| {
+
+        let constructor_body = |index: usize| -> TokenStream2 {
             let constructor_span = constructor_spans[index];
-            let constructor_ident = constructor_variant_ident(index);
-            let constructor_input =
-                expand_constructor_input(constructor_span, storage_ident, index);
-            quote_spanned!(constructor_span=>
-                #constructor_ident(#constructor_input)
-            )
-        });
-        let constructor_match = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
-            let constructor_ident = constructor_variant_ident(index);
-            let constructor_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+
+            let deny_payment = quote_spanned!(constructor_span=>
+                #any_constructor_accept_payment &&
+                !<#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
                     }>>::IDS[#index]
-                }>>::SELECTOR
+                }>>::PAYABLE
             );
-            let constructor_input = expand_constructor_input(constructor_span, storage_ident, index);
-            quote_spanned!(constructor_span=>
-                #constructor_selector => {
-                    ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            )
-        });
-        let possibly_wildcard_selector_constructor = match self
-            .query_wildcard_constructor()
-        {
-            Some(wildcard_index) => {
-                let constructor_span = constructor_spans[wildcard_index];
-                let constructor_ident = constructor_variant_ident(wildcard_index);
-                let constructor_input = expand_constructor_input(
-                    constructor_span,
-                    storage_ident,
-                    wildcard_index,
-                );
-                quote! {
-                    ::core::result::Result::Ok(Self::#constructor_ident(
-                        <#constructor_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            }
-            None => {
-                quote! {
-                    ::core::result::Result::Err(::ink_lang::reflect::DispatchError::UnknownSelector)
-                }
-            }
-        };
 
-        let constructor_execute = (0..count_constructors).map(|index| {
-            let constructor_span = constructor_spans[index];
-            let constructor_ident = constructor_variant_ident(index);
             let constructor_callable = quote_spanned!(constructor_span=>
                 <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
@@ -558,164 +509,98 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::CALLABLE
             );
-            let accepts_payment = quote_spanned!(constructor_span=>
-                false ||
-                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
-                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
-                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
-                    }>>::IDS[#index]
-                }>>::PAYABLE
-            );
             let is_dynamic_storage_allocation_enabled = self
                 .contract
                 .config()
                 .is_dynamic_storage_allocator_enabled();
-
-            quote_spanned!(constructor_span=>
-                Self::#constructor_ident(input) => {
+            quote_spanned!(constructor_span=> {
+                    if #deny_payment {
+                        ::ink_lang::codegen::utils::unwrap_message(
+                            ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>(),
+                            ::ink_lang::reflect::DispatchError::PaidUnpayableMessage,
+                        )
+                    }
                     ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
                         ::ink_lang::codegen::ExecuteConstructorConfig {
-                            payable: #accepts_payment,
                             dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
                         },
                         move || { #constructor_callable(input) }
                     )
                 }
             )
+        };
+
+        let possibly_wildcard_selector_constructor = match self
+            .query_wildcard_constructor()
+        {
+            Some(wildcard_index) => constructor_body(wildcard_index),
+            None => {
+                quote! {
+                    ::ink_lang::codegen::utils::unwrap_constructor(
+                        ::core::result::Result::Err(::ink_lang::reflect::DispatchError::UnknownSelector),
+                        ::ink_lang::reflect::DispatchError::UnknownSelector,
+                    )
+                }
+            }
+        };
+
+        let constructor_execute = (0..count_constructors).map(|index| {
+            let constructor_span = constructor_spans[index];
+            let constructor_selector = quote_spanned!(constructor_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableConstructorInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableConstructors<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let body = constructor_body(index);
+            quote_spanned!(constructor_span=>
+                #constructor_selector => #body
+            )
         });
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
-                pub enum __ink_ConstructorDecoder {
-                    #( #constructors_variants ),*
-                }
+                pub struct __ink_ConstructorExecutor;
 
-                impl ::ink_lang::reflect::DecodeDispatch for __ink_ConstructorDecoder {
-                    fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
-                    where
-                        I: ::scale::Input,
-                    {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorExecutor {
+                    fn execute_dispatchable(mut input: &[u8]) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        match ::ink_lang::codegen::utils::unwrap_constructor(
+                                <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(&mut input),
+                                ::ink_lang::reflect::DispatchError::InvalidSelector,
+                            )
                         {
-                            #( #constructor_match , )*
-                            _invalid => #possibly_wildcard_selector_constructor
+                            #( #constructor_execute , )*
+                            _invalid => #possibly_wildcard_selector_constructor,
                         }
                     }
                 }
 
-                impl ::scale::Decode for __ink_ConstructorDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
-                    where
-                        I: ::scale::Input,
-                    {
-                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
-                    }
-                }
-
-                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
-                    #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
-                        match self {
-                            #( #constructor_execute ),*
-                        }
-                    }
-                }
-
-                impl ::ink_lang::reflect::ContractConstructorDecoder for #storage_ident {
-                    type Type = __ink_ConstructorDecoder;
+                impl ::ink_lang::reflect::ContractConstructorExecutor for #storage_ident {
+                    type Type = __ink_ConstructorExecutor;
                 }
             };
         )
     }
 
-    /// Generates code for the ink! message decoder type of the ink! smart contract.
+    /// Generates code for the ink! message executor type of the ink! smart contract.
     ///
-    /// This type can be used in order to decode the input bytes received by a call to `call`
+    /// This type can be used in order to execute the input bytes received by a call to `call`
     /// into one of the available dispatchable ink! messages and their arguments.
-    fn generate_message_decoder_type(
+    fn generate_message_executor_type(
         &self,
         message_spans: &[proc_macro2::Span],
     ) -> TokenStream2 {
         assert_eq!(message_spans.len(), self.query_amount_messages());
 
-        /// Expands into the token sequence to represent the
-        /// input type of the ink! message at the given index.
-        fn expand_message_input(
-            span: proc_macro2::Span,
-            storage_ident: &syn::Ident,
-            message_index: usize,
-        ) -> TokenStream2 {
-            quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
-                    }>>::IDS[#message_index]
-                }>>::Input
-            )
-        }
-
-        /// Returns the n-th ink! message identifier for the decoder type.
-        fn message_variant_ident(n: usize) -> syn::Ident {
-            quote::format_ident!("Message{}", n)
-        }
-
         let span = self.contract.module().storage().span();
         let storage_ident = self.contract.module().storage().ident();
         let count_messages = self.query_amount_messages();
-        let message_variants = (0..count_messages).map(|index| {
-            let message_span = message_spans[index];
-            let message_ident = message_variant_ident(index);
-            let message_input = expand_message_input(message_span, storage_ident, index);
-            quote_spanned!(message_span=>
-                #message_ident(#message_input)
-            )
-        });
-        let message_match = (0..count_messages).map(|index| {
-            let message_span = message_spans[index];
-            let message_ident = message_variant_ident(index);
-            let message_selector = quote_spanned!(span=>
-                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
-                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
-                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
-                    }>>::IDS[#index]
-                }>>::SELECTOR
-            );
-            let message_input = expand_message_input(message_span, storage_ident, index);
-            quote_spanned!(message_span=>
-                #message_selector => {
-                    ::core::result::Result::Ok(Self::#message_ident(
-                        <#message_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            )
-        });
-        let possibly_wildcard_selector_message = match self.query_wildcard_message() {
-            Some(wildcard_index) => {
-                let message_span = message_spans[wildcard_index];
-                let message_ident = message_variant_ident(wildcard_index);
-                let message_input =
-                    expand_message_input(message_span, storage_ident, wildcard_index);
-                quote! {
-                    ::core::result::Result::Ok(Self::#message_ident(
-                        <#message_input as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidParameters)?
-                    ))
-                }
-            }
-            None => {
-                quote! {
-                    ::core::result::Result::Err(::ink_lang::reflect::DispatchError::UnknownSelector)
-                }
-            }
-        };
+        let any_message_accept_payment =
+            self.any_message_accepts_payment_expr(message_spans);
 
-        let message_execute = (0..count_messages).map(|index| {
+        let message_body = |index: usize| -> TokenStream2 {
             let message_span = message_spans[index];
-            let message_ident = message_variant_ident(index);
             let message_callable = quote_spanned!(message_span=>
                 <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
@@ -730,9 +615,9 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::Output
             );
-            let accepts_payment = quote_spanned!(message_span=>
-                false ||
-                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+            let deny_payment = quote_spanned!(message_span=>
+                #any_message_accept_payment &&
+                !<#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
@@ -745,79 +630,105 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
-            let is_dynamic_storage_allocation_enabled = self
-                .contract
-                .config()
-                .is_dynamic_storage_allocator_enabled();
-
-            quote_spanned!(message_span=>
-                Self::#message_ident(input) => {
-                    let config = ::ink_lang::codegen::ExecuteMessageConfig {
-                        payable: #accepts_payment,
-                        mutates: #mutates_storage,
-                        dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
-                    };
-                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
-                        ::core::mem::ManuallyDrop::new(
-                            ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
-                        );
-                    let result: #message_output = #message_callable(&mut contract, input);
+            quote_spanned!(message_span=> {
+                    if #deny_payment {
+                        ::ink_lang::codegen::utils::unwrap_message(
+                            ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>(),
+                            ::ink_lang::reflect::DispatchError::PaidUnpayableMessage,
+                        )
+                    }
+                    let result: #message_output = #message_callable(&mut contract, input)?;
                     let failure = ::ink_lang::is_result_type!(#message_output)
                         && ::ink_lang::is_result_err!(result);
-                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
-                        !failure,
-                        &contract,
-                        config,
-                        &result,
-                    )?;
-                    ::core::result::Result::Ok(())
+
+                    use ::core::default::Default;
+
+                    if failure {
+                        // if result is error it stops execution and returns an error to caller
+                        ::ink_env::return_value(::ink_env::ReturnFlags::default().set_reverted(true), &result);
+                    }
+
+                    maybe_push(#mutates_storage, &contract, &root_key);
+                    ::ink_env::return_value(::ink_env::ReturnFlags::default(), &result);
+                }
+            )
+        };
+
+        let message_execute = (0..count_messages).map(|index| {
+            let message_span = message_spans[index];
+            let message_selector = quote_spanned!(message_span=>
+                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                    <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
+                        <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
+                    }>>::IDS[#index]
+                }>>::SELECTOR
+            );
+            let body = message_body(index);
+            quote_spanned!(message_span=>
+                #message_selector => {
+                    #body
                 }
             )
         });
 
+        let possibly_wildcard_selector_message = match self.query_wildcard_message() {
+            Some(wildcard_index) => message_body(wildcard_index),
+            None => {
+                quote! {
+                    ::ink_lang::codegen::utils::unwrap_message(
+                        ::core::result::Result::Err(::ink_lang::reflect::DispatchError::UnknownSelector),
+                        ::ink_lang::reflect::DispatchError::UnknownSelector,
+                    )
+                }
+            }
+        };
+
+        let is_dynamic_storage_allocation_enabled = self
+            .contract
+            .config()
+            .is_dynamic_storage_allocator_enabled();
+
         quote_spanned!(span=>
             const _: () = {
                 #[allow(non_camel_case_types)]
-                pub enum __ink_MessageDecoder {
-                    #( #message_variants ),*
-                }
+                // #[derive(::core::fmt::Debug, ::core::cmp::PartialEq)]
+                pub struct __ink_MessageExecutor;
 
-                impl ::ink_lang::reflect::DecodeDispatch for __ink_MessageDecoder {
-                    fn decode_dispatch<I>(input: &mut I)
-                        -> ::core::result::Result<Self, ::ink_lang::reflect::DispatchError>
-                    where
-                        I: ::scale::Input,
-                    {
-                        match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
-                            .map_err(|_| ::ink_lang::reflect::DispatchError::InvalidSelector)?
-                        {
-                            #( #message_match , )*
-                            _invalid => #possibly_wildcard_selector_message
-                        }
-                    }
-                }
-
-                impl ::scale::Decode for __ink_MessageDecoder {
-                    fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
-                    where
-                        I: ::scale::Input,
-                    {
-                        <Self as ::ink_lang::reflect::DecodeDispatch>::decode_dispatch(input)
-                            .map_err(::core::convert::Into::into)
-                    }
-                }
-
-                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
+                impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageExecutor {
                     #[allow(clippy::nonminimal_bool)]
-                    fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
-                        match self {
+                    fn execute_dispatchable(mut input: &[u8]) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        fn maybe_push(mutates: bool, contract: &::core::mem::ManuallyDrop<#storage_ident>, root_key: &::ink_primitives::Key) {
+                            if mutates {
+                                ::ink_storage::traits::push_spread_root::<#storage_ident>(contract, root_key);
+                            }
+                            if #is_dynamic_storage_allocation_enabled {
+                                ::ink_storage::alloc::finalize();
+                            }
+                        }
+
+                        if #is_dynamic_storage_allocation_enabled {
+                            ::ink_storage::alloc::initialize(::ink_storage::alloc::ContractPhase::Call);
+                        }
+
+                        let root_key = <#storage_ident as ::ink_lang::codegen::ContractRootKey>::ROOT_KEY;
+                        let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                            ::core::mem::ManuallyDrop::new(
+                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&root_key)
+                            );
+
+                        match ::ink_lang::codegen::utils::unwrap_message(
+                                <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(&mut input),
+                                ::ink_lang::reflect::DispatchError::InvalidSelector,
+                            )
+                        {
                             #( #message_execute ),*
+                            _invalid => #possibly_wildcard_selector_message,
                         }
                     }
                 }
 
-                impl ::ink_lang::reflect::ContractMessageDecoder for #storage_ident {
-                    type Type = __ink_MessageDecoder;
+                impl ::ink_lang::reflect::ContractMessageExecutor for #storage_ident {
+                    type Type = __ink_MessageExecutor;
                 }
             };
         )

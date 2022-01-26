@@ -256,16 +256,22 @@ impl EnvInstance {
     }
 }
 
-impl OnInstance for EnvInstance {
+impl<'a> OnInstance<'a> for EnvInstance {
     fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self) -> R,
+        F: FnOnce(&'a mut Self) -> R,
     {
         thread_local!(
             static INSTANCE: RefCell<EnvInstance> = RefCell::new(
                 EnvInstance::uninitialized()
             )
         );
-        INSTANCE.with(|instance| f(&mut instance.borrow_mut()))
+        INSTANCE.with(|instance| {
+            // SAFETY: The value of `RefCell` will be no change,
+            // so the lifetime can be extended to `a`(it can be `static`).
+            let env: &'a mut EnvInstance =
+                unsafe { core::mem::transmute(&mut *instance.borrow_mut()) };
+            f(env)
+        })
     }
 }

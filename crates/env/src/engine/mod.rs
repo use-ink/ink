@@ -18,10 +18,10 @@ use crate::backend::{
 };
 use cfg_if::cfg_if;
 
-pub trait OnInstance: EnvBackend + TypedEnvBackend {
+pub trait OnInstance<'a>: 'a + EnvBackend + TypedEnvBackend {
     fn on_instance<F, R>(f: F) -> R
     where
-        F: FnOnce(&mut Self) -> R;
+        F: FnOnce(&'a mut Self) -> R;
 }
 
 cfg_if! {

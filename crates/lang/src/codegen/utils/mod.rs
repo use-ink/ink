@@ -14,6 +14,11 @@
 
 //! Utility types and definitions used by the ink! codegen.
 
+use core::fmt::{
+    Debug,
+    Display,
+};
+
 mod identity_type;
 mod same_type;
 
@@ -21,3 +26,35 @@ pub use self::{
     identity_type::consume_type,
     same_type::IsSameType,
 };
+
+#[cfg(any(feature = "ink-debug", feature = "std"))]
+pub fn unwrap_constructor<T, E, DisplayError: Display + Debug>(
+    res: Result<T, E>,
+    err: DisplayError,
+) -> T {
+    res.unwrap_or_else(|_| ::core::panic!("dispatching ink! constructor failed: {}", err))
+}
+
+#[cfg(any(feature = "ink-debug", feature = "std"))]
+pub fn unwrap_message<T, E, DisplayError: Display + Debug>(
+    res: Result<T, E>,
+    err: DisplayError,
+) -> T {
+    res.unwrap_or_else(|_| ::core::panic!("dispatching ink! message failed: {}", err))
+}
+
+#[cfg(not(any(feature = "ink-debug", feature = "std")))]
+pub fn unwrap_constructor<T, E: Debug, DisplayError: Display>(
+    res: Result<T, E>,
+    _: DisplayError,
+) -> T {
+    res.unwrap()
+}
+
+#[cfg(not(any(feature = "ink-debug", feature = "std")))]
+pub fn unwrap_message<T, E: Debug, DisplayError: Display>(
+    res: Result<T, E>,
+    _: DisplayError,
+) -> T {
+    res.unwrap()
+}
