@@ -281,6 +281,7 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -371,6 +372,7 @@
         <span class="kw">let</span> <span class="ident">base_event_ident</span> <span class="op">=</span>
             <span class="ident">proc_macro2::Ident::new</span>(<span class="string">&quot;__ink_EventBase&quot;</span>, <span class="ident">Span::call_site</span>());
         <span class="macro">quote!</span> {
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
             <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::scale::Encode</span>, <span class="ident">::scale::Decode</span>)]</span>
             <span class="kw">pub</span> <span class="kw">enum</span> #<span class="ident">base_event_ident</span> {
                 #( #<span class="ident">event_idents</span>(#<span class="ident">event_idents</span>), )<span class="op">*</span>
