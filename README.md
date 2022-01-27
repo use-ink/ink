@@ -264,3 +264,4 @@ Use the scripts provided under `scripts/check-*` directory in order to run check
 The entire code within this repository is licensed under the [Apache License 2.0](LICENSE).
 
 Please [contact us](https://www.parity.io/contact/) if you have questions about the licensing of our products.
+
