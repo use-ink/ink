@@ -448,7 +448,7 @@ impl Dispatch<'_> {
             #[no_mangle]
             #[allow(clippy::nonminimal_bool)]
             fn deploy() {
-                if !#any_constructor_accept_payment {
+                if !(#any_constructor_accept_payment) {
                     ::ink_lang::codegen::deny_payment::<<#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()
                         .unwrap_or_else(|error| ::core::panic!("{}", error))
                 }
@@ -520,6 +520,7 @@ impl Dispatch<'_> {
                             ::ink_lang::reflect::DispatchError::PaidUnpayableMessage,
                         )
                     }
+
                     ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
                         ::ink_lang::codegen::ExecuteConstructorConfig {
                             dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
@@ -564,6 +565,7 @@ impl Dispatch<'_> {
                 pub struct __ink_ConstructorExecutor;
 
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_ConstructorExecutor {
+                    #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(mut input: &[u8]) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
                         match ::ink_lang::codegen::utils::unwrap_constructor(
                                 <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(&mut input),
