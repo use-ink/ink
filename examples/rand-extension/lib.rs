@@ -64,6 +64,7 @@ mod rand_extension {
         value: [u8; 32],
     }
 
+    #[derive(Debug)]
     #[ink(event)]
     pub struct RandomUpdated {
         #[ink(topic)]

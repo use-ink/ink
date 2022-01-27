@@ -169,6 +169,7 @@ mod multisig {
     }
 
     /// Emitted when an owner confirms a transaction.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Confirmation {
         /// The transaction that was confirmed.
@@ -183,6 +184,7 @@ mod multisig {
     }
 
     /// Emitted when an owner revoked a confirmation.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Revokation {
         /// The transaction that was revoked.
@@ -194,6 +196,7 @@ mod multisig {
     }
 
     /// Emitted when an owner submits a transaction.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Submission {
         /// The transaction that was submitted.
@@ -202,6 +205,7 @@ mod multisig {
     }
 
     /// Emitted when a transaction was canceled.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Cancelation {
         /// The transaction that was canceled.
@@ -210,6 +214,7 @@ mod multisig {
     }
 
     /// Emitted when a transaction was executed.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Execution {
         /// The transaction that was executed.
@@ -223,6 +228,7 @@ mod multisig {
     }
 
     /// Emitted when an owner is added to the wallet.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct OwnerAddition {
         /// The owner that was added.
@@ -231,6 +237,7 @@ mod multisig {
     }
 
     /// Emitted when an owner is removed from the wallet.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct OwnerRemoval {
         /// The owner that was removed.
@@ -239,6 +246,7 @@ mod multisig {
     }
 
     /// Emitted when the requirement changed.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct RequirementChange {
         /// The new requirement value.

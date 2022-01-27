@@ -199,6 +199,7 @@ mod erc1155 {
     /// Indicate that a token transfer has occured.
     ///
     /// This must be emitted even if a zero value transfer occurs.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct TransferSingle {
         #[ink(topic)]
@@ -212,6 +213,7 @@ mod erc1155 {
     }
 
     /// Indicate that an approval event has happened.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct ApprovalForAll {
         #[ink(topic)]
@@ -222,6 +224,7 @@ mod erc1155 {
     }
 
     /// Indicate that a token's URI has been updated.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Uri {
         value: ink_prelude::string::String,

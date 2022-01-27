@@ -74,6 +74,7 @@ mod erc20 {
     }
 
     /// Event emitted when a token transfer occurs.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
@@ -86,6 +87,7 @@ mod erc20 {
 
     /// Event emitted when an approval occurs that `spender` is allowed to withdraw
     /// up to the amount of `value` tokens from `owner`.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]

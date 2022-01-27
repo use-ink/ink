@@ -93,6 +93,7 @@ mod erc721 {
     }
 
     /// Event emitted when a token transfer occurs.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
@@ -104,6 +105,7 @@ mod erc721 {
     }
 
     /// Event emitted when a token approve occurs.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Approval {
         #[ink(topic)]
@@ -116,6 +118,7 @@ mod erc721 {
 
     /// Event emitted when an operator is enabled or disabled for an owner.
     /// The operator can manage all NFTs of the owner.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct ApprovalForAll {
         #[ink(topic)]

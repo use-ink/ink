@@ -13,6 +13,7 @@ mod dns {
     };
 
     /// Emitted whenever a new name is being registered.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Register {
         #[ink(topic)]
@@ -22,6 +23,7 @@ mod dns {
     }
 
     /// Emitted whenever an address changes.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct SetAddress {
         #[ink(topic)]
@@ -34,6 +36,7 @@ mod dns {
     }
 
     /// Emitted whenever a name is being transferred.
+    #[derive(Debug)]
     #[ink(event)]
     pub struct Transfer {
         #[ink(topic)]
