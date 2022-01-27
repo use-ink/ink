@@ -407,7 +407,6 @@ ink-waterfall:
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
   <<:                              *test-refs
-  # <<:                              *vault-secrets
   variables:
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
@@ -499,7 +498,7 @@ fuzz-tests:
     - |
       curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
         -H "Cookie: logged_in=no" \
-        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Authorization: token ${GITHUB_PR_TOKEN}" \
         -H "Content-Type: application/json; charset=utf-8" \
         -d $'{
             "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
