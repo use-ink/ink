@@ -93,13 +93,13 @@ workflow:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/CODECOV_TOKEN@kv
       file:                        false
     GITHUB_EMAIL:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_EMAIL@kv
+      vault:                       cicd/gitlab/parity/GITHUB_EMAIL@kv
       file:                        false
     GITHUB_USER:
       vault:                       cicd/gitlab/parity/GITHUB_USER@kv
       file:                        false
-    GITHUB_TOKEN:
-      vault:                       cicd/gitlab/parity/GITHUB_TOKEN@kv
+    GITHUB_PR_TOKEN:
+      vault:                       cicd/gitlab/parity/GITHUB_PR_TOKEN@kv
       file:                        false
     PIPELINE_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
@@ -290,7 +290,6 @@ codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
-  <<:                              *vault-secrets
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -408,7 +407,6 @@ ink-waterfall:
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
   <<:                              *test-refs
-  <<:                              *vault-secrets
   variables:
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
@@ -445,7 +443,7 @@ publish-docs:
     - mkdir ~/.ssh && touch ~/.ssh/known_hosts
     - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
     # Set git config
-    - git config user.email "devops-team@parity.io"
+    - git config user.email "${GITHUB_EMAIL}"
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
@@ -500,7 +498,7 @@ fuzz-tests:
     - |
       curl -X "POST" "https://api.github.com/repos/paritytech/ink/issues" \
         -H "Cookie: logged_in=no" \
-        -H "Authorization: token ${GITHUB_TOKEN}" \
+        -H "Authorization: token ${GITHUB_PR_TOKEN}" \
         -H "Content-Type: application/json; charset=utf-8" \
         -d $'{
             "title": "[ci] Failing fuzz tests on master ('"$( date +"%d %b %Y" )"')",
