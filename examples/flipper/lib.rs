@@ -28,6 +28,12 @@ pub mod flipper {
             self.value = !self.value;
         }
 
+        /// Flips the current value of the Flipper's boolean.
+        #[ink(message)]
+        pub fn flip_flip(&mut self) -> bool {
+            !self.get()
+        }
+
         /// Returns the current value of the Flipper's boolean.
         #[ink(message)]
         pub fn get(&self) -> bool {
