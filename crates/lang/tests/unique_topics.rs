@@ -22,6 +22,7 @@ mod my_contract {
     pub struct MyContract {}
 
     /// Exemplary event
+    #[derive(Debug)]
     #[ink(event)]
     pub struct MyEvent {
         #[ink(topic)]
@@ -42,6 +43,7 @@ mod my_contract {
         }
 
         /// Emits a `MyEvent`.
+        #[derive(Debug)]
         #[ink(message)]
         pub fn emit_my_event(&self) {
             self.env().emit_event(MyEvent {

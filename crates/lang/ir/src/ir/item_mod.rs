@@ -50,6 +50,7 @@ use syn::{
 ///         /* storage fields */
 ///     }
 ///
+///     #[derive(Debug)]
 ///     #[ink(event)]
 ///     pub struct MyEvent {
 ///         /* event fields */

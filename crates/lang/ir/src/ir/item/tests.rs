@@ -32,6 +32,7 @@ fn simple_storage_works() {
 #[test]
 fn simple_event_works() {
     let event_struct: syn::Item = syn::parse_quote! {
+        #[derive(Debug)]
         #[ink(event)]
         pub struct MyEvent {
             #[ink(topic)]

@@ -103,7 +103,7 @@ mod multisig {
     #[derive(scale::Encode, scale::Decode, Clone, Copy, SpreadLayout, PackedLayout)]
     #[cfg_attr(
         feature = "std",
-        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout)
+        derive(scale_info::TypeInfo, ink_storage::traits::StorageLayout, Debug)
     )]
     pub enum ConfirmationStatus {
         /// The transaction is already confirmed.

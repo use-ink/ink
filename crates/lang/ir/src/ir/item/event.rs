@@ -229,6 +229,7 @@ mod tests {
     #[test]
     fn simple_try_from_works() {
         let item_struct: syn::ItemStruct = syn::parse_quote! {
+            #[derive(Debug)]
             #[ink(event)]
             pub struct MyEvent {
                 #[ink(topic)]
@@ -250,6 +251,7 @@ mod tests {
     fn conflicting_struct_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(event)]
                 #[ink(storage)]
                 pub struct MyEvent {
@@ -266,6 +268,7 @@ mod tests {
     fn duplicate_struct_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(event)]
                 #[ink(event)]
                 pub struct MyEvent {
@@ -282,6 +285,7 @@ mod tests {
     fn wrong_first_struct_attribute_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(storage)]
                 #[ink(event)]
                 pub struct MyEvent {
@@ -298,6 +302,7 @@ mod tests {
     fn missing_storage_attribute_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 pub struct MyEvent {
                     #[ink(topic)]
                     field_1: i32,
@@ -342,6 +347,7 @@ mod tests {
     fn duplicate_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(event)]
                 pub struct MyEvent {
                     #[ink(topic)]
@@ -358,6 +364,7 @@ mod tests {
     fn invalid_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(event)]
                 pub struct MyEvent {
                     #[ink(message)]
@@ -373,6 +380,7 @@ mod tests {
     fn conflicting_field_attributes_fails() {
         assert_try_from_fails(
             syn::parse_quote! {
+                #[derive(Debug)]
                 #[ink(event)]
                 pub struct MyEvent {
                     #[ink(topic)]
@@ -431,6 +439,7 @@ mod tests {
             ),
         ];
         let input = <Event as TryFrom<syn::ItemStruct>>::try_from(syn::parse_quote! {
+            #[derive(Debug)]
             #[ink(event)]
             pub struct MyEvent {
                 #[ink(topic)]
@@ -461,6 +470,7 @@ mod tests {
             }
         }
         assert_anonymous_event(syn::parse_quote! {
+            #[derive(Debug)]
             #[ink(event)]
             #[ink(anonymous)]
             pub struct MyEvent {
@@ -470,6 +480,7 @@ mod tests {
             }
         });
         assert_anonymous_event(syn::parse_quote! {
+            #[derive(Debug)]
             #[ink(event, anonymous)]
             pub struct MyEvent {
                 #[ink(topic)]
