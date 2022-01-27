@@ -98,8 +98,8 @@ workflow:
     GITHUB_USER:
       vault:                       cicd/gitlab/parity/GITHUB_USER@kv
       file:                        false
-    GITHUB_TOKEN:
-      vault:                       cicd/gitlab/parity/GITHUB_TOKEN@kv
+    GITHUB_PR_TOKEN:
+      vault:                       cicd/gitlab/parity/GITHUB_PR_TOKEN@kv
       file:                        false
     PIPELINE_TOKEN:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/PIPELINE_TOKEN@kv
@@ -290,7 +290,6 @@ codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
-  <<:                              *vault-secrets
   needs:
     - job:                         check-std
       artifacts:                   false
@@ -408,7 +407,7 @@ ink-waterfall:
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
   <<:                              *test-refs
-  <<:                              *vault-secrets
+  # <<:                              *vault-secrets
   variables:
     TRGR_PROJECT:                  ${CI_PROJECT_NAME}
     TRGR_REF:                      ${CI_COMMIT_REF_NAME}
