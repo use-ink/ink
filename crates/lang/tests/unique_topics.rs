@@ -43,7 +43,6 @@ mod my_contract {
         }
 
         /// Emits a `MyEvent`.
-        #[derive(Debug)]
         #[ink(message)]
         pub fn emit_my_event(&self) {
             self.env().emit_event(MyEvent {
