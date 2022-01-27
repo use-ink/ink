@@ -503,6 +503,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 /// #[ink::contract]
 /// mod erc20 {
 ///     /// Defines an event that is emitted every time value is transferred.
+///     #[derive(Debug)]
 ///     #[ink(event)]
 ///     pub struct Transferred {
 ///         from: Option<AccountId>,

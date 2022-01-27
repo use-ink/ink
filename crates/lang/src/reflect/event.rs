@@ -26,9 +26,11 @@
 ///     #[ink(storage)]
 ///     pub struct Contract {}
 ///
+///     #[derive(Debug)]
 ///     #[ink(event)]
 ///     pub struct Event1 {}
 ///
+///     #[derive(Debug)]
 ///     #[ink(event)]
 ///     pub struct Event2 {}
 ///
