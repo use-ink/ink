@@ -93,7 +93,7 @@ workflow:
       vault:                       cicd/gitlab/$CI_PROJECT_PATH/CODECOV_TOKEN@kv
       file:                        false
     GITHUB_EMAIL:
-      vault:                       cicd/gitlab/$CI_PROJECT_PATH/GITHUB_EMAIL@kv
+      vault:                       cicd/gitlab/parity/GITHUB_EMAIL@kv
       file:                        false
     GITHUB_USER:
       vault:                       cicd/gitlab/parity/GITHUB_USER@kv
@@ -444,7 +444,7 @@ publish-docs:
     - mkdir ~/.ssh && touch ~/.ssh/known_hosts
     - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
     # Set git config
-    - git config user.email "devops-team@parity.io"
+    - git config user.email "${GITHUB_EMAIL}"
     - git config user.name "${GITHUB_USER}"
     - git config remote.origin.url "git@github.com:/paritytech/${CI_PROJECT_NAME}.git"
     - git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
