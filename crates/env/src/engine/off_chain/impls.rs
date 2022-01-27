@@ -39,10 +39,12 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use core::convert::TryInto;
+use core::{
+    convert::TryInto,
+    fmt::Debug,
+};
 use ink_primitives::Key;
 use num_traits::Bounded;
-use core::fmt::Debug;
 
 const UNINITIALIZED_EXEC_CONTEXT: &str = "uninitialized execution context: \
 a possible source of error could be that you are using `#[test]` instead of `#[ink::test]`.";
