@@ -89,7 +89,7 @@ impl<'a> Events<'a> {
             proc_macro2::Ident::new("__ink_EventBase", Span::call_site());
         quote! {
             #[allow(non_camel_case_types)]
-            #[derive(::scale::Encode, ::scale::Decode, Debug)]
+            #[derive(::scale::Encode, ::scale::Decode, ::core::fmt::Debug)]
             pub enum #base_event_ident {
                 #( #event_idents(#event_idents), )*
             }
