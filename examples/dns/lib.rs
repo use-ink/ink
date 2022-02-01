@@ -156,6 +156,12 @@ mod dns {
             self.get_address_or_default(name)
         }
 
+        /// Get owner of specific name.
+        #[ink(message)]
+        pub fn get_owner(&self, name: Hash) -> AccountId {
+            self.get_owner_or_default(name)
+        }
+
         /// Returns the owner given the hash or the default address.
         fn get_owner_or_default(&self, name: Hash) -> AccountId {
             self.name_to_owner
