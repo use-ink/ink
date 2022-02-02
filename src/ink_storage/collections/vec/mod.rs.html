@@ -522,6 +522,12 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -744,7 +750,9 @@
     <span class="doccomment">/// uniquely determined position; the second and third are not</span>
     <span class="doccomment">/// found; the fourth could match any position in `[1, 4]`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing</span>
+    <span class="doccomment">/// # // `StorageVec` publicly.</span>
     <span class="doccomment">/// use ink_storage::Vec as StorageVec;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let s: StorageVec&lt;i32&gt; = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]</span>
@@ -789,7 +797,9 @@
     <span class="doccomment">/// uniquely determined position; the second and third are not</span>
     <span class="doccomment">/// found; the fourth could match any position in `[1, 4]`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing</span>
+    <span class="doccomment">/// # // `StorageVec` publicly.</span>
     <span class="doccomment">/// use ink_storage::Vec as StorageVec;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let s: StorageVec&lt;i32&gt; = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]</span>
@@ -862,7 +872,9 @@
     <span class="doccomment">/// determined position; the second and third are not found; the</span>
     <span class="doccomment">/// fourth could match any position in `[1, 4]`.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing</span>
+    <span class="doccomment">/// # // `StorageVec` publicly.</span>
     <span class="doccomment">/// use ink_storage::Vec as StorageVec;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let s: StorageVec&lt;(i32, i32)&gt; = [</span>

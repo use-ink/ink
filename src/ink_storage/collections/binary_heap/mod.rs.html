@@ -272,6 +272,8 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -380,7 +382,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing</span>
+    <span class="doccomment">/// # // `collections` publicly.</span>
     <span class="doccomment">/// use ink_storage::collections::BinaryHeap;</span>
     <span class="doccomment">/// let mut heap = BinaryHeap::new();</span>
     <span class="doccomment">/// assert!(heap.peek_mut().is_none());</span>

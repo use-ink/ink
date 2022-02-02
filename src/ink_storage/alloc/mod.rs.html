@@ -139,6 +139,9 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -211,6 +214,10 @@
 
 <span class="kw">mod</span> <span class="ident">allocation</span>;
 <span class="kw">mod</span> <span class="ident">allocator</span>;
+
+<span class="comment">// Tracking issue [#1119]: We allow `dead_code` here since we&#39;re purposefully hiding the `box`</span>
+<span class="comment">// module and will remove at a later time.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">mod</span> <span class="ident">boxed</span>;
 <span class="kw">mod</span> <span class="ident">init</span>;
 
@@ -220,7 +227,6 @@
 <span class="kw">use</span> <span class="ident"><span class="self">self</span>::allocator::DynamicAllocator</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">allocation::DynamicAllocation</span>,
-    <span class="ident">boxed::Box</span>,
     <span class="ident">init::ContractPhase</span>,
 };
 

@@ -1151,6 +1151,9 @@
 <span id="1145">1145</span>
 <span id="1146">1146</span>
 <span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1289,8 +1292,11 @@
 <span class="doccomment">///</span>
 <span class="doccomment">///     An example for this is the following type that could potentially be used</span>
 <span class="doccomment">///     within a contract&#39;s storage struct definition:</span>
-<span class="doccomment">///     ```</span>
-<span class="doccomment">///     // A storage vector of storage vectors.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     ```ignore</span>
+<span class="doccomment">///     # // Tracking issue [#1119]: Right now we&#39;ve hidden the `StorageVec` from public access so</span>
+<span class="doccomment">///     # // this doesn&#39;t compile.</span>
 <span class="doccomment">///     # use ink_storage as storage;</span>
 <span class="doccomment">///     # type _unused =</span>
 <span class="doccomment">///     storage::Vec&lt;storage::Vec&lt;i32&gt;&gt;</span>
