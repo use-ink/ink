@@ -71,8 +71,8 @@
 mod allocation;
 mod allocator;
 
-// TODO [#XYZ]: We allow `dead_code` here since we're purposefully hiding the `box` module and will
-// remove at a later time.
+// Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the `box`
+// module and will remove at a later time.
 #[allow(dead_code)]
 mod boxed;
 mod init;

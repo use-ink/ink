@@ -139,11 +139,8 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///
 ///     ```ignore
-///     # // TODO [#XYZ]: Right now we've hidden the `StorageVec` from public access so this
-///     # // doesn't compile.
-///     # //
-///     # // On a sidenote, I think that with the removal of the `collections` module we'll be able
-///     # // to get rid of all the dynamic storage allocation infrastructure.
+///     # // Tracking issue [#1119]: Right now we've hidden the `StorageVec` from public access so
+///     # // this doesn't compile.
 ///     # use ink_storage as storage;
 ///     # type _unused =
 ///     storage::Vec<storage::Vec<i32>>
