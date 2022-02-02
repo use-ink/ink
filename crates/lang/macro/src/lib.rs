@@ -136,8 +136,11 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     An example for this is the following type that could potentially be used
 ///     within a contract's storage struct definition:
-///     ```
-///     // A storage vector of storage vectors.
+///
+///
+///     ```ignore
+///     # // Tracking issue [#1119]: Right now we've hidden the `StorageVec` from public access so
+///     # // this doesn't compile.
 ///     # use ink_storage as storage;
 ///     # type _unused =
 ///     storage::Vec<storage::Vec<i32>>

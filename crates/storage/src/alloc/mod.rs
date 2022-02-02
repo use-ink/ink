@@ -70,6 +70,10 @@
 
 mod allocation;
 mod allocator;
+
+// Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the `box`
+// module and will remove at a later time.
+#[allow(dead_code)]
 mod boxed;
 mod init;
 
@@ -79,7 +83,6 @@ mod tests;
 use self::allocator::DynamicAllocator;
 pub use self::{
     allocation::DynamicAllocation,
-    boxed::Box,
     init::ContractPhase,
 };
 

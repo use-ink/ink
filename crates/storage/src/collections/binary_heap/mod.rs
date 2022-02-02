@@ -106,7 +106,9 @@ where
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
+    /// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing
+    /// # // `collections` publicly.
     /// use ink_storage::collections::BinaryHeap;
     /// let mut heap = BinaryHeap::new();
     /// assert!(heap.peek_mut().is_none());

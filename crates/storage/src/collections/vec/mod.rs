@@ -220,7 +220,9 @@ where
     /// uniquely determined position; the second and third are not
     /// found; the fourth could match any position in `[1, 4]`.
     ///
-    /// ```
+    /// ```ignore
+    /// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing
+    /// # // `StorageVec` publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
@@ -265,7 +267,9 @@ where
     /// uniquely determined position; the second and third are not
     /// found; the fourth could match any position in `[1, 4]`.
     ///
-    /// ```
+    /// ```ignore
+    /// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing
+    /// # // `StorageVec` publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<i32> = [0, 1, 1, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
@@ -338,7 +342,9 @@ where
     /// determined position; the second and third are not found; the
     /// fourth could match any position in `[1, 4]`.
     ///
-    /// ```
+    /// ```ignore
+    /// # // Tracking issue [#1119]: We currently ignore this test since we stopped exposing
+    /// # // `StorageVec` publicly.
     /// use ink_storage::Vec as StorageVec;
     ///
     /// let s: StorageVec<(i32, i32)> = [

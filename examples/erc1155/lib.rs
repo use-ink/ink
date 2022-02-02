@@ -188,12 +188,12 @@ mod erc1155 {
     use super::*;
 
     use ink_storage::{
-        lazy::Mapping,
         traits::{
             PackedLayout,
             SpreadAllocate,
             SpreadLayout,
         },
+        Mapping,
     };
 
     /// Indicate that a token transfer has occured.
