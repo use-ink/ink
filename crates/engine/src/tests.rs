@@ -20,7 +20,7 @@ use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
     PublicKey,
-    Secp256k1,
+    SECP256K1,
     SecretKey,
 };
 
@@ -238,7 +238,6 @@ fn ecdsa_recovery_test_from_contracts_pallet() {
 fn ecdsa_recovery_with_secp256k1_crate() {
     // given
     let mut engine = Engine::new();
-    let secp = Secp256k1::new();
     let seckey = [
         59, 148, 11, 85, 134, 130, 61, 253, 2, 174, 59, 70, 27, 180, 51, 107, 94, 203,
         174, 253, 102, 39, 170, 146, 46, 252, 4, 143, 236, 12, 136, 28,
@@ -255,7 +254,7 @@ fn ecdsa_recovery_with_secp256k1_crate() {
     let msg = Message::from_slice(&msg_hash).expect("message creation failed");
     let seckey = SecretKey::from_slice(&seckey).expect("secret key creation failed");
     let recoverable_signature: RecoverableSignature =
-        secp.sign_ecdsa_recoverable(&msg, &seckey);
+        SECP256K1.sign_ecdsa_recoverable(&msg, &seckey);
 
     let recovery_id = recoverable_signature.serialize_compact().0.to_i32() as u8;
     let mut signature = recoverable_signature.serialize_compact().1.to_vec();
