@@ -20,8 +20,8 @@ use secp256k1::{
     ecdsa::RecoverableSignature,
     Message,
     PublicKey,
-    SECP256K1,
     SecretKey,
+    SECP256K1,
 };
 
 /// The public methods of the `contracts` pallet write their result into an

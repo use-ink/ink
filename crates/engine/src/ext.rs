@@ -388,7 +388,7 @@ impl Engine {
         use secp256k1::{
             ecdsa::{
                 RecoverableSignature,
-                RecoveryId
+                RecoveryId,
             },
             Message,
             SECP256K1,
