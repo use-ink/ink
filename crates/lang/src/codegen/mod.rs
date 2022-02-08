@@ -50,7 +50,6 @@ pub use self::{
     trait_def::{
         TraitCallBuilder,
         TraitCallForwarder,
-        TraitCallForwarderFor,
         TraitMessagePayable,
         TraitMessageSelector,
     },

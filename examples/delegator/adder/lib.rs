@@ -9,7 +9,10 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod adder {
-    use accumulator::AccumulatorRef;
+    use accumulator::{
+        AccumulatorRef,
+        AccumulatorTrait,
+    };
 
     /// Increments the underlying `accumulator` value.
     #[ink(storage)]

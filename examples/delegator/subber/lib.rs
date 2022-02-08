@@ -9,7 +9,10 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod subber {
-    use accumulator::AccumulatorRef;
+    use accumulator::{
+        AccumulatorRef,
+        AccumulatorTrait,
+    };
 
     /// Decreases the underlying `accumulator` value.
     #[ink(storage)]

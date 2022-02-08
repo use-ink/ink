@@ -21,9 +21,8 @@
 
 use super::TraitDefinition;
 use crate::{
-    generator::{self,},
+    generator,
     traits::GenerateCode,
-    EnforcedErrors,
 };
 use derive_more::From;
 use proc_macro2::{
@@ -31,14 +30,10 @@ use proc_macro2::{
     TokenStream as TokenStream2,
 };
 use quote::{
-    format_ident,
     quote,
     quote_spanned,
 };
-use syn::{
-    parse_quote,
-    spanned::Spanned,
-};
+use syn::spanned::Spanned;
 
 impl<'a> TraitDefinition<'a> {
     /// Generates the code for the global trait registry implementation.
@@ -100,140 +95,29 @@ impl TraitRegistry<'_> {
     /// associated type to refer back to the actual call forwarder and call builder types.
     fn generate_registry_impl(&self) -> TokenStream2 {
         let span = self.span();
-        let name = self.trait_ident();
+        let trait_ident = self.trait_ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
-        let messages = self.generate_registry_messages();
+        let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
-            impl<E> #name for ::ink_lang::reflect::TraitDefinitionRegistry<E>
+            /// The blanket implementation of the forwarder to do cross-contract
+            /// calls without customization. It only fires the call via SEAL host function
+            /// and checks that dispatching result is not error.
+            ///
+            /// # Note
+            ///
+            /// That implementation is used by builder generated in the body of the contract
+            /// and by reference to contract(aka `ContractRef` in case of `Contract`).
+            impl<T> #trait_ident for T
             where
-                E: ::ink_env::Environment,
+                T: ::ink_lang::reflect::CallBuilder,
             {
-                /// Holds general and global information about the trait.
                 #[doc(hidden)]
                 #[allow(non_camel_case_types)]
-                type __ink_TraitInfo = #trait_info_ident<E>;
+                type __ink_TraitInfo = #trait_info_ident<<Self as ::ink_lang::reflect::ContractEnv>::Env>;
 
-                #messages
+                #message_impls
             }
         )
-    }
-
-    /// Generate the code for all ink! trait messages implemented by the trait registry.
-    fn generate_registry_messages(&self) -> TokenStream2 {
-        let messages = self.trait_def.trait_def.item().iter_items().filter_map(
-            |(item, selector)| {
-                item.filter_map_message()
-                    .map(|message| self.generate_registry_for_message(&message, selector))
-            },
-        );
-        quote! {
-            #( #messages )*
-        }
-    }
-
-    /// Generates code to assert that ink! input and output types meet certain properties.
-    fn generate_inout_guards_for_message(message: &ir::InkTraitMessage) -> TokenStream2 {
-        let message_span = message.span();
-        let message_inputs = message.inputs().map(|input| {
-            let input_span = input.span();
-            let input_type = &*input.ty;
-            quote_spanned!(input_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
-                    ::ink_lang::codegen::DispatchInput<#input_type>
-                >();
-            )
-        });
-        let message_output = message.output().map(|output_type| {
-            let output_span = output_type.span();
-            quote_spanned!(output_span=>
-                let _: () = ::ink_lang::codegen::utils::consume_type::<
-                    ::ink_lang::codegen::DispatchOutput<#output_type>
-                >();
-            )
-        });
-        quote_spanned!(message_span=>
-            #( #message_inputs )*
-            #message_output
-        )
-    }
-
-    /// Generate the code for a single ink! trait message implemented by the trait registry.
-    ///
-    /// Generally the implementation of any ink! trait of the ink! trait registry
-    fn generate_registry_for_message(
-        &self,
-        message: &ir::InkTraitMessage,
-        selector: ir::Selector,
-    ) -> TokenStream2 {
-        let span = message.span();
-        let ident = message.ident();
-        let attrs = message.attrs();
-        let output_ident = generator::output_ident(message.ident());
-        let output_type = message
-            .output()
-            .cloned()
-            .unwrap_or_else(|| parse_quote! { () });
-        let mut_token = message.receiver().is_ref_mut().then(|| quote! { mut });
-        let (input_bindings, input_types) =
-            Self::input_bindings_and_types(message.inputs());
-        let linker_error_ident = EnforcedErrors::cannot_call_trait_message(
-            self.trait_ident(),
-            message.ident(),
-            selector,
-            message.mutates(),
-        );
-        let inout_guards = Self::generate_inout_guards_for_message(message);
-        let impl_body = match option_env!("INK_COVERAGE_REPORTING") {
-            Some("true") => {
-                quote! {
-                    // The code coverage reporting CI stage links dead code,
-                    // hence we have to provide an `unreachable!` here. If
-                    // the invalid implementation above is linked this results
-                    // in a linker error.
-                    ::core::unreachable!(
-                        "this is an invalid ink! message call which should never be possible."
-                    );
-                }
-            }
-            _ => {
-                quote! {
-                    /// We enforce linking errors in case this is ever actually called.
-                    /// These linker errors are properly resolved by the cargo-contract tool.
-                    extern {
-                        fn #linker_error_ident() -> !;
-                    }
-                    unsafe { #linker_error_ident() }
-                }
-            }
-        };
-        quote_spanned!(span=>
-            type #output_ident = #output_type;
-
-            #( #attrs )*
-            #[cold]
-            #[doc(hidden)]
-            fn #ident(
-                & #mut_token self
-                #( , #input_bindings : #input_types )*
-            ) -> Self::#output_ident {
-                #inout_guards
-                #impl_body
-            }
-        )
-    }
-
-    /// Returns a pair of input bindings `__ink_bindings_N` and types.
-    fn input_bindings_and_types(
-        inputs: ir::InputsIter,
-    ) -> (Vec<syn::Ident>, Vec<&syn::Type>) {
-        inputs
-            .enumerate()
-            .map(|(n, pat_type)| {
-                let binding = format_ident!("__ink_binding_{}", n);
-                let ty = &*pat_type.ty;
-                (binding, ty)
-            })
-            .unzip()
     }
 
     /// Phantom type that implements the following traits for every ink! trait:
@@ -308,6 +192,100 @@ impl TraitRegistry<'_> {
 
                 const SELECTOR: [::core::primitive::u8; 4usize] = [ #( #selector_bytes ),* ];
             }
+        )
+    }
+
+    /// Generate the code for all ink! trait messages implemented by the trait.
+    fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
+        let messages =
+            self.trait_def
+                .trait_def
+                .item()
+                .iter_items()
+                .filter_map(|(item, _)| {
+                    item.filter_map_message()
+                        .map(|message| self.generate_ink_trait_impl_for_message(&message))
+                });
+        quote! {
+            #( #messages )*
+        }
+    }
+
+    /// Generate the code for a single ink! trait message implemented by the trait.
+    fn generate_ink_trait_impl_for_message(
+        &self,
+        message: &ir::InkTraitMessage,
+    ) -> TokenStream2 {
+        let span = message.span();
+        let trait_ident = self.trait_ident();
+        let forwarder_ident = self.trait_def.call_forwarder_ident();
+        let message_ident = message.ident();
+        let attrs = message.attrs();
+        let output_ident = generator::output_ident(message_ident);
+        let output_type = message
+            .output()
+            .cloned()
+            .unwrap_or_else(|| syn::parse_quote!(()));
+
+        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
+        let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
+
+        let inout_guards = Self::generate_inout_guards_for_message(message);
+
+        let mut_tok = message.mutates().then(|| quote! { mut });
+        let panic_str = format!(
+            "encountered error while calling <{} as {}>::{}",
+            forwarder_ident, trait_ident, message_ident,
+        );
+        let builder_ident = self.trait_def.call_builder_ident();
+        let env_type = quote! { <Self as ::ink_lang::reflect::ContractEnv>::Env };
+        quote_spanned!(span =>
+            type #output_ident = #output_type;
+
+            #( #attrs )*
+            #[inline]
+            fn #message_ident(
+                & #mut_tok self
+                #( , #input_bindings : #input_types )*
+            ) -> Self::#output_ident {
+                #inout_guards
+                <#builder_ident<#env_type> as #trait_ident>::#message_ident(
+                    & #mut_tok <#builder_ident<#env_type> as ::ink_env::call::FromAccountId<#env_type>>::from_account_id(
+                        <Self as ::ink_lang::ToAccountId<#env_type>>::to_account_id(self)
+                    )
+                    #(
+                        , #input_bindings
+                    )*
+                )
+                    .fire()
+                    .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
+            }
+        )
+    }
+
+    /// Generates code to assert that ink! input and output types meet certain properties.
+    fn generate_inout_guards_for_message(message: &ir::InkTraitMessage) -> TokenStream2 {
+        let message_span = message.span();
+        let message_inputs = message.inputs().map(|input| {
+            let input_span = input.span();
+            let input_type = &*input.ty;
+            quote_spanned!(input_span=>
+                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                    ::ink_lang::codegen::DispatchInput<#input_type>
+                >();
+            )
+        });
+        let message_output = message.output().map(|output_type| {
+            let output_span = output_type.span();
+            quote_spanned!(output_span=>
+                let _: () = ::ink_lang::codegen::utils::consume_type::<
+                    ::ink_lang::codegen::DispatchOutput<#output_type>
+                >();
+            )
+        });
+        quote_spanned!(message_span=>
+            #( #message_inputs )*
+            #message_output
         )
     }
 }

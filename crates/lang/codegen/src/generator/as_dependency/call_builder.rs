@@ -46,13 +46,11 @@ impl GenerateCode for CallBuilder<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let call_builder_struct = self.generate_struct();
         let auxiliary_trait_impls = self.generate_auxiliary_trait_impls();
-        let call_builder_impls = self.generate_call_forwarder_impls();
         let call_builder_inherent_impls = self.generate_call_builder_inherent_impls();
         quote! {
             const _: () = {
                 #call_builder_struct
                 #auxiliary_trait_impls
-                #call_builder_impls
                 #call_builder_inherent_impls
             };
         }
@@ -109,6 +107,8 @@ impl CallBuilder<'_> {
                 impl ::ink_lang::reflect::ContractEnv for #cb_ident {
                     type Env = <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env;
                 }
+
+                impl ::ink_lang::reflect::CallBuilder for #cb_ident {}
             };
         )
     }
@@ -133,170 +133,6 @@ impl CallBuilder<'_> {
                 fn to_account_id(&self) -> AccountId {
                     <AccountId as ::core::clone::Clone>::clone(&self.account_id)
                 }
-            }
-        )
-    }
-
-    /// Generate the `TraitCallForwarder` trait implementations for the call builder
-    /// for every ink! trait implemented by the associated ink! smart contract.
-    ///
-    /// These call forwarder trait implementations are used to dispatch to the global
-    /// call builder for the respective ink! trait definition that is being called.
-    /// The call builder only forwards the actual calls to those global call builders
-    /// and does not have its own calling logic.
-    fn generate_call_forwarder_impls(&self) -> TokenStream2 {
-        self.contract
-            .module()
-            .impls()
-            .filter_map(|impl_block| {
-                // We are only interested in ink! trait implementation block.
-                impl_block.trait_path().map(|trait_path| {
-                    self.generate_code_for_trait_impl(trait_path, impl_block)
-                })
-            })
-            .collect()
-    }
-
-    /// Generates code required by the ink! call builder of an ink! smart contract
-    /// for a single ink! trait definition that the contract implements.
-    fn generate_code_for_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let call_forwarder_impl =
-            self.generate_call_forwarder_for_trait_impl(trait_path, impl_block);
-        let ink_trait_impl = self.generate_ink_trait_impl(trait_path, impl_block);
-        quote! {
-            #call_forwarder_impl
-            #ink_trait_impl
-        }
-    }
-
-    /// Generates code for a single ink! trait implementation to forward calls for
-    /// the associated ink! smart contract call builder.
-    fn generate_call_forwarder_for_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let span = impl_block.span();
-        let cb_ident = Self::call_builder_ident();
-        let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
-        quote_spanned!(span=>
-            #[doc(hidden)]
-            impl ::ink_lang::codegen::TraitCallForwarderFor<#trait_info> for #cb_ident {
-                type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder;
-
-                #[inline]
-                fn forward(&self) -> &Self::Forwarder {
-                    // SAFETY:
-                    //
-                    // We convert from a shared reference to a type that thinly wraps
-                    // only an `AccountId` to a shared reference to another type of which
-                    // we know that it also thinly wraps an `AccountId`.
-                    // Furthermore both types use `repr(transparent)`.
-                    unsafe {
-                        &*(&self.account_id as *const AccountId as *const Self::Forwarder)
-                    }
-                }
-
-                #[inline]
-                fn forward_mut(&mut self) -> &mut Self::Forwarder {
-                    // SAFETY:
-                    //
-                    // We convert from a exclusive reference to a type that thinly wraps
-                    // only an `AccountId` to a exclusive reference to another type of which
-                    // we know that it also thinly wraps an `AccountId`.
-                    // Furthermore both types use `repr(transparent)`.
-                    unsafe {
-                        &mut *(&mut self.account_id as *mut AccountId as *mut Self::Forwarder)
-                    }
-                }
-
-                #[inline]
-                fn build(&self) -> &<Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder {
-                    <_ as ::ink_lang::codegen::TraitCallBuilder>::call(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::forward(self)
-                    )
-                }
-
-                #[inline]
-                fn build_mut(&mut self)
-                    -> &mut <Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                {
-                    <_ as ::ink_lang::codegen::TraitCallBuilder>::call_mut(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::forward_mut(self)
-                    )
-                }
-            }
-        )
-    }
-
-    /// Generates the actual ink! trait implementation for the generated call builder.
-    fn generate_ink_trait_impl(
-        &self,
-        trait_path: &syn::Path,
-        impl_block: &ir::ItemImpl,
-    ) -> TokenStream2 {
-        let span = impl_block.span();
-        let cb_ident = Self::call_builder_ident();
-        let messages = impl_block
-            .iter_messages()
-            .map(|message| self.generate_ink_trait_impl_for_message(trait_path, message));
-        quote_spanned!(span=>
-            impl #trait_path for #cb_ident {
-                type __ink_TraitInfo = <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
-                    as #trait_path>::__ink_TraitInfo;
-
-                #( #messages )*
-            }
-        )
-    }
-
-    /// Generates the code for the ink! trait implementation of the call builder
-    /// of a single ink! trait message and its associated output type.
-    fn generate_ink_trait_impl_for_message(
-        &self,
-        trait_path: &syn::Path,
-        message: ir::CallableWithSelector<ir::Message>,
-    ) -> TokenStream2 {
-        use ir::Callable as _;
-        let span = message.span();
-        let message_ident = message.ident();
-        let output_ident = generator::output_ident(message_ident);
-        let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
-        let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
-            .callable()
-            .inputs()
-            .map(|input| (&input.pat, &input.ty))
-            .unzip();
-        let mut_token = message
-            .receiver()
-            .is_ref_mut()
-            .then(|| Some(quote! { mut }));
-        let build_cmd = match message.receiver() {
-            ir::Receiver::Ref => quote! { build },
-            ir::Receiver::RefMut => quote! { build_mut },
-        };
-        let attrs = message.attrs();
-        quote_spanned!(span=>
-            type #output_ident = <<<
-                Self
-                as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::Forwarder
-                as ::ink_lang::codegen::TraitCallBuilder>::Builder
-                as #trait_path>::#output_ident;
-
-            #[inline]
-            #( #attrs )*
-            fn #message_ident(
-                & #mut_token self
-                #( , #input_bindings: #input_types )*
-            ) -> Self::#output_ident {
-                <_ as #trait_path>::#message_ident(
-                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::#build_cmd(self)
-                    #( , #input_bindings )*
-                )
             }
         )
     }

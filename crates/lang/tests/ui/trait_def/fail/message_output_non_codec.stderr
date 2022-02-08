@@ -6,12 +6,12 @@ error[E0277]: the trait bound `NonCodec: WrapperTypeEncode` is not satisfied
    |
    = note: required because of the requirements on the impl of `Encode` for `NonCodec`
 note: required by a bound in `DispatchOutput`
-  --> src/codegen/dispatch/type_check.rs:69:8
+  --> src/codegen/dispatch/type_check.rs
    |
-69 |     T: scale::Encode + 'static;
+   |     T: scale::Encode + 'static;
    |        ^^^^^^^^^^^^^ required by this bound in `DispatchOutput`
 
-error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<<E as Environment>::AccountId>, Unset<u64>, Unset<<E as Environment>::Balance>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
+error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<<T as ContractEnv>::Env, Set<<<T as ContractEnv>::Env as Environment>::AccountId>, Unset<u64>, Unset<<<T as ContractEnv>::Env as Environment>::Balance>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>`, but its trait bounds were not satisfied
    --> tests/ui/trait_def/fail/message_output_non_codec.rs:7:5
     |
 3   |   pub struct NonCodec;
@@ -19,7 +19,7 @@ error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<<E as Envi
 ...
 7   | /     #[ink(message)]
 8   | |     fn message(&self) -> NonCodec;
-    | |__________________________________^ method cannot be called on `CallBuilder<E, Set<<E as Environment>::AccountId>, Unset<u64>, Unset<<E as Environment>::Balance>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
+    | |__________________________________^ method cannot be called on `ink_env::call::CallBuilder<<T as ContractEnv>::Env, Set<<<T as ContractEnv>::Env as Environment>::AccountId>, Unset<u64>, Unset<<<T as ContractEnv>::Env as Environment>::Balance>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodec>>>` due to unsatisfied trait bounds
     |
     = note: the following trait bounds were not satisfied:
             `NonCodec: parity_scale_codec::Decode`

@@ -11,15 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#![cfg_attr(not(feature = "std"), no_std)]
 
-mod info;
-mod registry;
+use ink_lang as ink;
 
-pub use self::{
-    info::{
-        CallBuilder,
-        TraitMessageInfo,
-        TraitModulePath,
-    },
-    registry::TraitDefinitionRegistry,
-};
+/// Allows to increment and get the current value.
+#[ink::trait_definition]
+pub trait Increment {
+    /// Increments the current value of the implementer by one (1).
+    #[ink(message)]
+    fn inc(&mut self);
+
+    /// Returns the current value of the implementer.
+    #[ink(message)]
+    fn get(&self) -> u64;
+}
+
+/// Allows to reset the current value.
+#[ink::trait_definition]
+pub trait Reset {
+    /// Resets the current value to zero.
+    #[ink(message)]
+    fn reset(&mut self);
+}

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{
+    reflect::ContractEnv,
+    ToAccountId,
+};
+
 /// Stores information for every ink! trait message of an ink! trait definition.
 ///
 /// This information includes if the ink! trait message is payable
@@ -152,3 +157,5 @@ pub trait TraitModulePath {
     /// This is just for convenience.
     const NAME: &'static str;
 }
+
+pub trait CallBuilder: ContractEnv + ToAccountId<<Self as ContractEnv>::Env> {}

@@ -3,12 +3,25 @@
 pub use self::accumulator::{
     Accumulator,
     AccumulatorRef,
+    AccumulatorTrait,
 };
 
 use ink_lang as ink;
 
 #[ink::contract]
 pub mod accumulator {
+    /// Allows to mutate and get the current value.
+    #[ink_lang::trait_definition]
+    pub trait AccumulatorTrait {
+        /// Mutates the internal value.
+        #[ink(message)]
+        fn inc(&mut self, by: i32);
+
+        /// Returns the current state.
+        #[ink(message)]
+        fn value(&self) -> i32;
+    }
+
     /// Holds a simple `i32` value that can be incremented and decremented.
     #[ink(storage)]
     pub struct Accumulator {
@@ -21,16 +34,18 @@ pub mod accumulator {
         pub fn new(init_value: i32) -> Self {
             Self { value: init_value }
         }
+    }
 
+    impl AccumulatorTrait for Accumulator {
         /// Mutates the internal value.
         #[ink(message)]
-        pub fn inc(&mut self, by: i32) {
+        fn inc(&mut self, by: i32) {
             self.value += by;
         }
 
         /// Returns the current state.
         #[ink(message)]
-        pub fn get(&self) -> i32 {
+        fn value(&self) -> i32 {
             self.value
         }
     }

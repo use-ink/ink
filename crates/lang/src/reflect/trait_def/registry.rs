@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::reflect::ContractEnv;
+use crate::{
+    reflect::{
+        CallBuilder,
+        ContractEnv,
+    },
+    ToAccountId,
+};
 use core::marker::PhantomData;
 
 /// Type that is guaranteed by ink! to implement all ink! trait definitions.
@@ -61,3 +67,30 @@ where
 {
     type Env = E;
 }
+
+impl<E> ToAccountId<E> for TraitDefinitionRegistry<E>
+where
+    E: ink_env::Environment,
+{
+    #[cold]
+    fn to_account_id(&self) -> E::AccountId {
+        /// We enforce linking errors in case this is ever actually called.
+        /// These linker errors are properly resolved by the cargo-contract tool.
+        extern "C" {
+            fn _ink_compilation_error() -> !;
+        }
+        unsafe { _ink_compilation_error() }
+    }
+}
+
+/// Generates the global trait registry implementation for the ink! trait.
+///
+/// This makes it possible to refer back to the global call forwarder and
+/// call builder specific to this ink! trait from anywhere with just the Rust
+/// trait identifier which allows for type safe access.
+///
+/// # Note
+///
+/// The actual implementation of the registration is done in the blanket implementation
+/// during definition of the trait.
+impl<E> CallBuilder for TraitDefinitionRegistry<E> where E: ink_env::Environment {}

@@ -13,10 +13,7 @@
 // limitations under the License.
 
 use super::TraitDefinition;
-use crate::{
-    generator,
-    traits::GenerateCode,
-};
+use crate::traits::GenerateCode;
 use derive_more::From;
 use proc_macro2::{
     Span,
@@ -338,10 +335,7 @@ impl CallForwarder<'_> {
     /// of the same ink! trait definition.
     fn generate_ink_trait_impl(&self) -> TokenStream2 {
         let span = self.trait_def.span();
-        let trait_ident = self.trait_def.trait_def.item().ident();
-        let trait_info_ident = self.trait_def.trait_info_ident();
         let forwarder_ident = self.ident();
-        let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
             impl<E> ::ink_lang::reflect::ContractEnv for #forwarder_ident<E>
             where
@@ -350,79 +344,10 @@ impl CallForwarder<'_> {
                 type Env = E;
             }
 
-            impl<E> #trait_ident for #forwarder_ident<E>
+            impl<E> ::ink_lang::reflect::CallBuilder for #forwarder_ident<E>
             where
                 E: ::ink_env::Environment,
-            {
-                #[doc(hidden)]
-                #[allow(non_camel_case_types)]
-                type __ink_TraitInfo = #trait_info_ident<E>;
-
-                #message_impls
-            }
-        )
-    }
-
-    /// Generate the code for all ink! trait messages implemented by the trait call forwarder.
-    fn generate_ink_trait_impl_messages(&self) -> TokenStream2 {
-        let messages =
-            self.trait_def
-                .trait_def
-                .item()
-                .iter_items()
-                .filter_map(|(item, _)| {
-                    item.filter_map_message()
-                        .map(|message| self.generate_ink_trait_impl_for_message(&message))
-                });
-        quote! {
-            #( #messages )*
-        }
-    }
-
-    /// Generate the code for a single ink! trait message implemented by the trait call forwarder.
-    fn generate_ink_trait_impl_for_message(
-        &self,
-        message: &ir::InkTraitMessage,
-    ) -> TokenStream2 {
-        let span = message.span();
-        let trait_ident = self.trait_def.trait_def.item().ident();
-        let forwarder_ident = self.ident();
-        let message_ident = message.ident();
-        let attrs = message.attrs();
-        let output_ident = generator::output_ident(message_ident);
-        let output_type = message
-            .output()
-            .cloned()
-            .unwrap_or_else(|| syn::parse_quote!(()));
-        let input_bindings = message.inputs().map(|input| &input.pat).collect::<Vec<_>>();
-        let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
-        let call_op = match message.receiver() {
-            ir::Receiver::Ref => quote! { call },
-            ir::Receiver::RefMut => quote! { call_mut },
-        };
-        let mut_tok = message.mutates().then(|| quote! { mut });
-        let panic_str = format!(
-            "encountered error while calling <{} as {}>::{}",
-            forwarder_ident, trait_ident, message_ident,
-        );
-        quote_spanned!(span =>
-            type #output_ident = #output_type;
-
-            #( #attrs )*
-            #[inline]
-            fn #message_ident(
-                & #mut_tok self
-                #( , #input_bindings : #input_types )*
-            ) -> Self::#output_ident {
-                <<Self as ::ink_lang::codegen::TraitCallBuilder>::Builder as #trait_ident>::#message_ident(
-                    <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_op(self)
-                    #(
-                        , #input_bindings
-                    )*
-                )
-                    .fire()
-                    .unwrap_or_else(|err| ::core::panic!("{}: {:?}", #panic_str, err))
-            }
+            {}
         )
     }
 }

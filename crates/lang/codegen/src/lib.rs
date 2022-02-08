@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod enforced_error;
 mod generator;
 mod traits;
 
-use self::{
-    enforced_error::EnforcedErrors,
-    traits::{
-        GenerateCode,
-        GenerateCodeUsing,
-    },
+use self::traits::{
+    GenerateCode,
+    GenerateCodeUsing,
 };
 use proc_macro2::TokenStream as TokenStream2;
 
