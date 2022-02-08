@@ -26,11 +26,6 @@ use ink_primitives::Key;
 /// The initiator of the allocation has to make sure to deallocate
 /// this dynamic allocation again using the same dynamic allocator
 /// if it is no longer in use.
-///
-/// # Note
-///
-/// Normally instances of this type are not used directly and instead
-/// a [`storage::Box`](`crate::Box`) is used instead.
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, scale::Encode, scale::Decode,
 )]

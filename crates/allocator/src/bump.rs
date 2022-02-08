@@ -433,13 +433,8 @@ mod fuzz_tests {
             let current_page_limit = PAGE_SIZE * required_pages(inner.next).unwrap();
             let is_too_big_for_current_page = inner.next + size > current_page_limit;
 
-            if is_too_big_for_current_page && inner.next != 0 {
-                let fragmented_in_current_page = if current_page_limit % inner.next == 0 {
-                    current_page_limit - inner.next
-                } else {
-                    current_page_limit % inner.next
-                };
-
+            if is_too_big_for_current_page {
+                let fragmented_in_current_page = current_page_limit - inner.next;
                 total_bytes_fragmented += fragmented_in_current_page;
 
                 // We expect our next allocation to be aligned to the start of the next page

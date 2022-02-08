@@ -48,11 +48,17 @@
 extern crate quickcheck_macros;
 
 pub mod alloc;
-pub mod collections;
-pub mod lazy;
+pub mod traits;
+
+// Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the
+// collections and will remove them at a later time.
+#[allow(dead_code)]
+pub(crate) mod collections;
+#[allow(dead_code)]
+pub(crate) mod lazy;
+
 mod memory;
 mod pack;
-pub mod traits;
 
 #[cfg(test)]
 mod hashmap_entry_api_tests;
@@ -62,9 +68,13 @@ mod test_utils;
 
 #[doc(inline)]
 pub use self::{
-    alloc::Box,
+    lazy::Mapping,
+    memory::Memory,
+};
+
+#[doc(inline)]
+pub(crate) use self::{
     collections::Vec,
     lazy::Lazy,
-    memory::Memory,
     pack::Pack,
 };

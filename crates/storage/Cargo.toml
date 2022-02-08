@@ -27,13 +27,6 @@ scale-info = { version = "1.0", default-features = false, features = ["derive"],
 cfg-if = "1.0"
 array-init = { version = "2.0", default-features = false }
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-# Workaround: we actually just need criterion as a dev-dependency, but
-# there is an issue with a doubly included std lib when executing
-# `cargo check --no-default-features --target wasm32-unknown-unknown`.
-# We haven't found a better solution yet.
-criterion = { version = "0.3", optional = true }
-
 [dev-dependencies]
 quickcheck = "1.0"
 quickcheck_macros = "1.0"
@@ -43,7 +36,6 @@ paste = "1.0"
 [features]
 default = ["std"]
 std = [
-    "criterion",
     "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
@@ -55,33 +47,3 @@ std = [
 ]
 ink-fuzz-tests = ["std"]
 ink-experimental-engine = ["ink_env/ink-experimental-engine"]
-
-[[bench]]
-name = "bench_lazy"
-path = "benches/bench_lazy.rs"
-harness = false
-
-[[bench]]
-name = "bench_vec"
-path = "benches/bench_vec.rs"
-harness = false
-
-[[bench]]
-name = "bench_stash"
-path = "benches/bench_stash.rs"
-harness = false
-
-[[bench]]
-name = "bench_bitstash"
-path = "benches/bench_bitstash.rs"
-harness = false
-
-[[bench]]
-name = "bench_hashmap"
-path = "benches/bench_hashmap.rs"
-harness = false
-
-[[bench]]
-name = "bench_binary_heap"
-path = "benches/bench_binary_heap.rs"
-harness = false

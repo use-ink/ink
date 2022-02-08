@@ -6,12 +6,9 @@ use ink_lang as ink;
 mod delegator {
     use accumulator::AccumulatorRef;
     use adder::AdderRef;
-    use ink_storage::{
-        traits::{
-            PackedLayout,
-            SpreadLayout,
-        },
-        Lazy,
+    use ink_storage::traits::{
+        PackedLayout,
+        SpreadLayout,
     };
     use subber::SubberRef;
 
@@ -59,11 +56,11 @@ mod delegator {
         /// Says which of `adder` or `subber` is currently in use.
         which: Which,
         /// The `accumulator` smart contract.
-        accumulator: Lazy<AccumulatorRef>,
+        accumulator: AccumulatorRef,
         /// The `adder` smart contract.
-        adder: Lazy<AdderRef>,
+        adder: AdderRef,
         /// The `subber` smart contract.
-        subber: Lazy<SubberRef>,
+        subber: SubberRef,
     }
 
     impl Delegator {
@@ -107,9 +104,9 @@ mod delegator {
                 });
             Self {
                 which: Which::Adder,
-                accumulator: Lazy::new(accumulator),
-                adder: Lazy::new(adder),
-                subber: Lazy::new(subber),
+                accumulator,
+                adder,
+                subber,
             }
         }
 
