@@ -87,7 +87,7 @@ impl Storage<'_> {
     ///
     /// # Developer Note
     ///
-    /// The `__ink_EventBase` config attribute is used here to convey the information
+    /// The `__ink_Storage` config attribute is used here to convey the information
     /// that this function is an ink! constructor to `dylint`.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
