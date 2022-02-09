@@ -479,4 +479,12 @@ impl TypedEnvBackend for EnvInstance {
         // always false, as off-chain environment does not support contract instantiation
         false
     }
+
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment,
+    {
+        // always true, as off-chain environment does not support contract instantiation
+        true
+    }
 }

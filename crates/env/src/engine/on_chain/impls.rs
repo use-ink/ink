@@ -499,4 +499,11 @@ impl TypedEnvBackend for EnvInstance {
         let enc_account_id = scope.take_encoded(&account_id);
         ext::is_contract(enc_account_id)
     }
+
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment,
+    {
+        ext::caller_is_origin()
+    }
 }

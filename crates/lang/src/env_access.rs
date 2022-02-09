@@ -848,4 +848,13 @@ where
     pub fn is_contract(self, account_id: T::AccountId) -> bool {
         ink_env::is_contract::<T>(account_id)
     }
+
+    /// Checks whether the caller of the current contract is the origin of the whole call stack.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::caller_is_origin`]
+    pub fn caller_is_origin(self) -> bool {
+        ink_env::caller_is_origin::<T>()
+    }
 }
