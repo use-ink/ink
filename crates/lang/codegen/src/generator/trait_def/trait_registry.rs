@@ -106,7 +106,7 @@ impl TraitRegistry<'_> {
             /// # Note
             ///
             /// That implementation is used by builder generated in the body of the contract
-            /// and by reference to contract(aka `ContractRef` in case of `Contract`).
+            /// and by reference to contract (a.k.a `ContractRef` in case of `Contract`).
             impl<T> #trait_ident for T
             where
                 T: ::ink_lang::reflect::CallBuilder,

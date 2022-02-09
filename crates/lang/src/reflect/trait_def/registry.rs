@@ -72,14 +72,21 @@ impl<E> ToAccountId<E> for TraitDefinitionRegistry<E>
 where
     E: ink_env::Environment,
 {
+    /// `to_account_id` is not allowed for `TraitDefinitionRegistry`.
+    ///
+    /// We insert markers for these errors in the generated contract code.
+    /// This is necessary since we can't check these errors at compile time
+    /// of the contract.
+    /// `cargo-contract` checks the contract code for these error markers
+    /// when building a contract and fails if it finds markers.
     #[cold]
     fn to_account_id(&self) -> E::AccountId {
         /// We enforce linking errors in case this is ever actually called.
         /// These linker errors are properly resolved by the cargo-contract tool.
         extern "C" {
-            fn _ink_compilation_error() -> !;
+            fn __ink_enforce_error_to_account_id() -> !;
         }
-        unsafe { _ink_compilation_error() }
+        unsafe { __ink_enforce_error_to_account_id() }
     }
 }
 
