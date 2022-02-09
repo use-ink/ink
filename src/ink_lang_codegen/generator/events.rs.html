@@ -281,6 +281,12 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -360,6 +366,11 @@
     <span class="doccomment">/// Generates the base event enum that comprises all user defined events.</span>
     <span class="doccomment">/// All emitted events are converted into a variant of this enum before being</span>
     <span class="doccomment">/// serialized and emitted to apply their unique event discriminant (ID).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `__ink_dylint_EventBase` config attribute is used here to convey the</span>
+    <span class="doccomment">/// information that the generated enum is an ink! event to `dylint`.</span>
     <span class="kw">fn</span> <span class="ident">generate_event_base</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage_ident</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">event_idents</span> <span class="op">=</span> <span class="self">self</span>
@@ -373,6 +384,7 @@
         <span class="macro">quote!</span> {
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_camel_case_types</span>)]</span>
             <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::scale::Encode</span>, <span class="ident">::scale::Decode</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_EventBase&quot;</span>))]</span>
             <span class="kw">pub</span> <span class="kw">enum</span> #<span class="ident">base_event_ident</span> {
                 #( #<span class="ident">event_idents</span>(#<span class="ident">event_idents</span>), )<span class="op">*</span>
             }

@@ -317,6 +317,12 @@
 <span id="312">312</span>
 <span id="313">313</span>
 <span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -546,6 +552,11 @@
     }
 
     <span class="doccomment">/// Generates the code for the given ink! constructor within an inherent implementation block.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `__ink_dylint_Constructor` config attribute is used here to convey the</span>
+    <span class="doccomment">/// information that the generated function is an ink! constructor to `dylint`.</span>
     <span class="kw">fn</span> <span class="ident">generate_inherent_constructor</span>(<span class="ident">constructor</span>: <span class="kw-2">&amp;</span><span class="ident">ir::Constructor</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">attrs</span>();
@@ -555,6 +566,7 @@
         <span class="kw">let</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">constructor</span>.<span class="ident">statements</span>();
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span> =&gt;
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_Constructor&quot;</span>))]</span>
             #<span class="ident">vis</span> <span class="kw">fn</span> #<span class="ident">ident</span>( #( #<span class="ident">inputs</span> ),<span class="op">*</span> ) -&gt; <span class="self">Self</span> {
                 #( #<span class="ident">statements</span> )<span class="op">*</span>
             }

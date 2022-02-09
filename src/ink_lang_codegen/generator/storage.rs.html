@@ -119,6 +119,12 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -205,6 +211,11 @@
     }
 
     <span class="doccomment">/// Generates the storage struct definition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Developer Note</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `__ink_dylint_Storage` config attribute is used here to convey the</span>
+    <span class="doccomment">/// information that the generated struct is an ink! storage struct to `dylint`.</span>
     <span class="kw">fn</span> <span class="ident">generate_storage_struct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">storage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contract</span>.<span class="ident">module</span>().<span class="ident">storage</span>();
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">storage</span>.<span class="ident">span</span>();
@@ -219,6 +230,7 @@
             )]</span>
             <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">::ink_storage::traits::SpreadLayout</span>)]</span>
             <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">derive</span>(<span class="ident">::core::fmt::Debug</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;__ink_dylint_Storage&quot;</span>))]</span>
             <span class="kw">pub</span> <span class="kw">struct</span> #<span class="ident">ident</span> {
                 #( #<span class="ident">fields</span> ),<span class="op">*</span>
             }
