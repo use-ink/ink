@@ -98,6 +98,7 @@ impl Storage<'_> {
             )]
             #[derive(::ink_storage::traits::SpreadLayout)]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
+            #[cfg(not(target_os = "__ink_Storage"))]
             pub struct #ident {
                 #( #fields ),*
             }
