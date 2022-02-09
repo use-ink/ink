@@ -839,4 +839,13 @@ where
             .map(|_| output.into())
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
+
+    /// Checks whether a specified account belongs to a contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::is_contract`]
+    pub fn is_contract(self, account_id: T::AccountId) -> bool {
+        ink_env::is_contract::<T>(account_id)
+    }
 }
