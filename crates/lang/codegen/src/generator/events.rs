@@ -81,7 +81,7 @@ impl<'a> Events<'a> {
     /// # Developer Note
     ///
     /// The `__ink_dylint_EventBase` config attribute is used here to convey the
-    /// information that this function is an ink! constructor to `dylint`.
+    /// information that the generated enum is an ink! event to `dylint`.
     fn generate_event_base(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
         let event_idents = self
