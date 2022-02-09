@@ -332,7 +332,6 @@ impl ContractRef<'_> {
     ) -> TokenStream2 {
         use ir::Callable as _;
         let span = message.span();
-        let attrs = message.attrs();
         let storage_ident = self.contract.module().storage().ident();
         let message_ident = message.ident();
         let call_operator = match message.receiver() {
@@ -344,7 +343,6 @@ impl ContractRef<'_> {
         let input_types = message.inputs().map(|input| &input.ty).collect::<Vec<_>>();
         let output_type = message.output().map(|ty| quote! { -> #ty });
         quote_spanned!(span=>
-            #( #attrs )*
             #[inline]
             pub fn #message_ident(
                 & #mut_token self
@@ -375,14 +373,12 @@ impl ContractRef<'_> {
         constructor: ir::CallableWithSelector<ir::Constructor>,
     ) -> TokenStream2 {
         let span = constructor.span();
-        let attrs = constructor.attrs();
         let constructor_ident = constructor.ident();
         let selector_bytes = constructor.composed_selector().hex_lits();
         let input_bindings = generator::input_bindings(constructor.inputs());
         let input_types = generator::input_types(constructor.inputs());
         let arg_list = generator::generate_argument_list(input_types.iter().cloned());
         quote_spanned!(span =>
-            #( #attrs )*
             #[inline]
             #[allow(clippy::type_complexity)]
             pub fn #constructor_ident(

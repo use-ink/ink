@@ -357,7 +357,6 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = message.span();
         let message_ident = message.ident();
-        let attrs = message.attrs();
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
         let output_sig = output.map_or_else(
@@ -380,7 +379,6 @@ impl CallBuilder<'_> {
                 ::ink_env::call::utils::Set<#output_sig>,
             >;
 
-            #( #attrs )*
             #[inline]
             fn #message_ident(
                 & #mut_tok self

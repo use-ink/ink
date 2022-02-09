@@ -388,7 +388,6 @@ impl CallForwarder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let forwarder_ident = self.ident();
         let message_ident = message.ident();
-        let attrs = message.attrs();
         let output_ident = generator::output_ident(message_ident);
         let output_type = message
             .output()
@@ -408,7 +407,6 @@ impl CallForwarder<'_> {
         quote_spanned!(span =>
             type #output_ident = #output_type;
 
-            #( #attrs )*
             #[inline]
             fn #message_ident(
                 & #mut_tok self

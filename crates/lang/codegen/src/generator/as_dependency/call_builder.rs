@@ -279,7 +279,6 @@ impl CallBuilder<'_> {
             ir::Receiver::Ref => quote! { build },
             ir::Receiver::RefMut => quote! { build_mut },
         };
-        let attrs = message.attrs();
         quote_spanned!(span=>
             type #output_ident = <<<
                 Self
@@ -288,7 +287,6 @@ impl CallBuilder<'_> {
                 as #trait_path>::#output_ident;
 
             #[inline]
-            #( #attrs )*
             fn #message_ident(
                 & #mut_token self
                 #( , #input_bindings: #input_types )*
@@ -356,7 +354,6 @@ impl CallBuilder<'_> {
         let span = message.span();
         let callable = message.callable();
         let message_ident = message.ident();
-        let attrs = message.attrs();
         let selector = message.composed_selector();
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());
@@ -380,7 +377,6 @@ impl CallBuilder<'_> {
             >
         );
         quote_spanned!(span=>
-            #( #attrs )*
             #[allow(clippy::type_complexity)]
             #[inline]
             pub fn #message_ident(
