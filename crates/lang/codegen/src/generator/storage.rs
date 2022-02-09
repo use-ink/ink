@@ -84,6 +84,11 @@ impl Storage<'_> {
     }
 
     /// Generates the storage struct definition.
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_dylint_Storage` config attribute is used here to convey the
+    /// information that the generated struct is an ink! storage struct to `dylint`.
     fn generate_storage_struct(&self) -> TokenStream2 {
         let storage = self.contract.module().storage();
         let span = storage.span();
@@ -98,6 +103,7 @@ impl Storage<'_> {
             )]
             #[derive(::ink_storage::traits::SpreadLayout)]
             #[cfg_attr(test, derive(::core::fmt::Debug))]
+            #[cfg(not(feature = "__ink_dylint_Storage"))]
             pub struct #ident {
                 #( #fields ),*
             }
