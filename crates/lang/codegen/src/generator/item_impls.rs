@@ -230,8 +230,8 @@ impl ItemImpls<'_> {
     ///
     /// # Developer Note
     ///
-    /// The `__ink_Constructor` config attribute is used here to convey the information that
-    /// this function is an ink! constructor to `dylint`.
+    /// The `__ink_dylint_Constructor` config attribute is used here to convey the
+    /// information that this function is an ink! constructor to `dylint`.
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
