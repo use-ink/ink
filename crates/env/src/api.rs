@@ -498,3 +498,16 @@ pub fn ecdsa_recover(
         instance.ecdsa_recover(signature, message_hash, output)
     })
 }
+/// Checks whether a specified account belongs to a contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn is_contract<T>(account: T::AccountId) -> bool
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::is_contract::<T>(instance, account)
+    })
+}

@@ -426,4 +426,13 @@ pub trait TypedEnvBackend: EnvBackend {
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment;
+
+    /// Checks whether a specified account belongs to a contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`is_contract`][`crate::is_contract`]
+    fn is_contract<T>(&mut self, account: T::AccountId) -> bool
+    where
+        T: Environment;
 }

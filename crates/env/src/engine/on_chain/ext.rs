@@ -330,6 +330,8 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
     }
 }
 
@@ -625,4 +627,9 @@ pub fn ecdsa_recover(
         )
     };
     ret_code.into()
+}
+
+pub fn is_contract(account_id: &[u8]) -> bool {
+    let ret_val = unsafe { sys::seal_is_contract(Ptr32::from_slice(account_id)) };
+    !(ret_val.0 == 0)
 }
