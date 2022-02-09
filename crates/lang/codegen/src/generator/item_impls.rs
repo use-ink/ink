@@ -241,7 +241,7 @@ impl ItemImpls<'_> {
         let statements = constructor.statements();
         quote_spanned!(span =>
             #( #attrs )*
-            #[cfg(not(target_os = "__ink_Constructor"))]
+            #[cfg(not(feature = "__ink_Constructor"))]
             #vis fn #ident( #( #inputs ),* ) -> Self {
                 #( #statements )*
             }
