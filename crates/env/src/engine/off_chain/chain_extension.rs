@@ -50,7 +50,8 @@ pub trait ChainExtension {
     /// Calls the chain extension with the given input.
     ///
     /// Returns an error code and may fill the `output` buffer with a SCALE encoded result.
-    fn call(&mut self, input: &[u8], output: &mut [u8]) -> u32;
+    #[allow(clippy::ptr_arg)]
+    fn call(&mut self, input: &[u8], output: &mut Vec<u8>) -> u32;
 }
 
 impl ChainExtensionHandler {

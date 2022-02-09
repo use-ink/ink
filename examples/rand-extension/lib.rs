@@ -136,7 +136,7 @@ mod rand_extension {
                 /// SCALE encoded result. The error code is taken from the
                 /// `ink_env::chain_extension::FromStatusCode` implementation for
                 /// `RandomReadErr`.
-                fn call(&mut self, _input: &[u8], output: &mut [u8]) -> u32 {
+                fn call(&mut self, _input: &[u8], output: &mut Vec<u8>) -> u32 {
                     let ret: [u8; 32] = [1; 32];
                     scale::Encode::encode_to(&ret, output);
                     0
