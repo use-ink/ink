@@ -77,6 +77,11 @@ impl<'a> Events<'a> {
     /// Generates the base event enum that comprises all user defined events.
     /// All emitted events are converted into a variant of this enum before being
     /// serialized and emitted to apply their unique event discriminant (ID).
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_EventBase` config attribute is used here to convey the information
+    /// that this function is an ink! constructor to `dylint`.
     fn generate_event_base(&self) -> TokenStream2 {
         let storage_ident = &self.contract.module().storage().ident();
         let event_idents = self
