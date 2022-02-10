@@ -227,6 +227,11 @@ impl ItemImpls<'_> {
     }
 
     /// Generates the code for the given ink! constructor within an inherent implementation block.
+    ///
+    /// # Developer Note
+    ///
+    /// The `__ink_dylint_Constructor` config attribute is used here to convey the
+    /// information that the generated function is an ink! constructor to `dylint`.
     fn generate_inherent_constructor(constructor: &ir::Constructor) -> TokenStream2 {
         let span = constructor.span();
         let attrs = constructor.attrs();
@@ -236,6 +241,7 @@ impl ItemImpls<'_> {
         let statements = constructor.statements();
         quote_spanned!(span =>
             #( #attrs )*
+            #[cfg(not(feature = "__ink_dylint_Constructor"))]
             #vis fn #ident( #( #inputs ),* ) -> Self {
                 #( #statements )*
             }
