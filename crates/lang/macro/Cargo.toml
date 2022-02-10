@@ -28,7 +28,7 @@ ink_metadata = { version = "3.0.0-rc8", path = "../../metadata/" }
 ink_env = { version = "3.0.0-rc8", path = "../../env/" }
 ink_storage = { version = "3.0.0-rc8", path = "../../storage/" }
 ink_lang = { version = "3.0.0-rc8", path = ".." }
-scale-info = { version = "1.0", default-features = false, features = ["derive"] }
+scale-info = { version = "2.0", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_lang_macro"
