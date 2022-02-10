@@ -11,6 +11,11 @@ use ink_lang as ink;
 #[ink::contract]
 pub mod accumulator {
     /// Allows to mutate and get the current value.
+    ///
+    /// # Note
+    ///
+    /// That functionality is moved to the trait to show how it can be
+    /// done and how it can be used for cross-contract calls. It is only an example.
     #[ink_lang::trait_definition]
     pub trait AccumulatorTrait {
         /// Mutates the internal value.

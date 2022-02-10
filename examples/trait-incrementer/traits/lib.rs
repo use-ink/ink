@@ -13,6 +13,8 @@
 // limitations under the License.
 #![cfg_attr(not(feature = "std"), no_std)]
 
+/// Traits are extracted into a separate crate to show how the user can import
+/// several foreign traits and implement those for the contract.
 use ink_lang as ink;
 
 /// Allows to increment and get the current value.
