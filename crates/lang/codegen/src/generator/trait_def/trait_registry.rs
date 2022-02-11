@@ -100,8 +100,8 @@ impl TraitRegistry<'_> {
         let message_impls = self.generate_ink_trait_impl_messages();
         quote_spanned!(span=>
             /// The blanket implementation of the forwarder to do cross-contract
-            /// calls without customization. It only fires the call via SEAL host function
-            /// and checks that dispatching result is not error.
+            /// calls without customization. It only fires the call via a SEAL host function
+            /// and checks that dispatch result is not an error.
             ///
             /// # Note
             ///

@@ -72,17 +72,17 @@ impl<E> ToAccountId<E> for TraitDefinitionRegistry<E>
 where
     E: ink_env::Environment,
 {
-    /// `to_account_id` is not allowed for `TraitDefinitionRegistry`.
+    /// The trait methods which are implemented on the `TraitDefinitionRegistry` should not be
+    /// called directly. Instead, users should opt to go through the `__ink_TraitInfo` associated
+    /// type instead.
     ///
-    /// We insert markers for these errors in the generated contract code.
-    /// This is necessary since we can't check these errors at compile time
-    /// of the contract.
-    /// `cargo-contract` checks the contract code for these error markers
-    /// when building a contract and fails if it finds markers.
+    /// In order to enforce this we insert these error markings in the generated contract code. The
+    /// `cargo-contract` tool will check for these markers during its build step and fail if they
+    /// are found.
+    ///
+    /// We do this since we can't check for these errors at compile time.
     #[cold]
     fn to_account_id(&self) -> E::AccountId {
-        /// We enforce linking errors in case this is ever actually called.
-        /// These linker errors are properly resolved by the cargo-contract tool.
         extern "C" {
             fn __ink_enforce_error_to_account_id() -> !;
         }
@@ -99,5 +99,5 @@ where
 /// # Note
 ///
 /// The actual implementation of the registration is done in the blanket implementation
-/// during definition of the trait.
+/// during definition of the ink! trait.
 impl<E> CallBuilder for TraitDefinitionRegistry<E> where E: ink_env::Environment {}
