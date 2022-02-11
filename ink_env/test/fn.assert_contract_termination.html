@@ -14,12 +14,12 @@ remaining value in the contract</li>
 <li><code>expected_value_transferred_to_beneficiary</code>: The value which should have been transferred
 to the <code>expected_beneficiary</code>.</li>
 </ul>
-<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2><div class="example-wrap"><pre class="language-no_compile"><code>let should_terminate = move || your_contract.fn_which_should_terminate();
+<h2 id="usage"><a href="#usage">Usage</a></h2><div class="example-wrap"><pre class="language-no_compile"><code>let should_terminate = move || your_contract.fn_which_should_terminate();
 ink_env::test::assert_contract_termination::&lt;ink_env::DefaultEnvironment, _&gt;(
     should_terminate,
     expected_beneficiary,
     expected_value_transferred_to_beneficiary
 );</code></pre></div>
 <p>See <code>examples/contract-terminate</code> for a complete usage example.</p>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>

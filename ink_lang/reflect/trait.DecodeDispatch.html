@@ -7,9 +7,9 @@
     <h1 class="fqn"><span class="in-band">Trait <a href="../index.html">ink_lang</a>::<wbr><a href="index.html">reflect</a>::<wbr><a class="trait" href="#">DecodeDispatch</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../src/ink_lang/reflect/dispatch.rs.html#653-655">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust trait"><code>pub trait DecodeDispatch: Decode {
     fn <a href="#tymethod.decode_dispatch" class="fnname">decode_dispatch</a>&lt;I:&nbsp;Input&gt;(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>I) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="enum" href="enum.DispatchError.html" title="enum ink_lang::reflect::DispatchError">DispatchError</a>&gt;;
 }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Decodes an ink! dispatch input into a known selector and its expected parameters.</p>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h2 id="note"><a href="#note">Note</a></h2>
 <p>This trait is automatically implemented for ink! message and constructor decoders.</p>
-<h2 id="errors" class="section-header"><a href="#errors">Errors</a></h2>
+<h2 id="errors"><a href="#errors">Errors</a></h2>
 <p>Returns an error if any of the decode steps failed:</p>
 <ul>
 <li><code>InvalidSelector</code>: The first four bytes could not properly decoded into the selector.</li>
@@ -17,7 +17,7 @@
 <li><code>InvalidParameters</code>: Failed to decoded the parameters for the selected dispatchable.</li>
 </ul>
 <p>The other dispatch errors are handled by other structures usually.</p>
-<h2 id="usage" class="section-header"><a href="#usage">Usage</a></h2>
+<h2 id="usage"><a href="#usage">Usage</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">ink_lang</span> <span class="kw">as</span> <span class="ident">ink</span>;
 
 <span class="attribute">#[<span class="ident">ink::contract</span>]</span>
@@ -81,5 +81,5 @@
         );
     }
 }</code></pre></div>
-</div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><div id="tymethod.decode_dispatch" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_lang/reflect/dispatch.rs.html#654">source</a></div><h4 class="code-header">fn <a href="#tymethod.decode_dispatch" class="fnname">decode_dispatch</a>&lt;I:&nbsp;Input&gt;(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>I) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="enum" href="enum.DispatchError.html" title="enum ink_lang::reflect::DispatchError">DispatchError</a>&gt;</h4></div></div><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><script type="text/javascript" src="../../implementors/ink_lang/reflect/trait.DecodeDispatch.js" async></script></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+</div></details><h2 id="required-methods" class="small-section-header">Required methods<a href="#required-methods" class="anchor"></a></h2><div class="methods"><div id="tymethod.decode_dispatch" class="method has-srclink"><div class="rightside"><a class="srclink" href="../../src/ink_lang/reflect/dispatch.rs.html#654">source</a></div><h4 class="code-header">fn <a href="#tymethod.decode_dispatch" class="fnname">decode_dispatch</a>&lt;I:&nbsp;Input&gt;(input: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>I) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self, <a class="enum" href="enum.DispatchError.html" title="enum ink_lang::reflect::DispatchError">DispatchError</a>&gt;</h4></div></div><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor"></a></h2><div class="item-list" id="implementors-list"></div><script type="text/javascript" src="../../implementors/ink_lang/reflect/trait.DecodeDispatch.js" async></script></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ink_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>

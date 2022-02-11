@@ -3,22 +3,22 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../scale_info/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"><a href="#">Crate scale_info</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 1.0.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="scale_info" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../scale_info/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+        </a><h2 class="location"><a href="#">Crate scale_info</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 1.0.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#derives">Derive Macros</a></li></ul></div><div id="sidebar-vars" data-name="scale_info" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../scale_info/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
     <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">scale_info</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/scale_info/lib.rs.html#15-377">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Efficient and space-efficient serialization of Rust types.</p>
 <p>This library provides structures to easily retrieve compile-time type
 information at runtime and also to serialize this information in a
 space-efficient form, aka <code>PortableForm</code>.</p>
-<h2 id="registry" class="section-header"><a href="#registry">Registry</a></h2>
+<h2 id="registry"><a href="#registry">Registry</a></h2>
 <p>At the heart of its functionality is the <a href="struct.Registry.html"><code>Registry</code></a>
 that acts as a cache for known types in order to efficiently deduplicate
 types and ensure a space-efficient serialization.</p>
-<h2 id="type-information" class="section-header"><a href="#type-information">Type Information</a></h2>
+<h2 id="type-information"><a href="#type-information">Type Information</a></h2>
 <p>Information about types is provided via the <a href="trait.TypeInfo.html"><code>TypeInfo</code></a>
 trait.</p>
 <p>This trait should be implemented for all types that are serializable.
 <code>scale-info</code> provides implementations for all commonly used Rust standard
 types and a derive macro for implementing of custom types.</p>
-<h3 id="deriving-typeinfo" class="section-header"><a href="#deriving-typeinfo">Deriving <code>TypeInfo</code></a></h3>
+<h3 id="deriving-typeinfo"><a href="#deriving-typeinfo">Deriving <code>TypeInfo</code></a></h3>
 <p>Enable the <code>derive</code> feature of this crate:</p>
 <div class="example-wrap"><pre class="language-toml"><code>scale-info = { version = &quot;0.6.0&quot;, features = [&quot;derive&quot;] }</code></pre></div>
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">use</span> <span class="ident">scale_info::TypeInfo</span>;
@@ -35,7 +35,7 @@ types and a derive macro for implementing of custom types.</p>
     <span class="ident">B</span> { <span class="ident">f</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> },
     <span class="ident">C</span>,
 }</code></pre></div>
-<h4 id="attributes" class="section-header"><a href="#attributes">Attributes</a></h4><h5 id="scale_infobounds" class="section-header"><a href="#scale_infobounds"><code>#[scale_info(bounds(..))]</code></a></h5>
+<h4 id="attributes"><a href="#attributes">Attributes</a></h4><h5 id="scale_infobounds"><a href="#scale_infobounds"><code>#[scale_info(bounds(..))]</code></a></h5>
 <p>Replace the auto-generated <code>where</code> clause bounds for the derived <code>TypeInfo</code> implementation.</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="attribute">#[<span class="ident">derive</span>(<span class="ident">TypeInfo</span>)]</span>
@@ -69,7 +69,7 @@ would be added.</p>
 <p>The <code>bounds</code> attribute provides an <a href="https://serde.rs/attr-bound.html">“escape hatch”</a> to allow
 the programmer control of the <code>where</code> clause on the generated <code>impl</code>, to solve this and other
 issues that can’t be foreseen by the auto-generated bounds heuristic.</p>
-<h5 id="scale_infoskip_type_params" class="section-header"><a href="#scale_infoskip_type_params"><code>#[scale_info(skip_type_params(..))]</code></a></h5>
+<h5 id="scale_infoskip_type_params"><a href="#scale_infoskip_type_params"><code>#[scale_info(skip_type_params(..))]</code></a></h5>
 <p>Remove the requirement for the specified type params to implement <code>TypeInfo</code>.</p>
 <p>Consider a simple example of a type parameter which is used for associated types, but the type
 itself does not carry any type information. Consider this common pattern:</p>
@@ -111,7 +111,7 @@ prevents the given type parameter’s type information being required:</p>
 <p><code>type_params(vec![TypeParameter::new(&quot;T&quot;, None)])</code></p>
 <p>The generated type params do not now require <code>T</code> to implement <code>TypeInfo</code>, so the auto-generated
 bound is not added to the generated <code>TypeInfo</code> <code>where</code> clause.</p>
-<h5 id="combining-bounds-and-skip_type_params" class="section-header"><a href="#combining-bounds-and-skip_type_params">Combining <code>bounds</code> and <code>skip_type_params</code></a></h5>
+<h5 id="combining-bounds-and-skip_type_params"><a href="#combining-bounds-and-skip_type_params">Combining <code>bounds</code> and <code>skip_type_params</code></a></h5>
 <p>These two attributes can complement one another, particularly in the case where using <code>bounds</code>
 would still require manually adding a <code>TypeInfo</code> bound for the type parameter:</p>
 
@@ -124,14 +124,14 @@ would still require manually adding a <code>TypeInfo</code> bound for the type p
 to be added manually e.g. <code>#[scale_info(bounds(T: TypeInfo + 'static))]</code>. Since the intention of
 the empty bounds is to <strong>remove</strong> all type bounds, then the addition of <code>skip_type_params</code>
 allows this to compile successfully.</p>
-<h6 id="precedence" class="section-header"><a href="#precedence">Precedence</a></h6>
+<h6 id="precedence"><a href="#precedence">Precedence</a></h6>
 <p>When used independently, both attributes modify the <code>where</code> clause of the derived <code>TypeInfo</code>
 impl. When used together, the predicates supplied in the <code>bounds</code> attribute replaces <em>all</em>
 auto-generated bounds, and <code>skip_type_params</code> will have no effect on the resulting <code>where</code>
 clause.</p>
 <p><strong>Note:</strong> When using <code>bounds</code> without <code>skip_type_params</code>, it is therefore required to manually
 add a <code>TypeInfo</code> bound for any non skipped type parameters. The compiler will let you know.</p>
-<h5 id="scale_infocapture_docs--defaultalwaysnever" class="section-header"><a href="#scale_infocapture_docs--defaultalwaysnever"><code>#[scale_info(capture_docs = &quot;default|always|never&quot;)]</code></a></h5>
+<h5 id="scale_infocapture_docs--defaultalwaysnever"><a href="#scale_infocapture_docs--defaultalwaysnever"><code>#[scale_info(capture_docs = &quot;default|always|never&quot;)]</code></a></h5>
 <p>Docs for types, fields and variants can all be captured by the <code>docs</code> feature being enabled.
 This can be overridden using the <code>capture_docs</code> attribute:</p>
 <p><code>#[scale_info(capture_docs = &quot;default&quot;)]</code> will capture docs iff the <code>docs</code> feature is enabled.
@@ -143,7 +143,7 @@ the <code>docs</code> is enabled.</p>
 <p>This is useful e.g. when compiling metadata into a Wasm blob, and it is desirable to keep the
 binary size as small as possible, so the <code>docs</code> feature would be disabled. In case the docs for
 some types is necessary they could be enabled on a per-type basis with the above attribute.</p>
-<h2 id="forms" class="section-header"><a href="#forms">Forms</a></h2>
+<h2 id="forms"><a href="#forms">Forms</a></h2>
 <p>To bridge between compile-time type information and runtime the
 <a href="form/enum.MetaForm.html"><code>MetaForm</code></a> is used to easily retrieve all
 information needed to uniquely identify types.</p>
@@ -151,7 +151,7 @@ information needed to uniquely identify types.</p>
 space-efficient form by the <a href="trait.IntoPortable.html"><code>IntoPortable</code></a> trait; it is
 used internally by the <a href="struct.Registry.html"><code>Registry</code></a> in order to convert
 the expanded types into their space-efficient form.</p>
-<h2 id="symbols-and-namespaces" class="section-header"><a href="#symbols-and-namespaces">Symbols and Namespaces</a></h2>
+<h2 id="symbols-and-namespaces"><a href="#symbols-and-namespaces">Symbols and Namespaces</a></h2>
 <p>To differentiate two types sharing the same name, namespaces are used.
 Commonly the namespace is equal to the one where the type has been defined
 in. For Rust prelude types such as <a href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html"><code>Option</code></a> and
@@ -208,5 +208,5 @@ fields.</p>
 </div></div></div><h2 id="functions" class="small-section-header"><a href="#functions">Functions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.meta_type.html" title="scale_info::meta_type fn">meta_type</a></div><div class="item-right docblock-short"><p>Returns the runtime bridge to the types compile-time type information.</p>
 </div></div></div><h2 id="derives" class="small-section-header"><a href="#derives">Derive Macros</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="derive" href="derive.TypeInfo.html" title="scale_info::TypeInfo derive">TypeInfo</a></div><div class="item-right docblock-short"></div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="derive" href="derive.TypeInfo.html" title="scale_info::TypeInfo derive">TypeInfo</a></div><div class="item-right docblock-short"></div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>

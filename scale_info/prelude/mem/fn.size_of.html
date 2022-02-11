@@ -34,10 +34,10 @@ specific types such as primitives are.</p>
 the same size. If <code>T</code> is Sized, all of those types have the same size as <code>usize</code>.</p>
 <p>The mutability of a pointer does not change its size. As such, <code>&amp;T</code> and <code>&amp;mut T</code>
 have the same size. Likewise for <code>*const T</code> and <code>*mut T</code>.</p>
-<h2 id="size-of-reprc-items" class="section-header"><a href="#size-of-reprc-items">Size of <code>#[repr(C)]</code> items</a></h2>
+<h2 id="size-of-reprc-items"><a href="#size-of-reprc-items">Size of <code>#[repr(C)]</code> items</a></h2>
 <p>The <code>C</code> representation for items has a defined layout. With this layout,
 the size of items is also stable as long as all fields have a stable size.</p>
-<h3 id="size-of-structs" class="section-header"><a href="#size-of-structs">Size of Structs</a></h3>
+<h3 id="size-of-structs"><a href="#size-of-structs">Size of Structs</a></h3>
 <p>For <code>structs</code>, the size is determined by the following algorithm.</p>
 <p>For each field in the struct ordered by declaration order:</p>
 <ol>
@@ -48,13 +48,13 @@ the size of items is also stable as long as all fields have a stable size.</p>
 The alignment of the struct is usually the largest alignment of all its
 fields; this can be changed with the use of <code>repr(align(N))</code>.</p>
 <p>Unlike <code>C</code>, zero sized structs are not rounded up to one byte in size.</p>
-<h3 id="size-of-enums" class="section-header"><a href="#size-of-enums">Size of Enums</a></h3>
+<h3 id="size-of-enums"><a href="#size-of-enums">Size of Enums</a></h3>
 <p>Enums that carry no data other than the discriminant have the same size as C enums
 on the platform they are compiled for.</p>
-<h3 id="size-of-unions" class="section-header"><a href="#size-of-unions">Size of Unions</a></h3>
+<h3 id="size-of-unions"><a href="#size-of-unions">Size of Unions</a></h3>
 <p>The size of a union is the size of its largest field.</p>
 <p>Unlike <code>C</code>, zero sized unions are not rounded up to one byte in size.</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem</span>;
 
 <span class="comment">// Some primitives</span>
@@ -118,5 +118,5 @@ on the platform they are compiled for.</p>
 }
 
 <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">mem::size_of</span>::<span class="op">&lt;</span><span class="ident">ExampleUnion</span><span class="op">&gt;</span>());</code></pre></div>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>

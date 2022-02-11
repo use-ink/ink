@@ -7,9 +7,9 @@
     <h1 class="fqn"><span class="in-band">Function <a href="index.html">ink_env</a>::<wbr><a class="fn" href="#">terminate_contract</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_env/api.rs.html#309-316">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust fn"><code>pub fn terminate_contract&lt;T&gt;(beneficiary: T::<a class="associatedtype" href="trait.Environment.html#associatedtype.AccountId" title="type ink_env::Environment::AccountId">AccountId</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.never.html">!</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="trait.Environment.html" title="trait ink_env::Environment">Environment</a>,&nbsp;</span></code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Terminates the existence of the currently executed smart contract.</p>
 <p>This removes the calling account and transfers all remaining balance
 to the given beneficiary.</p>
-<h2 id="note" class="section-header"><a href="#note">Note</a></h2>
+<h2 id="note"><a href="#note">Note</a></h2>
 <p>This function never returns. Either the termination was successful and the
 execution of the destroyed contract is halted. Or it failed during the termination
 which is considered fatal and results in a trap and rollback.</p>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="ink_env" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>

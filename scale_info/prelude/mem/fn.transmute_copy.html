@@ -14,7 +14,7 @@ unsafely create a copy of the contained value instead of moving out of <code>src
 is highly encouraged to only invoke this function where <code>T</code> and <code>U</code> have the
 same size. This function triggers <a href="../../reference/behavior-considered-undefined.html">undefined behavior</a> if <code>U</code> is larger than
 <code>T</code>.</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<h2 id="examples"><a href="#examples">Examples</a></h2>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::mem</span>;
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">packed</span>)]</span>
@@ -36,5 +36,5 @@ same size. This function triggers <a href="../../reference/behavior-considered-u
 
 <span class="comment">// The contents of &#39;foo_array&#39; should not have changed</span>
 <span class="macro">assert_eq!</span>(<span class="ident">foo_array</span>, [<span class="number">10</span>]);</code></pre></div>
-</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e7aca8959 2022-02-09)" ></div>
+</div></details></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (e646f3d2a 2022-02-10)" ></div>
 </body></html>
