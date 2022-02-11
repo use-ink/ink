@@ -22,8 +22,10 @@ use crate::{
     },
     call::{
         utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     engine::{
         EnvInstance,
@@ -232,13 +234,42 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If arguments passed to the called contract message are invalid.
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
+#[allow(clippy::type_complexity)]
+pub fn invoke_contract<T, Args>(
+    params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+) -> Result<()>
 where
     T: Environment,
     Args: scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
+    })
+}
+
+/// Invokes a contract message via delegate call.
+///
+/// # Note
+///
+/// - Prefer using this over [`eval_contract_delegate`] if possible. [`invoke_contract_delegate`]
+///   will generally have a better performance since it won't try to fetch any results.
+/// - This is a low level way to invoke another smart contract via delegate call.
+///   Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the specified code hash does not exist.
+/// - If arguments passed to the called code message are invalid.
+/// - If the called code execution has trapped.
+pub fn invoke_contract_delegate<T, Args>(
+    params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
+) -> Result<()>
+where
+    T: Environment,
+    Args: scale::Encode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_delegate::<T, Args>(instance, params)
     })
 }
 
@@ -257,7 +288,10 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
+#[allow(clippy::type_complexity)]
+pub fn eval_contract<T, Args, R>(
+    params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ReturnType<R>>,
+) -> Result<R>
 where
     T: Environment,
     Args: scale::Encode,
@@ -265,6 +299,31 @@ where
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
+    })
+}
+
+/// Evaluates a contract message via delegate call and returns its result.
+///
+/// # Note
+///
+/// This is a low level way to evaluate another smart contract via delegate call.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the specified code hash does not exist.
+/// - If arguments passed to the called code message are invalid.
+/// - If the called code execution has trapped.
+pub fn eval_contract_delegate<T, Args, R>(
+    params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
+) -> Result<R>
+where
+    T: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::eval_contract_delegate::<T, Args, R>(instance, params)
     })
 }
 

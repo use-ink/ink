@@ -21,8 +21,10 @@ use super::{
 use crate::{
     call::{
         utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         Blake2x128,
@@ -219,7 +221,7 @@ impl EnvInstance {
     /// Reusable implementation for invoking another contract message.
     fn invoke_contract_impl<T, Args, RetType, R>(
         &mut self,
-        params: &CallParams<T, Args, RetType>,
+        params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, RetType>,
     ) -> Result<R>
     where
         T: Environment,
@@ -246,6 +248,35 @@ impl EnvInstance {
             enc_input,
             output,
         );
+        match call_result {
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
+    }
+    /// Reusable implementation for invoking another contract message via delegate call.
+    fn invoke_contract_delegate_impl<T, Args, RetType, R>(
+        &mut self,
+        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, RetType>,
+    ) -> Result<R>
+    where
+        T: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        let mut scope = self.scoped_buffer();
+        let call_flags = params.call_flags();
+        let enc_code_hash = scope.take_encoded(params.code_hash());
+        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
+        let output = &mut scope.take_rest();
+        let flags = params.call_flags().into_u32();
+        let call_result = ext::delegate_call(flags, enc_code_hash, enc_input, output);
         match call_result {
             Ok(()) | Err(ext::Error::CalleeReverted) => {
                 let decoded = scale::Decode::decode(&mut &output[..])?;
@@ -398,7 +429,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<T, Args>(
         &mut self,
-        call_params: &CallParams<T, Args, ()>,
+        call_params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
     ) -> Result<()>
     where
         T: Environment,
@@ -407,9 +438,25 @@ impl TypedEnvBackend for EnvInstance {
         self.invoke_contract_impl(call_params)
     }
 
+    fn invoke_contract_delegate<T, Args>(
+        &mut self,
+        call_params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
+    ) -> Result<()>
+    where
+        T: Environment,
+        Args: scale::Encode,
+    {
+        self.invoke_contract_delegate_impl(call_params)
+    }
+
     fn eval_contract<T, Args, R>(
         &mut self,
-        call_params: &CallParams<T, Args, ReturnType<R>>,
+        call_params: &CallParams<
+            T,
+            Call<T, T::AccountId, u64, T::Balance>,
+            Args,
+            ReturnType<R>,
+        >,
     ) -> Result<R>
     where
         T: Environment,
@@ -417,6 +464,18 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         self.invoke_contract_impl(call_params)
+    }
+
+    fn eval_contract_delegate<T, Args, R>(
+        &mut self,
+        call_params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
+    ) -> Result<R>
+    where
+        T: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        self.invoke_contract_delegate_impl(call_params)
     }
 
     fn instantiate_contract<T, Args, Salt, C>(

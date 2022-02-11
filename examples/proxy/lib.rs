@@ -9,9 +9,6 @@
 //!     `forward_to` address at any point.
 //!
 //! Using this pattern it is possible to implement upgradable contracts.
-//!
-//! Note though that the contract to which calls are forwarded still
-//! contains it's own state.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -19,16 +16,57 @@ use ink_lang as ink;
 
 #[ink::contract]
 pub mod proxy {
-    /// A simple proxy contract.
-    #[ink(storage)]
-    pub struct Proxy {
-        /// The `AccountId` of a contract where any call that does not match a
+    use ink_env::call::DelegateCall;
+    use ink_primitives::{
+        Key,
+        KeyPtr,
+    };
+    use ink_storage::traits::SpreadLayout;
+
+    #[derive(Debug)]
+    #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
+    struct ProxyFields {
+        /// The `Hash` of a contract code where any call that does not match a
         /// selector of this contract is forwarded to.
-        forward_to: AccountId,
+        delegate_to: Hash,
         /// The `AccountId` of a privileged account that can update the
         /// forwarding address. This address is set to the account that
         /// instantiated this contract.
         admin: AccountId,
+    }
+
+    const PROXY_FIELDS_STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("ProxyFields");
+
+    impl SpreadLayout for ProxyFields {
+        const FOOTPRINT: u64 =
+            <AccountId as SpreadLayout>::FOOTPRINT + <Hash as SpreadLayout>::FOOTPRINT;
+        const REQUIRES_DEEP_CLEAN_UP: bool = false;
+
+        fn pull_spread(_: &mut KeyPtr) -> Self {
+            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
+            Self {
+                delegate_to: SpreadLayout::pull_spread(&mut ptr),
+                admin: SpreadLayout::pull_spread(&mut ptr),
+            }
+        }
+
+        fn push_spread(&self, _: &mut KeyPtr) {
+            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
+            SpreadLayout::push_spread(&self.delegate_to, &mut ptr);
+            SpreadLayout::push_spread(&self.admin, &mut ptr);
+        }
+
+        fn clear_spread(&self, _: &mut KeyPtr) {
+            let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
+            SpreadLayout::clear_spread(&self.delegate_to, &mut ptr);
+            SpreadLayout::clear_spread(&self.admin, &mut ptr);
+        }
+    }
+
+    /// A simple proxy contract.
+    #[ink(storage)]
+    pub struct Proxy {
+        proxy: ProxyFields,
     }
 
     impl Proxy {
@@ -37,25 +75,27 @@ pub mod proxy {
         /// Sets the privileged account to the caller. Only this account may
         /// later changed the `forward_to` address.
         #[ink(constructor)]
-        pub fn new(forward_to: AccountId) -> Self {
+        pub fn new(delegate_to: Hash) -> Self {
             Self {
-                admin: Self::env().caller(),
-                forward_to,
+                proxy: ProxyFields {
+                    delegate_to,
+                    admin: Self::env().caller(),
+                },
             }
         }
 
         /// Changes the `AccountId` of the contract where any call that does
         /// not match a selector of this contract is forwarded to.
         #[ink(message)]
-        pub fn change_forward_address(&mut self, new_address: AccountId) {
+        pub fn change_delegate_code(&mut self, new_code_hash: Hash) {
             assert_eq!(
                 self.env().caller(),
-                self.admin,
+                self.proxy.admin,
                 "caller {:?} does not have sufficient permissions, only {:?} does",
                 self.env().caller(),
-                self.admin,
+                self.proxy.admin,
             );
-            self.forward_to = new_address;
+            self.proxy.delegate_to = new_code_hash;
         }
 
         /// Fallback message for a contract call that doesn't match any
@@ -70,18 +110,17 @@ pub mod proxy {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .callee(self.forward_to)
+                .set_call_type(DelegateCall::new().set_code_hash(self.proxy.delegate_to))
                 .call_flags(
                     ink_env::CallFlags::default()
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .transferred_value(self.env().transferred_value())
                 .fire()
                 .unwrap_or_else(|err| {
                     panic!(
-                        "cross-contract call to {:?} failed due to {:?}",
-                        self.forward_to, err
+                        "delegate call to {:?} failed due to {:?}",
+                        self.proxy.delegate_to, err
                     )
                 });
             unreachable!(

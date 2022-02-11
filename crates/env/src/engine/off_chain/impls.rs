@@ -16,8 +16,10 @@ use super::EnvInstance;
 use crate::{
     call::{
         utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         Blake2x128,
@@ -387,7 +389,10 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
+    fn invoke_contract<T, Args>(
+        &mut self,
+        params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+    ) -> Result<()>
     where
         T: Environment,
         Args: scale::Encode,
@@ -400,15 +405,45 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
+    fn invoke_contract_delegate<T, Args>(
+        &mut self,
+        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
+    ) -> Result<()>
+    where
+        T: Environment,
+        Args: scale::Encode,
+    {
+        let _code_hash = params.code_hash();
+        unimplemented!("off-chain environment does not support contract invocation")
+    }
+
     fn eval_contract<T, Args, R>(
         &mut self,
-        _call_params: &CallParams<T, Args, ReturnType<R>>,
+        _call_params: &CallParams<
+            T,
+            Call<T, T::AccountId, u64, T::Balance>,
+            Args,
+            ReturnType<R>,
+        >,
     ) -> Result<R>
     where
         T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
+        unimplemented!("off-chain environment does not support contract evaluation")
+    }
+
+    fn eval_contract_delegate<T, Args, R>(
+        &mut self,
+        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
+    ) -> Result<R>
+    where
+        T: Environment,
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        let _code_hash = params.code_hash();
         unimplemented!("off-chain environment does not support contract evaluation")
     }
 

@@ -17,8 +17,10 @@ use core::marker::PhantomData;
 use ink_env::{
     call::{
         utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         CryptoHash,
@@ -514,7 +516,7 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     call::{build_call, Selector, ExecutionInput}
+    ///     call::{build_call, Call, Selector, ExecutionInput}
     /// };
     ///
     /// #
@@ -531,17 +533,15 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .callee(AccountId::from([0x42; 32]))
-    ///         .gas_limit(5000)
-    ///         .transferred_value(10)
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                 .push_arg(42)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
-    ///         )
-    ///         .returns::<()>()
-    ///         .params();
+    ///             .set_call_type(Call::new().set_callee(AccountId::from([0x42; 32])).set_gas_limit(5000).set_transferred_value(10))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
+    ///     )
+    ///     .returns::<()>()
+    ///     .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
     /// }
     /// #
@@ -552,11 +552,74 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
+    #[allow(clippy::type_complexity)]
+    pub fn invoke_contract<Args>(
+        self,
+        params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+    ) -> Result<()>
     where
         Args: scale::Encode,
     {
         ink_env::invoke_contract::<T, Args>(params)
+    }
+
+    /// Invokes contract code message without fetching its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     Clear,
+    ///     Environment,
+    ///     call::{build_call, DelegateCall, Selector, ExecutionInput}
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Invokes another contract message without fetching the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract_delegate(&self) {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
+    ///     )
+    ///     .returns::<()>()
+    ///     .params();
+    ///     self.env().invoke_contract_delegate(&call_params).expect("call invocation must succeed");
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract`]
+    #[allow(clippy::type_complexity)]
+    pub fn invoke_contract_delegate<Args>(
+        self,
+        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
+    ) -> Result<()>
+    where
+        Args: scale::Encode,
+    {
+        ink_env::invoke_contract_delegate::<T, Args>(params)
     }
 
     /// Evaluates a contract message and returns its result.
@@ -569,7 +632,8 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     call::{build_call, Selector, ExecutionInput, utils::ReturnType}
+    ///     Environment,
+    ///     call::{build_call, Call, Selector, ExecutionInput, utils::ReturnType}
     /// };
     ///
     /// #
@@ -585,15 +649,14 @@ where
     /// /// Evaluates a contract message and fetches the result.
     /// #[ink(message)]
     /// pub fn evaluate_contract(&self) -> i32 {
+    ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .callee(AccountId::from([0x42; 32]))
-    ///         .gas_limit(5000)
-    ///         .transferred_value(10)
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                 .push_arg(42)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
+    ///             .set_call_type(Call::new().set_callee(AccountId::from([0x42; 32])).set_gas_limit(5000).set_transferred_value(10))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
     ///         )
     ///         .returns::<ReturnType<i32>>()
     ///         .params();
@@ -607,15 +670,81 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::eval_contract`]
+    #[allow(clippy::type_complexity)]
     pub fn eval_contract<Args, R>(
         self,
-        params: &CallParams<T, Args, ReturnType<R>>,
+        params: &CallParams<
+            T,
+            Call<T, T::AccountId, u64, T::Balance>,
+            Args,
+            ReturnType<R>,
+        >,
     ) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
     {
         ink_env::eval_contract::<T, Args, R>(params)
+    }
+
+    /// Evaluates a code message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     Environment,
+    ///     Clear,
+    ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Evaluates a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn evaluate_contract_delegate(&self) -> i32 {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
+    ///         )
+    ///         .returns::<ReturnType<i32>>()
+    ///         .params();
+    ///     self.env().eval_contract_delegate(&call_params).expect("call invocation must succeed")
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::eval_contract_delegate`]
+    #[allow(clippy::type_complexity)]
+    pub fn eval_contract_delegate<Args, R>(
+        self,
+        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
+    ) -> Result<R>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::eval_contract_delegate::<T, Args, R>(params)
     }
 
     /// Terminates the existence of a contract.

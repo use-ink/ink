@@ -15,8 +15,10 @@
 use crate::{
     call::{
         utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         CryptoHash,
@@ -364,9 +366,24 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
+    #[allow(clippy::type_complexity)]
     fn invoke_contract<T, Args>(
         &mut self,
-        call_data: &CallParams<T, Args, ()>,
+        call_data: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+    ) -> Result<()>
+    where
+        T: Environment,
+        Args: scale::Encode;
+
+    /// Invokes a contract message via delegate call.
+    ///
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+    fn invoke_contract_delegate<T, Args>(
+        &mut self,
+        call_data: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
     ) -> Result<()>
     where
         T: Environment,
@@ -377,9 +394,29 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`eval_contract`][`crate::eval_contract`]
+    #[allow(clippy::type_complexity)]
     fn eval_contract<T, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ReturnType<R>>,
+        call_data: &CallParams<
+            T,
+            Call<T, T::AccountId, u64, T::Balance>,
+            Args,
+            ReturnType<R>,
+        >,
+    ) -> Result<R>
+    where
+        T: Environment,
+        Args: scale::Encode,
+        R: scale::Decode;
+
+    /// Evaluates a contract message via delegate call and returns its result.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`eval_contract_delegate`][`crate::eval_contract_delegate`]
+    fn eval_contract_delegate<T, Args, R>(
+        &mut self,
+        call_data: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
     ) -> Result<R>
     where
         T: Environment,
