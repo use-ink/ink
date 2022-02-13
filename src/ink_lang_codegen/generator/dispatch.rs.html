@@ -1273,7 +1273,7 @@
 
                         <span class="kw">const</span> <span class="ident">CALLABLE</span>: <span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident"><span class="self">Self</span>::Storage</span>, <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> <span class="op">=</span>
                             <span class="op">|</span><span class="ident">storage</span>, #<span class="ident">input_tuple_bindings</span><span class="op">|</span> {
-                                #<span class="ident">storage_ident</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
+                                <span class="op">&lt;</span>#<span class="ident">storage_ident</span> <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span>::#<span class="ident">message_ident</span>( <span class="ident">storage</span> #( , #<span class="ident">input_bindings</span> )<span class="op">*</span> )
                             };
                         <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">::core::primitive::u8</span>; <span class="number">4usize</span>] <span class="op">=</span> #<span class="ident">selector</span>;
                         <span class="kw">const</span> <span class="ident">PAYABLE</span>: <span class="ident">::core::primitive::bool</span> <span class="op">=</span> #<span class="ident">payable</span>;
