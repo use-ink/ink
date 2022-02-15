@@ -1,12 +1,12 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-mod upgradable;
+mod upgradeable;
 
 use ink_lang as ink;
 
 #[ink::contract]
 pub mod flipper {
-    use crate::upgradable::{
+    use crate::upgradeable::{
         NotInitialized,
         Upgradable,
     };

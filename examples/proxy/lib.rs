@@ -84,8 +84,8 @@ pub mod proxy {
             }
         }
 
-        /// Changes the `AccountId` of the contract where any call that does
-        /// not match a selector of this contract is forwarded to.
+        /// Changes the `Hash` of the contract where any call that does
+        /// not match a selector of this contract is delegated to.
         #[ink(message)]
         pub fn change_delegate_code(&mut self, new_code_hash: Hash) {
             assert_eq!(
