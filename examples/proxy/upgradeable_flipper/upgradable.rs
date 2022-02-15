@@ -57,7 +57,7 @@ impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradable<T, NotInitial
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        if ink_env::get_contract_storage::<T>(ptr.key())
+        if ink_env::get_contract_storage::<T>(ptr.advance_by(0))
             .expect("could not properly decode storage entry")
             .is_none()
         {
