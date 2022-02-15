@@ -389,6 +389,7 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
+    #[allow(clippy::type_complexity)]
     fn invoke_contract<T, Args>(
         &mut self,
         params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
@@ -405,6 +406,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
+    #[allow(clippy::type_complexity)]
     fn invoke_contract_delegate<T, Args>(
         &mut self,
         params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
@@ -417,6 +419,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
+    #[allow(clippy::type_complexity)]
     fn eval_contract<T, Args, R>(
         &mut self,
         _call_params: &CallParams<
@@ -434,6 +437,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract evaluation")
     }
 
+    #[allow(clippy::type_complexity)]
     fn eval_contract_delegate<T, Args, R>(
         &mut self,
         params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,

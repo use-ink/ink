@@ -219,6 +219,7 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
+    #[allow(clippy::type_complexity)]
     fn invoke_contract_impl<T, Args, RetType, R>(
         &mut self,
         params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, RetType>,
@@ -257,6 +258,7 @@ impl EnvInstance {
         }
     }
     /// Reusable implementation for invoking another contract message via delegate call.
+    #[allow(clippy::type_complexity)]
     fn invoke_contract_delegate_impl<T, Args, RetType, R>(
         &mut self,
         params: &CallParams<T, DelegateCall<T, T::Hash>, Args, RetType>,
