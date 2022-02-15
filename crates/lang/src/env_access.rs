@@ -574,7 +574,6 @@ where
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     Clear,
-    ///     Environment,
     ///     call::{build_call, DelegateCall, Selector, ExecutionInput}
     /// };
     ///
@@ -592,7 +591,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -632,7 +631,6 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     Environment,
     ///     call::{build_call, Call, Selector, ExecutionInput, utils::ReturnType}
     /// };
     ///
@@ -649,7 +647,7 @@ where
     /// /// Evaluates a contract message and fetches the result.
     /// #[ink(message)]
     /// pub fn evaluate_contract(&self) -> i32 {
-    ///     type AccountId = <DefaultEnvironment as Environment>::AccountId;
+    ///     type AccountId = <DefaultEnvironment as ink_env::Environment>::AccountId;
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .set_call_type(Call::new().set_callee(AccountId::from([0x42; 32])).set_gas_limit(5000).set_transferred_value(10))
     ///             .exec_input(
@@ -697,7 +695,6 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     Environment,
     ///     Clear,
     ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
     /// };
@@ -716,7 +713,7 @@ where
     /// #[ink(message)]
     /// pub fn evaluate_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+    ///             .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
