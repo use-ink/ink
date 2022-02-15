@@ -630,15 +630,15 @@ where
     /// #     pub struct MyContract { }
     /// #
     /// #     impl MyContract {
-    /// #	  #[ink(constructor)]
-    /// #	  pub fn new() -> Self {
-    /// #	      Self {}
-    /// #	  }
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
     /// #
     /// /// Terminates with the caller as beneficiary.
     /// #[ink(message)]
     /// pub fn terminate_me(&mut self) {
-    /// 	    self.env().terminate_contract(self.env().caller());
+    ///     self.env().terminate_contract(self.env().caller());
     /// }
     /// #
     /// #     }
@@ -664,16 +664,16 @@ where
     /// #     pub struct MyContract { }
     /// #
     /// #     impl MyContract {
-    /// #	  #[ink(constructor)]
-    /// #	  pub fn new() -> Self {
-    /// #	      Self {}
-    /// #	  }
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
     /// #
     /// /// Transfers the token amount ten to the caller.
     /// #[ink(message)]
     /// pub fn give_me_ten(&mut self) {
-    /// 	    let value: Balance = 10;
-    /// 	    self.env().transfer(self.env().caller(), value).expect("transfer failed");
+    ///     let value: Balance = 10;
+    ///     self.env().transfer(self.env().caller(), value).expect("transfer failed");
     /// }
     /// #
     /// #     }
@@ -699,16 +699,16 @@ where
     /// #     pub struct MyContract { }
     /// #
     /// #     impl MyContract {
-    /// #	  #[ink(constructor)]
-    /// #	  pub fn new() -> Self {
-    /// #	      Self {}
-    /// #	  }
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
     /// #
     /// #[ink(message)]
     /// pub fn random_bool(&self) -> bool {
-    /// 	    let additional_randomness = b"seed";
-    /// 	    let (hash, _block_number) = self.env().random(additional_randomness);
-    /// 	    hash.as_ref()[0] != 0
+    ///     let additional_randomness = b"seed";
+    ///     let (hash, _block_number) = self.env().random(additional_randomness);
+    ///     hash.as_ref()[0] != 0
     /// }
     /// #
     /// #     }
@@ -758,8 +758,8 @@ where
     /// ink_env::hash_encoded::<Sha2x256, _>(&encodable, &mut output);
     ///
     /// const EXPECTED: [u8; 32] = [
-    /// 	  243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
-    /// 	  186, 134, 14, 175, 178, 99, 183,  21,	  4, 94,  92,  69, 199, 207, 241, 179,
+    ///   243, 242, 58, 110, 205, 68, 100, 244, 187, 55, 188, 248,  29, 136, 145, 115,
+    ///   186, 134, 14, 175, 178, 99, 183,  21,   4, 94,  92,  69, 199, 207, 241, 179,
     /// ];
     /// assert_eq!(output, EXPECTED);
     /// ```
@@ -790,40 +790,40 @@ where
     /// #     pub struct MyContract { }
     /// #
     /// #     impl MyContract {
-    /// #	  #[ink(constructor)]
-    /// #	  pub fn new() -> Self {
-    /// #	      Self {}
-    /// #	  }
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
     /// #
     /// /// Recovery from pre-defined signature and message hash
     /// #[ink(message)]
     /// pub fn ecdsa_recover(&self) {
-    /// 	    const signature: [u8; 65] = [
-    /// 		161, 234, 203,	74, 147, 96,  51, 212,	 5, 174, 231,	9, 142,	 48, 137, 201,
-    /// 		162, 118, 192,	67, 239, 16,  71, 216, 125,  86, 167, 139,  70,	  7,  86, 241,
-    /// 		 33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
-    /// 		211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,	 13,  86, 175,
-    /// 		 28,
-    /// 	    ];
-    /// 	    const message_hash: [u8; 32] = [
-    /// 		162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
-    /// 		239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
-    /// 	    ];
-    /// 	    let EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
-    /// 		  2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
-    /// 		  7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,	 22, 248, 23,
-    /// 		152,
-    /// 	    ].into();
-    /// 	    let result = self.env().ecdsa_recover(&signature, &message_hash);
-    /// 	    assert!(result.is_ok());
-    /// 	    assert_eq!(result.unwrap().as_ref(), EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref());
+    ///     const signature: [u8; 65] = [
+    ///         161, 234, 203,  74, 147, 96,  51, 212,   5, 174, 231,   9, 142,  48, 137, 201,
+    ///         162, 118, 192,  67, 239, 16,  71, 216, 125,  86, 167, 139,  70,   7,  86, 241,
+    ///          33,  87, 154, 251,  81, 29, 160,   4, 176, 239,  88, 211, 244, 232, 232,  52,
+    ///         211, 234, 100, 115, 230, 47,  80,  44, 152, 166,  62,  50,   8,  13,  86, 175,
+    ///          28,
+    ///     ];
+    ///     const message_hash: [u8; 32] = [
+    ///         162, 28, 244, 179, 96, 76, 244, 178, 188,  83, 230, 248, 143, 106,  77, 117,
+    ///         239, 95, 244, 171, 65, 95,  62, 153, 174, 166, 182,  28, 130,  73, 196, 208
+    ///     ];
+    ///     let EXPECTED_COMPRESSED_PUBLIC_KEY: [u8; 33] = [
+    ///           2, 121, 190, 102, 126, 249, 220, 187, 172, 85, 160,  98, 149, 206, 135, 11,
+    ///           7,   2, 155, 252, 219,  45, 206,  40, 217, 89, 242, 129,  91,  22, 248, 23,
+    ///         152,
+    ///     ].into();
+    ///     let result = self.env().ecdsa_recover(&signature, &message_hash);
+    ///     assert!(result.is_ok());
+    ///     assert_eq!(result.unwrap().as_ref(), EXPECTED_COMPRESSED_PUBLIC_KEY.as_ref());
     ///
-    /// 	    // Pass invalid zero message hash
-    /// 	    let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
-    /// 	    assert!(failed_result.is_err());
-    /// 	    if let Err(e) = failed_result {
-    /// 		assert_eq!(e, ink_env::Error::EcdsaRecoveryFailed);
-    /// 	    }
+    ///     // Pass invalid zero message hash
+    ///     let failed_result = self.env().ecdsa_recover(&signature, &[0; 32]);
+    ///     assert!(failed_result.is_err());
+    ///     if let Err(e) = failed_result {
+    ///         assert_eq!(e, ink_env::Error::EcdsaRecoveryFailed);
+    ///     }
     /// }
     /// #
     /// #     }
@@ -859,8 +859,10 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn is_contract(&mut self, account_id: AccountId) -> bool {
-    ///     self.env().is_contract(account_id);
+    ///     self.env().is_contract(&account_id)
     /// }
+    /// #    }
+    /// # }
     /// ```
     ///
     /// # Note
@@ -889,8 +891,10 @@ where
     /// #
     /// #[ink(message)]
     /// pub fn caller_is_origin(&mut self) -> bool {
-    ///     self.env().caller_is_origin();
+    ///     self.env().caller_is_origin()
     /// }
+    /// #    }
+    /// # }
     /// ```
     ///
     /// # Note
