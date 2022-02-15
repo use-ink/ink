@@ -67,6 +67,7 @@ mod multisig {
     use ink_env::call::{
         build_call,
         utils::ReturnType,
+        Call,
         ExecutionInput,
     };
     use ink_prelude::vec::Vec;
@@ -516,9 +517,12 @@ mod multisig {
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             assert!(self.env().transferred_value() == t.transferred_value);
             let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
-                .callee(t.callee)
-                .gas_limit(t.gas_limit)
-                .transferred_value(t.transferred_value)
+                .set_call_type(
+                    Call::new()
+                        .set_callee(t.callee)
+                        .set_gas_limit(t.gas_limit)
+                        .set_transferred_value(t.transferred_value),
+                )
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
@@ -545,9 +549,12 @@ mod multisig {
             self.ensure_confirmed(trans_id);
             let t = self.take_transaction(trans_id).expect(WRONG_TRANSACTION_ID);
             let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
-                .callee(t.callee)
-                .gas_limit(t.gas_limit)
-                .transferred_value(t.transferred_value)
+                .set_call_type(
+                    Call::new()
+                        .set_callee(t.callee)
+                        .set_gas_limit(t.gas_limit)
+                        .set_transferred_value(t.transferred_value),
+                )
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
