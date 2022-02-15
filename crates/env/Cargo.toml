@@ -20,7 +20,7 @@ ink_allocator = { version = "3.0.0-rc8", path = "../allocator/", default-feature
 ink_primitives = { version = "3.0.0-rc8", path = "../primitives/", default-features = false }
 ink_prelude = { version = "3.0.0-rc8", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 cfg-if = "1.0"
@@ -47,7 +47,7 @@ secp256k1 = { version = "0.21.2", features = ["recovery"] }
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
-scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
