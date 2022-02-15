@@ -1,3 +1,16 @@
+# Unreleased
+
+### Please upgrade `scale-info` and `parity-scale-codec` in your contract's dependencies
+
+In this release candidate we upgraded `scale-info` and `parity-scale-codec`. You have to use a compatible
+version in your contract's `Cargo.toml` as well; `cargo-contract` will throw an error otherwise.
+
+The `Cargo.toml` should contain
+```
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
+```
+
 # Version 3.0-rc8
 
 This is the 8th release candidate for ink! 3.0.
