@@ -432,7 +432,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
-    fn is_contract<T>(&mut self, account: T::AccountId) -> bool
+    fn is_contract<T>(&mut self, account: &T::AccountId) -> bool
     where
         T: Environment;
 

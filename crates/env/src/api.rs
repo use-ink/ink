@@ -504,7 +504,7 @@ pub fn ecdsa_recover(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract<T>(account: T::AccountId) -> bool
+pub fn is_contract<T>(account: &T::AccountId) -> bool
 where
     T: Environment,
 {

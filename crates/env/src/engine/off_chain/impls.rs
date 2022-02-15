@@ -472,7 +472,7 @@ impl TypedEnvBackend for EnvInstance {
         Ok((block.random::<T>(subject)?, block.number::<T>()?))
     }
 
-    fn is_contract<T>(&mut self, _account: T::AccountId) -> bool
+    fn is_contract<T>(&mut self, _account: &T::AccountId) -> bool
     where
         T: Environment,
     {
