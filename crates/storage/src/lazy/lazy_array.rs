@@ -264,7 +264,7 @@ impl<T, const N: usize> EntryArray<T, N> {
         if at >= Self::capacity() {
             return None
         }
-        (&mut *CacheCell::get_ptr(&self.entries[at as usize]).as_ptr()).as_mut()
+        (*CacheCell::get_ptr(&self.entries[at as usize]).as_ptr()).as_mut()
     }
 
     /// Returns an iterator that yields shared references to all cached entries.
