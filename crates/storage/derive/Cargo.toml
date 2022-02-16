@@ -24,7 +24,7 @@ proc-macro2 = "1"
 synstructure = "0.12.4"
 
 [dev-dependencies]
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 ink_env = { version = "3.0.0-rc8", path = "../../env" }
 ink_primitives = { version = "3.0.0-rc8", path = "../../primitives" }
 ink_metadata = { version = "3.0.0-rc8", path = "../../metadata" }
