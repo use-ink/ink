@@ -385,7 +385,7 @@ impl Dispatch<'_> {
 
                         const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output =
                             |storage, #input_tuple_bindings| {
-                                #storage_ident::#message_ident( storage #( , #input_bindings )* )
+                                <#storage_ident as #trait_path>::#message_ident( storage #( , #input_bindings )* )
                             };
                         const SELECTOR: [::core::primitive::u8; 4usize] = #selector;
                         const PAYABLE: ::core::primitive::bool = #payable;

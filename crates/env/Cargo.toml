@@ -20,7 +20,7 @@ ink_allocator = { version = "3.0.0-rc8", path = "../allocator/", default-feature
 ink_primitives = { version = "3.0.0-rc8", path = "../primitives/", default-features = false }
 ink_prelude = { version = "3.0.0-rc8", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
 num-traits = { version = "0.2", default-features = false, features = ["i128"] }
 cfg-if = "1.0"
@@ -32,7 +32,7 @@ static_assertions = "1.1"
 rlibc = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-ink_engine = { version = "3.0.0-rc8", path = "../engine/", default-features = false, optional = true }
+ink_engine = { version = "3.0.0-rc8", path = "../engine/", optional = true }
 
 # Hashes for the off-chain environment.
 sha2 = { version = "0.10", optional = true }
@@ -40,14 +40,14 @@ sha3 = { version = "0.10", optional = true }
 blake2 = { version = "0.10", optional = true }
 
 # ECDSA for the off-chain environment.
-secp256k1 = { version = "0.21.2", features = ["recovery"] }
+secp256k1 = { version = "0.21.2", features = ["recovery", "global-context"], optional = true }
 
 # Only used in the off-chain environment.
 #
 # Sadly couldn't be marked as dev-dependency.
 # Never use this crate outside the off-chain environment!
 rand = { version = "0.8", default-features = false, features = ["alloc"], optional = true }
-scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [features]
 default = ["std"]
@@ -60,6 +60,7 @@ std = [
     "scale/std",
     "scale-info",
     "scale-info/std",
+    "secp256k1",
     "rand",
     "rand/std",
     "rand/std_rng",

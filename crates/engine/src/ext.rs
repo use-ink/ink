@@ -391,7 +391,7 @@ impl Engine {
                 RecoveryId,
             },
             Message,
-            Secp256k1,
+            SECP256K1,
         };
 
         // In most implementations, the v is just 0 or 1 internally, but 27 was added
@@ -414,8 +414,7 @@ impl Engine {
                     panic!("Unable to parse the signature: {}", error)
                 });
 
-        let secp = Secp256k1::new();
-        let pub_key = secp.recover_ecdsa(&message, &signature);
+        let pub_key = SECP256K1.recover_ecdsa(&message, &signature);
         match pub_key {
             Ok(pub_key) => {
                 *output = pub_key.serialize();

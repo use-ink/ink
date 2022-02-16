@@ -21,7 +21,7 @@ ink_primitives = { version = "3.0.0-rc8", path = "../primitives/", default-featu
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 impl-serde = "0.3.1"
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
-scale-info = { version = "1.0", default-features = false, features = ["derive", "serde", "decode"] }
+scale-info = { version = "2", default-features = false, features = ["derive", "serde", "decode"] }
 
 [dev-dependencies]
 pretty_assertions = "1"
