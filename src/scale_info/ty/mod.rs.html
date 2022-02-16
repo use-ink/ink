@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-1.0.0/src/ty/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/usr/local/cargo/registry/src/github.com-1ecc6299db9ec823/scale-info-2.0.0/src/ty/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../scale_info/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -1141,10 +1141,10 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;decode&quot;</span>), <span class="ident">derive</span>(<span class="ident">scale::Decode</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Encode</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TypeDefBitSequence</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Form</span> <span class="op">=</span> <span class="ident">MetaForm</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The type implementing [`bitvec::store::BitStore`].</span>
-    <span class="ident">bit_store_type</span>: <span class="ident">T::Type</span>,
     <span class="doccomment">/// The type implementing [`bitvec::order::BitOrder`].</span>
     <span class="ident">bit_order_type</span>: <span class="ident">T::Type</span>,
+    <span class="doccomment">/// The type implementing [`bitvec::store::BitStore`].</span>
+    <span class="ident">bit_store_type</span>: <span class="ident">T::Type</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IntoPortable</span> <span class="kw">for</span> <span class="ident">TypeDefBitSequence</span> {
@@ -1152,8 +1152,8 @@
 
     <span class="kw">fn</span> <span class="ident">into_portable</span>(<span class="self">self</span>, <span class="ident">registry</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Registry</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
         <span class="ident">TypeDefBitSequence</span> {
-            <span class="ident">bit_store_type</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_store_type</span>),
             <span class="ident">bit_order_type</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_order_type</span>),
+            <span class="ident">bit_store_type</span>: <span class="ident">registry</span>.<span class="ident">register_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bit_store_type</span>),
         }
     }
 }
@@ -1176,17 +1176,17 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bit-vec&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">TypeDefBitSequence</span> {
     <span class="doccomment">/// Creates a new [`TypeDefBitSequence`] for the supplied bit order and bit store types.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">T</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">O</span><span class="op">&gt;</span>() -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">O</span>: <span class="ident">bitvec::order::BitOrder</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
         <span class="ident">T</span>: <span class="ident">bitvec::store::BitStore</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">O</span>: <span class="ident">bitvec::order::BitOrder</span> <span class="op">+</span> <span class="ident">TypeInfo</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     {
         <span class="self">Self</span> {
-            <span class="ident">bit_order_type</span>: <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(),
             <span class="ident">bit_store_type</span>: <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(),
+            <span class="ident">bit_order_type</span>: <span class="ident">MetaType::new</span>::<span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>(),
         }
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (09cb29c64 2022-02-15)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="scale_info" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (1e12aef3f 2022-02-13)" ></div>
 </body></html>
