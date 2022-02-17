@@ -86,3 +86,19 @@ where
         }
     )
 }
+
+/// Generates code to uniquely identify a trait by its unique ID given only its identifier.
+///
+/// # Note
+///
+/// As with all Rust macros identifiers can shadow each other so the given identifier
+/// needs to be valid for the scope in which the returned code is generated.
+pub fn generate_reference_to_trait_info(
+    span: Span,
+    trait_path: &syn::Path,
+) -> TokenStream2 {
+    quote_spanned!(span=>
+        <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+            as #trait_path>::__ink_TraitInfo
+    )
+}
