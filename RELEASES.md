@@ -35,6 +35,9 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 - Export `ink_lang::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
 - Add `get_owner()` function to `dns` example contract - [#1118](https://github.com/paritytech/ink/pull/1118) (thanks [@agryaznov](https://github.com/agryaznov)).
 
+## Changed
+- Updated to `parity-scale-codec = "3"` and `scale-info = "2"` - [#1132](https://github.com/paritytech/ink/pull/1132).
+
 ## Removed
 - Remove `collection` and `lazy` modules from public ink! API - [#1111](https://github.com/paritytech/ink/pull/1111).
 - Remove `Memory` from public ink! API - [#1135](https://github.com/paritytech/ink/pull/1135).
