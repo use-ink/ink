@@ -81,7 +81,7 @@ pub struct ItemImpl {
     /// constructor selectors of the implementation block.
     namespace: Option<ir::Namespace>,
     /// The index of the position of the [`syn::ItemImpl`]. Can be used as a
-    /// unique identifier for an impl block.
+    /// unique identifier for an implementation block.
     index: usize,
 }
 
