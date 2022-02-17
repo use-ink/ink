@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["ink_storage"] = [{"text":"impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/deref/trait.DerefMut.html\" title=\"trait core::ops::deref::DerefMut\">DerefMut</a> for <a class=\"struct\" href=\"ink_storage/struct.Memory.html\" title=\"struct ink_storage::Memory\">Memory</a>&lt;T&gt;","synthetic":false,"types":["ink_storage::memory::Memory"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
