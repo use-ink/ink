@@ -44,7 +44,6 @@ mod trait_def;
 pub use self::{
     arg_list::{
         generate_argument_list,
-        generate_reference_to_trait_info,
         input_bindings,
         input_bindings_tuple,
         input_types,
