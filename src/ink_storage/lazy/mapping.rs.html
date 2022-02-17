@@ -269,6 +269,54 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -308,6 +356,54 @@
 <span class="kw">use</span> <span class="ident">ink_primitives::Key</span>;
 
 <span class="doccomment">/// A mapping of key-value pairs directly into contract storage.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Important</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If you use this data structure you must use the function</span>
+<span class="doccomment">/// [`ink_lang::utils::initialize_contract`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html)</span>
+<span class="doccomment">/// in your contract&#39;s constructors!</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that in order to use this function your contract&#39;s storage struct must implement the</span>
+<span class="doccomment">/// [`SpreadAllocate`](crate::traits::SpreadAllocate) trait.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is an example of how you can do this:</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// # use ink_lang as ink;</span>
+<span class="doccomment">/// # use ink_env::{</span>
+<span class="doccomment">/// #     Environment,</span>
+<span class="doccomment">/// #     DefaultEnvironment,</span>
+<span class="doccomment">/// # };</span>
+<span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # #[ink::contract]</span>
+<span class="doccomment">/// # mod my_module {</span>
+<span class="doccomment">/// use ink_storage::{traits::SpreadAllocate, Mapping};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// #[ink(storage)]</span>
+<span class="doccomment">/// #[derive(SpreadAllocate)]</span>
+<span class="doccomment">/// pub struct MyContract {</span>
+<span class="doccomment">///     balances: Mapping&lt;AccountId, Balance&gt;,</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// impl MyContract {</span>
+<span class="doccomment">///     #[ink(constructor)]</span>
+<span class="doccomment">///     pub fn new() -&gt; Self {</span>
+<span class="doccomment">///         ink_lang::utils::initialize_contract(Self::new_init)</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     /// Default initializes the contract.</span>
+<span class="doccomment">///     fn new_init(&amp;mut self) {</span>
+<span class="doccomment">///         let caller = Self::env().caller();</span>
+<span class="doccomment">///         let value: Balance = Default::default();</span>
+<span class="doccomment">///         self.balances.insert(&amp;caller, &amp;value);</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// #   #[ink(message)]</span>
+<span class="doccomment">/// #   pub fn my_message(&amp;self) { }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// # }</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">derive</span>(<span class="ident">scale_info::TypeInfo</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mapping</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
     <span class="ident">offset_key</span>: <span class="ident">Key</span>,
