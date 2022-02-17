@@ -270,7 +270,7 @@ impl ContractRef<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::#forward_operator(
+                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<#impl_index>>::#forward_operator(
                         <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self),
                     )
                     #( , #input_bindings )*

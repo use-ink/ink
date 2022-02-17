@@ -185,7 +185,7 @@ impl CallBuilder<'_> {
         let impl_index = impl_block.index();
         quote_spanned!(span=>
             #[doc(hidden)]
-            impl ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}> for #cb_ident {
+            impl ::ink_lang::codegen::TraitCallForwarderFor<#impl_index> for #cb_ident {
                 type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder;
 
                 #[inline]
@@ -217,7 +217,7 @@ impl CallBuilder<'_> {
                 #[inline]
                 fn build(&self) -> &<Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     <_ as ::ink_lang::codegen::TraitCallBuilder>::call(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::forward(self)
+                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#impl_index>>::forward(self)
                     )
                 }
 
@@ -226,7 +226,7 @@ impl CallBuilder<'_> {
                     -> &mut <Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder
                 {
                     <_ as ::ink_lang::codegen::TraitCallBuilder>::call_mut(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::forward_mut(self)
+                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#impl_index>>::forward_mut(self)
                     )
                 }
             }
@@ -287,7 +287,7 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             type #output_ident = <<<
                 Self
-                as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::Forwarder
+                as ::ink_lang::codegen::TraitCallForwarderFor<#impl_index>>::Forwarder
                 as ::ink_lang::codegen::TraitCallBuilder>::Builder
                 as #trait_path>::#output_ident;
 
@@ -298,7 +298,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings: #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::#build_cmd(self)
+                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<#impl_index>>::#build_cmd(self)
                     #( , #input_bindings )*
                 )
             }
