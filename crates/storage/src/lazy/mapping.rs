@@ -47,14 +47,16 @@ use ink_primitives::Key;
 /// This is an example of how you can do this:
 /// ```rust
 /// # use ink_lang as ink;
-/// # use ::ink_env::{
+/// # use ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+///
+/// # #[ink::contract]
+/// # mod my_module {
 /// use ink_storage::{traits::SpreadAllocate, Mapping};
 ///
-/// # mod my_module {
 /// #[ink(storage)]
 /// #[derive(SpreadAllocate)]
 /// pub struct MyContract {
