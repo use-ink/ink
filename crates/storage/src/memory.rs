@@ -46,7 +46,7 @@ use ink_prelude::borrow::{
 /// Pulling an instance of this type from the contract storage will always
 /// yield a default constructed value.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Memory<T> {
+struct Memory<T> {
     /// The inner value that will always be stored within contract memory.
     inner: T,
 }
