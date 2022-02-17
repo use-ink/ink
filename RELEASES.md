@@ -1,4 +1,24 @@
-# Unreleased
+# Version 3.0-rc9
+
+This is the 9th release candidate for ink! 3.0.
+
+## Breaking Changes
+### We removed all data structures other than `Mapping` from the public ink! API
+
+This is a drastic breaking change; it was no easy decision for us.
+It affects `Lazy` and `Memory` as well. The rationale behind this change,
+as well as some notes on migrating existing contracts, are explained
+in [#1111](https://github.com/paritytech/ink/pull/1111).
+
+If you used `Memory` in your contract, you can achieve the same functionality
+by passing this data via arguments. If you think there's a case to be
+made for bringing it back, please get in contact with us.
+
+If you use [`ink_storage::Mapping`](https://paritytech.github.io/ink/ink_storage/struct.Mapping.html)
+in your contract, you need to initialize the data structure using the helper function
+[`ink_lang::utils::initialize_contract(…)`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html).
+For more code examples you can take a look at our examples, e.g.
+[`erc20`](https://github.com/paritytech/ink/blob/master/examples/erc20/lib.rs).
 
 ### Please upgrade `scale-info` and `parity-scale-codec` in your contract's dependencies
 
@@ -10,6 +30,18 @@ The `Cargo.toml` should contain
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 ```
+
+## Added
+- Export `ink_lang::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
+- Add `get_owner()` function to `dns` example contract - [#1118](https://github.com/paritytech/ink/pull/1118) (thanks [@agryaznov](https://github.com/agryaznov)).
+
+## Removed
+- Remove `collection` and `lazy` modules from public ink! API - [#1111](https://github.com/paritytech/ink/pull/1111).
+- Remove `Memory` from public ink! API - [#1135](https://github.com/paritytech/ink/pull/1135).
+
+## Fixed
+- Explicitly specify trait in dispatching - [#1131](https://github.com/paritytech/ink/pull/1131) (thanks [@xgreenx](https://github.com/xgreenx)).
+- Make `rust-analyzer` expand ink! macros without warning - [#1107](https://github.com/paritytech/ink/pull/1107).
 
 # Version 3.0-rc8
 
@@ -57,7 +89,7 @@ The ink! PR which implemented this is [#1065](https://github.com/paritytech/ink/
 metadata to V3 is [#1100](https://github.com/paritytech/ink/pull/1100), and for the `polkadot-js/api` it was [polkadot-js/api#4432](https://github.com/polkadot-js/api/pull/4432).
 
 ## Changed
-- Update metadate to support payable constructors - [#1100](https://github.com/paritytech/ink/pull/1100).
+- Update metadata to support payable constructors - [#1100](https://github.com/paritytech/ink/pull/1100).
 - Make constructors non-payable by default, require specifying `payable` explicitly - [#1065](https://github.com/paritytech/ink/pull/1065).
 - Renamed the error code `EcdsaRecoverFailed` to `EcdsaRecoveryFailed` ‒ [#1064](https://github.com/paritytech/ink/pull/1064).
 - Renamed the `ink_env` function `transferred_balance()` to `transferred_value()` ‒ [#1063](https://github.com/paritytech/ink/pull/1063).
