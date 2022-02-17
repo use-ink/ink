@@ -161,7 +161,7 @@ fn is_ink_impl_block_fails() {
 /// fails with the expected error message.
 fn assert_try_from_item_impl_fails(item_impl: syn::ItemImpl, expected_err: &str) {
     assert_eq!(
-        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl)
+        <ir::ItemImpl as TryFrom<(usize, syn::ItemImpl)>>::try_from((0, item_impl))
             .map_err(|err| err.to_string()),
         Err(expected_err.to_string())
     )
@@ -232,20 +232,26 @@ fn try_from_works() {
         },
     ];
     for item_impl in item_impls {
-        assert!(<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).is_ok())
+        assert!(
+            <ir::ItemImpl as TryFrom<(usize, syn::ItemImpl)>>::try_from((0, item_impl))
+                .is_ok()
+        )
     }
 }
 
 #[test]
 fn namespace_works() {
     let impl_block: ir::ItemImpl =
-        <ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
-            #[ink(namespace = "my_namespace")]
-            impl MyStorage {
-                #[ink(message)]
-                pub fn my_message(&self) {}
-            }
-        })
+        <ir::ItemImpl as TryFrom<(usize, syn::ItemImpl)>>::try_from((
+            0,
+            syn::parse_quote! {
+                #[ink(namespace = "my_namespace")]
+                impl MyStorage {
+                    #[ink(message)]
+                    pub fn my_message(&self) {}
+                }
+            },
+        ))
         .unwrap();
     assert_eq!(
         impl_block.namespace,

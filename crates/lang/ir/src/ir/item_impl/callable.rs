@@ -580,7 +580,10 @@ mod tests {
     {
         assert_eq!(
             compose_selector(
-                &<ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(item_impl).unwrap(),
+                &<ir::ItemImpl as TryFrom<(usize, syn::ItemImpl)>>::try_from((
+                    0, item_impl
+                ))
+                .unwrap(),
                 &<C as TryFrom<syn::ImplItemMethod>>::try_from(item_method).unwrap(),
             ),
             expected_selector.into().expected_selector(),
