@@ -37,6 +37,51 @@ use ink_env::hash::{
 use ink_primitives::Key;
 
 /// A mapping of key-value pairs directly into contract storage.
+///
+/// # Important
+///
+/// If you use this data structure you must use the function
+/// [`ink_lang::utils::initialize_contract`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html)
+/// in your contract's constructors!
+///
+/// This is an example of how you can do this:
+/// ```rust
+/// # use ink_lang as ink;
+/// # use ink_env::{
+/// #     Environment,
+/// #     DefaultEnvironment,
+/// # };
+/// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
+///
+/// # #[ink::contract]
+/// # mod my_module {
+/// use ink_storage::{traits::SpreadAllocate, Mapping};
+///
+/// #[ink(storage)]
+/// #[derive(SpreadAllocate)]
+/// pub struct MyContract {
+///     balances: Mapping<AccountId, Balance>,
+/// }
+///
+/// impl MyContract {
+///     #[ink(constructor)]
+///     pub fn new() -> Self {
+///         ink_lang::utils::initialize_contract(Self::new_init)
+///     }
+///
+///     /// Default initializes the contract.
+///     fn new_init(&mut self) {
+///         let caller = Self::env().caller();
+///         let value: Balance = Default::default();
+///         self.balances.insert(&caller, &value);
+///     }
+/// #   #[ink(message)]
+/// #   pub fn my_message(&self) { }
+/// }
+/// # }
+/// ```
+///
+/// More usage examples can be found [in the ink! examples](https://github.com/paritytech/ink/tree/master/examples).
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Mapping<K, V> {
     offset_key: Key,
