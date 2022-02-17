@@ -138,7 +138,7 @@ impl ItemImpl {
     /// }
     /// # })).unwrap();
     /// ```
-    /// SpreadAll
+    ///
     /// - Or if any of the ink! implementation block methods do have ink!
     ///   specific annotations:
     ///
