@@ -57,7 +57,6 @@ pub(crate) mod collections;
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-mod memory;
 mod pack;
 
 #[cfg(test)]
