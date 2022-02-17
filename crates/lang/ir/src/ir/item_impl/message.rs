@@ -70,7 +70,7 @@ impl Receiver {
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(message)]
 ///     pub fn my_message(&self, input: i32) -> bool {
@@ -78,14 +78,14 @@ impl Receiver {
 /// #       unimplemented!()
 ///     }
 /// }
-/// # }).unwrap();
+/// # })).unwrap();
 /// ```
 ///
 /// ## Trait implementation message:
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(message)]
 ///     fn my_message(&mut self, input: bool) -> i32 {
@@ -93,7 +93,7 @@ impl Receiver {
 /// #       unimplemented!()
 ///     }
 /// }
-/// # }).unwrap();
+/// # })).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Message {

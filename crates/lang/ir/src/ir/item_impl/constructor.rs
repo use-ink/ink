@@ -38,7 +38,7 @@ use syn::spanned::Spanned as _;
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # let event = <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # let event = <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
 /// impl MyStorage {
 ///     #[ink(constructor)]
 ///     pub fn new(init_value: i32) -> Self {
@@ -46,14 +46,14 @@ use syn::spanned::Spanned as _;
 /// #       unimplemented!()
 ///     }
 /// }
-/// # }).unwrap();
+/// # })).unwrap();
 /// ```
 ///
 /// ## Trait implementation constructor:
 ///
 /// ```
 /// # use core::convert::TryFrom;
-/// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+/// # <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
 /// impl MyTrait for MyStorage {
 ///     #[ink(constructor)]
 ///     fn new(init_value: i32) -> Self {
@@ -61,7 +61,7 @@ use syn::spanned::Spanned as _;
 /// #       unimplemented!()
 ///     }
 /// }
-/// # }).unwrap();
+/// # })).unwrap();
 /// ```
 #[derive(Debug, PartialEq, Eq)]
 pub struct Constructor {

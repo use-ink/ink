@@ -128,7 +128,7 @@ impl ItemImpl {
     ///
     /// ```
     /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
     /// #[ink(impl)]
     /// impl MyStorage {
     ///     fn my_function(&self) {
@@ -136,15 +136,15 @@ impl ItemImpl {
     ///         unimplemented!()
     ///     }
     /// }
-    /// # }).unwrap();
+    /// # })).unwrap();
     /// ```
-    ///
+    /// SpreadAll
     /// - Or if any of the ink! implementation block methods do have ink!
     ///   specific annotations:
     ///
     /// ```
     /// # use core::convert::TryFrom;
-    /// # <ink_lang_ir::ItemImpl as TryFrom<syn::ItemImpl>>::try_from(syn::parse_quote! {
+    /// # <ink_lang_ir::ItemImpl as TryFrom<_>>::try_from((0, syn::parse_quote! {
     /// impl MyStorage {
     ///     #[ink(constructor)]
     ///     pub fn my_constructor() -> Self {
@@ -152,7 +152,7 @@ impl ItemImpl {
     ///         unimplemented!()
     ///     }
     /// }
-    /// # }).unwrap();
+    /// # })).unwrap();
     /// ```
     ///
     /// The same rules apply to ink! trait implementation blocks.
