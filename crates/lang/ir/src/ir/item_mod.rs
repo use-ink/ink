@@ -325,7 +325,8 @@ impl TryFrom<syn::ItemMod> for ItemMod {
         }
         let items = items
             .into_iter()
-            .map(<ir::Item as TryFrom<syn::Item>>::try_from)
+            .enumerate()
+            .map(<ir::Item as TryFrom<(usize, syn::Item)>>::try_from)
             .collect::<Result<Vec<_>, syn::Error>>()?;
         Self::ensure_storage_struct_quantity(module_span, &items)?;
         Self::ensure_contains_message(module_span, &items)?;

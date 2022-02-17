@@ -80,6 +80,9 @@ pub struct ItemImpl {
     /// names. Generally can be used to change computation of message and
     /// constructor selectors of the implementation block.
     namespace: Option<ir::Namespace>,
+    /// The index of the position of the [`syn::ItemImpl`]. Can be used as a
+    /// unique identifier for an impl block.
+    index: usize,
 }
 
 impl quote::ToTokens for ItemImpl {
@@ -210,10 +213,10 @@ impl ItemImpl {
     }
 }
 
-impl TryFrom<syn::ItemImpl> for ItemImpl {
+impl TryFrom<(usize, syn::ItemImpl)> for ItemImpl {
     type Error = syn::Error;
 
-    fn try_from(item_impl: syn::ItemImpl) -> Result<Self, Self::Error> {
+    fn try_from((index, item_impl): (usize, syn::ItemImpl)) -> Result<Self, Self::Error> {
         let impl_block_span = item_impl.span();
         if !Self::is_ink_impl_block(&item_impl)? {
             return Err(format_err_spanned!(
@@ -325,6 +328,7 @@ impl TryFrom<syn::ItemImpl> for ItemImpl {
             brace_token: item_impl.brace_token,
             items: impl_items,
             namespace,
+            index,
         })
     }
 }
@@ -359,6 +363,11 @@ impl ItemImpl {
     /// Returns the namespace of the implementation block if any has been provided.
     pub fn namespace(&self) -> Option<&ir::Namespace> {
         self.namespace.as_ref()
+    }
+
+    /// Returns a literal of the index of the implementation block.
+    pub fn index(&self) -> syn::LitInt {
+        syn::LitInt::new(&format!("{}", self.index), Span::call_site())
     }
 
     /// Returns an iterator yielding the ink! messages of the implementation block.

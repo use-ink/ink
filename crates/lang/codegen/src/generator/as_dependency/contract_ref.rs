@@ -228,7 +228,11 @@ impl ContractRef<'_> {
         impl_block
             .iter_messages()
             .map(|message| {
-                self.generate_contract_trait_impl_for_message(trait_path, message)
+                self.generate_contract_trait_impl_for_message(
+                    trait_path,
+                    impl_block.index(),
+                    message,
+                )
             })
             .collect()
     }
@@ -238,11 +242,11 @@ impl ContractRef<'_> {
     fn generate_contract_trait_impl_for_message(
         &self,
         trait_path: &syn::Path,
+        impl_index: syn::LitInt,
         message: ir::CallableWithSelector<ir::Message>,
     ) -> TokenStream2 {
         use ir::Callable as _;
         let span = message.span();
-        let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
         let call_operator = match message.receiver() {
@@ -266,7 +270,7 @@ impl ContractRef<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::#forward_operator(
+                    <_ as ::ink_lang::codegen::TraitCallForwarderFor<{#impl_index}>>::#forward_operator(
                         <Self as ::ink_lang::codegen::TraitCallBuilder>::#call_operator(self),
                     )
                     #( , #input_bindings )*

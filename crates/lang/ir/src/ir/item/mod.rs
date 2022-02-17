@@ -53,10 +53,10 @@ impl quote::ToTokens for Item {
     }
 }
 
-impl TryFrom<syn::Item> for Item {
+impl TryFrom<(usize, syn::Item)> for Item {
     type Error = syn::Error;
 
-    fn try_from(item: syn::Item) -> Result<Self, Self::Error> {
+    fn try_from((index, item): (usize, syn::Item)) -> Result<Self, Self::Error> {
         match item {
             syn::Item::Struct(item_struct) => {
                 if !ir::contains_ink_attributes(&item_struct.attrs) {
@@ -92,7 +92,7 @@ impl TryFrom<syn::Item> for Item {
                 }
                 // At this point we know that there must be at least one ink!
                 // attribute on either the `impl` block itself or one of its items.
-                <ir::ItemImpl as TryFrom<_>>::try_from(item_impl)
+                <ir::ItemImpl as TryFrom<_>>::try_from((index, item_impl))
                     .map(Into::into)
                     .map(Self::Ink)
             }
