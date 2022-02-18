@@ -49,7 +49,7 @@ pub use self::{
     event::ContractEventBase,
     trait_def::{
         TraitDefinitionRegistry,
-        TraitMessageInfo,
         TraitInfo,
+        TraitMessageInfo,
     },
 };

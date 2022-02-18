@@ -98,7 +98,7 @@ pub fn generate_reference_to_trait_info(
     trait_path: &syn::Path,
 ) -> TokenStream2 {
     quote_spanned!(span=>
-        <::ink_lang::reflect::TraitDefinitionRegistry<Environment>
-            as #trait_path>::__ink_TraitInfo
+        <<::ink_lang::reflect::TraitDefinitionRegistry<Environment>
+            as #trait_path>::__ink_TraitInfo as ::ink_lang::reflect::TraitInfo>::ID
     )
 }
