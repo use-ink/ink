@@ -277,10 +277,19 @@ impl TraitRegistry<'_> {
         )
     }
 
-    /// Generates a unique id for the trait. todo: more docs
+    /// Generates a unique id for the trait, as an XOR of the set of selectors.
     fn generate_trait_id(&self) -> syn::LitInt {
         let span = self.span();
-        let mut id = 0u32; // todo: what if trait has no messages?
+        let mut id = 0u32;
+        debug_assert!(
+            self.trait_def
+                .trait_def
+                .item()
+                .iter_items()
+                .next()
+                .is_some(),
+            "invalid empty ink! trait definition"
+        );
         for (_, selector) in self.trait_def.trait_def.item().iter_items() {
             id = id ^ selector.into_be_u32()
         }
