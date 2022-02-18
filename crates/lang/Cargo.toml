@@ -37,7 +37,6 @@ scale-info = { version = "2", default-features = false, features = ["derive"] }
 [features]
 default = ["std"]
 std = [
-    "ink_metadata",
     "ink_metadata/std",
     "ink_prelude/std",
     "ink_primitives/std",

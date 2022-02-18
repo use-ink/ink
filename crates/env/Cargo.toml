@@ -52,16 +52,13 @@ scale-info = { version = "2", default-features = false, features = ["derive"], o
 [features]
 default = ["std"]
 std = [
-    "ink_metadata",
     "ink_metadata/std",
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
     "secp256k1",
-    "rand",
     "rand/std",
     "rand/std_rng",
     "num-traits/std",
