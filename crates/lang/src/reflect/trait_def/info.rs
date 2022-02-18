@@ -140,7 +140,11 @@ pub trait TraitMessageInfo<const TRAIT_LOCAL_MESSAGE_ID: u32> {
 ///
 /// This can be used to differentiate between two equally named
 /// ink! trait definitions and also for metadata.
-pub trait TraitModulePath {
+pub trait TraitInfo {
+    /// The unique id of the ink! trait definition.
+    /// todo: more detail
+    const ID: u32;
+
     /// The module path of the ink! trait definition.
     ///
     /// This is equivalent to Rust's builtin `module_path!` macro

@@ -18,7 +18,7 @@ mod registry;
 pub use self::{
     info::{
         TraitMessageInfo,
-        TraitModulePath,
+        TraitInfo,
     },
     registry::TraitDefinitionRegistry,
 };
