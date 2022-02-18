@@ -44,6 +44,9 @@ use ink_primitives::Key;
 /// [`ink_lang::utils::initialize_contract`](https://paritytech.github.io/ink/ink_lang/utils/fn.initialize_contract.html)
 /// in your contract's constructors!
 ///
+/// Note that in order to use this function your contract's storage struct must implement the
+/// [`SpreadAllocate`](crate::traits::SpreadAllocate) trait.
+///
 /// This is an example of how you can do this:
 /// ```rust
 /// # use ink_lang as ink;
