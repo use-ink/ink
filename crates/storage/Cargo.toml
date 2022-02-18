@@ -33,16 +33,16 @@ quickcheck_macros = "1.0"
 itertools = "0.10"
 paste = "1.0"
 
+ink_lang = { version = "3.0.0-rc8", path = "../lang/", default-features = false }
+
 [features]
 default = ["std"]
 std = [
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]

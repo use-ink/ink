@@ -57,7 +57,6 @@ pub(crate) mod collections;
 #[allow(dead_code)]
 pub(crate) mod lazy;
 
-mod memory;
 mod pack;
 
 #[cfg(test)]
@@ -67,10 +66,7 @@ mod hashmap_entry_api_tests;
 mod test_utils;
 
 #[doc(inline)]
-pub use self::{
-    lazy::Mapping,
-    memory::Memory,
-};
+pub use self::lazy::Mapping;
 
 #[doc(inline)]
 pub(crate) use self::{

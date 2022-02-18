@@ -27,7 +27,6 @@ std = [
     "ink_storage/std",
     "ink_primitives/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
 ]
 ink-as-dependency = []
