@@ -8,7 +8,8 @@ This is the 9th release candidate for ink! 3.0.
 This is a drastic breaking change; it was no easy decision for us.
 It affects `Lazy` and `Memory` as well. The rationale behind this change,
 as well as some notes on migrating existing contracts, are explained
-in [#1111](https://github.com/paritytech/ink/pull/1111).
+in [#1111](https://github.com/paritytech/ink/pull/1111) and
+[#1137](https://github.com/paritytech/ink/pull/1137).
 
 If you used `Memory` in your contract, you can achieve the same functionality
 by passing this data via arguments. If you think there's a case to be
@@ -34,13 +35,14 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 ## Added
 - Export `ink_lang::utils::initialize_contract(…)` - [#1077](https://github.com/paritytech/ink/pull/1077).
 - Add `get_owner()` function to `dns` example contract - [#1118](https://github.com/paritytech/ink/pull/1118) (thanks [@agryaznov](https://github.com/agryaznov)).
+- Improved usage documentation of `ink_storage::Mapping` - [#1138](https://github.com/paritytech/ink/pull/1138).
 
 ## Changed
 - Updated to `parity-scale-codec = "3"` and `scale-info = "2"` - [#1132](https://github.com/paritytech/ink/pull/1132).
 
 ## Removed
 - Remove `collection` and `lazy` modules from public ink! API - [#1111](https://github.com/paritytech/ink/pull/1111).
-- Remove `Memory` from public ink! API - [#1135](https://github.com/paritytech/ink/pull/1135).
+- Remove `Memory` from public ink! API - [#1137](https://github.com/paritytech/ink/pull/1137).
 
 ## Fixed
 - Explicitly specify trait in dispatching - [#1131](https://github.com/paritytech/ink/pull/1131) (thanks [@xgreenx](https://github.com/xgreenx)).
