@@ -60,7 +60,9 @@ mod erc20 {
         /// Creates a new ERC-20 contract with the specified initial supply.
         #[ink(constructor)]
         pub fn new(initial_supply: Balance) -> Self {
-            ink_lang::codegen::initialize_contract(|contract| {
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            ink_lang::utils::initialize_contract(|contract| {
                 Self::new_init(contract, initial_supply)
             })
         }

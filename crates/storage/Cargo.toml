@@ -21,9 +21,9 @@ ink_primitives = { version = "3.0.0-rc8", path = "../primitives/", default-featu
 ink_storage_derive = { version = "3.0.0-rc8", path = "derive", default-features = false }
 ink_prelude = { version = "3.0.0-rc8", path = "../prelude/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from", "display"] }
-scale-info = { version = "1.0", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 cfg-if = "1.0"
 array-init = { version = "2.0", default-features = false }
 
@@ -32,6 +32,8 @@ quickcheck = "1.0"
 quickcheck_macros = "1.0"
 itertools = "0.10"
 paste = "1.0"
+
+ink_lang = { version = "3.0.0-rc8", path = "../lang/", default-features = false }
 
 [features]
 default = ["std"]

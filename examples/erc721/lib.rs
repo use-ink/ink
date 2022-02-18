@@ -131,7 +131,7 @@ mod erc721 {
         pub fn new() -> Self {
             // This call is required in order to correctly initialize the
             // `Mapping`s of our contract.
-            ink_lang::codegen::initialize_contract(|_| {})
+            ink_lang::utils::initialize_contract(|_| {})
         }
 
         /// Returns the balance of the owner.

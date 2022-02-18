@@ -23,7 +23,7 @@ ink_prelude = { version = "3.0.0-rc8", path = "../prelude", default-features = f
 ink_eth_compatibility = { version = "3.0.0-rc8", path = "../eth_compatibility", default-features = false }
 ink_lang_macro = { version = "3.0.0-rc8", path = "macro", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive", "full"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
 derive_more = { version = "0.99", default-features = false, features = ["from"] }
 
 [dev-dependencies]
@@ -32,7 +32,7 @@ ink_metadata = { version = "3.0.0-rc8", default-features = false, path = "../met
 
 trybuild = { version = "1.0.52", features = ["diff"] }
 # Required for the doctest of `env_access::EnvAccess::instantiate_contract`
-scale-info = { version = "1.0", default-features = false, features = ["derive"] }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [features]
 default = ["std"]

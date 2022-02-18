@@ -272,7 +272,7 @@ mod erc1155 {
             // `Mapping`s of our contract.
             //
             // Not that `token_id_nonce` will be initialized to its `Default` value.
-            ink_lang::codegen::initialize_contract(|_| {})
+            ink_lang::utils::initialize_contract(|_| {})
         }
 
         /// Create the initial supply for a token.
