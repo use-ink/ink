@@ -432,7 +432,8 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
-    fn is_contract<T>(&self, account: &T::AccountId) -> bool
+    #[allow(clippy::wrong_self_convention)]
+    fn is_contract<T>(&mut self, account: &T::AccountId) -> bool
     where
         T: Environment;
 
@@ -441,7 +442,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    fn caller_is_origin<T>(&self) -> bool
+    fn caller_is_origin<T>(&mut self) -> bool
     where
         T: Environment;
 }

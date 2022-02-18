@@ -491,7 +491,7 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
-    fn is_contract<T>(&self, account_id: &T::AccountId) -> bool
+    fn is_contract<T>(&mut self, account_id: &T::AccountId) -> bool
     where
         T: Environment,
     {
@@ -500,7 +500,7 @@ impl TypedEnvBackend for EnvInstance {
         ext::is_contract(enc_account_id)
     }
 
-    fn caller_is_origin<T>(&self) -> bool
+    fn caller_is_origin<T>(&mut self) -> bool
     where
         T: Environment,
     {
