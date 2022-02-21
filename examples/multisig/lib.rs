@@ -678,7 +678,7 @@ mod multisig {
     /// Panic if the number of `owners` under a `requirement` violates our
     /// requirement invariant.
     fn ensure_requirement_is_valid(owners: u32, requirement: u32) {
-        assert!(0 < requirement && requirement <= owners && owners <= MAX_OWNERS);
+        assert!(0 < requirement && owners <= requirement && owners <= MAX_OWNERS);
     }
 
     #[cfg(test)]
