@@ -23,7 +23,6 @@ crate-type = ["rlib"]
 default = ["std"]
 std = [
     "ink_primitives/std",
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
