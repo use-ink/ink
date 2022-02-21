@@ -45,6 +45,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 - Remove `Memory` from public ink! API - [#1137](https://github.com/paritytech/ink/pull/1137).
 
 ## Fixed
+- Fix bug with referencing two external trait definitions - [#1141](https://github.com/paritytech/ink/pull/1141).
 - Explicitly specify trait in dispatching - [#1131](https://github.com/paritytech/ink/pull/1131) (thanks [@xgreenx](https://github.com/xgreenx)).
 - Make `rust-analyzer` expand ink! macros without warning - [#1107](https://github.com/paritytech/ink/pull/1107).
 
