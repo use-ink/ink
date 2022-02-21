@@ -30,7 +30,6 @@ std = [
     "ink_storage/std",
     "ink_lang/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
     "traits/std",
 ]
