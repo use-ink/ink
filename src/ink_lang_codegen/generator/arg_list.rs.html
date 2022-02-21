@@ -207,8 +207,8 @@
     <span class="ident">trait_path</span>: <span class="kw-2">&amp;</span><span class="ident">syn::Path</span>,
 ) -&gt; <span class="ident">TokenStream2</span> {
     <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
-        <span class="op">&lt;</span><span class="ident">::ink_lang::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>
-            <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span>
+        <span class="op">&lt;</span><span class="op">&lt;</span><span class="ident">::ink_lang::reflect::TraitDefinitionRegistry</span><span class="op">&lt;</span><span class="ident">Environment</span><span class="op">&gt;</span>
+            <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span><span class="ident">::__ink_TraitInfo</span> <span class="kw">as</span> <span class="ident">::ink_lang::reflect::TraitInfo</span><span class="op">&gt;</span><span class="ident">::ID</span>
     )
 }
 </code></pre></div>

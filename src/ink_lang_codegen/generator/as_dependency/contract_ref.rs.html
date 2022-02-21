@@ -658,7 +658,7 @@
     ) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">use</span> <span class="ident">ir::Callable</span> <span class="kw">as</span> <span class="kw">_</span>;
         <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">span</span>();
-        <span class="kw">let</span> <span class="ident">trait_info</span> <span class="op">=</span> <span class="ident">generator::generate_reference_to_trait_info</span>(<span class="ident">span</span>, <span class="ident">trait_path</span>);
+        <span class="kw">let</span> <span class="ident">trait_info_id</span> <span class="op">=</span> <span class="ident">generator::generate_reference_to_trait_info</span>(<span class="ident">span</span>, <span class="ident">trait_path</span>);
         <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message_ident</span>);
         <span class="kw">let</span> <span class="ident">call_operator</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">message</span>.<span class="ident">receiver</span>() {
@@ -682,7 +682,7 @@
                 #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
             ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
                 <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> #<span class="ident">trait_path</span><span class="op">&gt;</span>::#<span class="ident">message_ident</span>(
-                    <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallForwarderFor</span><span class="op">&lt;</span>#<span class="ident">trait_info</span><span class="op">&gt;</span><span class="op">&gt;</span>::#<span class="ident">forward_operator</span>(
+                    <span class="op">&lt;</span><span class="kw">_</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallForwarderFor</span><span class="op">&lt;</span>{#<span class="ident">trait_info_id</span>}<span class="op">&gt;</span><span class="op">&gt;</span>::#<span class="ident">forward_operator</span>(
                         <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">::ink_lang::codegen::TraitCallBuilder</span><span class="op">&gt;</span>::#<span class="ident">call_operator</span>(<span class="self">self</span>),
                     )
                     #( , #<span class="ident">input_bindings</span> )<span class="op">*</span>

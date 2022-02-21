@@ -295,11 +295,11 @@
     <span class="kw">const</span> <span class="ident">SELECTOR</span>: [<span class="ident">u8</span>; <span class="number">4</span>];
 }
 
-<span class="doccomment">/// Captures the module path of the ink! trait definition.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This can be used to differentiate between two equally named</span>
-<span class="doccomment">/// ink! trait definitions and also for metadata.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitModulePath</span> {
+<span class="doccomment">/// Captures info about an ink! trait definition.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TraitInfo</span> {
+    <span class="doccomment">/// The unique id of the ink! trait definition.</span>
+    <span class="kw">const</span> <span class="ident">ID</span>: <span class="ident">u32</span>;
+
     <span class="doccomment">/// The module path of the ink! trait definition.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is equivalent to Rust&#39;s builtin `module_path!` macro</span>
