@@ -48,7 +48,7 @@ pub trait TraitCallForwarder {
 /// While the trait is not necessary it encapsulates a lot of
 /// utility and auxiliary code required for the actual ink! trait
 /// implementations.
-pub trait TraitCallForwarderFor<TraitInfo> {
+pub trait TraitCallForwarderFor<const TRAIT_ID: u32> {
     type Forwarder: TraitCallBuilder;
 
     /// Forwards the `&self` call.

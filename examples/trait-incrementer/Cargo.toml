@@ -13,6 +13,7 @@ ink_lang = { version = "3.0.0-rc8", path = "../../crates/lang", default-features
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+traits = { path = "./traits", default-features = false }
 
 [lib]
 name = "trait_incrementer"
@@ -29,5 +30,6 @@ std = [
     "ink_lang/std",
     "scale/std",
     "scale-info/std",
+    "traits/std",
 ]
 ink-as-dependency = []
