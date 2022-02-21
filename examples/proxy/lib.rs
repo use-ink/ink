@@ -23,6 +23,12 @@ pub mod proxy {
     };
     use ink_storage::traits::SpreadLayout;
 
+    /// This struct contains the data related to the Proxy storage.
+    ///
+    /// The reason this is a separate structure is that we want to keep
+    /// the data for this contract in a separate place (as in the implementation
+    /// of [`SpreadLayout`]), so that it does not get overwritten by any contract
+    /// upgrade, which might introduce storage changes.
     #[derive(Debug)]
     #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
     struct ProxyFields {
