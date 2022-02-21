@@ -243,6 +243,7 @@ impl TraitRegistry<'_> {
     /// It is mainly used to access global information about the ink! trait.
     fn generate_trait_info_object(&self) -> TokenStream2 {
         let span = self.span();
+        let trait_id = self.generate_trait_id();
         let trait_ident = self.trait_ident();
         let trait_info_ident = self.trait_def.trait_info_ident();
         let trait_call_forwarder = self.trait_def.call_forwarder_ident();
@@ -256,10 +257,12 @@ impl TraitRegistry<'_> {
 
             #trait_message_info
 
-            impl<E> ::ink_lang::reflect::TraitModulePath for #trait_info_ident<E>
+            impl<E> ::ink_lang::reflect::TraitInfo for #trait_info_ident<E>
             where
                 E: ::ink_env::Environment,
             {
+                const ID: u32 = #trait_id;
+
                 const PATH: &'static ::core::primitive::str = ::core::module_path!();
 
                 const NAME: &'static ::core::primitive::str = ::core::stringify!(#trait_ident);
@@ -272,6 +275,25 @@ impl TraitRegistry<'_> {
                 type Forwarder = #trait_call_forwarder<E>;
             }
         )
+    }
+
+    /// Generates a unique id for the trait, as an XOR of the set of selectors.
+    fn generate_trait_id(&self) -> syn::LitInt {
+        let span = self.span();
+        let mut id = 0u32;
+        debug_assert!(
+            self.trait_def
+                .trait_def
+                .item()
+                .iter_items()
+                .next()
+                .is_some(),
+            "invalid empty ink! trait definition"
+        );
+        for (_, selector) in self.trait_def.trait_def.item().iter_items() {
+            id ^= selector.into_be_u32()
+        }
+        syn::LitInt::new(&format!("{}", id), span)
     }
 
     /// Generates the [`::ink_lang::reflect::TraitMessageInfo`] implementations for all
