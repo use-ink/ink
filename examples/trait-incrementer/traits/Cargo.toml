@@ -1,5 +1,5 @@
 [package]
-name = "adder"
+name = "traits"
 version = "3.0.0-rc8"
 authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2021"
@@ -11,20 +11,13 @@ ink_env = { version = "3.0.0-rc8", path = "../../../crates/env", default-feature
 ink_storage = { version = "3.0.0-rc8", path = "../../../crates/storage", default-features = false }
 ink_lang = { version = "3.0.0-rc8", path = "../../../crates/lang", default-features = false }
 
-accumulator = { version = "3.0.0-rc8", path = "../accumulator", default-features = false, features = ["ink-as-dependency"] }
-
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
 
 [lib]
-name = "adder"
+name = "traits"
 path = "lib.rs"
-crate-type = [
-    # Used for normal contract Wasm blobs.
-    "cdylib",
-    # Used for ABI generation.
-    "rlib",
-]
+crate-type = ["rlib"]
 
 [features]
 default = ["std"]
@@ -36,7 +29,5 @@ std = [
     "ink_lang/std",
     "scale/std",
     "scale-info/std",
-
-    "accumulator/std",
 ]
 ink-as-dependency = []

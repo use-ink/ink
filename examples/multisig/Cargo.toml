@@ -23,7 +23,6 @@ crate-type = ["cdylib"]
 [features]
 default = ["std"]
 std = [
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_storage/std",
@@ -31,7 +30,6 @@ std = [
     "ink_primitives/std",
     "ink_prelude/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
 ]
 ink-as-dependency = []

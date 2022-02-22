@@ -38,13 +38,11 @@ ink_lang = { version = "3.0.0-rc8", path = "../lang/", default-features = false 
 [features]
 default = ["std"]
 std = [
-    "ink_metadata",
     "ink_metadata/std",
     "ink_env/std",
     "ink_prelude/std",
     "ink_primitives/std",
     "scale/std",
-    "scale-info",
     "scale-info/std",
 ]
 ink-fuzz-tests = ["std"]
