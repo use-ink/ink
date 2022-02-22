@@ -515,11 +515,11 @@ where
 
 /// Checks whether the caller of the current contract is the origin of the whole call stack.
 ///
-/// Prefer this over `seal_is_contract` when checking whether your contract is being called by a contract
-/// or a plain account. The reason is that it performs better since it does not need to
-/// do any storage lookups.
+/// Prefer this over [`is_contract`] when checking whether your contract is being called by
+/// a contract or a plain account. The reason is that it performs better since it does not
+/// need to do any storage lookups.
 ///
-/// A return value of`true` indicates that this contract is being called by a plain account
+/// A return value of `true` indicates that this contract is being called by a plain account.
 /// and `false` indicates that the caller is another contract.
 ///
 /// # Errors
