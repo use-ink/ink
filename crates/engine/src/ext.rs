@@ -24,7 +24,11 @@ use crate::{
         DebugInfo,
         EmittedEvent,
     },
-    types::AccountId,
+    types::{
+        AccountId,
+        Balance,
+        BlockTimestamp,
+    },
 };
 use std::panic::panic_any;
 
@@ -114,6 +118,37 @@ pub struct Engine {
     /// This is specifically about debug info. This info is
     /// not available in the `contracts` pallet.
     pub(crate) debug_info: DebugInfo,
+    /// The chain specification.
+    pub chain_spec: ChainSpec,
+}
+
+/// The chain specification.
+pub struct ChainSpec {
+    /// The current gas price.
+    pub gas_price: Balance,
+    /// The minimum value an account of the chain must have.
+    pub minimum_balance: Balance,
+    /// The targeted block time.
+    pub block_time: BlockTimestamp,
+}
+
+/// The default values for the chain specification are:
+///
+///   * `gas_price`: 100
+///   * `minimum_balance`: 42
+///   * `block_time`: 5
+///
+/// There is no particular reason behind choosing them this way.
+impl Default for ChainSpec {
+    fn default() -> Self {
+        // Those are the default values which were chosen in
+        // the original off-chain testing environment.
+        Self {
+            gas_price: 100,
+            minimum_balance: 42,
+            block_time: 5,
+        }
+    }
 }
 
 impl Engine {
@@ -123,6 +158,7 @@ impl Engine {
             database: Database::new(),
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
+            chain_spec: ChainSpec::default(),
         }
     }
 }
@@ -317,20 +353,30 @@ impl Engine {
         super::hashing::keccak_256(input, output);
     }
 
-    pub fn block_number(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `block_number`");
+    /// Returns the current block number.
+    pub fn block_number(&self, output: &mut &mut [u8]) {
+        let block_number: Vec<u8> =
+            scale::Encode::encode(&self.exec_context.block_number);
+        set_output(output, &block_number[..])
     }
 
-    pub fn block_timestamp(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `block_timestamp`");
+    /// Returns the timestamp of the current block.
+    pub fn block_timestamp(&self, output: &mut &mut [u8]) {
+        let block_timestamp: Vec<u8> =
+            scale::Encode::encode(&self.exec_context.block_timestamp);
+        set_output(output, &block_timestamp[..])
     }
 
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
 
-    pub fn minimum_balance(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `minimum_balance`");
+    /// Returns the minimum balance that is required for creating an account
+    /// (i.e. the chain's existential deposit).
+    pub fn minimum_balance(&self, output: &mut &mut [u8]) {
+        let minimum_balance: Vec<u8> =
+            scale::Encode::encode(&self.chain_spec.minimum_balance);
+        set_output(output, &minimum_balance[..])
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -358,12 +404,38 @@ impl Engine {
         unimplemented!("off-chain environment does not yet support `call`");
     }
 
-    pub fn weight_to_fee(&self, _gas: u64, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `weight_to_fee`");
+    /// Emulates gas price calculation.
+    pub fn weight_to_fee(&self, gas: u64, output: &mut &mut [u8]) {
+        let fee = self
+            .chain_spec
+            .gas_price
+            .saturating_mul(gas.try_into().unwrap_or(u128::MAX));
+        let fee: Vec<u8> = scale::Encode::encode(&fee);
+        set_output(output, &fee[..])
     }
 
-    pub fn random(&self, _subject: &[u8], _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `random`");
+    /// Returns a randomized hash.
+    ///
+    /// # Note
+    ///
+    /// - This is the off-chain environment implementation of `random`.
+    ///   It provides the same behavior in that it will likely yield the
+    ///   same hash for the same subjects within the same block (or
+    ///   execution context).
+    ///
+    /// - Returned hashes on the surface might appear random, however for
+    ///   testing purposes the actual implementation is quite simple and
+    ///   computes those "random" hashes by wrapping XOR of the internal
+    ///   entry hash with the eventually repeated sequence of the subject
+    ///   buffer.
+    pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
+        let mut entropy_bytes = self.exec_context.entropy;
+        let len_entropy = entropy_bytes.len();
+        for (n, subject) in subject.iter().enumerate() {
+            let id = n % len_entropy;
+            entropy_bytes[id] = entropy_bytes[id] ^ subject ^ (n as u8);
+        }
+        set_output(output, &entropy_bytes[..])
     }
 
     pub fn call_chain_extension(

@@ -12,15 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! Right now the `engine` crate can only be used with the `ink_env::DefaultEnvironment`.
+//!
+//! In the long-term all types in this module should be `Vec<u8>`, as to not
+//! be dependent on any specific off-chain environment type. Then the `engine`
+//! crate could be used with an arbitrary `Environment` configuration.
+//!
+//! Right now the issue is that if e.g. some test calls an `engine` API function
+//! to transfer some balance, then there has to be some `+` operation to the
+//! existing balance. And we can't just add a `Vec<u8>` onto another one, we
+//! need to know the type.
+
 use derive_more::From;
 
-/// This is just a temporary solution for the MVP!
-/// As a temporary solution we choose the same type as the default
-/// `env` `Balance` type.
-///
-/// In the long-term this type should be `Vec<u8>` as well, as to not
-/// be dependent on the specific off-chain environment type, so that
-/// the `engine` crate can be used with an arbitrary `Environment` configuration.
+/// As a temporary solution we choose the same type as the `DefaultEnvironment::Hash` type.
+pub type Hash = [u8; 32];
+
+/// As a temporary solution we choose the same type as the `DefaultEnvironment::BlockNumber` type.
+pub type BlockNumber = u32;
+
+/// As a temporary solution we choose the same type as the `DefaultEnvironment::BlockTimestamp` type.
+pub type BlockTimestamp = u64;
+
+/// As a temporary solution we choose the same type as the `DefaultEnvironment::Balance` type.
 pub type Balance = u128;
 
 /// The Account Id type used by this crate.
