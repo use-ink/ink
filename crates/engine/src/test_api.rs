@@ -315,16 +315,14 @@ mod tests {
         let mut buf = [0_u8; 32];
 
         // when
-        let account_id = vec![1; 32];
-        engine.set_callee(account_id.clone());
+        engine.set_callee(vec![1; 32]);
         engine.set_storage(key, &[0x05_u8; 5]);
         engine.set_storage(key, &[0x05_u8; 6]);
-        engine.get_storage(key, &mut &mut buf[..]);
+        engine.get_storage(key, &mut &mut buf[..]).unwrap();
 
-        let account_id = vec![2; 32];
-        engine.set_callee(account_id.clone());
+        engine.set_callee(vec![2; 32]);
         engine.set_storage(key, &[0x07_u8; 7]);
-        engine.get_storage(key, &mut &mut buf[..]);
+        engine.get_storage(key, &mut &mut buf[..]).unwrap();
 
         // then
         assert_eq!(engine.count_writes(), 3);
