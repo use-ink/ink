@@ -490,4 +490,20 @@ impl TypedEnvBackend for EnvInstance {
         ext::random(enc_subject, output);
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
+
+    fn is_contract<T>(&mut self, account_id: &T::AccountId) -> bool
+    where
+        T: Environment,
+    {
+        let mut scope = self.scoped_buffer();
+        let enc_account_id = scope.take_encoded(account_id);
+        ext::is_contract(enc_account_id)
+    }
+
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment,
+    {
+        ext::caller_is_origin()
+    }
 }

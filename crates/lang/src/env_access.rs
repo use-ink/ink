@@ -839,4 +839,68 @@ where
             .map(|_| output.into())
             .map_err(|_| Error::EcdsaRecoveryFailed)
     }
+
+    /// Checks whether a specified account belongs to a contract.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn is_contract(&mut self, account_id: AccountId) -> bool {
+    ///     self.env().is_contract(&account_id)
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::is_contract`]
+    pub fn is_contract(self, account_id: &T::AccountId) -> bool {
+        ink_env::is_contract::<T>(account_id)
+    }
+
+    /// Checks whether the caller of the current contract is the origin of the whole call stack.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// #[ink(message)]
+    /// pub fn caller_is_origin(&mut self) -> bool {
+    ///     self.env().caller_is_origin()
+    /// }
+    /// #    }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::caller_is_origin`]
+    pub fn caller_is_origin(self) -> bool {
+        ink_env::caller_is_origin::<T>()
+    }
 }

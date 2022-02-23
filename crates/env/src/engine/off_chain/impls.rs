@@ -470,4 +470,18 @@ impl TypedEnvBackend for EnvInstance {
         let block = self.current_block().expect(UNINITIALIZED_EXEC_CONTEXT);
         Ok((block.random::<T>(subject)?, block.number::<T>()?))
     }
+
+    fn is_contract<T>(&mut self, _account: &T::AccountId) -> bool
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
+
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support cross-contract calls")
+    }
 }

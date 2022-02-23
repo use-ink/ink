@@ -186,6 +186,10 @@ impl ReturnCode {
     pub fn into_u32(self) -> u32 {
         self.0
     }
+    /// Returns the underlying `u32` converted into `bool`.
+    pub fn into_bool(self) -> bool {
+        self.0.ne(&0)
+    }
 }
 
 type Result = core::result::Result<(), Error>;
@@ -330,6 +334,10 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
+
+        pub fn seal_caller_is_origin() -> ReturnCode;
     }
 }
 
@@ -625,4 +633,14 @@ pub fn ecdsa_recover(
         )
     };
     ret_code.into()
+}
+
+pub fn is_contract(account_id: &[u8]) -> bool {
+    let ret_val = unsafe { sys::seal_is_contract(Ptr32::from_slice(account_id)) };
+    ret_val.into_bool()
+}
+
+pub fn caller_is_origin() -> bool {
+    let ret_val = unsafe { sys::seal_caller_is_origin() };
+    ret_val.into_bool()
 }

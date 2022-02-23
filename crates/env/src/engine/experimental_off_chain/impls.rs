@@ -460,4 +460,18 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.random(subject, &mut &mut output[..]);
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
+
+    fn is_contract<T>(&mut self, _account: &T::AccountId) -> bool
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support contract instantiation")
+    }
+
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment,
+    {
+        unimplemented!("off-chain environment does not support cross-contract calls")
+    }
 }

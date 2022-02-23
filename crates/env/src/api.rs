@@ -498,3 +498,38 @@ pub fn ecdsa_recover(
         instance.ecdsa_recover(signature, message_hash, output)
     })
 }
+
+/// Checks whether the specified account is a contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn is_contract<T>(account: &T::AccountId) -> bool
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::is_contract::<T>(instance, account)
+    })
+}
+
+/// Checks whether the caller of the current contract is the origin of the whole call stack.
+///
+/// Prefer this over [`is_contract`] when checking whether your contract is being called by
+/// a contract or a plain account. The reason is that it performs better since it does not
+/// need to do any storage lookups.
+///
+/// A return value of `true` indicates that this contract is being called by a plain account.
+/// and `false` indicates that the caller is another contract.
+///
+/// # Errors
+///
+/// If the returned value cannot be properly decoded.
+pub fn caller_is_origin<T>() -> bool
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::caller_is_origin::<T>(instance)
+    })
+}
