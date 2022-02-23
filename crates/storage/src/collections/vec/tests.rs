@@ -499,78 +499,6 @@ fn test_binary_search_implementation_details() {
 
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
-#[cfg(not(feature = "ink-experimental-engine"))]
-fn storage_is_cleared_completely_after_pull_lazy() {
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        // given
-        let root_key = Key::from([0x42; 32]);
-        let mut lazy_vec: Lazy<StorageVec<u32>> = Lazy::new(StorageVec::new());
-        lazy_vec.push(13u32);
-        lazy_vec.push(13u32);
-        SpreadLayout::push_spread(&lazy_vec, &mut KeyPtr::from(root_key));
-        let pulled_vec = <Lazy<StorageVec<u32>> as SpreadLayout>::pull_spread(
-            &mut KeyPtr::from(root_key),
-        );
-
-        // when
-        SpreadLayout::clear_spread(&pulled_vec, &mut KeyPtr::from(root_key));
-
-        // then
-        let contract_id = ink_env::test::get_current_contract_account_id::<
-            ink_env::DefaultEnvironment,
-        >()
-        .expect("Cannot get contract id");
-        let used_cells = ink_env::test::count_used_storage_cells::<
-            ink_env::DefaultEnvironment,
-        >(&contract_id)
-        .expect("used cells must be returned");
-        assert_eq!(used_cells, 0);
-        let _ =
-            *<Lazy<Lazy<u32>> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-
-        Ok(())
-    })
-    .unwrap()
-}
-
-#[test]
-#[should_panic(expected = "encountered empty storage cell")]
-#[cfg(not(feature = "ink-experimental-engine"))]
-fn drop_works() {
-    ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
-        let root_key = Key::from([0x42; 32]);
-
-        // if the setup panics it should not cause the test to pass
-        let setup_result = std::panic::catch_unwind(|| {
-            let vec = vec_from_slice(&[b'a', b'b', b'c', b'd']);
-            SpreadLayout::push_spread(&vec, &mut KeyPtr::from(root_key));
-            let _ = <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(
-                root_key,
-            ));
-            // vec is dropped which should clear the cells
-        });
-        assert!(setup_result.is_ok(), "setup should not panic");
-
-        let contract_id = ink_env::test::get_current_contract_account_id::<
-            ink_env::DefaultEnvironment,
-        >()
-        .expect("Cannot get contract id");
-        let used_cells = ink_env::test::count_used_storage_cells::<
-            ink_env::DefaultEnvironment,
-        >(&contract_id)
-        .expect("used cells must be returned");
-        assert_eq!(used_cells, 0);
-
-        let _ =
-            <StorageVec<u8> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));
-        Ok(())
-    })
-    .unwrap()
-}
-
-#[test]
-#[should_panic(expected = "encountered empty storage cell")]
-#[cfg(feature = "ink-experimental-engine")]
 fn storage_is_cleared_completely_after_pull_lazy() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         // given
@@ -603,7 +531,6 @@ fn storage_is_cleared_completely_after_pull_lazy() {
 
 #[test]
 #[should_panic(expected = "encountered empty storage cell")]
-#[cfg(feature = "ink-experimental-engine")]
 fn drop_works() {
     ink_env::test::run_test::<ink_env::DefaultEnvironment, _>(|_| {
         let root_key = Key::from([0x42; 32]);

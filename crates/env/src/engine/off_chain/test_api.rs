@@ -14,15 +14,7 @@
 
 //! Operations on the off-chain testing environment.
 
-pub use super::{
-    chain_extension::ChainExtension,
-    db::ChainSpec,
-    CallData,
-    EmittedEvent,
-};
 use super::{
-    db::ExecContext,
-    AccountError,
     EnvInstance,
     OnInstance,
 };
@@ -30,49 +22,17 @@ use crate::{
     Environment,
     Result,
 };
-use ink_prelude::string::String;
+use core::fmt::Debug;
+use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
-/// Pushes a contract execution context.
-///
-/// This is the data behind a single instance of a contract call.
-///
-/// # Note
-///
-/// Together with [`pop_execution_context`] this can be used to emulated
-/// nested calls.
-pub fn push_execution_context<T>(
-    caller: T::AccountId,
-    callee: T::AccountId,
-    gas_limit: u64,
-    endowment: T::Balance,
-    call_data: CallData,
-) where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.exec_context.push(
-            ExecContext::build::<T>()
-                .caller(caller)
-                .callee(callee)
-                .gas(gas_limit)
-                .transferred_value(endowment)
-                .call_data(call_data)
-                .finish(),
-        )
-    })
-}
-
-/// Pops the top contract execution context.
-///
-/// # Note
-///
-/// Together with [`push_execution_context`] this can be used to emulated
-/// nested calls.
-pub fn pop_execution_context() {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.exec_context.pop();
-    })
+/// Record for an emitted event.
+#[derive(Clone)]
+pub struct EmittedEvent {
+    /// Recorded topics of the emitted event.
+    pub topics: Vec<Vec<u8>>,
+    /// Recorded encoding of the emitted event.
+    pub data: Vec<u8>,
 }
 
 /// Sets the balance of the account to the given balance.
@@ -87,20 +47,14 @@ pub fn pop_execution_context() {
 /// - If `account` does not exist.
 /// - If the underlying `account` type does not match.
 /// - If the underlying `new_balance` type does not match.
-pub fn set_account_balance<T>(
-    account_id: T::AccountId,
-    new_balance: T::Balance,
-) -> Result<()>
+pub fn set_account_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
 where
-    T: Environment,
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
-            .accounts
-            .get_account_mut::<T>(&account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
-            .map_err(Into::into)
-            .and_then(|account| account.set_balance::<T>(new_balance).map_err(Into::into))
+            .engine
+            .set_balance(scale::Encode::encode(&account_id), new_balance);
     })
 }
 
@@ -110,7 +64,7 @@ where
 ///
 /// Note that account could refer to either a user account or
 /// a smart contract account. This returns the same as `env::api::balance`
-/// if given the account ID of the currently executed smart contract.
+/// if given the account id of the currently executed smart contract.
 ///
 /// # Errors
 ///
@@ -118,27 +72,13 @@ where
 /// - If the underlying `account` type does not match.
 pub fn get_account_balance<T>(account_id: T::AccountId) -> Result<T::Balance>
 where
-    T: Environment,
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
-            .accounts
-            .get_account::<T>(&account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(&account_id))
+            .engine
+            .get_balance(scale::Encode::encode(&account_id))
             .map_err(Into::into)
-            .and_then(|account| account.balance::<T>().map_err(Into::into))
-    })
-}
-
-/// Registers a new chain extension.
-pub fn register_chain_extension<E>(extension: E)
-where
-    E: ChainExtension + 'static,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .chain_extension_handler
-            .register(Box::new(extension));
     })
 }
 
@@ -147,65 +87,18 @@ where
 /// # Note
 ///
 /// This allows to control what [`random`][`crate::random`] returns.
-pub fn set_block_entropy<T>(entropy: T::Hash) -> Result<()>
+pub fn set_block_entropy<T>(_entropy: T::Hash) -> Result<()>
 where
     T: Environment,
 {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.current_block_mut()?.set_entropy::<T>(entropy)
-    })
-    .map_err(Into::into)
-}
-
-/// Update the [`ChainSpec`](`crate::test::ChainSpec`) for the test environment
-pub fn update_chain_spec<F>(f: F) -> Result<()>
-where
-    F: FnOnce(&mut ChainSpec),
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| f(instance.chain_spec_mut()));
-    Ok(())
+    unimplemented!("off-chain environment does not yet support `set_block_entropy`");
 }
 
 /// Returns the contents of the past performed environmental debug messages in order.
-pub fn recorded_debug_messages() -> impl Iterator<Item = String> {
+pub fn recorded_debug_messages() -> RecordedDebugMessages {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        // We return a clone of the recorded strings instead of
-        // references to them since this would require the whole `on_instance`
-        // API to operate on `'static` environmental instances which would
-        // ultimately allow leaking those `'static` references to the outside
-        // and potentially lead to terrible bugs such as iterator invalidation.
-        instance
-            .debug_buf
-            .past_debug_messages()
-            .map(ToOwned::to_owned)
-            .collect::<Vec<_>>()
-            .into_iter()
+        instance.engine.get_emitted_debug_messages()
     })
-}
-
-/// Returns the recorded emitted events in order.
-pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        // We return a clone of the recorded emitted events instead of
-        // references to them since this would require the whole `on_instance`
-        // API to operate on `'static` environmental instances which would
-        // ultimately allow leaking those `'static` references to the outside
-        // and potentially lead to terrible bugs such as iterator invalidation.
-        instance
-            .emitted_events
-            .emitted_events()
-            .map(Clone::clone)
-            .collect::<Vec<_>>()
-            .into_iter()
-    })
-}
-
-/// Advances the chain by a single block.
-pub fn advance_block<T>() -> Result<()>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| instance.advance_block::<T>())
 }
 
 /// Set to true to disable clearing storage
@@ -214,10 +107,151 @@ where
 ///
 /// Useful for benchmarks because it ensures the initialized storage is maintained across runs,
 /// because lazy storage structures automatically clear their associated cells when they are dropped.
-pub fn set_clear_storage_disabled(disable: bool) {
+pub fn set_clear_storage_disabled(_disable: bool) {
+    unimplemented!(
+        "off-chain environment does not yet support `set_clear_storage_disabled`"
+    );
+}
+
+/// Sets a caller for the next call.
+pub fn set_caller<T>(caller: T::AccountId)
+where
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.clear_storage_disabled = disable
+        instance.engine.set_caller(scale::Encode::encode(&caller));
     })
+}
+
+/// Sets the callee for the next call.
+pub fn set_callee<T>(callee: T::AccountId)
+where
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_callee(scale::Encode::encode(&callee));
+    })
+}
+
+/// Gets the currently set callee.
+///
+/// This is account id of the currently executing contract.
+pub fn callee<T>() -> T::AccountId
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        let callee = instance.engine.get_callee();
+        scale::Decode::decode(&mut &callee[..]).expect("encoding failed")
+    })
+}
+
+/// Returns the total number of reads and writes of the contract's storage.
+pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> (usize, usize)
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .get_contract_storage_rw(scale::Encode::encode(&account_id))
+    })
+}
+
+/// Sets the balance of `account_id` to `new_balance`.
+pub fn set_balance<T>(account_id: T::AccountId, new_balance: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&account_id), new_balance);
+    })
+}
+
+/// Sets the value transferred from the caller to the callee as part of the call.
+pub fn set_value_transferred<T>(value: T::Balance)
+where
+    T: Environment<Balance = u128>, // Just temporary for the MVP!
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.set_value_transferred(value);
+    })
+}
+
+/// Returns the amount of storage cells used by the account `account_id`.
+///
+/// Returns `None` if the `account_id` is non-existent.
+pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .count_used_storage_cells(&scale::Encode::encode(&account_id))
+            .map_err(Into::into)
+    })
+}
+
+/// Runs the given closure test function with the default configuration
+/// for the off-chain environment.
+pub fn run_test<T, F>(f: F) -> Result<()>
+where
+    T: Environment,
+    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    let default_accounts = default_accounts::<T>();
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.initialize_or_reset();
+
+        let encoded_alice = scale::Encode::encode(&default_accounts.alice);
+        instance.engine.set_caller(encoded_alice.clone());
+        instance.engine.set_callee(encoded_alice.clone());
+
+        // set up the funds for the default accounts
+        let substantial = 1_000_000;
+        let some = 1_000;
+        instance.engine.set_balance(encoded_alice, substantial);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.bob), some);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.charlie), some);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.django), 0);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.eve), 0);
+        instance
+            .engine
+            .set_balance(scale::Encode::encode(&default_accounts.frank), 0);
+    });
+    f(default_accounts)
+}
+
+/// Returns the default accounts for testing purposes:
+/// Alice, Bob, Charlie, Django, Eve and Frank.
+pub fn default_accounts<T>() -> DefaultAccounts<T>
+where
+    T: Environment,
+    <T as Environment>::AccountId: From<[u8; 32]>,
+{
+    DefaultAccounts {
+        alice: T::AccountId::from([0x01; 32]),
+        bob: T::AccountId::from([0x02; 32]),
+        charlie: T::AccountId::from([0x03; 32]),
+        django: T::AccountId::from([0x04; 32]),
+        eve: T::AccountId::from([0x05; 32]),
+        frank: T::AccountId::from([0x06; 32]),
+    }
 }
 
 /// The default accounts.
@@ -239,111 +273,27 @@ where
     pub frank: T::AccountId,
 }
 
-/// Returns the default accounts for testing purposes:
-/// Alice, Bob, Charlie, Django, Eve and Frank.
-pub fn default_accounts<T>() -> Result<DefaultAccounts<T>>
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
-    Ok(DefaultAccounts {
-        alice: T::AccountId::from([0x01; 32]),
-        bob: T::AccountId::from([0x02; 32]),
-        charlie: T::AccountId::from([0x03; 32]),
-        django: T::AccountId::from([0x04; 32]),
-        eve: T::AccountId::from([0x05; 32]),
-        frank: T::AccountId::from([0x06; 32]),
-    })
-}
-
-/// Initializes the whole off-chain environment.
-///
-/// # Note
-///
-/// - Initializes the off-chain environment with default values that fit most
-/// uses cases.
-pub fn initialize_or_reset_as_default<T>() -> Result<()>
-where
-    T: Environment,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance.initialize_or_reset_as_default::<T>()
-    })
-}
-
-/// Runs the given closure test function with the default configuration
-/// for the off-chain environment.
-pub fn run_test<T, F>(f: F) -> Result<()>
-where
-    T: Environment,
-    F: FnOnce(DefaultAccounts<T>) -> Result<()>,
-    <T as Environment>::AccountId: From<[u8; 32]>,
-{
-    initialize_or_reset_as_default::<T>()?;
-    let default_accounts = default_accounts::<T>()?;
-    f(default_accounts)
-}
-
-/// Returns the total number of reads and writes of the contract's storage.
-pub fn get_contract_storage_rw<T>(account_id: &T::AccountId) -> Result<(usize, usize)>
-where
-    T: Environment,
-{
+/// Returns the recorded emitted events in order.
+pub fn recorded_events() -> impl Iterator<Item = EmittedEvent> {
     <EnvInstance as OnInstance>::on_instance(|instance| {
         instance
-            .accounts
-            .get_account::<T>(account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
-            .map_err(Into::into)
-            .and_then(|account| account.get_storage_rw().map_err(Into::into))
+            .engine
+            .get_emitted_events()
+            .into_iter()
+            .map(|evt: ink_engine::test_api::EmittedEvent| evt.into())
     })
-}
-
-/// Returns the amount of storage cells used by the account `account_id`.
-///
-/// Returns `None` if the `account_id` is non-existent.
-pub fn count_used_storage_cells<T>(account_id: &T::AccountId) -> Result<usize>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        instance
-            .accounts
-            .get_account::<T>(account_id)
-            .ok_or_else(|| AccountError::no_account_for_id::<T>(account_id))
-            .map_err(Into::into)
-            .and_then(|account| account.count_used_storage_cells().map_err(Into::into))
-    })
-}
-
-/// Returns the account id of the currently executing contract.
-pub fn get_current_contract_account_id<T>() -> Result<T::AccountId>
-where
-    T: Environment,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        let exec_context = instance.exec_context()?;
-        let callee = exec_context.callee.decode()?;
-        Ok(callee)
-    })
-}
-
-/// The result of a successful contract termination.
-#[derive(scale::Encode, scale::Decode)]
-pub struct ContractTerminationResult<E>
-where
-    E: Environment,
-{
-    /// The beneficiary account who received the remaining value in the contract.
-    pub beneficiary: <E as Environment>::AccountId,
-    /// The value which was transferred to the `beneficiary`.
-    pub transferred: <E as Environment>::Balance,
 }
 
 /// Tests if a contract terminates successfully after `self.env().terminate()`
 /// has been called.
 ///
+/// The arguments denote:
+///
+/// * `should_terminate`: A closure in which the function supposed to terminate is called.
+/// * `expected_beneficiary`: The beneficiary account who should have received the
+///    remaining value in the contract
+/// * `expected_value_transferred_to_beneficiary`: The value which should have been transferred
+///   to the `expected_beneficiary`.
 /// # Usage
 ///
 /// ```no_compile
@@ -359,21 +309,23 @@ where
 pub fn assert_contract_termination<T, F>(
     should_terminate: F,
     expected_beneficiary: T::AccountId,
-    expected_balance: T::Balance,
+    expected_value_transferred_to_beneficiary: T::Balance,
 ) where
     T: Environment,
     F: FnMut() + UnwindSafe,
-    <T as Environment>::AccountId: core::fmt::Debug,
-    <T as Environment>::Balance: core::fmt::Debug,
+    <T as Environment>::AccountId: Debug,
+    <T as Environment>::Balance: Debug,
 {
     let value_any = ::std::panic::catch_unwind(should_terminate)
         .expect_err("contract did not terminate");
     let encoded_input = value_any
         .downcast_ref::<Vec<u8>>()
         .expect("panic object can not be cast");
-    let res: ContractTerminationResult<T> =
+    let (value_transferred, encoded_beneficiary): (T::Balance, Vec<u8>) =
         scale::Decode::decode(&mut &encoded_input[..]).expect("input can not be decoded");
-
-    assert_eq!(res.beneficiary, expected_beneficiary);
-    assert_eq!(res.transferred, expected_balance);
+    let beneficiary =
+        <T::AccountId as scale::Decode>::decode(&mut &encoded_beneficiary[..])
+            .expect("input can not be decoded");
+    assert_eq!(value_transferred, expected_value_transferred_to_beneficiary);
+    assert_eq!(beneficiary, expected_beneficiary);
 }

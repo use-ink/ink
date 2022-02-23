@@ -12,43 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Emulated environmental types of the test environment.
-//!
-//! Due to technical constraints it is not possible to define the test
-//! environment instance thread-locally and generically over the actual
-//! environmental types.
-//!
-//! For that reason we store the type information of all the environmental
-//! types at runtime to at least have some kind of type safety upon access.
-//! This is done via the `TypedEncoded` abstraction that stores the
-//! SCALE encoded bytes and also has a runtime type information marker
-//! assigned upon initialization to check whether accesses to it are
-//! type safe.
+//! Contains the necessary conversions from `ink_engine` types to types
+//! of this crate.
 
-use super::TypedEncoded;
+use super::{
+    test_api::EmittedEvent,
+    AccountError,
+    Error,
+    OffChainError,
+};
 
-/// Type markers used in conjunction with `TypedEncoded`.
-#[rustfmt::skip]
-mod type_marker {
-    /// Type marker representing an environmental `AccountId`.
-    #[derive(Debug, Clone)] pub enum AccountId {}
-    /// Type marker representing an environmental `Balance`.
-    #[derive(Debug, Clone)] pub enum Balance {}
-    /// Type marker representing an environmental `Hash`.
-    #[derive(Debug, Clone)] pub enum Hash {}
-    /// Type marker representing an environmental `Timestamp`.
-    #[derive(Debug, Clone)] pub enum OffTimestamp {}
-    /// Type marker representing an environmental `BlockNumber`.
-    #[derive(Debug, Clone)] pub enum BlockNumber {}
+impl From<ink_engine::test_api::EmittedEvent> for EmittedEvent {
+    fn from(evt: ink_engine::test_api::EmittedEvent) -> Self {
+        EmittedEvent {
+            topics: evt.topics,
+            data: evt.data,
+        }
+    }
 }
 
-/// Off-chain environment account ID type.
-pub type OffAccountId = TypedEncoded<type_marker::AccountId>;
-/// Off-chain environment balance type.
-pub type OffBalance = TypedEncoded<type_marker::Balance>;
-/// Off-chain environment hash type.
-pub type OffHash = TypedEncoded<type_marker::Hash>;
-/// Off-chain environment timestamp type.
-pub type OffTimestamp = TypedEncoded<type_marker::OffTimestamp>;
-/// Off-chain environment block number type.
-pub type OffBlockNumber = TypedEncoded<type_marker::BlockNumber>;
+impl From<ink_engine::Error> for Error {
+    fn from(err: ink_engine::Error) -> Self {
+        let e = match err {
+            ink_engine::Error::Account(acc) => OffChainError::Account(acc.into()),
+            ink_engine::Error::UninitializedBlocks => OffChainError::UninitializedBlocks,
+            ink_engine::Error::UninitializedExecutionContext => {
+                OffChainError::UninitializedExecutionContext
+            }
+            ink_engine::Error::UnregisteredChainExtension => {
+                OffChainError::UnregisteredChainExtension
+            }
+        };
+        Error::OffChain(e)
+    }
+}
+
+impl From<ink_engine::AccountError> for AccountError {
+    fn from(err: ink_engine::AccountError) -> Self {
+        match err {
+            ink_engine::AccountError::Decoding(e) => AccountError::Decoding(e),
+            ink_engine::AccountError::UnexpectedUserAccount => {
+                AccountError::UnexpectedUserAccount
+            }
+            ink_engine::AccountError::NoAccountForId(acc) => {
+                AccountError::NoAccountForId(acc)
+            }
+        }
+    }
+}
+
+impl From<ink_engine::AccountError> for Error {
+    fn from(account_error: ink_engine::AccountError) -> Self {
+        Error::OffChain(OffChainError::Account(account_error.into()))
+    }
+}

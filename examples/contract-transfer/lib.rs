@@ -62,15 +62,9 @@ pub mod give_me {
         }
     }
 
-    #[cfg(not(feature = "ink-experimental-engine"))]
     #[cfg(test)]
     mod tests {
         use super::*;
-
-        use ink_env::{
-            call,
-            test,
-        };
         use ink_lang as ink;
 
         #[ink::test]
@@ -84,150 +78,6 @@ pub mod give_me {
             set_sender(accounts.eve);
             set_balance(accounts.eve, 0);
             give_me.give_me(80);
-
-            // then
-            assert_eq!(get_balance(accounts.eve), 80);
-        }
-
-        #[ink::test]
-        #[should_panic(expected = "insufficient funds!")]
-        fn transfer_fails_insufficient_funds() {
-            // given
-            let contract_balance = 100;
-            let accounts = default_accounts();
-            let mut give_me = create_contract(contract_balance);
-
-            // when
-            set_sender(accounts.eve);
-            give_me.give_me(120);
-
-            // then
-            // `give_me` must already have panicked here
-        }
-
-        #[ink::test]
-        fn test_transferred_value() {
-            // given
-            let accounts = default_accounts();
-            let give_me = create_contract(100);
-
-            // when
-            set_sender(accounts.eve);
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
-                0xCA, 0xFE, 0xBA, 0xBE,
-            ]));
-            data.push_arg(&accounts.eve);
-            let mock_transferred_value = 10;
-
-            // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_value` as the value which the contract
-            // will see as transferred to it.
-            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                accounts.eve,
-                contract_id(),
-                1000000,
-                mock_transferred_value,
-                data,
-            );
-
-            // then
-            // there must be no panic
-            give_me.was_it_ten();
-        }
-
-        #[ink::test]
-        #[should_panic(expected = "payment was not ten")]
-        fn test_transferred_value_must_fail() {
-            // given
-            let accounts = default_accounts();
-            let give_me = create_contract(100);
-
-            // when
-            set_sender(accounts.eve);
-            let mut data = ink_env::test::CallData::new(ink_env::call::Selector::new([
-                0xCA, 0xFE, 0xBA, 0xBE,
-            ]));
-            data.push_arg(&accounts.eve);
-            let mock_transferred_value = 13;
-
-            // Push the new execution context which sets Eve as caller and
-            // the `mock_transferred_value` as the value which the contract
-            // will see as transferred to it.
-            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
-                accounts.eve,
-                contract_id(),
-                1000000,
-                mock_transferred_value,
-                data,
-            );
-
-            // then
-            give_me.was_it_ten();
-        }
-
-        /// Creates a new instance of `GiveMe` with `initial_balance`.
-        ///
-        /// Returns the `contract_instance`.
-        fn create_contract(initial_balance: Balance) -> GiveMe {
-            let accounts = default_accounts();
-            set_sender(accounts.alice);
-            set_balance(contract_id(), initial_balance);
-            GiveMe::new()
-        }
-
-        fn contract_id() -> AccountId {
-            ink_env::test::get_current_contract_account_id::<ink_env::DefaultEnvironment>(
-            )
-            .expect("Cannot get contract id")
-        }
-
-        fn set_sender(sender: AccountId) {
-            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
-            test::push_execution_context::<Environment>(
-                sender,
-                callee,
-                1000000,
-                1000000,
-                test::CallData::new(call::Selector::new([0x00; 4])), // dummy
-            );
-        }
-
-        fn default_accounts(
-        ) -> ink_env::test::DefaultAccounts<ink_env::DefaultEnvironment> {
-            ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
-                .expect("Off-chain environment should have been initialized already")
-        }
-
-        fn set_balance(account_id: AccountId, balance: Balance) {
-            ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
-                account_id, balance,
-            )
-            .expect("Cannot set account balance");
-        }
-
-        fn get_balance(account_id: AccountId) -> Balance {
-            ink_env::test::get_account_balance::<ink_env::DefaultEnvironment>(account_id)
-                .expect("Cannot set account balance")
-        }
-    }
-
-    #[cfg(feature = "ink-experimental-engine")]
-    #[cfg(test)]
-    mod tests_experimental_engine {
-        use super::*;
-        use ink_lang as ink;
-
-        #[ink::test]
-        fn transfer_works() {
-            // given
-            let contract_balance = 100;
-            let accounts = default_accounts();
-            let mut give_me = create_contract(contract_balance);
-
-            // when
-            set_sender(accounts.eve);
-            set_balance(accounts.eve, 0);
-            assert_eq!(give_me.give_me(80), Ok(()));
 
             // then
             assert_eq!(get_balance(accounts.eve), 80);
