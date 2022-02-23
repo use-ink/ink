@@ -15,6 +15,7 @@
 use crate::{
     ast,
     error::ExtError as _,
+    ir::config::WhitelistedAttributes,
 };
 use core::convert::TryFrom;
 use syn::spanned::Spanned;
@@ -30,6 +31,8 @@ pub struct TraitDefinitionConfig {
     /// selectors of the ink! trait messages. This is useful to disambiguate
     /// ink! trait definitions with equal names.
     namespace: Option<syn::LitStr>,
+    /// The set of attributes that can be passed to call builder and forwarder in the codegen.
+    whitelisted_attributes: WhitelistedAttributes,
 }
 
 impl TraitDefinitionConfig {
@@ -69,6 +72,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
         let mut namespace: Option<(syn::LitStr, ast::MetaNameValue)> = None;
+        let mut whitelisted_attributes = WhitelistedAttributes::default();
         for arg in args.into_iter() {
             if arg.name.is_ident("namespace") {
                 if let Some((_, meta_name_value)) = namespace {
@@ -88,6 +92,10 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
                         "expected a string literal for `namespace` ink! trait definition configuration argument",
                     ))
                 }
+            } else if arg.name.is_ident("keep_attr") {
+                if let Err(err) = whitelisted_attributes.parse_arg_value(&arg) {
+                    return Err(err)
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -97,6 +105,7 @@ impl TryFrom<ast::AttributeArgs> for TraitDefinitionConfig {
         }
         Ok(TraitDefinitionConfig {
             namespace: namespace.map(|(value, _)| value),
+            whitelisted_attributes,
         })
     }
 }
@@ -105,5 +114,11 @@ impl TraitDefinitionConfig {
     /// Returns the namespace configuration argument if any as string.
     pub fn namespace(&self) -> Option<&syn::LitStr> {
         self.namespace.as_ref()
+    }
+
+    /// Returns the set of attributes that can be passed to call builder and
+    /// forwarder in the codegen.
+    pub fn whitelisted_attributes(&self) -> &WhitelistedAttributes {
+        &self.whitelisted_attributes
     }
 }

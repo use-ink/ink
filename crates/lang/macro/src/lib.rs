@@ -200,6 +200,34 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///
 ///     **Default value:** Depends on the crate feature propagation of `Cargo.toml`.
 ///
+/// - `keep_attr: String`
+///
+///     Tells the ink! code generator which attributes should be passed to call builders.
+///     Call builders are used to doing cross-contract calls and are automatically
+///     generated for contracts.
+///
+///     **Usage Example:**
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::contract(keep_attr = "foo, bar")]
+///     mod my_contract {
+///         # #[ink(storage)]
+///         # pub struct MyStorage;
+///         # impl MyStorage {
+///         #     #[ink(constructor)]
+///         //    #[bar]
+///         #     pub fn construct() -> Self { MyStorage {} }
+///         #     #[ink(message)]
+///         //    #[foo]
+///         #     pub fn message(&self) {}
+///         # }
+///         // ...
+///     }
+///     ```
+///
+///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`, `forbid`,
+///         `deprecated`, `must_use`, `doc`.`
+///
 /// - `env: impl Environment`
 ///
 ///     Tells the ink! code generator which environment to use for the ink! smart contract.
@@ -593,7 +621,9 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// structure so that the main [`#[ink::contract]`](`macro@crate::contract`) macro can
 /// properly generate code for its implementations.
 ///
-/// # Example: Definition
+/// # Example
+///
+/// # Trait definition:
 ///
 /// ```
 /// use ink_lang as ink;
@@ -614,7 +644,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 /// ```
 ///
-/// # Example: Implementation
+/// # Trait implementation
 ///
 /// Given the above trait definition you can implement it as shown below:
 ///
@@ -661,6 +691,56 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     }
 /// }
 /// ```
+///
+/// ## Header Arguments
+///
+/// The `#[ink::trait_definition]` macro can be provided with some additional comma-separated
+/// header arguments:
+///
+/// - `namespace: String`
+///
+///     The namespace configuration parameter is used to influence the generated
+///     selectors of the ink! trait messages. This is useful to disambiguate
+///     ink! trait definitions with equal names.
+///
+///     **Usage Example:**
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::trait_definition(namespace = "foo")]
+///     pub trait TraitDefinition {
+///         #[ink(message)]
+///         fn message1(&self);
+///     
+///         #[ink(message, selector = 42)]
+///         fn message2(&self);
+///     }
+///     ```
+///
+///     **Default value:** Empty.
+///
+/// - `keep_attr: String`
+///
+///     Tells the ink! code generator which attributes should be passed to call builders.
+///     Call builders are used to doing cross-contract calls and are automatically
+///     generated for contracts.
+///
+///     **Usage Example:**
+///     ```
+///     # use ink_lang as ink;
+///     #[ink::trait_definition(keep_attr = "foo, bar")]
+///     pub trait Storage {
+///         #[ink(message)]
+///     //  #[foo]
+///         fn message1(&self);
+///
+///         #[ink(message)]
+///     //  #[bar]
+///         fn message2(&self);
+///     }
+///     ```
+///
+///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`, `forbid`,
+///         `deprecated`, `must_use`, `doc`.`
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()

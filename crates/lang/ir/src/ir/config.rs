@@ -14,9 +14,11 @@
 
 use crate::{
     ast,
+    ast::MetaNameValue,
     error::ExtError as _,
 };
 use core::convert::TryFrom;
+use std::collections::HashMap;
 use syn::spanned::Spanned;
 
 /// The ink! configuration.
@@ -38,6 +40,60 @@ pub struct Config {
     /// be used to change the underlying environmental types of an ink! smart
     /// contract.
     env: Option<Environment>,
+    /// The set of attributes that can be passed to call builder in the codegen.
+    whitelisted_attributes: WhitelistedAttributes,
+}
+
+/// The set of attributes that can be passed to call builder or call forwarder in the codegen.
+#[derive(Debug, PartialEq, Eq)]
+pub struct WhitelistedAttributes(pub HashMap<String, ()>);
+
+impl Default for WhitelistedAttributes {
+    fn default() -> Self {
+        Self(HashMap::from([
+            // Conditional compilation
+            ("cfg".to_string(), ()),
+            ("cfg_attr".to_string(), ()),
+            // Diagnostics
+            ("allow".to_string(), ()),
+            ("warn".to_string(), ()),
+            ("deny".to_string(), ()),
+            ("forbid".to_string(), ()),
+            ("deprecated".to_string(), ()),
+            ("must_use".to_string(), ()),
+            // Documentation
+            ("doc".to_string(), ()),
+        ]))
+    }
+}
+
+impl WhitelistedAttributes {
+    pub fn parse_arg_value(&mut self, arg: &MetaNameValue) -> Result<(), syn::Error> {
+        return if let ast::PathOrLit::Lit(syn::Lit::Str(attributes)) = &arg.value {
+            attributes.value().split(',').for_each(|attribute| {
+                self.0.insert(attribute.trim().to_string(), ());
+            });
+            Ok(())
+        } else {
+            Err(format_err_spanned!(
+                arg,
+                "expected a string with attributes separated by `,`",
+            ))
+        }
+    }
+
+    pub fn filter_attr(&self, attrs: Vec<syn::Attribute>) -> Vec<syn::Attribute> {
+        attrs
+            .into_iter()
+            .filter(|attr| {
+                if let Some(ident) = attr.path.get_ident() {
+                    self.0.contains_key(&ident.to_string())
+                } else {
+                    false
+                }
+            })
+            .collect()
+    }
 }
 
 /// Return an error to notify about duplicate ink! configuration arguments.
@@ -65,6 +121,8 @@ impl TryFrom<ast::AttributeArgs> for Config {
         let mut dynamic_storage_allocator: Option<(bool, ast::MetaNameValue)> = None;
         let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
         let mut env: Option<(Environment, ast::MetaNameValue)> = None;
+        let mut whitelisted_attributes = WhitelistedAttributes::default();
+
         for arg in args.into_iter() {
             if arg.name.is_ident("dynamic_storage_allocator") {
                 if let Some((_, ast)) = dynamic_storage_allocator {
@@ -106,6 +164,10 @@ impl TryFrom<ast::AttributeArgs> for Config {
                         "expected a path for `env` ink! configuration argument",
                     ))
                 }
+            } else if arg.name.is_ident("keep_attr") {
+                if let Err(err) = whitelisted_attributes.parse_arg_value(&arg) {
+                    return Err(err)
+                }
             } else {
                 return Err(format_err_spanned!(
                     arg,
@@ -117,6 +179,7 @@ impl TryFrom<ast::AttributeArgs> for Config {
             dynamic_storage_allocator: dynamic_storage_allocator.map(|(value, _)| value),
             as_dependency: as_dependency.map(|(value, _)| value),
             env: env.map(|(value, _)| value),
+            whitelisted_attributes,
         })
     }
 }
@@ -148,6 +211,11 @@ impl Config {
     /// If nothing has been specified returns the default which is `false`.
     pub fn is_compile_as_dependency_enabled(&self) -> bool {
         self.as_dependency.unwrap_or(false)
+    }
+
+    /// Return set of attributes that can be passed to call builder in the codegen.
+    pub fn whitelisted_attributes(&self) -> &WhitelistedAttributes {
+        &self.whitelisted_attributes
     }
 }
 
@@ -198,6 +266,7 @@ mod tests {
                 dynamic_storage_allocator: Some(true),
                 as_dependency: None,
                 env: None,
+                whitelisted_attributes: Default::default(),
             }),
         )
     }
@@ -220,6 +289,7 @@ mod tests {
                 dynamic_storage_allocator: None,
                 as_dependency: Some(false),
                 env: None,
+                whitelisted_attributes: Default::default(),
             }),
         )
     }
@@ -246,6 +316,7 @@ mod tests {
                 env: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
+                whitelisted_attributes: Default::default(),
             }),
         )
     }
@@ -274,6 +345,32 @@ mod tests {
                 env = ::my::other::env::Types,
             },
             Err("encountered duplicate ink! `env` configuration argument"),
+        );
+    }
+
+    #[test]
+    fn keep_attr_works() {
+        let mut attrs = WhitelistedAttributes::default();
+        attrs.0.insert("foo".to_string(), ());
+        attrs.0.insert("bar".to_string(), ());
+        assert_try_from(
+            syn::parse_quote! {
+                keep_attr = "foo, bar"
+            },
+            Ok(Config {
+                dynamic_storage_allocator: None,
+                as_dependency: None,
+                env: None,
+                whitelisted_attributes: attrs,
+            }),
+        )
+    }
+
+    #[test]
+    fn keep_attr_invalid_value_fails() {
+        assert_try_from(
+            syn::parse_quote! { keep_attr = 1u16 },
+            Err("expected a string with attributes separated by `,`"),
         );
     }
 }

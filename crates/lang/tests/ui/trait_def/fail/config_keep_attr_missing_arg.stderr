@@ -1,0 +1,5 @@
+error: ink! config options require an argument separated by '='
+ --> tests/ui/trait_def/fail/config_keep_attr_missing_arg.rs:3:25
+  |
+3 | #[ink::trait_definition(keep_attr)]
+  |                         ^^^^^^^^^
