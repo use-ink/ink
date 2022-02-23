@@ -499,7 +499,7 @@ pub fn ecdsa_recover(
     })
 }
 
-/// Checks whether a specified account belongs to a contract.
+/// Checks whether the specified account is a contract.
 ///
 /// # Errors
 ///

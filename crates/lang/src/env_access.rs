@@ -858,8 +858,8 @@ where
     /// #         }
     /// #
     /// #[ink(message)]
-    /// pub fn is_contract(&mut self, account_id: AccountId) -> bool {
-    ///     self.env().is_contract(&account_id)
+    /// pub fn is_contract(&mut self, account_id: &AccountId) -> bool {
+    ///     self.env().is_contract(account_id)
     /// }
     /// #    }
     /// # }

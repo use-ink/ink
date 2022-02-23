@@ -472,6 +472,6 @@ impl TypedEnvBackend for EnvInstance {
     where
         T: Environment,
     {
-        unimplemented!("off-chain environment does not support cross-contract call")
+        unimplemented!("off-chain environment does not support cross-contract calls")
     }
 }
