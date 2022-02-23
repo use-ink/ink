@@ -1,6 +1,6 @@
 [package]
 name = "ink_lang_macro"
-version = "3.0.0-rc8"
+version = "3.0.0-rc9"
 authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
 edition = "2021"
 
@@ -15,20 +15,20 @@ categories = ["no-std", "embedded"]
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
 
 [dependencies]
-ink_lang_ir = { version = "3.0.0-rc8", path = "../ir", default-features = false }
-ink_lang_codegen = { version = "3.0.0-rc8", path = "../codegen", default-features = false }
-ink_primitives = { version = "3.0.0-rc8", path = "../../primitives/", default-features = false }
+ink_lang_ir = { version = "3.0.0-rc9", path = "../ir", default-features = false }
+ink_lang_codegen = { version = "3.0.0-rc9", path = "../codegen", default-features = false }
+ink_primitives = { version = "3.0.0-rc9", path = "../../primitives/", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "2.3", default-features = false, features = ["derive"] }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 syn = "1"
 proc-macro2 = "1"
 
 [dev-dependencies]
-ink_metadata = { version = "3.0.0-rc8", path = "../../metadata/" }
-ink_env = { version = "3.0.0-rc8", path = "../../env/" }
-ink_storage = { version = "3.0.0-rc8", path = "../../storage/" }
-ink_lang = { version = "3.0.0-rc8", path = ".." }
-scale-info = { version = "1.0", default-features = false, features = ["derive"] }
+ink_metadata = { version = "3.0.0-rc9", path = "../../metadata/" }
+ink_env = { version = "3.0.0-rc9", path = "../../env/" }
+ink_storage = { version = "3.0.0-rc9", path = "../../storage/" }
+ink_lang = { version = "3.0.0-rc9", path = ".." }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "ink_lang_macro"

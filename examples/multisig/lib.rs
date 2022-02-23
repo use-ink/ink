@@ -281,7 +281,7 @@ mod multisig {
         /// If `requirement` violates our invariant.
         #[ink(constructor)]
         pub fn new(requirement: u32, mut owners: Vec<AccountId>) -> Self {
-            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+            ink_lang::utils::initialize_contract(|contract: &mut Self| {
                 owners.sort_unstable();
                 owners.dedup();
                 ensure_requirement_is_valid(owners.len() as u32, requirement);

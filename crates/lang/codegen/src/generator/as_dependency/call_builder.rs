@@ -182,10 +182,10 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = impl_block.span();
         let cb_ident = Self::call_builder_ident();
-        let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
+        let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         quote_spanned!(span=>
             #[doc(hidden)]
-            impl ::ink_lang::codegen::TraitCallForwarderFor<#trait_info> for #cb_ident {
+            impl ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}> for #cb_ident {
                 type Forwarder = <<Self as #trait_path>::__ink_TraitInfo as ::ink_lang::codegen::TraitCallForwarder>::Forwarder;
 
                 #[inline]
@@ -217,7 +217,7 @@ impl CallBuilder<'_> {
                 #[inline]
                 fn build(&self) -> &<Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder {
                     <_ as ::ink_lang::codegen::TraitCallBuilder>::call(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::forward(self)
+                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward(self)
                     )
                 }
 
@@ -226,7 +226,7 @@ impl CallBuilder<'_> {
                     -> &mut <Self::Forwarder as ::ink_lang::codegen::TraitCallBuilder>::Builder
                 {
                     <_ as ::ink_lang::codegen::TraitCallBuilder>::call_mut(
-                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::forward_mut(self)
+                        <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::forward_mut(self)
                     )
                 }
             }
@@ -265,7 +265,7 @@ impl CallBuilder<'_> {
         let span = message.span();
         let message_ident = message.ident();
         let output_ident = generator::output_ident(message_ident);
-        let trait_info = generator::generate_reference_to_trait_info(span, trait_path);
+        let trait_info_id = generator::generate_reference_to_trait_info(span, trait_path);
         let (input_bindings, input_types): (Vec<_>, Vec<_>) = message
             .callable()
             .inputs()
@@ -282,7 +282,7 @@ impl CallBuilder<'_> {
         quote_spanned!(span=>
             type #output_ident = <<<
                 Self
-                as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::Forwarder
+                as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::Forwarder
                 as ::ink_lang::codegen::TraitCallBuilder>::Builder
                 as #trait_path>::#output_ident;
 
@@ -292,7 +292,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings: #input_types )*
             ) -> Self::#output_ident {
                 <_ as #trait_path>::#message_ident(
-                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<#trait_info>>::#build_cmd(self)
+                    <Self as ::ink_lang::codegen::TraitCallForwarderFor<{#trait_info_id}>>::#build_cmd(self)
                     #( , #input_bindings )*
                 )
             }
