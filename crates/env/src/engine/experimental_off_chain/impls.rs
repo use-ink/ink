@@ -213,9 +213,7 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        unimplemented!(
-            "the off-chain testing envoronment does not implement `seal_input`"
-        )
+        unimplemented!("the experimental off chain env does not implement `seal_input`")
     }
 
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
@@ -223,7 +221,7 @@ impl EnvBackend for EnvInstance {
         R: scale::Encode,
     {
         unimplemented!(
-            "the off-chain testing envoronment does not implement `seal_return_value`"
+            "the experimental off chain env does not implement `seal_return_value`"
         )
     }
 

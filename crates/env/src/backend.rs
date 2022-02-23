@@ -426,4 +426,23 @@ pub trait TypedEnvBackend: EnvBackend {
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment;
+
+    /// Checks whether a specified account belongs to a contract.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`is_contract`][`crate::is_contract`]
+    #[allow(clippy::wrong_self_convention)]
+    fn is_contract<T>(&mut self, account: &T::AccountId) -> bool
+    where
+        T: Environment;
+
+    /// Checks whether the caller of the current contract is the origin of the whole call stack.
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
+    fn caller_is_origin<T>(&mut self) -> bool
+    where
+        T: Environment;
 }
