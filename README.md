@@ -67,10 +67,10 @@ If you want to have a local setup you can use our [`substrate-contracts-node`](h
 It's a simple Substrate blockchain which includes the Substrate module for smart contract functionality ‒ the `contracts` pallet (see [How it Works](#how-it-works) for more).
 
 We also have a live testnet on [Rococo](https://github.com/paritytech/cumulus/#rococo-crown)
-called [Canvas](https://github.com/paritytech/canvas/). Canvas is a Substrate based
+called [Canvas](https://paritytech.github.io/ink-docs/canvas). Canvas is a Substrate based
 parachain which supports ink! smart contracts. For further instructions on using this
 testnet, follow the instructions in the
-[Canvas README](https://github.com/paritytech/canvas#rococo-deployment).
+[our documentation](https://paritytech.github.io/ink-docs/canvas#rococo-deployment).
 
 For both types of chains the [Contracts UI](https://paritytech.github.io/contracts-ui/)
 can be used to instantiate your contract to a chain and interact with it.
