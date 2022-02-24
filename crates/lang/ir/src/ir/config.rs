@@ -68,6 +68,9 @@ impl Default for WhitelistedAttributes {
 }
 
 impl WhitelistedAttributes {
+    /// Parses the `MetaNameValue` argument of `keep_attr` attribute. If the argument has
+    /// a correct format `"foo, bar"` then `foo`, `bar` will be included in
+    /// the whitelist of attributes. Else error about parsing will be returned.
     pub fn parse_arg_value(&mut self, arg: &MetaNameValue) -> Result<(), syn::Error> {
         return if let ast::PathOrLit::Lit(syn::Lit::Str(attributes)) = &arg.value {
             attributes.value().split(',').for_each(|attribute| {
@@ -82,6 +85,8 @@ impl WhitelistedAttributes {
         }
     }
 
+    /// Returns the filtered input vector of whitelisted attributes.
+    /// All not whitelisted attributes are removed.
     pub fn filter_attr(&self, attrs: Vec<syn::Attribute>) -> Vec<syn::Attribute> {
         attrs
             .into_iter()
