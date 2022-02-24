@@ -63,6 +63,8 @@ impl Default for WhitelistedAttributes {
             ("must_use".to_string(), ()),
             // Documentation
             ("doc".to_string(), ()),
+            // Formatting
+            ("rustfmt".to_string(), ()),
         ]))
     }
 }

@@ -226,7 +226,7 @@ pub fn selector_bytes(input: TokenStream) -> TokenStream {
 ///     ```
 ///
 ///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`, `forbid`,
-///         `deprecated`, `must_use`, `doc`.`
+///         `deprecated`, `must_use`, `doc`, `rustfmt`.
 ///
 /// - `env: impl Environment`
 ///
@@ -740,7 +740,7 @@ pub fn contract(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     ```
 ///
 ///     **Allowed attributes by default:** `cfg`, `cfg_attr`, `allow`, `warn`, `deny`, `forbid`,
-///         `deprecated`, `must_use`, `doc`.`
+///         `deprecated`, `must_use`, `doc`, `rustfmt`.
 #[proc_macro_attribute]
 pub fn trait_definition(attr: TokenStream, item: TokenStream) -> TokenStream {
     trait_def::analyze(attr.into(), item.into()).into()
