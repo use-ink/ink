@@ -41,7 +41,7 @@ More relevant links:
 * Talk to us on [Element][k2] or in [Discord][l2]
   on the [`ink_smart-contracts`](https://discord.com/channels/722223075629727774/765280480609828864) channel
 * [`cargo-contract`](https://github.com/paritytech/cargo-contract) ‒ CLI tool for ink! contracts
-* [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload) ‒ Frontend for contract instantiation and interaction
+* [Contracts UI](https://paritytech.github.io/contracts-ui/) ‒ Frontend for contract instantiation and interaction
 * [Substrate Contracts Node](https://github.com/paritytech/substrate-contracts-node) ‒ Simple Substrate blockchain which includes smart contract functionality
 
 
@@ -72,7 +72,7 @@ parachain which supports ink! smart contracts. For further instructions on using
 testnet, follow the instructions in the
 [Canvas README](https://github.com/paritytech/canvas#rococo-deployment).
 
-For both types of chains the [Canvas UI](https://paritytech.github.io/canvas-ui/#/upload)
+For both types of chains the [Contracts UI](https://paritytech.github.io/contracts-ui/)
 can be used to instantiate your contract to a chain and interact with it.
 
 ## Usage
