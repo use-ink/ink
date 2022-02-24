@@ -431,6 +431,11 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -821,7 +826,12 @@
         <span class="kw">let</span> <span class="ident">trait_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trait_def</span>.<span class="ident">trait_def</span>.<span class="ident">item</span>().<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">forwarder_ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ident</span>();
         <span class="kw">let</span> <span class="ident">message_ident</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">ident</span>();
-        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">attrs</span>();
+        <span class="kw">let</span> <span class="ident">attrs</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">trait_def</span>
+            .<span class="ident">trait_def</span>
+            .<span class="ident">config</span>()
+            .<span class="ident">whitelisted_attributes</span>()
+            .<span class="ident">filter_attr</span>(<span class="ident">message</span>.<span class="ident">attrs</span>());
         <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message_ident</span>);
         <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="ident">message</span>
             .<span class="ident">output</span>()

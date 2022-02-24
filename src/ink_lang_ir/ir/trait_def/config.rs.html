@@ -112,6 +112,21 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -129,6 +144,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>,
     <span class="ident">error::ExtError</span> <span class="kw">as</span> <span class="kw">_</span>,
+    <span class="ident">ir::config::WhitelistedAttributes</span>,
 };
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">syn::spanned::Spanned</span>;
@@ -144,6 +160,8 @@
     <span class="doccomment">/// selectors of the ink! trait messages. This is useful to disambiguate</span>
     <span class="doccomment">/// ink! trait definitions with equal names.</span>
     <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The set of attributes that can be passed to call builder and forwarder in the codegen.</span>
+    <span class="ident">whitelisted_attributes</span>: <span class="ident">WhitelistedAttributes</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TraitDefinitionConfig</span> {
@@ -183,6 +201,7 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">args</span>: <span class="ident">ast::AttributeArgs</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">namespace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">syn::LitStr</span>, <span class="ident">ast::MetaNameValue</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">whitelisted_attributes</span> <span class="op">=</span> <span class="ident">WhitelistedAttributes::default</span>();
         <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">args</span>.<span class="ident">into_iter</span>() {
             <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;namespace&quot;</span>) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">meta_name_value</span>)) <span class="op">=</span> <span class="ident">namespace</span> {
@@ -202,6 +221,10 @@
                         <span class="string">&quot;expected a string literal for `namespace` ink! trait definition configuration argument&quot;</span>,
                     ))
                 }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">arg</span>.<span class="ident">name</span>.<span class="ident">is_ident</span>(<span class="string">&quot;keep_attr&quot;</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">whitelisted_attributes</span>.<span class="ident">parse_arg_value</span>(<span class="kw-2">&amp;</span><span class="ident">arg</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>)
+                }
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format_err_spanned!</span>(
                     <span class="ident">arg</span>,
@@ -211,6 +234,7 @@
         }
         <span class="prelude-val">Ok</span>(<span class="ident">TraitDefinitionConfig</span> {
             <span class="ident">namespace</span>: <span class="ident">namespace</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">value</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">value</span>),
+            <span class="ident">whitelisted_attributes</span>,
         })
     }
 }
@@ -219,6 +243,12 @@
     <span class="doccomment">/// Returns the namespace configuration argument if any as string.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">namespace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">syn::LitStr</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">namespace</span>.<span class="ident">as_ref</span>()
+    }
+
+    <span class="doccomment">/// Returns the set of attributes that can be passed to call builder and</span>
+    <span class="doccomment">/// forwarder in the codegen.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">whitelisted_attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">WhitelistedAttributes</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">whitelisted_attributes</span>
     }
 }
 </code></pre></div>
