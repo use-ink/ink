@@ -279,7 +279,11 @@ impl CallBuilder<'_> {
             ir::Receiver::Ref => quote! { build },
             ir::Receiver::RefMut => quote! { build_mut },
         };
-        let attrs = message.attrs();
+        let attrs = self
+            .contract
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs().to_vec());
         quote_spanned!(span=>
             type #output_ident = <<<
                 Self
@@ -356,7 +360,11 @@ impl CallBuilder<'_> {
         let span = message.span();
         let callable = message.callable();
         let message_ident = message.ident();
-        let attrs = message.attrs();
+        let attrs = self
+            .contract
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs().to_vec());
         let selector = message.composed_selector();
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(callable.inputs());

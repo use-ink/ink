@@ -1,0 +1,5 @@
+error: ink! config options require an argument separated by '='
+ --> tests/ui/contract/fail/config-keep-attr-missing-arg.rs:3:17
+  |
+3 | #[ink::contract(keep_attr)]
+  |                 ^^^^^^^^^

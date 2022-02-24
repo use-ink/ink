@@ -357,7 +357,12 @@ impl CallBuilder<'_> {
     ) -> TokenStream2 {
         let span = message.span();
         let message_ident = message.ident();
-        let attrs = message.attrs();
+        let attrs = self
+            .trait_def
+            .trait_def
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs());
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
         let output_sig = output.map_or_else(
