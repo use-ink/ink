@@ -152,7 +152,7 @@ impl Default for ChainSpec {
         Self {
             gas_price: 100,
             minimum_balance: 42,
-            block_time: 5,
+            block_time: 6,
         }
     }
 }
