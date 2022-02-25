@@ -425,12 +425,6 @@ impl Engine {
     ///   It provides the same behavior in that it will likely yield the
     ///   same hash for the same subjects within the same block (or
     ///   execution context).
-    ///
-    /// - Returned hashes on the surface might appear random, however for
-    ///   testing purposes the actual implementation is quite simple and
-    ///   computes those "random" hashes by wrapping XOR of the internal
-    ///   entry hash with the eventually repeated sequence of the subject
-    ///   buffer.
     pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
         let seed = (self.exec_context.entropy, subject).encode();
         let mut rng = rand::rngs::StdRng::from_seed(
