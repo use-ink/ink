@@ -14,17 +14,6 @@
 
 //! Right now the `engine` crate can only be used with the `ink_env::DefaultEnvironment`.
 //! This is a known limitation that we want to address in the future.
-//!
-//! # Developer Note
-//!
-//! In the long-term all types in this module should be `Vec<u8>`, as to not
-//! be dependent on any specific off-chain environment type. Then the `engine`
-//! crate could be used with an arbitrary `Environment` configuration.
-//!
-//! Right now the issue is that if e.g. some test calls an `engine` API function
-//! to transfer some balance, then there has to be some `+` operation to the
-//! existing balance. And we can't just add a `Vec<u8>` onto another one, we
-//! need to know the type.
 
 use derive_more::From;
 
