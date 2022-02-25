@@ -30,6 +30,11 @@ use crate::{
         BlockTimestamp,
     },
 };
+use rand::{
+    Rng,
+    SeedableRng,
+};
+use scale::Encode;
 use std::panic::panic_any;
 
 type Result = core::result::Result<(), Error>;
@@ -126,7 +131,8 @@ pub struct Engine {
 pub struct ChainSpec {
     /// The current gas price.
     pub gas_price: Balance,
-    /// The minimum value an account of the chain must have (a.k.a the existential deposit).
+    /// The minimum value an account of the chain must have
+    /// (i.e. the chain's existential deposit).
     pub minimum_balance: Balance,
     /// The targeted block time.
     pub block_time: BlockTimestamp,
@@ -406,10 +412,7 @@ impl Engine {
 
     /// Emulates gas price calculation.
     pub fn weight_to_fee(&self, gas: u64, output: &mut &mut [u8]) {
-        let fee = self
-            .chain_spec
-            .gas_price
-            .saturating_mul(gas.into());
+        let fee = self.chain_spec.gas_price.saturating_mul(gas.into());
         let fee: Vec<u8> = scale::Encode::encode(&fee);
         set_output(output, &fee[..])
     }
@@ -430,10 +433,12 @@ impl Engine {
     ///   buffer.
     pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
         let seed = (self.exec_context.entropy, subject).encode();
-        let rng = rand::rngs::StdRng::from_seed(&seed);
+        let mut rng = rand::rngs::StdRng::from_seed(
+            seed.try_into().expect("seed must be [u8; 32]"),
+        );
         let mut rng_bytes: [u8; 32] = Default::default();
-        rng.fill(&rng_bytes);
-        set_output(output, &entropy_bytes[..])
+        rng.fill(&mut rng_bytes);
+        set_output(output, &rng_bytes[..])
     }
 
     pub fn call_chain_extension(

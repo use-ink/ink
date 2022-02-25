@@ -13,6 +13,9 @@
 // limitations under the License.
 
 //! Right now the `engine` crate can only be used with the `ink_env::DefaultEnvironment`.
+//! This is a known limitation that we want to address in the future.
+//!
+//! # Developer Note
 //!
 //! In the long-term all types in this module should be `Vec<u8>`, as to not
 //! be dependent on any specific off-chain environment type. Then the `engine`
@@ -28,13 +31,13 @@ use derive_more::From;
 /// Same type as the `DefaultEnvironment::Hash` type.
 pub type Hash = [u8; 32];
 
-/// As a temporary solution we choose the same type as the `DefaultEnvironment::BlockNumber` type.
+/// Same type as the `DefaultEnvironment::BlockNumber` type.
 pub type BlockNumber = u32;
 
-/// As a temporary solution we choose the same type as the `DefaultEnvironment::BlockTimestamp` type.
+/// Same type as the `DefaultEnvironment::BlockTimestamp` type.
 pub type BlockTimestamp = u64;
 
-/// As a temporary solution we choose the same type as the `DefaultEnvironment::Balance` type.
+/// Same type as the `DefaultEnvironment::Balance` type.
 pub type Balance = u128;
 
 /// The Account Id type used by this crate.
