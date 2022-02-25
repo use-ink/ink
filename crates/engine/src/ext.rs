@@ -126,7 +126,7 @@ pub struct Engine {
 pub struct ChainSpec {
     /// The current gas price.
     pub gas_price: Balance,
-    /// The minimum value an account of the chain must have.
+    /// The minimum value an account of the chain must have (a.k.a the existential deposit).
     pub minimum_balance: Balance,
     /// The targeted block time.
     pub block_time: BlockTimestamp,
@@ -136,7 +136,7 @@ pub struct ChainSpec {
 ///
 ///   * `gas_price`: 100
 ///   * `minimum_balance`: 42
-///   * `block_time`: 5
+///   * `block_time`: 6
 ///
 /// There is no particular reason behind choosing them this way.
 impl Default for ChainSpec {
@@ -409,7 +409,7 @@ impl Engine {
         let fee = self
             .chain_spec
             .gas_price
-            .saturating_mul(gas.try_into().unwrap_or(u128::MAX));
+            .saturating_mul(gas.into());
         let fee: Vec<u8> = scale::Encode::encode(&fee);
         set_output(output, &fee[..])
     }
@@ -429,12 +429,10 @@ impl Engine {
     ///   entry hash with the eventually repeated sequence of the subject
     ///   buffer.
     pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
-        let mut entropy_bytes = self.exec_context.entropy;
-        let len_entropy = entropy_bytes.len();
-        for (n, subject) in subject.iter().enumerate() {
-            let id = n % len_entropy;
-            entropy_bytes[id] = entropy_bytes[id] ^ subject ^ (n as u8);
-        }
+        let seed = (self.exec_context.entropy, subject).encode();
+        let rng = rand::rngs::StdRng::from_seed(&seed);
+        let mut rng_bytes: [u8; 32] = Default::default();
+        rng.fill(&rng_bytes);
         set_output(output, &entropy_bytes[..])
     }
 
