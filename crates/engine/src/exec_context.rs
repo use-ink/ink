@@ -48,10 +48,8 @@ pub struct ExecContext {
     pub entropy: Hash,
 }
 
-#[allow(clippy::new_without_default)]
-impl ExecContext {
-    /// Creates a new execution context.
-    pub fn new() -> Self {
+impl Default for ExecContext {
+    fn default() -> Self {
         let mut entropy: [u8; 32] = Default::default();
         rand::thread_rng().fill(entropy.as_mut());
         Self {
@@ -62,6 +60,13 @@ impl ExecContext {
             block_timestamp: 0,
             entropy,
         }
+    }
+}
+
+impl ExecContext {
+    /// Creates a new execution context.
+    pub fn new() -> Self {
+        Default::default()
     }
 
     /// Returns the callee.
@@ -75,15 +80,7 @@ impl ExecContext {
 
     /// Resets the execution context
     pub fn reset(&mut self) {
-        self.caller = None;
-        self.callee = None;
-        self.value_transferred = Default::default();
-        self.block_number = 0;
-        self.block_timestamp = 0;
-
-        let mut entropy: [u8; 32] = Default::default();
-        rand::thread_rng().fill(entropy.as_mut());
-        self.entropy = entropy;
+        *self = Default::default();
     }
 }
 
