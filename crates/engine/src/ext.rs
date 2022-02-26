@@ -425,11 +425,21 @@ impl Engine {
     ///   It provides the same behavior in that it will likely yield the
     ///   same hash for the same subjects within the same block (or
     ///   execution context).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    ///    let engine = ink_engine::ext::Engine::default();
+    ///    let seed = [0u8; 32];
+    ///    let mut output = [0u8; 32];
+    ///    engine.random(&seed, &mut output.as_mut_slice());
+    /// ```
     pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
         let seed = (self.exec_context.entropy, subject).encode();
-        let mut rng = rand::rngs::StdRng::from_seed(
-            seed.try_into().expect("seed must be [u8; 32]"),
-        );
+        let mut digest = [0u8; 32];
+        Engine::hash_blake2_256(&seed, &mut digest);
+
+        let mut rng = rand::rngs::StdRng::from_seed(digest);
         let mut rng_bytes: [u8; 32] = Default::default();
         rng.fill(&mut rng_bytes);
         set_output(output, &rng_bytes[..])
