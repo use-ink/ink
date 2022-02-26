@@ -47,7 +47,6 @@
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
-pub mod alloc;
 pub mod traits;
 
 // Tracking issue [#1119]: We allow `dead_code` here since we're purposefully hiding the

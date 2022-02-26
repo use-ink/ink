@@ -29,15 +29,11 @@ use ink_primitives::{
     Key,
     KeyPtr,
 };
-use ink_storage::{
-    alloc,
-    alloc::ContractPhase,
-    traits::{
-        pull_spread_root,
-        push_spread_root,
-        SpreadAllocate,
-        SpreadLayout,
-    },
+use ink_storage::traits::{
+    pull_spread_root,
+    push_spread_root,
+    SpreadAllocate,
+    SpreadLayout,
 };
 
 /// The root key of the ink! smart contract.
