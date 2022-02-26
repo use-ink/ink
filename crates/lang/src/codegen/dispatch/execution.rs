@@ -75,12 +75,6 @@ where
 pub struct ExecuteConstructorConfig {
     /// Yields `true` if the ink! constructor accepts payment.
     pub payable: bool,
-    /// Yields `true` if the dynamic storage allocator has been enabled.
-    ///
-    /// # Note
-    ///
-    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
-    pub dynamic_storage_alloc: bool,
 }
 
 /// Executes the given ink! constructor.
@@ -103,9 +97,6 @@ where
     if !config.payable {
         deny_payment::<<Contract as ContractEnv>::Env>()?;
     }
-    if config.dynamic_storage_alloc {
-        alloc::initialize(ContractPhase::Deploy);
-    }
     let result = ManuallyDrop::new(private::Seal(f()));
     match result.as_result() {
         Ok(contract) => {
@@ -114,9 +105,6 @@ where
             // This requires us to sync back the changes of the contract storage.
             let root_key = <Contract as ContractRootKey>::ROOT_KEY;
             push_spread_root::<Contract>(contract, &root_key);
-            if config.dynamic_storage_alloc {
-                alloc::finalize();
-            }
             Ok(())
         }
         Err(_) => {
@@ -292,12 +280,6 @@ pub struct ExecuteMessageConfig {
     ///
     /// This is usually true for `&mut self` ink! messages.
     pub mutates: bool,
-    /// Yields `true` if the dynamic storage allocator has been enabled.
-    ///
-    /// # Note
-    ///
-    /// Authors can enable it via `#[ink::contract(dynamic_storage_allocator = true)]`.
-    pub dynamic_storage_alloc: bool,
 }
 
 /// Initiates an ink! message call with the given configuration.
@@ -318,9 +300,6 @@ where
 {
     if !config.payable {
         deny_payment::<<Contract as ContractEnv>::Env>()?;
-    }
-    if config.dynamic_storage_alloc {
-        alloc::initialize(ContractPhase::Call);
     }
     let root_key = Key::from([0x00; 32]);
     let contract = pull_spread_root::<Contract>(&root_key);
@@ -373,9 +352,6 @@ where
     if config.mutates {
         let root_key = Key::from([0x00; 32]);
         push_spread_root::<Contract>(contract, &root_key);
-    }
-    if config.dynamic_storage_alloc {
-        alloc::finalize();
     }
     if TypeId::of::<R>() != TypeId::of::<()>() {
         // In case the return type is `()` we do not return a value.
