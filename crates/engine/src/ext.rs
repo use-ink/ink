@@ -430,9 +430,9 @@ impl Engine {
     ///
     /// ```rust
     ///    let engine = ink_engine::ext::Engine::default();
-    ///    let seed = [0u8; 32];
+    ///    let subject = [0u8; 32];
     ///    let mut output = [0u8; 32];
-    ///    engine.random(&seed, &mut output.as_mut_slice());
+    ///    engine.random(&subject, &mut output.as_mut_slice());
     /// ```
     pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
         let seed = (self.exec_context.entropy, subject).encode();
