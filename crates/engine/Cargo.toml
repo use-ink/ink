@@ -22,6 +22,8 @@ sha2 = { version = "0.10" }
 sha3 = { version = "0.10" }
 blake2 = { version = "0.10" }
 
+rand = { version = "0.8" }
+
 # ECDSA for the off-chain environment.
 secp256k1 = { version = "0.21.2", features = ["recovery", "global-context"], optional = true }
 

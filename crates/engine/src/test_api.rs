@@ -186,6 +186,16 @@ impl Engine {
         (*reads, *writes)
     }
 
+    /// Returns the total number of reads executed.
+    pub fn count_reads(&self) -> usize {
+        self.debug_info.count_reads.iter().map(|(_, v)| v).sum()
+    }
+
+    /// Returns the total number of writes executed.
+    pub fn count_writes(&self) -> usize {
+        self.debug_info.count_writes.iter().map(|(_, v)| v).sum()
+    }
+
     /// Sets a caller for the next call.
     pub fn set_caller(&mut self, caller: Vec<u8>) {
         self.exec_context.caller = Some(caller.into());
@@ -208,6 +218,12 @@ impl Engine {
                 Error::Account(AccountError::NoAccountForId(account_id.to_vec()))
             })?;
         Ok(cells.len())
+    }
+
+    /// Advances the chain by a single block.
+    pub fn advance_block(&mut self) {
+        self.exec_context.block_number += 1;
+        self.exec_context.block_timestamp += self.chain_spec.block_time;
     }
 
     /// Returns the callee, i.e. the currently executing contract.
@@ -289,5 +305,27 @@ mod tests {
 
         // then
         assert_eq!(engine.count_used_storage_cells(&account_id), Ok(0));
+    }
+
+    #[test]
+    fn count_total_writes() {
+        // given
+        let mut engine = Engine::new();
+        let key: &[u8; 32] = &[0x42; 32];
+        let mut buf = [0_u8; 32];
+
+        // when
+        engine.set_callee(vec![1; 32]);
+        engine.set_storage(key, &[0x05_u8; 5]);
+        engine.set_storage(key, &[0x05_u8; 6]);
+        engine.get_storage(key, &mut &mut buf[..]).unwrap();
+
+        engine.set_callee(vec![2; 32]);
+        engine.set_storage(key, &[0x07_u8; 7]);
+        engine.get_storage(key, &mut &mut buf[..]).unwrap();
+
+        // then
+        assert_eq!(engine.count_writes(), 3);
+        assert_eq!(engine.count_reads(), 2);
     }
 }

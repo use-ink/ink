@@ -113,6 +113,16 @@ pub fn set_clear_storage_disabled(_disable: bool) {
     );
 }
 
+/// Advances the chain by a single block.
+pub fn advance_block<T>()
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.advance_block();
+    })
+}
+
 /// Sets a caller for the next call.
 pub fn set_caller<T>(caller: T::AccountId)
 where
