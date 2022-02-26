@@ -233,36 +233,12 @@ mod tests {
     }
 
     #[test]
-    fn storage_alloc_works() {
-        assert_try_from(
-            syn::parse_quote! {
-                dynamic_storage_allocator = true
-            },
-            Ok(Config {
-                dynamic_storage_allocator: Some(true),
-                as_dependency: None,
-                env: None,
-                whitelisted_attributes: Default::default(),
-            }),
-        )
-    }
-
-    #[test]
-    fn storage_alloc_invalid_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { dynamic_storage_allocator = "invalid" },
-            Err("expected a bool literal for `dynamic_storage_allocator` ink! configuration argument"),
-        )
-    }
-
-    #[test]
     fn as_dependency_works() {
         assert_try_from(
             syn::parse_quote! {
                 compile_as_dependency = false
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: Some(false),
                 env: None,
                 whitelisted_attributes: Default::default(),
@@ -287,7 +263,6 @@ mod tests {
                 env = ::my::env::Types
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: None,
                 env: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
@@ -334,7 +309,6 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: None,
                 env: None,
                 whitelisted_attributes: attrs,
