@@ -334,6 +334,16 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -447,6 +457,16 @@
     <span class="macro">unimplemented!</span>(
         <span class="string">&quot;off-chain environment does not yet support `set_clear_storage_disabled`&quot;</span>
     );
+}
+
+<span class="doccomment">/// Advances the chain by a single block.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance_block</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">Environment</span>,
+{
+    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
+        <span class="ident">instance</span>.<span class="ident">engine</span>.<span class="ident">advance_block</span>();
+    })
 }
 
 <span class="doccomment">/// Sets a caller for the next call.</span>
