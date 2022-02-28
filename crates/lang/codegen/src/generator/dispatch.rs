@@ -566,17 +566,12 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::PAYABLE
             );
-            let is_dynamic_storage_allocation_enabled = self
-                .contract
-                .config()
-                .is_dynamic_storage_allocator_enabled();
 
             quote_spanned!(constructor_span=>
                 Self::#constructor_ident(input) => {
                     ::ink_lang::codegen::execute_constructor::<#storage_ident, _, _>(
                         ::ink_lang::codegen::ExecuteConstructorConfig {
                             payable: #accepts_payment,
-                            dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled
                         },
                         move || { #constructor_callable(input) }
                     )
@@ -745,17 +740,12 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::MUTATES
             );
-            let is_dynamic_storage_allocation_enabled = self
-                .contract
-                .config()
-                .is_dynamic_storage_allocator_enabled();
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
                     let config = ::ink_lang::codegen::ExecuteMessageConfig {
                         payable: #accepts_payment,
                         mutates: #mutates_storage,
-                        dynamic_storage_alloc: #is_dynamic_storage_allocation_enabled,
                     };
                     let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
                         ::core::mem::ManuallyDrop::new(

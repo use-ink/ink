@@ -24,11 +24,6 @@ use syn::spanned::Spanned;
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Config {
-    /// If `true` enables the dynamic storage allocator
-    /// facilities and code generation of the ink! smart
-    /// contract. Does incur some overhead. The default is
-    /// `true`.
-    dynamic_storage_allocator: Option<bool>,
     /// If `true` compiles this ink! smart contract always as
     /// if it was a dependency of another smart contract.
     /// This configuration is mainly needed for testing and
@@ -125,29 +120,12 @@ impl TryFrom<ast::AttributeArgs> for Config {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut dynamic_storage_allocator: Option<(bool, ast::MetaNameValue)> = None;
         let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
         let mut env: Option<(Environment, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("dynamic_storage_allocator") {
-                if let Some((_, ast)) = dynamic_storage_allocator {
-                    return Err(duplicate_config_err(
-                        ast,
-                        arg,
-                        "dynamic_storage_allocator",
-                    ))
-                }
-                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
-                    dynamic_storage_allocator = Some((lit_bool.value, arg))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a bool literal for `dynamic_storage_allocator` ink! configuration argument",
-                    ))
-                }
-            } else if arg.name.is_ident("compile_as_dependency") {
+            if arg.name.is_ident("compile_as_dependency") {
                 if let Some((_, ast)) = as_dependency {
                     return Err(duplicate_config_err(ast, arg, "compile_as_dependency"))
                 }
@@ -183,7 +161,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
             }
         }
         Ok(Config {
-            dynamic_storage_allocator: dynamic_storage_allocator.map(|(value, _)| value),
             as_dependency: as_dependency.map(|(value, _)| value),
             env: env.map(|(value, _)| value),
             whitelisted_attributes,
@@ -201,14 +178,6 @@ impl Config {
             .map(|env| &env.path)
             .cloned()
             .unwrap_or(Environment::default().path)
-    }
-
-    /// Returns `true` if the dynamic storage allocator facilities are enabled
-    /// for the ink! smart contract, `false` otherwise.
-    ///
-    /// If nothing has been specified returns the default which is `false`.
-    pub fn is_dynamic_storage_allocator_enabled(&self) -> bool {
-        self.dynamic_storage_allocator.unwrap_or(false)
     }
 
     /// Return `true` if this ink! smart contract shall always be compiled as
@@ -264,36 +233,12 @@ mod tests {
     }
 
     #[test]
-    fn storage_alloc_works() {
-        assert_try_from(
-            syn::parse_quote! {
-                dynamic_storage_allocator = true
-            },
-            Ok(Config {
-                dynamic_storage_allocator: Some(true),
-                as_dependency: None,
-                env: None,
-                whitelisted_attributes: Default::default(),
-            }),
-        )
-    }
-
-    #[test]
-    fn storage_alloc_invalid_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { dynamic_storage_allocator = "invalid" },
-            Err("expected a bool literal for `dynamic_storage_allocator` ink! configuration argument"),
-        )
-    }
-
-    #[test]
     fn as_dependency_works() {
         assert_try_from(
             syn::parse_quote! {
                 compile_as_dependency = false
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: Some(false),
                 env: None,
                 whitelisted_attributes: Default::default(),
@@ -318,7 +263,6 @@ mod tests {
                 env = ::my::env::Types
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: None,
                 env: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
@@ -365,7 +309,6 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(Config {
-                dynamic_storage_allocator: None,
                 as_dependency: None,
                 env: None,
                 whitelisted_attributes: attrs,
