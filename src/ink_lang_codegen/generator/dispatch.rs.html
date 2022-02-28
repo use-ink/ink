@@ -876,16 +876,6 @@
 <span id="871">871</span>
 <span id="872">872</span>
 <span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1454,17 +1444,12 @@
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
                 }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::PAYABLE</span>
             );
-            <span class="kw">let</span> <span class="ident">is_dynamic_storage_allocation_enabled</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">contract</span>
-                .<span class="ident">config</span>()
-                .<span class="ident">is_dynamic_storage_allocator_enabled</span>();
 
             <span class="macro">quote_spanned!</span>(<span class="ident">constructor_span</span>=&gt;
                 <span class="self">Self</span>::#<span class="ident">constructor_ident</span>(<span class="ident">input</span>) =&gt; {
                     <span class="ident">::ink_lang::codegen::execute_constructor</span>::<span class="op">&lt;</span>#<span class="ident">storage_ident</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">&gt;</span>(
                         <span class="ident">::ink_lang::codegen::ExecuteConstructorConfig</span> {
                             <span class="ident">payable</span>: #<span class="ident">accepts_payment</span>,
-                            <span class="ident">dynamic_storage_alloc</span>: #<span class="ident">is_dynamic_storage_allocation_enabled</span>
                         },
                         <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> { #<span class="ident">constructor_callable</span>(<span class="ident">input</span>) }
                     )
@@ -1633,17 +1618,12 @@
                     }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::IDS</span>[#<span class="ident">index</span>]
                 }<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::MUTATES</span>
             );
-            <span class="kw">let</span> <span class="ident">is_dynamic_storage_allocation_enabled</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">contract</span>
-                .<span class="ident">config</span>()
-                .<span class="ident">is_dynamic_storage_allocator_enabled</span>();
 
             <span class="macro">quote_spanned!</span>(<span class="ident">message_span</span>=&gt;
                 <span class="self">Self</span>::#<span class="ident">message_ident</span>(<span class="ident">input</span>) =&gt; {
                     <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">::ink_lang::codegen::ExecuteMessageConfig</span> {
                         <span class="ident">payable</span>: #<span class="ident">accepts_payment</span>,
                         <span class="ident">mutates</span>: #<span class="ident">mutates_storage</span>,
-                        <span class="ident">dynamic_storage_alloc</span>: #<span class="ident">is_dynamic_storage_allocation_enabled</span>,
                     };
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contract</span>: <span class="ident">::core::mem::ManuallyDrop</span><span class="op">&lt;</span>#<span class="ident">storage_ident</span><span class="op">&gt;</span> <span class="op">=</span>
                         <span class="ident">::core::mem::ManuallyDrop::new</span>(
