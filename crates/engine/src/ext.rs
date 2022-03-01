@@ -18,6 +18,7 @@
 //! for more information.
 
 use crate::{
+    chain_extension::ChainExtensionHandler,
     database::Database,
     exec_context::ExecContext,
     test_api::{
@@ -125,6 +126,8 @@ pub struct Engine {
     pub(crate) debug_info: DebugInfo,
     /// The chain specification.
     pub chain_spec: ChainSpec,
+    /// Handler for registered chain extensions.
+    pub chain_extension_handler: ChainExtensionHandler,
 }
 
 /// The chain specification.
@@ -165,6 +168,7 @@ impl Engine {
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
             chain_spec: ChainSpec::default(),
+            chain_extension_handler: ChainExtensionHandler::new(),
         }
     }
 }
@@ -445,15 +449,26 @@ impl Engine {
         set_output(output, &rng_bytes[..])
     }
 
+    /// Calls the chain extension method registered at `func_id` with `input`.
     pub fn call_chain_extension(
         &mut self,
-        _func_id: u32,
-        _input: &[u8],
-        _output: &mut &mut [u8],
-    ) -> u32 {
-        unimplemented!(
-            "off-chain environment does not yet support `call_chain_extension`"
-        );
+        func_id: u32,
+        input: &[u8],
+        output: &mut &mut [u8],
+    ) {
+        let encoded_input = input.encode();
+        let (status_code, out) = self
+            .chain_extension_handler
+            .eval(func_id, &encoded_input)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "Encountered unexpected missing chain extension method: {:?}",
+                    error
+                );
+            });
+        let res = (status_code, out);
+        let decoded: Vec<u8> = scale::Encode::encode(&res);
+        set_output(output, &decoded[..])
     }
 
     /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,

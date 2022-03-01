@@ -26,6 +26,8 @@ use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
+pub use ink_engine::ChainExtension;
+
 /// Record for an emitted event.
 #[derive(Clone)]
 pub struct EmittedEvent {
@@ -79,6 +81,19 @@ where
             .engine
             .get_balance(scale::Encode::encode(&account_id))
             .map_err(Into::into)
+    })
+}
+
+/// Registers a new chain extension.
+pub fn register_chain_extension<E>(extension: E)
+where
+    E: ink_engine::ChainExtension + 'static,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .chain_extension_handler
+            .register(Box::new(extension));
     })
 }
 
