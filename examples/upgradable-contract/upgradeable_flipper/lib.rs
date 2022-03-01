@@ -13,6 +13,11 @@ pub mod flipper {
 
     #[ink(storage)]
     pub struct Flipper {
+        /// The field is `Upgradable`, which means if the field is not initialized, it will be.
+        ///
+        /// By default ink! throw an error that field is not initialized.
+        /// With that wrapper, you can initialize the field later during the method execution,
+        /// not in the constructor.
         value: Upgradable<bool, NotInitialized>,
     }
 

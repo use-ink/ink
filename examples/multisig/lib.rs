@@ -519,9 +519,9 @@ mod multisig {
             let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
                 .set_call_type(
                     Call::new()
-                        .set_callee(t.callee)
-                        .set_gas_limit(t.gas_limit)
-                        .set_transferred_value(t.transferred_value),
+                        .callee(t.callee)
+                        .gas_limit(t.gas_limit)
+                        .transferred_value(t.transferred_value),
                 )
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
@@ -551,9 +551,9 @@ mod multisig {
             let result = build_call::<<Self as ::ink_lang::reflect::ContractEnv>::Env>()
                 .set_call_type(
                     Call::new()
-                        .set_callee(t.callee)
-                        .set_gas_limit(t.gas_limit)
-                        .set_transferred_value(t.transferred_value),
+                        .callee(t.callee)
+                        .gas_limit(t.gas_limit)
+                        .transferred_value(t.transferred_value),
                 )
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),

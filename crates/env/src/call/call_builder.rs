@@ -36,7 +36,6 @@ pub struct CallParams<E, CallType, Args, R>
 where
     E: Environment,
 {
-    env: PhantomData<fn() -> E>,
     /// A marker to tell us which call we are going to perform.
     call_type: CallType,
     /// The flags used to change the behavior of a contract call.
@@ -45,6 +44,25 @@ where
     _return_type: ReturnType<R>,
     /// The inputs to the execution which is a selector and encoded arguments.
     exec_input: ExecutionInput<Args>,
+    /// `Environment` is used by `CallType` for correct types
+    _phantom: PhantomData<fn() -> E>,
+}
+
+impl<E, CallType, Args, R> CallParams<E, CallType, Args, R>
+where
+    E: Environment,
+{
+    /// Returns the call flags.
+    #[inline]
+    pub(crate) fn call_flags(&self) -> &CallFlags {
+        &self.call_flags
+    }
+
+    /// Returns the execution input.
+    #[inline]
+    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
+        &self.exec_input
+    }
 }
 
 impl<E, Args, R> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, R>
@@ -55,12 +73,6 @@ where
     #[inline]
     pub(crate) fn callee(&self) -> &E::AccountId {
         &self.call_type.callee
-    }
-
-    /// Returns the call flags.
-    #[inline]
-    pub(crate) fn call_flags(&self) -> &CallFlags {
-        &self.call_flags
     }
 
     /// Returns the chosen gas limit for the called contract execution.
@@ -74,37 +86,17 @@ where
     pub(crate) fn transferred_value(&self) -> &E::Balance {
         &self.call_type.transferred_value
     }
-
-    /// Returns the execution input.
-    #[inline]
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
-        &self.exec_input
-    }
 }
 
 impl<E, Args, R> CallParams<E, DelegateCall<E, E::Hash>, Args, R>
 where
     E: Environment,
 {
-    /// Returns the call flags.
-    #[inline]
-    #[allow(dead_code)] // it is used in the `invoke_contract_delegate` / `eval_contract_delegate` functions.
-    pub(crate) fn call_flags(&self) -> &CallFlags {
-        &self.call_flags
-    }
-
     /// Returns the code hash which we use to perform a delegate call.
     #[inline]
     #[allow(dead_code)] // it is used in the `invoke_contract_delegate` / `eval_contract_delegate` functions.
     pub(crate) fn code_hash(&self) -> &E::Hash {
         &self.call_type.code_hash
-    }
-
-    /// Returns the execution input.
-    #[inline]
-    #[allow(dead_code)] // it is used in the `invoke_contract_delegate` / `eval_contract_delegate` functions.
-    pub(crate) fn exec_input(&self) -> &ExecutionInput<Args> {
-        &self.exec_input
     }
 }
 
@@ -210,7 +202,7 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .set_call_type(Call::new().set_callee(AccountId::from([0x42; 32])).set_gas_limit(5000).set_transferred_value(10))
+///     .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -243,9 +235,9 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(Call::new().set_callee(AccountId::from([0x42; 32]))
-///                 .set_gas_limit(5000)
-///                 .set_transferred_value(10))
+///     .set_call_type(Call::new().callee(AccountId::from([0x42; 32]))
+///                 .gas_limit(5000)
+///                 .transferred_value(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -272,7 +264,7 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(DelegateCall::new().set_code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+///     .set_call_type(DelegateCall::new().code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -294,30 +286,30 @@ where
     E: Environment,
 {
     CallBuilder {
-        env: Default::default(),
         call_type: Default::default(),
         call_flags: Default::default(),
         exec_input: Default::default(),
         return_type: Default::default(),
+        _phantom: Default::default(),
     }
 }
 
 /// The default call type for cross-contract calls. Performs a cross-contract call to `callee`
 /// with gas limit `gas_limit`, transferring `transferred_value` of currency.
 pub struct Call<E, Callee, GasLimit, TransferredValue> {
-    env: PhantomData<fn() -> E>,
     callee: Callee,
     gas_limit: GasLimit,
     transferred_value: TransferredValue,
+    _phantom: PhantomData<fn() -> E>,
 }
 
 impl<E: Environment> Default for Call<E, E::AccountId, u64, E::Balance> {
     fn default() -> Self {
         Call {
-            env: Default::default(),
             callee: Default::default(),
             gas_limit: Default::default(),
             transferred_value: E::Balance::zero(),
+            _phantom: Default::default(),
         }
     }
 }
@@ -327,15 +319,15 @@ where
     E: Environment,
 {
     /// Sets the `callee` for the current cross-contract call.
-    pub fn set_callee(
+    pub fn callee(
         self,
         callee: E::AccountId,
     ) -> Call<E, E::AccountId, GasLimit, TransferredValue> {
         Call {
-            env: self.env,
             callee,
             gas_limit: self.gas_limit,
             transferred_value: self.transferred_value,
+            _phantom: self._phantom,
         }
     }
 }
@@ -345,12 +337,12 @@ where
     E: Environment,
 {
     /// Sets the `gas_limit` for the current cross-contract call.
-    pub fn set_gas_limit(self, gas_limit: u64) -> Call<E, Callee, u64, TransferredValue> {
+    pub fn gas_limit(self, gas_limit: u64) -> Call<E, Callee, u64, TransferredValue> {
         Call {
-            env: self.env,
             callee: self.callee,
             gas_limit,
             transferred_value: self.transferred_value,
+            _phantom: self._phantom,
         }
     }
 }
@@ -360,15 +352,15 @@ where
     E: Environment,
 {
     /// Sets the `transferred_value` for the current cross-contract call.
-    pub fn set_transferred_value(
+    pub fn transferred_value(
         self,
         transferred_value: E::Balance,
     ) -> Call<E, Callee, GasLimit, E::Balance> {
         Call {
-            env: self.env,
             callee: self.callee,
             gas_limit: self.gas_limit,
             transferred_value,
+            _phantom: self._phantom,
         }
     }
 }
@@ -382,8 +374,8 @@ impl<E: Environment> Call<E, E::AccountId, u64, E::Balance> {
 
 /// The `delegatecall` call type. Performs a call with the given code hash.
 pub struct DelegateCall<E: Environment, CodeHash> {
-    env: PhantomData<fn() -> E>,
     code_hash: CodeHash,
+    _phantom: PhantomData<fn() -> E>,
 }
 
 impl<E: Environment> DelegateCall<E, E::Hash> {
@@ -396,18 +388,18 @@ impl<E: Environment> DelegateCall<E, E::Hash> {
 impl<E: Environment> Default for DelegateCall<E, E::Hash> {
     fn default() -> Self {
         DelegateCall {
-            env: PhantomData,
             code_hash: E::Hash::clear(),
+            _phantom: PhantomData,
         }
     }
 }
 
 impl<E: Environment> DelegateCall<E, E::Hash> {
     /// Sets the `code_hash` to perform a delegate call with.
-    pub fn set_code_hash(self, code_hash: E::Hash) -> DelegateCall<E, E::Hash> {
+    pub fn code_hash(self, code_hash: E::Hash) -> DelegateCall<E, E::Hash> {
         DelegateCall {
-            env: PhantomData,
             code_hash,
+            _phantom: PhantomData,
         }
     }
 }
@@ -417,12 +409,12 @@ pub struct CallBuilder<E, CallType, Args, RetType>
 where
     E: Environment,
 {
-    env: PhantomData<fn() -> E>,
     /// The current parameters that have been built up so far.
     call_type: CallType,
     call_flags: CallFlags,
     exec_input: Args,
     return_type: RetType,
+    _phantom: PhantomData<fn() -> E>,
 }
 
 impl<E, CallType, Args, RetType> CallBuilder<E, Unset<CallType>, Args, RetType>
@@ -437,11 +429,11 @@ where
         call_type: NewCallType,
     ) -> CallBuilder<E, Set<NewCallType>, Args, RetType> {
         CallBuilder {
-            env: Default::default(),
             call_type: Set(call_type),
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -458,11 +450,11 @@ where
         call_flags: CallFlags,
     ) -> CallBuilder<E, CallType, Args, RetType> {
         CallBuilder {
-            env: Default::default(),
             call_type: self.call_type,
             call_flags,
             exec_input: self.exec_input,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -496,11 +488,11 @@ where
         R: IndicateReturnType,
     {
         CallBuilder {
-            env: Default::default(),
             call_type: self.call_type,
             call_flags: self.call_flags,
             exec_input: self.exec_input,
             return_type: Set(Default::default()),
+            _phantom: Default::default(),
         }
     }
 }
@@ -516,11 +508,11 @@ where
         exec_input: ExecutionInput<Args>,
     ) -> CallBuilder<E, CallType, Set<ExecutionInput<Args>>, RetType> {
         CallBuilder {
-            env: Default::default(),
             call_type: self.call_type,
             call_flags: self.call_flags,
             exec_input: Set(exec_input),
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -541,11 +533,11 @@ where
         self,
     ) -> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, RetType> {
         CallParams {
-            env: self.env,
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
+            _phantom: self._phantom,
         }
     }
 }
@@ -558,11 +550,11 @@ where
     /// Finalizes the call builder to call a function.
     pub fn params(self) -> CallParams<E, DelegateCall<E, E::Hash>, Args, RetType> {
         CallParams {
-            env: self.env,
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: self.exec_input.value(),
+            _phantom: self._phantom,
         }
     }
 }
@@ -584,11 +576,11 @@ where
     ) -> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, EmptyArgumentList, ()>
     {
         CallParams {
-            env: self.env,
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: Default::default(),
+            _phantom: self._phantom,
         }
     }
 }
@@ -608,11 +600,11 @@ where
         self,
     ) -> CallParams<E, DelegateCall<E, E::Hash>, EmptyArgumentList, ()> {
         CallParams {
-            env: self.env,
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
             _return_type: Default::default(),
             exec_input: Default::default(),
+            _phantom: self._phantom,
         }
     }
 }

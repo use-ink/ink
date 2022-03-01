@@ -396,7 +396,7 @@ mod erc1155 {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = build_call::<Environment>()
-                    .set_call_type(Call::new().set_callee(to).set_gas_limit(5000))
+                    .set_call_type(Call::new().callee(to).gas_limit(5000))
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
                             .push_arg(caller)

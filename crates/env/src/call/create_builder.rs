@@ -130,13 +130,13 @@ pub struct CreateBuilder<E, CodeHash, GasLimit, Endowment, Args, Salt, R>
 where
     E: Environment,
 {
-    env: PhantomData<fn() -> E>,
     code_hash: CodeHash,
     gas_limit: GasLimit,
     endowment: Endowment,
     exec_input: Args,
     salt: Salt,
     return_type: ReturnType<R>,
+    _phantom: PhantomData<fn() -> E>,
 }
 
 /// Returns a new [`CreateBuilder`] to build up the parameters to a cross-contract instantiation.
@@ -202,13 +202,13 @@ where
     R: FromAccountId<E>,
 {
     CreateBuilder {
-        env: Default::default(),
         code_hash: Default::default(),
         gas_limit: Default::default(),
         endowment: Default::default(),
         exec_input: Default::default(),
         salt: Default::default(),
         return_type: Default::default(),
+        _phantom: Default::default(),
     }
 }
 
@@ -224,13 +224,13 @@ where
         code_hash: E::Hash,
     ) -> CreateBuilder<E, Set<E::Hash>, GasLimit, Endowment, Args, Salt, R> {
         CreateBuilder {
-            env: Default::default(),
             code_hash: Set(code_hash),
             gas_limit: self.gas_limit,
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: self.salt,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -247,13 +247,13 @@ where
         gas_limit: u64,
     ) -> CreateBuilder<E, CodeHash, Set<u64>, Endowment, Args, Salt, R> {
         CreateBuilder {
-            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: Set(gas_limit),
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: self.salt,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -270,13 +270,13 @@ where
         endowment: E::Balance,
     ) -> CreateBuilder<E, CodeHash, GasLimit, Set<E::Balance>, Args, Salt, R> {
         CreateBuilder {
-            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: Set(endowment),
             exec_input: self.exec_input,
             salt: self.salt,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -302,13 +302,13 @@ where
     ) -> CreateBuilder<E, CodeHash, GasLimit, Endowment, Set<ExecutionInput<Args>>, Salt, R>
     {
         CreateBuilder {
-            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: self.endowment,
             exec_input: Set(exec_input),
             salt: self.salt,
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
@@ -328,13 +328,13 @@ where
         Salt: AsRef<[u8]>,
     {
         CreateBuilder {
-            env: Default::default(),
             code_hash: self.code_hash,
             gas_limit: self.gas_limit,
             endowment: self.endowment,
             exec_input: self.exec_input,
             salt: Set(salt),
             return_type: self.return_type,
+            _phantom: Default::default(),
         }
     }
 }
