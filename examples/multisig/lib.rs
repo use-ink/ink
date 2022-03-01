@@ -185,7 +185,7 @@ mod multisig {
 
     /// Emitted when an owner revoked a confirmation.
     #[ink(event)]
-    pub struct Revokation {
+    pub struct Revocation {
         /// The transaction that was revoked.
         #[ink(topic)]
         transaction: TransactionId,
@@ -204,7 +204,7 @@ mod multisig {
 
     /// Emitted when a transaction was canceled.
     #[ink(event)]
-    pub struct Cancelation {
+    pub struct Cancellation {
         /// The transaction that was canceled.
         #[ink(topic)]
         transaction: TransactionId,
@@ -446,7 +446,7 @@ mod multisig {
         pub fn cancel_transaction(&mut self, trans_id: TransactionId) {
             self.ensure_from_wallet();
             if self.take_transaction(trans_id).is_some() {
-                self.env().emit_event(Cancelation {
+                self.env().emit_event(Cancellation {
                     transaction: trans_id,
                 });
             }
@@ -492,7 +492,7 @@ mod multisig {
                 confirmation_count -= 1;
                 self.confirmation_count
                     .insert(&trans_id, &confirmation_count);
-                self.env().emit_event(Revokation {
+                self.env().emit_event(Revocation {
                     transaction: trans_id,
                     from: caller,
                 });
