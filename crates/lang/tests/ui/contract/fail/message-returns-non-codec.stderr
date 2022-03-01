@@ -26,7 +26,7 @@ note: required by a bound in `finalize_message`
     |     R: scale::Encode + 'static,
     |        ^^^^^^^^^^^^^ required by this bound in `finalize_message`
 
-error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::call::Call<DefaultEnvironment, ink_env::AccountId, u64, u128>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
+error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment, ink_env::AccountId, u64, u128>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>`, but its trait bounds were not satisfied
    --> tests/ui/contract/fail/message-returns-non-codec.rs:18:9
     |
 6   |       pub struct NonCodecType;
@@ -35,7 +35,7 @@ error[E0599]: the method `fire` exists for struct `ink_env::call::CallBuilder<De
 18  | /         pub fn message(&self) -> NonCodecType {
 19  | |             NonCodecType
 20  | |         }
-    | |_________^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<ink_env::call::Call<DefaultEnvironment, ink_env::AccountId, u64, u128>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>` due to unsatisfied trait bounds
+    | |_________^ method cannot be called on `ink_env::call::CallBuilder<DefaultEnvironment, Set<Call<DefaultEnvironment, ink_env::AccountId, u64, u128>>, Set<ExecutionInput<ArgumentList<ArgumentListEnd, ArgumentListEnd>>>, Set<ReturnType<NonCodecType>>>` due to unsatisfied trait bounds
     |
     = note: the following trait bounds were not satisfied:
             `NonCodecType: parity_scale_codec::Decode`
