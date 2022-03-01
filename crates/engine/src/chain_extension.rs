@@ -53,6 +53,12 @@ pub trait ChainExtension {
     fn call(&mut self, input: &[u8], output: &mut Vec<u8>) -> u32;
 }
 
+impl Default for ChainExtensionHandler {
+    fn default() -> Self {
+        ChainExtensionHandler::new()
+    }
+}
+
 impl ChainExtensionHandler {
     /// Creates a new chain extension handler.
     ///
@@ -88,7 +94,7 @@ impl ChainExtensionHandler {
                 let status_code = occupied.into_mut().call(input, &mut self.output);
                 Ok((status_code, &mut self.output))
             }
-            Entry::Vacant(_vacant) => Err(Error::UnregisteredChainExtension.into()),
+            Entry::Vacant(_vacant) => Err(Error::UnregisteredChainExtension),
         }
     }
 }

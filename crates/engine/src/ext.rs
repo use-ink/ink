@@ -466,7 +466,6 @@ impl Engine {
                     error
                 );
             });
-        let signature =
         let res = (status_code, out);
         let decoded: Vec<u8> = scale::Encode::encode(&res);
         set_output(output, &decoded[..])
