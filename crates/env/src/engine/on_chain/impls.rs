@@ -262,7 +262,7 @@ impl EnvBackend for EnvInstance {
         V: scale::Encode,
     {
         let buffer = self.scoped_buffer().take_encoded(value);
-        ext::set_storage(key.as_ref(), &buffer[..]);
+        ext::set_storage(key.as_ref(), buffer);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
@@ -461,7 +461,7 @@ impl TypedEnvBackend for EnvInstance {
         T: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
-        ext::terminate(&buffer[..]);
+        ext::terminate(buffer);
     }
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
