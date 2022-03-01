@@ -26,6 +26,7 @@ use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
+pub use super::call_data::CallData;
 pub use ink_engine::ChainExtension;
 
 /// Record for an emitted event.

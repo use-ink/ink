@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod call_data;
 mod impls;
 pub mod test_api;
 mod types;
 
 #[cfg(test)]
 mod tests;
+
+pub use call_data::CallData;
 
 use super::OnInstance;
 use crate::Error;
