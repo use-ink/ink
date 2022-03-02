@@ -56,6 +56,7 @@ std = [
     "ink_allocator/std",
     "ink_prelude/std",
     "ink_primitives/std",
+    "ink_engine/std",
     "scale/std",
     "scale-info/std",
     "secp256k1",
@@ -69,5 +70,4 @@ std = [
 ]
 # Enable contract debug messages via `debug_print!` and `debug_println!`.
 ink-debug = []
-ink-experimental-engine = ["ink_engine"]
 wee-alloc = ["ink_allocator/wee-alloc"]

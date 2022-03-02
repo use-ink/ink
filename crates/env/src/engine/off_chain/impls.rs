@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{
-    hashing,
-    Account,
-    EnvInstance,
-};
+use super::EnvInstance;
 use crate::{
     call::{
         utils::ReturnType,
@@ -31,7 +27,11 @@ use crate::{
         Keccak256,
         Sha2x256,
     },
-    topics::Topics,
+    topics::{
+        Topics,
+        TopicsBuilderBackend,
+    },
+    Clear,
     EnvBackend,
     Environment,
     Error,
@@ -39,38 +39,16 @@ use crate::{
     ReturnFlags,
     TypedEnvBackend,
 };
-use core::convert::TryInto;
+use ink_engine::{
+    ext,
+    ext::Engine,
+};
 use ink_primitives::Key;
-use num_traits::Bounded;
 
-const UNINITIALIZED_EXEC_CONTEXT: &str = "uninitialized execution context: \
-a possible source of error could be that you are using `#[test]` instead of `#[ink::test]`.";
-
-impl EnvInstance {
-    /// Returns the callee account.
-    fn callee_account(&self) -> &Account {
-        let callee = self
-            .exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .callee
-            .clone();
-        self.accounts
-            .get_account_off(&callee)
-            .expect("callee account does not exist")
-    }
-
-    /// Returns the callee account as mutable reference.
-    fn callee_account_mut(&mut self) -> &mut Account {
-        let callee = self
-            .exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .callee
-            .clone();
-        self.accounts
-            .get_account_off_mut(&callee)
-            .expect("callee account does not exist")
-    }
-}
+/// The capacity of the static buffer.
+/// This is the same size as the ink! on-chain environment. We chose to use the same size
+/// to be as close to the on-chain behavior as possible.
+const BUFFER_SIZE: usize = 1 << 14; // 16 kB
 
 impl CryptoHash for Blake2x128 {
     fn hash(input: &[u8], output: &mut <Self as HashOutput>::Type) {
@@ -80,7 +58,7 @@ impl CryptoHash for Blake2x128 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 16);
-        hashing::blake2b_128(input, output);
+        Engine::hash_blake2_128(input, output);
     }
 }
 
@@ -92,7 +70,7 @@ impl CryptoHash for Blake2x256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        hashing::blake2b_256(input, output);
+        Engine::hash_blake2_256(input, output);
     }
 }
 
@@ -104,7 +82,7 @@ impl CryptoHash for Sha2x256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        hashing::sha2_256(input, output);
+        Engine::hash_sha2_256(input, output);
     }
 }
 
@@ -116,7 +94,91 @@ impl CryptoHash for Keccak256 {
             OutputType
         );
         let output: &mut OutputType = arrayref::array_mut_ref!(output, 0, 32);
-        hashing::keccak_256(input, output);
+        Engine::hash_keccak_256(input, output);
+    }
+}
+
+impl From<ext::Error> for crate::Error {
+    fn from(ext_error: ext::Error) -> Self {
+        match ext_error {
+            ext::Error::Unknown => Self::Unknown,
+            ext::Error::CalleeTrapped => Self::CalleeTrapped,
+            ext::Error::CalleeReverted => Self::CalleeReverted,
+            ext::Error::KeyNotFound => Self::KeyNotFound,
+            ext::Error::_BelowSubsistenceThreshold => Self::_BelowSubsistenceThreshold,
+            ext::Error::TransferFailed => Self::TransferFailed,
+            ext::Error::_EndowmentTooLow => Self::_EndowmentTooLow,
+            ext::Error::CodeNotFound => Self::CodeNotFound,
+            ext::Error::NotCallable => Self::NotCallable,
+            ext::Error::LoggingDisabled => Self::LoggingDisabled,
+            ext::Error::EcdsaRecoveryFailed => Self::EcdsaRecoveryFailed,
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct TopicsBuilder {
+    pub topics: Vec<Vec<u8>>,
+}
+
+impl<E> TopicsBuilderBackend<E> for TopicsBuilder
+where
+    E: Environment,
+{
+    type Output = Vec<u8>;
+
+    fn expect(&mut self, _expected_topics: usize) {}
+
+    fn push_topic<T>(&mut self, topic_value: &T)
+    where
+        T: scale::Encode,
+    {
+        let encoded = topic_value.encode();
+        let len_encoded = encoded.len();
+        let mut result = <E as Environment>::Hash::clear();
+        let len_result = result.as_ref().len();
+        if len_encoded <= len_result {
+            result.as_mut()[..len_encoded].copy_from_slice(&encoded[..]);
+        } else {
+            let mut hash_output = <Blake2x256 as HashOutput>::Type::default();
+            <Blake2x256 as CryptoHash>::hash(&encoded[..], &mut hash_output);
+            let copy_len = core::cmp::min(hash_output.len(), len_result);
+            result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
+        }
+        let off_hash = result.as_ref();
+        let off_hash = off_hash.to_vec();
+        debug_assert!(
+            !self.topics.contains(&off_hash),
+            "duplicate topic hash discovered!"
+        );
+        self.topics.push(off_hash);
+    }
+
+    fn output(self) -> Self::Output {
+        let mut all: Vec<u8> = Vec::new();
+
+        let topics_len_compact = &scale::Compact(self.topics.len() as u32);
+        let topics_encoded = &scale::Encode::encode(&topics_len_compact)[..];
+        all.append(&mut topics_encoded.to_vec());
+
+        self.topics.into_iter().for_each(|mut v| all.append(&mut v));
+        all
+    }
+}
+
+impl EnvInstance {
+    /// Returns the contract property value.
+    fn get_property<T>(
+        &mut self,
+        ext_fn: fn(engine: &Engine, output: &mut &mut [u8]),
+    ) -> Result<T>
+    where
+        T: scale::Decode,
+    {
+        let mut full_scope: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        let full_scope = &mut &mut full_scope[..];
+        ext_fn(&self.engine, full_scope);
+        scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
 }
 
@@ -125,54 +187,44 @@ impl EnvBackend for EnvInstance {
     where
         V: scale::Encode,
     {
-        self.callee_account_mut()
-            .set_storage(*key, value)
-            .expect("callee account is not a smart contract");
+        let v = scale::Encode::encode(value);
+        self.engine.set_storage(key.as_ref(), &v[..]);
     }
 
     fn get_contract_storage<R>(&mut self, key: &Key) -> Result<Option<R>>
     where
         R: scale::Decode,
     {
-        self.callee_account()
-            .get_storage::<R>(*key)
-            .map_err(Into::into)
+        let mut output: [u8; 9600] = [0; 9600];
+        match self.engine.get_storage(key.as_ref(), &mut &mut output[..]) {
+            Ok(_) => (),
+            Err(ext::Error::KeyNotFound) => return Ok(None),
+            Err(_) => panic!("encountered unexpected error"),
+        }
+        let decoded = scale::Decode::decode(&mut &output[..])?;
+        Ok(Some(decoded))
     }
 
     fn clear_contract_storage(&mut self, key: &Key) {
-        if !self.clear_storage_disabled {
-            self.callee_account_mut()
-                .clear_storage(*key)
-                .expect("callee account is not a smart contract");
-        }
+        self.engine.clear_storage(key.as_ref())
     }
 
     fn decode_input<T>(&mut self) -> Result<T>
     where
         T: scale::Decode,
     {
-        self.exec_context()
-            .map(|exec_ctx| &exec_ctx.call_data)
-            .map(scale::Encode::encode)
-            .map_err(Into::into)
-            .and_then(|encoded| {
-                <T as scale::Decode>::decode(&mut &encoded[..])
-                    .map_err(|_| scale::Error::from("could not decode input call data"))
-                    .map_err(Into::into)
-            })
+        unimplemented!("the off-chain env does not implement `seal_input`")
     }
 
-    fn return_value<R>(&mut self, flags: ReturnFlags, return_value: &R) -> !
+    fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        let ctx = self.exec_context_mut().expect(UNINITIALIZED_EXEC_CONTEXT);
-        ctx.output = Some(return_value.encode());
-        std::process::exit(flags.into_u32() as i32)
+        unimplemented!("the off-chain env does not implement `seal_return_value`")
     }
 
     fn debug_message(&mut self, message: &str) {
-        self.debug_buf.debug_message(message)
+        self.engine.debug_message(message)
     }
 
     fn hash_bytes<H>(&mut self, input: &[u8], output: &mut <H as HashOutput>::Type)
@@ -187,8 +239,8 @@ impl EnvBackend for EnvInstance {
         H: CryptoHash,
         T: scale::Encode,
     {
-        let encoded = input.encode();
-        self.hash_bytes::<H>(&encoded[..], output)
+        let enc_input = &scale::Encode::encode(input)[..];
+        <H as CryptoHash>::hash(enc_input, output)
     }
 
     fn ecdsa_recover(
@@ -248,163 +300,91 @@ impl EnvBackend for EnvInstance {
         F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
         D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
     {
-        let encoded_input = input.encode();
-        let (status_code, output) = self
-            .chain_extension_handler
-            .eval(func_id, &encoded_input)
-            .expect("encountered unexpected missing chain extension method");
-        status_to_result(status_code)?;
-        let decoded = decode_to_result(output)?;
+        let enc_input = &scale::Encode::encode(input)[..];
+        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+
+        self.engine
+            .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
+        let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
+            .unwrap_or_else(|error| {
+                panic!(
+                    "could not decode `call_chain_extension` output: {:?}",
+                    error
+                )
+            });
+
+        status_to_result(status)?;
+        let decoded = decode_to_result(&out[..])?;
         Ok(decoded)
-    }
-}
-
-impl EnvInstance {
-    fn transfer_impl<T>(
-        &mut self,
-        destination: &T::AccountId,
-        value: T::Balance,
-    ) -> Result<()>
-    where
-        T: Environment,
-    {
-        let src_id = self.account_id::<T>();
-        let src_value = self
-            .accounts
-            .get_account::<T>(&src_id)
-            .expect("account of executed contract must exist")
-            .balance::<T>()?;
-        if src_value < value {
-            return Err(Error::TransferFailed)
-        }
-        let dst_value = self
-            .accounts
-            .get_or_create_account::<T>(destination)
-            .balance::<T>()?;
-        self.accounts
-            .get_account_mut::<T>(&src_id)
-            .expect("account of executed contract must exist")
-            .set_balance::<T>(src_value - value)?;
-        self.accounts
-            .get_account_mut::<T>(destination)
-            .expect("the account must exist already or has just been created")
-            .set_balance::<T>(dst_value + value)?;
-        Ok(())
-    }
-
-    // Remove the calling account and transfer remaining balance.
-    //
-    // This function never returns. Either the termination was successful and the
-    // execution of the destroyed contract is halted. Or it failed during the termination
-    // which is considered fatal.
-    fn terminate_contract_impl<T>(&mut self, beneficiary: T::AccountId) -> !
-    where
-        T: Environment,
-    {
-        // Send the remaining balance to the beneficiary
-        let all: T::Balance = self.balance::<T>();
-        self.transfer_impl::<T>(&beneficiary, all)
-            .expect("transfer did not work ");
-
-        // Remove account
-        let contract_id = self.account_id::<T>();
-        self.accounts.remove_account::<T>(contract_id);
-
-        // Encode the result of the termination and panic with it.
-        // This enables testing for the proper result and makes sure this
-        // method returns `Never`.
-        let res = crate::test::ContractTerminationResult::<T> {
-            beneficiary,
-            transferred: all,
-        };
-        std::panic::panic_any(scale::Encode::encode(&res));
     }
 }
 
 impl TypedEnvBackend for EnvInstance {
     fn caller<T: Environment>(&mut self) -> T::AccountId {
-        self.exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .caller::<T>()
+        self.get_property::<T::AccountId>(Engine::caller)
             .unwrap_or_else(|error| {
                 panic!("could not read `caller` property: {:?}", error)
             })
     }
 
     fn transferred_value<T: Environment>(&mut self) -> T::Balance {
-        self.exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .transferred_value::<T>()
+        self.get_property::<T::Balance>(Engine::value_transferred)
             .unwrap_or_else(|error| {
                 panic!("could not read `transferred_value` property: {:?}", error)
             })
     }
 
-    /// Emulates gas price calculation
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
-        use crate::arithmetic::Saturating as _;
-
-        let gas_price = self.chain_spec.gas_price::<T>().unwrap_or_else(|error| {
-            panic!("could not read `gas_price` property: {:?}", error)
-        });
-        gas_price.saturating_mul(gas.try_into().unwrap_or_else(|_| Bounded::max_value()))
-    }
-
     fn gas_left<T: Environment>(&mut self) -> u64 {
-        self.exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .gas::<T>()
+        self.get_property::<u64>(Engine::gas_left)
+            .unwrap_or_else(|error| {
+                panic!("could not read `gas_left` property: {:?}", error)
+            })
     }
 
     fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
-        self.current_block()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .timestamp::<T>()
+        self.get_property::<T::Timestamp>(Engine::block_timestamp)
             .unwrap_or_else(|error| {
                 panic!("could not read `block_timestamp` property: {:?}", error)
             })
     }
 
     fn account_id<T: Environment>(&mut self) -> T::AccountId {
-        self.exec_context()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .callee::<T>()
+        self.get_property::<T::AccountId>(Engine::address)
             .unwrap_or_else(|error| {
                 panic!("could not read `account_id` property: {:?}", error)
             })
     }
 
     fn balance<T: Environment>(&mut self) -> T::Balance {
-        self.callee_account()
-            .balance::<T>()
+        self.get_property::<T::Balance>(Engine::balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `balance` property: {:?}", error)
             })
     }
 
     fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
-        self.current_block()
-            .expect(UNINITIALIZED_EXEC_CONTEXT)
-            .number::<T>()
+        self.get_property::<T::BlockNumber>(Engine::block_number)
             .unwrap_or_else(|error| {
                 panic!("could not read `block_number` property: {:?}", error)
             })
     }
 
     fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
-        self.chain_spec
-            .minimum_balance::<T>()
+        self.get_property::<T::Balance>(Engine::minimum_balance)
             .unwrap_or_else(|error| {
                 panic!("could not read `minimum_balance` property: {:?}", error)
             })
     }
 
-    fn emit_event<T, Event>(&mut self, new_event: Event)
+    fn emit_event<T, Event>(&mut self, event: Event)
     where
         T: Environment,
         Event: Topics + scale::Encode,
     {
-        self.emitted_events.record::<T, Event>(new_event)
+        let builder = TopicsBuilder::default();
+        let enc_topics = event.topics::<T, _>(builder.into());
+        let enc_data = &scale::Encode::encode(&event)[..];
+        self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
     fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
@@ -453,22 +433,36 @@ impl TypedEnvBackend for EnvInstance {
     where
         T: Environment,
     {
-        self.terminate_contract_impl::<T>(beneficiary)
+        let buffer = scale::Encode::encode(&beneficiary);
+        self.engine.terminate(&buffer[..])
     }
 
     fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
     where
         T: Environment,
     {
-        self.transfer_impl::<T>(&destination, value)
+        let enc_destination = &scale::Encode::encode(&destination)[..];
+        let enc_value = &scale::Encode::encode(&value)[..];
+        self.engine
+            .transfer(enc_destination, enc_value)
+            .map_err(Into::into)
+    }
+
+    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
+        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        self.engine.weight_to_fee(gas, &mut &mut output[..]);
+        scale::Decode::decode(&mut &output[..]).unwrap_or_else(|error| {
+            panic!("could not read `weight_to_fee` property: {:?}", error)
+        })
     }
 
     fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
     where
         T: Environment,
     {
-        let block = self.current_block().expect(UNINITIALIZED_EXEC_CONTEXT);
-        Ok((block.random::<T>(subject)?, block.number::<T>()?))
+        let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        self.engine.random(subject, &mut &mut output[..]);
+        scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
     fn is_contract<T>(&mut self, _account: &T::AccountId) -> bool

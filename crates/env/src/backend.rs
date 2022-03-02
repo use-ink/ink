@@ -46,7 +46,7 @@ impl ReturnFlags {
     }
 
     /// Returns the underlying `u32` representation.
-    #[cfg(not(feature = "ink-experimental-engine"))]
+    #[cfg(not(feature = "std"))]
     pub(crate) fn into_u32(self) -> u32 {
         self.value
     }

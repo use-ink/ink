@@ -625,32 +625,12 @@ mod erc1155 {
 
         use ink_lang as ink;
 
-        #[cfg(feature = "ink-experimental-engine")]
         fn set_sender(sender: AccountId) {
             ink_env::test::set_caller::<Environment>(sender);
         }
 
-        #[cfg(not(feature = "ink-experimental-engine"))]
-        fn set_sender(sender: AccountId) {
-            const WALLET: [u8; 32] = [7; 32];
-            ink_env::test::push_execution_context::<Environment>(
-                sender,
-                WALLET.into(),
-                1000000,
-                1000000,
-                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])), /* dummy */
-            );
-        }
-
-        #[cfg(feature = "ink-experimental-engine")]
         fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
             ink_env::test::default_accounts::<Environment>()
-        }
-
-        #[cfg(not(feature = "ink-experimental-engine"))]
-        fn default_accounts() -> ink_env::test::DefaultAccounts<Environment> {
-            ink_env::test::default_accounts::<Environment>()
-                .expect("off-chain environment should have been initialized already")
         }
 
         fn alice() -> AccountId {

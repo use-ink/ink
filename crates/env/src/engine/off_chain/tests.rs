@@ -12,84 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Result;
-use ink_primitives::Key;
+use crate::{
+    engine::off_chain::impls::TopicsBuilder,
+    topics::TopicsBuilderBackend,
+    Result,
+};
 
 #[test]
-fn store_load_clear() -> Result<()> {
-    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
-        let key = Key::from([0x42; 32]);
-        assert_eq!(crate::get_contract_storage::<()>(&key), Ok(None));
-        crate::set_contract_storage(&key, &[0x05_u8; 5]);
-        assert_eq!(
-            crate::get_contract_storage::<[i8; 5]>(&key),
-            Ok(Some([0x05; 5])),
-        );
-        crate::clear_contract_storage(&key);
-        assert_eq!(crate::get_contract_storage::<[u8; 5]>(&key), Ok(None));
-        Ok(())
-    })
-}
-
-fn add_key(key: &Key, offset: u64) -> Key {
-    let mut result = *key;
-    result += offset;
-    result
-}
-
-#[test]
-fn key_add() -> Result<()> {
-    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
-        let key00 = Key::from([0x0; 32]);
-        let key05 = add_key(&key00, 5); // -> 5
-        let key10 = add_key(&key00, 10); // -> 10         | same as key55
-        let key55 = add_key(&key05, 5); // -> 5 + 5 = 10 | same as key10
-        crate::set_contract_storage(&key55, &42);
-        assert_eq!(crate::get_contract_storage::<i32>(&key10), Ok(Some(42)));
-        crate::set_contract_storage(&key10, &1337);
-        assert_eq!(crate::get_contract_storage::<i32>(&key55), Ok(Some(1337)));
-        Ok(())
-    })
-}
-
-#[test]
-fn key_add_sub() -> Result<()> {
+fn topics_builder() -> Result<()> {
     crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
         // given
-        let key0a = Key::from([0x0; 32]);
-        let key1a = add_key(&key0a, 1337);
-        let key2a = add_key(&key0a, 42);
-        let key3a = add_key(&key0a, 52);
+        let mut builder = TopicsBuilder::default();
 
         // when
-        crate::set_contract_storage(&key0a, &1);
-        crate::set_contract_storage(&key1a, &2);
-        crate::set_contract_storage(&key2a, &3);
-        crate::set_contract_storage(&key3a, &4);
+        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &13);
+        TopicsBuilderBackend::<crate::DefaultEnvironment>::push_topic(&mut builder, &17);
 
         // then
-        assert_eq!(crate::get_contract_storage::<i32>(&key0a), Ok(Some(1)));
-        assert_eq!(crate::get_contract_storage::<i32>(&key1a), Ok(Some(2)));
-        assert_eq!(crate::get_contract_storage::<i32>(&key2a), Ok(Some(3)));
-        assert_eq!(crate::get_contract_storage::<i32>(&key3a), Ok(Some(4)));
-        Ok(())
-    })
-}
+        assert_eq!(builder.topics.len(), 2);
 
-#[test]
-fn gas_price() -> crate::Result<()> {
-    crate::test::run_test::<crate::DefaultEnvironment, _>(|_| {
-        let gas_price = 2u32;
-        crate::test::update_chain_spec(|chain_spec| {
-            chain_spec.set_gas_price::<crate::DefaultEnvironment>(gas_price.into())
-        })?;
-
-        assert_eq!(2u128, crate::weight_to_fee::<crate::DefaultEnvironment>(1));
-        assert_eq!(
-            20u128,
-            crate::weight_to_fee::<crate::DefaultEnvironment>(10)
-        );
-        assert_eq!(6u128, crate::weight_to_fee::<crate::DefaultEnvironment>(3));
+        let topics_len_compact = &scale::Compact(2u32);
+        let topics_len_encoded = scale::Encode::encode(&topics_len_compact);
+        let output = TopicsBuilderBackend::<crate::DefaultEnvironment>::output(builder);
+        #[rustfmt::skip]
+        let expected = vec![topics_len_encoded[0], 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        assert_eq!(output, expected);
 
         Ok(())
     })
