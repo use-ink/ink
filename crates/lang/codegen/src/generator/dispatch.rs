@@ -17,7 +17,6 @@ use core::iter;
 use crate::{
     generator,
     GenerateCode,
-    GenerateCodeUsing as _,
 };
 use derive_more::From;
 use ir::{
