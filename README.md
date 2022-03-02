@@ -247,9 +247,9 @@ the relevant links:
 
 | Crate | Docs | Description |
 |:--|:--|:--|
-`ink_lang` | [![][j1]][j2] | Language features expose by ink!. See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
+`ink_lang` | [![][j1]][j2] | Language features exposed by ink!. See [here](https://paritytech.github.io/ink/ink_lang/attr.contract.html) for a detailed description of attributes which you can use in an `#[ink::contract]`. |
 `ink_storage` | [![][f1]][f2] | Data structures available in ink!. |
-`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. |
+`ink_env` | [![][g1]][g2] | Low-level interface for interacting with the smart contract Wasm executor. Contains [the off-chain testing API](https://paritytech.github.io/ink/ink_env/test/index.html) as well. |
 `ink_prelude` | [![][i1]][i2] | Common API for no_std and std to access alloc crate types. |
 
 

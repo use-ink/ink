@@ -15,7 +15,7 @@ We've now replaced the existing off-chain environment with a new
 one, which has a bit of a different API.
 
 The major changes are that there is no longer any notion of "execution
-context" ‒ so no more `push_execution_context`/`pop_execution_context`.
+context" ‒ so no more `push_execution_context` or `pop_execution_context`.
 You can achieve all the same things with the new API, see [here](https://paritytech.github.io/ink/ink_env/test/index.html)
 for the API documentation.
 
@@ -26,8 +26,27 @@ can find more "template use-cases" there (e.g. for
 ### We removed the dynamic storage allocator
 More details on the reasoning behind this can be found in [#1148](https://github.com/paritytech/ink/pull/1148).
 
+### `CallBuilder` API changed to support `delegate` calls
+The `CallBuilder` API changed to now support two types of calls:
+
+* `Call`: a cross-contract call.<br/>
+   This was the default until this new API change.
+* `DelegateCall`: a delegated call.<br/>
+  This enables writing upgradeable contracts using
+  the `delegate` pattern. An example has been added to demonstrate this:
+  [`upgradeable-contract`](https://github.com/paritytech/ink/tree/master/examples/upgradeable-contract).
+  Please note that this is an _unstable_ API for now.
+  You have to enable the feature `pallet-contracts/unstable-interface` in the target runtime.
+  For `substrate-contracts-node` this is done by default [here](https://github.com/paritytech/substrate-contracts-node/blob/main/runtime/Cargo.toml).
+
+This is a breaking change, users must now specify the `call_type` to the builder manually.
+
+_If you want to keep existing behavior you just need to specify the type `Call` now._
+
+More details on this change can be found in [#1133](https://github.com/paritytech/ink/pull/1133).
+
 ## Added
-- Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145).
+- Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145) (thanks [@xgreenx](https://github.com/xgreenx))..
 - Implemented the (unstable) `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129).
 - Add tests in experimental off-chain env for `trait-erc20` ‒ [#1158](https://github.com/paritytech/ink/pull/1158).
 - Add tests in experimental off-chain env for `erc721` ‒ [#1157](https://github.com/paritytech/ink/pull/1157).
@@ -37,6 +56,7 @@ More details on the reasoning behind this can be found in [#1148](https://github
 
 ## Changed
 - Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
+- Changed `CallBuilder` API to now support (unstable) delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
 
 ## Removed
 - Removed the dynamic storage allocator ‒ [#1148](https://github.com/paritytech/ink/pull/1148).
