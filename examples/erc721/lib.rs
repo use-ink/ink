@@ -794,7 +794,7 @@ mod erc721 {
             // Token Id 2 is owned by Alice.
             assert_eq!(erc721.owner_of(2), Some(accounts.alice));
             // Set Bob as caller
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             // Bob cannot transfer not owned tokens.
             assert_eq!(erc721.transfer(accounts.eve, 2), Err(Error::NotApproved));
         }
@@ -812,7 +812,7 @@ mod erc721 {
             // Approve token Id 1 transfer for Bob on behalf of Alice.
             assert_eq!(erc721.approve(accounts.bob, 1), Ok(()));
             // Set Bob as caller
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.eve, 1),
@@ -845,7 +845,7 @@ mod erc721 {
             // Bob is an approved operator for Alice
             assert!(erc721.is_approved_for_all(accounts.alice, accounts.bob));
             // Set Bob as caller
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             // Bob transfers token Id 1 from Alice to Eve.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.eve, 1),
@@ -865,7 +865,7 @@ mod erc721 {
             // Eve owns 2 tokens.
             assert_eq!(erc721.balance_of(accounts.eve), 2);
             // Remove operator approval for Bob on behalf of Alice.
-            set_sender(accounts.alice);
+            set_caller(accounts.alice);
             assert_eq!(erc721.set_approval_for_all(accounts.bob, false), Ok(()));
             // Bob is not an approved operator for Alice.
             assert!(!erc721.is_approved_for_all(accounts.alice, accounts.bob));
@@ -886,7 +886,7 @@ mod erc721 {
             // Eve does not owns tokens.
             assert_eq!(erc721.balance_of(accounts.eve), 0);
             // Set Eve as caller
-            set_sender(accounts.eve);
+            set_caller(accounts.eve);
             // Eve is not an approved operator by Alice.
             assert_eq!(
                 erc721.transfer_from(accounts.alice, accounts.frank, 1),
@@ -937,11 +937,11 @@ mod erc721 {
             // Create token Id 1 for Alice
             assert_eq!(erc721.mint(1), Ok(()));
             // Try burning this token with a different account
-            set_sender(accounts.eve);
+            set_caller(accounts.eve);
             assert_eq!(erc721.burn(1), Err(Error::NotOwner));
         }
 
-        fn set_sender(sender: AccountId) {
+        fn set_caller(sender: AccountId) {
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
         }
     }
