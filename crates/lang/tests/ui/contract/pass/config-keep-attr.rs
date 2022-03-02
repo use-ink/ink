@@ -1,6 +1,6 @@
 use ink_lang as ink;
 
-#[ink::contract(dynamic_storage_allocator = true)]
+#[ink::contract(keep_attr = "foo, bar")]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}
@@ -12,7 +12,8 @@ mod contract {
         }
 
         #[ink(message)]
-        pub fn message(&self) {}
+        #[allow(non_snake_case)]
+        pub fn meSSage(&self) {}
     }
 }
 

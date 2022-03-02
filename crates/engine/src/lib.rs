@@ -15,6 +15,7 @@
 pub mod ext;
 pub mod test_api;
 
+mod chain_extension;
 mod database;
 mod exec_context;
 mod hashing;
@@ -23,6 +24,7 @@ mod types;
 #[cfg(test)]
 mod tests;
 
+pub use chain_extension::ChainExtension;
 pub use types::AccountError;
 
 use derive_more::From;

@@ -388,7 +388,12 @@ impl CallForwarder<'_> {
         let trait_ident = self.trait_def.trait_def.item().ident();
         let forwarder_ident = self.ident();
         let message_ident = message.ident();
-        let attrs = message.attrs();
+        let attrs = self
+            .trait_def
+            .trait_def
+            .config()
+            .whitelisted_attributes()
+            .filter_attr(message.attrs());
         let output_ident = generator::output_ident(message_ident);
         let output_type = message
             .output()

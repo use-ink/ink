@@ -1,6 +1,6 @@
 use ink_lang as ink;
 
-#[ink::contract(dynamic_storage_allocator = 42)]
+#[ink::contract(keep_attr = true)]
 mod contract {
     #[ink(storage)]
     pub struct Contract {}

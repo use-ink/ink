@@ -51,6 +51,18 @@ jobs:
           components: rust-src
           override: true
 
+      - name: Install cargo-dylint
+        uses: baptiste0928/cargo-install@v1
+        with:
+          crate: cargo-dylint
+          version: 1
+
+      - name: Install dylint-link
+        uses: baptiste0928/cargo-install@v1
+        with:
+          crate: dylint-link
+          version: 1
+
       - name: Rust Cache
         uses: Swatinem/rust-cache@v1.2.0
 

@@ -1,5 +1,0 @@
-error: expected a bool literal for `dynamic_storage_allocator` ink! configuration argument
- --> tests/ui/contract/fail/config-dynamic-storage-allocator-invalid-type-01.rs:3:17
-  |
-3 | #[ink::contract(dynamic_storage_allocator = "foo")]
-  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

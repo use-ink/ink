@@ -100,10 +100,6 @@ impl Contract {
     ///
     /// - `types`: To specify `Environment` different from the default environment
     ///            types.
-    /// - `storage-alloc`: If `true` enables the dynamic storage allocator
-    ///                    facilities and code generation of the ink! smart
-    ///                    contract. Does incur some overhead. The default is
-    ///                    `true`.
     /// - `as-dependency`: If `true` compiles this ink! smart contract always as
     ///                    if it was a dependency of another smart contract.
     ///                    This configuration is mainly needed for testing and

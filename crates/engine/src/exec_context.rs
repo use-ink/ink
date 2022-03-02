@@ -15,7 +15,11 @@
 use super::types::{
     AccountId,
     Balance,
+    BlockNumber,
+    BlockTimestamp,
+    Hash,
 };
+use rand::Rng;
 
 /// The context of a contract execution.
 #[cfg_attr(test, derive(Debug, PartialEq, Eq))]
@@ -36,17 +40,33 @@ pub struct ExecContext {
     pub callee: Option<AccountId>,
     /// The value transferred to the contract as part of the call.
     pub value_transferred: Balance,
+    /// The current block number.
+    pub block_number: BlockNumber,
+    /// The current block timestamp.
+    pub block_timestamp: BlockTimestamp,
+    /// The randomization entropy for a block.
+    pub entropy: Hash,
 }
 
-#[allow(clippy::new_without_default)]
-impl ExecContext {
-    /// Creates a new execution context.
-    pub fn new() -> Self {
+impl Default for ExecContext {
+    fn default() -> Self {
+        let mut entropy: [u8; 32] = Default::default();
+        rand::thread_rng().fill(entropy.as_mut());
         Self {
             caller: None,
             callee: None,
             value_transferred: 0,
+            block_number: 0,
+            block_timestamp: 0,
+            entropy,
         }
+    }
+}
+
+impl ExecContext {
+    /// Creates a new execution context.
+    pub fn new() -> Self {
+        Default::default()
     }
 
     /// Returns the callee.
@@ -60,9 +80,7 @@ impl ExecContext {
 
     /// Resets the execution context
     pub fn reset(&mut self) {
-        self.caller = None;
-        self.callee = None;
-        self.value_transferred = Default::default();
+        *self = Default::default();
     }
 }
 
@@ -83,6 +101,10 @@ mod tests {
         assert_eq!(exec_cont.callee(), vec![13]);
 
         exec_cont.reset();
-        assert_eq!(exec_cont, ExecContext::new());
+        exec_cont.entropy = Default::default();
+
+        let mut new_exec_cont = ExecContext::new();
+        new_exec_cont.entropy = Default::default();
+        assert_eq!(exec_cont, new_exec_cont);
     }
 }

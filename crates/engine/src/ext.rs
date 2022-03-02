@@ -18,14 +18,24 @@
 //! for more information.
 
 use crate::{
+    chain_extension::ChainExtensionHandler,
     database::Database,
     exec_context::ExecContext,
     test_api::{
         DebugInfo,
         EmittedEvent,
     },
-    types::AccountId,
+    types::{
+        AccountId,
+        Balance,
+        BlockTimestamp,
+    },
 };
+use rand::{
+    Rng,
+    SeedableRng,
+};
+use scale::Encode;
 use std::panic::panic_any;
 
 type Result = core::result::Result<(), Error>;
@@ -114,6 +124,40 @@ pub struct Engine {
     /// This is specifically about debug info. This info is
     /// not available in the `contracts` pallet.
     pub(crate) debug_info: DebugInfo,
+    /// The chain specification.
+    pub chain_spec: ChainSpec,
+    /// Handler for registered chain extensions.
+    pub chain_extension_handler: ChainExtensionHandler,
+}
+
+/// The chain specification.
+pub struct ChainSpec {
+    /// The current gas price.
+    pub gas_price: Balance,
+    /// The minimum value an account of the chain must have
+    /// (i.e. the chain's existential deposit).
+    pub minimum_balance: Balance,
+    /// The targeted block time.
+    pub block_time: BlockTimestamp,
+}
+
+/// The default values for the chain specification are:
+///
+///   * `gas_price`: 100
+///   * `minimum_balance`: 42
+///   * `block_time`: 6
+///
+/// There is no particular reason behind choosing them this way.
+impl Default for ChainSpec {
+    fn default() -> Self {
+        // Those are the default values which were chosen in
+        // the original off-chain testing environment.
+        Self {
+            gas_price: 100,
+            minimum_balance: 42,
+            block_time: 6,
+        }
+    }
 }
 
 impl Engine {
@@ -123,6 +167,8 @@ impl Engine {
             database: Database::new(),
             exec_context: ExecContext::new(),
             debug_info: DebugInfo::new(),
+            chain_spec: ChainSpec::default(),
+            chain_extension_handler: ChainExtensionHandler::new(),
         }
     }
 }
@@ -317,20 +363,30 @@ impl Engine {
         super::hashing::keccak_256(input, output);
     }
 
-    pub fn block_number(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `block_number`");
+    /// Returns the current block number.
+    pub fn block_number(&self, output: &mut &mut [u8]) {
+        let block_number: Vec<u8> =
+            scale::Encode::encode(&self.exec_context.block_number);
+        set_output(output, &block_number[..])
     }
 
-    pub fn block_timestamp(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `block_timestamp`");
+    /// Returns the timestamp of the current block.
+    pub fn block_timestamp(&self, output: &mut &mut [u8]) {
+        let block_timestamp: Vec<u8> =
+            scale::Encode::encode(&self.exec_context.block_timestamp);
+        set_output(output, &block_timestamp[..])
     }
 
     pub fn gas_left(&self, _output: &mut &mut [u8]) {
         unimplemented!("off-chain environment does not yet support `gas_left`");
     }
 
-    pub fn minimum_balance(&self, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `minimum_balance`");
+    /// Returns the minimum balance that is required for creating an account
+    /// (i.e. the chain's existential deposit).
+    pub fn minimum_balance(&self, output: &mut &mut [u8]) {
+        let minimum_balance: Vec<u8> =
+            scale::Encode::encode(&self.chain_spec.minimum_balance);
+        set_output(output, &minimum_balance[..])
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -358,23 +414,61 @@ impl Engine {
         unimplemented!("off-chain environment does not yet support `call`");
     }
 
-    pub fn weight_to_fee(&self, _gas: u64, _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `weight_to_fee`");
+    /// Emulates gas price calculation.
+    pub fn weight_to_fee(&self, gas: u64, output: &mut &mut [u8]) {
+        let fee = self.chain_spec.gas_price.saturating_mul(gas.into());
+        let fee: Vec<u8> = scale::Encode::encode(&fee);
+        set_output(output, &fee[..])
     }
 
-    pub fn random(&self, _subject: &[u8], _output: &mut &mut [u8]) {
-        unimplemented!("off-chain environment does not yet support `random`");
+    /// Returns a randomized hash.
+    ///
+    /// # Note
+    ///
+    /// - This is the off-chain environment implementation of `random`.
+    ///   It provides the same behavior in that it will likely yield the
+    ///   same hash for the same subjects within the same block (or
+    ///   execution context).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    ///    let engine = ink_engine::ext::Engine::default();
+    ///    let subject = [0u8; 32];
+    ///    let mut output = [0u8; 32];
+    ///    engine.random(&subject, &mut output.as_mut_slice());
+    /// ```
+    pub fn random(&self, subject: &[u8], output: &mut &mut [u8]) {
+        let seed = (self.exec_context.entropy, subject).encode();
+        let mut digest = [0u8; 32];
+        Engine::hash_blake2_256(&seed, &mut digest);
+
+        let mut rng = rand::rngs::StdRng::from_seed(digest);
+        let mut rng_bytes: [u8; 32] = Default::default();
+        rng.fill(&mut rng_bytes);
+        set_output(output, &rng_bytes[..])
     }
 
+    /// Calls the chain extension method registered at `func_id` with `input`.
     pub fn call_chain_extension(
         &mut self,
-        _func_id: u32,
-        _input: &[u8],
-        _output: &mut &mut [u8],
-    ) -> u32 {
-        unimplemented!(
-            "off-chain environment does not yet support `call_chain_extension`"
-        );
+        func_id: u32,
+        input: &[u8],
+        output: &mut &mut [u8],
+    ) {
+        let encoded_input = input.encode();
+        let (status_code, out) = self
+            .chain_extension_handler
+            .eval(func_id, &encoded_input)
+            .unwrap_or_else(|error| {
+                panic!(
+                    "Encountered unexpected missing chain extension method: {:?}",
+                    error
+                );
+            });
+        let res = (status_code, out);
+        let decoded: Vec<u8> = scale::Encode::encode(&res);
+        set_output(output, &decoded[..])
     }
 
     /// Recovers the compressed ECDSA public key for given `signature` and `message_hash`,
