@@ -619,6 +619,7 @@ mod erc20 {
             } else {
                 panic!("encountered unexpected event kind: expected a Transfer event")
             }
+
             fn encoded_into_hash<T>(entity: &T) -> Hash
             where
                 T: scale::Encode,
@@ -638,6 +639,7 @@ mod erc20 {
                 result.as_mut()[0..copy_len].copy_from_slice(&hash_output[0..copy_len]);
                 result
             }
+
             let expected_topics = [
                 encoded_into_hash(&PrefixedValue {
                     prefix: b"",
@@ -691,7 +693,8 @@ mod erc20 {
         #[ink::test]
         fn total_supply_works() {
             // Constructor works.
-            let erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let erc20 = Erc20::new(initial_supply);
             // Transfer event triggered during initial construction.
             let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_transfer_event(
@@ -708,7 +711,8 @@ mod erc20 {
         #[ink::test]
         fn balance_of_works() {
             // Constructor works
-            let erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let erc20 = Erc20::new(initial_supply);
             // Transfer event triggered during initial construction
             let emitted_events = ink_env::test::recorded_events().collect::<Vec<_>>();
             assert_transfer_event(
@@ -728,7 +732,8 @@ mod erc20 {
         #[ink::test]
         fn transfer_works() {
             // Constructor works.
-            let mut erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let mut erc20 = Erc20::new(initial_supply);
             // Transfer event triggered during initial construction.
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
@@ -760,13 +765,14 @@ mod erc20 {
         #[ink::test]
         fn invalid_transfer_should_fail() {
             // Constructor works.
-            let mut erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let mut erc20 = Erc20::new(initial_supply);
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
             assert_eq!(erc20.balance_of(accounts.bob), 0);
             // Set Bob as caller
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
 
             // Bob fails to transfers 10 tokens to Eve.
             assert_eq!(
@@ -792,7 +798,8 @@ mod erc20 {
         #[ink::test]
         fn transfer_from_works() {
             // Constructor works.
-            let mut erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let mut erc20 = Erc20::new(initial_supply);
             // Transfer event triggered during initial construction.
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
@@ -809,7 +816,7 @@ mod erc20 {
             assert_eq!(ink_env::test::recorded_events().count(), 2);
 
             // Set Bob as caller.
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
 
             // Bob transfers tokens from Alice to Eve.
             assert_eq!(
@@ -839,7 +846,8 @@ mod erc20 {
 
         #[ink::test]
         fn allowance_must_not_change_on_failed_transfer() {
-            let mut erc20 = Erc20::new(100);
+            let initial_supply = 100;
+            let mut erc20 = Erc20::new(initial_supply);
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
 
@@ -849,7 +857,7 @@ mod erc20 {
             assert_eq!(erc20.approve(accounts.bob, initial_allowance), Ok(()));
 
             // Set Bob as caller.
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
 
             // Bob tries to transfer tokens from Alice to Eve.
             let emitted_events_before = ink_env::test::recorded_events();
@@ -867,7 +875,7 @@ mod erc20 {
             assert_eq!(emitted_events_before.count(), emitted_events_after.count());
         }
 
-        fn set_sender(sender: AccountId) {
+        fn set_caller(sender: AccountId) {
             ink_env::test::set_caller::<Environment>(sender);
         }
     }
