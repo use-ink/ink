@@ -8,17 +8,17 @@ use ink_lang as ink;
 pub mod flipper {
     use crate::upgradeable::{
         NotInitialized,
-        Upgradable,
+        Upgradeable,
     };
 
     #[ink(storage)]
     pub struct Flipper {
-        /// The field is `Upgradable`, which means if the field is not initialized, it will be.
+        /// The field is `Upgradeable`, which means if the field is not initialized, it will be.
         ///
         /// By default ink! throw an error that field is not initialized.
         /// With that wrapper, you can initialize the field later during the method execution,
         /// not in the constructor.
-        value: Upgradable<bool, NotInitialized>,
+        value: Upgradeable<bool, NotInitialized>,
     }
 
     impl Flipper {
@@ -26,7 +26,7 @@ pub mod flipper {
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             Self {
-                value: Upgradable::new(init_value),
+                value: Upgradeable::new(init_value),
             }
         }
 

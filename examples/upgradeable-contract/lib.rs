@@ -1,5 +1,5 @@
 //! This example demonstrates how the Proxy pattern can be
-//! implemented in ink! to have upgradable functionality.
+//! implemented in ink! to have upgradeable functionality.
 //!
 //! What the contract does is:
 //!
@@ -13,7 +13,7 @@
 use ink_lang as ink;
 
 #[ink::contract]
-pub mod upgradable_contract {
+pub mod upgradeable_contract {
     use ink_env::call::DelegateCall;
     use ink_primitives::{
         Key,

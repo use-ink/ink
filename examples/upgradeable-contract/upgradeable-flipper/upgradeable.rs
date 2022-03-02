@@ -21,26 +21,26 @@ pub struct NotInitialized;
 
 #[derive(Debug, Decode, Encode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Upgradable<T: PackedLayout, InitializationStatus = Initialized> {
+pub struct Upgradeable<T: PackedLayout, InitializationStatus = Initialized> {
     inner: T,
     status: PhantomData<fn() -> InitializationStatus>,
 }
 
-impl<T: PackedLayout, State> Upgradable<T, State> {
+impl<T: PackedLayout, State> Upgradeable<T, State> {
     pub fn new(inner: T) -> Self {
-        Upgradable {
+        Upgradeable {
             inner,
             status: Default::default(),
         }
     }
 }
 
-impl<T: PackedLayout> SpreadLayout for Upgradable<T, Initialized> {
+impl<T: PackedLayout> SpreadLayout for Upgradeable<T, Initialized> {
     const FOOTPRINT: u64 = T::FOOTPRINT;
     const REQUIRES_DEEP_CLEAN_UP: bool = T::REQUIRES_DEEP_CLEAN_UP;
 
     fn pull_spread(ptr: &mut KeyPtr) -> Self {
-        Upgradable::new(T::pull_spread(ptr))
+        Upgradeable::new(T::pull_spread(ptr))
     }
 
     fn push_spread(&self, ptr: &mut KeyPtr) {
@@ -52,7 +52,7 @@ impl<T: PackedLayout> SpreadLayout for Upgradable<T, Initialized> {
     }
 }
 
-impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradable<T, NotInitialized> {
+impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradeable<T, NotInitialized> {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
 
@@ -63,7 +63,7 @@ impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradable<T, NotInitial
         {
             <Self as SpreadAllocate>::allocate_spread(ptr)
         } else {
-            Upgradable::new(<T as SpreadLayout>::pull_spread(ptr))
+            Upgradeable::new(<T as SpreadLayout>::pull_spread(ptr))
         }
     }
 
@@ -76,7 +76,7 @@ impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradable<T, NotInitial
     }
 }
 
-impl<T: PackedLayout> PackedLayout for Upgradable<T, Initialized> {
+impl<T: PackedLayout> PackedLayout for Upgradeable<T, Initialized> {
     fn pull_packed(&mut self, at: &Key) {
         <T as PackedLayout>::pull_packed(&mut self.inner, at)
     }
@@ -90,7 +90,7 @@ impl<T: PackedLayout> PackedLayout for Upgradable<T, Initialized> {
     }
 }
 
-impl<T: PackedLayout + SpreadAllocate> PackedLayout for Upgradable<T, NotInitialized> {
+impl<T: PackedLayout + SpreadAllocate> PackedLayout for Upgradeable<T, NotInitialized> {
     fn pull_packed(&mut self, at: &Key) {
         <T as PackedLayout>::pull_packed(&mut self.inner, at)
     }
@@ -104,31 +104,31 @@ impl<T: PackedLayout + SpreadAllocate> PackedLayout for Upgradable<T, NotInitial
     }
 }
 
-impl<T: SpreadAllocate + PackedLayout> SpreadAllocate for Upgradable<T, Initialized> {
+impl<T: SpreadAllocate + PackedLayout> SpreadAllocate for Upgradeable<T, Initialized> {
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        Upgradable::new(<T as SpreadAllocate>::allocate_spread(ptr))
+        Upgradeable::new(<T as SpreadAllocate>::allocate_spread(ptr))
     }
 }
 
-impl<T: SpreadAllocate + PackedLayout> SpreadAllocate for Upgradable<T, NotInitialized> {
+impl<T: SpreadAllocate + PackedLayout> SpreadAllocate for Upgradeable<T, NotInitialized> {
     fn allocate_spread(ptr: &mut KeyPtr) -> Self {
-        Upgradable::new(<T as SpreadAllocate>::allocate_spread(ptr))
+        Upgradeable::new(<T as SpreadAllocate>::allocate_spread(ptr))
     }
 }
 
-impl<T: PackedAllocate> PackedAllocate for Upgradable<T, Initialized> {
+impl<T: PackedAllocate> PackedAllocate for Upgradeable<T, Initialized> {
     fn allocate_packed(&mut self, at: &Key) {
         <T as PackedAllocate>::allocate_packed(&mut self.inner, at)
     }
 }
 
-impl<T: PackedAllocate> PackedAllocate for Upgradable<T, NotInitialized> {
+impl<T: PackedAllocate> PackedAllocate for Upgradeable<T, NotInitialized> {
     fn allocate_packed(&mut self, at: &Key) {
         <T as PackedAllocate>::allocate_packed(&mut self.inner, at)
     }
 }
 
-impl<T: PackedLayout, State> core::ops::Deref for Upgradable<T, State> {
+impl<T: PackedLayout, State> core::ops::Deref for Upgradeable<T, State> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -136,27 +136,27 @@ impl<T: PackedLayout, State> core::ops::Deref for Upgradable<T, State> {
     }
 }
 
-impl<T: PackedLayout, State> core::ops::DerefMut for Upgradable<T, State> {
+impl<T: PackedLayout, State> core::ops::DerefMut for Upgradeable<T, State> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-impl<T: PackedLayout, State> AsRef<T> for Upgradable<T, State> {
+impl<T: PackedLayout, State> AsRef<T> for Upgradeable<T, State> {
     #[inline]
     fn as_ref(&self) -> &T {
         &self.inner
     }
 }
 
-impl<T: PackedLayout, State> AsMut<T> for Upgradable<T, State> {
+impl<T: PackedLayout, State> AsMut<T> for Upgradeable<T, State> {
     #[inline]
     fn as_mut(&mut self) -> &mut T {
         &mut self.inner
     }
 }
 
-impl<T: PackedLayout + Default, State> Default for Upgradable<T, State> {
+impl<T: PackedLayout + Default, State> Default for Upgradeable<T, State> {
     fn default() -> Self {
         Self::new(Default::default())
     }
@@ -167,7 +167,7 @@ const _: () = {
     use ink_metadata::layout::Layout;
     use ink_storage::traits::StorageLayout;
 
-    impl<T, State> StorageLayout for Upgradable<T, State>
+    impl<T, State> StorageLayout for Upgradeable<T, State>
     where
         T: PackedLayout + StorageLayout + scale_info::TypeInfo + 'static,
     {

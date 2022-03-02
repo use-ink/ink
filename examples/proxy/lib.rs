@@ -8,7 +8,7 @@
 //!   * The instantiator of the contract can modify this specified
 //!     `forward_to` address at any point.
 //!
-//! Using this pattern it is possible to implement upgradable contracts.
+//! Using this pattern it is possible to implement upgradeable contracts.
 //!
 //! Note though that the contract to which calls are forwarded still
 //! contains it's own state.

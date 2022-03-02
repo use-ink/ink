@@ -137,7 +137,7 @@ Specifically you need to upgrade to at least the pallet version
 
 ## Added
 - Added support for wildcard selectors ‒ [#1020](https://github.com/paritytech/ink/pull/1020).
-    - This enables writing upgradable smart contracts using the proxy/forward pattern.
+    - This enables writing upgradeable smart contracts using the proxy/forward pattern.
       We added a new example to illustrate this ‒ the [proxy](https://github.com/paritytech/ink/tree/master/examples/proxy) example.
     - Annotating a wildcard selector in traits is not supported.
 - The ink! codegen now heavily relies on static type information based on traits defined in `ink_lang` ‒ [#665](https://github.com/paritytech/ink/pull/665).
