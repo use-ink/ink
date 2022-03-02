@@ -42,14 +42,6 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -80,17 +72,9 @@
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span> {
         <span class="kw">mod</span> <span class="ident">on_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::on_chain::EnvInstance</span>;
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span> {
-        <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">experimental_off_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">experimental_off_chain</span> <span class="kw">as</span> <span class="ident">off_chain</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::experimental_off_chain::EnvInstance</span>;
     } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span> {
         <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">off_chain</span>;
         <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::off_chain::EnvInstance</span>;
-        <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::off_chain</span>::{
-            <span class="ident">AccountError</span>,
-            <span class="ident">TypedEncodedError</span>,
-        };
     } <span class="kw">else</span> {
         <span class="macro">compile_error!</span> {
             <span class="string">&quot;ink! only support compilation as `std` or `no_std` + `wasm32-unknown`&quot;</span>

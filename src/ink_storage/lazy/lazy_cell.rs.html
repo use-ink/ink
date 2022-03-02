@@ -816,114 +816,6 @@
 <span id="811">811</span>
 <span id="812">812</span>
 <span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -1646,112 +1538,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">nested_lazies_are_cleared_completely_after_pull</span>() {
-        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="comment">// given</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-            <span class="kw">let</span> <span class="ident">nested_lazy</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="ident">Lazy::new</span>(<span class="number">13u32</span>));
-            <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">nested_lazy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-            <span class="kw">let</span> <span class="ident">pulled_lazy</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>),
-            );
-
-            <span class="comment">// when</span>
-            <span class="ident">SpreadLayout::clear_spread</span>(<span class="kw-2">&amp;</span><span class="ident">pulled_lazy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-
-            <span class="comment">// then</span>
-            <span class="kw">let</span> <span class="ident">contract_id</span> <span class="op">=</span> <span class="ident">ink_env::test::get_current_contract_account_id</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;Cannot get contract id&quot;</span>);
-            <span class="kw">let</span> <span class="ident">used_cells</span> <span class="op">=</span> <span class="ident">ink_env::test::count_used_storage_cells</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">contract_id</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;used cells must be returned&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">used_cells</span>, <span class="number">0</span>);
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="kw-2">*</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(
-                <span class="ident">root_key</span>,
-            ));
-            <span class="prelude-val">Ok</span>(())
-        })
-        .<span class="ident">unwrap</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">lazy_drop_works</span>() {
-        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="comment">// given</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-
-            <span class="comment">// when</span>
-            <span class="kw">let</span> <span class="ident">setup_result</span> <span class="op">=</span> <span class="ident">std::panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">lazy</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>(<span class="number">13u32</span>);
-                <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">lazy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-                <span class="kw">let</span> <span class="ident">_pulled_lazy</span> <span class="op">=</span>
-                    <span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-                <span class="comment">// lazy is dropped which should clear the cells</span>
-            });
-            <span class="macro">assert!</span>(<span class="ident">setup_result</span>.<span class="ident">is_ok</span>(), <span class="string">&quot;setup should not panic&quot;</span>);
-
-            <span class="comment">// then</span>
-            <span class="kw">let</span> <span class="ident">contract_id</span> <span class="op">=</span> <span class="ident">ink_env::test::get_current_contract_account_id</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;Cannot get contract id&quot;</span>);
-            <span class="kw">let</span> <span class="ident">used_cells</span> <span class="op">=</span> <span class="ident">ink_env::test::count_used_storage_cells</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">contract_id</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;used cells must be returned&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">used_cells</span>, <span class="number">0</span>);
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span>
-                <span class="kw-2">*</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-            <span class="prelude-val">Ok</span>(())
-        })
-        .<span class="ident">unwrap</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">lazy_drop_works_with_greater_footprint</span>() {
-        <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="comment">// given</span>
-            <span class="kw">let</span> <span class="ident">root_key</span> <span class="op">=</span> <span class="ident">Key::from</span>([<span class="number">0x42</span>; <span class="number">32</span>]);
-
-            <span class="comment">// when</span>
-            <span class="kw">let</span> <span class="ident">setup_result</span> <span class="op">=</span> <span class="ident">std::panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">lazy</span>: <span class="ident">Lazy</span><span class="op">&lt;</span>[<span class="ident">u32</span>; <span class="number">5</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy::new</span>([<span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>]);
-                <span class="ident">SpreadLayout::push_spread</span>(<span class="kw-2">&amp;</span><span class="ident">lazy</span>, <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-                <span class="kw">let</span> <span class="ident">_pulled_lazy</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span>[<span class="ident">u32</span>; <span class="number">5</span>]<span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(
-                    <span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>),
-                );
-                <span class="comment">// lazy is dropped which should clear the cells</span>
-            });
-            <span class="macro">assert!</span>(<span class="ident">setup_result</span>.<span class="ident">is_ok</span>(), <span class="string">&quot;setup should not panic&quot;</span>);
-
-            <span class="comment">// then</span>
-            <span class="kw">let</span> <span class="ident">contract_id</span> <span class="op">=</span> <span class="ident">ink_env::test::get_current_contract_account_id</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;Cannot get contract id&quot;</span>);
-            <span class="kw">let</span> <span class="ident">used_cells</span> <span class="op">=</span> <span class="ident">ink_env::test::count_used_storage_cells</span>::<span class="op">&lt;</span>
-                <span class="ident">ink_env::DefaultEnvironment</span>,
-            <span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">contract_id</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;used cells must be returned&quot;</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">used_cells</span>, <span class="number">0</span>);
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span>
-                <span class="kw-2">*</span><span class="op">&lt;</span><span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">SpreadLayout</span><span class="op">&gt;</span><span class="ident">::pull_spread</span>(<span class="kw-2">&amp;mut</span> <span class="ident">KeyPtr::from</span>(<span class="ident">root_key</span>));
-            <span class="prelude-val">Ok</span>(())
-        })
-        .<span class="ident">unwrap</span>()
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">nested_lazies_are_cleared_completely_after_pull</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="comment">// given</span>
@@ -1782,7 +1568,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">lazy_drop_works</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="comment">// given</span>
@@ -1814,7 +1599,6 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">should_panic</span>(<span class="ident">expected</span> <span class="op">=</span> <span class="string">&quot;encountered empty storage cell&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-experimental-engine&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">lazy_drop_works_with_greater_footprint</span>() {
         <span class="ident">ink_env::test::run_test</span>::<span class="op">&lt;</span><span class="ident">ink_env::DefaultEnvironment</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
             <span class="comment">// given</span>
