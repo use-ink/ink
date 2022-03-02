@@ -26,6 +26,9 @@ use core::fmt::Debug;
 use ink_engine::test_api::RecordedDebugMessages;
 use std::panic::UnwindSafe;
 
+pub use super::call_data::CallData;
+pub use ink_engine::ChainExtension;
+
 /// Record for an emitted event.
 #[derive(Clone)]
 pub struct EmittedEvent {
@@ -82,6 +85,19 @@ where
     })
 }
 
+/// Registers a new chain extension.
+pub fn register_chain_extension<E>(extension: E)
+where
+    E: ink_engine::ChainExtension + 'static,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance
+            .engine
+            .chain_extension_handler
+            .register(Box::new(extension));
+    })
+}
+
 /// Set the entropy hash of the current block.
 ///
 /// # Note
@@ -111,6 +127,16 @@ pub fn set_clear_storage_disabled(_disable: bool) {
     unimplemented!(
         "off-chain environment does not yet support `set_clear_storage_disabled`"
     );
+}
+
+/// Advances the chain by a single block.
+pub fn advance_block<T>()
+where
+    T: Environment,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        instance.engine.advance_block();
+    })
 }
 
 /// Sets a caller for the next call.

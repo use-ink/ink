@@ -213,18 +213,14 @@ impl EnvBackend for EnvInstance {
     where
         T: scale::Decode,
     {
-        unimplemented!(
-            "the off-chain testing envoronment does not implement `seal_input`"
-        )
+        unimplemented!("the off-chain env does not implement `seal_input`")
     }
 
     fn return_value<R>(&mut self, _flags: ReturnFlags, _return_value: &R) -> !
     where
         R: scale::Encode,
     {
-        unimplemented!(
-            "the off-chain testing envoronment does not implement `seal_return_value`"
-        )
+        unimplemented!("the off-chain env does not implement `seal_return_value`")
     }
 
     fn debug_message(&mut self, message: &str) {
@@ -307,12 +303,18 @@ impl EnvBackend for EnvInstance {
         let enc_input = &scale::Encode::encode(input)[..];
         let mut output: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
-        status_to_result(self.engine.call_chain_extension(
-            func_id,
-            enc_input,
-            &mut &mut output[..],
-        ))?;
-        let decoded = decode_to_result(&output[..])?;
+        self.engine
+            .call_chain_extension(func_id, enc_input, &mut &mut output[..]);
+        let (status, out): (u32, Vec<u8>) = scale::Decode::decode(&mut &output[..])
+            .unwrap_or_else(|error| {
+                panic!(
+                    "could not decode `call_chain_extension` output: {:?}",
+                    error
+                )
+            });
+
+        status_to_result(status)?;
+        let decoded = decode_to_result(&out[..])?;
         Ok(decoded)
     }
 }
