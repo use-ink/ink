@@ -53,7 +53,6 @@ pub use self::{
     },
     as_dependency::{
         ContractReference,
-        NotAsDependencyCfg,
         OnlyAsDependencyCfg,
     },
     blake2b::Blake2x256,
