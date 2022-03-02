@@ -27,31 +27,6 @@ use derive_more::From;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 
-/// Generates `#[cfg(...)]` code to only allow compilation when `ink-as-dependency` is enabled.
-///
-/// The `ink-as-dependency` can be enabled mainly by 2 different ways:
-///
-/// - Enabling it in the associated `Cargo.toml` as crate feature.
-///     - Note: This can be enabled by dependencies of an ink! smart contract.
-/// - Enabling it in the configuration header with `#[ink::contract(compile_as_dependency = true)]`.
-///     - If set here the contract will always be compiled as it is was a dependency.
-#[derive(From)]
-pub struct OnlyAsDependencyCfg<'a> {
-    contract: &'a ir::Contract,
-}
-
-impl GenerateCode for OnlyAsDependencyCfg<'_> {
-    fn generate_code(&self) -> TokenStream2 {
-        if self.contract.config().is_compile_as_dependency_enabled() {
-            // We return no code since no code is required to disable compilation.
-            return quote! {}
-        }
-        quote! {
-            #[cfg(feature = "ink-as-dependency")]
-        }
-    }
-}
-
 /// Generates code for generating a contract reference.
 ///
 /// Contract references are used to dynamically depend on a smart contract.
