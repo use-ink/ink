@@ -264,7 +264,7 @@ where
         let root_key = Key::from([0x42; 32]);
         SpreadLayout::push_spread(&heap1, &mut KeyPtr::from(root_key));
 
-        let contract_account = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+        let contract_account = ink_env::test::set_callee::<ink_env::DefaultEnvironment>();
 
         let mut lazy_heap =
             <BinaryHeap<u32> as SpreadLayout>::pull_spread(&mut KeyPtr::from(root_key));

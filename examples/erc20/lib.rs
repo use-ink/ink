@@ -380,7 +380,7 @@ mod erc20 {
 
             // Set the contract as callee and Bob as caller.
             let contract = ink_env::account_id::<ink_env::DefaultEnvironment>();
-            ink_env::test::callee::<ink_env::DefaultEnvironment>(contract);
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob fails to transfers 10 tokens to Eve.
@@ -425,7 +425,7 @@ mod erc20 {
 
             // Set the contract as callee and Bob as caller.
             let contract = ink_env::account_id::<ink_env::DefaultEnvironment>();
-            ink_env::test::callee::<ink_env::DefaultEnvironment>(contract);
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(contract);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob transfers tokens from Alice to Eve.
@@ -467,7 +467,7 @@ mod erc20 {
 
             // Get contract address.
             let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
-            ink_env::test::callee::<ink_env::DefaultEnvironment>(callee);
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>(callee);
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.bob);
 
             // Bob tries to transfer tokens from Alice to Eve.

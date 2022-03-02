@@ -146,7 +146,7 @@ pub mod give_me {
         }
 
         fn contract_id() -> AccountId {
-            ink_env::test::callee::<ink_env::DefaultEnvironment>()
+            ink_env::test::set_callee::<ink_env::DefaultEnvironment>()
         }
 
         fn set_sender(sender: AccountId) {

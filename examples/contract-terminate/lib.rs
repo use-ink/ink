@@ -36,7 +36,7 @@ pub mod just_terminates {
             // given
             let accounts =
                 ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
-            let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
+            let contract_id = ink_env::test::set_callee::<ink_env::DefaultEnvironment>();
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(accounts.alice);
             ink_env::test::set_account_balance::<ink_env::DefaultEnvironment>(
                 contract_id,
