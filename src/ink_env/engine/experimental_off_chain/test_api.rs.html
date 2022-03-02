@@ -359,6 +359,7 @@
 <span id="354">354</span>
 <span id="355">355</span>
 <span id="356">356</span>
+<span id="357">357</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -387,6 +388,7 @@
 <span class="kw">use</span> <span class="ident">ink_engine::test_api::RecordedDebugMessages</span>;
 <span class="kw">use</span> <span class="ident">std::panic::UnwindSafe</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::call_data::CallData</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ink_engine::ChainExtension</span>;
 
 <span class="doccomment">/// Record for an emitted event.</span>
