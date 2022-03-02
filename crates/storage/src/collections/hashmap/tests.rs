@@ -338,7 +338,7 @@ fn storage_is_cleared_completely_after_pull_lazy() {
         SpreadLayout::clear_spread(&pulled_hmap, &mut KeyPtr::from(root_key));
 
         // then
-        let contract_id = ink_env::test::set_callee::<ink_env::DefaultEnvironment>();
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)
@@ -367,7 +367,7 @@ fn drop_works() {
         });
         assert!(setup_result.is_ok(), "setup should not panic");
 
-        let contract_id = ink_env::test::set_callee::<ink_env::DefaultEnvironment>();
+        let contract_id = ink_env::test::callee::<ink_env::DefaultEnvironment>();
         let used_cells = ink_env::test::count_used_storage_cells::<
             ink_env::DefaultEnvironment,
         >(&contract_id)
