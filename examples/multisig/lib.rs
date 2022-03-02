@@ -695,7 +695,8 @@ mod multisig {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
-                let mut call = test::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
+                // Multisig::change_requirement()
+                let mut call = test::CallData::new(call::Selector::new([0x00; 4]));
                 call.push_arg(&requirement);
                 Self {
                     callee: WALLET.into(),
@@ -726,7 +727,7 @@ mod multisig {
             set_sender(accounts.alice);
         }
 
-        fn set_from_noowner() {
+        fn set_from_no_owner() {
             let accounts = default_accounts();
             set_sender(accounts.django);
         }
@@ -927,9 +928,9 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn submit_transaction_noowner_fails() {
+        fn submit_transaction_no_owner_fails() {
             let mut contract = build_contract();
-            set_from_noowner();
+            set_from_no_owner();
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
@@ -1011,9 +1012,9 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn confirm_transaction_noowner_fail() {
+        fn confirm_transaction_no_owner_fail() {
             let mut contract = submit_transaction();
-            set_from_noowner();
+            set_from_no_owner();
             contract.confirm_transaction(0);
         }
 
@@ -1041,7 +1042,7 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn revoke_transaction_noowner_fail() {
+        fn revoke_transaction_no_owner_fail() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
             set_sender(accounts.django);
@@ -1069,7 +1070,8 @@ mod multisig {
 
         impl Transaction {
             fn change_requirement(requirement: u32) -> Self {
-                let mut call = test::CallData::new(call::Selector::new([0x00; 4])); // change_requirement
+                // Multisig::change_requirement()
+                let mut call = test::CallData::new(call::Selector::new([0x00; 4]));
                 call.push_arg(&requirement);
                 Self {
                     callee: AccountId::from(WALLET),
@@ -1081,23 +1083,23 @@ mod multisig {
             }
         }
 
-        fn set_sender(sender: AccountId) {
+        fn set_caller(sender: AccountId) {
             ink_env::test::set_caller::<Environment>(sender);
         }
 
         fn set_from_wallet() {
             let callee = AccountId::from(WALLET);
-            set_sender(callee);
+            set_caller(callee);
         }
 
         fn set_from_owner() {
             let accounts = default_accounts();
-            set_sender(accounts.alice);
+            set_caller(accounts.alice);
         }
 
-        fn set_from_noowner() {
+        fn set_from_no_owner() {
             let accounts = default_accounts();
-            set_sender(accounts.django);
+            set_caller(accounts.django);
         }
 
         fn default_accounts() -> test::DefaultAccounts<Environment> {
@@ -1299,9 +1301,9 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn submit_transaction_noowner_fails() {
+        fn submit_transaction_no_owner_fails() {
             let mut contract = build_contract();
-            set_from_noowner();
+            set_from_no_owner();
             contract.submit_transaction(Transaction::change_requirement(1));
         }
 
@@ -1342,7 +1344,7 @@ mod multisig {
         fn confirm_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 3);
             contract.confirmations.get(&(0, accounts.bob)).unwrap();
@@ -1355,17 +1357,17 @@ mod multisig {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
             // Confirm by Bob
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             contract.confirm_transaction(0);
             // Confirm by Eve
-            set_sender(accounts.eve);
+            set_caller(accounts.eve);
             contract.confirm_transaction(0);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 3);
             // Revoke from Eve
             contract.revoke_confirmation(0);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 2);
             // Revoke from Bob
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             contract.revoke_confirmation(0);
             assert_eq!(contract.confirmation_count.get(&0).unwrap(), 1);
         }
@@ -1374,7 +1376,7 @@ mod multisig {
         fn confirm_transaction_already_confirmed() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_sender(accounts.alice);
+            set_caller(accounts.alice);
             contract.confirm_transaction(0);
             assert_eq!(test::recorded_events().count(), 2);
             contract.confirmations.get(&(0, accounts.alice)).unwrap();
@@ -1383,9 +1385,9 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn confirm_transaction_noowner_fail() {
+        fn confirm_transaction_no_owner_fail() {
             let mut contract = submit_transaction();
-            set_from_noowner();
+            set_from_no_owner();
             contract.confirm_transaction(0);
         }
 
@@ -1393,7 +1395,7 @@ mod multisig {
         fn revoke_transaction_works() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_sender(accounts.alice);
+            set_caller(accounts.alice);
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 3);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_none());
@@ -1404,7 +1406,7 @@ mod multisig {
         fn revoke_transaction_no_confirmer() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_sender(accounts.bob);
+            set_caller(accounts.bob);
             contract.revoke_confirmation(0);
             assert_eq!(test::recorded_events().count(), 2);
             assert!(contract.confirmations.get(&(0, accounts.alice)).is_some());
@@ -1413,10 +1415,10 @@ mod multisig {
 
         #[ink::test]
         #[should_panic]
-        fn revoke_transaction_noowner_fail() {
+        fn revoke_transaction_no_owner_fail() {
             let mut contract = submit_transaction();
             let accounts = default_accounts();
-            set_sender(accounts.django);
+            set_caller(accounts.django);
             contract.revoke_confirmation(0);
         }
 
