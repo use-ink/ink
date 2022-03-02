@@ -1,3 +1,46 @@
+# Version 3.0.0
+
+This is the stable release for ink! 3.0.
+
+It took us a while to get here and going forward we want to do
+smaller releases more often.
+
+*Please note that ink! has not been audited.*
+
+## Breaking Changes
+### We replaced the default off-chain testing environment
+The off-chain testing environment can be used to write unit tests
+for your smart contract with a simulated chain.
+We've now replaced the existing off-chain environment with a new
+one, which has a bit of a different API.
+
+The major changes are that there is no longer any notion of "execution
+context" ‒ so no more `push_execution_context`/`pop_execution_context`.
+You can achieve all the same things with the new API, see [here](https://paritytech.github.io/ink/ink_env/test/index.html)
+for the API documentation.
+
+We've also switched all our examples to this new environment, you
+can find more "template use-cases" there (e.g. for
+[chain extension testing](https://github.com/paritytech/ink/tree/master/examples/rand-extension))
+
+### We removed the dynamic storage allocator
+More details on the reasoning behind this can be found in [#1148](https://github.com/paritytech/ink/pull/1148).
+
+## Added
+- Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145).
+- Implemented the (unstable) `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129).
+- Add tests in experimental off-chain env for `trait-erc20` ‒ [#1158](https://github.com/paritytech/ink/pull/1158).
+- Add tests in experimental off-chain env for `erc721` ‒ [#1157](https://github.com/paritytech/ink/pull/1157).
+- Add tests in experimental off-chain env for `multisig` ‒ [#1159](https://github.com/paritytech/ink/pull/1159).
+- Add tests in experimental off-chain env for `dns` ‒ [#1156](https://github.com/paritytech/ink/pull/1156).
+- Implemented chain extension testing in experimental off-chain env ‒ [#1152](https://github.com/paritytech/ink/pull/1152).
+
+## Changed
+- Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
+
+## Removed
+- Removed the dynamic storage allocator ‒ [#1148](https://github.com/paritytech/ink/pull/1148).
+
 # Version 3.0-rc9
 
 This is the 9th release candidate for ink! 3.0.
