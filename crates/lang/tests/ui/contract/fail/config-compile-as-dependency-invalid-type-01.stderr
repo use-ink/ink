@@ -1,5 +1,0 @@
-error: expected a bool literal for `compile_as_dependency` ink! configuration argument
- --> tests/ui/contract/fail/config-compile-as-dependency-invalid-type-01.rs:3:17
-  |
-3 | #[ink::contract(compile_as_dependency = "yes")]
-  |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
