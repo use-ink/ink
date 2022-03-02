@@ -488,6 +488,7 @@ mod erc20 {
             )
         }
 
+        /// For calculating the event topic hash.
         struct PrefixedValue<'a, 'b, T> {
             pub prefix: &'a [u8],
             pub value: &'b T,
