@@ -33,7 +33,7 @@ pub trait TraitCallBuilder {
 /// It is used to query the global trait call forwarder.
 /// There is one global trait call forwarder that implements
 /// the call forwarding (short- and long-form) for all calls
-/// to this trait in `ink-as-dependency` configuration.
+/// to this trait when a contract is used as a dependency.
 pub trait TraitCallForwarder {
     /// The call forwarder type.
     type Forwarder: TraitCallBuilder;
