@@ -430,25 +430,15 @@ where
     /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// #     use ink_lang as ink;
-    /// #     #[ink::contract(compile_as_dependency = true)]
-    /// #     pub mod other_contract {
-    /// #         #[ink(storage)]
-    /// #         pub struct OtherContract { }
     /// #
-    /// #         impl OtherContract {
-    /// #             #[ink(constructor)]
-    /// #             pub fn new() -> Self {
-    /// #                 Self {}
-    /// #             }
-    /// #
-    /// #             #[ink(message)]
-    /// #             pub fn some_operation(&self) {
-    /// #                 // ...
-    /// #             }
-    /// #         }
-    /// #     }
-    /// #
+    /// # // We do this since we can't have two `ink::contract` calls in the
+    /// # // same module (conflicting method definitions in the generated code).
+    /// # //
+    /// # // As long as we have something that implements the `ContractRef` trait
+    /// # // it doesn't really matter where it comes from (for this example).
+    /// # pub mod other_contract {
+    /// #     pub use super::MyContractRef as OtherContractRef;
+    /// # }
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}
