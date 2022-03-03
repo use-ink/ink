@@ -29,4 +29,3 @@ std = [
     "scale/std",
     "scale-info/std",
 ]
-ink-as-dependency = []
