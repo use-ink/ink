@@ -230,7 +230,7 @@ impl EnvInstance {
         R: scale::Decode,
     {
         let mut scope = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
+        let gas_limit = params.gas_limit().clone();
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();
@@ -490,7 +490,7 @@ impl TypedEnvBackend for EnvInstance {
         Salt: AsRef<[u8]>,
     {
         let mut scoped = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
+        let gas_limit = params.gas_limit().clone();
         let enc_code_hash = scoped.take_encoded(params.code_hash());
         let enc_endowment = scoped.take_encoded(params.endowment());
         let enc_input = scoped.take_encoded(params.exec_input());

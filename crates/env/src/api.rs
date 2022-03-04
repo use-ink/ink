@@ -36,6 +36,7 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::Gas,
     Environment,
     Result,
 };
@@ -74,7 +75,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<T>(gas: u64) -> T::Balance
+pub fn weight_to_fee<T>(gas: Gas) -> T::Balance
 where
     T: Environment,
 {
@@ -88,7 +89,7 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> u64
+pub fn gas_left<T>() -> Gas
 where
     T: Environment,
 {
@@ -236,7 +237,7 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If the called contract ran out of gas upon execution.
 #[allow(clippy::type_complexity)]
 pub fn invoke_contract<T, Args>(
-    params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+    params: &CallParams<T, Call<T, T::AccountId, Gas, T::Balance>, Args, ()>,
 ) -> Result<()>
 where
     T: Environment,
@@ -290,7 +291,7 @@ where
 /// - If the returned value failed to decode properly.
 #[allow(clippy::type_complexity)]
 pub fn eval_contract<T, Args, R>(
-    params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ReturnType<R>>,
+    params: &CallParams<T, Call<T, T::AccountId, Gas, T::Balance>, Args, ReturnType<R>>,
 ) -> Result<R>
 where
     T: Environment,

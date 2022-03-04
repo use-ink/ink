@@ -23,6 +23,7 @@ use crate::{
         },
         ExecutionInput,
     },
+    types::Gas,
     Clear,
     Environment,
     Error,
@@ -36,7 +37,7 @@ pub struct CallParams<E, CallType, Args, R>
 where
     E: Environment,
 {
-    /// A marker to tell us which call we are going to perform.
+    /// A marker to indicate which type of call to perform.
     call_type: CallType,
     /// The flags used to change the behavior of a contract call.
     call_flags: CallFlags,
@@ -65,7 +66,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, R>
+impl<E, Args, R> CallParams<E, Call<E, E::AccountId, Gas, E::Balance>, Args, R>
 where
     E: Environment,
 {
@@ -77,8 +78,8 @@ where
 
     /// Returns the chosen gas limit for the called contract execution.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> u64 {
-        self.call_type.gas_limit
+    pub(crate) fn gas_limit(&self) -> &Gas {
+        &self.call_type.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
@@ -94,13 +95,12 @@ where
 {
     /// Returns the code hash which we use to perform a delegate call.
     #[inline]
-    #[allow(dead_code)] // it is used in the `invoke_contract_delegate` / `eval_contract_delegate` functions.
     pub(crate) fn code_hash(&self) -> &E::Hash {
         &self.call_type.code_hash
     }
 }
 
-impl<E, Args> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, ()>
+impl<E, Args> CallParams<E, Call<E, E::AccountId, Gas, E::Balance>, Args, ()>
 where
     E: Environment,
     Args: scale::Encode,
@@ -133,7 +133,7 @@ where
 }
 
 impl<E, Args, R>
-    CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, ReturnType<R>>
+    CallParams<E, Call<E, E::AccountId, Gas, E::Balance>, Args, ReturnType<R>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -278,7 +278,7 @@ where
 #[allow(clippy::type_complexity)]
 pub fn build_call<E>() -> CallBuilder<
     E,
-    Unset<Call<E, E::AccountId, u64, E::Balance>>,
+    Unset<Call<E, E::AccountId, Gas, E::Balance>>,
     Unset<ExecutionInput<EmptyArgumentList>>,
     Unset<ReturnType<()>>,
 >
@@ -303,7 +303,7 @@ pub struct Call<E, Callee, GasLimit, TransferredValue> {
     _phantom: PhantomData<fn() -> E>,
 }
 
-impl<E: Environment> Default for Call<E, E::AccountId, u64, E::Balance> {
+impl<E: Environment> Default for Call<E, E::AccountId, Gas, E::Balance> {
     fn default() -> Self {
         Call {
             callee: Default::default(),
@@ -311,6 +311,13 @@ impl<E: Environment> Default for Call<E, E::AccountId, u64, E::Balance> {
             transferred_value: E::Balance::zero(),
             _phantom: Default::default(),
         }
+    }
+}
+
+impl<E: Environment> Call<E, E::AccountId, Gas, E::Balance> {
+    /// Returns a clean builder for [`Call`].
+    pub fn new() -> Self {
+        Default::default()
     }
 }
 
@@ -332,12 +339,12 @@ where
     }
 }
 
-impl<E, Callee, TransferredValue> Call<E, Callee, u64, TransferredValue>
+impl<E, Callee, TransferredValue> Call<E, Callee, Gas, TransferredValue>
 where
     E: Environment,
 {
     /// Sets the `gas_limit` for the current cross-contract call.
-    pub fn gas_limit(self, gas_limit: u64) -> Call<E, Callee, u64, TransferredValue> {
+    pub fn gas_limit(self, gas_limit: Gas) -> Call<E, Callee, Gas, TransferredValue> {
         Call {
             callee: self.callee,
             gas_limit,
@@ -362,13 +369,6 @@ where
             transferred_value,
             _phantom: self._phantom,
         }
-    }
-}
-
-impl<E: Environment> Call<E, E::AccountId, u64, E::Balance> {
-    /// Returns a clean builder for [`Call`].
-    pub fn new() -> Self {
-        Default::default()
     }
 }
 
@@ -520,7 +520,7 @@ where
 impl<E, Args, RetType>
     CallBuilder<
         E,
-        Set<Call<E, E::AccountId, u64, E::Balance>>,
+        Set<Call<E, E::AccountId, Gas, E::Balance>>,
         Set<ExecutionInput<Args>>,
         Set<RetType>,
     >
@@ -531,7 +531,7 @@ where
     #[allow(clippy::type_complexity)]
     pub fn params(
         self,
-    ) -> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, Args, RetType> {
+    ) -> CallParams<E, Call<E, E::AccountId, Gas, E::Balance>, Args, RetType> {
         CallParams {
             call_type: self.call_type.value(),
             call_flags: self.call_flags,
@@ -562,7 +562,7 @@ where
 impl<E, RetType>
     CallBuilder<
         E,
-        Set<Call<E, E::AccountId, u64, E::Balance>>,
+        Set<Call<E, E::AccountId, Gas, E::Balance>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<RetType>,
     >
@@ -573,7 +573,7 @@ where
     #[allow(clippy::type_complexity)]
     pub fn params(
         self,
-    ) -> CallParams<E, Call<E, E::AccountId, u64, E::Balance>, EmptyArgumentList, ()>
+    ) -> CallParams<E, Call<E, E::AccountId, Gas, E::Balance>, EmptyArgumentList, ()>
     {
         CallParams {
             call_type: self.call_type.value(),
@@ -612,7 +612,7 @@ where
 impl<E, Args>
     CallBuilder<
         E,
-        Set<Call<E, E::AccountId, u64, E::Balance>>,
+        Set<Call<E, E::AccountId, Gas, E::Balance>>,
         Set<ExecutionInput<Args>>,
         Set<()>,
     >
@@ -641,7 +641,7 @@ where
 impl<E>
     CallBuilder<
         E,
-        Set<Call<E, E::AccountId, u64, E::Balance>>,
+        Set<Call<E, E::AccountId, Gas, E::Balance>>,
         Unset<ExecutionInput<EmptyArgumentList>>,
         Unset<ReturnType<()>>,
     >
@@ -673,7 +673,7 @@ where
 impl<E, Args, R>
     CallBuilder<
         E,
-        Set<Call<E, E::AccountId, u64, E::Balance>>,
+        Set<Call<E, E::AccountId, Gas, E::Balance>>,
         Set<ExecutionInput<Args>>,
         Set<ReturnType<R>>,
     >

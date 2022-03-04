@@ -563,7 +563,7 @@ where
         ink_env::invoke_contract::<T, Args>(params)
     }
 
-    /// Invokes contract code message without fetching its result.
+    /// Invokes in delegate manner a contract code message without fetching its result.
     ///
     /// # Example
     ///
@@ -587,11 +587,13 @@ where
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Invokes another contract message without fetching the result.
+    /// /// Invokes in delegate manner another contract message without fetching the result.
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(DelegateCall::new().code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
+    ///             .set_call_type(
+    ///                 DelegateCall::new()
+    ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -609,7 +611,7 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::invoke_contract`]
+    /// For more details visit: [`ink_env::invoke_contract_delegate`]
     #[allow(clippy::type_complexity)]
     pub fn invoke_contract_delegate<Args>(
         self,
@@ -649,7 +651,11 @@ where
     /// pub fn evaluate_contract(&self) -> i32 {
     ///     type AccountId = <DefaultEnvironment as ink_env::Environment>::AccountId;
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))
+    ///             .set_call_type(
+    ///                 Call::new()
+    ///                  .callee(AccountId::from([0x42; 32]))
+    ///                  .gas_limit(5000)
+    ///                  .transferred_value(10))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -685,7 +691,7 @@ where
         ink_env::eval_contract::<T, Args, R>(params)
     }
 
-    /// Evaluates a code message and returns its result.
+    /// Evaluates in delegate manner a code message and returns its result.
     ///
     /// # Example
     ///
@@ -709,11 +715,13 @@ where
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Evaluates a contract message and fetches the result.
+    /// /// Evaluates in delegate manner a contract message and fetches the result.
     /// #[ink(message)]
     /// pub fn evaluate_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(DelegateCall::new().code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
+    ///             .set_call_type(
+    ///                 DelegateCall::new()
+    ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
