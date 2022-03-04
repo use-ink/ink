@@ -7,6 +7,14 @@ smaller releases more often.
 
 *Please note that ink! has not been audited.*
 
+## Compatibility
+We recommend using a version of the `contracts` pallet later than
+[47bb6089bb87c66a7600e06419534e9959fdaa6f](https://github.com/paritytech/substrate/tree/47bb6089bb87c66a7600e06419534e9959fdaa6f)
+(March 04, 2022) in your node.
+
+This is the case in the latest release of the `substrate-contracts-node`:
+[v0.8.0](https://github.com/paritytech/substrate-contracts-node/releases/tag/v0.8.0).
+
 ## Breaking Changes
 ### We replaced the default off-chain testing environment
 The off-chain testing environment can be used to write unit tests
@@ -47,7 +55,7 @@ More details on this change can be found in [#1133](https://github.com/paritytec
 
 ## Added
 - Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145) (thanks [@xgreenx](https://github.com/xgreenx))..
-- Implemented the (unstable) `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129).
+- Implemented the `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129) [#1166](https://github.com/paritytech/ink/pull/1166).
 - Add tests in experimental off-chain env for `trait-erc20` ‒ [#1158](https://github.com/paritytech/ink/pull/1158).
 - Add tests in experimental off-chain env for `erc721` ‒ [#1157](https://github.com/paritytech/ink/pull/1157).
 - Add tests in experimental off-chain env for `multisig` ‒ [#1159](https://github.com/paritytech/ink/pull/1159).
