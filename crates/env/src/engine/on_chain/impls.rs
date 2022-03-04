@@ -393,7 +393,6 @@ impl TypedEnvBackend for EnvInstance {
             }
             Err(actual_error) => Err(actual_error.into()),
         }
-
     }
 
     fn instantiate_contract<T, Args, Salt, C>(
