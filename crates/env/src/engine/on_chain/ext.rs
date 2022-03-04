@@ -284,6 +284,10 @@ mod sys {
             output_ptr: Ptr32Mut<[u8]>,
         );
 
+        pub fn seal_is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
+
+        pub fn seal_caller_is_origin() -> ReturnCode;
+
         #[cfg(feature = "ink-debug")]
         pub fn seal_debug_message(str_ptr: Ptr32<[u8]>, str_len: u32) -> ReturnCode;
     }
@@ -334,10 +338,6 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
-
-        pub fn seal_is_contract(account_id_ptr: Ptr32<[u8]>) -> ReturnCode;
-
-        pub fn seal_caller_is_origin() -> ReturnCode;
     }
 }
 

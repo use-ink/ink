@@ -150,11 +150,9 @@ pub struct ChainSpec {
 /// There is no particular reason behind choosing them this way.
 impl Default for ChainSpec {
     fn default() -> Self {
-        // Those are the default values which were chosen in
-        // the original off-chain testing environment.
         Self {
             gas_price: 100,
-            minimum_balance: 42,
+            minimum_balance: 1000000,
             block_time: 6,
         }
     }
