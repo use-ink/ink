@@ -84,38 +84,17 @@ where
     }
 }
 
-impl<E, Args> CallParams<E, Args, ()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the contract with the given built-up call parameters.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::Error> {
-        crate::invoke_contract(self)
-    }
-}
-
 impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
 where
     E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Evaluates the contract with the given built-up call parameters.
+    /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::Error> {
-        crate::eval_contract(self)
+    pub fn invoke(&self) -> Result<R, crate::Error> {
+        crate::invoke_contract(self)
     }
 }
 
@@ -524,6 +503,6 @@ where
 {
     /// Invokes the cross-chain function call and returns the result.
     pub fn fire(self) -> Result<R, Error> {
-        self.params().eval()
+        self.params().invoke()
     }
 }

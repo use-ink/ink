@@ -381,7 +381,7 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // This is disabled during tests due to the use of `eval_contract()` not being
+            // This is disabled during tests due to the use of `invoke_contract()` not being
             // supported (tests end up panicking).
             #[cfg(not(test))]
             {
@@ -408,7 +408,7 @@ mod erc1155 {
                     .returns::<ReturnType<Vec<u8>>>()
                     .params();
 
-                match ink_env::eval_contract(&params) {
+                match ink_env::invoke_contract(&params) {
                     Ok(v) => {
                         ink_env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",

@@ -216,33 +216,7 @@ pub fn clear_contract_storage(key: &Key) {
     })
 }
 
-/// Invokes a contract message.
-///
-/// # Note
-///
-/// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]
-///   will generally have a better performance since it won't try to fetch any results.
-/// - This is a low level way to invoke another smart contract.
-///   Prefer to use the ink! guided and type safe approach to using this.
-///
-/// # Errors
-///
-/// - If the called account does not exist.
-/// - If the called account is not a contract.
-/// - If arguments passed to the called contract message are invalid.
-/// - If the called contract execution has trapped.
-/// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
-where
-    T: Environment,
-    Args: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
-    })
-}
-
-/// Evaluates a contract message and returns its result.
+/// Invokes a contract message and returns its result.
 ///
 /// # Note
 ///
@@ -257,14 +231,14 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
+pub fn invoke_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
 where
     T: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<T, Args, R>(instance, params)
     })
 }
 

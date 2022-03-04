@@ -387,20 +387,7 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<T, Args>(&mut self, params: &CallParams<T, Args, ()>) -> Result<()>
-    where
-        T: Environment,
-        Args: scale::Encode,
-    {
-        let _gas_limit = params.gas_limit();
-        let _callee = params.callee();
-        let _call_flags = params.call_flags().into_u32();
-        let _transferred_value = params.transferred_value();
-        let _input = params.exec_input();
-        unimplemented!("off-chain environment does not support contract invocation")
-    }
-
-    fn eval_contract<T, Args, R>(
+    fn invoke_contract<T, Args, R>(
         &mut self,
         _call_params: &CallParams<T, Args, ReturnType<R>>,
     ) -> Result<R>
@@ -409,7 +396,7 @@ impl TypedEnvBackend for EnvInstance {
         Args: scale::Encode,
         R: scale::Decode,
     {
-        unimplemented!("off-chain environment does not support contract evaluation")
+        unimplemented!("off-chain environment does not support contract invocation")
     }
 
     fn instantiate_contract<T, Args, Salt, C>(
