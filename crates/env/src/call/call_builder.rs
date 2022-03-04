@@ -444,47 +444,6 @@ where
     }
 }
 
-impl<E, GasLimit, TransferredValue, Args>
-    CallBuilder<
-        E,
-        Set<E::AccountId>,
-        GasLimit,
-        TransferredValue,
-        Set<ExecutionInput<Args>>,
-        Set<()>,
-    >
-where
-    E: Environment,
-    GasLimit: Unwrap<Output = u64>,
-    Args: scale::Encode,
-    TransferredValue: Unwrap<Output = E::Balance>,
-{
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
-        self.params().invoke()
-    }
-}
-
-impl<E, GasLimit, TransferredValue>
-    CallBuilder<
-        E,
-        Set<E::AccountId>,
-        GasLimit,
-        TransferredValue,
-        Unset<ExecutionInput<EmptyArgumentList>>,
-        Unset<ReturnType<()>>,
-    >
-where
-    E: Environment,
-    GasLimit: Unwrap<Output = u64>,
-    TransferredValue: Unwrap<Output = E::Balance>,
-{
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
-        self.params().invoke()
-    }
-}
-
 impl<E, GasLimit, TransferredValue, Args, R>
     CallBuilder<
         E,
