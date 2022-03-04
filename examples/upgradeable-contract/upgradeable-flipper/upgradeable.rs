@@ -14,11 +14,20 @@ use scale::{
     Encode,
 };
 
+/// It is a status struct for `Upgradeable`, to specify that the inner type is initialized.
 #[derive(Debug)]
 pub struct Initialized;
+/// It is a status struct for `Upgradeable`, to specify that the inner type may be not initialized and
+/// `pull_spread` should initialize it.
 #[derive(Debug)]
 pub struct NotInitialized;
 
+/// The `Upgradeable` means if the field is not initialized, it will be.
+///
+/// By default ink! would throw an error that the field is not initialized.
+/// With that wrapper, you can initialize the field later during the method execution,
+/// not in the constructor. It can be done because `SpreadLayout` for `Upgradeable<T, NotInitialized>`
+/// creates the object, if storage key is empty.
 #[derive(Debug, Decode, Encode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct Upgradeable<T: PackedLayout, InitializationStatus = Initialized> {
@@ -35,6 +44,7 @@ impl<T: PackedLayout, State> Upgradeable<T, State> {
     }
 }
 
+/// It is default implementation of `SpreadLayout` for case when we don't need to init.
 impl<T: PackedLayout> SpreadLayout for Upgradeable<T, Initialized> {
     const FOOTPRINT: u64 = T::FOOTPRINT;
     const REQUIRES_DEEP_CLEAN_UP: bool = T::REQUIRES_DEEP_CLEAN_UP;
@@ -52,6 +62,7 @@ impl<T: PackedLayout> SpreadLayout for Upgradeable<T, Initialized> {
     }
 }
 
+/// It is implementation of `SpreadLayout` that initialize the inner type if it is not initialized.
 impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradeable<T, NotInitialized> {
     const FOOTPRINT: u64 = <T as SpreadLayout>::FOOTPRINT;
     const REQUIRES_DEEP_CLEAN_UP: bool = <T as SpreadLayout>::REQUIRES_DEEP_CLEAN_UP;
@@ -75,6 +86,8 @@ impl<T: PackedLayout + SpreadAllocate> SpreadLayout for Upgradeable<T, NotInitia
         <T as SpreadLayout>::clear_spread(&self.inner, ptr)
     }
 }
+
+/// Below the boilerplate code to implement `PackedLayout`, `SpreadAllocate`, `PackedAllocate`.
 
 impl<T: PackedLayout> PackedLayout for Upgradeable<T, Initialized> {
     fn pull_packed(&mut self, at: &Key) {
