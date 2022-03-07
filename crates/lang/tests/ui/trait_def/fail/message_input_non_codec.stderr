@@ -25,12 +25,12 @@ note: required by a bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, Arg
    |         T: scale::Encode,
    |            ^^^^^^^^^^^^^ required by this bound in `ExecutionInput::<ArgumentList<ArgumentListEnd, ArgumentListEnd>>::push_arg`
 
-error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<Call<E, <E as Environment>::AccountId, u64, <E as Environment>::Balance>>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>`, but its trait bounds were not satisfied
+error[E0599]: the method `fire` exists for struct `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>`, but its trait bounds were not satisfied
   --> tests/ui/trait_def/fail/message_input_non_codec.rs:7:5
    |
 7  | /     #[ink(message)]
 8  | |     fn message(&self, input: NonCodec);
-   | |_______________________________________^ method cannot be called on `CallBuilder<E, Set<Call<E, <E as Environment>::AccountId, u64, <E as Environment>::Balance>>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>` due to unsatisfied trait bounds
+   | |_______________________________________^ method cannot be called on `CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<ArgumentList<ink_env::call::utils::Argument<NonCodec>, ArgumentList<ArgumentListEnd, ArgumentListEnd>>>>, Set<()>>` due to unsatisfied trait bounds
    |
   ::: $WORKSPACE/crates/env/src/call/execution_input.rs
    |

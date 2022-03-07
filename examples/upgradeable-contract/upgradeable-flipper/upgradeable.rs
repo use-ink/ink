@@ -17,8 +17,9 @@ use scale::{
 /// It is a status struct for `Upgradeable`, to specify that the inner type is initialized.
 #[derive(Debug)]
 pub struct Initialized;
-/// It is a status struct for `Upgradeable`, to specify that the inner type may be not initialized and
-/// `pull_spread` should initialize it.
+
+/// It is a status struct for `Upgradeable`, to specify that the inner type may be not
+/// initialized and `pull_spread` should initialize it.
 #[derive(Debug)]
 pub struct NotInitialized;
 
@@ -26,11 +27,11 @@ pub struct NotInitialized;
 ///
 /// By default ink! would throw an error that the field is not initialized.
 /// With that wrapper, you can initialize the field later during the method execution,
-/// not in the constructor. It can be done because `SpreadLayout` for `Upgradeable<T, NotInitialized>`
-/// creates the object, if storage key is empty.
+/// not in the constructor. It can be done because `SpreadLayout` for
+/// `Upgradeable<T, NotInitialized>` creates the object, if storage key is empty.
 #[derive(Debug, Decode, Encode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-pub struct Upgradeable<T: PackedLayout, InitializationStatus = Initialized> {
+pub struct Upgradeable<T, InitializationStatus = Initialized> {
     inner: T,
     status: PhantomData<fn() -> InitializationStatus>,
 }
@@ -151,20 +152,6 @@ impl<T: PackedLayout, State> core::ops::Deref for Upgradeable<T, State> {
 
 impl<T: PackedLayout, State> core::ops::DerefMut for Upgradeable<T, State> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
-
-impl<T: PackedLayout, State> AsRef<T> for Upgradeable<T, State> {
-    #[inline]
-    fn as_ref(&self) -> &T {
-        &self.inner
-    }
-}
-
-impl<T: PackedLayout, State> AsMut<T> for Upgradeable<T, State> {
-    #[inline]
-    fn as_mut(&mut self) -> &mut T {
         &mut self.inner
     }
 }

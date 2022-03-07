@@ -219,13 +219,12 @@ impl EnvInstance {
     }
 
     /// Reusable implementation for invoking another contract message.
-    #[allow(clippy::type_complexity)]
-    fn invoke_contract_impl<T, Args, RetType, R>(
+    fn invoke_contract_impl<E, Args, RetType, R>(
         &mut self,
-        params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, RetType>,
+        params: &CallParams<E, Call<E>, Args, RetType>,
     ) -> Result<R>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
@@ -257,14 +256,14 @@ impl EnvInstance {
             Err(actual_error) => Err(actual_error.into()),
         }
     }
+
     /// Reusable implementation for invoking another contract message via delegate call.
-    #[allow(clippy::type_complexity)]
-    fn invoke_contract_delegate_impl<T, Args, RetType, R>(
+    fn invoke_contract_delegate_impl<E, Args, RetType, R>(
         &mut self,
-        params: &CallParams<T, DelegateCall<T, T::Hash>, Args, RetType>,
+        params: &CallParams<E, DelegateCall<E>, Args, RetType>,
     ) -> Result<R>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
@@ -386,106 +385,101 @@ impl EnvBackend for EnvInstance {
 }
 
 impl TypedEnvBackend for EnvInstance {
-    fn caller<T: Environment>(&mut self) -> T::AccountId {
-        self.get_property_inplace::<T::AccountId>(ext::caller)
+    fn caller<E: Environment>(&mut self) -> E::AccountId {
+        self.get_property_inplace::<E::AccountId>(ext::caller)
     }
 
-    fn transferred_value<T: Environment>(&mut self) -> T::Balance {
-        self.get_property_little_endian::<T::Balance>(ext::value_transferred)
+    fn transferred_value<E: Environment>(&mut self) -> E::Balance {
+        self.get_property_little_endian::<E::Balance>(ext::value_transferred)
     }
 
-    fn gas_left<T: Environment>(&mut self) -> u64 {
+    fn gas_left<E: Environment>(&mut self) -> u64 {
         self.get_property_little_endian::<u64>(ext::gas_left)
     }
 
-    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp {
-        self.get_property_little_endian::<T::Timestamp>(ext::now)
+    fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp {
+        self.get_property_little_endian::<E::Timestamp>(ext::now)
     }
 
-    fn account_id<T: Environment>(&mut self) -> T::AccountId {
-        self.get_property_inplace::<T::AccountId>(ext::address)
+    fn account_id<E: Environment>(&mut self) -> E::AccountId {
+        self.get_property_inplace::<E::AccountId>(ext::address)
     }
 
-    fn balance<T: Environment>(&mut self) -> T::Balance {
-        self.get_property_little_endian::<T::Balance>(ext::balance)
+    fn balance<E: Environment>(&mut self) -> E::Balance {
+        self.get_property_little_endian::<E::Balance>(ext::balance)
     }
 
-    fn block_number<T: Environment>(&mut self) -> T::BlockNumber {
-        self.get_property_little_endian::<T::BlockNumber>(ext::block_number)
+    fn block_number<E: Environment>(&mut self) -> E::BlockNumber {
+        self.get_property_little_endian::<E::BlockNumber>(ext::block_number)
     }
 
-    fn minimum_balance<T: Environment>(&mut self) -> T::Balance {
-        self.get_property_little_endian::<T::Balance>(ext::minimum_balance)
+    fn minimum_balance<E: Environment>(&mut self) -> E::Balance {
+        self.get_property_little_endian::<E::Balance>(ext::minimum_balance)
     }
 
-    fn emit_event<T, Event>(&mut self, event: Event)
+    fn emit_event<E, Event>(&mut self, event: Event)
     where
-        T: Environment,
+        E: Environment,
         Event: Topics + scale::Encode,
     {
         let (mut scope, enc_topics) =
-            event.topics::<T, _>(TopicsBuilder::from(self.scoped_buffer()).into());
+            event.topics::<E, _>(TopicsBuilder::from(self.scoped_buffer()).into());
         let enc_data = scope.take_encoded(&event);
         ext::deposit_event(enc_topics, enc_data);
     }
 
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<E, Args>(
         &mut self,
-        call_params: &CallParams<T, Call<T, T::AccountId, u64, T::Balance>, Args, ()>,
+        call_params: &CallParams<E, Call<E>, Args, ()>,
     ) -> Result<()>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
     {
         self.invoke_contract_impl(call_params)
     }
 
-    fn invoke_contract_delegate<T, Args>(
+    fn invoke_contract_delegate<E, Args>(
         &mut self,
-        call_params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ()>,
+        call_params: &CallParams<E, DelegateCall<E>, Args, ()>,
     ) -> Result<()>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
     {
         self.invoke_contract_delegate_impl(call_params)
     }
 
-    fn eval_contract<T, Args, R>(
+    fn eval_contract<E, Args, R>(
         &mut self,
-        call_params: &CallParams<
-            T,
-            Call<T, T::AccountId, u64, T::Balance>,
-            Args,
-            ReturnType<R>,
-        >,
+        call_params: &CallParams<E, Call<E>, Args, ReturnType<R>>,
     ) -> Result<R>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
         self.invoke_contract_impl(call_params)
     }
 
-    fn eval_contract_delegate<T, Args, R>(
+    fn eval_contract_delegate<E, Args, R>(
         &mut self,
-        call_params: &CallParams<T, DelegateCall<T, T::Hash>, Args, ReturnType<R>>,
+        call_params: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
     ) -> Result<R>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
         self.invoke_contract_delegate_impl(call_params)
     }
 
-    fn instantiate_contract<T, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, Salt, C>,
-    ) -> Result<T::AccountId>
+        params: &CreateParams<E, Args, Salt, C>,
+    ) -> Result<E::AccountId>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
     {
@@ -517,17 +511,17 @@ impl TypedEnvBackend for EnvInstance {
         Ok(account_id)
     }
 
-    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
     where
-        T: Environment,
+        E: Environment,
     {
         let buffer = self.scoped_buffer().take_encoded(&beneficiary);
         ext::terminate(buffer);
     }
 
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
     where
-        T: Environment,
+        E: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_destination = scope.take_encoded(&destination);
@@ -535,15 +529,15 @@ impl TypedEnvBackend for EnvInstance {
         ext::transfer(enc_destination, enc_value).map_err(Into::into)
     }
 
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance {
-        let mut result = <T::Balance as FromLittleEndian>::Bytes::default();
+    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance {
+        let mut result = <E::Balance as FromLittleEndian>::Bytes::default();
         ext::weight_to_fee(gas, &mut result.as_mut());
-        <T::Balance as FromLittleEndian>::from_le_bytes(result)
+        <E::Balance as FromLittleEndian>::from_le_bytes(result)
     }
 
-    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
+    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
     where
-        T: Environment,
+        E: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_subject = scope.take_bytes(subject);
@@ -552,18 +546,18 @@ impl TypedEnvBackend for EnvInstance {
         scale::Decode::decode(&mut &output[..]).map_err(Into::into)
     }
 
-    fn is_contract<T>(&mut self, account_id: &T::AccountId) -> bool
+    fn is_contract<E>(&mut self, account_id: &E::AccountId) -> bool
     where
-        T: Environment,
+        E: Environment,
     {
         let mut scope = self.scoped_buffer();
         let enc_account_id = scope.take_encoded(account_id);
         ext::is_contract(enc_account_id)
     }
 
-    fn caller_is_origin<T>(&mut self) -> bool
+    fn caller_is_origin<E>(&mut self) -> bool
     where
-        T: Environment,
+        E: Environment,
     {
         ext::caller_is_origin()
     }

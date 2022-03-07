@@ -7,6 +7,10 @@
 //!     of it is delegates to a specified address.
 //!   * The instantiator of the contract can modify this specified
 //!     `forward_to` address at any point.
+//!
+//!   User ---- tx ---> Proxy ---------> Implementation_v0
+//!                      | ------------> Implementation_v1
+//!                      | ------------> Implementation_v2
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -25,13 +29,13 @@ pub mod upgradeable_contract {
     ///
     /// The reason this is a separate structure is that we want to keep
     /// the data for this contract in a separate place (as in the implementation
-    /// of [`SpreadLayout`]), so that it does not get overwritten by any contract
-    /// upgrade, which might introduce storage changes.
+    /// of [`SpreadLayout`](ink_storage::traits::SpreadLayout)), so that it does not get
+    /// overwritten by any contract upgrade, which might introduce storage changes.
     #[derive(Debug)]
     #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
     struct ProxyFields {
         /// The `Hash` of a contract code where any call that does not match a
-        /// selector of this contract is forwarded to.
+        /// selector of this contract is delegate to.
         delegate_to: Hash,
         /// The `AccountId` of a privileged account that can update the
         /// forwarding address. This address is set to the account that
@@ -42,14 +46,13 @@ pub mod upgradeable_contract {
     const PROXY_FIELDS_STORAGE_KEY: [u8; 32] = ink_lang::blake2x256!("ProxyFields");
 
     /// `SpreadLayout` is implemented manually to use its own `PROXY_FIELDS_STORAGE_KEY`
-    /// storage key instead of the zero key.
+    /// storage key instead of the default contract storage `ContractRootKey::ROOT_KEY`.
     ///
-    /// That allows to store the structure in separate cells and it will not conflict
-    /// with the default storage layout of the callee contract.
+    /// This allows us to store the proxy contract's storage in such a way that it will not
+    /// conflict with the the default storage layout of the contract we're proxying calls to.
     impl SpreadLayout for ProxyFields {
         const FOOTPRINT: u64 =
             <AccountId as SpreadLayout>::FOOTPRINT + <Hash as SpreadLayout>::FOOTPRINT;
-        const REQUIRES_DEEP_CLEAN_UP: bool = false;
 
         fn pull_spread(_: &mut KeyPtr) -> Self {
             let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
@@ -108,7 +111,8 @@ pub mod upgradeable_contract {
         }
 
         /// Fallback message for a contract call that doesn't match any
-        /// of the other message selectors.
+        /// of the other message selectors. Proxy contract delegates the execution
+        /// of that message to the `delegate_to` contract with all input data.
         ///
         /// # Note:
         ///
@@ -122,7 +126,11 @@ pub mod upgradeable_contract {
                 .set_call_type(DelegateCall::new().code_hash(self.proxy.delegate_to))
                 .call_flags(
                     ink_env::CallFlags::default()
+                        // We don't plan to use the input data after the delegated call, so the 
+                        // input data can be forwarded to delegated contract to reduce the gas usage.
                         .set_forward_input(true)
+                        // We don't plan to return back to that contract after execution, so we 
+                        // marked delegated call as "tail", to end the execution of the contract.
                         .set_tail_call(true),
                 )
                 .fire()

@@ -1,3 +1,7 @@
+//! This is an example of an upgradable `Flipper`, that can be deployed by the developer
+//! and used with `Proxy` from the `upgradeable_contract` crate.
+//! The calls from the `Proxy` contract can be delegated to that contract.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod upgradeable;
