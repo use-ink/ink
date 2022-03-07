@@ -14,7 +14,6 @@
 
 use crate::{
     call::{
-        utils::ReturnType,
         Call,
         CallParams,
         CreateParams,
@@ -361,55 +360,28 @@ pub trait TypedEnvBackend: EnvBackend {
         E: Environment,
         Event: Topics + scale::Encode;
 
-    /// Invokes a contract message.
+    /// Invokes a contract message and returns its result.
     ///
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<E, Args>(
+    fn invoke_contract<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, Call<E>, Args, ()>,
-    ) -> Result<()>
-    where
-        E: Environment,
-        Args: scale::Encode;
-
-    /// Invokes a contract message via delegate call.
-    ///
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
-    fn invoke_contract_delegate<E, Args>(
-        &mut self,
-        call_data: &CallParams<E, DelegateCall<E>, Args, ()>,
-    ) -> Result<()>
-    where
-        E: Environment,
-        Args: scale::Encode;
-
-    /// Evaluates a contract message and returns its result.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`eval_contract`][`crate::eval_contract`]
-    fn eval_contract<E, Args, R>(
-        &mut self,
-        call_data: &CallParams<E, Call<E>, Args, ReturnType<R>>,
+        call_data: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<R>
     where
         E: Environment,
         Args: scale::Encode,
         R: scale::Decode;
 
-    /// Evaluates a contract message via delegate call and returns its result.
+    /// Invokes a contract message via delegate call and returns its result.
     ///
     /// # Note
     ///
-    /// For more details visit: [`eval_contract_delegate`][`crate::eval_contract_delegate`]
-    fn eval_contract_delegate<E, Args, R>(
+    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+    fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        call_data: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
+        call_data: &CallParams<E, DelegateCall<E>, Args, R>,
     ) -> Result<R>
     where
         E: Environment,

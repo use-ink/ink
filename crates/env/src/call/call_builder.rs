@@ -100,54 +100,17 @@ where
     }
 }
 
-impl<E, Args> CallParams<E, Call<E>, Args, ()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the contract with the given built-up call parameters.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::Error> {
-        crate::invoke_contract(self)
-    }
-}
-
-impl<E, Args> CallParams<E, DelegateCall<E>, Args, ()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the contract with the given built-up call parameters.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::Error> {
-        crate::invoke_contract_delegate(self)
-    }
-}
-
-impl<E, Args, R> CallParams<E, Call<E>, Args, ReturnType<R>>
+impl<E, Args, R> CallParams<E, Call<E>, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Evaluates the contract with the given built-up call parameters.
+    /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::Error> {
-        crate::eval_contract(self)
+    pub fn invoke(&self) -> Result<R, crate::Error> {
+        crate::invoke_contract(self)
     }
 }
 
@@ -157,16 +120,12 @@ where
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Evaluates the contract with the given built-up call parameters.
+    /// Invokes the contract via delegated call with the given
+    /// built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::Error> {
-        crate::eval_contract_delegate(self)
+    pub fn invoke(&self) -> Result<R, crate::Error> {
+        crate::invoke_contract_delegate(self)
     }
 }
 
@@ -230,7 +189,7 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType, Call},
+/// #     call::{build_call, Selector, ExecutionInput, Call},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
@@ -270,7 +229,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
-///     .returns::<ReturnType<i32>>()
+///     .returns::<i32>()
 ///     .fire()
 ///     .unwrap();
 /// ```
@@ -432,18 +391,6 @@ where
     }
 }
 
-mod seal {
-    /// Used to prevent users from implementing `IndicateReturnType` for their own types.
-    pub trait Sealed {}
-    impl Sealed for () {}
-    impl<T> Sealed for super::ReturnType<T> {}
-}
-
-/// Types that can be used in [`CallBuilder::returns`] to signal return type.
-pub trait IndicateReturnType: Default + self::seal::Sealed {}
-impl IndicateReturnType for () {}
-impl<T> IndicateReturnType for ReturnType<T> {}
-
 impl<E, CallType, Args> CallBuilder<E, CallType, Args, Unset<ReturnType<()>>>
 where
     E: Environment,
@@ -453,13 +400,9 @@ where
     /// # Note
     ///
     /// Either use `.returns::<()>` to signal that the call does not return a value
-    /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
-    /// type `T`.
+    /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
     #[inline]
-    pub fn returns<R>(self) -> CallBuilder<E, CallType, Args, Set<R>>
-    where
-        R: IndicateReturnType,
-    {
+    pub fn returns<R>(self) -> CallBuilder<E, CallType, Args, Set<ReturnType<R>>> {
         CallBuilder {
             call_type: self.call_type,
             call_flags: self.call_flags,
@@ -508,7 +451,12 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<RetType>>
+    CallBuilder<
+        E,
+        Set<DelegateCall<E>>,
+        Set<ExecutionInput<Args>>,
+        Set<ReturnType<RetType>>,
+    >
 where
     E: Environment,
 {
@@ -563,7 +511,7 @@ where
     }
 }
 
-impl<E, Args> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<()>>
+impl<E, Args> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<()>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -574,7 +522,8 @@ where
     }
 }
 
-impl<E, Args> CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<()>>
+impl<E, Args>
+    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<()>>>
 where
     E: Environment,
     Args: scale::Encode,
@@ -639,6 +588,6 @@ where
 {
     /// Invokes the cross-chain function call and returns the result.
     pub fn fire(self) -> Result<R, Error> {
-        self.params().eval()
+        self.params().invoke()
     }
 }

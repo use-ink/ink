@@ -66,7 +66,6 @@ use ink_lang as ink;
 mod multisig {
     use ink_env::call::{
         build_call,
-        utils::ReturnType,
         Call,
         ExecutionInput,
     };
@@ -558,7 +557,7 @@ mod multisig {
                 .exec_input(
                     ExecutionInput::new(t.selector.into()).push_arg(CallInput(&t.input)),
                 )
-                .returns::<ReturnType<Vec<u8>>>()
+                .returns::<Vec<u8>>()
                 .fire()
                 .map_err(|_| Error::TransactionFailed);
             self.env().emit_event(Execution {

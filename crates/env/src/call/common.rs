@@ -18,7 +18,7 @@ use core::marker::PhantomData;
 
 /// Represents a return type.
 ///
-/// Used as a marker type to differentiate at compile-time between invoke and evaluate.
+/// Used as a marker type to define the return type of an ink! message in call builders.
 #[derive(Debug)]
 pub struct ReturnType<T>(PhantomData<fn() -> T>);
 

@@ -21,7 +21,6 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
-        utils::ReturnType,
         Call,
         CallParams,
         CreateParams,
@@ -219,59 +218,7 @@ pub fn clear_contract_storage(key: &Key) {
     })
 }
 
-/// Invokes a contract message.
-///
-/// # Note
-///
-/// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]
-///   will generally have a better performance since it won't try to fetch any results.
-/// - This is a low level way to invoke another smart contract.
-///   Prefer to use the ink! guided and type safe approach to using this.
-///
-/// # Errors
-///
-/// - If the called account does not exist.
-/// - If the called account is not a contract.
-/// - If arguments passed to the called contract message are invalid.
-/// - If the called contract execution has trapped.
-/// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<E, Args>(params: &CallParams<E, Call<E>, Args, ()>) -> Result<()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<E, Args>(instance, params)
-    })
-}
-
-/// Invokes a contract message via delegate call.
-///
-/// # Note
-///
-/// - Prefer using this over [`eval_contract_delegate`] if possible. [`invoke_contract_delegate`]
-///   will generally have a better performance since it won't try to fetch any results.
-/// - This is a low level way to invoke another smart contract via delegate call.
-///   Prefer to use the ink! guided and type safe approach to using this.
-///
-/// # Errors
-///
-/// - If the specified code hash does not exist.
-/// - If arguments passed to the called code message are invalid.
-/// - If the called code execution has trapped.
-pub fn invoke_contract_delegate<E, Args>(
-    params: &CallParams<E, DelegateCall<E>, Args, ()>,
-) -> Result<()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract_delegate::<E, Args>(instance, params)
-    })
-}
-
-/// Evaluates a contract message and returns its result.
+/// Invokes a contract message and returns its result.
 ///
 /// # Note
 ///
@@ -286,20 +233,18 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<E, Args, R>(
-    params: &CallParams<E, Call<E>, Args, ReturnType<R>>,
-) -> Result<R>
+pub fn invoke_contract<E, Args, R>(params: &CallParams<E, Call<E>, Args, R>) -> Result<R>
 where
     E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::eval_contract::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
     })
 }
 
-/// Evaluates a contract message via delegate call and returns its result.
+/// Invokes a contract message via delegate call and returns its result.
 ///
 /// # Note
 ///
@@ -312,7 +257,7 @@ where
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
 pub fn eval_contract_delegate<E, Args, R>(
-    params: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
+    params: &CallParams<E, DelegateCall<E>, Args, R>,
 ) -> Result<R>
 where
     E: Environment,
@@ -320,7 +265,7 @@ where
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::eval_contract_delegate::<E, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
     })
 }
 

@@ -16,7 +16,6 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
-        utils::ReturnType,
         Call,
         CallParams,
         CreateParams,
@@ -506,7 +505,7 @@ where
         ink_env::instantiate_contract::<E, Args, Salt, C>(params)
     }
 
-    /// Invokes a contract message without fetching its result.
+    /// Invokes a contract message and returns its result.
     ///
     /// # Example
     ///
@@ -529,9 +528,9 @@ where
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Invokes another contract message without fetching the result.
+    /// /// Invokes a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn invoke_contract(&self) {
+    /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))
     ///             .exec_input(
@@ -540,7 +539,7 @@ where
     ///                  .push_arg(true)
     ///                  .push_arg(&[0x10u8; 32])
     ///     )
-    ///     .returns::<()>()
+    ///     .returns::<i32>()
     ///     .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
     /// }
@@ -552,135 +551,14 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args>(
+    pub fn invoke_contract<Args, R>(
         self,
-        params: &CallParams<E, Call<E>, Args, ()>,
-    ) -> Result<()>
-    where
-        Args: scale::Encode,
-    {
-        ink_env::invoke_contract::<E, Args>(params)
-    }
-
-    /// Invokes in delegate manner a contract code message without fetching its result.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// use ink_env::{
-    ///     DefaultEnvironment,
-    ///     Clear,
-    ///     call::{build_call, DelegateCall, Selector, ExecutionInput}
-    /// };
-    ///
-    /// #
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Invokes in delegate manner another contract message without fetching the result.
-    /// #[ink(message)]
-    /// pub fn invoke_contract_delegate(&self) {
-    ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(
-    ///                 DelegateCall::new()
-    ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
-    ///             .exec_input(
-    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                  .push_arg(42u8)
-    ///                  .push_arg(true)
-    ///                  .push_arg(&[0x10u8; 32])
-    ///     )
-    ///     .returns::<()>()
-    ///     .params();
-    ///     self.env().invoke_contract_delegate(&call_params).expect("call invocation must succeed");
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::invoke_contract_delegate`]
-    pub fn invoke_contract_delegate<Args>(
-        self,
-        params: &CallParams<E, DelegateCall<E>, Args, ()>,
-    ) -> Result<()>
-    where
-        Args: scale::Encode,
-    {
-        ink_env::invoke_contract_delegate::<E, Args>(params)
-    }
-
-    /// Evaluates a contract message and returns its result.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// use ink_env::{
-    ///     DefaultEnvironment,
-    ///     call::{build_call, Call, Selector, ExecutionInput, utils::ReturnType}
-    /// };
-    ///
-    /// #
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Evaluates a contract message and fetches the result.
-    /// #[ink(message)]
-    /// pub fn evaluate_contract(&self) -> i32 {
-    ///     type AccountId = <DefaultEnvironment as ink_env::Environment>::AccountId;
-    ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(
-    ///                 Call::new()
-    ///                  .callee(AccountId::from([0x42; 32]))
-    ///                  .gas_limit(5000)
-    ///                  .transferred_value(10))
-    ///             .exec_input(
-    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                  .push_arg(42u8)
-    ///                  .push_arg(true)
-    ///                  .push_arg(&[0x10u8; 32])
-    ///         )
-    ///         .returns::<ReturnType<i32>>()
-    ///         .params();
-    ///     self.env().eval_contract(&call_params).expect("call invocation must succeed")
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::eval_contract`]
-    pub fn eval_contract<Args, R>(
-        self,
-        params: &CallParams<E, Call<E>, Args, ReturnType<R>>,
+        params: &CallParams<E, Call<E>, Args, R>,
     ) -> Result<R>
     where
         Args: scale::Encode,
-        R: scale::Decode,
     {
-        ink_env::eval_contract::<E, Args, R>(params)
+        ink_env::invoke_contract::<E, Args, R>(params)
     }
 
     /// Evaluates in delegate manner a code message and returns its result.
@@ -731,16 +609,16 @@ where
     ///
     /// # Note
     ///
-    /// For more details visit: [`ink_env::eval_contract_delegate`]
-    pub fn eval_contract_delegate<Args, R>(
+    /// For more details visit: [`ink_env::invoke_contract_delegate`]
+    pub fn invoke_contract_delegate<Args, R>(
         self,
-        params: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
+        params: &CallParams<E, DelegateCall<E>, Args, R>,
     ) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::eval_contract_delegate::<E, Args, R>(params)
+        ink_env::invoke_contract_delegate::<E, Args, R>(params)
     }
 
     /// Terminates the existence of a contract.

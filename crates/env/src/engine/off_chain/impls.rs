@@ -15,7 +15,6 @@
 use super::EnvInstance;
 use crate::{
     call::{
-        utils::ReturnType,
         Call,
         CallParams,
         CreateParams,
@@ -389,13 +388,14 @@ impl TypedEnvBackend for EnvInstance {
         self.engine.deposit_event(&enc_topics[..], enc_data);
     }
 
-    fn invoke_contract<E, Args>(
+    fn invoke_contract<E, Args, R>(
         &mut self,
-        params: &CallParams<E, Call<E>, Args, ()>,
-    ) -> Result<()>
+        params: &CallParams<E, Call<E>, Args, R>,
+    ) -> Result<R>
     where
         E: Environment,
         Args: scale::Encode,
+        R: scale::Decode,
     {
         let _gas_limit = params.gas_limit();
         let _callee = params.callee();
@@ -405,31 +405,7 @@ impl TypedEnvBackend for EnvInstance {
         unimplemented!("off-chain environment does not support contract invocation")
     }
 
-    fn invoke_contract_delegate<E, Args>(
-        &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, ()>,
-    ) -> Result<()>
-    where
-        E: Environment,
-        Args: scale::Encode,
-    {
-        let _code_hash = params.code_hash();
-        unimplemented!("off-chain environment does not support contract invocation")
-    }
-
-    fn eval_contract<E, Args, R>(
-        &mut self,
-        _call_params: &CallParams<E, Call<E>, Args, ReturnType<R>>,
-    ) -> Result<R>
-    where
-        E: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        unimplemented!("off-chain environment does not support contract evaluation")
-    }
-
-    fn eval_contract_delegate<E, Args, R>(
+    fn invoke_contract_delegate<E, Args, R>(
         &mut self,
         params: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
     ) -> Result<R>
@@ -439,7 +415,9 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let _code_hash = params.code_hash();
-        unimplemented!("off-chain environment does not support contract evaluation")
+        unimplemented!(
+            "off-chain environment does not support delegated contract invocation"
+        )
     }
 
     fn instantiate_contract<E, Args, Salt, C>(

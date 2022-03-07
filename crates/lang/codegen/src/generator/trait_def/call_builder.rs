@@ -365,10 +365,8 @@ impl CallBuilder<'_> {
             .filter_attr(message.attrs());
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
-        let output_sig = output.map_or_else(
-            || quote! { () },
-            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
-        );
+        let output_type =
+            output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
@@ -380,7 +378,7 @@ impl CallBuilder<'_> {
                 Self::Env,
                 ::ink_env::call::utils::Set< ::ink_env::call::Call< Self::Env > >,
                 ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                ::ink_env::call::utils::Set<#output_sig>,
+                ::ink_env::call::utils::Set< ::ink_env::call::utils::ReturnType<#output_type> >,
             >;
 
             #( #attrs )*
@@ -399,7 +397,7 @@ impl CallBuilder<'_> {
                             .push_arg(#input_bindings)
                         )*
                     )
-                    .returns::<#output_sig>()
+                    .returns::<#output_type>()
             }
         )
     }
