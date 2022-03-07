@@ -365,7 +365,8 @@ impl CallBuilder<'_> {
             .filter_attr(message.attrs());
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
-        let output_type = output.map_or_else(|| quote! { () }, |output| quote! { #output });
+        let output_type =
+            output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());

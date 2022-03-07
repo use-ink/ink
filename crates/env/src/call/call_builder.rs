@@ -321,7 +321,8 @@ where
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<ReturnType<R>>> {
+    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<ReturnType<R>>>
+    {
         CallBuilder {
             env: Default::default(),
             callee: self.callee,
