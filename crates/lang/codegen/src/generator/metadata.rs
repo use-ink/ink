@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    generator,
-    GenerateCode,
-    GenerateCodeUsing as _,
-};
+use crate::GenerateCode;
 use ::core::iter;
 use derive_more::From;
 use ir::{
@@ -43,12 +39,10 @@ impl GenerateCode for Metadata<'_> {
     fn generate_code(&self) -> TokenStream2 {
         let contract = self.generate_contract();
         let layout = self.generate_layout();
-        let cfg_not_as_dependency =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
 
         quote! {
             #[cfg(feature = "std")]
-            #cfg_not_as_dependency
+            #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #[no_mangle]
                 pub fn __ink_generate_metadata() -> ::ink_metadata::MetadataVersioned  {
