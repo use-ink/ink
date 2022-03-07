@@ -230,9 +230,7 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn invoke_contract<T, Args, R>(
-    params: &CallParams<T, Args, R>,
-) -> Result<R>
+pub fn invoke_contract<T, Args, R>(params: &CallParams<T, Args, R>) -> Result<R>
 where
     T: Environment,
     Args: scale::Encode,

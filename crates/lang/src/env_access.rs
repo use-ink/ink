@@ -551,10 +551,7 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args, R>(
-        self,
-        params: &CallParams<T, Args, R>,
-    ) -> Result<R>
+    pub fn invoke_contract<Args, R>(self, params: &CallParams<T, Args, R>) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
