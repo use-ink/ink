@@ -532,7 +532,11 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))
+    ///             .set_call_type(
+    ///                 Call::new()
+    ///                     .callee(AccountId::from([0x42; 32]))
+    ///                     .gas_limit(5000)
+    ///                     .transferred_value(10))
     ///             .exec_input(
     ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
     ///                  .push_arg(42u8)
@@ -541,7 +545,7 @@ where
     ///     )
     ///     .returns::<i32>()
     ///     .params();
-    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
+    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed")
     /// }
     /// #
     /// #     }
@@ -557,11 +561,12 @@ where
     ) -> Result<R>
     where
         Args: scale::Encode,
+        R: scale::Decode,
     {
         ink_env::invoke_contract::<E, Args, R>(params)
     }
 
-    /// Evaluates in delegate manner a code message and returns its result.
+    /// Invokes in delegate manner a code message and returns its result.
     ///
     /// # Example
     ///
@@ -585,9 +590,9 @@ where
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Evaluates in delegate manner a contract message and fetches the result.
+    /// /// Invokes in delegate manner a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn evaluate_contract_delegate(&self) -> i32 {
+    /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///             .set_call_type(
     ///                 DelegateCall::new()
@@ -598,9 +603,9 @@ where
     ///                  .push_arg(true)
     ///                  .push_arg(&[0x10u8; 32])
     ///         )
-    ///         .returns::<ReturnType<i32>>()
+    ///         .returns::<i32>()
     ///         .params();
-    ///     self.env().eval_contract_delegate(&call_params).expect("call invocation must succeed")
+    ///     self.env().invoke_contract_delegate(&call_params).expect("call delegate invocation must succeed")
     /// }
     /// #
     /// #     }

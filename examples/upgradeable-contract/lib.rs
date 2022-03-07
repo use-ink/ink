@@ -35,8 +35,8 @@ pub mod upgradeable_contract {
     #[cfg_attr(feature = "std", derive(ink_storage::traits::StorageLayout))]
     struct ProxyFields {
         /// The `Hash` of a contract code where any call that does not match a
-        /// selector of this contract is delegate to.
-        delegate_to: Hash,
+        /// selector of this contract is forward to.
+        forward_to: Hash,
         /// The `AccountId` of a privileged account that can update the
         /// forwarding address. This address is set to the account that
         /// instantiated this contract.
@@ -57,20 +57,20 @@ pub mod upgradeable_contract {
         fn pull_spread(_: &mut KeyPtr) -> Self {
             let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
             Self {
-                delegate_to: SpreadLayout::pull_spread(&mut ptr),
+                forward_to: SpreadLayout::pull_spread(&mut ptr),
                 admin: SpreadLayout::pull_spread(&mut ptr),
             }
         }
 
         fn push_spread(&self, _: &mut KeyPtr) {
             let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
-            SpreadLayout::push_spread(&self.delegate_to, &mut ptr);
+            SpreadLayout::push_spread(&self.forward_to, &mut ptr);
             SpreadLayout::push_spread(&self.admin, &mut ptr);
         }
 
         fn clear_spread(&self, _: &mut KeyPtr) {
             let mut ptr = KeyPtr::from(Key::from(PROXY_FIELDS_STORAGE_KEY));
-            SpreadLayout::clear_spread(&self.delegate_to, &mut ptr);
+            SpreadLayout::clear_spread(&self.forward_to, &mut ptr);
             SpreadLayout::clear_spread(&self.admin, &mut ptr);
         }
     }
@@ -87,10 +87,10 @@ pub mod upgradeable_contract {
         /// Sets the privileged account to the caller. Only this account may
         /// later changed the `forward_to` address.
         #[ink(constructor)]
-        pub fn new(delegate_to: Hash) -> Self {
+        pub fn new(forward_to: Hash) -> Self {
             Self {
                 proxy: ProxyFields {
-                    delegate_to,
+                    forward_to,
                     admin: Self::env().caller(),
                 },
             }
@@ -107,12 +107,12 @@ pub mod upgradeable_contract {
                 self.env().caller(),
                 self.proxy.admin,
             );
-            self.proxy.delegate_to = new_code_hash;
+            self.proxy.forward_to = new_code_hash;
         }
 
         /// Fallback message for a contract call that doesn't match any
         /// of the other message selectors. Proxy contract delegates the execution
-        /// of that message to the `delegate_to` contract with all input data.
+        /// of that message to the `forward_to` contract with all input data.
         ///
         /// # Note:
         ///
@@ -123,7 +123,7 @@ pub mod upgradeable_contract {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .set_call_type(DelegateCall::new().code_hash(self.proxy.delegate_to))
+                .set_call_type(DelegateCall::new().code_hash(self.proxy.forward_to))
                 .call_flags(
                     ink_env::CallFlags::default()
                         // We don't plan to use the input data after the delegated call, so the 
@@ -137,7 +137,7 @@ pub mod upgradeable_contract {
                 .unwrap_or_else(|err| {
                     panic!(
                         "delegate call to {:?} failed due to {:?}",
-                        self.proxy.delegate_to, err
+                        self.proxy.forward_to, err
                     )
                 });
             unreachable!(

@@ -368,7 +368,7 @@ impl TypedEnvBackend for EnvInstance {
         R: scale::Decode,
     {
         let mut scope = self.scoped_buffer();
-        let gas_limit = *params.gas_limit();
+        let gas_limit = params.gas_limit();
         let enc_callee = scope.take_encoded(params.callee());
         let enc_transferred_value = scope.take_encoded(params.transferred_value());
         let call_flags = params.call_flags();

@@ -256,7 +256,7 @@ where
 /// - If the specified code hash does not exist.
 /// - If arguments passed to the called code message are invalid.
 /// - If the called code execution has trapped.
-pub fn eval_contract_delegate<E, Args, R>(
+pub fn invoke_contract_delegate<E, Args, R>(
     params: &CallParams<E, DelegateCall<E>, Args, R>,
 ) -> Result<R>
 where

@@ -78,8 +78,8 @@ where
 
     /// Returns the chosen gas limit for the called contract execution.
     #[inline]
-    pub(crate) fn gas_limit(&self) -> &Gas {
-        &self.call_type.gas_limit
+    pub(crate) fn gas_limit(&self) -> Gas {
+        self.call_type.gas_limit
     }
 
     /// Returns the transferred value for the called contract.
@@ -114,7 +114,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, ReturnType<R>>
+impl<E, Args, R> CallParams<E, DelegateCall<E>, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
@@ -193,7 +193,8 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(Call::new().callee(AccountId::from([0x42; 32]))
+///     .set_call_type(Call::new()
+///                 .callee(AccountId::from([0x42; 32]))
 ///                 .gas_limit(5000)
 ///                 .transferred_value(10))
 ///     .exec_input(
@@ -202,7 +203,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10u8; 32])
 ///     )
-///     .returns::<ReturnType<i32>>()
+///     .returns::<i32>()
 ///     .fire()
 ///     .unwrap();
 /// ```
@@ -222,7 +223,8 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(DelegateCall::new().code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
+///     .set_call_type(DelegateCall::new()
+///                 .code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -434,7 +436,7 @@ where
 }
 
 impl<E, Args, RetType>
-    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<RetType>>
+    CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<RetType>>>
 where
     E: Environment,
 {
@@ -511,29 +513,6 @@ where
     }
 }
 
-impl<E, Args> CallBuilder<E, Set<Call<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<()>>>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
-        self.params().invoke()
-    }
-}
-
-impl<E, Args>
-    CallBuilder<E, Set<DelegateCall<E>>, Set<ExecutionInput<Args>>, Set<ReturnType<()>>>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
-        self.params().invoke()
-    }
-}
-
 impl<E>
     CallBuilder<
         E,
@@ -575,7 +554,7 @@ where
 {
     /// Invokes the cross-chain function call and returns the result.
     pub fn fire(self) -> Result<R, Error> {
-        self.params().eval()
+        self.params().invoke()
     }
 }
 

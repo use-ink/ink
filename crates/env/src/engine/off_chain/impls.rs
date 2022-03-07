@@ -407,7 +407,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        params: &CallParams<E, DelegateCall<E>, Args, ReturnType<R>>,
+        params: &CallParams<E, DelegateCall<E>, Args, R>,
     ) -> Result<R>
     where
         E: Environment,
