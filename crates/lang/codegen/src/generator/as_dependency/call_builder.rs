@@ -373,7 +373,7 @@ impl CallBuilder<'_> {
         let mut_tok = callable.receiver().is_ref_mut().then(|| quote! { mut });
         let output = message.output();
         let output_sig = output.map_or_else(
-            || quote! { () },
+            || quote! { ::ink_env::call::utils::ReturnType<()> },
             |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
         let output_span = output.span();

@@ -366,7 +366,7 @@ impl CallBuilder<'_> {
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
         let output_sig = output.map_or_else(
-            || quote! { () },
+            || quote! { ::ink_env::call::utils::ReturnType<()> },
             |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
         );
         let selector_bytes = selector.hex_lits();
