@@ -24,11 +24,6 @@ use syn::spanned::Spanned;
 /// The ink! configuration.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Config {
-    /// If `true` compiles this ink! smart contract always as
-    /// if it was a dependency of another smart contract.
-    /// This configuration is mainly needed for testing and
-    /// the default is `false`.
-    as_dependency: Option<bool>,
     /// The environmental types definition.
     ///
     /// This must be a type that implements `ink_env::Environment` and can
@@ -120,24 +115,11 @@ impl TryFrom<ast::AttributeArgs> for Config {
     type Error = syn::Error;
 
     fn try_from(args: ast::AttributeArgs) -> Result<Self, Self::Error> {
-        let mut as_dependency: Option<(bool, ast::MetaNameValue)> = None;
         let mut env: Option<(Environment, ast::MetaNameValue)> = None;
         let mut whitelisted_attributes = WhitelistedAttributes::default();
 
         for arg in args.into_iter() {
-            if arg.name.is_ident("compile_as_dependency") {
-                if let Some((_, ast)) = as_dependency {
-                    return Err(duplicate_config_err(ast, arg, "compile_as_dependency"))
-                }
-                if let ast::PathOrLit::Lit(syn::Lit::Bool(lit_bool)) = &arg.value {
-                    as_dependency = Some((lit_bool.value, arg))
-                } else {
-                    return Err(format_err_spanned!(
-                        arg,
-                        "expected a bool literal for `compile_as_dependency` ink! configuration argument",
-                    ))
-                }
-            } else if arg.name.is_ident("env") {
+            if arg.name.is_ident("env") {
                 if let Some((_, ast)) = env {
                     return Err(duplicate_config_err(ast, arg, "env"))
                 }
@@ -161,7 +143,6 @@ impl TryFrom<ast::AttributeArgs> for Config {
             }
         }
         Ok(Config {
-            as_dependency: as_dependency.map(|(value, _)| value),
             env: env.map(|(value, _)| value),
             whitelisted_attributes,
         })
@@ -178,15 +159,6 @@ impl Config {
             .map(|env| &env.path)
             .cloned()
             .unwrap_or(Environment::default().path)
-    }
-
-    /// Return `true` if this ink! smart contract shall always be compiled as
-    /// if it was a dependency of another smart contract, returns `false`
-    /// otherwise.
-    ///
-    /// If nothing has been specified returns the default which is `false`.
-    pub fn is_compile_as_dependency_enabled(&self) -> bool {
-        self.as_dependency.unwrap_or(false)
     }
 
     /// Return set of attributes that can be passed to call builder in the codegen.
@@ -233,37 +205,12 @@ mod tests {
     }
 
     #[test]
-    fn as_dependency_works() {
-        assert_try_from(
-            syn::parse_quote! {
-                compile_as_dependency = false
-            },
-            Ok(Config {
-                as_dependency: Some(false),
-                env: None,
-                whitelisted_attributes: Default::default(),
-            }),
-        )
-    }
-
-    #[test]
-    fn as_dependency_invalid_value_fails() {
-        assert_try_from(
-            syn::parse_quote! { compile_as_dependency = "invalid" },
-            Err(
-                "expected a bool literal for `compile_as_dependency` ink! configuration argument"
-            )
-        )
-    }
-
-    #[test]
     fn env_works() {
         assert_try_from(
             syn::parse_quote! {
                 env = ::my::env::Types
             },
             Ok(Config {
-                as_dependency: None,
                 env: Some(Environment {
                     path: syn::parse_quote! { ::my::env::Types },
                 }),
@@ -309,7 +256,6 @@ mod tests {
                 keep_attr = "foo, bar"
             },
             Ok(Config {
-                as_dependency: None,
                 env: None,
                 whitelisted_attributes: attrs,
             }),
