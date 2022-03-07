@@ -66,7 +66,6 @@ use ink_lang as ink;
 mod multisig {
     use ink_env::call::{
         build_call,
-        utils::ReturnType,
         ExecutionInput,
     };
     use ink_prelude::vec::Vec;

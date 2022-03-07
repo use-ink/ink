@@ -514,7 +514,7 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     call::{build_call, Selector, ExecutionInput, utils::ReturnType}
+    ///     call::{build_call, Selector, ExecutionInput}
     /// };
     ///
     /// #

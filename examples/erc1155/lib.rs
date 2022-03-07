@@ -387,7 +387,6 @@ mod erc1155 {
             {
                 use ink_env::call::{
                     build_call,
-                    utils::ReturnType,
                     ExecutionInput,
                     Selector,
                 };
