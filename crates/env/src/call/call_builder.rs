@@ -84,7 +84,7 @@ where
     }
 }
 
-impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
+impl<E, Args, R> CallParams<E, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
@@ -378,7 +378,7 @@ impl<E, GasLimit, TransferredValue, Args, RetType>
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
-        Set<RetType>,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
@@ -426,6 +426,26 @@ where
             _return_type: Default::default(),
             exec_input: Default::default(),
         }
+    }
+}
+
+impl<E, GasLimit, TransferredValue>
+    CallBuilder<
+        E,
+        Set<E::AccountId>,
+        GasLimit,
+        TransferredValue,
+        Unset<ExecutionInput<EmptyArgumentList>>,
+        Unset<ReturnType<()>>,
+    >
+where
+    E: Environment,
+    GasLimit: Unwrap<Output = u64>,
+    TransferredValue: Unwrap<Output = E::Balance>,
+{
+    /// Invokes the cross-chain function call.
+    pub fn fire(self) -> Result<(), Error> {
+        self.params().invoke()
     }
 }
 

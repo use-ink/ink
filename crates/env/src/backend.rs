@@ -14,7 +14,6 @@
 
 use crate::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -366,7 +365,7 @@ pub trait TypedEnvBackend: EnvBackend {
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
     fn invoke_contract<T, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ReturnType<R>>,
+        call_data: &CallParams<T, Args, R>,
     ) -> Result<R>
     where
         T: Environment,

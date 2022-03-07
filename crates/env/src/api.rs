@@ -21,7 +21,6 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -232,7 +231,7 @@ pub fn clear_contract_storage(key: &Key) {
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
 pub fn invoke_contract<T, Args, R>(
-    params: &CallParams<T, Args, ReturnType<R>>,
+    params: &CallParams<T, Args, R>,
 ) -> Result<R>
 where
     T: Environment,

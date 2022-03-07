@@ -16,7 +16,6 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -554,7 +553,7 @@ where
     /// For more details visit: [`ink_env::invoke_contract`]
     pub fn invoke_contract<Args, R>(
         self,
-        params: &CallParams<T, Args, ReturnType<R>>,
+        params: &CallParams<T, Args, R>,
     ) -> Result<R>
     where
         Args: scale::Encode,

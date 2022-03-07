@@ -15,7 +15,6 @@
 use super::EnvInstance;
 use crate::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -389,7 +388,7 @@ impl TypedEnvBackend for EnvInstance {
 
     fn invoke_contract<T, Args, R>(
         &mut self,
-        params: &CallParams<T, Args, ReturnType<R>>,
+        params: &CallParams<T, Args, R>,
     ) -> Result<R>
     where
         T: Environment,
