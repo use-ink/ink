@@ -413,8 +413,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -789,10 +787,8 @@
         <span class="kw">let</span> <span class="ident">arg_list</span> <span class="op">=</span> <span class="ident">generator::generate_argument_list</span>(<span class="ident">input_types</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
         <span class="kw">let</span> <span class="ident">mut_tok</span> <span class="op">=</span> <span class="ident">callable</span>.<span class="ident">receiver</span>().<span class="ident">is_ref_mut</span>().<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="kw-2">mut</span> });
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>();
-        <span class="kw">let</span> <span class="ident">output_sig</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">map_or_else</span>(
-            <span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () },
-            <span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="ident">::ink_env::call::utils::ReturnType</span><span class="op">&lt;</span>#<span class="ident">output</span><span class="op">&gt;</span> },
-        );
+        <span class="kw">let</span> <span class="ident">return_type</span> <span class="op">=</span>
+            <span class="ident">output</span>.<span class="ident">map_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () }, <span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="macro">quote!</span> { #<span class="ident">output</span> });
         <span class="kw">let</span> <span class="ident">output_span</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">span</span>();
         <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span> <span class="macro">quote_spanned!</span>(<span class="ident">output_span</span>=&gt;
             <span class="ident">::ink_env::call::CallBuilder</span><span class="op">&lt;</span>
@@ -801,7 +797,7 @@
                 <span class="ident">::ink_env::call::utils::Unset</span><span class="op">&lt;</span> <span class="ident">::core::primitive::u64</span> <span class="op">&gt;</span>,
                 <span class="ident">::ink_env::call::utils::Unset</span><span class="op">&lt;</span> <span class="op">&lt;</span><span class="ident">Environment</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span> <span class="op">&gt;</span>,
                 <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span> <span class="ident">::ink_env::call::ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span> <span class="op">&gt;</span>,
-                <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span>#<span class="ident">output_sig</span><span class="op">&gt;</span>,
+                <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span> <span class="ident">::ink_env::call::utils::ReturnType</span><span class="op">&lt;</span>#<span class="ident">return_type</span><span class="op">&gt;</span> <span class="op">&gt;</span>,
             <span class="op">&gt;</span>
         );
         <span class="macro">quote_spanned!</span>(<span class="ident">span</span>=&gt;
@@ -822,7 +818,7 @@
                             .<span class="ident">push_arg</span>(#<span class="ident">input_bindings</span>)
                         )<span class="op">*</span>
                     )
-                    .<span class="ident">returns</span>::<span class="op">&lt;</span>#<span class="ident">output_sig</span><span class="op">&gt;</span>()
+                    .<span class="ident">returns</span>::<span class="op">&lt;</span>#<span class="ident">return_type</span><span class="op">&gt;</span>()
             }
         )
     }

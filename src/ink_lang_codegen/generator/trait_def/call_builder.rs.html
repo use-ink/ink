@@ -409,8 +409,6 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -778,10 +776,8 @@
             .<span class="ident">filter_attr</span>(<span class="ident">message</span>.<span class="ident">attrs</span>());
         <span class="kw">let</span> <span class="ident">output_ident</span> <span class="op">=</span> <span class="ident">generator::output_ident</span>(<span class="ident">message_ident</span>);
         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">output</span>();
-        <span class="kw">let</span> <span class="ident">output_sig</span> <span class="op">=</span> <span class="ident">output</span>.<span class="ident">map_or_else</span>(
-            <span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () },
-            <span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="macro">quote!</span> { <span class="ident">::ink_env::call::utils::ReturnType</span><span class="op">&lt;</span>#<span class="ident">output</span><span class="op">&gt;</span> },
-        );
+        <span class="kw">let</span> <span class="ident">output_type</span> <span class="op">=</span>
+            <span class="ident">output</span>.<span class="ident">map_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">quote!</span> { () }, <span class="op">|</span><span class="ident">output</span><span class="op">|</span> <span class="macro">quote!</span> { #<span class="ident">output</span> });
         <span class="kw">let</span> <span class="ident">selector_bytes</span> <span class="op">=</span> <span class="ident">selector</span>.<span class="ident">hex_lits</span>();
         <span class="kw">let</span> <span class="ident">input_bindings</span> <span class="op">=</span> <span class="ident">generator::input_bindings</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
         <span class="kw">let</span> <span class="ident">input_types</span> <span class="op">=</span> <span class="ident">generator::input_types</span>(<span class="ident">message</span>.<span class="ident">inputs</span>());
@@ -795,7 +791,7 @@
                 <span class="ident">::ink_env::call::utils::Unset</span><span class="op">&lt;</span> <span class="ident">::core::primitive::u64</span> <span class="op">&gt;</span>,
                 <span class="ident">::ink_env::call::utils::Unset</span><span class="op">&lt;</span> <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Env</span> <span class="kw">as</span> <span class="ident">::ink_env::Environment</span><span class="op">&gt;</span><span class="ident">::Balance</span> <span class="op">&gt;</span>,
                 <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span> <span class="ident">::ink_env::call::ExecutionInput</span><span class="op">&lt;</span>#<span class="ident">arg_list</span><span class="op">&gt;</span> <span class="op">&gt;</span>,
-                <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span>#<span class="ident">output_sig</span><span class="op">&gt;</span>,
+                <span class="ident">::ink_env::call::utils::Set</span><span class="op">&lt;</span> <span class="ident">::ink_env::call::utils::ReturnType</span><span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span> <span class="op">&gt;</span>,
             <span class="op">&gt;</span>;
 
             #( #<span class="ident">attrs</span> )<span class="op">*</span>
@@ -814,7 +810,7 @@
                             .<span class="ident">push_arg</span>(#<span class="ident">input_bindings</span>)
                         )<span class="op">*</span>
                     )
-                    .<span class="ident">returns</span>::<span class="op">&lt;</span>#<span class="ident">output_sig</span><span class="op">&gt;</span>()
+                    .<span class="ident">returns</span>::<span class="op">&lt;</span>#<span class="ident">output_type</span><span class="op">&gt;</span>()
             }
         )
     }

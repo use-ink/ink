@@ -511,33 +511,6 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -561,7 +534,6 @@
         <span class="ident">TypedEnvBackend</span>,
     },
     <span class="ident">call</span>::{
-        <span class="ident">utils::ReturnType</span>,
         <span class="ident">CallParams</span>,
         <span class="ident">CreateParams</span>,
     },
@@ -756,33 +728,7 @@
     })
 }
 
-<span class="doccomment">/// Invokes a contract message.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Note</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]</span>
-<span class="doccomment">///   will generally have a better performance since it won&#39;t try to fetch any results.</span>
-<span class="doccomment">/// - This is a low level way to invoke another smart contract.</span>
-<span class="doccomment">///   Prefer to use the ink! guided and type safe approach to using this.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Errors</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - If the called account does not exist.</span>
-<span class="doccomment">/// - If the called account is not a contract.</span>
-<span class="doccomment">/// - If arguments passed to the called contract message are invalid.</span>
-<span class="doccomment">/// - If the called contract execution has trapped.</span>
-<span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, ()<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Environment</span>,
-    <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
-{
-    <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::invoke_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
-    })
-}
-
-<span class="doccomment">/// Evaluates a contract message and returns its result.</span>
+<span class="doccomment">/// Invokes a contract message and returns its result.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Note</span>
 <span class="doccomment">///</span>
@@ -797,14 +743,14 @@
 <span class="doccomment">/// - If the called contract execution has trapped.</span>
 <span class="doccomment">/// - If the called contract ran out of gas upon execution.</span>
 <span class="doccomment">/// - If the returned value failed to decode properly.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">Environment</span>,
     <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
     <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
 {
     <span class="op">&lt;</span><span class="ident">EnvInstance</span> <span class="kw">as</span> <span class="ident">OnInstance</span><span class="op">&gt;</span><span class="ident">::on_instance</span>(<span class="op">|</span><span class="ident">instance</span><span class="op">|</span> {
-        <span class="ident">TypedEnvBackend::eval_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
+        <span class="ident">TypedEnvBackend::invoke_contract</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="ident">instance</span>, <span class="ident">params</span>)
     })
 }
 
