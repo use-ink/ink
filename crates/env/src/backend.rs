@@ -14,7 +14,6 @@
 
 use crate::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -359,27 +358,14 @@ pub trait TypedEnvBackend: EnvBackend {
         T: Environment,
         Event: Topics + scale::Encode;
 
-    /// Invokes a contract message.
+    /// Invokes a contract message and returns its result.
     ///
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<T, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ()>,
-    ) -> Result<()>
-    where
-        T: Environment,
-        Args: scale::Encode;
-
-    /// Evaluates a contract message and returns its result.
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`eval_contract`][`crate::eval_contract`]
-    fn eval_contract<T, Args, R>(
-        &mut self,
-        call_data: &CallParams<T, Args, ReturnType<R>>,
+        call_data: &CallParams<T, Args, R>,
     ) -> Result<R>
     where
         T: Environment,

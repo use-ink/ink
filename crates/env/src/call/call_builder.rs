@@ -84,38 +84,17 @@ where
     }
 }
 
-impl<E, Args> CallParams<E, Args, ()>
-where
-    E: Environment,
-    Args: scale::Encode,
-{
-    /// Invokes the contract with the given built-up call parameters.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn invoke(&self) -> Result<(), crate::Error> {
-        crate::invoke_contract(self)
-    }
-}
-
-impl<E, Args, R> CallParams<E, Args, ReturnType<R>>
+impl<E, Args, R> CallParams<E, Args, R>
 where
     E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
-    /// Evaluates the contract with the given built-up call parameters.
+    /// Invokes the contract with the given built-up call parameters.
     ///
     /// Returns the result of the contract execution.
-    ///
-    /// # Note
-    ///
-    /// Prefer [`invoke`](`Self::invoke`) over [`eval`](`Self::eval`) if the
-    /// called contract message does not return anything because it is more efficient.
-    pub fn eval(&self) -> Result<R, crate::Error> {
-        crate::eval_contract(self)
+    pub fn invoke(&self) -> Result<R, crate::Error> {
+        crate::invoke_contract(self)
     }
 }
 
@@ -179,7 +158,7 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},
+/// #     call::{build_call, Selector, ExecutionInput},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
@@ -192,7 +171,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10; 32])
 ///     )
-///     .returns::<ReturnType<i32>>()
+///     .returns::<i32>()
 ///     .fire()
 ///     .unwrap();
 /// ```
@@ -328,18 +307,6 @@ where
     }
 }
 
-mod seal {
-    /// Used to prevent users from implementing `IndicateReturnType` for their own types.
-    pub trait Sealed {}
-    impl Sealed for () {}
-    impl<T> Sealed for super::ReturnType<T> {}
-}
-
-/// Types that can be used in [`CallBuilder::returns`] to signal return type.
-pub trait IndicateReturnType: Default + self::seal::Sealed {}
-impl IndicateReturnType for () {}
-impl<T> IndicateReturnType for ReturnType<T> {}
-
 impl<E, Callee, GasLimit, TransferredValue, Args>
     CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Unset<ReturnType<()>>>
 where
@@ -350,14 +317,11 @@ where
     /// # Note
     ///
     /// Either use `.returns::<()>` to signal that the call does not return a value
-    /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
-    /// type `T`.
+    /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<R>>
-    where
-        R: IndicateReturnType,
+    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<ReturnType<R>>>
     {
         CallBuilder {
             env: Default::default(),
@@ -414,7 +378,7 @@ impl<E, GasLimit, TransferredValue, Args, RetType>
         GasLimit,
         TransferredValue,
         Set<ExecutionInput<Args>>,
-        Set<RetType>,
+        Set<ReturnType<RetType>>,
     >
 where
     E: Environment,
@@ -465,27 +429,6 @@ where
     }
 }
 
-impl<E, GasLimit, TransferredValue, Args>
-    CallBuilder<
-        E,
-        Set<E::AccountId>,
-        GasLimit,
-        TransferredValue,
-        Set<ExecutionInput<Args>>,
-        Set<()>,
-    >
-where
-    E: Environment,
-    GasLimit: Unwrap<Output = u64>,
-    Args: scale::Encode,
-    TransferredValue: Unwrap<Output = E::Balance>,
-{
-    /// Invokes the cross-chain function call.
-    pub fn fire(self) -> Result<(), Error> {
-        self.params().invoke()
-    }
-}
-
 impl<E, GasLimit, TransferredValue>
     CallBuilder<
         E,
@@ -524,6 +467,6 @@ where
 {
     /// Invokes the cross-chain function call and returns the result.
     pub fn fire(self) -> Result<R, Error> {
-        self.params().eval()
+        self.params().invoke()
     }
 }

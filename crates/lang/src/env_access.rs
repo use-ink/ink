@@ -16,7 +16,6 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -504,7 +503,7 @@ where
         ink_env::instantiate_contract::<T, Args, Salt, C>(params)
     }
 
-    /// Invokes a contract message without fetching its result.
+    /// Invokes a contract message and returns its result.
     ///
     /// # Example
     ///
@@ -527,9 +526,9 @@ where
     /// #             Self {}
     /// #         }
     /// #
-    /// /// Invokes another contract message without fetching the result.
+    /// /// Invokes a contract message and fetches the result.
     /// #[ink(message)]
-    /// pub fn invoke_contract(&self) {
+    /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
     ///         .callee(AccountId::from([0x42; 32]))
     ///         .gas_limit(5000)
@@ -540,9 +539,9 @@ where
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32])
     ///         )
-    ///         .returns::<()>()
+    ///         .returns::<i32>()
     ///         .params();
-    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed");
+    ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed")
     /// }
     /// #
     /// #     }
@@ -552,70 +551,12 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args>(self, params: &CallParams<T, Args, ()>) -> Result<()>
-    where
-        Args: scale::Encode,
-    {
-        ink_env::invoke_contract::<T, Args>(params)
-    }
-
-    /// Evaluates a contract message and returns its result.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use ink_lang as ink;
-    /// # #[ink::contract]
-    /// # pub mod my_contract {
-    /// use ink_env::{
-    ///     DefaultEnvironment,
-    ///     call::{build_call, Selector, ExecutionInput, utils::ReturnType}
-    /// };
-    ///
-    /// #
-    /// #     #[ink(storage)]
-    /// #     pub struct MyContract { }
-    /// #
-    /// #     impl MyContract {
-    /// #         #[ink(constructor)]
-    /// #         pub fn new() -> Self {
-    /// #             Self {}
-    /// #         }
-    /// #
-    /// /// Evaluates a contract message and fetches the result.
-    /// #[ink(message)]
-    /// pub fn evaluate_contract(&self) -> i32 {
-    ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .callee(AccountId::from([0x42; 32]))
-    ///         .gas_limit(5000)
-    ///         .transferred_value(10)
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                 .push_arg(42)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
-    ///         )
-    ///         .returns::<ReturnType<i32>>()
-    ///         .params();
-    ///     self.env().eval_contract(&call_params).expect("call invocation must succeed")
-    /// }
-    /// #
-    /// #     }
-    /// # }
-    /// ```
-    ///
-    /// # Note
-    ///
-    /// For more details visit: [`ink_env::eval_contract`]
-    pub fn eval_contract<Args, R>(
-        self,
-        params: &CallParams<T, Args, ReturnType<R>>,
-    ) -> Result<R>
+    pub fn invoke_contract<Args, R>(self, params: &CallParams<T, Args, R>) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::eval_contract::<T, Args, R>(params)
+        ink_env::invoke_contract::<T, Args, R>(params)
     }
 
     /// Terminates the existence of a contract.

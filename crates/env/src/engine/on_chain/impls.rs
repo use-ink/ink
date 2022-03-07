@@ -20,7 +20,6 @@ use super::{
 };
 use crate::{
     call::{
-        utils::ReturnType,
         CallParams,
         CreateParams,
     },
@@ -215,45 +214,6 @@ impl EnvInstance {
         ext_fn(full_scope);
         scale::Decode::decode(&mut &full_scope[..]).map_err(Into::into)
     }
-
-    /// Reusable implementation for invoking another contract message.
-    fn invoke_contract_impl<T, Args, RetType, R>(
-        &mut self,
-        params: &CallParams<T, Args, RetType>,
-    ) -> Result<R>
-    where
-        T: Environment,
-        Args: scale::Encode,
-        R: scale::Decode,
-    {
-        let mut scope = self.scoped_buffer();
-        let gas_limit = params.gas_limit();
-        let enc_callee = scope.take_encoded(params.callee());
-        let enc_transferred_value = scope.take_encoded(params.transferred_value());
-        let call_flags = params.call_flags();
-        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
-            scope.take_encoded(params.exec_input())
-        } else {
-            &mut []
-        };
-        let output = &mut scope.take_rest();
-        let flags = params.call_flags().into_u32();
-        let call_result = ext::call(
-            flags,
-            enc_callee,
-            gas_limit,
-            enc_transferred_value,
-            enc_input,
-            output,
-        );
-        match call_result {
-            Ok(()) | Err(ext::Error::CalleeReverted) => {
-                let decoded = scale::Decode::decode(&mut &output[..])?;
-                Ok(decoded)
-            }
-            Err(actual_error) => Err(actual_error.into()),
-        }
-    }
 }
 
 impl EnvBackend for EnvInstance {
@@ -396,27 +356,42 @@ impl TypedEnvBackend for EnvInstance {
         ext::deposit_event(enc_topics, enc_data);
     }
 
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<T, Args, R>(
         &mut self,
-        call_params: &CallParams<T, Args, ()>,
-    ) -> Result<()>
-    where
-        T: Environment,
-        Args: scale::Encode,
-    {
-        self.invoke_contract_impl(call_params)
-    }
-
-    fn eval_contract<T, Args, R>(
-        &mut self,
-        call_params: &CallParams<T, Args, ReturnType<R>>,
+        params: &CallParams<T, Args, R>,
     ) -> Result<R>
     where
         T: Environment,
         Args: scale::Encode,
         R: scale::Decode,
     {
-        self.invoke_contract_impl(call_params)
+        let mut scope = self.scoped_buffer();
+        let gas_limit = params.gas_limit();
+        let enc_callee = scope.take_encoded(params.callee());
+        let enc_transferred_value = scope.take_encoded(params.transferred_value());
+        let call_flags = params.call_flags();
+        let enc_input = if !call_flags.forward_input() && !call_flags.clone_input() {
+            scope.take_encoded(params.exec_input())
+        } else {
+            &mut []
+        };
+        let output = &mut scope.take_rest();
+        let flags = params.call_flags().into_u32();
+        let call_result = ext::call(
+            flags,
+            enc_callee,
+            gas_limit,
+            enc_transferred_value,
+            enc_input,
+            output,
+        );
+        match call_result {
+            Ok(()) | Err(ext::Error::CalleeReverted) => {
+                let decoded = scale::Decode::decode(&mut &output[..])?;
+                Ok(decoded)
+            }
+            Err(actual_error) => Err(actual_error.into()),
+        }
     }
 
     fn instantiate_contract<T, Args, Salt, C>(
