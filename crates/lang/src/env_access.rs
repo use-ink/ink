@@ -540,7 +540,7 @@ where
     ///                 .push_arg(true)
     ///                 .push_arg(&[0x10u8; 32])
     ///         )
-    ///         .returns::<ReturnType<i32>>()
+    ///         .returns::<i32>()
     ///         .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed")
     /// }

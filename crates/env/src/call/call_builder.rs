@@ -158,7 +158,7 @@ where
 /// # use ::ink_env::{
 /// #     Environment,
 /// #     DefaultEnvironment,
-/// #     call::{build_call, Selector, ExecutionInput, utils::ReturnType},
+/// #     call::{build_call, Selector, ExecutionInput},
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
@@ -171,7 +171,7 @@ where
 ///             .push_arg(true)
 ///             .push_arg(&[0x10; 32])
 ///     )
-///     .returns::<ReturnType<i32>>()
+///     .returns::<i32>()
 ///     .fire()
 ///     .unwrap();
 /// ```
@@ -307,18 +307,6 @@ where
     }
 }
 
-mod seal {
-    /// Used to prevent users from implementing `IndicateReturnType` for their own types.
-    pub trait Sealed {}
-    impl Sealed for () {}
-    impl<T> Sealed for super::ReturnType<T> {}
-}
-
-/// Types that can be used in [`CallBuilder::returns`] to signal return type.
-pub trait IndicateReturnType: Default + self::seal::Sealed {}
-impl IndicateReturnType for () {}
-impl<T> IndicateReturnType for ReturnType<T> {}
-
 impl<E, Callee, GasLimit, TransferredValue, Args>
     CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Unset<ReturnType<()>>>
 where
@@ -329,15 +317,11 @@ where
     /// # Note
     ///
     /// Either use `.returns::<()>` to signal that the call does not return a value
-    /// or use `.returns::<ReturnType<T>>` to signal that the call returns a value of
-    /// type `T`.
+    /// or use `.returns::<T>` to signal that the call returns a value of type `T`.
     #[inline]
     pub fn returns<R>(
         self,
-    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<R>>
-    where
-        R: IndicateReturnType,
-    {
+    ) -> CallBuilder<E, Callee, GasLimit, TransferredValue, Args, Set<ReturnType<R>>> {
         CallBuilder {
             env: Default::default(),
             callee: self.callee,

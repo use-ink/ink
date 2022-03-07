@@ -405,7 +405,7 @@ mod erc1155 {
                             .push_arg(value)
                             .push_arg(data),
                     )
-                    .returns::<ReturnType<Vec<u8>>>()
+                    .returns::<Vec<u8>>()
                     .params();
 
                 match ink_env::invoke_contract(&params) {
