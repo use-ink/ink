@@ -575,6 +575,79 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -737,7 +810,11 @@
 <span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
 <span class="doccomment">/// # type Balance = &lt;DefaultEnvironment as Environment&gt;::Balance;</span>
 <span class="doccomment">/// build_call::&lt;DefaultEnvironment&gt;()</span>
-<span class="doccomment">///     .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))</span>
+<span class="doccomment">///     .call_type(</span>
+<span class="doccomment">///             Call::new()</span>
+<span class="doccomment">///                 .callee(AccountId::from([0x42; 32]))</span>
+<span class="doccomment">///                 .gas_limit(5000)</span>
+<span class="doccomment">///                 .transferred_value(10))</span>
 <span class="doccomment">///     .exec_input(</span>
 <span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
 <span class="doccomment">///             .push_arg(42u8)</span>
@@ -770,10 +847,10 @@
 <span class="doccomment">/// # };</span>
 <span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
 <span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
-<span class="doccomment">///     .set_call_type(Call::new()</span>
+<span class="doccomment">///     .call_type(Call::new()</span>
 <span class="doccomment">///                 .callee(AccountId::from([0x42; 32]))</span>
-<span class="doccomment">///                 .gas_limit(5000)</span>
-<span class="doccomment">///                 .transferred_value(10))</span>
+<span class="doccomment">///                 .gas_limit(5000))</span>
+<span class="doccomment">///     .transferred_value(10)</span>
 <span class="doccomment">///     .exec_input(</span>
 <span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
 <span class="doccomment">///             .push_arg(42u8)</span>
@@ -800,7 +877,7 @@
 <span class="doccomment">/// # };</span>
 <span class="doccomment">/// # type AccountId = &lt;DefaultEnvironment as Environment&gt;::AccountId;</span>
 <span class="doccomment">/// let my_return_value: i32 = build_call::&lt;DefaultEnvironment&gt;()</span>
-<span class="doccomment">///     .set_call_type(DelegateCall::new()</span>
+<span class="doccomment">///     .call_type(DelegateCall::new()</span>
 <span class="doccomment">///                 .code_hash(&lt;DefaultEnvironment as Environment&gt;::Hash::clear()))</span>
 <span class="doccomment">///     .exec_input(</span>
 <span class="doccomment">///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))</span>
@@ -935,7 +1012,7 @@
     <span class="doccomment">/// The type of the call.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_call_type</span><span class="op">&lt;</span><span class="ident">NewCallType</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">call_type</span><span class="op">&lt;</span><span class="ident">NewCallType</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">call_type</span>: <span class="ident">NewCallType</span>,
     ) -&gt; <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">NewCallType</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> {
@@ -1006,6 +1083,75 @@
             <span class="ident">call_type</span>: <span class="self">self</span>.<span class="ident">call_type</span>,
             <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
             <span class="ident">exec_input</span>: <span class="ident">Set</span>(<span class="ident">exec_input</span>),
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+{
+    <span class="doccomment">/// Sets the `callee` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">callee</span>(<span class="self">self</span>, <span class="ident">callee</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>: <span class="ident">call_type</span>.<span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>: <span class="ident">call_type</span>.<span class="ident">transferred_value</span>,
+            }),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
+        }
+    }
+
+    <span class="doccomment">/// Sets the `gas_limit` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gas_limit</span>(<span class="self">self</span>, <span class="ident">gas_limit</span>: <span class="ident">Gas</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>: <span class="ident">call_type</span>.<span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>: <span class="ident">call_type</span>.<span class="ident">transferred_value</span>,
+            }),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
+        }
+    }
+
+    <span class="doccomment">/// Sets the `transferred_value` for the current cross-contract call.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transferred_value</span>(<span class="self">self</span>, <span class="ident">transferred_value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">call_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">call_type</span>.<span class="ident">value</span>();
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">Call</span> {
+                <span class="ident">callee</span>: <span class="ident">call_type</span>.<span class="ident">callee</span>,
+                <span class="ident">gas_limit</span>: <span class="ident">call_type</span>.<span class="ident">gas_limit</span>,
+                <span class="ident">transferred_value</span>,
+            }),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
+            <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
+            <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
+        }
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">RetType</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">E</span>: <span class="ident">Environment</span>,
+{
+    <span class="doccomment">/// Sets the `code_hash` to perform a delegate call with.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">code_hash</span>(<span class="self">self</span>, <span class="ident">code_hash</span>: <span class="ident">E::Hash</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">CallBuilder</span> {
+            <span class="ident">call_type</span>: <span class="ident">Set</span>(<span class="ident">DelegateCall</span> { <span class="ident">code_hash</span> }),
+            <span class="ident">call_flags</span>: <span class="self">self</span>.<span class="ident">call_flags</span>,
+            <span class="ident">exec_input</span>: <span class="self">self</span>.<span class="ident">exec_input</span>,
             <span class="ident">return_type</span>: <span class="self">self</span>.<span class="ident">return_type</span>,
             <span class="ident">_phantom</span>: <span class="ident">Default::default</span>(),
         }

@@ -1451,7 +1451,7 @@
     <span class="doccomment">/// #[ink(message)]</span>
     <span class="doccomment">/// pub fn invoke_contract(&amp;self) -&gt; i32 {</span>
     <span class="doccomment">///     let call_params = build_call::&lt;DefaultEnvironment&gt;()</span>
-    <span class="doccomment">///             .set_call_type(</span>
+    <span class="doccomment">///             .call_type(</span>
     <span class="doccomment">///                 Call::new()</span>
     <span class="doccomment">///                     .callee(AccountId::from([0x42; 32]))</span>
     <span class="doccomment">///                     .gas_limit(5000)</span>
@@ -1513,7 +1513,7 @@
     <span class="doccomment">/// #[ink(message)]</span>
     <span class="doccomment">/// pub fn invoke_contract_delegate(&amp;self) -&gt; i32 {</span>
     <span class="doccomment">///     let call_params = build_call::&lt;DefaultEnvironment&gt;()</span>
-    <span class="doccomment">///             .set_call_type(</span>
+    <span class="doccomment">///             .call_type(</span>
     <span class="doccomment">///                 DelegateCall::new()</span>
     <span class="doccomment">///                  .code_hash(&lt;DefaultEnvironment as ink_env::Environment&gt;::Hash::clear()))</span>
     <span class="doccomment">///             .exec_input(</span>

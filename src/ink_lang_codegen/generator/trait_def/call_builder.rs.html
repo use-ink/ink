@@ -797,7 +797,7 @@
                 #( , #<span class="ident">input_bindings</span> : #<span class="ident">input_types</span> )<span class="op">*</span>
             ) -&gt; <span class="self">Self</span>::#<span class="ident">output_ident</span> {
                 <span class="ident">::ink_env::call::build_call</span>::<span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Env</span><span class="op">&gt;</span>()
-                    .<span class="ident">set_call_type</span>(<span class="ident">::ink_env::call::Call::new</span>().<span class="ident">callee</span>(<span class="ident">::ink_lang::ToAccountId::to_account_id</span>(<span class="self">self</span>)))
+                    .<span class="ident">call_type</span>(<span class="ident">::ink_env::call::Call::new</span>().<span class="ident">callee</span>(<span class="ident">::ink_lang::ToAccountId::to_account_id</span>(<span class="self">self</span>)))
                     .<span class="ident">exec_input</span>(
                         <span class="ident">::ink_env::call::ExecutionInput::new</span>(
                             <span class="ident">::ink_env::call::Selector::new</span>([ #( #<span class="ident">selector_bytes</span> ),<span class="op">*</span> ])
