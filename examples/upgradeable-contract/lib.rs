@@ -123,7 +123,7 @@ pub mod upgradeable_contract {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .set_call_type(DelegateCall::new().code_hash(self.proxy.forward_to))
+                .call_type(DelegateCall::new().code_hash(self.proxy.forward_to))
                 .call_flags(
                     ink_env::CallFlags::default()
                         // We don't plan to use the input data after the delegated call, so the 
