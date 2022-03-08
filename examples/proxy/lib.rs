@@ -8,7 +8,7 @@
 //!   * The instantiator of the contract can modify this specified
 //!     `forward_to` address at any point.
 //!
-//! Using this pattern it is possible to implement upgradable contracts.
+//! Using this pattern it is possible to implement upgradeable contracts.
 //!
 //! Note though that the contract to which calls are forwarded still
 //! contains it's own state.
@@ -19,6 +19,8 @@ use ink_lang as ink;
 
 #[ink::contract]
 pub mod proxy {
+    use ink_env::call::Call;
+
     /// A simple proxy contract.
     #[ink(storage)]
     pub struct Proxy {
@@ -70,13 +72,17 @@ pub mod proxy {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .callee(self.forward_to)
+                .set_call_type(
+                    Call::new()
+                        .callee(self.forward_to)
+                        .transferred_value(self.env().transferred_value())
+                        .gas_limit(0),
+                )
                 .call_flags(
                     ink_env::CallFlags::default()
                         .set_forward_input(true)
                         .set_tail_call(true),
                 )
-                .transferred_value(self.env().transferred_value())
                 .fire()
                 .unwrap_or_else(|err| {
                     panic!(

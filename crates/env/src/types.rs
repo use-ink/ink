@@ -192,6 +192,9 @@ pub type Balance = u128;
 /// The default timestamp type.
 pub type Timestamp = u64;
 
+/// The default gas type.
+pub type Gas = u64;
+
 /// The default block number type.
 pub type BlockNumber = u32;
 

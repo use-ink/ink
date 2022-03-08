@@ -42,8 +42,10 @@ pub mod utils {
 pub use self::{
     call_builder::{
         build_call,
+        Call,
         CallBuilder,
         CallParams,
+        DelegateCall,
     },
     create_builder::{
         build_create,

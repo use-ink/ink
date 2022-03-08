@@ -16,8 +16,10 @@ use crate::ChainExtensionInstance;
 use core::marker::PhantomData;
 use ink_env::{
     call::{
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         CryptoHash,
@@ -34,12 +36,12 @@ use ink_eth_compatibility::ECDSAPublicKey;
 /// This allows ink! messages to make use of the environment efficiently
 /// and user friendly while also maintaining access invariants.
 #[derive(Copy, Clone)]
-pub struct EnvAccess<'a, T> {
-    /// Tricks the Rust compiler into thinking that we use `T`.
-    marker: PhantomData<fn() -> &'a T>,
+pub struct EnvAccess<'a, E> {
+    /// Tricks the Rust compiler into thinking that we use `E`.
+    marker: PhantomData<fn() -> &'a E>,
 }
 
-impl<'a, T> Default for EnvAccess<'a, T> {
+impl<'a, E> Default for EnvAccess<'a, E> {
     #[inline]
     fn default() -> Self {
         Self {
@@ -54,22 +56,22 @@ impl<'a, E> core::fmt::Debug for EnvAccess<'a, E> {
     }
 }
 
-impl<'a, T> EnvAccess<'a, T>
+impl<'a, E> EnvAccess<'a, E>
 where
-    T: Environment,
-    <T as Environment>::ChainExtension: ChainExtensionInstance,
+    E: Environment,
+    <E as Environment>::ChainExtension: ChainExtensionInstance,
 {
     /// Allows to call one of the available defined chain extension methods.
     pub fn extension(
         self,
-    ) -> <<T as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
-        <<T as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
+    ) -> <<E as Environment>::ChainExtension as ChainExtensionInstance>::Instance {
+        <<E as Environment>::ChainExtension as ChainExtensionInstance>::instantiate()
     }
 }
 
-impl<'a, T> EnvAccess<'a, T>
+impl<'a, E> EnvAccess<'a, E>
 where
-    T: Environment,
+    E: Environment,
 {
     /// Returns the address of the caller of the executed contract.
     ///
@@ -102,8 +104,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::caller`]
-    pub fn caller(self) -> T::AccountId {
-        ink_env::caller::<T>()
+    pub fn caller(self) -> E::AccountId {
+        ink_env::caller::<E>()
     }
 
     /// Returns the transferred value for the contract execution.
@@ -139,8 +141,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::transferred_value`]
-    pub fn transferred_value(self) -> T::Balance {
-        ink_env::transferred_value::<T>()
+    pub fn transferred_value(self) -> E::Balance {
+        ink_env::transferred_value::<E>()
     }
 
     /// Returns the price for the specified amount of gas.
@@ -182,8 +184,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::weight_to_fee`]
-    pub fn weight_to_fee(self, gas: u64) -> T::Balance {
-        ink_env::weight_to_fee::<T>(gas)
+    pub fn weight_to_fee(self, gas: u64) -> E::Balance {
+        ink_env::weight_to_fee::<E>(gas)
     }
 
     /// Returns the amount of gas left for the contract execution.
@@ -222,7 +224,7 @@ where
     ///
     /// For more details visit: [`ink_env::gas_left`]
     pub fn gas_left(self) -> u64 {
-        ink_env::gas_left::<T>()
+        ink_env::gas_left::<E>()
     }
 
     /// Returns the timestamp of the current block.
@@ -263,8 +265,8 @@ where
     /// defined by the chain environment on which this contract runs.
     ///
     /// For more details visit: [`ink_env::block_timestamp`]
-    pub fn block_timestamp(self) -> T::Timestamp {
-        ink_env::block_timestamp::<T>()
+    pub fn block_timestamp(self) -> E::Timestamp {
+        ink_env::block_timestamp::<E>()
     }
 
     /// Returns the account ID of the executed contract.
@@ -309,8 +311,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::account_id`]
-    pub fn account_id(self) -> T::AccountId {
-        ink_env::account_id::<T>()
+    pub fn account_id(self) -> E::AccountId {
+        ink_env::account_id::<E>()
     }
 
     /// Returns the balance of the executed contract.
@@ -343,8 +345,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::balance`]
-    pub fn balance(self) -> T::Balance {
-        ink_env::balance::<T>()
+    pub fn balance(self) -> E::Balance {
+        ink_env::balance::<E>()
     }
 
     /// Returns the current block number.
@@ -383,8 +385,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::block_number`]
-    pub fn block_number(self) -> T::BlockNumber {
-        ink_env::block_number::<T>()
+    pub fn block_number(self) -> E::BlockNumber {
+        ink_env::block_number::<E>()
     }
 
     /// Returns the minimum balance that is required for creating an account
@@ -417,8 +419,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::minimum_balance`]
-    pub fn minimum_balance(self) -> T::Balance {
-        ink_env::minimum_balance::<T>()
+    pub fn minimum_balance(self) -> E::Balance {
+        ink_env::minimum_balance::<E>()
     }
 
     /// Instantiates another contract.
@@ -494,13 +496,13 @@ where
     /// For more details visit: [`ink_env::instantiate_contract`]
     pub fn instantiate_contract<Args, Salt, C>(
         self,
-        params: &CreateParams<T, Args, Salt, C>,
-    ) -> Result<T::AccountId>
+        params: &CreateParams<E, Args, Salt, C>,
+    ) -> Result<E::AccountId>
     where
         Args: scale::Encode,
         Salt: AsRef<[u8]>,
     {
-        ink_env::instantiate_contract::<T, Args, Salt, C>(params)
+        ink_env::instantiate_contract::<E, Args, Salt, C>(params)
     }
 
     /// Invokes a contract message and returns its result.
@@ -513,7 +515,7 @@ where
     /// # pub mod my_contract {
     /// use ink_env::{
     ///     DefaultEnvironment,
-    ///     call::{build_call, Selector, ExecutionInput}
+    ///     call::{build_call, Call, Selector, ExecutionInput}
     /// };
     ///
     /// #
@@ -530,17 +532,19 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///         .callee(AccountId::from([0x42; 32]))
-    ///         .gas_limit(5000)
-    ///         .transferred_value(10)
-    ///         .exec_input(
-    ///             ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
-    ///                 .push_arg(42)
-    ///                 .push_arg(true)
-    ///                 .push_arg(&[0x10u8; 32])
-    ///         )
-    ///         .returns::<i32>()
-    ///         .params();
+    ///             .set_call_type(
+    ///                 Call::new()
+    ///                     .callee(AccountId::from([0x42; 32]))
+    ///                     .gas_limit(5000)
+    ///                     .transferred_value(10))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
+    ///     )
+    ///     .returns::<i32>()
+    ///     .params();
     ///     self.env().invoke_contract(&call_params).expect("call invocation must succeed")
     /// }
     /// #
@@ -551,12 +555,75 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::invoke_contract`]
-    pub fn invoke_contract<Args, R>(self, params: &CallParams<T, Args, R>) -> Result<R>
+    pub fn invoke_contract<Args, R>(
+        self,
+        params: &CallParams<E, Call<E>, Args, R>,
+    ) -> Result<R>
     where
         Args: scale::Encode,
         R: scale::Decode,
     {
-        ink_env::invoke_contract::<T, Args, R>(params)
+        ink_env::invoke_contract::<E, Args, R>(params)
+    }
+
+    /// Invokes in delegate manner a code message and returns its result.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ink_lang as ink;
+    /// # #[ink::contract]
+    /// # pub mod my_contract {
+    /// use ink_env::{
+    ///     DefaultEnvironment,
+    ///     Clear,
+    ///     call::{build_call, DelegateCall, Selector, ExecutionInput, utils::ReturnType}
+    /// };
+    ///
+    /// #
+    /// #     #[ink(storage)]
+    /// #     pub struct MyContract { }
+    /// #
+    /// #     impl MyContract {
+    /// #         #[ink(constructor)]
+    /// #         pub fn new() -> Self {
+    /// #             Self {}
+    /// #         }
+    /// #
+    /// /// Invokes in delegate manner a contract message and fetches the result.
+    /// #[ink(message)]
+    /// pub fn invoke_contract_delegate(&self) -> i32 {
+    ///     let call_params = build_call::<DefaultEnvironment>()
+    ///             .set_call_type(
+    ///                 DelegateCall::new()
+    ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
+    ///             .exec_input(
+    ///                 ExecutionInput::new(Selector::new([0xCA, 0xFE, 0xBA, 0xBE]))
+    ///                  .push_arg(42u8)
+    ///                  .push_arg(true)
+    ///                  .push_arg(&[0x10u8; 32])
+    ///         )
+    ///         .returns::<i32>()
+    ///         .params();
+    ///     self.env().invoke_contract_delegate(&call_params).expect("call delegate invocation must succeed")
+    /// }
+    /// #
+    /// #     }
+    /// # }
+    /// ```
+    ///
+    /// # Note
+    ///
+    /// For more details visit: [`ink_env::invoke_contract_delegate`]
+    pub fn invoke_contract_delegate<Args, R>(
+        self,
+        params: &CallParams<E, DelegateCall<E>, Args, R>,
+    ) -> Result<R>
+    where
+        Args: scale::Encode,
+        R: scale::Decode,
+    {
+        ink_env::invoke_contract_delegate::<E, Args, R>(params)
     }
 
     /// Terminates the existence of a contract.
@@ -589,8 +656,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::terminate_contract`]
-    pub fn terminate_contract(self, beneficiary: T::AccountId) -> ! {
-        ink_env::terminate_contract::<T>(beneficiary)
+    pub fn terminate_contract(self, beneficiary: E::AccountId) -> ! {
+        ink_env::terminate_contract::<E>(beneficiary)
     }
 
     /// Transfers value from the contract to the destination account ID.
@@ -624,8 +691,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::transfer`]
-    pub fn transfer(self, destination: T::AccountId, value: T::Balance) -> Result<()> {
-        ink_env::transfer::<T>(destination, value)
+    pub fn transfer(self, destination: E::AccountId, value: E::Balance) -> Result<()> {
+        ink_env::transfer::<E>(destination, value)
     }
 
     /// Returns a random hash seed.
@@ -659,8 +726,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::random`]
-    pub fn random(self, subject: &[u8]) -> (T::Hash, T::BlockNumber) {
-        ink_env::random::<T>(subject).expect("couldn't decode randomized hash")
+    pub fn random(self, subject: &[u8]) -> (E::Hash, E::BlockNumber) {
+        ink_env::random::<E>(subject).expect("couldn't decode randomized hash")
     }
 
     /// Computes the hash of the given bytes using the cryptographic hash `H`.
@@ -809,8 +876,8 @@ where
     /// # Note
     ///
     /// For more details visit: [`ink_env::is_contract`]
-    pub fn is_contract(self, account_id: &T::AccountId) -> bool {
-        ink_env::is_contract::<T>(account_id)
+    pub fn is_contract(self, account_id: &E::AccountId) -> bool {
+        ink_env::is_contract::<E>(account_id)
     }
 
     /// Checks whether the caller of the current contract is the origin of the whole call stack.
@@ -842,6 +909,6 @@ where
     ///
     /// For more details visit: [`ink_env::caller_is_origin`]
     pub fn caller_is_origin(self) -> bool {
-        ink_env::caller_is_origin::<T>()
+        ink_env::caller_is_origin::<E>()
     }
 }

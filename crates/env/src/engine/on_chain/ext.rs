@@ -338,6 +338,15 @@ mod sys {
             message_hash_ptr: Ptr32<[u8]>,
             output_ptr: Ptr32Mut<[u8]>,
         ) -> ReturnCode;
+
+        pub fn seal_delegate_call(
+            flags: u32,
+            code_hash_ptr: Ptr32<[u8]>,
+            input_data_ptr: Ptr32<[u8]>,
+            input_data_len: u32,
+            output_ptr: Ptr32Mut<[u8]>,
+            output_len_ptr: Ptr32Mut<u32>,
+        ) -> ReturnCode;
     }
 }
 
@@ -396,6 +405,29 @@ pub fn call(
                 Ptr32::from_slice(callee),
                 gas_limit,
                 Ptr32::from_slice(value),
+                Ptr32::from_slice(input),
+                input.len() as u32,
+                Ptr32Mut::from_slice(output),
+                Ptr32Mut::from_ref(&mut output_len),
+            )
+        }
+    };
+    extract_from_slice(output, output_len as usize);
+    ret_code.into()
+}
+
+pub fn delegate_call(
+    flags: u32,
+    code_hash: &[u8],
+    input: &[u8],
+    output: &mut &mut [u8],
+) -> Result {
+    let mut output_len = output.len() as u32;
+    let ret_code = {
+        unsafe {
+            sys::seal_delegate_call(
+                flags,
+                Ptr32::from_slice(code_hash),
                 Ptr32::from_slice(input),
                 input.len() as u32,
                 Ptr32Mut::from_slice(output),

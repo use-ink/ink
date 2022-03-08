@@ -378,9 +378,7 @@ impl CallBuilder<'_> {
         let output_type = quote_spanned!(output_span=>
             ::ink_env::call::CallBuilder<
                 Environment,
-                ::ink_env::call::utils::Set< <Environment as ::ink_env::Environment>::AccountId >,
-                ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
-                ::ink_env::call::utils::Unset< <Environment as ::ink_env::Environment>::Balance >,
+                ::ink_env::call::utils::Set< ::ink_env::call::Call< Environment > >,
                 ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
                 ::ink_env::call::utils::Set< ::ink_env::call::utils::ReturnType<#return_type> >,
             >
@@ -394,7 +392,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> #output_type {
                 ::ink_env::call::build_call::<Environment>()
-                    .callee(::ink_lang::ToAccountId::to_account_id(self))
+                    .set_call_type(::ink_env::call::Call::new().callee(::ink_lang::ToAccountId::to_account_id(self)))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
