@@ -55,20 +55,6 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -108,29 +94,15 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span> {}
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasCost</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span>
-        <span class="ident">E</span>,
-        <span class="ident">Callee</span>,
-        <span class="ident">GasCost</span>,
-        <span class="ident">TransferredValue</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">for</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">CallType</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ReturnType</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Callee</span>, <span class="ident">GasCost</span>, <span class="ident">TransferredValue</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
-    <span class="kw">for</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span>
-        <span class="ident">E</span>,
-        <span class="ident">Callee</span>,
-        <span class="ident">GasCost</span>,
-        <span class="ident">TransferredValue</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">Set</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
-    <span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">CallType</span>, <span class="ident">Args</span><span class="op">&gt;</span> <span class="ident">ImpliesReturn</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">for</span> <span class="ident">CallBuilder</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">CallType</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span><span class="ident">ExecutionInput</span><span class="op">&lt;</span><span class="ident">Args</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Set</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">E</span>: <span class="ident">Environment</span>,
 {

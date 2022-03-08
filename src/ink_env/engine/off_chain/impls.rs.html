@@ -475,6 +475,23 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -492,8 +509,10 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::EnvInstance</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">call</span>::{
+        <span class="ident">Call</span>,
         <span class="ident">CallParams</span>,
         <span class="ident">CreateParams</span>,
+        <span class="ident">DelegateCall</span>,
     },
     <span class="ident">hash</span>::{
         <span class="ident">Blake2x128</span>,
@@ -796,79 +815,79 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TypedEnvBackend</span> <span class="kw">for</span> <span class="ident">EnvInstance</span> {
-    <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::AccountId</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::caller</span>)
+    <span class="kw">fn</span> <span class="ident">caller</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::caller</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `caller` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::value_transferred</span>)
+    <span class="kw">fn</span> <span class="ident">transferred_value</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::value_transferred</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `transferred_value` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">u64</span> {
+    <span class="kw">fn</span> <span class="ident">gas_left</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">u64</span> {
         <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">Engine::gas_left</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `gas_left` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Timestamp</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Timestamp</span><span class="op">&gt;</span>(<span class="ident">Engine::block_timestamp</span>)
+    <span class="kw">fn</span> <span class="ident">block_timestamp</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Timestamp</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Timestamp</span><span class="op">&gt;</span>(<span class="ident">Engine::block_timestamp</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_timestamp` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::AccountId</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::address</span>)
+    <span class="kw">fn</span> <span class="ident">account_id</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::AccountId</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>(<span class="ident">Engine::address</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `account_id` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::balance</span>)
+    <span class="kw">fn</span> <span class="ident">balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::balance</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `balance` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::BlockNumber</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::BlockNumber</span><span class="op">&gt;</span>(<span class="ident">Engine::block_number</span>)
+    <span class="kw">fn</span> <span class="ident">block_number</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::BlockNumber</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::BlockNumber</span><span class="op">&gt;</span>(<span class="ident">Engine::block_number</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `block_number` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">T::Balance</span> {
-        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">T::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::minimum_balance</span>)
+    <span class="kw">fn</span> <span class="ident">minimum_balance</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">E::Balance</span> {
+        <span class="self">self</span>.<span class="ident">get_property</span>::<span class="op">&lt;</span><span class="ident">E::Balance</span><span class="op">&gt;</span>(<span class="ident">Engine::minimum_balance</span>)
             .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;could not read `minimum_balance` property: {:?}&quot;</span>, <span class="ident">error</span>)
             })
     }
 
-    <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>)
+    <span class="kw">fn</span> <span class="ident">emit_event</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Event</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">event</span>: <span class="ident">Event</span>)
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
         <span class="ident">Event</span>: <span class="ident">Topics</span> <span class="op">+</span> <span class="ident">scale::Encode</span>,
     {
         <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">TopicsBuilder::default</span>();
-        <span class="kw">let</span> <span class="ident">enc_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">builder</span>.<span class="ident">into</span>());
+        <span class="kw">let</span> <span class="ident">enc_topics</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">topics</span>::<span class="op">&lt;</span><span class="ident">E</span>, <span class="kw">_</span><span class="op">&gt;</span>(<span class="ident">builder</span>.<span class="ident">into</span>());
         <span class="kw">let</span> <span class="ident">enc_data</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)[..];
         <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">deposit_event</span>(<span class="kw-2">&amp;</span><span class="ident">enc_topics</span>[..], <span class="ident">enc_data</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">invoke_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Call</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
         <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
         <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
     {
@@ -880,12 +899,27 @@
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract invocation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">instantiate_contract</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(
+    <span class="kw">fn</span> <span class="ident">invoke_contract_delegate</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T::AccountId</span><span class="op">&gt;</span>
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CallParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">DelegateCall</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>, <span class="ident">Args</span>, <span class="ident">R</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
+        <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
+        <span class="ident">R</span>: <span class="ident">scale::Decode</span>,
+    {
+        <span class="kw">let</span> <span class="ident">_code_hash</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">code_hash</span>();
+        <span class="macro">unimplemented!</span>(
+            <span class="string">&quot;off-chain environment does not support delegated contract invocation&quot;</span>
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">instantiate_contract</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">CreateParams</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">Args</span>, <span class="ident">Salt</span>, <span class="ident">C</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">E::AccountId</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
         <span class="ident">Args</span>: <span class="ident">scale::Encode</span>,
         <span class="ident">Salt</span>: <span class="ident">AsRef</span><span class="op">&lt;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
     {
@@ -897,17 +931,17 @@
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">beneficiary</span>: <span class="ident">T::AccountId</span>) -&gt; <span class="op">!</span>
+    <span class="kw">fn</span> <span class="ident">terminate_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">beneficiary</span>: <span class="ident">E::AccountId</span>) -&gt; <span class="op">!</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
     {
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">beneficiary</span>);
         <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">terminate</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>[..])
     }
 
-    <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">destination</span>: <span class="ident">T::AccountId</span>, <span class="ident">value</span>: <span class="ident">T::Balance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">transfer</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">destination</span>: <span class="ident">E::AccountId</span>, <span class="ident">value</span>: <span class="ident">E::Balance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
     {
         <span class="kw">let</span> <span class="ident">enc_destination</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">destination</span>)[..];
         <span class="kw">let</span> <span class="ident">enc_value</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scale::Encode::encode</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>)[..];
@@ -916,7 +950,7 @@
             .<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) -&gt; <span class="ident">T::Balance</span> {
+    <span class="kw">fn</span> <span class="ident">weight_to_fee</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Environment</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gas</span>: <span class="ident">u64</span>) -&gt; <span class="ident">E::Balance</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="ident">BUFFER_SIZE</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="ident">BUFFER_SIZE</span>];
         <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">weight_to_fee</span>(<span class="ident">gas</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]);
         <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..]).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">error</span><span class="op">|</span> {
@@ -924,25 +958,25 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">random</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">subject</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">T::Hash</span>, <span class="ident">T::BlockNumber</span>)<span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">random</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">subject</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">E::Hash</span>, <span class="ident">E::BlockNumber</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span>: [<span class="ident">u8</span>; <span class="ident">BUFFER_SIZE</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="ident">BUFFER_SIZE</span>];
         <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">random</span>(<span class="ident">subject</span>, <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;mut</span> <span class="ident">output</span>[..]);
         <span class="ident">scale::Decode::decode</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="ident">output</span>[..]).<span class="ident">map_err</span>(<span class="ident">Into::into</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">is_contract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_account</span>: <span class="kw-2">&amp;</span><span class="ident">T::AccountId</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">is_contract</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_account</span>: <span class="kw-2">&amp;</span><span class="ident">E::AccountId</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support contract instantiation&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">caller_is_origin</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>
+    <span class="kw">fn</span> <span class="ident">caller_is_origin</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Environment</span>,
+        <span class="ident">E</span>: <span class="ident">Environment</span>,
     {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;off-chain environment does not support cross-contract calls&quot;</span>)
     }
