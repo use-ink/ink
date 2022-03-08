@@ -532,7 +532,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(
+    ///             .call_type(
     ///                 Call::new()
     ///                     .callee(AccountId::from([0x42; 32]))
     ///                     .gas_limit(5000)
@@ -594,7 +594,7 @@ where
     /// #[ink(message)]
     /// pub fn invoke_contract_delegate(&self) -> i32 {
     ///     let call_params = build_call::<DefaultEnvironment>()
-    ///             .set_call_type(
+    ///             .call_type(
     ///                 DelegateCall::new()
     ///                  .code_hash(<DefaultEnvironment as ink_env::Environment>::Hash::clear()))
     ///             .exec_input(

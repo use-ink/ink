@@ -160,7 +160,11 @@ where
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// # type Balance = <DefaultEnvironment as Environment>::Balance;
 /// build_call::<DefaultEnvironment>()
-///     .set_call_type(Call::new().callee(AccountId::from([0x42; 32])).gas_limit(5000).transferred_value(10))
+///     .call_type(
+///             Call::new()
+///                 .callee(AccountId::from([0x42; 32]))
+///                 .gas_limit(5000)
+///                 .transferred_value(10))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -193,10 +197,10 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(Call::new()
+///     .call_type(Call::new()
 ///                 .callee(AccountId::from([0x42; 32]))
-///                 .gas_limit(5000)
-///                 .transferred_value(10))
+///                 .gas_limit(5000))
+///     .transferred_value(10)
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
 ///             .push_arg(42u8)
@@ -223,7 +227,7 @@ where
 /// # };
 /// # type AccountId = <DefaultEnvironment as Environment>::AccountId;
 /// let my_return_value: i32 = build_call::<DefaultEnvironment>()
-///     .set_call_type(DelegateCall::new()
+///     .call_type(DelegateCall::new()
 ///                 .code_hash(<DefaultEnvironment as Environment>::Hash::clear()))
 ///     .exec_input(
 ///         ExecutionInput::new(Selector::new([0xDE, 0xAD, 0xBE, 0xEF]))
@@ -358,7 +362,7 @@ where
     /// The type of the call.
     #[inline]
     #[must_use]
-    pub fn set_call_type<NewCallType>(
+    pub fn call_type<NewCallType>(
         self,
         call_type: NewCallType,
     ) -> CallBuilder<E, Set<NewCallType>, Args, RetType> {
@@ -429,6 +433,75 @@ where
             call_type: self.call_type,
             call_flags: self.call_flags,
             exec_input: Set(exec_input),
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, RetType> CallBuilder<E, Set<Call<E>>, Args, RetType>
+where
+    E: Environment,
+{
+    /// Sets the `callee` for the current cross-contract call.
+    pub fn callee(self, callee: E::AccountId) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(Call {
+                callee,
+                gas_limit: call_type.gas_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `gas_limit` for the current cross-contract call.
+    pub fn gas_limit(self, gas_limit: Gas) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(Call {
+                callee: call_type.callee,
+                gas_limit,
+                transferred_value: call_type.transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+
+    /// Sets the `transferred_value` for the current cross-contract call.
+    pub fn transferred_value(self, transferred_value: E::Balance) -> Self {
+        let call_type = self.call_type.value();
+        CallBuilder {
+            call_type: Set(Call {
+                callee: call_type.callee,
+                gas_limit: call_type.gas_limit,
+                transferred_value,
+            }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
+            return_type: self.return_type,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<E, Args, RetType> CallBuilder<E, Set<DelegateCall<E>>, Args, RetType>
+where
+    E: Environment,
+{
+    /// Sets the `code_hash` to perform a delegate call with.
+    pub fn code_hash(self, code_hash: E::Hash) -> Self {
+        CallBuilder {
+            call_type: Set(DelegateCall { code_hash }),
+            call_flags: self.call_flags,
+            exec_input: self.exec_input,
             return_type: self.return_type,
             _phantom: Default::default(),
         }

@@ -72,7 +72,7 @@ pub mod proxy {
         #[ink(message, payable, selector = _)]
         pub fn forward(&self) -> u32 {
             ink_env::call::build_call::<ink_env::DefaultEnvironment>()
-                .set_call_type(
+                .call_type(
                     Call::new()
                         .callee(self.forward_to)
                         .transferred_value(self.env().transferred_value())
