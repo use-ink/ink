@@ -431,25 +431,15 @@ where
     /// # use ink_lang as ink;
     /// # #[ink::contract]
     /// # pub mod my_contract {
-    /// #     use ink_lang as ink;
-    /// #     #[ink::contract(compile_as_dependency = true)]
-    /// #     pub mod other_contract {
-    /// #         #[ink(storage)]
-    /// #         pub struct OtherContract { }
-    /// #
-    /// #         impl OtherContract {
-    /// #             #[ink(constructor)]
-    /// #             pub fn new() -> Self {
-    /// #                 Self {}
-    /// #             }
-    /// #
-    /// #             #[ink(message)]
-    /// #             pub fn some_operation(&self) {
-    /// #                 // ...
-    /// #             }
-    /// #         }
-    /// #     }
-    /// #
+    /// # // In order for this to actually work with another contract we'd need a way
+    /// # // to turn the `ink-as-dependency` crate feature on in doctests, which we
+    /// # // can't do.
+    /// # //
+    /// # // Instead we use our own contract's `Ref`, which is fine for this example
+    /// # // (just need something that implements the `ContractRef` trait).
+    /// # pub mod other_contract {
+    /// #     pub use super::MyContractRef as OtherContractRef;
+    /// # }
     /// use ink_env::{
     ///     DefaultEnvironment,
     ///     call::{build_create, Selector, ExecutionInput}

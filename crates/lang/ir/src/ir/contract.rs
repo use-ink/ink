@@ -100,10 +100,6 @@ impl Contract {
     ///
     /// - `types`: To specify `Environment` different from the default environment
     ///            types.
-    /// - `as-dependency`: If `true` compiles this ink! smart contract always as
-    ///                    if it was a dependency of another smart contract.
-    ///                    This configuration is mainly needed for testing and
-    ///                    the default is `false`.
     ///
     /// Note that we might add more configuration fields in the future if
     /// necessary.
