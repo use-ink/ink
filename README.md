@@ -32,7 +32,9 @@
 <br/>
 
 [Guided Tutorial for Beginners](https://docs.substrate.io/tutorials/v3/ink-workshop/pt1)&nbsp;&nbsp;•&nbsp;&nbsp;
-[ink! Documentation Portal](https://paritytech.github.io/ink-docs)
+[ink! Documentation Portal](https://paritytech.github.io/ink-docs)&nbsp;&nbsp;•&nbsp;&nbsp;
+[Developer Documentation](https://paritytech.github.io/ink/ink_lang/)
+
 
 <br/>
 </div>
