@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../ink_lang_macro/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><div class="sidebar-elems"><h2 class="location"><a href="index.html">In ink_lang_macro</a></h2><div id="sidebar-vars" data-name="contract" data-ty="attr" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../ink_lang_macro/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="#">contract</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#566-568">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[contract]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
+    <h1 class="fqn"><span class="in-band">Attribute Macro <a href="index.html">ink_lang_macro</a>::<wbr><a class="attr" href="#">contract</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/ink_lang_macro/lib.rs.html#532-534">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust attr"><code>#[contract]</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Entry point for writing ink! smart contracts.</p>
 <p>If you are a beginner trying to learn ink! we recommend you to check out
 our extensive <a href="https://docs.substrate.io/tutorials/v3/ink-workshop/pt1">ink! workshop</a>.</p>
 <p><strong>Note:</strong> In all below examples we will be using <code>ink_lang</code> crate aliased as just <code>ink</code>.
@@ -26,26 +26,6 @@ off-chain environment provided by the <code>ink_env</code> crate.</p>
 <p>The <code>#[ink::contract]</code> macro can be provided with some additional comma-separated
 header arguments:</p>
 <ul>
-<li>
-<p><code>compile_as_dependency: bool</code></p>
-<p>Tells the ink! code generator to <strong>always</strong> or <strong>never</strong>
-compile the smart contract as if it was used as a dependency of another ink!
-smart contract.</p>
-<p>Normally this flag is only really useful for ink! developers who
-want to inspect code generation of ink! smart contracts.
-The author is not aware of any particular practical use case for users that
-makes use of this flag but contract writers are encouraged to disprove this.</p>
-<p>Note that it is recommended to make use of the built-in crate feature
-<code>ink-as-dependency</code> to flag smart contract dependencies listed in a contract’s
-<code>Cargo.toml</code> as actual dependencies to ink!.</p>
-<p><strong>Usage Example:</strong></p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">ink::contract</span>(<span class="ident">compile_as_dependency</span> <span class="op">=</span> <span class="bool-val">true</span>)]</span>
-<span class="kw">mod</span> <span class="ident">my_contract</span> {
-    <span class="comment">// ...</span>
-}</code></pre></div>
-<p><strong>Default value:</strong> Depends on the crate feature propagation of <code>Cargo.toml</code>.</p>
-</li>
 <li>
 <p><code>keep_attr: String</code></p>
 <p>Tells the ink! code generator which attributes should be passed to call builders.

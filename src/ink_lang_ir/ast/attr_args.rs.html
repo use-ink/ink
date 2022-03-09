@@ -340,8 +340,8 @@
 
 <span class="doccomment">/// The attribute arguments for the configuration of an ink! smart contract.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// These are the segments `env = ::my::env::Environment` and `compile_as_dependency = true`</span>
-<span class="doccomment">/// in `#[ink::contract(env = ::my::env::Environment, compile_as_dependency = true`.</span>
+<span class="doccomment">/// For example, the segment `env = ::my::env::Environment`</span>
+<span class="doccomment">/// in `#[ink::contract(env = ::my::env::Environment)]`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AttributeArgs</span> {
     <span class="ident">args</span>: <span class="ident">Punctuated</span><span class="op">&lt;</span><span class="ident">MetaNameValue</span>, <span class="macro">Token!</span>[,]<span class="op">&gt;</span>,

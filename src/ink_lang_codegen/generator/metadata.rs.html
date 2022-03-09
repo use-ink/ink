@@ -437,12 +437,6 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2018-2022 Parity Technologies (UK) Ltd.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -457,11 +451,7 @@
 <span class="comment">// See the License for the specific language governing permissions and</span>
 <span class="comment">// limitations under the License.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">generator</span>,
-    <span class="ident">GenerateCode</span>,
-    <span class="ident">GenerateCodeUsing</span> <span class="kw">as</span> <span class="kw">_</span>,
-};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GenerateCode</span>;
 <span class="kw">use</span> <span class="ident">::core::iter</span>;
 <span class="kw">use</span> <span class="ident">derive_more::From</span>;
 <span class="kw">use</span> <span class="ident">ir</span>::{
@@ -488,12 +478,10 @@
     <span class="kw">fn</span> <span class="ident">generate_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TokenStream2</span> {
         <span class="kw">let</span> <span class="ident">contract</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_contract</span>();
         <span class="kw">let</span> <span class="ident">layout</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">generate_layout</span>();
-        <span class="kw">let</span> <span class="ident">cfg_not_as_dependency</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">generate_code_using</span>::<span class="op">&lt;</span><span class="ident">generator::NotAsDependencyCfg</span><span class="op">&gt;</span>();
 
         <span class="macro">quote!</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-            #<span class="ident">cfg_not_as_dependency</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ink-as-dependency&quot;</span>))]</span>
             <span class="kw">const</span> <span class="kw">_</span>: () <span class="op">=</span> {
                 <span class="attribute">#[<span class="ident">no_mangle</span>]</span>
                 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">__ink_generate_metadata</span>() -&gt; <span class="ident">::ink_metadata::MetadataVersioned</span>  {
