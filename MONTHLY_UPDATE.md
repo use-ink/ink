@@ -44,7 +44,7 @@ Alongside the release of ink! 3.0 we're also releasing `cargo-contract` 1.0.
 contracts.
 
 Some notable updates in this release include:
-- Support for uploading and calling contracts on a chain which includes `pallet-contract`
+- Support for uploading and calling contracts on a chain with `pallet-contracts`
 - Linting rules for ink! contracts, giving developers warnings about common errors
 
 ### Delegate Call
