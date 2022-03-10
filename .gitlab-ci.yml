@@ -147,7 +147,7 @@ examples-fmt:
       done
   allow_failure:                   true
 
-clippy-std:
+.clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -156,7 +156,7 @@ clippy-std:
         cargo clippy --verbose --all-targets --all-features --manifest-path crates/${crate}/Cargo.toml -- -D warnings;
       done
 
-clippy-wasm:
+.clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -166,7 +166,7 @@ clippy-wasm:
       done
   allow_failure:                   true
 
-examples-clippy-std:
+.examples-clippy-std:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -179,7 +179,7 @@ examples-clippy-std:
       done
   allow_failure:                   true
 
-examples-clippy-wasm:
+.examples-clippy-wasm:
   stage:                           lint
   <<:                              *docker-env
   <<:                              *test-refs
@@ -195,7 +195,7 @@ examples-clippy-wasm:
 
 #### stage:                        check
 
-check-std:
+.check-std:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -204,7 +204,7 @@ check-std:
         cargo check --verbose --all-features --manifest-path crates/${crate}/Cargo.toml;
       done
 
-check-wasm:
+.check-wasm:
   stage:                           check
   <<:                              *docker-env
   <<:                              *test-refs
@@ -216,7 +216,7 @@ check-wasm:
 
 #### stage:                        workspace
 
-build-std:
+.build-std:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -228,7 +228,7 @@ build-std:
         cargo build --verbose --all-features --release --manifest-path crates/${crate}/Cargo.toml;
       done
 
-build-wasm:
+.build-wasm:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -240,7 +240,7 @@ build-wasm:
         cargo build --verbose --no-default-features --release --target wasm32-unknown-unknown --manifest-path crates/${crate}/Cargo.toml;
       done
 
-test:
+.test:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -257,7 +257,7 @@ test:
     - cargo test --verbose --all-features --no-fail-fast --workspace
     - cargo test --verbose --all-features --no-fail-fast --workspace --doc
 
-docs:
+.docs:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -280,7 +280,7 @@ docs:
     - chown -R nonroot:nonroot ./crate-docs
 
 
-codecov:
+.codecov:
   stage:                           workspace
   <<:                              *docker-env
   <<:                              *test-refs
@@ -326,7 +326,7 @@ codecov:
 
 #### stage:                        examples
 
-examples-test:
+.examples-test:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -341,7 +341,7 @@ examples-test:
         cargo test --verbose --manifest-path examples/delegator/${contract}/Cargo.toml;
       done
 
-examples-contract-build:
+.examples-contract-build:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -354,7 +354,7 @@ examples-contract-build:
       done
     - cd examples/delegator/ && ./build-all.sh
 
-examples-docs:
+.examples-docs:
   stage:                           examples
   <<:                              *docker-env
   <<:                              *test-refs
@@ -375,7 +375,7 @@ examples-docs:
 
 #### stage:                        ink-waterfall
 
-ink-waterfall:
+.ink-waterfall:
   stage:                           ink-waterfall
   image:                           paritytech/tools:latest
   <<:                              *kubernetes-env
@@ -392,7 +392,7 @@ ink-waterfall:
 
 #### stage:                        publish
 
-publish-docs:
+.publish-docs:
   stage:                           publish
   <<:                              *kubernetes-env
   image:                           paritytech/tools:latest
@@ -447,7 +447,7 @@ publish-docs:
 
 #### stage:                        fuzz
 
-fuzz-tests:
+.fuzz-tests:
   stage:                           fuzz
   <<:                              *docker-env
   <<:                              *vault-secrets
