@@ -804,6 +804,7 @@ impl Dispatch<'_> {
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        use ::core::convert::From;
                         let root_key = ::ink_primitives::Key::from([0x00; 32]);
 
                         let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
