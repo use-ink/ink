@@ -740,24 +740,31 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    let config = ::ink_lang::codegen::ExecuteMessageConfig {
-                        payable: #accepts_payment,
-                        mutates: #mutates_storage,
-                    };
-                    let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
-                        ::core::mem::ManuallyDrop::new(
-                            ::ink_lang::codegen::initiate_message::<#storage_ident>(config)?
-                        );
+                    if !#accepts_payment {
+                        ::ink_lang::codegen::deny_payment::<
+                            <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
+                    }
+
                     let result: #message_output = #message_callable(&mut contract, input);
                     let failure = ::ink_lang::is_result_type!(#message_output)
                         && ::ink_lang::is_result_err!(result);
-                    ::ink_lang::codegen::finalize_message::<#storage_ident, #message_output>(
-                        !failure,
-                        &contract,
-                        config,
-                        &result,
-                    )?;
-                    ::core::result::Result::Ok(())
+
+                    if failure {
+                        // There is no need to push back the intermediate results of the
+                        // contract since the transaction is going to be reverted.
+                        ::ink_env::return_value::<#message_output>(
+                            ::ink_env::ReturnFlags::default().set_reverted(true), &result
+                        )
+                    }
+
+                    push_contract(contract, #mutates_storage);
+
+                    if ::core::any::TypeId::of::<#message_output>() != ::core::any::TypeId::of::<()>() {
+                        // In case the return type is `()` we do not return a value.
+                        ::ink_env::return_value::<#message_output>(
+                            ::ink_env::ReturnFlags::default(), &result
+                        )
+                    }
                 }
             )
         });
@@ -797,9 +804,26 @@ impl Dispatch<'_> {
                 impl ::ink_lang::reflect::ExecuteDispatchable for __ink_MessageDecoder {
                     #[allow(clippy::nonminimal_bool)]
                     fn execute_dispatchable(self) -> ::core::result::Result<(), ::ink_lang::reflect::DispatchError> {
+                        let root_key = ::ink_primitives::Key::from([0x00; 32]);
+
+                        let mut contract: ::core::mem::ManuallyDrop<#storage_ident> =
+                            ::core::mem::ManuallyDrop::new(
+                                ::ink_storage::traits::pull_spread_root::<#storage_ident>(&root_key)
+                            );
+
+                        let push_contract = |contract: ::core::mem::ManuallyDrop<#storage_ident>, mutates: bool| {
+                            if mutates {
+                                ::ink_storage::traits::push_spread_root::<#storage_ident>(
+                                    &contract, &root_key
+                                );
+                            }
+                        };
+
                         match self {
                             #( #message_execute ),*
-                        }
+                        };
+
+                        ::core::result::Result::Ok(())
                     }
                 }
 
