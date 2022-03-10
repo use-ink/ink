@@ -723,8 +723,7 @@ impl Dispatch<'_> {
                 }>>::Output
             );
             let deny_payment = quote_spanned!(message_span=>
-                true &&
-                <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
+                !<#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
                     }>>::IDS[#index]
