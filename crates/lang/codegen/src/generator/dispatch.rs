@@ -740,6 +740,8 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
+                    use ::core::default::Default;
+
                     if #deny_payment {
                         ::ink_lang::codegen::deny_payment::<
                             <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
