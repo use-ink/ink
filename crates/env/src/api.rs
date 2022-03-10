@@ -21,9 +21,10 @@ use crate::{
         TypedEnvBackend,
     },
     call::{
-        utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     engine::{
         EnvInstance,
@@ -34,6 +35,7 @@ use crate::{
         HashOutput,
     },
     topics::Topics,
+    types::Gas,
     Environment,
     Result,
 };
@@ -44,12 +46,12 @@ use ink_primitives::Key;
 /// # Errors
 ///
 /// If the returned caller cannot be properly decoded.
-pub fn caller<T>() -> T::AccountId
+pub fn caller<E>() -> E::AccountId
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller::<T>(instance)
+        TypedEnvBackend::caller::<E>(instance)
     })
 }
 
@@ -58,12 +60,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn transferred_value<T>() -> T::Balance
+pub fn transferred_value<E>() -> E::Balance
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::transferred_value::<T>(instance)
+        TypedEnvBackend::transferred_value::<E>(instance)
     })
 }
 
@@ -72,12 +74,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn weight_to_fee<T>(gas: u64) -> T::Balance
+pub fn weight_to_fee<E>(gas: Gas) -> E::Balance
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::weight_to_fee::<T>(instance, gas)
+        TypedEnvBackend::weight_to_fee::<E>(instance, gas)
     })
 }
 
@@ -86,12 +88,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn gas_left<T>() -> u64
+pub fn gas_left<E>() -> Gas
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::gas_left::<T>(instance)
+        TypedEnvBackend::gas_left::<E>(instance)
     })
 }
 
@@ -100,12 +102,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn block_timestamp<T>() -> T::Timestamp
+pub fn block_timestamp<E>() -> E::Timestamp
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::block_timestamp::<T>(instance)
+        TypedEnvBackend::block_timestamp::<E>(instance)
     })
 }
 
@@ -118,12 +120,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn account_id<T>() -> T::AccountId
+pub fn account_id<E>() -> E::AccountId
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::account_id::<T>(instance)
+        TypedEnvBackend::account_id::<E>(instance)
     })
 }
 
@@ -132,12 +134,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn balance<T>() -> T::Balance
+pub fn balance<E>() -> E::Balance
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::balance::<T>(instance)
+        TypedEnvBackend::balance::<E>(instance)
     })
 }
 
@@ -146,12 +148,12 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn block_number<T>() -> T::BlockNumber
+pub fn block_number<E>() -> E::BlockNumber
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::block_number::<T>(instance)
+        TypedEnvBackend::block_number::<E>(instance)
     })
 }
 
@@ -161,23 +163,23 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn minimum_balance<T>() -> T::Balance
+pub fn minimum_balance<E>() -> E::Balance
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::minimum_balance::<T>(instance)
+        TypedEnvBackend::minimum_balance::<E>(instance)
     })
 }
 
 /// Emits an event with the given event data.
-pub fn emit_event<T, Event>(event: Event)
+pub fn emit_event<E, Event>(event: Event)
 where
-    T: Environment,
+    E: Environment,
     Event: Topics + scale::Encode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::emit_event::<T, Event>(instance, event)
+        TypedEnvBackend::emit_event::<E, Event>(instance, event)
     })
 }
 
@@ -216,33 +218,7 @@ pub fn clear_contract_storage(key: &Key) {
     })
 }
 
-/// Invokes a contract message.
-///
-/// # Note
-///
-/// - Prefer using this over [`eval_contract`] if possible. [`invoke_contract`]
-///   will generally have a better performance since it won't try to fetch any results.
-/// - This is a low level way to invoke another smart contract.
-///   Prefer to use the ink! guided and type safe approach to using this.
-///
-/// # Errors
-///
-/// - If the called account does not exist.
-/// - If the called account is not a contract.
-/// - If arguments passed to the called contract message are invalid.
-/// - If the called contract execution has trapped.
-/// - If the called contract ran out of gas upon execution.
-pub fn invoke_contract<T, Args>(params: &CallParams<T, Args, ()>) -> Result<()>
-where
-    T: Environment,
-    Args: scale::Encode,
-{
-    <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::invoke_contract::<T, Args>(instance, params)
-    })
-}
-
-/// Evaluates a contract message and returns its result.
+/// Invokes a contract message and returns its result.
 ///
 /// # Note
 ///
@@ -257,14 +233,39 @@ where
 /// - If the called contract execution has trapped.
 /// - If the called contract ran out of gas upon execution.
 /// - If the returned value failed to decode properly.
-pub fn eval_contract<T, Args, R>(params: &CallParams<T, Args, ReturnType<R>>) -> Result<R>
+pub fn invoke_contract<E, Args, R>(params: &CallParams<E, Call<E>, Args, R>) -> Result<R>
 where
-    T: Environment,
+    E: Environment,
     Args: scale::Encode,
     R: scale::Decode,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::eval_contract::<T, Args, R>(instance, params)
+        TypedEnvBackend::invoke_contract::<E, Args, R>(instance, params)
+    })
+}
+
+/// Invokes a contract message via delegate call and returns its result.
+///
+/// # Note
+///
+/// This is a low level way to evaluate another smart contract via delegate call.
+/// Prefer to use the ink! guided and type safe approach to using this.
+///
+/// # Errors
+///
+/// - If the specified code hash does not exist.
+/// - If arguments passed to the called code message are invalid.
+/// - If the called code execution has trapped.
+pub fn invoke_contract_delegate<E, Args, R>(
+    params: &CallParams<E, DelegateCall<E>, Args, R>,
+) -> Result<R>
+where
+    E: Environment,
+    Args: scale::Encode,
+    R: scale::Decode,
+{
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        TypedEnvBackend::invoke_contract_delegate::<E, Args, R>(instance, params)
     })
 }
 
@@ -283,16 +284,16 @@ where
 /// - If the instantiation process runs out of gas.
 /// - If given insufficient endowment.
 /// - If the returned account ID failed to decode properly.
-pub fn instantiate_contract<T, Args, Salt, C>(
-    params: &CreateParams<T, Args, Salt, C>,
-) -> Result<T::AccountId>
+pub fn instantiate_contract<E, Args, Salt, C>(
+    params: &CreateParams<E, Args, Salt, C>,
+) -> Result<E::AccountId>
 where
-    T: Environment,
+    E: Environment,
     Args: scale::Encode,
     Salt: AsRef<[u8]>,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::instantiate_contract::<T, Args, Salt, C>(instance, params)
+        TypedEnvBackend::instantiate_contract::<E, Args, Salt, C>(instance, params)
     })
 }
 
@@ -306,12 +307,12 @@ where
 /// This function never returns. Either the termination was successful and the
 /// execution of the destroyed contract is halted. Or it failed during the termination
 /// which is considered fatal and results in a trap and rollback.
-pub fn terminate_contract<T>(beneficiary: T::AccountId) -> !
+pub fn terminate_contract<E>(beneficiary: E::AccountId) -> !
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::terminate_contract::<T>(instance, beneficiary)
+        TypedEnvBackend::terminate_contract::<E>(instance, beneficiary)
     })
 }
 
@@ -329,12 +330,12 @@ where
 /// - If the transfer had brought the sender's total balance below the
 ///   minimum balance. You need to use [`terminate_contract`] in case
 ///   this is your intention.
-pub fn transfer<T>(destination: T::AccountId, value: T::Balance) -> Result<()>
+pub fn transfer<E>(destination: E::AccountId, value: E::Balance) -> Result<()>
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::transfer::<T>(instance, destination, value)
+        TypedEnvBackend::transfer::<E>(instance, destination, value)
     })
 }
 
@@ -403,12 +404,12 @@ where
 /// made afterwards), then ensure no further commitments may be made and repeatedly
 /// call this on later blocks until the block number returned is later than the latest
 /// commitment.
-pub fn random<T>(subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
+pub fn random<E>(subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::random::<T>(instance, subject)
+        TypedEnvBackend::random::<E>(instance, subject)
     })
 }
 
@@ -504,12 +505,12 @@ pub fn ecdsa_recover(
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn is_contract<T>(account: &T::AccountId) -> bool
+pub fn is_contract<E>(account: &E::AccountId) -> bool
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::is_contract::<T>(instance, account)
+        TypedEnvBackend::is_contract::<E>(instance, account)
     })
 }
 
@@ -525,11 +526,11 @@ where
 /// # Errors
 ///
 /// If the returned value cannot be properly decoded.
-pub fn caller_is_origin<T>() -> bool
+pub fn caller_is_origin<E>() -> bool
 where
-    T: Environment,
+    E: Environment,
 {
     <EnvInstance as OnInstance>::on_instance(|instance| {
-        TypedEnvBackend::caller_is_origin::<T>(instance)
+        TypedEnvBackend::caller_is_origin::<E>(instance)
     })
 }

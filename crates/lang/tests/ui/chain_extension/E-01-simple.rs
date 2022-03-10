@@ -123,7 +123,12 @@ impl Environment for CustomEnvironment {
 
 #[ink::contract(env = crate::CustomEnvironment)]
 mod read_writer {
-    use super::{Access, ReadWriteErrorCode, ReadWriteError, UnlockAccessError};
+    use super::{
+        Access,
+        ReadWriteError,
+        ReadWriteErrorCode,
+        UnlockAccessError,
+    };
 
     #[ink(storage)]
     pub struct ReadWriter {}
@@ -136,16 +141,15 @@ mod read_writer {
 
         #[ink(message)]
         pub fn read(&self, key: Vec<u8>) -> Result<Vec<u8>, ReadWriteErrorCode> {
-            self.env()
-                .extension()
-                .read(&key)
+            self.env().extension().read(&key)
         }
 
         #[ink(message)]
-        pub fn read_small(&self, key: Vec<u8>) -> Result<(u32, [u8; 32]), ReadWriteError> {
-            self.env()
-                .extension()
-                .read_small(&key)
+        pub fn read_small(
+            &self,
+            key: Vec<u8>,
+        ) -> Result<(u32, [u8; 32]), ReadWriteError> {
+            self.env().extension().read_small(&key)
         }
 
         #[ink(message)]
@@ -154,23 +158,21 @@ mod read_writer {
             key: Vec<u8>,
             value: Vec<u8>,
         ) -> Result<(), ReadWriteErrorCode> {
-            self.env()
-                .extension()
-                .write(&key, &value)
+            self.env().extension().write(&key, &value)
         }
 
         #[ink(message)]
         pub fn access(&self, key: Vec<u8>) -> Option<Access> {
-            self.env()
-                .extension()
-                .access(&key)
+            self.env().extension().access(&key)
         }
 
         #[ink(message)]
-        pub fn unlock_access(&self, key: Vec<u8>, access: Access) -> Result<(), UnlockAccessError> {
-            self.env()
-                .extension()
-                .unlock_access(&key, access)
+        pub fn unlock_access(
+            &self,
+            key: Vec<u8>,
+            access: Access,
+        ) -> Result<(), UnlockAccessError> {
+            self.env().extension().unlock_access(&key, access)
         }
     }
 }

@@ -14,9 +14,10 @@
 
 use crate::{
     call::{
-        utils::ReturnType,
+        Call,
         CallParams,
         CreateParams,
+        DelegateCall,
     },
     hash::{
         CryptoHash,
@@ -290,56 +291,56 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`caller`][`crate::caller`]
-    fn caller<T: Environment>(&mut self) -> T::AccountId;
+    fn caller<E: Environment>(&mut self) -> E::AccountId;
 
     /// Returns the transferred value for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`transferred_value`][`crate::transferred_value`]
-    fn transferred_value<T: Environment>(&mut self) -> T::Balance;
+    fn transferred_value<E: Environment>(&mut self) -> E::Balance;
 
     /// Returns the price for the specified amount of gas.
     ///
     /// # Note
     ///
     /// For more details visit: [`weight_to_fee`][`crate::weight_to_fee`]
-    fn weight_to_fee<T: Environment>(&mut self, gas: u64) -> T::Balance;
+    fn weight_to_fee<E: Environment>(&mut self, gas: u64) -> E::Balance;
 
     /// Returns the amount of gas left for the contract execution.
     ///
     /// # Note
     ///
     /// For more details visit: [`gas_left`][`crate::gas_left`]
-    fn gas_left<T: Environment>(&mut self) -> u64;
+    fn gas_left<E: Environment>(&mut self) -> u64;
 
     /// Returns the timestamp of the current block.
     ///
     /// # Note
     ///
     /// For more details visit: [`block_timestamp`][`crate::block_timestamp`]
-    fn block_timestamp<T: Environment>(&mut self) -> T::Timestamp;
+    fn block_timestamp<E: Environment>(&mut self) -> E::Timestamp;
 
     /// Returns the address of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`account_id`][`crate::account_id`]
-    fn account_id<T: Environment>(&mut self) -> T::AccountId;
+    fn account_id<E: Environment>(&mut self) -> E::AccountId;
 
     /// Returns the balance of the executed contract.
     ///
     /// # Note
     ///
     /// For more details visit: [`balance`][`crate::balance`]
-    fn balance<T: Environment>(&mut self) -> T::Balance;
+    fn balance<E: Environment>(&mut self) -> E::Balance;
 
     /// Returns the current block number.
     ///
     /// # Note
     ///
     /// For more details visit: [`block_number`][`crate::block_number`]
-    fn block_number<T: Environment>(&mut self) -> T::BlockNumber;
+    fn block_number<E: Environment>(&mut self) -> E::BlockNumber;
 
     /// Returns the minimum balance that is required for creating an account
     /// (i.e. the chain's existential deposit).
@@ -347,42 +348,43 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`minimum_balance`][`crate::minimum_balance`]
-    fn minimum_balance<T: Environment>(&mut self) -> T::Balance;
+    fn minimum_balance<E: Environment>(&mut self) -> E::Balance;
 
     /// Emits an event with the given event data.
     ///
     /// # Note
     ///
     /// For more details visit: [`emit_event`][`crate::emit_event`]
-    fn emit_event<T, Event>(&mut self, event: Event)
+    fn emit_event<E, Event>(&mut self, event: Event)
     where
-        T: Environment,
+        E: Environment,
         Event: Topics + scale::Encode;
 
-    /// Invokes a contract message.
+    /// Invokes a contract message and returns its result.
     ///
     /// # Note
     ///
     /// For more details visit: [`invoke_contract`][`crate::invoke_contract`]
-    fn invoke_contract<T, Args>(
+    fn invoke_contract<E, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ()>,
-    ) -> Result<()>
+        call_data: &CallParams<E, Call<E>, Args, R>,
+    ) -> Result<R>
     where
-        T: Environment,
-        Args: scale::Encode;
+        E: Environment,
+        Args: scale::Encode,
+        R: scale::Decode;
 
-    /// Evaluates a contract message and returns its result.
+    /// Invokes a contract message via delegate call and returns its result.
     ///
     /// # Note
     ///
-    /// For more details visit: [`eval_contract`][`crate::eval_contract`]
-    fn eval_contract<T, Args, R>(
+    /// For more details visit: [`invoke_contract_delegate`][`crate::invoke_contract_delegate`]
+    fn invoke_contract_delegate<E, Args, R>(
         &mut self,
-        call_data: &CallParams<T, Args, ReturnType<R>>,
+        call_data: &CallParams<E, DelegateCall<E>, Args, R>,
     ) -> Result<R>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         R: scale::Decode;
 
@@ -391,12 +393,12 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`instantiate_contract`][`crate::instantiate_contract`]
-    fn instantiate_contract<T, Args, Salt, C>(
+    fn instantiate_contract<E, Args, Salt, C>(
         &mut self,
-        params: &CreateParams<T, Args, Salt, C>,
-    ) -> Result<T::AccountId>
+        params: &CreateParams<E, Args, Salt, C>,
+    ) -> Result<E::AccountId>
     where
-        T: Environment,
+        E: Environment,
         Args: scale::Encode,
         Salt: AsRef<[u8]>;
 
@@ -405,27 +407,27 @@ pub trait TypedEnvBackend: EnvBackend {
     /// # Note
     ///
     /// For more details visit: [`terminate_contract`][`crate::terminate_contract`]
-    fn terminate_contract<T>(&mut self, beneficiary: T::AccountId) -> !
+    fn terminate_contract<E>(&mut self, beneficiary: E::AccountId) -> !
     where
-        T: Environment;
+        E: Environment;
 
     /// Transfers value from the contract to the destination account ID.
     ///
     /// # Note
     ///
     /// For more details visit: [`transfer`][`crate::transfer`]
-    fn transfer<T>(&mut self, destination: T::AccountId, value: T::Balance) -> Result<()>
+    fn transfer<E>(&mut self, destination: E::AccountId, value: E::Balance) -> Result<()>
     where
-        T: Environment;
+        E: Environment;
 
     /// Returns a random hash seed.
     ///
     /// # Note
     ///
     /// For more details visit: [`random`][`crate::random`]
-    fn random<T>(&mut self, subject: &[u8]) -> Result<(T::Hash, T::BlockNumber)>
+    fn random<E>(&mut self, subject: &[u8]) -> Result<(E::Hash, E::BlockNumber)>
     where
-        T: Environment;
+        E: Environment;
 
     /// Checks whether a specified account belongs to a contract.
     ///
@@ -433,16 +435,16 @@ pub trait TypedEnvBackend: EnvBackend {
     ///
     /// For more details visit: [`is_contract`][`crate::is_contract`]
     #[allow(clippy::wrong_self_convention)]
-    fn is_contract<T>(&mut self, account: &T::AccountId) -> bool
+    fn is_contract<E>(&mut self, account: &E::AccountId) -> bool
     where
-        T: Environment;
+        E: Environment;
 
     /// Checks whether the caller of the current contract is the origin of the whole call stack.
     ///
     /// # Note
     ///
     /// For more details visit: [`caller_is_origin`][`crate::caller_is_origin`]
-    fn caller_is_origin<T>(&mut self) -> bool
+    fn caller_is_origin<E>(&mut self) -> bool
     where
-        T: Environment;
+        E: Environment;
 }

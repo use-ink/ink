@@ -381,13 +381,13 @@ mod erc1155 {
             value: Balance,
             data: Vec<u8>,
         ) {
-            // This is disabled during tests due to the use of `eval_contract()` not being
+            // This is disabled during tests due to the use of `invoke_contract()` not being
             // supported (tests end up panicking).
             #[cfg(not(test))]
             {
                 use ink_env::call::{
                     build_call,
-                    utils::ReturnType,
+                    Call,
                     ExecutionInput,
                     Selector,
                 };
@@ -395,8 +395,7 @@ mod erc1155 {
                 // If our recipient is a smart contract we need to see if they accept or
                 // reject this transfer. If they reject it we need to revert the call.
                 let params = build_call::<Environment>()
-                    .callee(to)
-                    .gas_limit(5000)
+                    .call_type(Call::new().callee(to).gas_limit(5000))
                     .exec_input(
                         ExecutionInput::new(Selector::new(ON_ERC_1155_RECEIVED_SELECTOR))
                             .push_arg(caller)
@@ -405,10 +404,10 @@ mod erc1155 {
                             .push_arg(value)
                             .push_arg(data),
                     )
-                    .returns::<ReturnType<Vec<u8>>>()
+                    .returns::<Vec<u8>>()
                     .params();
 
-                match ink_env::eval_contract(&params) {
+                match ink_env::invoke_contract(&params) {
                     Ok(v) => {
                         ink_env::debug_println!(
                             "Received return value \"{:?}\" from contract {:?}",

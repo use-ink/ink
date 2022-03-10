@@ -365,10 +365,8 @@ impl CallBuilder<'_> {
             .filter_attr(message.attrs());
         let output_ident = generator::output_ident(message_ident);
         let output = message.output();
-        let output_sig = output.map_or_else(
-            || quote! { () },
-            |output| quote! { ::ink_env::call::utils::ReturnType<#output> },
-        );
+        let output_type =
+            output.map_or_else(|| quote! { () }, |output| quote! { #output });
         let selector_bytes = selector.hex_lits();
         let input_bindings = generator::input_bindings(message.inputs());
         let input_types = generator::input_types(message.inputs());
@@ -378,11 +376,9 @@ impl CallBuilder<'_> {
             #[allow(clippy::type_complexity)]
             type #output_ident = ::ink_env::call::CallBuilder<
                 Self::Env,
-                ::ink_env::call::utils::Set< <Self::Env as ::ink_env::Environment>::AccountId >,
-                ::ink_env::call::utils::Unset< ::core::primitive::u64 >,
-                ::ink_env::call::utils::Unset< <Self::Env as ::ink_env::Environment>::Balance >,
+                ::ink_env::call::utils::Set< ::ink_env::call::Call< Self::Env > >,
                 ::ink_env::call::utils::Set< ::ink_env::call::ExecutionInput<#arg_list> >,
-                ::ink_env::call::utils::Set<#output_sig>,
+                ::ink_env::call::utils::Set< ::ink_env::call::utils::ReturnType<#output_type> >,
             >;
 
             #( #attrs )*
@@ -392,7 +388,7 @@ impl CallBuilder<'_> {
                 #( , #input_bindings : #input_types )*
             ) -> Self::#output_ident {
                 ::ink_env::call::build_call::<Self::Env>()
-                    .callee(::ink_lang::ToAccountId::to_account_id(self))
+                    .call_type(::ink_env::call::Call::new().callee(::ink_lang::ToAccountId::to_account_id(self)))
                     .exec_input(
                         ::ink_env::call::ExecutionInput::new(
                             ::ink_env::call::Selector::new([ #( #selector_bytes ),* ])
@@ -401,7 +397,7 @@ impl CallBuilder<'_> {
                             .push_arg(#input_bindings)
                         )*
                     )
-                    .returns::<#output_sig>()
+                    .returns::<#output_type>()
             }
         )
     }

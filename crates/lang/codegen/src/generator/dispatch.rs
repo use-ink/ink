@@ -17,7 +17,6 @@ use core::iter;
 use crate::{
     generator,
     GenerateCode,
-    GenerateCodeUsing as _,
 };
 use derive_more::From;
 use ir::{
@@ -55,8 +54,6 @@ impl GenerateCode for Dispatch<'_> {
         let mut constructor_spans = Vec::new();
         let mut message_spans = Vec::new();
 
-        let cfg_not_as_dependency =
-            self.generate_code_using::<generator::NotAsDependencyCfg>();
         let amount_dispatchables =
             self.generate_contract_amount_dispatchables_trait_impl();
         let contract_dispatchable_messages =
@@ -83,7 +80,7 @@ impl GenerateCode for Dispatch<'_> {
             #message_decoder_type
 
             #[cfg(not(test))]
-            #cfg_not_as_dependency
+            #[cfg(not(feature = "ink-as-dependency"))]
             const _: () = {
                 #entry_points
             };

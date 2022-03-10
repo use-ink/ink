@@ -51,11 +51,7 @@ pub use self::{
         input_types_tuple,
         output_ident,
     },
-    as_dependency::{
-        ContractReference,
-        NotAsDependencyCfg,
-        OnlyAsDependencyCfg,
-    },
+    as_dependency::ContractReference,
     blake2b::Blake2x256,
     chain_extension::ChainExtension,
     contract::Contract,
