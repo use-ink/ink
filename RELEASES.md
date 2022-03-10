@@ -53,6 +53,11 @@ _If you want to keep existing behavior you just need to specify the type `Call` 
 
 More details on this change can be found in [#1133](https://github.com/paritytech/ink/pull/1133).
 
+### Unify `ink_env::{eval_contract, invoke_contract}`
+
+The API for `eval_contract` and `invoke_contract` changed. You can read more
+about the change in [#1165](https://github.com/paritytech/ink/pull/1165).
+
 ## Added
 - Added `keep_attr` to `#[ink::contract]` and `#[ink::trait_definition]` ‒ [#1145](https://github.com/paritytech/ink/pull/1145) (thanks [@xgreenx](https://github.com/xgreenx))..
 - Implemented the `seal_is_contract` and `seal_caller_is_origin` API ‒ [#1129](https://github.com/paritytech/ink/pull/1129) [#1166](https://github.com/paritytech/ink/pull/1166).
@@ -65,9 +70,11 @@ More details on this change can be found in [#1133](https://github.com/paritytec
 ## Changed
 - Replaced default off-chain testing engine with experimental one ‒ [#1144](https://github.com/paritytech/ink/pull/1144).
 - Changed `CallBuilder` API to now support (unstable) delegate calls ‒ [#1133](https://github.com/paritytech/ink/pull/1133) (thanks [@VargSupercolony](https://github.com/VargSupercolony) and [@xgreenx](https://github.com/xgreenx)).
+- Unify `ink_env::{eval_contract, invoke_contract}` ‒ [#1165](https://github.com/paritytech/ink/pull/1165).
 
 ## Removed
 - Removed the dynamic storage allocator ‒ [#1148](https://github.com/paritytech/ink/pull/1148).
+- Removed `compile_as_dependency` config option ‒ [#1168](https://github.com/paritytech/ink/pull/1168).
 
 # Version 3.0-rc9
 
