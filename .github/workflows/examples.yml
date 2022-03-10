@@ -10,8 +10,8 @@ on:
       - 'README.md'
       - '.gitlab-ci.yml'
   pull_request:
-    branches:
-      - master
+      # branches:
+      #   - master
     paths:
       - '.github/workflows/examples.yml'
 
@@ -22,7 +22,7 @@ jobs:
       matrix:
         platform:
           - macos-latest
-          - windows-latest
+            # - windows-latest
         toolchain:
           - nightly
         job:
