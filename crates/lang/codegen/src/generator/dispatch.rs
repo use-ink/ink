@@ -722,8 +722,8 @@ impl Dispatch<'_> {
                     }>>::IDS[#index]
                 }>>::Output
             );
-            let accepts_payment = quote_spanned!(message_span=>
-                false ||
+            let deny_payment = quote_spanned!(message_span=>
+                true &&
                 <#storage_ident as ::ink_lang::reflect::DispatchableMessageInfo<{
                     <#storage_ident as ::ink_lang::reflect::ContractDispatchableMessages<{
                         <#storage_ident as ::ink_lang::reflect::ContractAmountDispatchables>::MESSAGES
@@ -740,7 +740,7 @@ impl Dispatch<'_> {
 
             quote_spanned!(message_span=>
                 Self::#message_ident(input) => {
-                    if !#accepts_payment {
+                    if #deny_payment {
                         ::ink_lang::codegen::deny_payment::<
                             <#storage_ident as ::ink_lang::reflect::ContractEnv>::Env>()?;
                     }
