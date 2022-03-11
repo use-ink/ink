@@ -4,6 +4,17 @@ First of all, thank you for taking your time to contribute to ink!
 
 > [I don't want to contribute, I just have some questions! :S](#I-dont-want-to-contribute-I-just-have-some-questions)
 
+## Table of Contents
+* [Code of Conduct](#code-of-conduct)
+* [During Development](#during-development)
+    * [Commits](#commits)
+    * [Checklist](#checklist)
+* [Continuous Integraton](#continuous-integration)
+* [Issues and Pull Requests](#issues-and-pull-requests)
+    * [Issues](#issues)
+    * [Pull Requests](#pull-requests)
+* [Questions](I-dont-want-to-contribute-I-just-have-some-questions)
+
 ## Code of Conduct
 
 We are a friendly and welcoming open source community.
@@ -69,7 +80,7 @@ Our continuous integration (CI) will check for the following properties of all c
 Only if our very demanding CI is happy with your pull request we will eventually merge it.
 Exceptions confirm the rule!
 
-## Issues & Pull Requests
+## Issues and Pull Requests
 
 Please always respect our [code of conduct](CODE_OF_CONDUCT.md) when writing issues and pull requests or taking part in any kind of discussion.
 
